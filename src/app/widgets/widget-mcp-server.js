@@ -146,40 +146,56 @@ class ElectermMCPServer {
       }
     )
 
-    server.tool(
+    server.registerTool(
       'switch_tab',
-      'Switch to a specific tab',
-      z.object({ tabId: z.string().describe('Tab ID to switch to') }),
+      {
+        description: 'Switch to a specific tab',
+        inputSchema: {
+          tabId: z.string().describe('Tab ID to switch to')
+        }
+      },
       async ({ tabId }) => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'switch_tab', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
       }
     )
 
-    server.tool(
+    server.registerTool(
       'close_tab',
-      'Close a specific tab',
-      z.object({ tabId: z.string().describe('Tab ID to close') }),
+      {
+        description: 'Close a specific tab',
+        inputSchema: {
+          tabId: z.string().describe('Tab ID to close')
+        }
+      },
       async ({ tabId }) => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'close_tab', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
       }
     )
 
-    server.tool(
+    server.registerTool(
       'reload_tab',
-      'Reload/reconnect a tab',
-      z.object({ tabId: z.string().optional().describe('Tab ID to reload (default: active tab)') }),
+      {
+        description: 'Reload/reconnect a tab',
+        inputSchema: {
+          tabId: z.string().optional().describe('Tab ID to reload (default: active tab)')
+        }
+      },
       async ({ tabId }) => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'reload_tab', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
       }
     )
 
-    server.tool(
+    server.registerTool(
       'duplicate_tab',
-      'Duplicate a tab',
-      z.object({ tabId: z.string().describe('Tab ID to duplicate') }),
+      {
+        description: 'Duplicate a tab',
+        inputSchema: {
+          tabId: z.string().describe('Tab ID to duplicate')
+        }
+      },
       async ({ tabId }) => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'duplicate_tab', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -215,10 +231,14 @@ class ElectermMCPServer {
       }
     )
 
-    server.tool(
+    server.registerTool(
       'get_terminal_selection',
-      'Get the current text selection in terminal',
-      z.object({ tabId: z.string().optional().describe('Optional: specific tab ID') }),
+      {
+        description: 'Get the current text selection in terminal',
+        inputSchema: {
+          tabId: z.string().optional().describe('Optional: specific tab ID')
+        }
+      },
       async ({ tabId }) => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'get_terminal_selection', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -242,70 +262,93 @@ class ElectermMCPServer {
 
     // ==================== Bookmark APIs ====================
     if (this.config.enableBookmarks) {
-      server.tool(
+      server.registerTool(
         'list_bookmarks',
-        'List all SSH/terminal bookmarks',
-        z.object({ groupId: z.string().optional().describe('Optional: Filter by bookmark group ID') }),
+        {
+          description: 'List all SSH/terminal bookmarks',
+          inputSchema: {
+            groupId: z.string().optional().describe('Optional: Filter by bookmark group ID')
+          }
+        },
         async ({ groupId }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_bookmarks', args: { groupId } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
 
-      server.tool(
+      server.registerTool(
         'get_bookmark',
-        'Get a specific bookmark by ID',
-        z.object({ id: z.string().describe('Bookmark ID') }),
+        {
+          description: 'Get a specific bookmark by ID',
+          inputSchema: {
+            id: z.string().describe('Bookmark ID')
+          }
+        },
         async ({ id }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'get_bookmark', args: { id } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
 
-      server.tool(
+      server.registerTool(
         'add_bookmark',
-        'Add a new SSH/terminal bookmark',
-        z.object({
-          title: z.string().describe('Bookmark title'),
-          host: z.string().optional().describe('SSH host address'),
-          port: z.number().optional().describe('SSH port (default 22)'),
-          username: z.string().optional().describe('SSH username'),
-          password: z.string().optional().describe('SSH password (optional)'),
-          type: z.enum(['ssh', 'local', 'serial', 'telnet']).optional().describe('Connection type')
-        }),
-        async (args) => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'add_bookmark', args })
+        {
+          description: 'Add a new SSH/terminal bookmark',
+          inputSchema: {
+            title: z.string().describe('Bookmark title'),
+            host: z.string().optional().describe('SSH host address'),
+            port: z.number().optional().describe('SSH port (default 22)'),
+            username: z.string().optional().describe('SSH username'),
+            password: z.string().optional().describe('SSH password (optional)'),
+            type: z.enum(['ssh', 'local', 'serial', 'telnet']).optional().describe('Connection type')
+          }
+        },
+        async ({ title, host, port, username, password, type }) => {
+          const result = await self.sendToRenderer('tool-call', {
+            toolName: 'add_bookmark',
+            args: { title, host, port, username, password, type }
+          })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
 
-      server.tool(
+      server.registerTool(
         'edit_bookmark',
-        'Edit an existing bookmark',
-        z.object({
-          id: z.string().describe('Bookmark ID to edit'),
-          updates: z.record(z.any()).describe('Fields to update')
-        }),
+        {
+          description: 'Edit an existing bookmark',
+          inputSchema: {
+            id: z.string().describe('Bookmark ID to edit'),
+            updates: z.record(z.any()).describe('Fields to update')
+          }
+        },
         async ({ id, updates }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'edit_bookmark', args: { id, updates } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
 
-      server.tool(
+      server.registerTool(
         'delete_bookmark',
-        'Delete a bookmark',
-        z.object({ id: z.string().describe('Bookmark ID to delete') }),
+        {
+          description: 'Delete a bookmark',
+          inputSchema: {
+            id: z.string().describe('Bookmark ID to delete')
+          }
+        },
         async ({ id }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'delete_bookmark', args: { id } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
 
-      server.tool(
+      server.registerTool(
         'open_bookmark',
-        'Open a bookmark in a new tab',
-        z.object({ id: z.string().describe('Bookmark ID to open') }),
+        {
+          description: 'Open a bookmark in a new tab',
+          inputSchema: {
+            id: z.string().describe('Bookmark ID to open')
+          }
+        },
         async ({ id }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'open_bookmark', args: { id } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -325,13 +368,15 @@ class ElectermMCPServer {
         }
       )
 
-      server.tool(
+      server.registerTool(
         'add_bookmark_group',
-        'Add a new bookmark group',
-        z.object({
-          title: z.string().describe('Group title'),
-          parentId: z.string().optional().describe('Optional parent group ID')
-        }),
+        {
+          description: 'Add a new bookmark group',
+          inputSchema: {
+            title: z.string().describe('Group title'),
+            parentId: z.string().optional().describe('Optional parent group ID')
+          }
+        },
         async ({ title, parentId }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'add_bookmark_group', args: { title, parentId } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -351,35 +396,48 @@ class ElectermMCPServer {
         }
       )
 
-      server.tool(
+      server.registerTool(
         'add_quick_command',
-        'Add a new quick command',
-        z.object({
-          name: z.string().describe('Quick command name'),
-          command: z.string().describe('Command to execute'),
-          inputOnly: z.boolean().optional().describe('Input only mode (no enter)'),
-          labels: z.array(z.string()).optional().describe('Tags/labels for the command')
-        }),
-        async (args) => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'add_quick_command', args })
+        {
+          description: 'Add a new quick command',
+          inputSchema: {
+            name: z.string().describe('Quick command name'),
+            command: z.string().describe('Command to execute'),
+            inputOnly: z.boolean().optional().describe('Input only mode (no enter)'),
+            labels: z.array(z.string()).optional().describe('Tags/labels for the command')
+          }
+        },
+        async ({ name, command, inputOnly, labels }) => {
+          const result = await self.sendToRenderer('tool-call', {
+            toolName: 'add_quick_command',
+            args: { name, command, inputOnly, labels }
+          })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
 
-      server.tool(
+      server.registerTool(
         'run_quick_command',
-        'Run a quick command in the active terminal',
-        z.object({ id: z.string().describe('Quick command ID to run') }),
+        {
+          description: 'Run a quick command in the active terminal',
+          inputSchema: {
+            id: z.string().describe('Quick command ID to run')
+          }
+        },
         async ({ id }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'run_quick_command', args: { id } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
 
-      server.tool(
+      server.registerTool(
         'delete_quick_command',
-        'Delete a quick command',
-        z.object({ id: z.string().describe('Quick command ID to delete') }),
+        {
+          description: 'Delete a quick command',
+          inputSchema: {
+            id: z.string().describe('Quick command ID to delete')
+          }
+        },
         async ({ id }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'delete_quick_command', args: { id } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -389,10 +447,14 @@ class ElectermMCPServer {
 
     // ==================== History APIs ====================
     if (this.config.enableHistory) {
-      server.tool(
+      server.registerTool(
         'list_history',
-        'List connection history',
-        z.object({ limit: z.number().optional().describe('Max number of entries (default 50)') }),
+        {
+          description: 'List connection history',
+          inputSchema: {
+            limit: z.number().optional().describe('Max number of entries (default 50)')
+          }
+        },
         async ({ limit }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_history', args: { limit } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -422,10 +484,14 @@ class ElectermMCPServer {
         }
       )
 
-      server.tool(
+      server.registerTool(
         'list_transfer_history',
-        'List file transfer history',
-        z.object({ limit: z.number().optional().describe('Max number of entries') }),
+        {
+          description: 'List file transfer history',
+          inputSchema: {
+            limit: z.number().optional().describe('Max number of entries')
+          }
+        },
         async ({ limit }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_transfer_history', args: { limit } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }

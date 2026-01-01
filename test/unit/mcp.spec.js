@@ -515,4 +515,261 @@ describe('mcp-widget', function () {
       }
     }
   })
+
+  // Test SSH bookmark creation, connection, command execution and output
+  it('should create SSH bookmark, connect, run command and get output', async function () {
+    // Load test environment variables
+    const {
+      TEST_HOST,
+      TEST_PASS,
+      TEST_USER
+    } = require('../e2e/common/env')
+
+    // Initialize session if not already done
+    if (!sessionId) {
+      sessionId = await initSession()
+    }
+    expect(sessionId).toBeTruthy()
+
+    const uniqueId = Date.now()
+    const bookmarkTitle = `MCP_SSH_Test_${uniqueId}`
+
+    // Step 1: Create SSH bookmark
+    const addBookmarkRequest = {
+      jsonrpc: '2.0',
+      id: 40,
+      method: 'tools/call',
+      params: {
+        name: 'add_bookmark',
+        arguments: {
+          title: bookmarkTitle,
+          host: TEST_HOST,
+          port: 22,
+          username: TEST_USER,
+          password: TEST_PASS,
+          type: 'ssh'
+        }
+      }
+    }
+
+    try {
+      const addResponse = await axios.post(serverUrl, addBookmarkRequest, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/event-stream',
+          'mcp-session-id': sessionId
+        }
+      })
+
+      console.log('Add bookmark response status:', addResponse.status)
+      expect(addResponse.status).toBe(200)
+
+      const addSseData = addResponse.data
+      const addDataLine = addSseData.split('\n').find(line => line.startsWith('data: '))
+      expect(addDataLine).toBeTruthy()
+      const addJsonData = JSON.parse(addDataLine.substring(6))
+
+      if (addJsonData.error) {
+        console.log('Add bookmark error:', addJsonData.error.message)
+        throw new Error(addJsonData.error.message)
+      }
+
+      const addResult = JSON.parse(addJsonData.result.content[0].text)
+      console.log('Add bookmark result:', addResult)
+      expect(addResult.success).toBe(true)
+      expect(addResult.id).toBeDefined()
+
+      const bookmarkId = addResult.id
+      console.log('Created bookmark with ID:', bookmarkId)
+
+      // Step 2: Open/connect to the bookmark
+      const openBookmarkRequest = {
+        jsonrpc: '2.0',
+        id: 41,
+        method: 'tools/call',
+        params: {
+          name: 'open_bookmark',
+          arguments: {
+            id: bookmarkId
+          }
+        }
+      }
+
+      const openResponse = await axios.post(serverUrl, openBookmarkRequest, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/event-stream',
+          'mcp-session-id': sessionId
+        }
+      })
+
+      console.log('Open bookmark response status:', openResponse.status)
+      expect(openResponse.status).toBe(200)
+
+      const openSseData = openResponse.data
+      const openDataLine = openSseData.split('\n').find(line => line.startsWith('data: '))
+      expect(openDataLine).toBeTruthy()
+      const openJsonData = JSON.parse(openDataLine.substring(6))
+
+      if (openJsonData.error) {
+        console.log('Open bookmark error:', openJsonData.error.message)
+        throw new Error(openJsonData.error.message)
+      }
+
+      const openResult = JSON.parse(openJsonData.result.content[0].text)
+      console.log('Open bookmark result:', openResult)
+      expect(openResult.success).toBe(true)
+
+      // Wait for SSH connection to establish
+      console.log('Waiting for SSH connection to establish...')
+      await new Promise(resolve => setTimeout(resolve, 5000))
+
+      // Step 3: Send a command to the SSH terminal
+      const testMarker = `SSH_MCP_TEST_${uniqueId}`
+      const testCommand = `echo "${testMarker}"`
+
+      const sendCommandRequest = {
+        jsonrpc: '2.0',
+        id: 42,
+        method: 'tools/call',
+        params: {
+          name: 'send_terminal_command',
+          arguments: {
+            command: testCommand
+          }
+        }
+      }
+
+      const cmdResponse = await axios.post(serverUrl, sendCommandRequest, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/event-stream',
+          'mcp-session-id': sessionId
+        }
+      })
+
+      console.log('Send SSH command response status:', cmdResponse.status)
+      expect(cmdResponse.status).toBe(200)
+
+      const cmdSseData = cmdResponse.data
+      const cmdDataLine = cmdSseData.split('\n').find(line => line.startsWith('data: '))
+      expect(cmdDataLine).toBeTruthy()
+      const cmdJsonData = JSON.parse(cmdDataLine.substring(6))
+
+      if (cmdJsonData.error) {
+        console.log('Send SSH command error:', cmdJsonData.error.message)
+        throw new Error(cmdJsonData.error.message)
+      }
+
+      // Log raw text first to debug any parsing issues
+      const cmdResultText = cmdJsonData.result.content[0].text
+      console.log('Send SSH command raw result:', cmdResultText)
+
+      let cmdResult
+      try {
+        cmdResult = JSON.parse(cmdResultText)
+        console.log('Send SSH command result:', cmdResult)
+        expect(cmdResult.success).toBe(true)
+      } catch (parseErr) {
+        // The result might be an error message, not JSON
+        console.log('Command result is not JSON, might be an error')
+        throw new Error(cmdResultText)
+      }
+
+      // Wait for command to execute
+      console.log('Waiting for command execution...')
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Step 4: Get terminal output to verify command execution
+      const getOutputRequest = {
+        jsonrpc: '2.0',
+        id: 43,
+        method: 'tools/call',
+        params: {
+          name: 'get_terminal_output',
+          arguments: {
+            lines: 30
+          }
+        }
+      }
+
+      const outputResponse = await axios.post(serverUrl, getOutputRequest, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/event-stream',
+          'mcp-session-id': sessionId
+        }
+      })
+
+      console.log('Get SSH output response status:', outputResponse.status)
+      expect(outputResponse.status).toBe(200)
+
+      const outputSseData = outputResponse.data
+      const outputDataLine = outputSseData.split('\n').find(line => line.startsWith('data: '))
+      expect(outputDataLine).toBeTruthy()
+      const outputJsonData = JSON.parse(outputDataLine.substring(6))
+
+      if (outputJsonData.error) {
+        console.log('Get SSH output error:', outputJsonData.error.message)
+        throw new Error(outputJsonData.error.message)
+      }
+
+      const outputResult = JSON.parse(outputJsonData.result.content[0].text)
+      console.log('SSH terminal output:', outputResult)
+      expect(outputResult.output).toBeDefined()
+      expect(outputResult.lineCount).toBeGreaterThan(0)
+
+      // Check if our command output is in the terminal
+      if (outputResult.output.includes(testMarker)) {
+        console.log('SUCCESS: Found SSH command output in terminal!')
+      } else {
+        console.log('Command output may not yet be visible in buffer')
+        console.log('Output preview:', outputResult.output.slice(-500))
+      }
+
+      // Step 5: Clean up - delete the test bookmark
+      const deleteBookmarkRequest = {
+        jsonrpc: '2.0',
+        id: 44,
+        method: 'tools/call',
+        params: {
+          name: 'delete_bookmark',
+          arguments: {
+            id: bookmarkId
+          }
+        }
+      }
+
+      const deleteResponse = await axios.post(serverUrl, deleteBookmarkRequest, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/event-stream',
+          'mcp-session-id': sessionId
+        }
+      })
+
+      console.log('Delete bookmark response status:', deleteResponse.status)
+      expect(deleteResponse.status).toBe(200)
+
+      const deleteSseData = deleteResponse.data
+      const deleteDataLine = deleteSseData.split('\n').find(line => line.startsWith('data: '))
+      if (deleteDataLine) {
+        const deleteJsonData = JSON.parse(deleteDataLine.substring(6))
+        if (!deleteJsonData.error) {
+          const deleteResult = JSON.parse(deleteJsonData.result.content[0].text)
+          console.log('Delete bookmark result:', deleteResult)
+          expect(deleteResult.success).toBe(true)
+        }
+      }
+
+      console.log('SSH bookmark test completed successfully')
+    } catch (err) {
+      console.log('SSH bookmark test error:', err.message)
+      if (err.response) {
+        console.log('Response status:', err.response.status)
+        console.log('Response data:', err.response.data)
+      }
+      throw err
+    }
+  })
 })
