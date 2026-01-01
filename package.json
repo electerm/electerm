@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "2.3.166",
+  "version": "2.3.176",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -104,7 +104,6 @@
     "@electerm/rdpjs": "^1.0.0",
     "@electerm/ssh2": "1.16.2",
     "@electerm/strip-ansi": "1.0.0",
-    "@modelcontextprotocol/sdk": "^1.25.1",
     "axios": "1.12.2",
     "basic-ftp": "^5.0.5",
     "commander": "12.1.0",

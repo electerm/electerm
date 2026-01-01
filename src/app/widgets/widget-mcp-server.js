@@ -2,12 +2,12 @@
  * MCP Server Widget
  * Exposes electerm store APIs via Model Context Protocol
  * Runs in main process and uses IPC to communicate with frontend
- * Uses the official @modelcontextprotocol/sdk
+ * Uses a simple local MCP implementation
  */
 
 const { ipcMain } = require('electron')
-const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js')
-const { StreamableHTTPServerTransport } = require('@modelcontextprotocol/sdk/server/streamableHttp.js')
+const { McpServer } = require('../mcp/server/mcp.js')
+const { StreamableHTTPServerTransport } = require('../mcp/server/streamableHttp.js')
 const { z } = require('zod')
 const express = require('express')
 const uid = require('../common/uid')
