@@ -126,20 +126,24 @@ class ElectermMCPServer {
 
     // ==================== Tab/Terminal APIs (always enabled) ====================
 
-    server.tool(
+    server.registerTool(
       'list_tabs',
-      'List all open terminal tabs',
-      z.object({}),
+      {
+        description: 'List all open terminal tabs',
+        inputSchema: z.object({})
+      },
       async () => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'list_tabs', args: {} })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
       }
     )
 
-    server.tool(
+    server.registerTool(
       'get_active_tab',
-      'Get the currently active tab',
-      z.object({}),
+      {
+        description: 'Get the currently active tab',
+        inputSchema: z.object({})
+      },
       async () => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'get_active_tab', args: {} })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -202,10 +206,12 @@ class ElectermMCPServer {
       }
     )
 
-    server.tool(
+    server.registerTool(
       'open_local_terminal',
-      'Open a new local terminal tab',
-      z.object({}),
+      {
+        description: 'Open a new local terminal tab',
+        inputSchema: z.object({})
+      },
       async () => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'open_local_terminal', args: {} })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -358,10 +364,12 @@ class ElectermMCPServer {
 
     // ==================== Bookmark Group APIs ====================
     if (this.config.enableBookmarkGroups) {
-      server.tool(
+      server.registerTool(
         'list_bookmark_groups',
-        'List all bookmark groups/folders',
-        z.object({}),
+        {
+          description: 'List all bookmark groups/folders',
+          inputSchema: z.object({})
+        },
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_bookmark_groups', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -386,10 +394,12 @@ class ElectermMCPServer {
 
     // ==================== Quick Command APIs ====================
     if (this.config.enableQuickCommands) {
-      server.tool(
+      server.registerTool(
         'list_quick_commands',
-        'List all quick commands',
-        z.object({}),
+        {
+          description: 'List all quick commands',
+          inputSchema: z.object({})
+        },
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_quick_commands', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -461,10 +471,12 @@ class ElectermMCPServer {
         }
       )
 
-      server.tool(
+      server.registerTool(
         'clear_history',
-        'Clear connection history',
-        z.object({}),
+        {
+          description: 'Clear connection history',
+          inputSchema: z.object({})
+        },
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'clear_history', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -474,10 +486,12 @@ class ElectermMCPServer {
 
     // ==================== Transfer APIs ====================
     if (this.config.enableTransfer) {
-      server.tool(
+      server.registerTool(
         'list_transfers',
-        'List active file transfers',
-        z.object({}),
+        {
+          description: 'List active file transfers',
+          inputSchema: z.object({})
+        },
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_transfers', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
@@ -501,30 +515,36 @@ class ElectermMCPServer {
 
     // ==================== Settings APIs ====================
     if (this.config.enableSettings) {
-      server.tool(
+      server.registerTool(
         'get_settings',
-        'Get current application settings',
-        undefined,
+        {
+          description: 'Get current application settings',
+          inputSchema: undefined
+        },
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'get_settings', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
 
-      server.tool(
+      server.registerTool(
         'list_terminal_themes',
-        'List available terminal themes',
-        z.object({}),
+        {
+          description: 'List available terminal themes',
+          inputSchema: z.object({})
+        },
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_terminal_themes', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
 
-      server.tool(
+      server.registerTool(
         'list_ui_themes',
-        'List available UI themes',
-        z.object({}),
+        {
+          description: 'List available UI themes',
+          inputSchema: z.object({})
+        },
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_ui_themes', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
