@@ -2,10 +2,10 @@
  * Widget form component
  */
 import React from 'react'
-import { Form, Input, InputNumber, Switch, Select, Button } from 'antd'
+import { Form, Input, InputNumber, Switch, Select, Button, Tooltip } from 'antd'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 
-export default function WidgetForm ({ widget, onSubmit, loading }) {
+export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInstance }) {
   const [form] = Form.useForm()
 
   if (!widget) {
@@ -13,9 +13,10 @@ export default function WidgetForm ({ widget, onSubmit, loading }) {
   }
 
   const { info } = widget
-  const { configs, type } = info
+  const { configs, type, singleInstance } = info
   const isInstanceWidget = type === 'instance'
   const txt = isInstanceWidget ? 'Start widget' : 'Run widget'
+  const isDisabled = loading || (singleInstance && hasRunningInstance)
 
   const handleSubmit = async (values) => {
     onSubmit(values)
@@ -95,14 +96,16 @@ export default function WidgetForm ({ widget, onSubmit, loading }) {
         <Form.Item
           {...tailFormItemLayout}
         >
-          <Button
-            type='primary'
-            htmlType='submit'
-            loading={loading}
-            disabled={loading}
-          >
-            {txt}
-          </Button>
+          <Tooltip title={isDisabled && singleInstance && hasRunningInstance ? 'Already running, only one instance allowed' : ''}>
+            <Button
+              type='primary'
+              htmlType='submit'
+              loading={loading}
+              disabled={isDisabled}
+            >
+              {txt}
+            </Button>
+          </Tooltip>
         </Form.Item>
       </Form>
     </div>

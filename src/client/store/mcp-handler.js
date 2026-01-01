@@ -9,11 +9,9 @@ import { settingMap } from '../common/constants'
 export default Store => {
   // Initialize MCP handler - called when MCP widget is started
   Store.prototype.initMcpHandler = function () {
-    console.log('MCP: Initializing MCP handler')
     const { ipcOnEvent } = window.pre
     // Listen for MCP requests from main process
     ipcOnEvent('mcp-request', (event, request) => {
-      console.log('MCP: Received MCP request:', request)
       const { requestId, action, data } = request
       if (action === 'tool-call') {
         window.store.handleMcpToolCall(requestId, data.toolName, data.args)
@@ -23,7 +21,6 @@ export default Store => {
 
   // Handle individual tool calls
   Store.prototype.handleMcpToolCall = async function (requestId, toolName, args) {
-    console.log('MCP: Handling tool call:', toolName, 'with args:', args)
     const { store } = window
 
     try {
@@ -102,6 +99,9 @@ export default Store => {
         case 'get_terminal_selection':
           result = store.mcpGetTerminalSelection(args)
           break
+        case 'get_terminal_output':
+          result = store.mcpGetTerminalOutput(args)
+          break
 
         // History operations
         case 'list_history':
@@ -138,9 +138,7 @@ export default Store => {
         requestId,
         result
       })
-      console.log('MCP: Sent successful response for tool:', toolName, 'result:', result)
     } catch (error) {
-      console.log('MCP: Error handling tool call:', toolName, 'error:', error)
       window.api.sendMcpResponse({
         requestId,
         error: error.message
@@ -449,9 +447,11 @@ export default Store => {
   Store.prototype.mcpOpenLocalTerminal = function () {
     const { store } = window
     store.addTab()
+    const newTabId = store.activeTabId
 
     return {
       success: true,
+      tabId: newTabId,
       message: 'Opened new local terminal'
     }
   }
@@ -461,12 +461,17 @@ export default Store => {
   Store.prototype.mcpSendTerminalCommand = function (args) {
     const { store } = window
     const tabId = args.tabId || store.activeTabId
+    const command = args.command
 
     if (!tabId) {
       throw new Error('No active terminal')
     }
 
-    store.runQuickCommand(args.command, args.inputOnly || false)
+    if (command === undefined || command === null) {
+      throw new Error('No command provided')
+    }
+
+    store.runQuickCommand(command, args.inputOnly || false)
 
     return {
       success: true,
@@ -492,6 +497,54 @@ export default Store => {
 
     return {
       selection: selection || '',
+      tabId
+    }
+  }
+
+  Store.prototype.mcpGetTerminalOutput = function (args) {
+    const { store } = window
+    const { refs } = require('../components/common/ref')
+    const tabId = args.tabId || store.activeTabId
+    const lineCount = args.lines || 50
+
+    if (!tabId) {
+      throw new Error('No active terminal')
+    }
+
+    const term = refs.get('term-' + tabId)
+    if (!term || !term.term) {
+      throw new Error('Terminal not found')
+    }
+
+    const buffer = term.term.buffer.active
+    if (!buffer) {
+      throw new Error('Terminal buffer not available')
+    }
+
+    const cursorY = buffer.cursorY || 0
+    const baseY = buffer.baseY || 0
+    const totalLines = buffer.length || 0
+
+    // Calculate the actual content range
+    // baseY is the scroll offset, cursorY is cursor position in viewport
+    const actualContentEnd = baseY + cursorY + 1
+    const startLine = Math.max(0, actualContentEnd - lineCount)
+    const endLine = Math.min(totalLines, actualContentEnd)
+    const lines = []
+
+    for (let i = startLine; i < endLine; i++) {
+      const line = buffer.getLine(i)
+      if (line) {
+        const text = line.translateToString(true)
+        lines.push(text)
+      }
+    }
+
+    return {
+      output: lines.join('\n'),
+      lineCount: lines.length,
+      cursorY,
+      baseY,
       tabId
     }
   }

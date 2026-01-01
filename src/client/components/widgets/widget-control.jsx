@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 import WidgetForm from './widget-form'
 import { showMsg } from './widget-notification-with-details'
 
-export default function WidgetControl ({ formData }) {
+export default function WidgetControl ({ formData, widgetInstancesLength }) {
   const [loading, setLoading] = useState(false)
   const widget = formData
   if (!widget.id) {
@@ -15,6 +15,12 @@ export default function WidgetControl ({ formData }) {
       </div>
     )
   }
+
+  // Check if this widget already has a running instance
+  // widgetInstancesLength is used to trigger re-render when instances change
+  const hasRunningInstance = widgetInstancesLength > 0 && window.store.widgetInstances.some(
+    instance => instance.widgetId === widget.id
+  )
 
   const handleFormSubmit = async (config) => {
     setLoading(true)
@@ -57,6 +63,7 @@ export default function WidgetControl ({ formData }) {
         widget={widget}
         onSubmit={handleFormSubmit}
         loading={loading}
+        hasRunningInstance={hasRunningInstance}
       />
     </div>
   )

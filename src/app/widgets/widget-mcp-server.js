@@ -20,6 +20,7 @@ const widgetInfo = {
   author: 'ZHAO Xudong',
   type: 'instance',
   builtin: true,
+  singleInstance: true,
   configs: [
     {
       name: 'host',
@@ -195,14 +196,16 @@ class ElectermMCPServer {
       }
     )
 
-    server.tool(
+    server.registerTool(
       'send_terminal_command',
-      'Send a command to the active terminal',
-      z.object({
-        command: z.string().describe('Command to send'),
-        tabId: z.string().optional().describe('Optional: specific tab ID'),
-        inputOnly: z.boolean().optional().describe('Input only mode (no enter key)')
-      }),
+      {
+        description: 'Send a command to the active terminal',
+        inputSchema: {
+          command: z.string().describe('Command to send'),
+          tabId: z.string().optional().describe('Optional: specific tab ID'),
+          inputOnly: z.boolean().optional().describe('Input only mode (no enter key)')
+        }
+      },
       async ({ command, tabId, inputOnly }) => {
         const result = await self.sendToRenderer('tool-call', {
           toolName: 'send_terminal_command',
@@ -218,6 +221,21 @@ class ElectermMCPServer {
       z.object({ tabId: z.string().optional().describe('Optional: specific tab ID') }),
       async ({ tabId }) => {
         const result = await self.sendToRenderer('tool-call', { toolName: 'get_terminal_selection', args: { tabId } })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
+    server.registerTool(
+      'get_terminal_output',
+      {
+        description: 'Get recent terminal output/buffer content',
+        inputSchema: {
+          tabId: z.string().optional().describe('Optional: specific tab ID'),
+          lines: z.number().optional().describe('Number of lines to return (default: 50)')
+        }
+      },
+      async ({ tabId, lines }) => {
+        const result = await self.sendToRenderer('tool-call', { toolName: 'get_terminal_output', args: { tabId, lines } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
       }
     )
@@ -451,9 +469,7 @@ class ElectermMCPServer {
 
   // Start the MCP server
   async start () {
-    console.log('MCP: Starting MCP server widget')
     const { host, port } = this.config
-    console.log('MCP: Config - host:', host, 'port:', port)
 
     // Set up IPC response handler
     this.ipcHandler = (event, response) => {
@@ -578,7 +594,6 @@ class ElectermMCPServer {
           version: '2024-11-05'
         }
         const msg = `MCP Server is running at ${serverInfo.url}`
-        console.log('MCP:', msg)
         resolve({
           serverInfo,
           msg,
@@ -632,7 +647,6 @@ class ElectermMCPServer {
             console.error('Error stopping MCP server:', err)
             reject(err)
           } else {
-            console.log('MCP Server stopped')
             this.httpServer = null
             resolve()
           }
