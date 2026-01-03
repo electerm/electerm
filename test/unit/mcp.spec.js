@@ -625,9 +625,9 @@ describe('mcp-widget', function () {
 
       // Wait for SSH connection to establish
       console.log('Waiting for SSH connection to establish...')
-      await new Promise(resolve => setTimeout(resolve, 5000))
+      await new Promise(resolve => setTimeout(resolve, 8000))
 
-      // Step 3: Send a command to the SSH terminal
+      // Step 3: Send a command to the SSH terminal with retry
       const testMarker = `SSH_MCP_TEST_${uniqueId}`
       const testCommand = `echo "${testMarker}"`
 
@@ -643,23 +643,40 @@ describe('mcp-widget', function () {
         }
       }
 
-      const cmdResponse = await makeHttpRequest('post', serverUrl, sendCommandRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
-      })
+      // Retry sending command up to 3 times with delay
+      let cmdJsonData = null
+      let lastError = null
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const cmdResponse = await makeHttpRequest('post', serverUrl, sendCommandRequest, {
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/event-stream',
+          'mcp-session-id': sessionId
+        })
 
-      console.log('Send SSH command response status:', cmdResponse.status)
-      assert.equal(cmdResponse.status, 200)
+        console.log(`Send SSH command attempt ${attempt} response status:`, cmdResponse.status)
+        assert.equal(cmdResponse.status, 200)
 
-      const cmdSseData = cmdResponse.data
-      const cmdDataLine = cmdSseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(cmdDataLine)
-      const cmdJsonData = JSON.parse(cmdDataLine.substring(6))
+        const cmdSseData = cmdResponse.data
+        const cmdDataLine = cmdSseData.split('\n').find(line => line.startsWith('data: '))
+        assert.ok(cmdDataLine)
+        cmdJsonData = JSON.parse(cmdDataLine.substring(6))
 
-      if (cmdJsonData.error) {
-        console.log('Send SSH command error:', cmdJsonData.error.message)
-        throw new Error(cmdJsonData.error.message)
+        if (cmdJsonData.error) {
+          console.log(`Send SSH command attempt ${attempt} error:`, cmdJsonData.error.message)
+          lastError = cmdJsonData.error.message
+          if (attempt < 3) {
+            console.log('Waiting before retry...')
+            await new Promise(resolve => setTimeout(resolve, 2000))
+            continue
+          }
+        } else {
+          lastError = null
+          break
+        }
+      }
+
+      if (lastError) {
+        throw new Error(lastError)
       }
 
       // Log raw text first to debug any parsing issues
@@ -758,6 +775,40 @@ describe('mcp-widget', function () {
           assert.equal(deleteResult.success, true)
         }
       }
+
+      // Step 6: Verify the bookmark was actually deleted
+      const listBookmarksRequest = {
+        jsonrpc: '2.0',
+        id: 45,
+        method: 'tools/call',
+        params: {
+          name: 'list_bookmarks'
+        }
+      }
+
+      const listResponse = await makeHttpRequest('post', serverUrl, listBookmarksRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
+      })
+
+      console.log('List bookmarks response status:', listResponse.status)
+      assert.equal(listResponse.status, 200)
+
+      const listSseData = listResponse.data
+      const listDataLine = listSseData.split('\n').find(line => line.startsWith('data: '))
+      assert.ok(listDataLine)
+      const listJsonData = JSON.parse(listDataLine.substring(6))
+
+      if (listJsonData.error) {
+        console.log('List bookmarks error:', listJsonData.error.message)
+        throw new Error(listJsonData.error.message)
+      }
+
+      const bookmarks = JSON.parse(listJsonData.result.content[0].text)
+      console.log('Bookmarks after deletion:', bookmarks.length)
+      const deletedBookmark = bookmarks.find(b => b.id === bookmarkId)
+      assert.ok(!deletedBookmark, `Bookmark with ID ${bookmarkId} should have been deleted but was found`)
 
       console.log('SSH bookmark test completed successfully')
     } catch (err) {

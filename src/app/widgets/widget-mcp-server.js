@@ -186,7 +186,8 @@ class ElectermMCPServer {
           tabId: z.string().optional().describe('Tab ID to reload (default: active tab)')
         }
       },
-      async ({ tabId }) => {
+      async (args) => {
+        const tabId = args?.tabId
         const result = await self.sendToRenderer('tool-call', { toolName: 'reload_tab', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
       }
@@ -245,7 +246,8 @@ class ElectermMCPServer {
           tabId: z.string().optional().describe('Optional: specific tab ID')
         }
       },
-      async ({ tabId }) => {
+      async (args) => {
+        const tabId = args?.tabId
         const result = await self.sendToRenderer('tool-call', { toolName: 'get_terminal_selection', args: { tabId } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
       }
@@ -260,7 +262,9 @@ class ElectermMCPServer {
           lines: z.number().optional().describe('Number of lines to return (default: 50)')
         }
       },
-      async ({ tabId, lines }) => {
+      async (args) => {
+        const tabId = args?.tabId
+        const lines = args?.lines
         const result = await self.sendToRenderer('tool-call', { toolName: 'get_terminal_output', args: { tabId, lines } })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
       }
@@ -276,7 +280,8 @@ class ElectermMCPServer {
             groupId: z.string().optional().describe('Optional: Filter by bookmark group ID')
           }
         },
-        async ({ groupId }) => {
+        async (args) => {
+          const groupId = args?.groupId
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_bookmarks', args: { groupId } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
@@ -465,7 +470,8 @@ class ElectermMCPServer {
             limit: z.number().optional().describe('Max number of entries (default 50)')
           }
         },
-        async ({ limit }) => {
+        async (args) => {
+          const limit = args?.limit
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_history', args: { limit } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
@@ -506,7 +512,8 @@ class ElectermMCPServer {
             limit: z.number().optional().describe('Max number of entries')
           }
         },
-        async ({ limit }) => {
+        async (args) => {
+          const limit = args?.limit
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_transfer_history', args: { limit } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
