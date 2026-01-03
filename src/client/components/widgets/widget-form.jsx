@@ -4,6 +4,7 @@
 import React from 'react'
 import { Form, Input, InputNumber, Switch, Select, Button, Tooltip } from 'antd'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
+import HelpIcon from '../common/help-icon'
 
 export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInstance }) {
   const [form] = Form.useForm()
@@ -83,7 +84,12 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
   return (
     <div className='widget-form'>
       <div className='pd1b alignright'>
-        <h4>{info.name}</h4>
+        <h4>
+          {info.name}
+          {info.name === 'MCP Server' && (
+            <HelpIcon link='https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide' />
+          )}
+        </h4>
         <p>{info.description}</p>
       </div>
       <Form
