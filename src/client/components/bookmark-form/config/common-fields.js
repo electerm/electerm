@@ -247,7 +247,6 @@ export const sshSettings = [
     valuePropName: 'checked'
   },
   ...terminalSettings.slice(0, -1), // All except terminalBackground
-  commonFields.proxy,
   commonFields.x11,
   commonFields.terminalBackground
 ]
