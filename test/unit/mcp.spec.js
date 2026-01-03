@@ -1,12 +1,37 @@
-const {
-  test: it, expect
-} = require('@playwright/test')
-const { describe } = it
+const { test, describe } = require('node:test')
+const assert = require('assert/strict')
 const axios = require('axios')
 
-it.setTimeout(100000)
-
 const serverUrl = 'http://127.0.0.1:30837/mcp'
+
+// Helper function to make HTTP requests
+async function makeHttpRequest (method, urlStr, data = null, headers = {}) {
+  try {
+    const response = await axios({
+      method: method.toUpperCase(),
+      url: urlStr,
+      data,
+      headers
+    })
+    return {
+      status: response.status,
+      headers: response.headers,
+      data: response.data
+    }
+  } catch (error) {
+    if (error.response) {
+      const err = new Error(`Request failed with status ${error.response.status}`)
+      err.response = {
+        status: error.response.status,
+        headers: error.response.headers,
+        data: error.response.data
+      }
+      throw err
+    } else {
+      throw error
+    }
+  }
+}
 
 // Helper function to initialize MCP session
 async function initSession () {
@@ -24,11 +49,9 @@ async function initSession () {
     }
   }
 
-  const response = await axios.post(serverUrl, initializeRequest, {
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json, text/event-stream'
-    }
+  const response = await makeHttpRequest('post', serverUrl, initializeRequest, {
+    'Content-Type': 'application/json',
+    Accept: 'application/json, text/event-stream'
   })
 
   return response.headers['mcp-session-id']
@@ -38,16 +61,16 @@ describe('mcp-widget', function () {
   let sessionId = null
 
   // Test that MCP server is running at the expected URL with default settings
-  it('should be accessible at http://127.0.0.1:30837/mcp with default settings', async function () {
+  test('should be accessible at http://127.0.0.1:30837/mcp with default settings', { timeout: 100000 }, async function () {
     try {
       // Test OPTIONS request (CORS preflight)
-      const optionsResponse = await axios.options(serverUrl)
-      expect(optionsResponse.status).toBe(204)
-      expect(optionsResponse.headers['access-control-allow-origin']).toBe('*')
-      expect(optionsResponse.headers['access-control-allow-methods']).toContain('POST')
-      expect(optionsResponse.headers['access-control-allow-methods']).toContain('GET')
-      expect(optionsResponse.headers['access-control-allow-methods']).toContain('DELETE')
-      expect(optionsResponse.headers['access-control-allow-headers']).toContain('mcp-session-id')
+      const optionsResponse = await makeHttpRequest('options', serverUrl)
+      assert.equal(optionsResponse.status, 204)
+      assert.equal(optionsResponse.headers['access-control-allow-origin'], '*')
+      assert.ok(optionsResponse.headers['access-control-allow-methods'].includes('POST'))
+      assert.ok(optionsResponse.headers['access-control-allow-methods'].includes('GET'))
+      assert.ok(optionsResponse.headers['access-control-allow-methods'].includes('DELETE'))
+      assert.ok(optionsResponse.headers['access-control-allow-headers'].includes('mcp-session-id'))
 
       console.log('MCP server is running and accessible at:', serverUrl)
       console.log('CORS headers are properly configured')
@@ -58,7 +81,7 @@ describe('mcp-widget', function () {
   })
 
   // Test MCP protocol initialization
-  it('should respond to MCP initialize request', async function () {
+  test('should respond to MCP initialize request', { timeout: 100000 }, async function () {
     const initializeRequest = {
       jsonrpc: '2.0',
       id: 1,
@@ -74,37 +97,35 @@ describe('mcp-widget', function () {
     }
 
     try {
-      const response = await axios.post(serverUrl, initializeRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream'
-        }
+      const response = await makeHttpRequest('post', serverUrl, initializeRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream'
       })
 
       console.log('Initialize response status:', response.status)
       console.log('Initialize response data:', response.data)
       console.log('Initialize response headers:', response.headers)
 
-      expect(response.status).toBe(200)
-      expect(response.headers['content-type']).toBe('text/event-stream')
-      expect(response.headers['mcp-session-id']).toBeTruthy()
+      assert.equal(response.status, 200)
+      assert.equal(response.headers['content-type'], 'text/event-stream')
+      assert.ok(response.headers['mcp-session-id'])
 
       // Parse SSE response
       const sseData = response.data
-      expect(sseData).toContain('event: message')
-      expect(sseData).toContain('data: ')
+      assert.ok(sseData.includes('event: message'))
+      assert.ok(sseData.includes('data: '))
 
       // Extract JSON from SSE data
       const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-      expect(dataLine).toBeTruthy()
+      assert.ok(dataLine)
       const jsonData = JSON.parse(dataLine.substring(6)) // Remove 'data: '
 
-      expect(jsonData.jsonrpc).toBe('2.0')
-      expect(jsonData.id).toBe(1)
-      expect(jsonData.result).toBeTruthy()
-      expect(jsonData.result.protocolVersion).toBe('2024-11-05')
-      expect(jsonData.result.serverInfo).toBeTruthy()
-      expect(jsonData.result.serverInfo.name).toBe('electerm-mcp-server')
+      assert.equal(jsonData.jsonrpc, '2.0')
+      assert.equal(jsonData.id, 1)
+      assert.ok(jsonData.result)
+      assert.equal(jsonData.result.protocolVersion, '2024-11-05')
+      assert.ok(jsonData.result.serverInfo)
+      assert.equal(jsonData.result.serverInfo.name, 'electerm-mcp-server')
 
       // Store session ID for subsequent requests
       sessionId = response.headers['mcp-session-id']
@@ -124,8 +145,8 @@ describe('mcp-widget', function () {
   })
 
   // Test that tools are available
-  it('should list available tools', async function () {
-    expect(sessionId).toBeTruthy() // Should have session ID from initialize
+  test('should list available tools', { timeout: 100000 }, async function () {
+    assert.ok(sessionId) // Should have session ID from initialize
 
     const toolsRequest = {
       jsonrpc: '2.0',
@@ -135,42 +156,40 @@ describe('mcp-widget', function () {
     }
 
     try {
-      const response = await axios.post(serverUrl, toolsRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        }
+      const response = await makeHttpRequest('post', serverUrl, toolsRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
       })
 
       console.log('Tools response status:', response.status)
       console.log('Tools response data:', response.data)
       console.log('Tools response headers:', response.headers)
 
-      expect(response.status).toBe(200)
-      expect(response.headers['content-type']).toBe('text/event-stream')
+      assert.equal(response.status, 200)
+      assert.equal(response.headers['content-type'], 'text/event-stream')
 
       // Parse SSE response
       const sseData = response.data
-      expect(sseData).toContain('event: message')
-      expect(sseData).toContain('data: ')
+      assert.ok(sseData.includes('event: message'))
+      assert.ok(sseData.includes('data: '))
 
       // Extract JSON from SSE data
       const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-      expect(dataLine).toBeTruthy()
+      assert.ok(dataLine)
       const jsonData = JSON.parse(dataLine.substring(6)) // Remove 'data: '
 
-      expect(jsonData.jsonrpc).toBe('2.0')
-      expect(jsonData.id).toBe(2)
-      expect(jsonData.result).toBeTruthy()
-      expect(Array.isArray(jsonData.result.tools)).toBe(true)
-      expect(jsonData.result.tools.length).toBeGreaterThan(0)
+      assert.equal(jsonData.jsonrpc, '2.0')
+      assert.equal(jsonData.id, 2)
+      assert.ok(jsonData.result)
+      assert.ok(Array.isArray(jsonData.result.tools))
+      assert.ok(jsonData.result.tools.length > 0)
 
       // Check for some expected tools
       const toolNames = jsonData.result.tools.map(tool => tool.name)
-      expect(toolNames).toContain('list_tabs')
-      expect(toolNames).toContain('get_active_tab')
-      expect(toolNames).toContain('send_terminal_command')
+      assert.ok(toolNames.includes('list_tabs'))
+      assert.ok(toolNames.includes('get_active_tab'))
+      assert.ok(toolNames.includes('send_terminal_command'))
 
       console.log('Available tools:', toolNames.length)
       console.log('Sample tools:', toolNames.slice(0, 5))
@@ -186,8 +205,8 @@ describe('mcp-widget', function () {
   })
 
   // Test tool calls (these will fail in test environment without renderer process)
-  it('should handle tool calls gracefully when renderer is unavailable', async function () {
-    expect(sessionId).toBeTruthy()
+  test('should handle tool calls gracefully when renderer is unavailable', { timeout: 100000 }, async function () {
+    assert.ok(sessionId)
 
     const toolCallRequest = {
       jsonrpc: '2.0',
@@ -200,34 +219,32 @@ describe('mcp-widget', function () {
     }
 
     try {
-      const response = await axios.post(serverUrl, toolCallRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        }
+      const response = await makeHttpRequest('post', serverUrl, toolCallRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
       })
 
       console.log('Tool call response status:', response.status)
       console.log('Tool call response data:', response.data)
 
-      expect(response.status).toBe(200)
-      expect(response.headers['content-type']).toBe('text/event-stream')
+      assert.equal(response.status, 200)
+      assert.equal(response.headers['content-type'], 'text/event-stream')
 
       // Parse SSE response
       const sseData = response.data
       const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-      expect(dataLine).toBeTruthy()
+      assert.ok(dataLine)
       const jsonData = JSON.parse(dataLine.substring(6))
 
-      expect(jsonData.jsonrpc).toBe('2.0')
-      expect(jsonData.id).toBe(3)
+      assert.equal(jsonData.jsonrpc, '2.0')
+      assert.equal(jsonData.id, 3)
 
       // In test environment without renderer process, we expect an error response
       // The MCP server correctly handles the case where no window is available
       if (jsonData.error) {
         console.log('Expected error in test environment:', jsonData.error.message)
-        expect(jsonData.error.code).toBeDefined()
+        assert.ok(jsonData.error.code !== undefined)
       } else if (jsonData.result) {
         // If it succeeds, that's also fine - means renderer is available
         console.log('Tool call succeeded - renderer process is available')
@@ -246,8 +263,8 @@ describe('mcp-widget', function () {
   })
 
   // Test that multiple tool calls work in sequence
-  it('should handle multiple tool calls in sequence', async function () {
-    expect(sessionId).toBeTruthy()
+  test('should handle multiple tool calls in sequence', { timeout: 100000 }, async function () {
+    assert.ok(sessionId)
 
     const testTools = [
       { name: 'list_tabs', args: {} },
@@ -268,25 +285,23 @@ describe('mcp-widget', function () {
       }
 
       try {
-        const response = await axios.post(serverUrl, toolCallRequest, {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json, text/event-stream',
-            'mcp-session-id': sessionId
-          }
+        const response = await makeHttpRequest('post', serverUrl, toolCallRequest, {
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/event-stream',
+          'mcp-session-id': sessionId
         })
 
-        expect(response.status).toBe(200)
-        expect(response.headers['content-type']).toBe('text/event-stream')
+        assert.equal(response.status, 200)
+        assert.equal(response.headers['content-type'], 'text/event-stream')
 
         // Parse SSE response
         const sseData = response.data
         const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-        expect(dataLine).toBeTruthy()
+        assert.ok(dataLine)
         const jsonData = JSON.parse(dataLine.substring(6))
 
-        expect(jsonData.jsonrpc).toBe('2.0')
-        expect(jsonData.id).toBe(10 + i)
+        assert.equal(jsonData.jsonrpc, '2.0')
+        assert.equal(jsonData.id, 10 + i)
 
         console.log(`Tool ${tool.name} call completed (may have failed due to no renderer)`)
       } catch (err) {
@@ -299,12 +314,12 @@ describe('mcp-widget', function () {
   })
 
   // Test opening a local terminal and running a command
-  it('should open local terminal and run command', async function () {
+  test('should open local terminal and run command', { timeout: 100000 }, async function () {
     // Initialize session if not already done
     if (!sessionId) {
       sessionId = await initSession()
     }
-    expect(sessionId).toBeTruthy()
+    assert.ok(sessionId)
 
     // Step 1: Open a local terminal
     const openTerminalRequest = {
@@ -318,34 +333,32 @@ describe('mcp-widget', function () {
     }
 
     try {
-      const openResponse = await axios.post(serverUrl, openTerminalRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        }
+      const openResponse = await makeHttpRequest('post', serverUrl, openTerminalRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
       })
 
       console.log('Open terminal response status:', openResponse.status)
 
-      expect(openResponse.status).toBe(200)
+      assert.equal(openResponse.status, 200)
 
       // Parse SSE response
       const sseData = openResponse.data
       const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-      expect(dataLine).toBeTruthy()
+      assert.ok(dataLine)
       const jsonData = JSON.parse(dataLine.substring(6))
 
-      expect(jsonData.jsonrpc).toBe('2.0')
-      expect(jsonData.id).toBe(20)
+      assert.equal(jsonData.jsonrpc, '2.0')
+      assert.equal(jsonData.id, 20)
 
       if (jsonData.error) {
         console.log('Open terminal error (may be expected):', jsonData.error.message)
       } else if (jsonData.result) {
         const result = JSON.parse(jsonData.result.content[0].text)
         console.log('Open terminal result:', result)
-        expect(result.success).toBe(true)
-        expect(result.message).toContain('local terminal')
+        assert.equal(result.success, true)
+        assert.ok(result.message.includes('local terminal'))
       }
 
       // Wait for terminal to initialize (shell needs time to start)
@@ -367,20 +380,18 @@ describe('mcp-widget', function () {
         }
       }
 
-      const cmdResponse = await axios.post(serverUrl, sendCommandRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        }
+      const cmdResponse = await makeHttpRequest('post', serverUrl, sendCommandRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
       })
 
       console.log('Send command response status:', cmdResponse.status)
-      expect(cmdResponse.status).toBe(200)
+      assert.equal(cmdResponse.status, 200)
 
       const cmdSseData = cmdResponse.data
       const cmdDataLine = cmdSseData.split('\n').find(line => line.startsWith('data: '))
-      expect(cmdDataLine).toBeTruthy()
+      assert.ok(cmdDataLine)
       const cmdJsonData = JSON.parse(cmdDataLine.substring(6))
 
       if (cmdJsonData.error) {
@@ -388,7 +399,7 @@ describe('mcp-widget', function () {
       } else if (cmdJsonData.result) {
         const cmdResult = JSON.parse(cmdJsonData.result.content[0].text)
         console.log('Send command result:', cmdResult)
-        expect(cmdResult.success).toBe(true)
+        assert.equal(cmdResult.success, true)
       }
 
       // Wait for command to execute and output to appear
@@ -407,20 +418,18 @@ describe('mcp-widget', function () {
         }
       }
 
-      const outputResponse = await axios.post(serverUrl, getOutputRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        }
+      const outputResponse = await makeHttpRequest('post', serverUrl, getOutputRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
       })
 
       console.log('Get output response status:', outputResponse.status)
-      expect(outputResponse.status).toBe(200)
+      assert.equal(outputResponse.status, 200)
 
       const outputSseData = outputResponse.data
       const outputDataLine = outputSseData.split('\n').find(line => line.startsWith('data: '))
-      expect(outputDataLine).toBeTruthy()
+      assert.ok(outputDataLine)
       const outputJsonData = JSON.parse(outputDataLine.substring(6))
 
       if (outputJsonData.error) {
@@ -429,8 +438,8 @@ describe('mcp-widget', function () {
         try {
           const outputResult = JSON.parse(outputJsonData.result.content[0].text)
           console.log('Terminal output result:', outputResult)
-          expect(outputResult.output).toBeDefined()
-          expect(outputResult.lineCount).toBeGreaterThan(0)
+          assert.ok(outputResult.output !== undefined)
+          assert.ok(outputResult.lineCount > 0)
 
           // Check if our command output is in the terminal
           if (outputResult.output.includes(`MCP_TEST_${uniqueId}`)) {
@@ -458,12 +467,12 @@ describe('mcp-widget', function () {
   })
 
   // Test get_terminal_output tool
-  it('should get terminal output', async function () {
+  test('should get terminal output', { timeout: 100000 }, async function () {
     // Initialize session if not already done
     if (!sessionId) {
       sessionId = await initSession()
     }
-    expect(sessionId).toBeTruthy()
+    assert.ok(sessionId)
 
     const getOutputRequest = {
       jsonrpc: '2.0',
@@ -478,24 +487,22 @@ describe('mcp-widget', function () {
     }
 
     try {
-      const response = await axios.post(serverUrl, getOutputRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        }
+      const response = await makeHttpRequest('post', serverUrl, getOutputRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
       })
 
       console.log('Get terminal output response status:', response.status)
-      expect(response.status).toBe(200)
+      assert.equal(response.status, 200)
 
       const sseData = response.data
       const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-      expect(dataLine).toBeTruthy()
+      assert.ok(dataLine)
       const jsonData = JSON.parse(dataLine.substring(6))
 
-      expect(jsonData.jsonrpc).toBe('2.0')
-      expect(jsonData.id).toBe(30)
+      assert.equal(jsonData.jsonrpc, '2.0')
+      assert.equal(jsonData.id, 30)
 
       if (jsonData.error) {
         console.log('Get terminal output error:', jsonData.error.message)
@@ -503,9 +510,9 @@ describe('mcp-widget', function () {
       } else if (jsonData.result) {
         const result = JSON.parse(jsonData.result.content[0].text)
         console.log('Terminal output:', result)
-        expect(result.output).toBeDefined()
-        expect(result.tabId).toBeDefined()
-        expect(typeof result.lineCount).toBe('number')
+        assert.ok(result.output !== undefined)
+        assert.ok(result.tabId !== undefined)
+        assert.equal(typeof result.lineCount, 'number')
       }
     } catch (err) {
       console.log('Get terminal output test error:', err.message)
@@ -517,7 +524,7 @@ describe('mcp-widget', function () {
   })
 
   // Test SSH bookmark creation, connection, command execution and output
-  it('should create SSH bookmark, connect, run command and get output', async function () {
+  test('should create SSH bookmark, connect, run command and get output', { timeout: 100000 }, async function () {
     // Load test environment variables
     const {
       TEST_HOST,
@@ -529,7 +536,7 @@ describe('mcp-widget', function () {
     if (!sessionId) {
       sessionId = await initSession()
     }
-    expect(sessionId).toBeTruthy()
+    assert.ok(sessionId)
 
     const uniqueId = Date.now()
     const bookmarkTitle = `MCP_SSH_Test_${uniqueId}`
@@ -553,20 +560,18 @@ describe('mcp-widget', function () {
     }
 
     try {
-      const addResponse = await axios.post(serverUrl, addBookmarkRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        }
+      const addResponse = await makeHttpRequest('post', serverUrl, addBookmarkRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
       })
 
       console.log('Add bookmark response status:', addResponse.status)
-      expect(addResponse.status).toBe(200)
+      assert.equal(addResponse.status, 200)
 
       const addSseData = addResponse.data
       const addDataLine = addSseData.split('\n').find(line => line.startsWith('data: '))
-      expect(addDataLine).toBeTruthy()
+      assert.ok(addDataLine)
       const addJsonData = JSON.parse(addDataLine.substring(6))
 
       if (addJsonData.error) {
@@ -576,8 +581,8 @@ describe('mcp-widget', function () {
 
       const addResult = JSON.parse(addJsonData.result.content[0].text)
       console.log('Add bookmark result:', addResult)
-      expect(addResult.success).toBe(true)
-      expect(addResult.id).toBeDefined()
+      assert.equal(addResult.success, true)
+      assert.ok(addResult.id !== undefined)
 
       const bookmarkId = addResult.id
       console.log('Created bookmark with ID:', bookmarkId)
@@ -595,20 +600,18 @@ describe('mcp-widget', function () {
         }
       }
 
-      const openResponse = await axios.post(serverUrl, openBookmarkRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        }
+      const openResponse = await makeHttpRequest('post', serverUrl, openBookmarkRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
       })
 
       console.log('Open bookmark response status:', openResponse.status)
-      expect(openResponse.status).toBe(200)
+      assert.equal(openResponse.status, 200)
 
       const openSseData = openResponse.data
       const openDataLine = openSseData.split('\n').find(line => line.startsWith('data: '))
-      expect(openDataLine).toBeTruthy()
+      assert.ok(openDataLine)
       const openJsonData = JSON.parse(openDataLine.substring(6))
 
       if (openJsonData.error) {
@@ -618,7 +621,7 @@ describe('mcp-widget', function () {
 
       const openResult = JSON.parse(openJsonData.result.content[0].text)
       console.log('Open bookmark result:', openResult)
-      expect(openResult.success).toBe(true)
+      assert.equal(openResult.success, true)
 
       // Wait for SSH connection to establish
       console.log('Waiting for SSH connection to establish...')
@@ -640,20 +643,18 @@ describe('mcp-widget', function () {
         }
       }
 
-      const cmdResponse = await axios.post(serverUrl, sendCommandRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        }
+      const cmdResponse = await makeHttpRequest('post', serverUrl, sendCommandRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
       })
 
       console.log('Send SSH command response status:', cmdResponse.status)
-      expect(cmdResponse.status).toBe(200)
+      assert.equal(cmdResponse.status, 200)
 
       const cmdSseData = cmdResponse.data
       const cmdDataLine = cmdSseData.split('\n').find(line => line.startsWith('data: '))
-      expect(cmdDataLine).toBeTruthy()
+      assert.ok(cmdDataLine)
       const cmdJsonData = JSON.parse(cmdDataLine.substring(6))
 
       if (cmdJsonData.error) {
@@ -669,7 +670,7 @@ describe('mcp-widget', function () {
       try {
         cmdResult = JSON.parse(cmdResultText)
         console.log('Send SSH command result:', cmdResult)
-        expect(cmdResult.success).toBe(true)
+        assert.equal(cmdResult.success, true)
       } catch (parseErr) {
         // The result might be an error message, not JSON
         console.log('Command result is not JSON, might be an error')
@@ -693,20 +694,18 @@ describe('mcp-widget', function () {
         }
       }
 
-      const outputResponse = await axios.post(serverUrl, getOutputRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        }
+      const outputResponse = await makeHttpRequest('post', serverUrl, getOutputRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
       })
 
       console.log('Get SSH output response status:', outputResponse.status)
-      expect(outputResponse.status).toBe(200)
+      assert.equal(outputResponse.status, 200)
 
       const outputSseData = outputResponse.data
       const outputDataLine = outputSseData.split('\n').find(line => line.startsWith('data: '))
-      expect(outputDataLine).toBeTruthy()
+      assert.ok(outputDataLine)
       const outputJsonData = JSON.parse(outputDataLine.substring(6))
 
       if (outputJsonData.error) {
@@ -716,8 +715,8 @@ describe('mcp-widget', function () {
 
       const outputResult = JSON.parse(outputJsonData.result.content[0].text)
       console.log('SSH terminal output:', outputResult)
-      expect(outputResult.output).toBeDefined()
-      expect(outputResult.lineCount).toBeGreaterThan(0)
+      assert.ok(outputResult.output !== undefined)
+      assert.ok(outputResult.lineCount > 0)
 
       // Check if our command output is in the terminal
       if (outputResult.output.includes(testMarker)) {
@@ -740,16 +739,14 @@ describe('mcp-widget', function () {
         }
       }
 
-      const deleteResponse = await axios.post(serverUrl, deleteBookmarkRequest, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        }
+      const deleteResponse = await makeHttpRequest('post', serverUrl, deleteBookmarkRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
       })
 
       console.log('Delete bookmark response status:', deleteResponse.status)
-      expect(deleteResponse.status).toBe(200)
+      assert.equal(deleteResponse.status, 200)
 
       const deleteSseData = deleteResponse.data
       const deleteDataLine = deleteSseData.split('\n').find(line => line.startsWith('data: '))
@@ -758,7 +755,7 @@ describe('mcp-widget', function () {
         if (!deleteJsonData.error) {
           const deleteResult = JSON.parse(deleteJsonData.result.content[0].text)
           console.log('Delete bookmark result:', deleteResult)
-          expect(deleteResult.success).toBe(true)
+          assert.equal(deleteResult.success, true)
         }
       }
 
