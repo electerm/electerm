@@ -61,6 +61,9 @@ export default function Sidebar (props) {
   }
 
   const handleClickBookmark = () => {
+    if (showModal) {
+      store.showModal = 0
+    }
     if (pinned) {
       return
     }
