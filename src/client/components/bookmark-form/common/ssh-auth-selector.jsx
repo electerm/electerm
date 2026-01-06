@@ -26,14 +26,44 @@ export default function renderAuth (props) {
     formItemName = 'password',
     profileFilter = (d) => d
   } = props
-  const beforeUpload = async (file) => {
+  const commonBeforeUpload = (fieldName) => async (file) => {
     const filePath = getFilePath(file)
-    const privateKey = await window.fs.readFile(filePath)
+    const content = await window.fs.readFile(filePath)
     form.setFieldsValue({
-      privateKey
+      [fieldName]: content
     })
     return false
   }
+  const renderKeyField = (key, label, desc) => (
+    <FormItem
+      {...formItemLayout}
+      label={e(label)}
+      hasFeedback
+      key={key}
+      className='mg1b'
+      rules={[{
+        max: 13000, message: '13000 chars max'
+      }]}
+    >
+      <FormItem noStyle name={key}>
+        <TextArea
+          placeholder={e(desc)}
+          autoSize={{ minRows: 1 }}
+        />
+      </FormItem>
+      <Upload
+        beforeUpload={commonBeforeUpload(key)}
+        fileList={[]}
+      >
+        <Button
+          type='dashed'
+          className='mg2b mg1t'
+        >
+          {e('importFromFile')}
+        </Button>
+      </Upload>
+    </FormItem>
+  )
   if (authType === 'password') {
     const opts = {
       options: uniqBy(
@@ -95,34 +125,7 @@ export default function renderAuth (props) {
     )
   }
   return [
-    <FormItem
-      {...formItemLayout}
-      label={e('privateKey')}
-      hasFeedback
-      key='privateKey'
-      className='mg1b'
-      rules={[{
-        max: 13000, message: '13000 chars max'
-      }]}
-    >
-      <FormItem noStyle name='privateKey'>
-        <TextArea
-          placeholder={e('privateKeyDesc')}
-          autoSize={{ minRows: 1 }}
-        />
-      </FormItem>
-      <Upload
-        beforeUpload={beforeUpload}
-        fileList={[]}
-      >
-        <Button
-          type='dashed'
-          className='mg2b mg1t'
-        >
-          {e('importFromFile')}
-        </Button>
-      </Upload>
-    </FormItem>,
+    renderKeyField('privateKey', 'privateKey', 'privateKeyDesc'),
     <FormItem
       key='passphrase'
       {...formItemLayout}
@@ -136,6 +139,7 @@ export default function renderAuth (props) {
       <Password
         placeholder={e('passphraseDesc')}
       />
-    </FormItem>
+    </FormItem>,
+    renderKeyField('certificate', 'certificate', 'certificate')
   ]
 }

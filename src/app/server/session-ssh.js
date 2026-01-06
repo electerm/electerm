@@ -512,9 +512,11 @@ class TerminalSshBase extends TerminalBase {
         'username',
         'password',
         'privateKey',
-        'passphrase'
+        'passphrase',
+        'certificate'
       ])
     )
+    console.log(connectOptions)
     if (initOptions.debug) {
       connectOptions.debug = log.log
     }
