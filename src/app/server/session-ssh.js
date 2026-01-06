@@ -516,7 +516,6 @@ class TerminalSshBase extends TerminalBase {
         'certificate'
       ])
     )
-    console.log(connectOptions)
     if (initOptions.debug) {
       connectOptions.debug = log.log
     }
