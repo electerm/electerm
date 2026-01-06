@@ -25,9 +25,12 @@ export default function SshAuthTypeSelector ({ handleChangeAuthType, filterAuthT
       >
         {
           authTypesFiltered.map(t => {
+            const str = t === 'privateKey'
+              ? e(t) + '/' + e('certificate')
+              : e(t)
             return (
               <RadioButton value={t} key={t}>
-                {e(t)}
+                {str}
               </RadioButton>
             )
           })
