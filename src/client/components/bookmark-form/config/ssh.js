@@ -20,6 +20,7 @@ const sshConfig = {
       enableSftp: true,
       sshTunnels: [],
       connectionHoppings: [],
+      useSshAgent: true,
       serverHostKey: [],
       cipher: [],
       ...getTerminalDefaults(store),
