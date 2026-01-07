@@ -15,65 +15,65 @@ export const commonFields = {
   host: {
     type: 'colorTitle',
     name: 'host',
-    label: e('host'),
+    label: () => e('host'),
     rules: [{ required: true, message: e('host') + ' required' }]
   },
 
   colorTitle: {
     type: 'colorTitle',
     name: 'title',
-    label: e('title')
+    label: () => e('title')
   },
 
   title: {
     type: 'input',
     name: 'title',
-    label: e('title')
+    label: () => e('title')
   },
 
   username: {
     type: 'input',
     name: 'username',
-    label: e('username')
+    label: () => e('username')
   },
 
   password: {
     type: 'password',
     name: 'password',
-    label: e('password')
+    label: () => e('password')
   },
 
   loginPrompt: {
     type: 'input',
     name: 'loginPrompt',
-    label: e('loginPrompt'),
+    label: () => e('loginPrompt'),
     props: { placeholder: '/login[: ]*$/i' }
   },
 
   passwordPrompt: {
     type: 'input',
     name: 'passwordPrompt',
-    label: e('passwordPrompt'),
+    label: () => e('passwordPrompt'),
     props: { placeholder: '/password[: ]*$/i' }
   },
 
   port: {
     type: 'number',
     name: 'port',
-    label: e('port'),
+    label: () => e('port'),
     rules: [{ required: true, message: 'port required' }]
   },
 
   description: {
     type: 'textarea',
     name: 'description',
-    label: e('description')
+    label: () => e('description')
   },
 
   category: {
     type: 'categorySelect',
     name: 'category',
-    label: e('category')
+    label: () => e('category')
   },
 
   type: {
@@ -106,13 +106,13 @@ export const commonFields = {
   interactiveValues: {
     type: 'textarea',
     name: 'interactiveValues',
-    label: e('interactiveValues')
+    label: () => e('interactiveValues')
   },
 
   encode: {
     type: 'select',
     name: 'encode',
-    label: e('encode'),
+    label: () => e('encode'),
     options: encodes.map(k => ({ label: k.toUpperCase(), value: k }))
   },
 
@@ -128,7 +128,7 @@ export const commonFields = {
   terminalType: {
     type: 'autocomplete',
     name: 'term',
-    label: e('terminalType'),
+    label: () => e('terminalType'),
     rules: [{ required: true, message: 'terminal type required' }],
     options: terminalTypes.map(t => ({ label: t, value: t }))
   },
@@ -136,14 +136,14 @@ export const commonFields = {
   displayRaw: {
     type: 'switch',
     name: 'displayRaw',
-    label: e('displayRaw'),
+    label: () => e('displayRaw'),
     valuePropName: 'checked'
   },
 
   fontFamily: {
     type: 'input',
     name: 'fontFamily',
-    label: e('fontFamily'),
+    label: () => e('fontFamily'),
     rules: [{ max: 130, message: '130 chars max' }],
     props: { placeholder: defaultSettings.fontFamily }
   },
@@ -151,7 +151,7 @@ export const commonFields = {
   fontSize: {
     type: 'number',
     name: 'fontSize',
-    label: e('fontSize'),
+    label: () => e('fontSize'),
     props: {
       min: 9,
       max: 65535,
@@ -163,7 +163,7 @@ export const commonFields = {
   keepaliveInterval: {
     type: 'number',
     name: 'keepaliveInterval',
-    label: e('keepaliveIntervalDesc'),
+    label: () => e('keepaliveIntervalDesc'),
     props: {
       min: 0,
       max: 20000000,
@@ -174,13 +174,13 @@ export const commonFields = {
   terminalBackground: {
     type: 'terminalBackground',
     name: 'terminalBackground',
-    label: e('terminalBackgroundImage')
+    label: () => e('terminalBackgroundImage')
   },
 
   proxy: {
     type: 'proxy',
     name: '__proxy__',
-    label: e('proxy')
+    label: () => e('proxy')
   },
 
   x11: {
@@ -243,7 +243,7 @@ export const sshSettings = [
   {
     type: 'switch',
     name: 'ignoreKeyboardInteractive',
-    label: e('ignoreKeyboardInteractive'),
+    label: () => e('ignoreKeyboardInteractive'),
     valuePropName: 'checked'
   },
   ...terminalSettings.slice(0, -1), // All except terminalBackground
@@ -274,7 +274,7 @@ export const sshAuthFields = [
   {
     type: 'switch',
     name: 'useSshAgent',
-    label: e('useSshAgent'),
+    label: () => e('useSshAgent'),
     valuePropName: 'checked'
   },
   commonFields.runScripts,
@@ -311,18 +311,18 @@ export const telnetAuthFields = [
 // Common tab configurations - functions to ensure translation happens at render time
 export const quickCommandsTab = () => ({
   key: 'quickCommands',
-  label: e('quickCommands'),
+  label: () => e('quickCommands'),
   fields: [commonFields.quickCommands]
 })
 
 export const sshTunnelTab = () => ({
   key: 'tunnel',
-  label: e('sshTunnel'),
+  label: () => e('sshTunnel'),
   fields: [commonFields.sshTunnels]
 })
 
 export const connectionHoppingTab = () => ({
   key: 'connectionHopping',
-  label: e('connectionHopping'),
+  label: () => e('connectionHopping'),
   fields: [commonFields.connectionHopping]
 })

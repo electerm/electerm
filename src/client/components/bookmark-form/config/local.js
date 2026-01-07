@@ -26,7 +26,7 @@ const localConfig = {
   tabs: () => [
     {
       key: 'auth',
-      label: e('auth'),
+      label: () => e('auth'),
       fields: [
         commonFields.category,
         commonFields.colorTitle,
@@ -37,7 +37,7 @@ const localConfig = {
     },
     {
       key: 'settings',
-      label: e('settings'),
+      label: () => e('settings'),
       fields: [
         {
           type: 'input',
@@ -48,27 +48,27 @@ const localConfig = {
         {
           type: 'autocomplete',
           name: 'term',
-          label: e('terminalType'),
+          label: () => e('terminalType'),
           rules: [{ required: true, message: 'terminal type required' }],
           options: terminalTypes.map(t => ({ label: t, value: t }))
         },
         {
           type: 'switch',
           name: 'displayRaw',
-          label: e('displayRaw'),
+          label: () => e('displayRaw'),
           valuePropName: 'checked'
         },
         {
           type: 'input',
           name: 'fontFamily',
-          label: e('fontFamily'),
+          label: () => e('fontFamily'),
           rules: [{ max: 130, message: '130 chars max' }],
           props: { placeholder: defaultSettings.fontFamily }
         },
         {
           type: 'number',
           name: 'fontSize',
-          label: e('fontSize'),
+          label: () => e('fontSize'),
           props: {
             min: 9,
             max: 65535,
@@ -79,19 +79,19 @@ const localConfig = {
         {
           type: 'number',
           name: 'keepaliveInterval',
-          label: e('keepaliveIntervalDesc'),
+          label: () => e('keepaliveIntervalDesc'),
           props: {
             min: 0,
             max: 20000000,
             step: 1000
           }
         },
-        { type: 'terminalBackground', name: 'terminalBackground', label: e('terminalBackgroundImage') }
+        { type: 'terminalBackground', name: 'terminalBackground', label: () => e('terminalBackgroundImage') }
       ]
     },
     {
       key: 'quickCommands',
-      label: e('quickCommands'),
+      label: () => e('quickCommands'),
       fields: [
         { type: 'quickCommands', name: '__quick__', label: '' }
       ]

@@ -22,16 +22,16 @@ const ftpConfig = {
   tabs: () => [
     {
       key: 'auth',
-      label: e('auth'),
+      label: () => e('auth'),
       fields: [
         commonFields.category,
         commonFields.colorTitle,
-        { type: 'input', name: 'host', label: e('host'), rules: [{ required: true, message: e('host') + ' required' }] },
+        { type: 'input', name: 'host', label: () => e('host'), rules: [{ required: true, message: e('host') + ' required' }] },
         commonFields.port,
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.ftp) },
-        { type: 'input', name: 'user', label: e('username') },
-        { type: 'password', name: 'password', label: e('password') },
-        { type: 'switch', name: 'secure', label: e('secure'), valuePropName: 'checked' },
+        { type: 'input', name: 'user', label: () => e('username') },
+        { type: 'password', name: 'password', label: () => e('password') },
+        { type: 'switch', name: 'secure', label: () => e('secure'), valuePropName: 'checked' },
         commonFields.type
       ]
     }

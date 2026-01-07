@@ -23,16 +23,16 @@ const vncConfig = {
   tabs: () => [
     {
       key: 'auth',
-      label: e('auth'),
+      label: () => e('auth'),
       fields: [
         { type: 'vncWarning', name: 'vncWarning' },
         commonFields.category,
         commonFields.colorTitle,
-        { type: 'input', name: 'host', label: e('host'), rules: [{ required: true, message: e('host') + ' required' }] },
+        { type: 'input', name: 'host', label: () => e('host'), rules: [{ required: true, message: e('host') + ' required' }] },
         commonFields.port,
-        { type: 'switch', name: 'viewOnly', label: e('viewOnly'), valuePropName: 'checked' },
-        { type: 'switch', name: 'clipViewport', label: e('clipViewport'), valuePropName: 'checked' },
-        { type: 'switch', name: 'scaleViewport', label: e('scaleViewport'), valuePropName: 'checked' },
+        { type: 'switch', name: 'viewOnly', label: () => e('viewOnly'), valuePropName: 'checked' },
+        { type: 'switch', name: 'clipViewport', label: () => e('clipViewport'), valuePropName: 'checked' },
+        { type: 'switch', name: 'scaleViewport', label: () => e('scaleViewport'), valuePropName: 'checked' },
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.vnc) },
         commonFields.username,
         commonFields.password,

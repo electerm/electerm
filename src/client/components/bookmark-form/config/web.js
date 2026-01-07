@@ -15,14 +15,14 @@ const webConfig = {
   tabs: () => [
     {
       key: 'main',
-      label: e('auth'),
+      label: () => e('auth'),
       fields: [
         commonFields.category,
         commonFields.colorTitle,
         {
           type: 'input',
           name: 'url',
-          label: e('URL'),
+          label: () => e('URL'),
           rules: [
             { required: true, message: e('Please input URL') },
             {
@@ -34,7 +34,7 @@ const webConfig = {
           ]
         },
         commonFields.description,
-        { type: 'input', name: 'useragent', label: e('useragent') },
+        { type: 'input', name: 'useragent', label: () => e('useragent') },
         { type: 'switch', name: 'hideAddressBar', label: 'hideAddressBar', valuePropName: 'checked' },
         commonFields.type
       ]

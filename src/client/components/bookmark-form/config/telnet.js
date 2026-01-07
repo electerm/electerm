@@ -31,12 +31,12 @@ const telnetConfig = {
   tabs: () => [
     {
       key: 'auth',
-      label: e('auth'),
+      label: () => e('auth'),
       fields: telnetAuthFields
     },
     {
       key: 'settings',
-      label: e('settings'),
+      label: () => e('settings'),
       fields: terminalSettings
     },
     quickCommandsTab()

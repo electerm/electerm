@@ -33,12 +33,12 @@ const sshConfig = {
   tabs: () => [
     {
       key: 'auth',
-      label: e('auth'),
+      label: () => e('auth'),
       fields: sshAuthFields
     },
     {
       key: 'settings',
-      label: e('settings'),
+      label: () => e('settings'),
       fields: sshSettings
     },
     quickCommandsTab(),
