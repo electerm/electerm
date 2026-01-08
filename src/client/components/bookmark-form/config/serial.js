@@ -31,7 +31,7 @@ const serialConfig = {
   tabs: () => [
     {
       key: 'auth',
-      label: () => e('auth'),
+      label: e('auth'),
       fields: [
         commonFields.category,
         commonFields.colorTitle,
@@ -64,14 +64,14 @@ const serialConfig = {
     },
     {
       key: 'settings',
-      label: () => e('settings'),
+      label: e('settings'),
       fields: [
         { type: 'terminalBackground', name: 'terminalBackground', label: () => e('terminalBackgroundImage') }
       ]
     },
     {
       key: 'quickCommands',
-      label: () => e('quickCommands'),
+      label: e('quickCommands'),
       fields: [
         { type: 'quickCommands', name: '__quick__', label: '' }
       ]

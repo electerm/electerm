@@ -19,7 +19,7 @@ const rdpConfig = {
   tabs: () => [
     {
       key: 'auth',
-      label: () => e('auth'),
+      label: e('auth'),
       fields: [
         { type: 'rdpWarning', name: 'rdpWarning' },
         commonFields.category,

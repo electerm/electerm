@@ -15,7 +15,7 @@ const webConfig = {
   tabs: () => [
     {
       key: 'main',
-      label: () => e('auth'),
+      label: e('auth'),
       fields: [
         commonFields.category,
         commonFields.colorTitle,

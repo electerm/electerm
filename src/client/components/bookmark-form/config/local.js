@@ -26,7 +26,7 @@ const localConfig = {
   tabs: () => [
     {
       key: 'auth',
-      label: () => e('auth'),
+      label: e('auth'),
       fields: [
         commonFields.category,
         commonFields.colorTitle,
@@ -37,7 +37,7 @@ const localConfig = {
     },
     {
       key: 'settings',
-      label: () => e('settings'),
+      label: e('settings'),
       fields: [
         {
           type: 'input',
@@ -91,7 +91,7 @@ const localConfig = {
     },
     {
       key: 'quickCommands',
-      label: () => e('quickCommands'),
+      label: e('quickCommands'),
       fields: [
         { type: 'quickCommands', name: '__quick__', label: '' }
       ]

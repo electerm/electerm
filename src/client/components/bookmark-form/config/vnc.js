@@ -23,7 +23,7 @@ const vncConfig = {
   tabs: () => [
     {
       key: 'auth',
-      label: () => e('auth'),
+      label: e('auth'),
       fields: [
         { type: 'vncWarning', name: 'vncWarning' },
         commonFields.category,

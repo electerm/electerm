@@ -311,18 +311,18 @@ export const telnetAuthFields = [
 // Common tab configurations - functions to ensure translation happens at render time
 export const quickCommandsTab = () => ({
   key: 'quickCommands',
-  label: () => e('quickCommands'),
+  label: e('quickCommands'),
   fields: [commonFields.quickCommands]
 })
 
 export const sshTunnelTab = () => ({
   key: 'tunnel',
-  label: () => e('sshTunnel'),
+  label: e('sshTunnel'),
   fields: [commonFields.sshTunnels]
 })
 
 export const connectionHoppingTab = () => ({
   key: 'connectionHopping',
-  label: () => e('connectionHopping'),
+  label: e('connectionHopping'),
   fields: [commonFields.connectionHopping]
 })
