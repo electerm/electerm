@@ -44,6 +44,11 @@ function buildConfigForSearch (config) {
   }, {})
 }
 
+function isInAntdInput () {
+  const activeElement = document.activeElement
+  return activeElement && activeElement.classList.contains('shortcut-input')
+}
+
 export function shortcutExtend (Cls) {
   Cls.prototype.handleKeyboardEvent = function (event) {
     const {
@@ -57,6 +62,9 @@ export function shortcutExtend (Cls) {
       type,
       key
     } = event
+    if (isInAntdInput()) {
+      return
+    }
     if (this.cmdAddon) {
       this.cmdAddon.handleKey(event)
     }

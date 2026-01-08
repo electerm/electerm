@@ -106,6 +106,8 @@ export default class ShortcutEdit extends PureComponent {
       altKey,
       wheelDeltaY
     } = e
+    e.preventDefault()
+    e.stopPropagation()
     const codeName = e instanceof window.WheelEvent
       ? (wheelDeltaY > 0 ? 'mouseWheelUp' : 'mouseWheelDown')
       : code
@@ -201,6 +203,7 @@ export default class ShortcutEdit extends PureComponent {
         <Input
           addonAfter={this.renderAfter()}
           value={shortcut}
+          className='shortcut-input'
         />
       </div>
     )

@@ -11,18 +11,14 @@ import generate from '../../common/uid'
 import InputAutoFocus from '../common/input-auto-focus'
 import renderQm from './quick-commands-list-form'
 import ShortcutEdit from '../shortcuts/shortcut-editor'
-import shortcutsDefaultsGen from '../shortcuts/shortcuts-defaults'
+import { getKeysTakenData } from '../shortcuts/shortcut-utils'
 import deepCopy from 'json-deep-copy'
-import {
-  isMacJs as isMac
-} from '../../common/constants.js'
 import templates from './templates'
 import HelpIcon from '../common/help-icon'
 
 const FormItem = Form.Item
 const { Option } = Select
 const e = window.translate
-const shortcutsDefaults = shortcutsDefaultsGen()
 
 export default function QuickCommandForm (props) {
   const [form] = Form.useForm()
@@ -42,41 +38,15 @@ export default function QuickCommandForm (props) {
     })
     setShortcut('')
   }
-  const getKeysTakenData = () => {
-    const { shortcuts = {} } = store.config
-    const { quickCommands = [] } = store
+  const getKeysTaken = () => {
+    const keysTaken = getKeysTakenData()
 
-    // Gather system shortcuts
-    const systemShortcuts = shortcutsDefaults.reduce((p, k) => {
-      const propName = isMac ? 'shortcutMac' : 'shortcut'
-      const name = k.name + '_' + propName
-      const vv = k.readonly ? k[propName] : (shortcuts[name] || k[propName])
-      const v = vv
-        .split(',')
-        .map(f => f.trim())
-        .reduce((p, k) => ({
-          ...p,
-          [k]: true
-        }), {})
-      return {
-        ...p,
-        ...v
-      }
-    }, {})
-
-    // Gather quick command shortcuts
-    const quickCommandShortcuts = quickCommands.reduce((acc, command) => {
-      if (command.shortcut) {
-        acc[command.shortcut] = true
-      }
-      return acc
-    }, {})
-
-    // Combine system shortcuts and quick command shortcuts
-    return {
-      ...systemShortcuts,
-      ...quickCommandShortcuts
+    // Exclude current shortcut if editing existing command
+    if (formData.shortcut) {
+      delete keysTaken[formData.shortcut]
     }
+
+    return keysTaken
   }
 
   async function handleSubmit (res) {
@@ -126,7 +96,7 @@ export default function QuickCommandForm (props) {
       name: uid,
       shortcut
     },
-    keysTaken: getKeysTakenData(),
+    keysTaken: getKeysTaken(),
     store,
     updateConfig,
     handleClear,

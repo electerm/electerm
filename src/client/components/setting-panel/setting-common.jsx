@@ -32,23 +32,11 @@ import HelpIcon from '../common/help-icon'
 import delay from '../../common/wait.js'
 import isColorDark from '../../common/is-color-dark'
 import DeepLinkControl from './deep-link-control'
+import HotkeySetting from './hotkey'
 import './setting.styl'
 
 const { Option } = Select
 const e = window.translate
-
-const modifiers = [
-  'Command',
-  'Control',
-  'Alt',
-  'Shift'
-]
-const keys = [
-  ...'0123456789~ABCDEFGHIJKLMNOPQRTSUVWXYZ'.split(''),
-  ...new Array(12).fill(0).map((m, i) => {
-    return 'F' + (i + 1)
-  })
-]
 
 export default class SettingCommon extends Component {
   state = {
@@ -142,25 +130,9 @@ export default class SettingCommon extends Component {
     )
   }
 
-  handleChangeModifier = modifier => {
-    const { hotkey } = this.props.config
-    const key = hotkey.split('+')[1]
-    return this.saveConfig({
-      hotkey: `${modifier}+${key}`
-    })
-  }
-
   onChangeTimeout = sshReadyTimeout => {
     return this.saveConfig({
       sshReadyTimeout
-    })
-  }
-
-  handleChangeKey = key => {
-    const { hotkey } = this.props.config
-    const modifier = hotkey.split('+')[0]
-    return this.saveConfig({
-      hotkey: `${modifier}+${key}`
     })
   }
 
@@ -209,12 +181,6 @@ export default class SettingCommon extends Component {
       }
     }
     this.props.store.setConfig(ext)
-  }
-
-  renderOption = (m, i) => {
-    return (
-      <Option value={m} key={m + 'opt' + i}>{m}</Option>
-    )
   }
 
   renderToggle = (name, extra = null) => {
@@ -513,7 +479,6 @@ export default class SettingCommon extends Component {
       langs = []
     } = window.et
     const terminalThemes = props.store.getSidebarList(settingMap.terminalThemes)
-    const [modifier, key] = hotkey.split('+')
     const pops = {
       onStartSessions: props.config.onStartSessions,
       bookmarks: props.bookmarks,
@@ -521,35 +486,16 @@ export default class SettingCommon extends Component {
       workspaces: props.store.workspaces,
       onChangeStartSessions: this.onChangeStartSessions
     }
+    const hotkeyProps = {
+      hotkey,
+      onSaveConfig: this.saveConfig
+    }
     return (
       <div className='form-wrap pd1y pd2x'>
         <h2>{e('settings')}</h2>
-        <div className='pd1b'>{e('hotkeyDesc')}</div>
-        <div className='pd2b'>
-          <Select
-            value={modifier}
-            onChange={this.handleChangeModifier}
-            className='width100'
-            popupMatchSelectWidth={false}
-            showSearch
-          >
-            {
-              modifiers.map(this.renderOption)
-            }
-          </Select>
-          <span className='mg1x'>+</span>
-          <Select
-            value={key}
-            className='width100'
-            onChange={this.handleChangeKey}
-            popupMatchSelectWidth={false}
-            showSearch
-          >
-            {
-              keys.map(this.renderOption)
-            }
-          </Select>
-        </div>
+        <HotkeySetting
+          {...hotkeyProps}
+        />
         <div className='pd1b'>{e('onStartBookmarks')}</div>
         <div className='pd2b'>
           <StartSession

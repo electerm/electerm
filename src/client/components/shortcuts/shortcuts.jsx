@@ -6,9 +6,10 @@ import {
   Table,
   Button
 } from 'antd'
+import { isMacJs as isMac } from '../../common/constants.js'
 import {
-  isMacJs as isMac
-} from '../../common/constants.js'
+  getKeysTakenData
+} from './shortcut-utils.js'
 
 const e = window.translate
 const shortcutsDefaults = shortcutsDefaultsGen()
@@ -43,43 +44,6 @@ export default class Shortcuts extends PureComponent {
           shortcut: c.readonly ? c[propName] : (shortcuts[name] || c[propName])
         }
       })
-  }
-
-  getKeysTakenData = () => {
-    const { config, quickCommands = [] } = this.props
-    const { shortcuts = {} } = config
-
-    // Gather system shortcuts
-    const systemShortcuts = shortcutsDefaults.reduce((p, k) => {
-      const propName = isMac ? 'shortcutMac' : 'shortcut'
-      const name = k.name + '_' + propName
-      const vv = k.readonly ? k[propName] : (shortcuts[name] || k[propName])
-      const v = vv
-        .split(',')
-        .map(f => f.trim())
-        .reduce((p, k) => ({
-          ...p,
-          [k]: true
-        }), {})
-      return {
-        ...p,
-        ...v
-      }
-    }, {})
-
-    // Gather quick command shortcuts
-    const quickCommandShortcuts = quickCommands.reduce((acc, command) => {
-      if (command.shortcut) {
-        acc[command.shortcut] = true
-      }
-      return acc
-    }, {})
-
-    // Combine system shortcuts and quick command shortcuts
-    return {
-      ...systemShortcuts,
-      ...quickCommandShortcuts
-    }
   }
 
   render () {
@@ -124,7 +88,7 @@ export default class Shortcuts extends PureComponent {
           return (
             <ShortcutEdit
               data={inst}
-              keysTaken={this.getKeysTakenData()}
+              keysTaken={getKeysTakenData()}
               updateConfig={this.updateConfig}
             />
           )
