@@ -139,6 +139,11 @@ class ShortcutControl extends React.PureComponent {
     window.store.reloadTab()
   }, 500)
 
+  reloadAllShortcut = throttle((e) => {
+    e.stopPropagation()
+    window.store.reloadAllTabs()
+  }, 500)
+
   cloneToNextLayoutShortcut = throttle((e) => {
     e.stopPropagation()
     window.store.cloneToNextLayout()

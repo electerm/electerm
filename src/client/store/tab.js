@@ -124,6 +124,17 @@ export default Store => {
     }, 0)
   }
 
+  Store.prototype.reloadAllTabs = function () {
+    const { store } = window
+    const { tabs } = store
+    // Reload all tabs with a small delay between each to avoid conflicts
+    tabs.forEach((tab, index) => {
+      setTimeout(() => {
+        store.reloadTab(tab.id)
+      }, index * 100) // 100ms delay between each reload
+    })
+  }
+
   Store.prototype.duplicateTab = function (tabId) {
     const { store } = window
     const { tabs } = store

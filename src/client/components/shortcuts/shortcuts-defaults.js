@@ -17,6 +17,11 @@ export default () => {
       shortcutMac: 'alt+r'
     },
     {
+      name: 'app_reloadAll',
+      shortcut: 'alt+y',
+      shortcutMac: 'alt+y'
+    },
+    {
       name: 'app_cloneToNextLayout',
       shortcut: 'ctrl+/',
       shortcutMac: 'meta+/'

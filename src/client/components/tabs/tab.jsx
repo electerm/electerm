@@ -190,6 +190,10 @@ class Tab extends Component {
     window.store.reloadTab(this.props.tab.id)
   }
 
+  handleReloadAll = () => {
+    window.store.reloadAllTabs()
+  }
+
   onDragEnd = e => {
     removeClass(this.tabRef.current, onDragCls)
     this.clearCls()
@@ -260,6 +264,7 @@ class Tab extends Component {
     const closeShortcut = this.getShortcut('app_closeCurrentTab')
     const cloneToNextShortcut = this.getShortcut('app_cloneToNextLayout')
     const duplicateShortcut = this.getShortcut('app_duplicateTab')
+    const reloadAllShortcut = this.getShortcut('app_reloadAll')
 
     const x = [
       {
@@ -305,6 +310,12 @@ class Tab extends Component {
         icon: <iconsMap.ReloadOutlined />,
         label: e('reload'),
         extra: reloadShortcut
+      },
+      {
+        key: 'handleReloadAll',
+        icon: <iconsMap.ReloadOutlined />,
+        label: e('reloadAll'),
+        extra: reloadAllShortcut
       }
     ].filter(Boolean)
     return x
