@@ -21,6 +21,7 @@ const sshConfig = {
       sshTunnels: [],
       connectionHoppings: [],
       useSshAgent: true,
+      sshAgent: '',
       serverHostKey: [],
       cipher: [],
       ...getTerminalDefaults(store),

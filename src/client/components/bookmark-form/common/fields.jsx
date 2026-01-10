@@ -10,6 +10,7 @@ import InputAutoFocus from '../../common/input-auto-focus.jsx'
 import ProxyField from './proxy.jsx'
 import X11Field from './x11.jsx'
 import SshTunnels from './ssh-tunnels.jsx'
+import SshAgent from './ssh-agent.jsx'
 import ConnectionHopping from './connection-hopping.jsx'
 import TerminalBackgroundField from './terminal-background.jsx'
 import useQuickCmds from './quick-commands.jsx'
@@ -145,6 +146,8 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
       return <X11Field key={name} form={form} />
     case 'sshTunnels':
       return <SshTunnels key={name} form={form} formData={ctxProps.formData} />
+    case 'sshAgent':
+      return <SshAgent key={name} />
     case 'connectionHopping':
       return (
         <ConnectionHopping

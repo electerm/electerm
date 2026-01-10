@@ -272,10 +272,8 @@ export const sshAuthFields = [
   { type: 'sshAuthSelector', name: '__auth__', label: '', formItemName: 'password' },
   commonFields.port,
   {
-    type: 'switch',
-    name: 'useSshAgent',
-    label: () => e('useSshAgent'),
-    valuePropName: 'checked'
+    type: 'sshAgent',
+    name: 'useSshAgent'
   },
   commonFields.runScripts,
   commonFields.description,

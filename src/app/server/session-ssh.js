@@ -504,7 +504,7 @@ class TerminalSshBase extends TerminalBase {
     const connectOptions = Object.assign(
       this.getShareOptions(),
       {
-        agent: initOptions.useSshAgent !== false ? process.env.SSH_AUTH_SOCK : undefined
+        agent: initOptions.useSshAgent !== false ? (initOptions.sshAgent || process.env.SSH_AUTH_SOCK) : undefined
       },
       _.pick(initOptions, [
         'host',
