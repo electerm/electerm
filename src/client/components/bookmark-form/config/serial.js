@@ -40,7 +40,7 @@ const serialConfig = {
           type: 'autocomplete',
           name: 'baudRate',
           label: 'baudRate',
-          options: commonBaudRates.map(d => ({ value: d })),
+          options: commonBaudRates.map(d => ({ value: d.toString(), label: d.toString() })),
           normalize: (value) => {
             if (value === '' || value == null) {
               return undefined
