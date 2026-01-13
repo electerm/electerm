@@ -127,9 +127,9 @@ class ElectermMCPServer {
     // ==================== Tab/Terminal APIs (always enabled) ====================
 
     server.registerTool(
-      'list_tabs',
+      'list_electerm_tabs',
       {
-        description: 'List all open terminal tabs',
+        description: 'List all open electerm terminal tabs',
         inputSchema: z.object({})
       },
       async () => {
@@ -139,9 +139,9 @@ class ElectermMCPServer {
     )
 
     server.registerTool(
-      'get_active_tab',
+      'get_electerm_active_tab',
       {
-        description: 'Get the currently active tab',
+        description: 'Get the currently active electerm tab',
         inputSchema: z.object({})
       },
       async () => {
@@ -151,9 +151,9 @@ class ElectermMCPServer {
     )
 
     server.registerTool(
-      'switch_tab',
+      'switch_electerm_tab',
       {
-        description: 'Switch to a specific tab',
+        description: 'Switch to a specific electerm tab',
         inputSchema: {
           tabId: z.string().describe('Tab ID to switch to')
         }
@@ -165,9 +165,9 @@ class ElectermMCPServer {
     )
 
     server.registerTool(
-      'close_tab',
+      'close_electerm_tab',
       {
-        description: 'Close a specific tab',
+        description: 'Close a specific electerm tab',
         inputSchema: {
           tabId: z.string().describe('Tab ID to close')
         }
@@ -179,9 +179,9 @@ class ElectermMCPServer {
     )
 
     server.registerTool(
-      'reload_tab',
+      'reload_electerm_tab',
       {
-        description: 'Reload/reconnect a tab',
+        description: 'Reload/reconnect an electerm tab',
         inputSchema: {
           tabId: z.string().optional().describe('Tab ID to reload (default: active tab)')
         }
@@ -194,9 +194,9 @@ class ElectermMCPServer {
     )
 
     server.registerTool(
-      'duplicate_tab',
+      'duplicate_electerm_tab',
       {
-        description: 'Duplicate a tab',
+        description: 'Duplicate an electerm tab',
         inputSchema: {
           tabId: z.string().describe('Tab ID to duplicate')
         }
@@ -208,9 +208,9 @@ class ElectermMCPServer {
     )
 
     server.registerTool(
-      'open_local_terminal',
+      'open_electerm_local_terminal',
       {
-        description: 'Open a new local terminal tab',
+        description: 'Open a new electerm local terminal tab',
         inputSchema: z.object({})
       },
       async () => {
@@ -220,9 +220,9 @@ class ElectermMCPServer {
     )
 
     server.registerTool(
-      'send_terminal_command',
+      'send_electerm_terminal_command',
       {
-        description: 'Send a command to the active terminal',
+        description: 'Send a command to the active electerm terminal',
         inputSchema: {
           command: z.string().describe('Command to send'),
           tabId: z.string().optional().describe('Optional: specific tab ID'),
@@ -239,9 +239,9 @@ class ElectermMCPServer {
     )
 
     server.registerTool(
-      'get_terminal_selection',
+      'get_electerm_terminal_selection',
       {
-        description: 'Get the current text selection in terminal',
+        description: 'Get the current text selection in electerm terminal',
         inputSchema: {
           tabId: z.string().optional().describe('Optional: specific tab ID')
         }
@@ -254,9 +254,9 @@ class ElectermMCPServer {
     )
 
     server.registerTool(
-      'get_terminal_output',
+      'get_electerm_terminal_output',
       {
-        description: 'Get recent terminal output/buffer content',
+        description: 'Get recent electerm terminal output/buffer content',
         inputSchema: {
           tabId: z.string().optional().describe('Optional: specific tab ID'),
           lines: z.number().optional().describe('Number of lines to return (default: 50)')
@@ -273,9 +273,9 @@ class ElectermMCPServer {
     // ==================== Bookmark APIs ====================
     if (this.config.enableBookmarks) {
       server.registerTool(
-        'list_bookmarks',
+        'list_electerm_bookmarks',
         {
-          description: 'List all SSH/terminal bookmarks',
+          description: 'List all electerm SSH/terminal bookmarks',
           inputSchema: {
             groupId: z.string().optional().describe('Optional: Filter by bookmark group ID')
           }
@@ -288,9 +288,9 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'get_bookmark',
+        'get_electerm_bookmark',
         {
-          description: 'Get a specific bookmark by ID',
+          description: 'Get a specific electerm bookmark by ID',
           inputSchema: {
             id: z.string().describe('Bookmark ID')
           }
@@ -302,31 +302,86 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'add_bookmark',
+        'add_electerm_bookmark_ssh',
         {
-          description: 'Add a new SSH/terminal bookmark',
+          description: 'Add a new SSH bookmark to electerm',
           inputSchema: {
             title: z.string().describe('Bookmark title'),
-            host: z.string().optional().describe('SSH host address'),
+            host: z.string().describe('SSH host address'),
             port: z.number().optional().describe('SSH port (default 22)'),
             username: z.string().optional().describe('SSH username'),
-            password: z.string().optional().describe('SSH password (optional)'),
-            type: z.enum(['ssh', 'local', 'serial', 'telnet']).optional().describe('Connection type')
+            password: z.string().optional().describe('SSH password'),
+            authType: z.enum(['password', 'privateKey', 'keyboard-interactive']).optional().describe('Authentication type'),
+            privateKey: z.string().optional().describe('Private key content (for privateKey auth)'),
+            passphrase: z.string().optional().describe('Private key passphrase'),
+            useSshAgent: z.boolean().optional().describe('Use SSH agent'),
+            description: z.string().optional().describe('Bookmark description')
           }
         },
-        async ({ title, host, port, username, password, type }) => {
+        async ({ title, host, port, username, password, authType, privateKey, passphrase, useSshAgent, description }) => {
           const result = await self.sendToRenderer('tool-call', {
             toolName: 'add_bookmark',
-            args: { title, host, port, username, password, type }
+            args: { title, host, port, username, password, authType, privateKey, passphrase, useSshAgent, description, type: 'ssh' }
           })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
 
       server.registerTool(
-        'edit_bookmark',
+        'add_electerm_bookmark_telnet',
         {
-          description: 'Edit an existing bookmark',
+          description: 'Add a new Telnet bookmark to electerm',
+          inputSchema: {
+            title: z.string().describe('Bookmark title'),
+            host: z.string().describe('Telnet host address'),
+            port: z.number().optional().describe('Telnet port (default 23)'),
+            username: z.string().optional().describe('Telnet username'),
+            password: z.string().optional().describe('Telnet password'),
+            loginPrompt: z.string().optional().describe('Login prompt regex'),
+            passwordPrompt: z.string().optional().describe('Password prompt regex'),
+            description: z.string().optional().describe('Bookmark description')
+          }
+        },
+        async ({ title, host, port, username, password, loginPrompt, passwordPrompt, description }) => {
+          const result = await self.sendToRenderer('tool-call', {
+            toolName: 'add_bookmark',
+            args: { title, host, port, username, password, loginPrompt, passwordPrompt, description, type: 'telnet' }
+          })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+
+      server.registerTool(
+        'add_electerm_bookmark_serial',
+        {
+          description: 'Add a new Serial bookmark to electerm',
+          inputSchema: {
+            title: z.string().describe('Bookmark title'),
+            path: z.string().describe('Serial device path'),
+            baudRate: z.number().optional().describe('Baud rate (default 9600)'),
+            dataBits: z.number().optional().describe('Data bits (default 8)'),
+            stopBits: z.number().optional().describe('Stop bits (default 1)'),
+            parity: z.enum(['none', 'even', 'odd', 'mark', 'space']).optional().describe('Parity (default none)'),
+            rtscts: z.boolean().optional().describe('RTS/CTS flow control'),
+            xon: z.boolean().optional().describe('XON/XOFF flow control'),
+            xoff: z.boolean().optional().describe('XOFF flow control'),
+            xany: z.boolean().optional().describe('XANY flow control'),
+            description: z.string().optional().describe('Bookmark description')
+          }
+        },
+        async ({ title, path, baudRate, dataBits, stopBits, parity, rtscts, xon, xoff, xany, description }) => {
+          const result = await self.sendToRenderer('tool-call', {
+            toolName: 'add_bookmark',
+            args: { title, path, baudRate, dataBits, stopBits, parity, rtscts, xon, xoff, xany, description, type: 'serial' }
+          })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+
+      server.registerTool(
+        'edit_electerm_bookmark',
+        {
+          description: 'Edit an existing electerm bookmark',
           inputSchema: {
             id: z.string().describe('Bookmark ID to edit'),
             updates: z.record(z.any()).describe('Fields to update')
@@ -339,9 +394,9 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'delete_bookmark',
+        'delete_electerm_bookmark',
         {
-          description: 'Delete a bookmark',
+          description: 'Delete an electerm bookmark',
           inputSchema: {
             id: z.string().describe('Bookmark ID to delete')
           }
@@ -353,9 +408,9 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'open_bookmark',
+        'open_electerm_bookmark',
         {
-          description: 'Open a bookmark in a new tab',
+          description: 'Open an electerm bookmark in a new tab',
           inputSchema: {
             id: z.string().describe('Bookmark ID to open')
           }
@@ -370,9 +425,9 @@ class ElectermMCPServer {
     // ==================== Bookmark Group APIs ====================
     if (this.config.enableBookmarkGroups) {
       server.registerTool(
-        'list_bookmark_groups',
+        'list_electerm_bookmark_groups',
         {
-          description: 'List all bookmark groups/folders',
+          description: 'List all electerm bookmark groups/folders',
           inputSchema: z.object({})
         },
         async () => {
@@ -382,9 +437,9 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'add_bookmark_group',
+        'add_electerm_bookmark_group',
         {
-          description: 'Add a new bookmark group',
+          description: 'Add a new electerm bookmark group',
           inputSchema: {
             title: z.string().describe('Group title'),
             parentId: z.string().optional().describe('Optional parent group ID')
@@ -400,9 +455,9 @@ class ElectermMCPServer {
     // ==================== Quick Command APIs ====================
     if (this.config.enableQuickCommands) {
       server.registerTool(
-        'list_quick_commands',
+        'list_electerm_quick_commands',
         {
-          description: 'List all quick commands',
+          description: 'List all electerm quick commands',
           inputSchema: z.object({})
         },
         async () => {
@@ -412,9 +467,9 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'add_quick_command',
+        'add_electerm_quick_command',
         {
-          description: 'Add a new quick command',
+          description: 'Add a new electerm quick command',
           inputSchema: {
             name: z.string().describe('Quick command name'),
             command: z.string().describe('Command to execute'),
@@ -432,9 +487,9 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'run_quick_command',
+        'run_electerm_quick_command',
         {
-          description: 'Run a quick command in the active terminal',
+          description: 'Run an electerm quick command in the active terminal',
           inputSchema: {
             id: z.string().describe('Quick command ID to run')
           }
@@ -446,9 +501,9 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'delete_quick_command',
+        'delete_electerm_quick_command',
         {
-          description: 'Delete a quick command',
+          description: 'Delete an electerm quick command',
           inputSchema: {
             id: z.string().describe('Quick command ID to delete')
           }
@@ -463,9 +518,9 @@ class ElectermMCPServer {
     // ==================== History APIs ====================
     if (this.config.enableHistory) {
       server.registerTool(
-        'list_history',
+        'list_electerm_history',
         {
-          description: 'List connection history',
+          description: 'List electerm connection history',
           inputSchema: {
             limit: z.number().optional().describe('Max number of entries (default 50)')
           }
@@ -478,9 +533,9 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'clear_history',
+        'clear_electerm_history',
         {
-          description: 'Clear connection history',
+          description: 'Clear electerm connection history',
           inputSchema: z.object({})
         },
         async () => {
@@ -493,9 +548,9 @@ class ElectermMCPServer {
     // ==================== Transfer APIs ====================
     if (this.config.enableTransfer) {
       server.registerTool(
-        'list_transfers',
+        'list_electerm_transfers',
         {
-          description: 'List active file transfers',
+          description: 'List active electerm file transfers',
           inputSchema: z.object({})
         },
         async () => {
@@ -505,9 +560,9 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'list_transfer_history',
+        'list_electerm_transfer_history',
         {
-          description: 'List file transfer history',
+          description: 'List electerm file transfer history',
           inputSchema: {
             limit: z.number().optional().describe('Max number of entries')
           }
@@ -523,37 +578,13 @@ class ElectermMCPServer {
     // ==================== Settings APIs ====================
     if (this.config.enableSettings) {
       server.registerTool(
-        'get_settings',
+        'get_electerm_settings',
         {
-          description: 'Get current application settings',
+          description: 'Get current electerm application settings',
           inputSchema: undefined
         },
         async () => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'get_settings', args: {} })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
-
-      server.registerTool(
-        'list_terminal_themes',
-        {
-          description: 'List available terminal themes',
-          inputSchema: z.object({})
-        },
-        async () => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'list_terminal_themes', args: {} })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
-
-      server.registerTool(
-        'list_ui_themes',
-        {
-          description: 'List available UI themes',
-          inputSchema: z.object({})
-        },
-        async () => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'list_ui_themes', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )

@@ -123,12 +123,6 @@ export default Store => {
         case 'get_settings':
           result = store.mcpGetSettings()
           break
-        case 'list_terminal_themes':
-          result = store.mcpListTerminalThemes()
-          break
-        case 'list_ui_themes':
-          result = store.mcpListUiThemes()
-          break
 
         default:
           throw new Error(`Unknown tool: ${toolName}`)

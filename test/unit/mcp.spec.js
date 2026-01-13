@@ -187,9 +187,9 @@ describe('mcp-widget', function () {
 
       // Check for some expected tools
       const toolNames = jsonData.result.tools.map(tool => tool.name)
-      assert.ok(toolNames.includes('list_tabs'))
-      assert.ok(toolNames.includes('get_active_tab'))
-      assert.ok(toolNames.includes('send_terminal_command'))
+      assert.ok(toolNames.includes('list_electerm_tabs'))
+      assert.ok(toolNames.includes('get_electerm_active_tab'))
+      assert.ok(toolNames.includes('send_electerm_terminal_command'))
 
       console.log('Available tools:', toolNames.length)
       console.log('Sample tools:', toolNames.slice(0, 5))
@@ -547,14 +547,13 @@ describe('mcp-widget', function () {
       id: 40,
       method: 'tools/call',
       params: {
-        name: 'add_bookmark',
+        name: 'add_electerm_bookmark_ssh',
         arguments: {
           title: bookmarkTitle,
           host: TEST_HOST,
           port: 22,
           username: TEST_USER,
-          password: TEST_PASS,
-          type: 'ssh'
+          password: TEST_PASS
         }
       }
     }
@@ -593,7 +592,7 @@ describe('mcp-widget', function () {
         id: 41,
         method: 'tools/call',
         params: {
-          name: 'open_bookmark',
+          name: 'open_electerm_bookmark',
           arguments: {
             id: bookmarkId
           }
@@ -636,7 +635,7 @@ describe('mcp-widget', function () {
         id: 42,
         method: 'tools/call',
         params: {
-          name: 'send_terminal_command',
+          name: 'send_electerm_terminal_command',
           arguments: {
             command: testCommand
           }
@@ -704,7 +703,7 @@ describe('mcp-widget', function () {
         id: 43,
         method: 'tools/call',
         params: {
-          name: 'get_terminal_output',
+          name: 'get_electerm_terminal_output',
           arguments: {
             lines: 30
           }
@@ -749,7 +748,7 @@ describe('mcp-widget', function () {
         id: 44,
         method: 'tools/call',
         params: {
-          name: 'delete_bookmark',
+          name: 'delete_electerm_bookmark',
           arguments: {
             id: bookmarkId
           }
@@ -782,7 +781,7 @@ describe('mcp-widget', function () {
         id: 45,
         method: 'tools/call',
         params: {
-          name: 'list_bookmarks'
+          name: 'list_electerm_bookmarks'
         }
       }
 
@@ -813,6 +812,109 @@ describe('mcp-widget', function () {
       console.log('SSH bookmark test completed successfully')
     } catch (err) {
       console.log('SSH bookmark test error:', err.message)
+      if (err.response) {
+        console.log('Response status:', err.response.status)
+        console.log('Response data:', err.response.data)
+      }
+      throw err
+    }
+  })
+
+  // Test Telnet bookmark creation
+  test('should create Telnet bookmark', { timeout: 100000 }, async function () {
+    // Initialize session if not already done
+    if (!sessionId) {
+      sessionId = await initSession()
+    }
+    assert.ok(sessionId)
+
+    const uniqueId = Date.now()
+    const bookmarkTitle = `MCP_Telnet_Test_${uniqueId}`
+
+    // Create Telnet bookmark
+    const addBookmarkRequest = {
+      jsonrpc: '2.0',
+      id: 50,
+      method: 'tools/call',
+      params: {
+        name: 'add_electerm_bookmark_telnet',
+        arguments: {
+          title: bookmarkTitle,
+          host: '127.0.0.1',
+          port: 23,
+          username: 'testuser',
+          password: 'testpass'
+        }
+      }
+    }
+
+    try {
+      const addResponse = await makeHttpRequest('post', serverUrl, addBookmarkRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
+      })
+
+      console.log('Add telnet bookmark response status:', addResponse.status)
+      assert.equal(addResponse.status, 200)
+
+      const addSseData = addResponse.data
+      const addDataLine = addSseData.split('\n').find(line => line.startsWith('data: '))
+      assert.ok(addDataLine)
+      const addJsonData = JSON.parse(addDataLine.substring(6))
+
+      if (addJsonData.error) {
+        console.log('Add telnet bookmark error:', addJsonData.error.message)
+        throw new Error(addJsonData.error.message)
+      }
+
+      const addResult = JSON.parse(addJsonData.result.content[0].text)
+      console.log('Add telnet bookmark result:', addResult)
+      assert.equal(addResult.success, true)
+      assert.ok(addResult.id !== undefined)
+
+      const bookmarkId = addResult.id
+      console.log('Created telnet bookmark with ID:', bookmarkId)
+
+      // Verify bookmark was created by listing bookmarks
+      const listBookmarksRequest = {
+        jsonrpc: '2.0',
+        id: 51,
+        method: 'tools/call',
+        params: {
+          name: 'list_electerm_bookmarks',
+          arguments: {}
+        }
+      }
+
+      const listResponse = await makeHttpRequest('post', serverUrl, listBookmarksRequest, {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'mcp-session-id': sessionId
+      })
+
+      console.log('List bookmarks response status:', listResponse.status)
+      assert.equal(listResponse.status, 200)
+
+      const listSseData = listResponse.data
+      const listDataLine = listSseData.split('\n').find(line => line.startsWith('data: '))
+      assert.ok(listDataLine)
+      const listJsonData = JSON.parse(listDataLine.substring(6))
+
+      if (listJsonData.error) {
+        console.log('List bookmarks error:', listJsonData.error.message)
+        throw new Error(listJsonData.error.message)
+      }
+
+      const bookmarks = JSON.parse(listJsonData.result.content[0].text)
+      const createdBookmark = bookmarks.find(b => b.id === bookmarkId)
+      assert.ok(createdBookmark, `Bookmark with ID ${bookmarkId} not found in list`)
+      assert.equal(createdBookmark.title, bookmarkTitle)
+      assert.equal(createdBookmark.type, 'telnet')
+
+      console.log('Telnet bookmark test completed successfully')
+    } catch (err) {
+      console.log('Telnet bookmark test error:', err.message)
       if (err.response) {
         console.log('Response status:', err.response.status)
         console.log('Response data:', err.response.data)
