@@ -3,7 +3,7 @@
  */
 
 import { useState, useRef } from 'react'
-import { quickCommandLabelsLsKey } from '../../common/constants'
+import { quickCommandLabelsLsKey, pinnedQuickCommandBarKey } from '../../common/constants'
 import { sortBy } from 'lodash-es'
 import { Button, Input, Select, Space, Flex } from 'antd'
 import * as ls from '../../common/safe-local-storage'
@@ -41,7 +41,9 @@ export default function QuickCommandsFooterBox (props) {
   }
 
   function handleTogglePinned () {
-    window.store.pinnedQuickCommandBar = !window.store.pinnedQuickCommandBar
+    const current = !window.store.pinnedQuickCommandBar
+    ls.setItem(pinnedQuickCommandBarKey, current ? 'y' : 'n')
+    window.store.pinnedQuickCommandBar = current
   }
 
   async function handleSelect (id) {
@@ -56,6 +58,7 @@ export default function QuickCommandsFooterBox (props) {
   }
 
   function handleClose () {
+    ls.setItem(pinnedQuickCommandBarKey, 'n')
     window.store.pinnedQuickCommandBar = false
     window.store.openQuickCommandBar = false
   }

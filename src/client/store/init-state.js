@@ -9,6 +9,7 @@ import {
   infoTabs,
   openedSidebarKey,
   sidebarPinnedKey,
+  pinnedQuickCommandBarKey,
   sftpDefaultSortSettingKey,
   batchInputLsKey,
   expandedKeysLsKey,
@@ -150,7 +151,7 @@ export default () => {
     quickCommands: [],
     quickCommandId: '',
     openQuickCommandBar: false,
-    pinnedQuickCommandBar: false,
+    pinnedQuickCommandBar: ls.getItem(pinnedQuickCommandBarKey) === 'y',
     qmSortByFrequency: ls.getItem(qmSortByFrequencyKey) === 'yes',
 
     // sidebar
