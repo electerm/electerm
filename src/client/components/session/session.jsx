@@ -206,13 +206,9 @@ export default class SessionWrapper extends Component {
   }
 
   toggleCheckSftpPathFollowSsh = () => {
-    const nv = !this.state.sftpPathFollowSsh
-    if (nv) {
-      message.warning(e('sftpPathFollowSshTip'), 8)
-    }
-    this.setState({
-      sftpPathFollowSsh: nv
-    })
+    this.setState(prevState => ({
+      sftpPathFollowSsh: !prevState.sftpPathFollowSsh
+    }))
   }
 
   editTab = (up) => {
@@ -660,7 +656,7 @@ export default class SessionWrapper extends Component {
     const termType = tab?.type
     const isSsh = tab.authType
     const isLocal = !isSsh && (termType === connectionMap.local || !termType)
-    const checkTxt = e('sftpPathFollowSsh') + ' [Beta]'
+    const checkTxt = e('sftpPathFollowSsh')
     const checkProps = {
       onClick: this.toggleCheckSftpPathFollowSsh,
       className: classnames(
