@@ -15,6 +15,7 @@ const deepCopy = require('json-deep-copy')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
 const globalState = require('./global-state')
+const { getRemoteShellIntegrationCommand } = require('../shell-integration')
 
 const failMsg = 'All configured authentication methods failed'
 const csFailMsg = 'no matching C->S cipher'
@@ -338,10 +339,45 @@ class TerminalSshBase extends TerminalBase {
           }
           this.channel = channel
           globalState.setSession(this.pid, this)
+
+          // Inject shell integration if enabled (default: true for SSH)
+          const enableShellIntegration = this.initOptions.enableShellIntegration !== false
+          console.log('[SessionSSH] enableShellIntegration:', enableShellIntegration)
+          if (enableShellIntegration) {
+            // Detect shell type from loginScript or default to bash
+            const shellType = this._detectRemoteShellType()
+            const integrationCmd = getRemoteShellIntegrationCommand(shellType)
+            console.log('[SessionSSH] shellType:', shellType, 'integrationCmd length:', integrationCmd?.length)
+            if (integrationCmd) {
+              // Small delay to let the remote shell initialize
+              setTimeout(() => {
+                if (this.channel) {
+                  console.log('[SessionSSH] Writing shell integration command')
+                  this.channel.write(integrationCmd)
+                }
+              }, 200)
+            }
+          }
+
           resolve(this)
         }
       )
     })
+  }
+
+  /**
+   * Detect remote shell type from init options
+   * @returns {string} Shell type: 'bash', 'zsh', or 'fish'
+   */
+  _detectRemoteShellType () {
+    const { loginScript } = this.initOptions || {}
+    if (loginScript) {
+      const script = loginScript.toLowerCase()
+      if (script.includes('zsh')) return 'zsh'
+      if (script.includes('fish')) return 'fish'
+    }
+    // Default to bash for most remote servers
+    return 'bash'
   }
 
   shell (conn, shellWindow, shellOpts) {

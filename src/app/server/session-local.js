@@ -5,6 +5,12 @@
 const { resolve: pathResolve } = require('path')
 const { TerminalBase } = require('./session-base')
 const globalState = require('./global-state')
+const {
+  getShellIntegrationEnv,
+  getShellIntegrationArgs,
+  getShellIntegrationInitCommand,
+  getShellType
+} = require('../shell-integration')
 
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
@@ -21,7 +27,8 @@ class TerminalLocal extends TerminalBase {
       execMacArgs,
       execLinuxArgs,
       termType,
-      term
+      term,
+      enableShellIntegration = true
     } = this.initOptions
     this.isLocal = true
     const { platform } = process
@@ -35,7 +42,25 @@ class TerminalLocal extends TerminalBase {
       ? execWindowsArgs
       : platform === 'darwin' ? execMacArgs : execLinuxArgs
     const cwd = process.env[platform === 'win32' ? 'USERPROFILE' : 'HOME']
-    const argv = platform.startsWith('darwin') ? ['--login', ...arg] : arg
+    let argv = platform.startsWith('darwin') ? ['--login', ...arg] : arg
+
+    // Build environment with shell integration if enabled and not on Windows
+    let env = { ...process.env }
+    const isWindows = platform.startsWith('win')
+
+    if (enableShellIntegration && !isWindows) {
+      const shellIntegrationEnv = getShellIntegrationEnv(exec)
+      env = { ...env, ...shellIntegrationEnv }
+      console.log('[TerminalLocal] Shell integration enabled, env:', shellIntegrationEnv)
+
+      // For fish, we need to modify args to source the integration script
+      const shellType = getShellType(exec)
+      if (shellType === 'fish') {
+        argv = getShellIntegrationArgs(exec, argv)
+        console.log('[TerminalLocal] Fish shell, modified argv:', argv)
+      }
+    }
+
     const pty = require('node-pty')
     this.term = pty.spawn(exec, argv, {
       name: term,
@@ -43,9 +68,26 @@ class TerminalLocal extends TerminalBase {
       cols: cols || 80,
       rows: rows || 24,
       cwd,
-      env: process.env
+      env
     })
     this.term.termType = termType
+    this.shellIntegrationEnabled = enableShellIntegration && !isWindows
+
+    // For bash and zsh, send init command after shell starts
+    if (this.shellIntegrationEnabled) {
+      const initCmd = getShellIntegrationInitCommand(exec)
+      console.log('[TerminalLocal] Shell integration init command:', JSON.stringify(initCmd))
+      if (initCmd) {
+        // Small delay to let the shell initialize before sourcing
+        setTimeout(() => {
+          if (this.term) {
+            console.log('[TerminalLocal] Writing init command to terminal')
+            this.term.write(initCmd)
+          }
+        }, 100)
+      }
+    }
+
     globalState.setSession(this.pid, this)
     return Promise.resolve(this)
   }

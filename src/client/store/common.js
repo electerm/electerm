@@ -341,6 +341,9 @@ export default Store => {
   }
 
   Store.prototype.addCmdHistory = action(function (cmd) {
+    if (!cmd || !cmd.trim()) {
+      return
+    }
     const { terminalCommandHistory } = window.store
     terminalCommandHistory.add(cmd)
     if (terminalCommandHistory.size > 100) {

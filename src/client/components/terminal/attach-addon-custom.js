@@ -2,7 +2,6 @@
  * customize AttachAddon
  */
 import { AttachAddon } from '@xterm/addon-attach'
-import regEscape from 'escape-string-regexp'
 
 export default class AttachAddonCustom extends AttachAddon {
   constructor (term, socket, isWindowsShell) {
@@ -62,31 +61,9 @@ export default class AttachAddonCustom extends AttachAddon {
     const { term } = this
     term?.parent?.notifyOnData()
     const str = this.decoder.decode(data)
-    if (term?.parent?.props.sftpPathFollowSsh && term?.buffer.active.type !== 'alternate') {
-      const {
-        cwdId
-      } = term
-      const nss = str.split('\r')
-      const nnss = []
-      for (const str1 of nss) {
-        const ns = str1.trim()
-        if (cwdId) {
-          const cwdIdEscaped = regEscape(cwdId)
-          const dirRegex = new RegExp(`${cwdIdEscaped}([^\\n]+?)${cwdIdEscaped}`, 'g')
-          if (ns.match(dirRegex)) {
-            const cwd = dirRegex.exec(ns)[1].trim()
-            if (cwd === '~' || cwd === '%d' || cwd === '%/' || cwd === '$PWD') term.parent.setCwd('')
-            else term.parent.setCwd(cwd)
-            nnss.push(ns.replaceAll(dirRegex, ''))
-          } else nnss.push(str1)
-        } else {
-          nnss.push(str1)
-        }
-      }
-      term.write(nnss.join('\r'))
-    } else {
-      term?.write(str)
-    }
+    // CWD tracking is now handled by shell integration automatically
+    // No need to parse PS1 markers
+    term?.write(str)
   }
 
   sendToServer = (data) => {

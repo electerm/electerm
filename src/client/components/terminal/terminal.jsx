@@ -24,7 +24,6 @@ import {
   isWin,
   transferTypeMap,
   rendererTypes,
-  cwdId,
   isMac,
   zmodemTransferPackSize
 } from '../../common/constants.js'
@@ -59,19 +58,6 @@ import SearchResultBar from './terminal-search-bar'
 
 const e = window.translate
 
-const PS1_SETUP_CMD = `\recho $0|grep csh >/dev/null && set prompt_bak="$prompt" && set prompt="$prompt${cwdId}%/${cwdId}"\r
-echo $0|grep zsh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'${cwdId}%d${cwdId}'\r
-echo $0|grep ash >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-echo $0|grep ksh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-echo $0|grep '^sh' >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-clear\r`
-
-const PS1_RESTORE_CMD = `\recho $0|grep csh >/dev/null && set prompt="$prompt_bak"\r
-echo $0|grep zsh >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep ash >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep ksh >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep '^sh' >/dev/null && PS1="$PS1_bak"\r
-clear\r`
 class Term extends Component {
   constructor (props) {
     super(props)
@@ -138,29 +124,6 @@ class Term extends Component {
       this.term.options.theme = {
         ...deepCopy(this.props.themeConfig),
         background: 'rgba(0,0,0,0)'
-      }
-    }
-
-    const sftpPathFollowSshChanged = !isEqual(
-      this.props.sftpPathFollowSsh,
-      prevProps.sftpPathFollowSsh
-    )
-
-    if (sftpPathFollowSshChanged) {
-      if (this.props.sftpPathFollowSsh) {
-        if (this.attachAddon && this.term) {
-          this.attachAddon._sendData(PS1_SETUP_CMD)
-          this.term.cwdId = cwdId
-        } else {
-          console.warn('Term or attachAddon not ready for PS1_SETUP_CMD in componentDidUpdate')
-        }
-      } else {
-        if (this.attachAddon) {
-          this.attachAddon._sendData(PS1_RESTORE_CMD)
-        }
-        if (this.term) {
-          delete this.term.cwdId
-        }
       }
     }
   }
@@ -885,20 +848,16 @@ class Term extends Component {
   }
 
   getCwd = () => {
-    if (
-      this.props.sftpPathFollowSsh &&
-      this.term &&
-      this.term.buffer.active.type !== 'alternate' && !this.term.cwdId
-    ) {
-      // This block should ideally not be hit for initial setup if runInitScript works.
-      // It acts as a fallback.
-      this.term.cwdId = cwdId
-      if (this.attachAddon) {
-        this.attachAddon._sendData(PS1_SETUP_CMD)
-      } else {
-        console.warn('attachAddon not ready for PS1_SETUP_CMD in getCwd fallback')
+    // Use shell integration CWD if available
+    if (this.cmdAddon && this.cmdAddon.hasShellIntegration()) {
+      const cwd = this.cmdAddon.getCwd()
+      if (cwd) {
+        this.setCwd(cwd)
+        return cwd
       }
     }
+    // Fallback: no longer needed with shell integration
+    return ''
   }
 
   setCwd = (cwd) => {
@@ -964,7 +923,8 @@ class Term extends Component {
         'exit',
         'logout'
       ]
-      window.store.addCmdHistory(data)
+      // Command history is now handled via OSC 633 shell integration
+      // See cmdAddon.onCommandExecuted callback in initTerminal
       if (exitCmds.includes(data)) {
         this.userTypeExit = true
         this.timers.userTypeExit = setTimeout(() => {
@@ -1021,6 +981,18 @@ class Term extends Component {
     // term.on('keydown', this.handleEvent)
     this.fitAddon = new FitAddon()
     this.cmdAddon = new CommandTrackerAddon()
+    // Register callback for shell integration command tracking
+    this.cmdAddon.onCommandExecuted((cmd) => {
+      console.log('[Terminal] Shell integration command received:', cmd)
+      if (cmd && cmd.trim()) {
+        window.store.addCmdHistory(cmd.trim())
+      }
+    })
+    // Register callback for shell integration CWD tracking
+    this.cmdAddon.onCwdChanged((cwd) => {
+      console.log('[Terminal] Shell integration CWD changed:', cwd)
+      this.setCwd(cwd)
+    })
     this.searchAddon = new SearchAddon()
     const ligtureAddon = new LigaturesAddon()
     this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
@@ -1071,12 +1043,8 @@ class Term extends Component {
     }
 
     if (this.props.sftpPathFollowSsh) {
-      if (this.term && this.attachAddon) {
-        this.attachAddon._sendData(PS1_SETUP_CMD)
-        this.term.cwdId = cwdId
-      } else {
-        console.warn('Term or attachAddon not ready for PS1_SETUP_CMD in runInitScript')
-      }
+      // CWD tracking is now handled by shell integration automatically
+      // No need to manipulate PS1 or set cwdId
     }
 
     if (runScripts && runScripts.length) {
