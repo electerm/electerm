@@ -19,15 +19,6 @@
  * - Any custom prompt
  */
 
-// Debug flag - set to true to enable console logging
-const DEBUG_SHELL_INTEGRATION = true
-
-function debugLog (...args) {
-  if (DEBUG_SHELL_INTEGRATION) {
-    console.log('[ShellIntegration]', ...args)
-  }
-}
-
 export class CommandTrackerAddon {
   constructor () {
     this.terminal = undefined
@@ -43,8 +34,6 @@ export class CommandTrackerAddon {
     // Event callbacks for shell integration events
     this._onCommandExecuted = null // Called when OSC 633;E is received
     this._onCwdChanged = null // Called when OSC 633;P;Cwd= is received
-
-    debugLog('CommandTrackerAddon initialized')
   }
 
   /**
@@ -53,7 +42,6 @@ export class CommandTrackerAddon {
    */
   onCommandExecuted (callback) {
     this._onCommandExecuted = callback
-    debugLog('onCommandExecuted callback registered')
   }
 
   /**
@@ -62,28 +50,22 @@ export class CommandTrackerAddon {
    */
   onCwdChanged (callback) {
     this._onCwdChanged = callback
-    debugLog('onCwdChanged callback registered')
   }
 
   activate (terminal) {
     this.terminal = terminal
-    debugLog('Activating CommandTrackerAddon')
 
     // Register OSC 633 handler for shell integration
     // OSC 633 is the VS Code / modern terminal shell integration protocol
     if (terminal.parser && terminal.parser.registerOscHandler) {
-      debugLog('Registering OSC 633 handler')
       const oscHandler = terminal.parser.registerOscHandler(633, (data) => {
         return this._handleOsc633(data)
       })
       this._disposables.push(oscHandler)
-    } else {
-      debugLog('WARNING: terminal.parser.registerOscHandler not available')
     }
   }
 
   dispose () {
-    debugLog('Disposing CommandTrackerAddon')
     this.terminal = null
     if (this._disposables) {
       this._disposables.forEach(d => d.dispose())
@@ -103,22 +85,17 @@ export class CommandTrackerAddon {
     const command = data.charAt(0)
     const args = data.length > 1 ? data.substring(2) : '' // Skip "X;" part
 
-    debugLog(`OSC 633 received: command=${command}, args="${args.substring(0, 100)}${args.length > 100 ? '...' : ''}"`)
-
     switch (command) {
       case 'A': // Prompt started
         this.shellIntegrationActive = true
         // Reset current command when new prompt appears
         this.currentCommand = ''
-        debugLog('Prompt started (A), shellIntegrationActive=true')
         return true
 
       case 'B': // Command input started (after prompt)
-        debugLog('Command input started (B)')
         return true
 
       case 'C': // Command execution started
-        debugLog('Command execution started (C)')
         return true
 
       case 'D': // Command finished
@@ -128,17 +105,14 @@ export class CommandTrackerAddon {
         } else {
           this.lastExitCode = null
         }
-        debugLog(`Command finished (D), exitCode=${this.lastExitCode}`)
         return true
 
       case 'E': // Command line
         // The actual command being executed
         this.executedCommand = this._deserializeOscValue(args)
         this.currentCommand = this.executedCommand
-        debugLog(`Command line received (E): "${this.executedCommand}"`)
         // Call the callback if registered
         if (this._onCommandExecuted && this.executedCommand) {
-          debugLog(`Calling onCommandExecuted callback with: "${this.executedCommand}"`)
           this._onCommandExecuted(this.executedCommand)
         }
         return true
@@ -148,7 +122,6 @@ export class CommandTrackerAddon {
         return true
 
       default:
-        debugLog(`Unknown OSC 633 command: ${command}`)
         return false
     }
   }
@@ -164,16 +137,12 @@ export class CommandTrackerAddon {
     const key = data.substring(0, eqIndex)
     const value = this._deserializeOscValue(data.substring(eqIndex + 1))
 
-    debugLog(`Property received (P): ${key}="${value}"`)
-
     switch (key) {
       case 'Cwd': {
         const oldCwd = this.cwd
         this.cwd = value
-        debugLog(`CWD changed from "${oldCwd}" to "${value}"`)
         // Call the callback if registered and CWD actually changed
         if (this._onCwdChanged && oldCwd !== value) {
-          debugLog(`Calling onCwdChanged callback with: "${value}"`)
           this._onCwdChanged(value)
         }
         break
@@ -199,7 +168,6 @@ export class CommandTrackerAddon {
    * Get the current command (from shell integration)
    */
   getCurrentCommand () {
-    debugLog(`getCurrentCommand: "${this.executedCommand}"`)
     return this.executedCommand || this.currentCommand || ''
   }
 
@@ -228,7 +196,6 @@ export class CommandTrackerAddon {
    * Clear command state
    */
   clearCommand () {
-    debugLog('clearCommand called')
     this.currentCommand = ''
     this.executedCommand = ''
   }

@@ -987,14 +987,12 @@ class Term extends Component {
     this.cmdAddon = new CommandTrackerAddon()
     // Register callback for shell integration command tracking
     this.cmdAddon.onCommandExecuted((cmd) => {
-      console.log('[Terminal] Shell integration command received:', cmd)
       if (cmd && cmd.trim()) {
         window.store.addCmdHistory(cmd.trim())
       }
     })
     // Register callback for shell integration CWD tracking
     this.cmdAddon.onCwdChanged((cwd) => {
-      console.log('[Terminal] Shell integration CWD changed:', cwd)
       this.setCwd(cwd)
     })
     this.searchAddon = new SearchAddon()
@@ -1041,10 +1039,16 @@ class Term extends Component {
     } = this.props.tab
     const { config } = this.props
 
+    // Store scripts for later execution (after shell integration injection completes)
+    this.pendingRunScripts = runScripts
+
     // Inject shell integration from client-side (works for both local and remote)
     // Skip on Windows as shell integration is not supported there
     if (enableShellIntegration && !isWin) {
       this.injectShellIntegration(loginScript, host, config)
+    } else {
+      // No shell integration, run scripts immediately
+      this.startDelayedScripts()
     }
 
     const startFolder = startDirectory || window.initFolder
@@ -1061,16 +1065,25 @@ class Term extends Component {
       // CWD tracking is now handled by shell integration automatically
       // No need to manipulate PS1 or set cwdId
     }
+  }
 
+  /**
+   * Start running delayed scripts
+   * Called after shell integration injection completes (or immediately if disabled)
+   */
+  startDelayedScripts = () => {
+    const runScripts = this.pendingRunScripts
     if (runScripts && runScripts.length) {
       this.delayedScripts = deepCopy(runScripts)
       this.timers.timerDelay = setTimeout(this.runDelayedScripts, this.delayedScripts[0].delay || 0)
     }
+    this.pendingRunScripts = null
   }
 
   /**
    * Inject shell integration commands from client-side
    * This replaces the server-side source xxx.xxx approach
+   * Uses output suppression to hide the injection command
    */
   injectShellIntegration = (loginScript, host, config) => {
     // Detect shell type from login script or local shell config
@@ -1083,20 +1096,28 @@ class Term extends Component {
       shellType = detectShellType(localShell)
     }
 
-    // Get terminal cols for calculating line count
-    const cols = this.term?.cols || 80
-    // Remote sessions need more lines cleared due to login banners
+    // Remote sessions might need longer timeout for shell integration detection
     const isRemote = !!host
-    const integrationCmd = getShellIntegrationCommand(shellType, cols, isRemote)
-    console.log('[Terminal] Injecting shell integration from client, shellType:', shellType, 'cols:', cols, 'isRemote:', isRemote)
+    const integrationCmd = getShellIntegrationCommand(shellType)
+    console.log('[Terminal] Injecting shell integration from client, shellType:', shellType, 'isRemote:', isRemote)
 
     if (integrationCmd && this.attachAddon) {
-      // Small delay to let the shell initialize before injecting
-      setTimeout(() => {
+      // Wait for initial data (prompt/banner) to arrive before injecting
+      this.attachAddon.onInitialData(() => {
         if (this.attachAddon) {
+          // Start suppressing output before sending the integration command
+          // This hides the command and its output until OSC 633 is detected
+          const suppressionTimeout = isRemote ? 5000 : 3000
+          // Pass callback to run delayed scripts after suppression ends
+          this.attachAddon.startOutputSuppression(suppressionTimeout, () => {
+            this.startDelayedScripts()
+          })
           this.attachAddon._sendData(integrationCmd)
         }
-      }, 100)
+      })
+    } else {
+      // No integration command, run scripts immediately
+      this.startDelayedScripts()
     }
   }
 

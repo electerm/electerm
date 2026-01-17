@@ -89,46 +89,28 @@ export function getInlineShellIntegration (shellType) {
 }
 
 /**
- * Wrap shell integration for silent execution
- * Uses bracketed paste mode and terminal escape sequences to minimize visibility
+ * Wrap shell integration command for execution
+ * Now simplified since output suppression is handled at the attach addon level
  * @param {string} cmd - Shell integration command
- * @param {string} shellType - Shell type
- * @param {number} cols - Terminal width in columns (default 80)
- * @param {boolean} isRemote - Whether this is a remote SSH session (adds extra lines for login banner)
- * @returns {string} Wrapped command ready to send to terminal
+ * @param {string} shellType - Shell type (unused, kept for API compatibility)
+ * @returns {string} Command ready to send to terminal
  */
-export function wrapSilent (cmd, shellType, cols = 80, isRemote = false) {
+export function wrapSilent (cmd, shellType) {
   // Escape single quotes for embedding in single-quoted string
   const escaped = cmd.replace(/'/g, "'\\''")
-
-  // Calculate the full command length including the eval wrapper and clear command
-  const fullCmd = ` eval '${escaped}' 2>/dev/null; for i in $(seq N); do echo -ne $'\\x1b[1A\\x1b[2K'; done; echo -ne $'\\r'`
-  // Calculate lines - add extra buffer for prompt, line wrapping edge cases
-  // Remote sessions need more lines to clear login banners (Last login, MOTD, etc.)
-  const extraLines = isRemote ? 10 : 6
-  const cmdLines = Math.ceil(fullCmd.length / cols) + extraLines
-
-  if (shellType === 'fish') {
-    // Fish: printf interprets escapes, use \e directly
-    return ` eval '${escaped}' 2>/dev/null; for i in (seq ${cmdLines}); printf '\\e[1A\\e[2K'; end; printf '\\r'\r`
-  }
-
-  // Bash/Zsh: Use $'...' ANSI-C quoting for escape sequences
-  // \x1b is the hex code for ESC character, works reliably in $'...'
   // The leading space prevents the command from being saved to history
-  return ` eval '${escaped}' 2>/dev/null; for i in $(seq ${cmdLines}); do echo -ne $'\\x1b[1A\\x1b[2K'; done; echo -ne $'\\r'\r`
+  // The eval wrapper ensures proper execution
+  return ` eval '${escaped}' 2>/dev/null\r`
 }
 
 /**
  * Get complete shell integration command ready to send
  * @param {string} shellType - 'bash', 'zsh', or 'fish'
- * @param {number} cols - Terminal width in columns (default 80)
- * @param {boolean} isRemote - Whether this is a remote SSH session
  * @returns {string} Complete command to send to terminal
  */
-export function getShellIntegrationCommand (shellType = 'bash', cols = 80, isRemote = false) {
+export function getShellIntegrationCommand (shellType = 'bash') {
   const cmd = getInlineShellIntegration(shellType)
-  return wrapSilent(cmd, shellType, cols, isRemote)
+  return wrapSilent(cmd, shellType)
 }
 
 /**
