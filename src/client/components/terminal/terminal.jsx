@@ -50,6 +50,10 @@ import { getFilePath, isUnsafeFilename } from '../../common/file-drop-utils.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
 import AIIcon from '../icons/ai-icon.jsx'
 import { formatBytes } from '../../common/byte-format.js'
+import {
+  getShellIntegrationCommand,
+  detectShellType
+} from './shell.js'
 import * as fs from './fs.js'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { refs, refsStatic } from '../common/ref.js'
@@ -1030,8 +1034,19 @@ class Term extends Component {
     window.store.triggerResize()
     const {
       startDirectory,
-      runScripts
+      runScripts,
+      loginScript,
+      host,
+      enableShellIntegration = true
     } = this.props.tab
+    const { config } = this.props
+
+    // Inject shell integration from client-side (works for both local and remote)
+    // Skip on Windows as shell integration is not supported there
+    if (enableShellIntegration && !isWin) {
+      this.injectShellIntegration(loginScript, host, config)
+    }
+
     const startFolder = startDirectory || window.initFolder
     if (startFolder) {
       if (this.attachAddon) {
@@ -1050,6 +1065,38 @@ class Term extends Component {
     if (runScripts && runScripts.length) {
       this.delayedScripts = deepCopy(runScripts)
       this.timers.timerDelay = setTimeout(this.runDelayedScripts, this.delayedScripts[0].delay || 0)
+    }
+  }
+
+  /**
+   * Inject shell integration commands from client-side
+   * This replaces the server-side source xxx.xxx approach
+   */
+  injectShellIntegration = (loginScript, host, config) => {
+    // Detect shell type from login script or local shell config
+    let shellType = 'bash'
+    if (loginScript) {
+      shellType = detectShellType(loginScript)
+    } else if (!host) {
+      // Local terminal - detect from config
+      const localShell = isMac ? config.execMac : config.execLinux
+      shellType = detectShellType(localShell)
+    }
+
+    // Get terminal cols for calculating line count
+    const cols = this.term?.cols || 80
+    // Remote sessions need more lines cleared due to login banners
+    const isRemote = !!host
+    const integrationCmd = getShellIntegrationCommand(shellType, cols, isRemote)
+    console.log('[Terminal] Injecting shell integration from client, shellType:', shellType, 'cols:', cols, 'isRemote:', isRemote)
+
+    if (integrationCmd && this.attachAddon) {
+      // Small delay to let the shell initialize before injecting
+      setTimeout(() => {
+        if (this.attachAddon) {
+          this.attachAddon._sendData(integrationCmd)
+        }
+      }, 100)
     }
   }
 
