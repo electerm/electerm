@@ -191,49 +191,4 @@ export class CommandTrackerAddon {
   hasShellIntegration () {
     return this.shellIntegrationActive
   }
-
-  /**
-   * Clear command state
-   */
-  clearCommand () {
-    this.currentCommand = ''
-    this.executedCommand = ''
-  }
-
-  /**
-   * Legacy method for compatibility
-   */
-  handleKey (e) {
-    const { key, ctrlKey } = e
-    if (ctrlKey && key.toLowerCase() === 'c') {
-      this.clearCommand()
-    }
-  }
-
-  /**
-   * Legacy method for compatibility
-   */
-  handleData () {
-    // No-op: shell integration handles everything
-  }
-
-  /**
-   * Legacy method for compatibility
-   */
-  handleCommandExecuted () {
-    // No-op: shell integration sends E sequence
-  }
-
-  /**
-   * Debug: Get current state
-   */
-  getDebugState () {
-    return {
-      shellIntegrationActive: this.shellIntegrationActive,
-      currentCommand: this.currentCommand,
-      executedCommand: this.executedCommand,
-      lastExitCode: this.lastExitCode,
-      cwd: this.cwd
-    }
-  }
 }
