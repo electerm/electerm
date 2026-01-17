@@ -171,6 +171,7 @@ export default class TerminalCmdSuggestions extends Component {
     const { activeTabId } = window.store
     const terminal = refs.get('term-' + activeTabId)
     if (!terminal) {
+      console.log('No active terminal found')
       return
     }
 
@@ -186,6 +187,8 @@ export default class TerminalCmdSuggestions extends Component {
       txt = pre + command
     }
     terminal.attachAddon._sendData(txt)
+    // Update the terminal's currentInput to reflect the full command
+    terminal.setCurrentInput(command)
     terminal.term.focus()
     this.closeSuggestions()
   }

@@ -24,7 +24,6 @@ import {
   isWin,
   transferTypeMap,
   rendererTypes,
-  cwdId,
   isMac,
   zmodemTransferPackSize
 } from '../../common/constants.js'
@@ -51,6 +50,10 @@ import { getFilePath, isUnsafeFilename } from '../../common/file-drop-utils.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
 import AIIcon from '../icons/ai-icon.jsx'
 import { formatBytes } from '../../common/byte-format.js'
+import {
+  getShellIntegrationCommand,
+  detectShellType
+} from './shell.js'
 import * as fs from './fs.js'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { refs, refsStatic } from '../common/ref.js'
@@ -59,19 +62,6 @@ import SearchResultBar from './terminal-search-bar'
 
 const e = window.translate
 
-const PS1_SETUP_CMD = `\recho $0|grep csh >/dev/null && set prompt_bak="$prompt" && set prompt="$prompt${cwdId}%/${cwdId}"\r
-echo $0|grep zsh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'${cwdId}%d${cwdId}'\r
-echo $0|grep ash >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-echo $0|grep ksh >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-echo $0|grep '^sh' >/dev/null && PS1_bak=$PS1&&PS1=$PS1'\`echo ${cwdId}$PWD${cwdId}\`'\r
-clear\r`
-
-const PS1_RESTORE_CMD = `\recho $0|grep csh >/dev/null && set prompt="$prompt_bak"\r
-echo $0|grep zsh >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep ash >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep ksh >/dev/null && PS1="$PS1_bak"\r
-echo $0|grep '^sh' >/dev/null && PS1="$PS1_bak"\r
-clear\r`
 class Term extends Component {
   constructor (props) {
     super(props)
@@ -88,6 +78,7 @@ class Term extends Component {
     }
     this.id = `term-${this.props.tab.id}`
     refs.add(this.id, this)
+    this.currentInput = ''
   }
 
   domRef = createRef()
@@ -138,29 +129,6 @@ class Term extends Component {
       this.term.options.theme = {
         ...deepCopy(this.props.themeConfig),
         background: 'rgba(0,0,0,0)'
-      }
-    }
-
-    const sftpPathFollowSshChanged = !isEqual(
-      this.props.sftpPathFollowSsh,
-      prevProps.sftpPathFollowSsh
-    )
-
-    if (sftpPathFollowSshChanged) {
-      if (this.props.sftpPathFollowSsh) {
-        if (this.attachAddon && this.term) {
-          this.attachAddon._sendData(PS1_SETUP_CMD)
-          this.term.cwdId = cwdId
-        } else {
-          console.warn('Term or attachAddon not ready for PS1_SETUP_CMD in componentDidUpdate')
-        }
-      } else {
-        if (this.attachAddon) {
-          this.attachAddon._sendData(PS1_RESTORE_CMD)
-        }
-        if (this.term) {
-          delete this.term.cwdId
-        }
       }
     }
   }
@@ -885,20 +853,16 @@ class Term extends Component {
   }
 
   getCwd = () => {
-    if (
-      this.props.sftpPathFollowSsh &&
-      this.term &&
-      this.term.buffer.active.type !== 'alternate' && !this.term.cwdId
-    ) {
-      // This block should ideally not be hit for initial setup if runInitScript works.
-      // It acts as a fallback.
-      this.term.cwdId = cwdId
-      if (this.attachAddon) {
-        this.attachAddon._sendData(PS1_SETUP_CMD)
-      } else {
-        console.warn('attachAddon not ready for PS1_SETUP_CMD in getCwd fallback')
+    // Use shell integration CWD if available
+    if (this.cmdAddon && this.cmdAddon.hasShellIntegration()) {
+      const cwd = this.cmdAddon.getCwd()
+      if (cwd) {
+        this.setCwd(cwd)
+        return cwd
       }
     }
+    // Fallback: no longer needed with shell integration
+    return ''
   }
 
   setCwd = (cwd) => {
@@ -942,35 +906,70 @@ class Term extends Component {
       ?.closeSuggestions()
   }
 
-  onData = (d) => {
-    if (this.cmdAddon) {
-      this.cmdAddon.handleData(d)
+  openSuggestions = (cursorPos, data) => {
+    refsStatic
+      .get('terminal-suggestions')
+      ?.openSuggestions(cursorPos, data)
+  }
+
+  getCurrentInput = () => {
+    return this.currentInput
+  }
+
+  resetCurrentInput = () => {
+    this.currentInput = ''
+  }
+
+  setCurrentInput = (value) => {
+    this.currentInput = value
+  }
+
+  updateCurrentInput = (d) => {
+    // Handle backspace (both \x7f and \b)
+    if (d === '\x7f' || d === '\b') {
+      this.currentInput = this.currentInput.slice(0, -1)
+      return
     }
-    const data = this.getCmd().trim()
-    if (!d.includes('\r')) {
-      delete this.userTypeExit
+    // Handle Ctrl+U (clear line)
+    if (d === '\x15') {
+      this.currentInput = ''
+      return
+    }
+    // Handle Ctrl+W (delete word)
+    if (d === '\x17') {
+      this.currentInput = this.currentInput.replace(/\S*\s*$/, '')
+      return
+    }
+    // Handle Ctrl+C (cancel)
+    if (d === '\x03') {
+      this.currentInput = ''
+      return
+    }
+    // Handle Enter
+    if (d === '\r' || d === '\n') {
+      this.currentInput = ''
+      return
+    }
+    // Handle Escape and other control characters
+    if (d.charCodeAt(0) < 32 && d !== '\t') {
+      return
+    }
+    // Handle arrow keys and other escape sequences
+    if (d.startsWith('\x1b')) {
+      return
+    }
+    // Regular character input - append to buffer
+    this.currentInput += d
+  }
+
+  onData = (d) => {
+    this.updateCurrentInput(d)
+    const data = this.getCurrentInput()
+    if (this.props.config.showCmdSuggestions && data) {
       const cursorPos = this.getCursorPosition()
-      if (this.props.config.showCmdSuggestions && data.length > 1) {
-        refsStatic
-          .get('terminal-suggestions')
-          ?.openSuggestions(cursorPos, data)
-      }
+      this.openSuggestions(cursorPos, data)
     } else {
       this.closeSuggestions()
-      if (this.term.buffer.active.type !== 'alternate') {
-        this.timers.getCwd = setTimeout(this.getCwd, 200)
-      }
-      const exitCmds = [
-        'exit',
-        'logout'
-      ]
-      window.store.addCmdHistory(data)
-      if (exitCmds.includes(data)) {
-        this.userTypeExit = true
-        this.timers.userTypeExit = setTimeout(() => {
-          delete this.userTypeExit
-        }, 2000)
-      }
     }
   }
 
@@ -1021,6 +1020,16 @@ class Term extends Component {
     // term.on('keydown', this.handleEvent)
     this.fitAddon = new FitAddon()
     this.cmdAddon = new CommandTrackerAddon()
+    // Register callback for shell integration command tracking
+    this.cmdAddon.onCommandExecuted((cmd) => {
+      if (cmd && cmd.trim()) {
+        window.store.addCmdHistory(cmd.trim())
+      }
+    })
+    // Register callback for shell integration CWD tracking
+    this.cmdAddon.onCwdChanged((cwd) => {
+      this.setCwd(cwd)
+    })
     this.searchAddon = new SearchAddon()
     const ligtureAddon = new LigaturesAddon()
     this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
@@ -1035,7 +1044,6 @@ class Term extends Component {
     term.onData(this.onData)
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
-    term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
     await this.remoteInit(term)
   }
 
@@ -1060,28 +1068,84 @@ class Term extends Component {
       startDirectory,
       runScripts
     } = this.props.tab
+
+    const scripts = runScripts ? [...runScripts] : []
     const startFolder = startDirectory || window.initFolder
     if (startFolder) {
-      if (this.attachAddon) {
-        const cmd = `cd "${startFolder}"\r`
-        this.attachAddon._sendData(cmd)
-      } else {
-        console.warn('attachAddon not ready for cd command in runInitScript')
-      }
+      scripts.unshift({ script: `cd "${startFolder}"`, delay: 0 })
     }
+    this.pendingRunScripts = scripts
 
-    if (this.props.sftpPathFollowSsh) {
-      if (this.term && this.attachAddon) {
-        this.attachAddon._sendData(PS1_SETUP_CMD)
-        this.term.cwdId = cwdId
-      } else {
-        console.warn('Term or attachAddon not ready for PS1_SETUP_CMD in runInitScript')
-      }
+    // Inject shell integration from client-side (works for both local and remote)
+    // Skip on Windows as shell integration is not supported there
+    if (this.canInjectShellIntegration()) {
+      this.injectShellIntegration()
+    } else {
+      // No shell integration, run scripts immediately
+      this.startDelayedScripts()
     }
+  }
 
+  canInjectShellIntegration = () => {
+    return this.isSsh() || this.isLocal()
+  }
+
+  isSsh = () => {
+    const { host, type } = this.props.tab
+    return host && (type === 'ssh' || type === undefined)
+  }
+
+  isLocal = () => {
+    const { host, type } = this.props.tab
+    return !host && (type === 'local' || type === undefined)
+  }
+
+  /**
+   * Start running delayed scripts
+   * Called after shell integration injection completes (or immediately if disabled)
+   */
+  startDelayedScripts = () => {
+    const runScripts = this.pendingRunScripts
     if (runScripts && runScripts.length) {
       this.delayedScripts = deepCopy(runScripts)
       this.timers.timerDelay = setTimeout(this.runDelayedScripts, this.delayedScripts[0].delay || 0)
+    }
+    this.pendingRunScripts = null
+  }
+
+  /**
+   * Inject shell integration commands from client-side
+   * This replaces the server-side source xxx.xxx approach
+   * Uses output suppression to hide the injection command
+   */
+  injectShellIntegration = () => {
+    // Detect shell type from login script or local shell config
+    let shellType = 'bash'
+    if (this.isLocal()) {
+      const { config } = this.props
+      const localShell = isMac ? config.execMac : config.execLinux
+      shellType = detectShellType(localShell)
+    }
+
+    const isRemote = this.isSsh()
+
+    // Remote sessions might need longer timeout for shell integration detection
+    const integrationCmd = getShellIntegrationCommand(shellType)
+
+    if (integrationCmd && this.attachAddon) {
+      // Wait for initial data (prompt/banner) to arrive before injecting
+      this.attachAddon.onInitialData(() => {
+        if (this.attachAddon) {
+          // Start suppressing output before sending the integration command
+          // This hides the command and its output until OSC 633 is detected
+          const suppressionTimeout = isRemote ? 5000 : 3000
+          // Pass callback to run delayed scripts after suppression ends
+          this.attachAddon.startOutputSuppression(suppressionTimeout, () => {
+            this.startDelayedScripts()
+          })
+          this.attachAddon._sendData(integrationCmd)
+        }
+      })
     }
   }
 

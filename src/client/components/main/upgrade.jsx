@@ -119,7 +119,12 @@ export default class Upgrade extends PureComponent {
       return window.store.addTab(
         {
           ...newTerm(undefined, true),
-          loginScript: 'npm i -g electerm'
+          runScripts: [
+            {
+              script: 'npm install -g electerm',
+              delay: 500
+            }
+          ]
         }
       )
     }

@@ -271,7 +271,6 @@ export const instSftpKeys = [
   'readFile',
   'writeFile'
 ]
-export const cwdId = '=__+__'
 export const zmodemTransferPackSize = 1024 * 1024 * 2
 export const splitMap = {
   c1: 'c1',
