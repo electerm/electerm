@@ -916,10 +916,6 @@ class Term extends Component {
     return this.currentInput
   }
 
-  resetCurrentInput = () => {
-    this.currentInput = ''
-  }
-
   setCurrentInput = (value) => {
     this.currentInput = value
   }
