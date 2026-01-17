@@ -17,7 +17,6 @@ import {
 } from '@ant-design/icons'
 import {
   Tooltip,
-  message,
   Splitter
 } from 'antd'
 import { pick } from 'lodash-es'
