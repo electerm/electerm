@@ -2,7 +2,7 @@
  * db upgrade
  */
 
-import { Modal } from 'antd'
+import Modal from '../components/common/modal'
 import delay from '../common/wait'
 
 export default (Store) => {

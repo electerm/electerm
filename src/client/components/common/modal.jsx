@@ -5,6 +5,8 @@
 
 import { CloseOutlined } from '@ant-design/icons'
 import classnames from 'classnames'
+import React from 'react'
+import { createRoot } from 'react-dom/client'
 import './modal.styl'
 
 export default function Modal (props) {
@@ -86,4 +88,148 @@ export default function Modal (props) {
       </div>
     </div>
   )
+}
+
+function createModalInstance (type, options) {
+  const {
+    title,
+    content,
+    okText = 'OK',
+    cancelText = 'Cancel',
+    onOk,
+    onCancel,
+    ...rest
+  } = options
+
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+
+  const root = createRoot(container)
+
+  const destroy = () => {
+    if (root && container && container.parentNode) {
+      root.unmount()
+      document.body.removeChild(container)
+    }
+  }
+
+  const handleOk = () => {
+    if (onOk) {
+      onOk()
+    }
+    destroy()
+  }
+
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel()
+    }
+    destroy()
+  }
+
+  const hasCancel = type === 'confirm'
+
+  const footer = (
+    <div className='custom-modal-footer-buttons'>
+      {hasCancel && (
+        <button
+          type='button'
+          className='custom-modal-cancel-btn'
+          onClick={handleCancel}
+        >
+          {cancelText}
+        </button>
+      )}
+      <button
+        type='button'
+        className='custom-modal-ok-btn'
+        onClick={handleOk}
+      >
+        {okText}
+      </button>
+    </div>
+  )
+
+  const modalProps = {
+    ...rest,
+    title,
+    open: true,
+    onCancel: hasCancel ? handleCancel : destroy,
+    footer,
+    children: content
+  }
+
+  root.render(<Modal {...modalProps} />)
+
+  const update = (newOptions) => {
+    const updatedOptions = { ...options, ...newOptions }
+    const {
+      title: newTitle,
+      content: newContent,
+      okText: newOkText = 'OK',
+      cancelText: newCancelText = 'Cancel',
+      onOk: newOnOk,
+      onCancel: newOnCancel,
+      ...newRest
+    } = updatedOptions
+
+    const newHandleOk = () => {
+      if (newOnOk) {
+        newOnOk()
+      }
+      destroy()
+    }
+
+    const newHandleCancel = () => {
+      if (newOnCancel) {
+        newOnCancel()
+      }
+      destroy()
+    }
+
+    const newFooter = (
+      <div className='custom-modal-footer-buttons'>
+        {hasCancel && (
+          <button
+            type='button'
+            className='custom-modal-cancel-btn'
+            onClick={newHandleCancel}
+          >
+            {newCancelText}
+          </button>
+        )}
+        <button
+          type='button'
+          className='custom-modal-ok-btn'
+          onClick={newHandleOk}
+        >
+          {newOkText}
+        </button>
+      </div>
+    )
+
+    const newModalProps = {
+      ...newRest,
+      title: newTitle,
+      open: true,
+      onCancel: hasCancel ? newHandleCancel : destroy,
+      footer: newFooter,
+      children: newContent
+    }
+
+    root.render(<Modal {...newModalProps} />)
+  }
+
+  return {
+    destroy,
+    update
+  }
+}
+
+Modal.info = (options) => {
+  return createModalInstance('info', options)
+}
+
+Modal.confirm = (options) => {
+  return createModalInstance('confirm', options)
 }

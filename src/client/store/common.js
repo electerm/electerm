@@ -3,7 +3,7 @@
  */
 
 import handleError from '../common/error-handler'
-import { Modal } from 'antd'
+import Modal from '../components/common/modal'
 import { debounce, some, get, pickBy } from 'lodash-es'
 import {
   modals,

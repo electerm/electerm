@@ -2,7 +2,7 @@
  * system menu functions
  */
 
-import { Modal } from 'antd'
+import Modal from '../components/common/modal'
 import { isString } from 'lodash-es'
 import getInitItem from '../common/init-setting-item'
 import {
@@ -64,6 +64,7 @@ export default Store => {
   Store.prototype.confirmExit = function (type) {
     const { store } = window
     let mod = null
+    console.log('confirmExit called')
     mod = Modal.confirm({
       onCancel: () => mod.destroy(),
       onOk: store.doExit,

@@ -12,9 +12,9 @@ import {
   Spin,
   Button,
   Dropdown,
-  message,
-  Modal
+  message
 } from 'antd'
+import Modal from '../common/modal'
 import classnames from 'classnames'
 import './terminal.styl'
 import {
@@ -289,8 +289,7 @@ class Term extends Component {
       ),
       okText: e('ok'),
       cancelText: e('cancel'),
-      onOk: () => this.onPaste(true),
-      onCancel: Modal.destroyAll
+      onOk: () => this.onPaste(true)
     })
   }
 
