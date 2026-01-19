@@ -276,13 +276,10 @@ class ElectermMCPServer {
         'list_electerm_bookmarks',
         {
           description: 'List all electerm SSH/terminal bookmarks',
-          inputSchema: {
-            groupId: z.string().optional().describe('Optional: Filter by bookmark group ID')
-          }
+          inputSchema: {}
         },
         async (args) => {
-          const groupId = args?.groupId
-          const result = await self.sendToRenderer('tool-call', { toolName: 'list_bookmarks', args: { groupId } })
+          const result = await self.sendToRenderer('tool-call', { toolName: 'list_bookmarks', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
