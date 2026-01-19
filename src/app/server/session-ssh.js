@@ -45,6 +45,11 @@ class TerminalSshBase extends TerminalBase {
     ])
   }
 
+  getAgent () {
+    const { initOptions } = this
+    return initOptions.useSshAgent !== false ? (initOptions.sshAgent || process.env.SSH_AUTH_SOCK) : undefined
+  }
+
   adjustConnectionOrder () {
     const { initOptions } = this
     if (!initOptions.hasHopping || !initOptions.connectionHoppings || initOptions.connectionHoppings.length === 0) {
@@ -161,18 +166,28 @@ class TerminalSshBase extends TerminalBase {
                 this.hoppingOptions.passphrase = data[0]
                 this.jumpSshKeys && this.jumpSshKeys.unshift(this.jumpPrivateKeyPathFrom)
               }
-              return this.jumpConnect(true)
+              return this.jumpConnect(true, true)
             })
             .catch(e => {
               log.error('errored get passphrase for', this.jumpHostFrom, this.jumpPrivateKeyPathFrom, e)
-              return this.jumpConnect(true)
+              return this.jumpConnect(true, false)
             })
         } else if (
           !this.jumpSshKeys &&
+          !this.hoppingOptions.sshKeysDrain &&
           !this.hoppingOptions.password &&
           !this.hoppingOptions.privateKey &&
           err.message.includes(failMsg)
         ) {
+          // SSH agent failed or no agent, try reading private keys from jump server
+          // This will read ~/.ssh keys and retry
+          return this.jumpConnect(true, false)
+        } else if (
+          this.hoppingOptions.sshKeysDrain &&
+          !this.hoppingOptions.password &&
+          err.message.includes(failMsg)
+        ) {
+          // All private keys exhausted, ask for password
           const options = {
             name: `password for ${this.hoppingOptions.username}@${this.initHoppingOptions.host}`,
             instructions: [''],
@@ -185,7 +200,7 @@ class TerminalSshBase extends TerminalBase {
             .then(data => {
               if (data && data[0]) {
                 this.hoppingOptions.password = data[0]
-                return this.jumpConnect(true)
+                return this.jumpConnect(true, true)
               } else if (data && data[0] === '') {
                 throw err
               }
@@ -197,19 +212,24 @@ class TerminalSshBase extends TerminalBase {
         } else if (
           this.jumpSshKeys
         ) {
-          return this.jumpConnect(true)
+          return this.jumpConnect(true, false)
         } else {
           throw err
         }
       })
   }
 
-  async jumpConnect (reBuildSock = false) {
+  async jumpConnect (reBuildSock = false, skipReadKeys = false) {
     if (reBuildSock) {
       this.hoppingOptions.sock.end()
       this.hoppingOptions.sock = await this.forwardOut(this.conn, this.initHoppingOptions)
     }
-    await this.readPrivateKeyInJumpServer(this.conn)
+    // Only read private keys if skipReadKeys is false
+    // On first connect, we skip reading keys to let SSH agent try first
+    // If SSH agent fails, we then read and try private keys
+    if (!skipReadKeys) {
+      await this.readPrivateKeyInJumpServer(this.conn)
+    }
     return this.retryJump()
   }
 
@@ -239,7 +259,12 @@ class TerminalSshBase extends TerminalBase {
     }
     const { Client } = require('@electerm/ssh2')
     this.nextConn = new Client()
-    await this.jumpConnect()
+    // If we have an agent and no explicit privateKey/password, try agent first
+    // by skipping reading private keys from jump server
+    const hasAgent = !!this.hoppingOptions.agent
+    const hasExplicitAuth = this.hoppingOptions.password || this.hoppingOptions.privateKey
+    const skipReadKeys = hasAgent && !hasExplicitAuth
+    await this.jumpConnect(false, skipReadKeys)
     return this.nextConn
   }
 
@@ -253,6 +278,7 @@ class TerminalSshBase extends TerminalBase {
       this.conns.push(this.conn)
       this.initHoppingOptions = {
         ...hopping,
+        agent: this.getAgent(),
         ...this.getShareOptions()
       }
       this.isLast = i === len - 1
@@ -504,7 +530,7 @@ class TerminalSshBase extends TerminalBase {
     const connectOptions = Object.assign(
       this.getShareOptions(),
       {
-        agent: initOptions.useSshAgent !== false ? (initOptions.sshAgent || process.env.SSH_AUTH_SOCK) : undefined
+        agent: this.getAgent()
       },
       _.pick(initOptions, [
         'host',
