@@ -117,9 +117,7 @@ export const convertTheme = (themeTxt) => {
     return prev
   }, {
     themeConfig: {},
-    uiThemeConfig: {
-      motion: false
-    }
+    uiThemeConfig: {}
   })
 }
 

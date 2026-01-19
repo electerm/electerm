@@ -234,7 +234,8 @@ class Store {
         colorSuccess: themeConf.success,
         colorWarning: themeConf.warn,
         colorTextBase: themeConf.text,
-        colorLink: themeConf['text-light']
+        colorLink: themeConf['text-light'],
+        motion: false
       },
       algorithm: isColorDark(themeConf.main) ? theme.darkAlgorithm : theme.defaultAlgorithm
     }
