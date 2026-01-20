@@ -49,7 +49,7 @@ describe('timeout setting', function () {
     await client.setValue('#ssh-form_password', TEST_PASS)
     await client.click('.setting-wrap .ant-btn-primary')
     await delay(5500)
-    const errSel = '.ant-notification-notice  .ant-notification-notice-content .common-err'
+    const errSel = '.notification .notification-content'
     for (let i = 0; i < 25; i++) {
       await delay(500)
       const errExist = await client.elemExist(errSel)
