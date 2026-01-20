@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import LogoElem from '../common/logo-elem.jsx'
 import store from '../../store'
 import {
-  message,
   Spin
 } from 'antd'
+import message from '../common/message'
 import {
   ArrowRightOutlined
 } from '@ant-design/icons'

@@ -2,10 +2,10 @@ import {
   Button,
   Switch,
   Form,
-  message,
   Select,
   Input
 } from 'antd'
+import message from '../common/message'
 import { useState } from 'react'
 import generate from '../../common/uid'
 import InputAutoFocus from '../common/input-auto-focus'

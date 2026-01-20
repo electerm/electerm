@@ -5,6 +5,7 @@
 
 import uid from '../common/uid'
 import { settingMap } from '../common/constants'
+import { refs } from '../components/common/ref'
 
 export default Store => {
   // Initialize MCP handler - called when MCP widget is started
@@ -475,7 +476,6 @@ export default Store => {
 
   Store.prototype.mcpGetTerminalSelection = function (args) {
     const { store } = window
-    const { refs } = require('../components/common/ref')
     const tabId = args.tabId || store.activeTabId
 
     if (!tabId) {
@@ -497,7 +497,6 @@ export default Store => {
 
   Store.prototype.mcpGetTerminalOutput = function (args) {
     const { store } = window
-    const { refs } = require('../components/common/ref')
     const tabId = args.tabId || store.activeTabId
     const lineCount = args.lines || 50
 

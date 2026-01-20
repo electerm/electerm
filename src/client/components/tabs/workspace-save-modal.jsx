@@ -5,7 +5,8 @@
 import React, { useState } from 'react'
 import { auto } from 'manate/react'
 import Modal from '../common/modal'
-import { Input, Select, Button, Space, message, Radio } from 'antd'
+import { Input, Select, Button, Space, Radio } from 'antd'
+import message from '../common/message'
 import { SaveOutlined, EditOutlined } from '@ant-design/icons'
 
 const e = window.translate

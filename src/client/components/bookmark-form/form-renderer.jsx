@@ -2,7 +2,8 @@
  * Generic form renderer driven by config (flattened path)
  */
 import React, { useEffect, useState, useRef } from 'react'
-import { Form, Tabs, message } from 'antd'
+import { Form, Tabs } from 'antd'
+import message from '../common/message'
 import { renderFormItem } from './common/fields'
 import SubmitButtons from './common/submit-buttons'
 import { uniq } from 'lodash-es'

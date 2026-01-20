@@ -9,9 +9,9 @@ import {
 } from '../../common/constants'
 import {
   Spin,
-  message,
   Tag
 } from 'antd'
+import message from '../common/message'
 import Modal from '../common/modal'
 import * as ls from '../../common/safe-local-storage'
 import { copy } from '../../common/clipboard'

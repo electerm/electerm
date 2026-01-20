@@ -2,9 +2,7 @@
  * widgets related functions
  */
 
-import {
-  message
-} from 'antd'
+import message from '../components/common/message'
 import {
   settingMap
 } from '../common/constants'

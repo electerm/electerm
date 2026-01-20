@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import {
   Form,
-  message,
   Switch,
   Button
 } from 'antd'
+import message from '../common/message'
 import InputAutoFocus from '../common/input-auto-focus'
 import { formItemLayout } from '../../common/form-layout'
 import HelpIcon from '../common/help-icon'

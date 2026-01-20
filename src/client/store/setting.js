@@ -2,9 +2,7 @@
  * setting modal
  */
 
-import {
-  message
-} from 'antd'
+import message from '../components/common/message'
 import copy from 'json-deep-copy'
 import {
   settingMap,

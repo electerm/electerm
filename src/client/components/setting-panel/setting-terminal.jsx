@@ -3,8 +3,8 @@ import {
   CodeOutlined,
   LoadingOutlined
 } from '@ant-design/icons'
+import message from '../common/message'
 import {
-  message,
   Select,
   Switch,
   Input,

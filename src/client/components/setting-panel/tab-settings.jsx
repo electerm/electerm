@@ -1,5 +1,5 @@
 import { auto } from 'manate/react'
-import { message } from 'antd'
+import message from '../common/message'
 import SettingCommon from './setting-common'
 import SettingTerminal from './setting-terminal'
 import SettingCol from './col'

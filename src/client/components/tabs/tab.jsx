@@ -12,9 +12,9 @@ import {
 } from '@ant-design/icons'
 import {
   Tooltip,
-  message,
   Dropdown
 } from 'antd'
+import message from '../common/message'
 import classnames from 'classnames'
 import { pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'

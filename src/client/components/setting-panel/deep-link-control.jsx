@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Button, message, Tooltip, Tag, Space } from 'antd'
+import { Button, Tooltip, Tag, Space } from 'antd'
+import message from '../common/message'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
 
 const e = window.translate

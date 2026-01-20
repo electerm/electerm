@@ -1,6 +1,7 @@
 import React from 'react'
 import { FrownOutlined, ReloadOutlined } from '@ant-design/icons'
-import { Button, message } from 'antd'
+import { Button } from 'antd'
+import message from '../common/message'
 import {
   logoPath1,
   packInfo,

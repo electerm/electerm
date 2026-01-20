@@ -1,9 +1,9 @@
 import { PureComponent } from 'react'
 import {
   Button,
-  Input,
-  message
+  Input
 } from 'antd'
+import message from '../common/message'
 import {
   EditFilled,
   CheckOutlined,

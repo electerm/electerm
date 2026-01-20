@@ -21,7 +21,7 @@ import ShortcutControl from '../shortcuts/shortcut-control.jsx'
 import { isMac, isWin, textTerminalBgValue } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import TerminalInfo from '../terminal-info/terminal-info'
-import { ConfigProvider, notification, message } from 'antd'
+import { ConfigProvider, notification } from 'antd'
 import InfoModal from '../sidebar/info-modal.jsx'
 import RightSidePanel from '../side-panel-r/side-panel-r'
 import ConnectionHoppingWarning from './connection-hopping-warnning'
@@ -37,12 +37,6 @@ import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
 
 function setupGlobalMessageDismiss () {
-  document.addEventListener('click', (event) => {
-    const messageElement = event.target.closest('.ant-message-notice')
-    if (messageElement) {
-      message.destroy()
-    }
-  })
 }
 
 export default auto(function Index (props) {

@@ -2,7 +2,7 @@
  * clipboard related
  */
 
-import { message } from 'antd'
+import message from '../components/common/message'
 
 const fileRegWin = /^(remote:)?\w:\\.+/
 const fileReg = /^(remote:)?\/.+/

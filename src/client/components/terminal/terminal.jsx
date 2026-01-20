@@ -11,9 +11,9 @@ import {
   notification,
   Spin,
   Button,
-  Dropdown,
-  message
+  Dropdown
 } from 'antd'
+import message from '../common/message'
 import Modal from '../common/modal'
 import classnames from 'classnames'
 import './terminal.styl'

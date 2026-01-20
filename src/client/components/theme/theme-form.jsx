@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import { Button, Input, message, Upload, Form, Space } from 'antd'
+import { Button, Input, Upload, Form, Space } from 'antd'
+import message from '../common/message'
 import {
   convertTheme,
   convertThemeToText,
