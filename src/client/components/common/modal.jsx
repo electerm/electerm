@@ -5,7 +5,7 @@
 
 import { CloseOutlined } from '@ant-design/icons'
 import classnames from 'classnames'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import './modal.styl'
 
@@ -52,6 +52,36 @@ export default function Modal (props) {
     wrapClassName,
     className
   )
+
+  useEffect(() => {
+    if (!open) return
+
+    const handleKeyDown = (e) => {
+      const isConfirm = !!document.querySelector('.custom-modal-cancel-btn')
+      if (e.key === 'Escape') {
+        if (onCancel) {
+          onCancel()
+          e.preventDefault()
+        }
+      } else if ((e.key === 'Enter' || e.key === ' ') && !isConfirm) {
+        // For info, Enter/Space closes
+        if (onCancel) {
+          onCancel()
+          e.preventDefault()
+        }
+      } else if ((e.key === 'Enter' || e.key === ' ') && isConfirm) {
+        // For confirm, Enter/Space confirms
+        const okBtn = document.querySelector('.custom-modal-ok-btn')
+        if (okBtn) {
+          okBtn.click()
+          e.preventDefault()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open, onCancel])
 
   return (
     <div className={cls} style={modalStyle}>
