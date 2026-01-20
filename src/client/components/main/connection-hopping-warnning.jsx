@@ -1,8 +1,6 @@
 import { useEffect } from 'react'
 import ConnectionHoppingWarningText from '../common/connection-hopping-warning-text'
-import {
-  notification
-} from 'antd'
+import { notification } from '../common/notification'
 import * as ls from '../../common/safe-local-storage'
 import {
   connectionHoppingWarnKey

@@ -7,7 +7,8 @@
  */
 import { useDelta, useConditionalEffect } from 'react-delta-hooks'
 import { ArrowDownOutlined, ArrowUpOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
-import { Button, Input, notification, Form } from 'antd'
+import { Button, Input, Form } from 'antd'
+import { notification } from '../common/notification'
 import Link from '../common/external-link'
 import dayjs from 'dayjs'
 import eq from 'fast-deep-equal'

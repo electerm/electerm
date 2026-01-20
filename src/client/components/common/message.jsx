@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
-  InfoCircleFilled,
-  CheckCircleFilled,
-  ExclamationCircleFilled,
-  CloseCircleFilled,
   CloseOutlined
 } from '@ant-design/icons'
 import classnames from 'classnames'
 import generateId from '../../common/uid'
+import { messageIcons } from '../../common/icon-helpers.jsx'
 import './message.styl'
 
 let messageContainerRoot = null
@@ -36,17 +33,10 @@ function MessageItem ({ id, type, content, duration, onRemove, timestamp }) {
     }
   }, [duration, onRemove, timestamp])
 
-  const icons = {
-    info: <InfoCircleFilled className='msg-icon info' />,
-    success: <CheckCircleFilled className='msg-icon success' />,
-    warning: <ExclamationCircleFilled className='msg-icon warning' />,
-    error: <CloseCircleFilled className='msg-icon error' />
-  }
-
   return (
     <div className={classnames('message-item', type)} id={`message-${id}`}>
       <div className='message-content-wrap'>
-        {icons[type]}
+        {messageIcons[type]}
         <div className='message-content'>{content}</div>
         <CloseOutlined className='message-close' onClick={onRemove} />
       </div>

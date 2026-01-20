@@ -1,4 +1,4 @@
-import { notification } from 'antd'
+import { notification } from '../common/notification'
 import { CopyOutlined } from '@ant-design/icons'
 import { copy } from '../../common/clipboard'
 

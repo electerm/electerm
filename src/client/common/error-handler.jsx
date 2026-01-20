@@ -2,7 +2,7 @@
  * common error handler
  */
 
-import { notification } from 'antd'
+import { notification } from '../components/common/notification'
 
 export default (e) => {
   const { message = 'error', stack } = e

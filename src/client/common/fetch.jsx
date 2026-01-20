@@ -1,6 +1,6 @@
 // the final fetch wrapper
 import { isString, isFunction } from 'lodash-es'
-import { notification } from 'antd'
+import { notification } from '../components/common/notification'
 
 function jsonHeader () {
   return {

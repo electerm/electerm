@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
-import { notification, Button } from 'antd'
+import { Button } from 'antd'
+import { notification } from '../common/notification'
 import * as ls from '../../common/safe-local-storage'
 import {
   sshConfigKey,

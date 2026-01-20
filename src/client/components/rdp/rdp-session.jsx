@@ -7,11 +7,11 @@ import {
   statusMap
 } from '../../common/constants'
 import {
-  notification,
   Spin,
   // Button,
   Select
 } from 'antd'
+import { notification } from '../common/notification'
 import {
   ReloadOutlined,
   EditOutlined

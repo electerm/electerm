@@ -8,11 +8,11 @@ import {
   ReloadOutlined
 } from '@ant-design/icons'
 import {
-  notification,
   Spin,
   Button,
   Dropdown
 } from 'antd'
+import { notification } from '../common/notification'
 import message from '../common/message'
 import Modal from '../common/modal'
 import classnames from 'classnames'

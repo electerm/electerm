@@ -1,7 +1,7 @@
 /**
  * simulate download
  */
-import { notification } from 'antd'
+import { notification } from '../components/common/notification'
 import ShowItem from '../components/common/show-item'
 import { chooseSaveDirectory } from './choose-save-folder'
 
