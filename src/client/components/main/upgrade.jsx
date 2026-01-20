@@ -37,9 +37,6 @@ export default class Upgrade extends PureComponent {
     if (window.et.isWebApp) {
       return
     }
-    setTimeout(() => {
-      getLatestReleaseVersion(1)
-    }, 5000)
     this.id = 'upgrade'
     refsStatic.add(this.id, this)
   }
