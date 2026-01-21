@@ -58,7 +58,7 @@ export function NotificationContainer () {
       {nots.map(notif => (
         <NotificationItem
           key={notif.key}
-          message={notif.message}
+          message={notif.message || notif.title}
           description={notif.description}
           type={notif.type}
           duration={notif.duration}
@@ -69,7 +69,7 @@ export function NotificationContainer () {
   )
 }
 
-function NotificationItem ({ message, description, type, onClose, duration = 4.5 }) {
+function NotificationItem ({ message, description, type, onClose, duration = 8.5 }) {
   useEffect(() => {
     if (duration > 0) {
       const timer = setTimeout(onClose, duration * 1000)
@@ -83,8 +83,8 @@ function NotificationItem ({ message, description, type, onClose, duration = 4.5
     <div className={className}>
       <div className='notification-content'>
         <div className='notification-message'>
-          {messageIcons[type]}
-          {message}
+          <div className='notification-icon'>{messageIcons[type]}</div>
+          <div className='notification-title' title={message}>{message}</div>
         </div>
         {description && <div className='notification-description'>{description}</div>}
       </div>

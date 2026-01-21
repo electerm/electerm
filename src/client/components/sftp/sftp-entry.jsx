@@ -848,8 +848,8 @@ export default class Sftp extends Component {
           sftp,
           realpath
         ).catch(e => {
-          log.debug('seems a bad symbolic link')
-          log.debug(e)
+          console.debug('seems a bad symbolic link')
+          console.debug(e)
           return null
         })
         if (!realFileInfo) {

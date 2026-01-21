@@ -81,7 +81,7 @@ export default class CssOverwrite extends Component {
       st = 'text'
     } else if (imagePath && !isWebImg) {
       content = await fs.readFileAsBase64(imagePath)
-        .catch(log.error)
+        .catch(console.error)
       if (content) {
         st = `url(data:image;base64,${content})`
       }

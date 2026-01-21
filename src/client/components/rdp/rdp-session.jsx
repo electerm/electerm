@@ -246,7 +246,7 @@ export default class RdpSession extends PureComponent {
 
   onerrorSocket = err => {
     this.setStatus(statusMap.error)
-    log.error('socket error', err)
+    console.error('socket error', err)
   }
 
   closeMsg = () => {

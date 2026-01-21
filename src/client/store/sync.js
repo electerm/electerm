@@ -91,7 +91,7 @@ export default (Store) => {
       token,
       store.getProxySetting()
     ).catch(
-      log.error
+      console.error
     )
     store.isSyncingSetting = false
     return !!gist

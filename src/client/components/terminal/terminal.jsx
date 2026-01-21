@@ -349,7 +349,7 @@ class Term extends Component {
         this.attachAddon._sendData(`"${filePath}" `)
         return
       } catch (e) {
-        log.error('Failed to parse fromFile data:', e)
+        console.error('Failed to parse fromFile data:', e)
       }
     }
 
@@ -408,7 +408,7 @@ class Term extends Component {
   }
 
   onzmodemRetract = () => {
-    log.debug('zmodemRetract')
+    console.debug('zmodemRetract')
   }
 
   writeBanner = (type) => {
@@ -975,8 +975,8 @@ class Term extends Component {
       try {
         term.loadAddon(new WebglAddon())
       } catch (e) {
-        log.error('render with webgl failed, fallback to canvas')
-        log.error(e)
+        console.error('render with webgl failed, fallback to canvas')
+        console.error(e)
         term.loadAddon(new CanvasAddon())
       }
     }
@@ -1351,13 +1351,13 @@ class Term extends Component {
       try {
         this.fitAddon.fit()
       } catch (e) {
-        log.info('resize failed')
+        console.info('resize failed')
       }
     }
   }, 200)
 
   onerrorSocket = err => {
-    log.error('onerrorSocket', err)
+    console.error('onerrorSocket', err)
   }
 
   oncloseSocket = () => {

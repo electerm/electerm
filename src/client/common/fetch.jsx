@@ -17,7 +17,7 @@ function parseResponse (response) {
 }
 
 export async function handleErr (res) {
-  log.debug(res)
+  console.debug(res)
   let text = res.message || res.statusText
   if (!isString(text)) {
     try {
@@ -25,12 +25,12 @@ export async function handleErr (res) {
         ? await res.text()
         : isFunction(res.json) ? await res.json() : ''
     } catch (e) {
-      log.error('fetch response parse fails', e)
+      console.error('fetch response parse fails', e)
     }
   }
-  log.debug(text, 'fetch err info')
+  console.debug(text, 'fetch err info')
   notification.error({
-    title: 'error',
+    message: 'http request error',
     description: (
       <div className='common-err'>
         {text}

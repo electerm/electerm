@@ -38,13 +38,6 @@ function decodeBase64String (base64String) {
   return uint8Array
 }
 
-window.log = {
-  debug: (...args) => runSync('debug', ...args),
-  log: (...args) => runSync('log', ...args),
-  error: (...args) => runSync('error', ...args),
-  info: (...args) => runSync('info', ...args)
-}
-
 window.pre = {
   requireAuth: runSync('shouldAuth'),
   readClipboard: () => {

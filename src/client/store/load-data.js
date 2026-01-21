@@ -35,7 +35,7 @@ function getHost (argv, opts) {
 }
 
 export async function addTabFromCommandLine (store, opts) {
-  log.debug('command line params', opts)
+  console.debug('command line params', opts)
   if (!opts) {
     return false
   }
@@ -94,7 +94,7 @@ export async function addTabFromCommandLine (store, opts) {
   if (options.privateKeyPath) {
     conf.privateKey = await fs.readFile(options.privateKeyPath)
   }
-  log.debug('command line opts', conf)
+  console.debug('command line opts', conf)
   if (
     (conf.username && conf.host) ||
     conf.fromCmdLine

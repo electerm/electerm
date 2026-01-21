@@ -261,7 +261,7 @@ export default function FormRenderer ({ config, props }) {
     }
     const ips = await window.pre.runGlobalAsync('lookup', value)
       .catch(err => {
-        log.debug(err)
+        console.debug(err)
       })
     setIps(ips || [])
   }

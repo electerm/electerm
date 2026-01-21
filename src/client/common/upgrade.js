@@ -49,8 +49,8 @@ class Upgrade {
       onEnd(arg)
     }, 'upgrade:end:' + id)
     ws.once((arg) => {
-      log.debug('upgrade error')
-      log.debug(arg.error.stack)
+      console.debug('upgrade error')
+      console.debug(arg.error.stack)
       onError(new Error(arg.error.message))
     }, 'upgrade:err:' + id)
   }

@@ -6,21 +6,17 @@ import { notification } from '../components/common/notification'
 
 export default (e) => {
   const { message = 'error', stack } = e
-  log.error(e)
-  const msg = (
-    <div className='mw240 elli wordbreak' title={message}>
-      {message}
-    </div>
-  )
+  console.error(e)
   const description = (
     <div
-      className='mw300 elli common-err-desc wordbreak'
+      className='common-err-desc'
+      title={stack}
     >
       {stack}
     </div>
   )
   notification.error({
-    title: msg,
+    message,
     description,
     duration: 55
   })

@@ -63,7 +63,7 @@ export default function SyncForm (props) {
     const test = await window.store.testSyncToken(syncType, res.gistId)
     if (!test) {
       return notification.error({
-        title: 'token invalid'
+        message: 'token invalid'
       })
     }
     if (!res.gistId && syncType !== syncTypes.custom && syncType !== syncTypes.cloud) {

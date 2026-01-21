@@ -45,10 +45,6 @@ module.exports = {
     }
   },
   windowMove,
-  debug: (...args) => log.debug(...args),
-  log: (...args) => log.log(...args),
-  error: (...args) => log.error(...args),
-  info: (...args) => log.info(...args),
   getFsContants: () => {
     return require('fs').constants
   },

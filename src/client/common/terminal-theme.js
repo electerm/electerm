@@ -141,7 +141,7 @@ export const exportTheme = (themeId) => {
   const themes = window.store.getSidebarList(settingMap.terminalThemes)
   const theme = themes.find(d => d.id === themeId)
   if (!theme) {
-    log.error('export error', themeId)
+    console.error('export error', themeId)
     return
   }
   const text = convertThemeToText(theme, true)

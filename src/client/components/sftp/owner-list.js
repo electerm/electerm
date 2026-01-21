@@ -29,7 +29,7 @@ const linuxListGroup = 'cat /etc/group'
 
 export async function remoteListUsers (pid) {
   const users = await runCmd(pid, linuxListUser)
-    .catch(log.error)
+    .catch(console.error)
   if (users) {
     return parseNames(users)
   }
@@ -38,7 +38,7 @@ export async function remoteListUsers (pid) {
 
 export async function remoteListGroups (pid) {
   const groups = await runCmd(pid, linuxListGroup)
-    .catch(log.error)
+    .catch(console.error)
   if (groups) {
     return parseNames(groups)
   }
@@ -50,7 +50,7 @@ export async function localListUsers () {
     return {}
   } else if (isMac) {
     const g = await fs.run('dscl . -list /Users UniqueID')
-      .catch(log.error)
+      .catch(console.error)
     return g
       ? g.split('\n')
         .reduce((p, s) => {
@@ -65,7 +65,7 @@ export async function localListUsers () {
         }, {})
       : {}
   } else {
-    const g = await fs.run(linuxListUser).catch(log.error)
+    const g = await fs.run(linuxListUser).catch(console.error)
     return g
       ? parseNames(g)
       : {}
@@ -77,7 +77,7 @@ export async function localListGroups () {
     return {}
   } else if (isMac) {
     const g = await fs.run('dscl . list /Groups PrimaryGroupID')
-      .catch(log.error)
+      .catch(console.error)
     return g
       ? g.split('\n')
         .reduce((p, s) => {
@@ -89,7 +89,7 @@ export async function localListGroups () {
         }, {})
       : {}
   } else {
-    const g = await fs.run(linuxListGroup).catch(log.error)
+    const g = await fs.run(linuxListGroup).catch(console.error)
     return g
       ? parseNames(g)
       : {}

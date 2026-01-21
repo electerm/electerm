@@ -117,7 +117,7 @@ export default Store => {
       setTimeout(queue, 3000)
       setTimeout(run, 4000)
     } catch (e) {
-      log.error(e)
+      console.error(e)
     }
   }
 
