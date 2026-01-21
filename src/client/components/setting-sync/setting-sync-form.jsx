@@ -7,7 +7,7 @@
  */
 import { useDelta, useConditionalEffect } from 'react-delta-hooks'
 import { ArrowDownOutlined, ArrowUpOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
-import { Button, Input, Form } from 'antd'
+import { Button, Input, Form, Alert } from 'antd'
 import { notification } from '../common/notification'
 import Link from '../common/external-link'
 import dayjs from 'dayjs'
@@ -137,6 +137,27 @@ export default function SyncForm (props) {
   function createId (name) {
     return 'sync-input-' + name + '-' + syncType
   }
+  function renderWarning () {
+    if (syncType === syncTypes.gitee) {
+      return (
+        <Alert
+          message={
+            <span>
+              Gitee data sync is not recommended. For more information, please refer to the
+              <Link to='https://github.com/electerm/electerm/wiki/gitee-data-sync-warning' className='mg1l'>
+                wiki
+              </Link>
+              .
+            </span>
+          }
+          type='warning'
+          showIcon
+          className='mg1b'
+        />
+      )
+    }
+    return null
+  }
   function createUrlItem () {
     if (syncType === syncTypes.cloud) {
       return (
@@ -229,6 +250,7 @@ export default function SyncForm (props) {
       layout='vertical'
       initialValues={props.formData}
     >
+      {renderWarning()}
       {createUrlItem()}
       <FormItem
         label={tokenLabel}
