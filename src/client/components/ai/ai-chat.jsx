@@ -185,7 +185,7 @@ export default function AIChat (props) {
       <SendOutlined
         onClick={handleSubmit}
         className='mg1l pointer icon-hover send-to-ai-icon'
-        title='Ctrl+Enter'
+        title='Enter to send, Shift+Enter for new line'
       />
     )
   }
@@ -207,6 +207,14 @@ export default function AIChat (props) {
     return null
   }
 
+  const handleKeyPress = (e) => {
+    if (!e.shiftKey) {
+      e.preventDefault()
+      handleSubmit()
+    }
+    // If Shift+Enter, allow default behavior (new line)
+  }
+
   return (
     <Flex vertical className='ai-chat-container'>
       <Flex className='ai-chat-history' flex='auto'>
@@ -217,6 +225,7 @@ export default function AIChat (props) {
         <TextArea
           value={prompt}
           onChange={handlePromptChange}
+          onPressEnter={handleKeyPress}
           placeholder='Enter your prompt here'
           autoSize={{ minRows: 3, maxRows: 10 }}
           disabled={isLoading}
