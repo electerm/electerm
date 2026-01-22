@@ -412,8 +412,11 @@ class Term extends Component {
   }
 
   writeBanner = (type) => {
-    this.term.write('\r\nRecommmend use trzsz instead: https://github.com/trzsz/trzsz\r\n')
-    this.term.write(`\x1b[32mZMODEM::${type}::START\x1b[0m\r\n\r\n`)
+    const border = '='.repeat(50)
+    this.term.write(`\r\n${border}\r\n`)
+    this.term.write('\x1b[33m\x1b[1mRecommend use trzsz instead: https://github.com/trzsz/trzsz\x1b[0m\r\n')
+    this.term.write(`${border}\r\n\r\n`)
+    this.term.write(`\x1b[32m\x1b[1mZMODEM::${type}::START\x1b[0m\r\n`)
   }
 
   onReceiveZmodemSession = async () => {
