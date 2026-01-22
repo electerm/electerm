@@ -61,9 +61,12 @@ function MessageContainer () {
 
   return (
     <div className='message-container'>
-      {messages.map(msg => (
-        <MessageItem key={msg.id} {...msg} onRemove={() => removeMessage(msg.id, msg.onClose)} />
-      ))}
+      {messages.map(msg => {
+        const { key, ...props } = msg
+        return (
+          <MessageItem key={msg.id} {...props} onRemove={() => removeMessage(msg.id, msg.onClose)} />
+        )
+      })}
     </div>
   )
 }
