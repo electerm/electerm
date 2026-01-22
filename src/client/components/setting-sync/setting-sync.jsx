@@ -43,7 +43,8 @@ export default auto(function SyncSettingEntry (props) {
       url: syncSetting[type + 'Url'],
       apiUrl: syncSetting[type + 'ApiUrl'],
       lastSyncTime: syncSetting[type + 'LastSyncTime'],
-      syncPassword: syncSetting[type + 'SyncPassword']
+      syncPassword: syncSetting[type + 'SyncPassword'],
+      proxy: syncSetting[type + 'Proxy']
     }
     return (
       <SyncForm

@@ -69,7 +69,7 @@ export function NotificationContainer () {
   )
 }
 
-function NotificationItem ({ message, description, type, onClose, duration = 8.5 }) {
+function NotificationItem ({ message, description, type, onClose, duration = 18.5 }) {
   useEffect(() => {
     if (duration > 0) {
       const timer = setTimeout(onClose, duration * 1000)

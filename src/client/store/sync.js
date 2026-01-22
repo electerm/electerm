@@ -80,6 +80,10 @@ export default (Store) => {
     return get(window.store.config, 'syncSetting.' + type + 'GistId')
   }
 
+  Store.prototype.getSyncProxy = function (type) {
+    return get(window.store.config, 'syncSetting.' + type + 'Proxy')
+  }
+
   Store.prototype.testSyncToken = async function (type) {
     const { store } = window
     store.isSyncingSetting = true
@@ -89,12 +93,14 @@ export default (Store) => {
       'test',
       [],
       token,
-      store.getProxySetting()
-    ).catch(
-      console.error
+      store.getSyncProxy(type)
     )
+      .catch(err => {
+        console.error(err)
+        return err
+      })
     store.isSyncingSetting = false
-    return !!gist
+    return gist
   }
 
   Store.prototype.createGist = async function (type) {
@@ -111,7 +117,7 @@ export default (Store) => {
       public: false
     }
     const res = await fetchData(
-      type, 'create', [data], token, store.getProxySetting()
+      type, 'create', [data], token, store.getSyncProxy(type)
     ).catch(
       store.onError
     )
@@ -184,7 +190,7 @@ export default (Store) => {
       'getOne',
       [gistId],
       token,
-      store.getProxySetting()
+      store.getSyncProxy(type)
     )
     updateSyncServerStatusFromGist(store, gist, type)
   }
@@ -254,7 +260,7 @@ export default (Store) => {
       'update',
       [gistId, gistData],
       token,
-      store.getProxySetting()
+      store.getSyncProxy(type)
     )
     if (res) {
       store.updateSyncSetting({
@@ -290,7 +296,7 @@ export default (Store) => {
       'getOne',
       [gistId],
       token,
-      store.getProxySetting()
+      store.getSyncProxy(type)
     )
     if (gist) {
       updateSyncServerStatusFromGist(store, gist, type)

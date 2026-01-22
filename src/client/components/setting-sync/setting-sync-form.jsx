@@ -16,6 +16,7 @@ import { syncTokenCreateUrls, syncTypes } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
 import ServerDataStatus from './server-data-status'
 import Password from '../common/password'
+import { isError } from 'lodash-es'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -59,11 +60,17 @@ export default function SyncForm (props) {
       up[syncType + 'ApiUrl'] = 'https://electerm-cloud.html5beta.com/api/sync'
       // up[syncType + 'ApiUrl'] = 'http://127.0.0.1:5678/api/sync'
     }
+    if (res.proxy) {
+      up[syncType + 'Proxy'] = res.proxy
+    } else {
+      up[syncType + 'Proxy'] = ''
+    }
     window.store.updateSyncSetting(up)
     const test = await window.store.testSyncToken(syncType, res.gistId)
-    if (!test) {
+    if (isError(test)) {
       return notification.error({
-        message: 'token invalid'
+        message: test.message || 'Request failed',
+        description: test.stack || 'Request failed'
       })
     }
     if (!res.gistId && syncType !== syncTypes.custom && syncType !== syncTypes.cloud) {
@@ -237,6 +244,23 @@ export default function SyncForm (props) {
       </FormItem>
     )
   }
+  function createProxyItem () {
+    return (
+      <FormItem
+        label='Proxy'
+        name='proxy'
+        normalize={trim}
+        rules={[{
+          max: 200, message: '200 chars max'
+        }]}
+      >
+        <Input
+          placeholder='socks5://127.0.0.1:1080'
+          id={createId('proxy')}
+        />
+      </FormItem>
+    )
+  }
   const sprops = {
     type: syncType,
     status: props.serverStatus
@@ -273,6 +297,9 @@ export default function SyncForm (props) {
       }
       {
         createPasswordItem()
+      }
+      {
+        createProxyItem()
       }
       <FormItem>
         <p>
