@@ -24,7 +24,7 @@ export default function InputAutoFocus (props) {
         inputRef.current.focus()
       }
     }
-  }, [props.value, props.selectall])
+  }, [props.selectall])
 
   let InputComponent
   switch (type) {
