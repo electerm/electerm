@@ -1,6 +1,5 @@
 import {
   Form,
-  Input,
   Select,
   Space,
   Button
@@ -11,6 +10,7 @@ import {
   PlusOutlined
 } from '@ant-design/icons'
 import { useEffect } from 'react'
+import KeywordInput from './keyword-input'
 
 const FormItem = Form.Item
 const FormList = Form.List
@@ -23,10 +23,6 @@ export default function KeywordForm (props) {
   } = props
   const [formChild] = Form.useForm()
   function handleTrigger () {
-    formChild.submit()
-  }
-
-  function handleChange (e) {
     formChild.submit()
   }
 
@@ -59,9 +55,8 @@ export default function KeywordForm (props) {
             name={[field.name, 'keyword']}
             rules={[{ validator: checker }]}
           >
-            <Input
+            <KeywordInput
               addonBefore={renderBefore(field.name)}
-              onChange={handleChange}
             />
           </FormItem>
         </FormItem>
