@@ -48,16 +48,21 @@ describe('timeout setting', function () {
     await client.setValue('#ssh-form_username', TEST_USER)
     await client.setValue('#ssh-form_password', TEST_PASS)
     await client.click('.setting-wrap .ant-btn-primary')
+    log('ssh form submitted')
     await delay(5500)
+    log('waited after submit')
     const errSel = '.notification .notification-content'
+    log('starting error check loop')
     for (let i = 0; i < 25; i++) {
       await delay(500)
       const errExist = await client.elemExist(errSel)
       if (errExist) {
+        log('error found at iteration ' + i)
         break
       }
     }
     const txt = await client.getText(errSel)
+    log('error text: ' + txt)
     expect(txt.includes('Timed out')).equal(true)
 
     log('set timeout to 50000')
@@ -73,7 +78,10 @@ describe('timeout setting', function () {
     })
     await delay(150)
     expect(timeout1).equal(50000)
+    log('timeout set to 50000 verified')
     await delay(400)
+    log('closing app')
     await electronApp.close().catch(console.log)
+    log('app closed')
   })
 })

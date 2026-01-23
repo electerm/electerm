@@ -5,6 +5,7 @@ const {
 const { describe } = it
 it.setTimeout(10000000)
 const delay = require('./common/wait')
+const log = require('./common/log')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { expect } = require('./common/expect')
@@ -25,14 +26,19 @@ describe('multi-file-drag-drop-operation', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(3500)
+    log('app launched')
 
     await setupSftpConnection(client)
+    log('sftp connected')
 
     // Test for both local and remote
     await testMultiFileDragDrop(client, 'local')
+    log('local drag drop tested')
     await testMultiFileDragDrop(client, 'remote')
+    log('remote drag drop tested')
 
     await electronApp.close()
+    log('app closed')
   })
 })
 

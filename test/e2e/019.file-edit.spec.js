@@ -5,6 +5,7 @@ const {
 const { describe } = it
 it.setTimeout(1000000)
 const delay = require('./common/wait')
+const log = require('./common/log')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { expect } = require('./common/expect')
@@ -24,17 +25,22 @@ describe('file edit operations', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(3500)
+    log('app launched')
 
     // Set up SFTP connection
     await setupSftpConnection(client)
+    log('sftp connection setup')
 
     // Test local file editing (using context menu)
     await testFileEdit(client, 'local')
+    log('local file edit tested')
 
     // Test remote file editing (testing both context menu and double-click)
     await testFileEdit(client, 'remote', true)
+    log('remote file edit tested')
 
     await electronApp.close()
+    log('app closed')
   })
 })
 

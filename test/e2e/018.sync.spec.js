@@ -106,23 +106,31 @@ describe('data sync', function () {
     log('save cloud props')
 
     await client.click('.setting-wrap [id*="tab-cloud"]')
+    log('cloud tab clicked')
     await delay(3000)
 
     await client.setValue('#sync-input-token-cloud', CLOUD_TOKEN)
+    log('cloud token set')
     await delay(1000)
     await client.click('.setting-wrap .sync-btn-save:visible')
+    log('cloud save clicked')
     await delay(6000)
     await client.click('.setting-wrap .sync-btn-up:visible')
+    log('cloud up clicked')
     await delay(6000)
     await client.evaluate(() => {
       return window.store.setBookmarks([])
     })
+    log('bookmarks cleared')
     await client.click('.setting-wrap .sync-btn-down:visible')
+    log('cloud down clicked')
     await delay(6000)
     const bks4 = await client.evaluate(() => {
       return window.store.bookmarks
     })
     expect(bks4.length > 3).equal(true)
+    log('cloud sync verified')
     electronApp.close().catch(console.log)
+    log('app closed')
   })
 })

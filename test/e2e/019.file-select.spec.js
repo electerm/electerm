@@ -5,6 +5,7 @@ const {
 const { describe } = it
 it.setTimeout(1000000)
 const delay = require('./common/wait')
+const log = require('./common/log')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { expect } = require('./common/expect')
@@ -25,15 +26,20 @@ describe('multi-file selection operations', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(3500)
+    log('app launched')
 
     // Set up SFTP connection
     await setupSftpConnection(client)
+    log('sftp connected')
 
     // Test both local and remote file systems
     await testMultiFileSelection(client, 'local')
+    log('local selection tested')
     await testMultiFileSelection(client, 'remote')
+    log('remote selection tested')
 
     await electronApp.close()
+    log('app closed')
   })
 })
 

@@ -6,6 +6,7 @@ const { describe } = it
 it.setTimeout(1000000)
 
 const delay = require('./common/wait')
+const log = require('./common/log')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { expect } = require('./common/expect')
@@ -27,8 +28,10 @@ describe('file-transfer-conflict-resolution', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(3500)
+    log('app launched')
 
     await setupSftpConnection(client)
+    log('sftp connected')
     await delay(2000)
 
     // Create a single test folder structure for all tests
@@ -38,15 +41,19 @@ describe('file-transfer-conflict-resolution', function () {
     try {
       // Create and prepare test environment
       await prepareTestEnvironment(client, testFolder)
+      log('test environment prepared')
 
       // Test conflict policies in both directions
       await testAllConflictPolicies(client, testFolder)
+      log('conflict policies tested')
     } finally {
       // Clean up test folders once at the end
       await cleanupTestFolders(client, testFolder)
+      log('test folders cleaned')
     }
 
     await electronApp.close()
+    log('app closed')
   })
 })
 
