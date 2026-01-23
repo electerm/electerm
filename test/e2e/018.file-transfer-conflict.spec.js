@@ -137,7 +137,9 @@ async function testConflictResolution (client, policy, fromType, toType) {
 
   // Handle conflict resolution based on policy
   if (policy === 'skip') {
-    // Skip each conflict, with the expected number equal to the selected items
+    await client.click('.custom-modal-footer button:has-text("Skip all")')
+    // Debug: Check if modal closes after click
+    await delay(500)
     await client.click('.custom-modal-footer button:has-text("Skip all")')
   } else if (policy === 'overwrite') {
     // Check for first conflict item type (file vs folder) and click appropriate button
@@ -217,27 +219,22 @@ async function selectAllItems (client, type) {
 
 async function cleanupTestFolders (client, testFolder) {
   // Navigate back to parent folders (if not already there)
-  try {
-    // Check if we need to navigate back
-    const localPathInput = await client.getValue('.session-current .sftp-local-section .sftp-title input')
-    if (localPathInput.includes(testFolder)) {
-      await navigateToParentFolder(client, 'local')
-      await delay(1000)
-    }
-
-    const remotePathInput = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
-    if (remotePathInput.includes(testFolder)) {
-      await navigateToParentFolder(client, 'remote')
-      await delay(1000)
-    }
-
-    // Delete test folders
-    await deleteItem(client, 'local', testFolder)
+  // Check if we need to navigate back
+  const localPathInput = await client.getValue('.session-current .sftp-local-section .sftp-title input')
+  if (localPathInput.includes(testFolder)) {
+    await navigateToParentFolder(client, 'local')
     await delay(1000)
-    await deleteItem(client, 'remote', testFolder)
-    await delay(1000)
-  } catch (error) {
-    console.error('Error during cleanup:', error)
-    // Continue with test completion even if cleanup fails
   }
+
+  const remotePathInput = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
+  if (remotePathInput.includes(testFolder)) {
+    await navigateToParentFolder(client, 'remote')
+    await delay(1000)
+  }
+
+  // Delete test folders
+  await deleteItem(client, 'local', testFolder)
+  await delay(1000)
+  await deleteItem(client, 'remote', testFolder)
+  await delay(1000)
 }
