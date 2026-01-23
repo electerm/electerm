@@ -8,7 +8,7 @@ import {
   ImportOutlined,
   EditOutlined
 } from '@ant-design/icons'
-import { Upload, Button } from 'antd'
+import { Upload, Button, Space } from 'antd'
 
 const e = window.translate
 
@@ -32,16 +32,20 @@ export default class BookmarkTransport extends PureComponent {
     )
   }
 
-  render () {
-    return [
-      this.renderEdit(),
+  renderExport () {
+    return (
       <Button
         icon={<ExportOutlined />}
         onClick={this.handleDownload}
         title={e('export')}
         className='download-bookmark-icon'
         key='export'
-      />,
+      />
+    )
+  }
+
+  renderImport () {
+    return (
       <Upload
         beforeUpload={this.beforeUpload}
         fileList={[]}
@@ -53,6 +57,24 @@ export default class BookmarkTransport extends PureComponent {
           title={e('importFromFile')}
         />
       </Upload>
+    )
+  }
+
+  render () {
+    const edit = this.renderEdit()
+    console.log('edit', edit)
+    if (edit === null) {
+      return (
+        <Space.Compact>
+          {this.renderExport()}
+          {this.renderImport()}
+        </Space.Compact>
+      )
+    }
+    return [
+      edit,
+      this.renderExport(),
+      this.renderImport()
     ]
   }
 }
