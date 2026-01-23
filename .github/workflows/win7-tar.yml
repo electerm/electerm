@@ -31,7 +31,6 @@ jobs:
     # before_install:
     # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
-    - run: npm i
     - name: Update electron version and remove package-lock
       run: |
         node -e "
@@ -44,9 +43,10 @@ jobs:
         pkg.devDependencies.vite = '4';
         pkg.dependencies['electron-builder'] = '26.0.20';
         fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+        fs.unlinkSync('package-lock.json');
         "
-        rm -f package-lock.json
     - run: npm i
+    - run: npm i -S @electron/rebuild@3.7.2
 
     # script:
     - run: npm run b
