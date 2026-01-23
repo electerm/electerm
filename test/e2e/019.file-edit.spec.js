@@ -39,7 +39,7 @@ describe('file edit operations', function () {
     await testFileEdit(client, 'remote', true)
     log('019.file-edit.spec.js: remote file edit tested')
 
-    await electronApp.close()
+    await electronApp.close().catch(console.log)
     log('019.file-edit.spec.js: app closed')
   })
 })
