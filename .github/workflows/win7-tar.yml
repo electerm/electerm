@@ -5,7 +5,7 @@ name: win7-tar
 
 on:
   push:
-    branches: [ build, test, build-only ]
+    branches: [ build, test, build-only, win7-tar ]
 
 jobs:
   build:
@@ -34,6 +34,7 @@ jobs:
     - run: npm un vite node-pty serialport electron
     - run: npm i
     - run: npm i -D electron@22.3.27
+    - run: npm i -D @electron/rebuild@3.7.2
     - run: npm i -S -E node-pty@1.1.0-beta14
     - run: npm i -S -E serialport@13.0.0
     - run: npm i -D vite@4

@@ -47,10 +47,18 @@ jobs:
       working-directory: /tmp/electerm_build
       run: rm -rf ~/.cache/electron-builder
 
+    - name: ci init
+      working-directory: /tmp/electerm_build
+      run: npm config set legacy-peer-deps true && npm ci --ignore-scripts
+
     - name: Install electron
       working-directory: /tmp/electerm_build
-      run: npm config set legacy-peer-deps true && npm i -D electron@22.3.27
-      
+      run: npm i -D electron@22.3.27
+
+    - name: Install electron rebuild
+      working-directory: /tmp/electerm_build
+      run: npm i -D @electron/rebuild@3.7.2
+
     - name: Install node-pty
       working-directory: /tmp/electerm_build
       run: npm i -S -E node-pty@0.10.1
@@ -62,10 +70,6 @@ jobs:
     - name: Install vite
       working-directory: /tmp/electerm_build
       run: npm i -D vite@4
-      
-    - name: Install electron rebuild
-      working-directory: /tmp/electerm_build
-      run: npm i -D @electron/rebuild@3.7.2
 
     - name: Install npm dependencies
       working-directory: /tmp/electerm_build
