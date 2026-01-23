@@ -139,8 +139,10 @@ async function testConflictResolution (client, policy, fromType, toType) {
   if (policy === 'skip') {
     await client.click('.custom-modal-footer button:has-text("Skip all")')
     // Debug: Check if modal closes after click
-    await delay(500)
-    await client.click('.custom-modal-footer button:has-text("Skip all")')
+    await delay(1000)
+    if (await client.elemExist('.custom-modal-container')) {
+      await client.click('.custom-modal-footer button:has-text("Skip all")')
+    }
   } else if (policy === 'overwrite') {
     // Check for first conflict item type (file vs folder) and click appropriate button
     const isFolderConflict = await client.elemExist('.custom-modal-footer button:has-text("Merge all")')

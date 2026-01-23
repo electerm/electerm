@@ -23,7 +23,7 @@ const {
 } = process.env
 
 describe('data sync', function () {
-  it('all buttons open proper terminal themes tab', async function () {
+  it('should open sync page', async function () {
     const electronApp = await electron.launch(appOptions)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
