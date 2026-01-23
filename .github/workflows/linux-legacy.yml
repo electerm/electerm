@@ -62,6 +62,7 @@ jobs:
         pkg.dependencies['node-pty'] = '0.10.1';
         pkg.dependencies.serialport = '10.5.0';
         pkg.devDependencies.vite = '4';
+        pkg.dependencies['electron-builder'] = '26.0.20';
         fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
         "
         rm -f package-lock.json

@@ -62,19 +62,31 @@ jobs:
         fpm --version
 
     - name: Install yarn
-      run: npm config set legacy-peer-deps true &&npm install -g yarn
+      run: npm install -g yarn
+
+    - name: ci init
+      run: npm config set legacy-peer-deps true
 
     - name: Clear electron-builder cache
       run: rm -rf ~/.cache/electron-builder
 
-    - run: npm i -D electron@22.3.27
-    - run: npm i -S -E node-pty@1.1.0-beta14
-    - run: npm i -S -E serialport@13.0.0
-    - run: npm i -D vite@4
-    - run: npm i -D @electron/rebuild@3.7.2
+    - name: Update electron version and remove package-lock
+      run: |
+        node -e "
+        const fs = require('fs');
+        const pkg = JSON.parse(fs.readFileSync('package.json'));
+        pkg.devDependencies.electron = '22.3.27';
+        pkg.devDependencies['@electron/rebuild'] = '3.7.2';
+        pkg.dependencies['node-pty'] = '1.1.0-beta14';
+        pkg.dependencies.serialport = '13.0.0';
+        pkg.devDependencies.vite = '4';
+        pkg.dependencies['electron-builder'] = '26.0.20';
+        fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+        "
+        rm -f package-lock.json
 
     - name: Install npm dependencies
-      run: npm ci
+      run: npm i
 
     - name: Build application
       run: npm run b
