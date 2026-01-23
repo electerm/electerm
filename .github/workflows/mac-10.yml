@@ -40,7 +40,7 @@ jobs:
         fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
         fs.unlinkSync('package-lock.json');
         "
-    - run: npm i && npm i @electron/rebuild@3.7.2
+    - run: npm i && npm i -S @electron/rebuild@3.7.2
 
     # script:
     - run: npm run b
