@@ -19,6 +19,7 @@ const {
 } = require('./common/env')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const { closeApp } = require('./common/common')
 
 describe('timeout setting', function () {
   it('timeout setting works', async function () {
@@ -81,7 +82,7 @@ describe('timeout setting', function () {
     log('0101.timeout-setting.spec.js: timeout set to 50000 verified')
     await delay(400)
     log('0101.timeout-setting.spec.js: closing app')
-    await electronApp.close().catch(console.log)
+    await closeApp(electronApp, __filename)
     log('0101.timeout-setting.spec.js: app closed')
   })
 })

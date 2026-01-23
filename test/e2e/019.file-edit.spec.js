@@ -16,7 +16,8 @@ const {
   createFolder,
   enterFolder,
   navigateToParentFolder,
-  deleteItem
+  deleteItem,
+  closeApp
 } = require('./common/common')
 
 describe('file edit operations', function () {
@@ -40,7 +41,7 @@ describe('file edit operations', function () {
     log('019.file-edit.spec.js: remote file edit tested')
 
     log('019.file-edit.spec.js: calling close')
-    await electronApp.close().catch(console.log)
+    await closeApp(electronApp, __filename)
     log('019.file-edit.spec.js: app closed')
   })
 })

@@ -18,6 +18,7 @@ const {
 const uid = require('./common/uid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const { closeApp } = require('./common/common')
 const { basicTerminalTest } = require('./common/basic-terminal-test')
 
 describe('ssh profile login', function () {
@@ -100,7 +101,7 @@ describe('ssh profile login', function () {
     await basicTerminalTest(client, 'ls')
     log('0104.profile-use.spec.js: basic terminal test done')
 
-    await electronApp.close().catch(console.log)
+    await closeApp(electronApp, __filename)
     log('0104.profile-use.spec.js: app closed')
   })
 })

@@ -17,7 +17,8 @@ const {
   enterFolder,
   navigateToParentFolder,
   verifyFileExists,
-  verifyFileTransfersComplete // Add this import
+  verifyFileTransfersComplete, // Add this import
+  closeApp
 } = require('./common/common')
 
 describe('multi-file-drag-drop-operation', function () {
@@ -38,7 +39,7 @@ describe('multi-file-drag-drop-operation', function () {
     log('019.file-op-drag-to-folder.spec.js: remote drag drop tested')
 
     log('019.file-op-drag-to-folder.spec.js: calling close')
-    await electronApp.close().catch(console.log)
+    await closeApp(electronApp, __filename)
     log('019.file-op-drag-to-folder.spec.js: app closed')
   })
 })

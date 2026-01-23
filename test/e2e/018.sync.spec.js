@@ -11,6 +11,7 @@ const { expect } = require('./common/expect')
 const appOptions = require('./common/app-options')
 const e = require('./common/lang')
 const extendClient = require('./common/client-extend')
+const { closeApp } = require('./common/common')
 const {
   GIST_ID,
   GIST_TOKEN,
@@ -133,7 +134,7 @@ describe('data sync', function () {
 
     await delay(1000)
     log('018.sync.spec.js: calling close')
-    await electronApp.close().catch(console.log)
+    await closeApp(electronApp, __filename)
     log('018.sync.spec.js: app closed')
   })
 })

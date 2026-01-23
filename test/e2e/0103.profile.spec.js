@@ -14,6 +14,7 @@ const delay = require('./common/wait')
 const log = require('./common/log')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const { closeApp } = require('./common/common')
 
 describe('profile', function () {
   it('quick commands form', async function () {
@@ -54,7 +55,7 @@ describe('profile', function () {
     })
     expect(qmlist1).equal(c1)
     log('0103.profile.spec.js: profile count verified')
-    await electronApp.close().catch(console.log)
+    await closeApp(electronApp, __filename)
     log('0103.profile.spec.js: app closed')
   })
 })

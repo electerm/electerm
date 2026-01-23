@@ -17,7 +17,8 @@ const {
   deleteItem,
   enterFolder,
   navigateToParentFolder,
-  selectItemsWithCtrlOrCmd
+  selectItemsWithCtrlOrCmd,
+  closeApp
 } = require('./common/common')
 
 describe('multi-file selection operations', function () {
@@ -38,7 +39,7 @@ describe('multi-file selection operations', function () {
     await testMultiFileSelection(client, 'remote')
     log('019.file-select.spec.js: remote selection tested')
 
-    await electronApp.close().catch(console.log)
+    await closeApp(electronApp, __filename)
     log('019.file-select.spec.js: app closed')
   })
 })

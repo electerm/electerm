@@ -7,6 +7,7 @@ const {
 const {
   expect
 } = require('./expect')
+const log = require('./log')
 
 /**
  * Common file and folder operations for electerm SFTP tests
@@ -355,6 +356,22 @@ async function verifyFileTransfersComplete (client) {
   expect(isEmpty).toBe(true, 'Expected fileTransfers array to be empty after operations complete')
 }
 
+async function closeApp (electronApp, fileName) {
+  try {
+    await Promise.race([
+      electronApp.close(),
+      new Promise((resolve, reject) => setTimeout(() => reject(new Error('close timeout')), 5000))
+    ])
+  } catch (e) {
+    if (e.message === 'close timeout') {
+      log(`${fileName}: close timed out, killing process`)
+      electronApp.process().kill()
+    } else {
+      console.log(e)
+    }
+  }
+}
+
 module.exports = {
   createFile,
   createFolder,
@@ -377,5 +394,6 @@ module.exports = {
   clickSftpTab,
   countFileListItems,
   verifySelectionCount,
-  verifyFileTransfersComplete
+  verifyFileTransfersComplete,
+  closeApp
 }
