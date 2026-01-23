@@ -70,6 +70,16 @@ jobs:
       working-directory: /tmp/electerm_build
       run: npm i
 
+    - name: Verify updated dependencies
+      working-directory: /tmp/electerm_build
+      run: |
+        echo "Verifying updated dependencies:"
+        npm list electron --depth=0
+        npm list @electron/rebuild --depth=0
+        npm list node-pty --depth=0
+        npm list serialport --depth=0
+        npm list vite --depth=0
+
     - name: Build application
       working-directory: /tmp/electerm_build
       run: npm run b
