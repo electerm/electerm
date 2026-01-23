@@ -5,6 +5,7 @@ const {
 const { describe } = it
 it.setTimeout(10000000)
 const delay = require('./common/wait')
+const log = require('./common/log')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { expect } = require('./common/expect')
@@ -16,7 +17,8 @@ const {
   enterFolder,
   navigateToParentFolder,
   verifyFileExists,
-  verifyFileTransfersComplete // Add this import
+  verifyFileTransfersComplete, // Add this import
+  closeApp
 } = require('./common/common')
 
 describe('multi-file-drag-drop-operation', function () {
@@ -25,14 +27,20 @@ describe('multi-file-drag-drop-operation', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(3500)
+    log('019.file-op-drag-to-folder.spec.js: app launched')
 
     await setupSftpConnection(client)
+    log('019.file-op-drag-to-folder.spec.js: sftp connected')
 
     // Test for both local and remote
     await testMultiFileDragDrop(client, 'local')
+    log('019.file-op-drag-to-folder.spec.js: local drag drop tested')
     await testMultiFileDragDrop(client, 'remote')
+    log('019.file-op-drag-to-folder.spec.js: remote drag drop tested')
 
-    await electronApp.close()
+    log('019.file-op-drag-to-folder.spec.js: calling close')
+    await closeApp(electronApp, __filename)
+    log('019.file-op-drag-to-folder.spec.js: app closed')
   })
 })
 

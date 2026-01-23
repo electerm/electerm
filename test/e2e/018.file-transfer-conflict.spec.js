@@ -6,6 +6,7 @@ const { describe } = it
 it.setTimeout(1000000)
 
 const delay = require('./common/wait')
+const log = require('./common/log')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { expect } = require('./common/expect')
@@ -18,7 +19,8 @@ const {
   navigateToParentFolder,
   deleteItem,
   selectAllContextMenu,
-  verifyFileTransfersComplete
+  verifyFileTransfersComplete,
+  closeApp
 } = require('./common/common')
 
 describe('file-transfer-conflict-resolution', function () {
@@ -27,8 +29,10 @@ describe('file-transfer-conflict-resolution', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(3500)
+    log('018.file-transfer-conflict.spec.js: app launched')
 
     await setupSftpConnection(client)
+    log('018.file-transfer-conflict.spec.js: sftp connected')
     await delay(2000)
 
     // Create a single test folder structure for all tests
@@ -38,15 +42,19 @@ describe('file-transfer-conflict-resolution', function () {
     try {
       // Create and prepare test environment
       await prepareTestEnvironment(client, testFolder)
+      log('018.file-transfer-conflict.spec.js: test environment prepared')
 
       // Test conflict policies in both directions
       await testAllConflictPolicies(client, testFolder)
+      log('018.file-transfer-conflict.spec.js: conflict policies tested')
     } finally {
       // Clean up test folders once at the end
       await cleanupTestFolders(client, testFolder)
+      log('018.file-transfer-conflict.spec.js: test folders cleaned')
     }
 
-    await electronApp.close()
+    await closeApp(electronApp, __filename)
+    log('018.file-transfer-conflict.spec.js: app closed')
   })
 })
 
@@ -137,8 +145,12 @@ async function testConflictResolution (client, policy, fromType, toType) {
 
   // Handle conflict resolution based on policy
   if (policy === 'skip') {
-    // Skip each conflict, with the expected number equal to the selected items
     await client.click('.custom-modal-footer button:has-text("Skip all")')
+    // Debug: Check if modal closes after click
+    await delay(1000)
+    if (await client.elemExist('.custom-modal-container')) {
+      await client.click('.custom-modal-footer button:has-text("Skip all")')
+    }
   } else if (policy === 'overwrite') {
     // Check for first conflict item type (file vs folder) and click appropriate button
     const isFolderConflict = await client.elemExist('.custom-modal-footer button:has-text("Merge all")')
@@ -217,27 +229,22 @@ async function selectAllItems (client, type) {
 
 async function cleanupTestFolders (client, testFolder) {
   // Navigate back to parent folders (if not already there)
-  try {
-    // Check if we need to navigate back
-    const localPathInput = await client.getValue('.session-current .sftp-local-section .sftp-title input')
-    if (localPathInput.includes(testFolder)) {
-      await navigateToParentFolder(client, 'local')
-      await delay(1000)
-    }
-
-    const remotePathInput = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
-    if (remotePathInput.includes(testFolder)) {
-      await navigateToParentFolder(client, 'remote')
-      await delay(1000)
-    }
-
-    // Delete test folders
-    await deleteItem(client, 'local', testFolder)
+  // Check if we need to navigate back
+  const localPathInput = await client.getValue('.session-current .sftp-local-section .sftp-title input')
+  if (localPathInput.includes(testFolder)) {
+    await navigateToParentFolder(client, 'local')
     await delay(1000)
-    await deleteItem(client, 'remote', testFolder)
-    await delay(1000)
-  } catch (error) {
-    console.error('Error during cleanup:', error)
-    // Continue with test completion even if cleanup fails
   }
+
+  const remotePathInput = await client.getValue('.session-current .sftp-remote-section .sftp-title input')
+  if (remotePathInput.includes(testFolder)) {
+    await navigateToParentFolder(client, 'remote')
+    await delay(1000)
+  }
+
+  // Delete test folders
+  await deleteItem(client, 'local', testFolder)
+  await delay(1000)
+  await deleteItem(client, 'remote', testFolder)
+  await delay(1000)
 }

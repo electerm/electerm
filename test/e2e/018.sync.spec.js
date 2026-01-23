@@ -11,6 +11,7 @@ const { expect } = require('./common/expect')
 const appOptions = require('./common/app-options')
 const e = require('./common/lang')
 const extendClient = require('./common/client-extend')
+const { closeApp } = require('./common/common')
 const {
   GIST_ID,
   GIST_TOKEN,
@@ -23,7 +24,7 @@ const {
 } = process.env
 
 describe('data sync', function () {
-  it('all buttons open proper terminal themes tab', async function () {
+  it('should open sync page', async function () {
     const electronApp = await electron.launch(appOptions)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
@@ -103,26 +104,37 @@ describe('data sync', function () {
     expect(bks3.length > 3).equal(true)
     await checkNoError()
 
-    log('save cloud props')
+    log('018.sync.spec.js: save cloud props')
 
     await client.click('.setting-wrap [id*="tab-cloud"]')
+    log('018.sync.spec.js: cloud tab clicked')
     await delay(3000)
 
     await client.setValue('#sync-input-token-cloud', CLOUD_TOKEN)
+    log('018.sync.spec.js: cloud token set')
     await delay(1000)
     await client.click('.setting-wrap .sync-btn-save:visible')
+    log('018.sync.spec.js: cloud save clicked')
     await delay(6000)
     await client.click('.setting-wrap .sync-btn-up:visible')
+    log('018.sync.spec.js: cloud up clicked')
     await delay(6000)
     await client.evaluate(() => {
       return window.store.setBookmarks([])
     })
+    log('018.sync.spec.js: bookmarks cleared')
     await client.click('.setting-wrap .sync-btn-down:visible')
+    log('018.sync.spec.js: cloud down clicked')
     await delay(6000)
     const bks4 = await client.evaluate(() => {
       return window.store.bookmarks
     })
     expect(bks4.length > 3).equal(true)
-    electronApp.close().catch(console.log)
+    log('018.sync.spec.js: cloud sync verified')
+
+    await delay(1000)
+    log('018.sync.spec.js: calling close')
+    await closeApp(electronApp, __filename)
+    log('018.sync.spec.js: app closed')
   })
 })

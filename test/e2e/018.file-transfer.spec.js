@@ -5,6 +5,7 @@ const {
 const { describe } = it
 it.setTimeout(10000000)
 const delay = require('./common/wait')
+const log = require('./common/log')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { expect } = require('./common/expect')
@@ -17,7 +18,8 @@ const {
   navigateToParentFolder,
   verifyFileExists,
   verifyFileTransfersComplete,
-  selectAllContextMenu // Added missing import
+  selectAllContextMenu, // Added missing import
+  closeApp
 } = require('./common/common')
 
 describe('file-transfer-local-remote', function () {
@@ -26,13 +28,17 @@ describe('file-transfer-local-remote', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(3500)
+    log('018.file-transfer.spec.js: app launched')
 
     await setupSftpConnection(client)
+    log('018.file-transfer.spec.js: sftp connected')
 
     // Test transfer local->remote and remote->local
     await testFileTransfer(client)
+    log('018.file-transfer.spec.js: file transfer tested')
 
-    await electronApp.close()
+    await closeApp(electronApp, __filename)
+    log('018.file-transfer.spec.js: app closed')
   })
 })
 
