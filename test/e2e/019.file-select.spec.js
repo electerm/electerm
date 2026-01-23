@@ -26,20 +26,20 @@ describe('multi-file selection operations', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(3500)
-    log('app launched')
+    log('019.file-select.spec.js: app launched')
 
     // Set up SFTP connection
     await setupSftpConnection(client)
-    log('sftp connected')
+    log('019.file-select.spec.js: sftp connected')
 
     // Test both local and remote file systems
     await testMultiFileSelection(client, 'local')
-    log('local selection tested')
+    log('019.file-select.spec.js: local selection tested')
     await testMultiFileSelection(client, 'remote')
-    log('remote selection tested')
+    log('019.file-select.spec.js: remote selection tested')
 
     await electronApp.close()
-    log('app closed')
+    log('019.file-select.spec.js: app closed')
   })
 })
 

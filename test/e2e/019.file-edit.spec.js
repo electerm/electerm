@@ -25,22 +25,22 @@ describe('file edit operations', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(3500)
-    log('app launched')
+    log('019.file-edit.spec.js: app launched')
 
     // Set up SFTP connection
     await setupSftpConnection(client)
-    log('sftp connection setup')
+    log('019.file-edit.spec.js: sftp connection setup')
 
     // Test local file editing (using context menu)
     await testFileEdit(client, 'local')
-    log('local file edit tested')
+    log('019.file-edit.spec.js: local file edit tested')
 
     // Test remote file editing (testing both context menu and double-click)
     await testFileEdit(client, 'remote', true)
-    log('remote file edit tested')
+    log('019.file-edit.spec.js: remote file edit tested')
 
     await electronApp.close()
-    log('app closed')
+    log('019.file-edit.spec.js: app closed')
   })
 })
 

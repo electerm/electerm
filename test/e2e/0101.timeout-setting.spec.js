@@ -27,7 +27,7 @@ describe('timeout setting', function () {
     extendClient(client, electronApp)
     await delay(6000)
 
-    log('set timeout to 100')
+    log('0101.timeout-setting.spec.js: set timeout to 100')
     await client.evaluate(() => {
       window.store.setConfig({
         sshReadyTimeout: 100
@@ -41,31 +41,31 @@ describe('timeout setting', function () {
     await delay(150)
     expect(timeout).equal(100)
 
-    log('open new ssh and timeout')
+    log('0101.timeout-setting.spec.js: open new ssh and timeout')
     await client.click('.btns .anticon-plus-circle')
     await delay(6500)
     await client.setValue('#ssh-form_host', TEST_HOST)
     await client.setValue('#ssh-form_username', TEST_USER)
     await client.setValue('#ssh-form_password', TEST_PASS)
     await client.click('.setting-wrap .ant-btn-primary')
-    log('ssh form submitted')
+    log('0101.timeout-setting.spec.js: ssh form submitted')
     await delay(5500)
-    log('waited after submit')
+    log('0101.timeout-setting.spec.js: waited after submit')
     const errSel = '.notification .notification-content'
-    log('starting error check loop')
+    log('0101.timeout-setting.spec.js: starting error check loop')
     for (let i = 0; i < 25; i++) {
       await delay(500)
       const errExist = await client.elemExist(errSel)
       if (errExist) {
-        log('error found at iteration ' + i)
+        log('0101.timeout-setting.spec.js: error found at iteration ' + i)
         break
       }
     }
     const txt = await client.getText(errSel)
-    log('error text: ' + txt)
+    log('0101.timeout-setting.spec.js: error text: ' + txt)
     expect(txt.includes('Timed out')).equal(true)
 
-    log('set timeout to 50000')
+    log('0101.timeout-setting.spec.js: set timeout to 50000')
     await delay(1500)
     await client.evaluate(() => {
       window.store.setConfig({
@@ -78,10 +78,10 @@ describe('timeout setting', function () {
     })
     await delay(150)
     expect(timeout1).equal(50000)
-    log('timeout set to 50000 verified')
+    log('0101.timeout-setting.spec.js: timeout set to 50000 verified')
     await delay(400)
-    log('closing app')
+    log('0101.timeout-setting.spec.js: closing app')
     await electronApp.close().catch(console.log)
-    log('app closed')
+    log('0101.timeout-setting.spec.js: app closed')
   })
 })

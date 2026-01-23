@@ -27,17 +27,17 @@ describe('file-transfer-local-remote', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(3500)
-    log('app launched')
+    log('018.file-transfer.spec.js: app launched')
 
     await setupSftpConnection(client)
-    log('sftp connected')
+    log('018.file-transfer.spec.js: sftp connected')
 
     // Test transfer local->remote and remote->local
     await testFileTransfer(client)
-    log('file transfer tested')
+    log('018.file-transfer.spec.js: file transfer tested')
 
     await electronApp.close()
-    log('app closed')
+    log('018.file-transfer.spec.js: app closed')
   })
 })
 

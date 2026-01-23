@@ -28,10 +28,10 @@ describe('file-transfer-conflict-resolution', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(3500)
-    log('app launched')
+    log('018.file-transfer-conflict.spec.js: app launched')
 
     await setupSftpConnection(client)
-    log('sftp connected')
+    log('018.file-transfer-conflict.spec.js: sftp connected')
     await delay(2000)
 
     // Create a single test folder structure for all tests
@@ -41,19 +41,19 @@ describe('file-transfer-conflict-resolution', function () {
     try {
       // Create and prepare test environment
       await prepareTestEnvironment(client, testFolder)
-      log('test environment prepared')
+      log('018.file-transfer-conflict.spec.js: test environment prepared')
 
       // Test conflict policies in both directions
       await testAllConflictPolicies(client, testFolder)
-      log('conflict policies tested')
+      log('018.file-transfer-conflict.spec.js: conflict policies tested')
     } finally {
       // Clean up test folders once at the end
       await cleanupTestFolders(client, testFolder)
-      log('test folders cleaned')
+      log('018.file-transfer-conflict.spec.js: test folders cleaned')
     }
 
     await electronApp.close()
-    log('app closed')
+    log('018.file-transfer-conflict.spec.js: app closed')
   })
 })
 
