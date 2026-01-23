@@ -37,7 +37,7 @@ describe('multi-file-drag-drop-operation', function () {
     await testMultiFileDragDrop(client, 'remote')
     log('019.file-op-drag-to-folder.spec.js: remote drag drop tested')
 
-    await electronApp.close()
+    await electronApp.close().catch(console.log)
     log('019.file-op-drag-to-folder.spec.js: app closed')
   })
 })

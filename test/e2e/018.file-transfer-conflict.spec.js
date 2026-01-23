@@ -52,7 +52,7 @@ describe('file-transfer-conflict-resolution', function () {
       log('018.file-transfer-conflict.spec.js: test folders cleaned')
     }
 
-    await electronApp.close()
+    await electronApp.close().catch(console.log)
     log('018.file-transfer-conflict.spec.js: app closed')
   })
 })

@@ -130,7 +130,7 @@ describe('data sync', function () {
     })
     expect(bks4.length > 3).equal(true)
     log('018.sync.spec.js: cloud sync verified')
-    electronApp.close().catch(console.log)
+    await electronApp.close().catch(console.log)
     log('018.sync.spec.js: app closed')
   })
 })

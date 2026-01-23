@@ -38,7 +38,7 @@ describe('multi-file selection operations', function () {
     await testMultiFileSelection(client, 'remote')
     log('019.file-select.spec.js: remote selection tested')
 
-    await electronApp.close()
+    await electronApp.close().catch(console.log)
     log('019.file-select.spec.js: app closed')
   })
 })

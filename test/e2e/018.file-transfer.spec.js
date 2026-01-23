@@ -36,7 +36,7 @@ describe('file-transfer-local-remote', function () {
     await testFileTransfer(client)
     log('018.file-transfer.spec.js: file transfer tested')
 
-    await electronApp.close()
+    await electronApp.close().catch(console.log)
     log('018.file-transfer.spec.js: app closed')
   })
 })
