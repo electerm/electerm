@@ -49,7 +49,11 @@ jobs:
 
     - name: ci init
       working-directory: /tmp/electerm_build
-      run: npm config set legacy-peer-deps true && npm ci --ignore-scripts
+      run: npm config set legacy-peer-deps true
+
+    - name: Update electron version and remove package-lock
+      working-directory: /tmp/electerm_build
+      run: jq '.devDependencies.electron = "22.3.27"' package.json > tmp.json && mv tmp.json package.json && rm -f package-lock.json
 
     - name: Install electron
       working-directory: /tmp/electerm_build
