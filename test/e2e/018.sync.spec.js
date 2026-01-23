@@ -130,6 +130,14 @@ describe('data sync', function () {
     })
     expect(bks4.length > 3).equal(true)
     log('018.sync.spec.js: cloud sync verified')
+    // Close the settings modal before closing app
+    await client.keyboard.press('Escape')
+    await delay(1000)
+    // Bypass exit confirmation by setting confirmExit and clearing transport state
+    await client.evaluate(() => {
+      window.confirmExit = true
+      window.store.tabs.forEach(t => { t.isTransporting = false })
+    })
     await electronApp.close().catch(console.log)
     log('018.sync.spec.js: app closed')
   })
