@@ -21,7 +21,7 @@ function handleIgnore () {
 
 function showNotification () {
   notification.info({
-    title: e('loadSshConfigs'),
+    message: e('loadSshConfigs'),
     duration: 0,
     placement: 'bottom',
     key: 'sshConfigNotify',

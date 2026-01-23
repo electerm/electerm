@@ -58,7 +58,7 @@ export function NotificationContainer () {
       {nots.map(notif => (
         <NotificationItem
           key={notif.key}
-          message={notif.message || notif.title}
+          message={notif.message}
           description={notif.description}
           type={notif.type}
           duration={notif.duration}

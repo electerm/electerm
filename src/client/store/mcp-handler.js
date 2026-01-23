@@ -6,6 +6,7 @@
 import uid from '../common/uid'
 import { settingMap } from '../common/constants'
 import { refs } from '../components/common/ref'
+import deepCopy from 'json-deep-copy'
 
 export default Store => {
   // Initialize MCP handler - called when MCP widget is started
@@ -143,27 +144,8 @@ export default Store => {
 
   // ==================== Bookmark APIs ====================
 
-  Store.prototype.mcpListBookmarks = function (args = {}) {
-    const { store } = window
-    let bookmarks = store.bookmarks
-
-    if (args.groupId) {
-      const group = store.bookmarkGroups.find(g => g.id === args.groupId)
-      if (group && group.bookmarkIds) {
-        const idSet = new Set(group.bookmarkIds)
-        bookmarks = bookmarks.filter(b => idSet.has(b.id))
-      }
-    }
-
-    return bookmarks.map(b => ({
-      id: b.id,
-      title: b.title,
-      host: b.host,
-      port: b.port,
-      username: b.username,
-      type: b.type || 'ssh',
-      color: b.color
-    }))
+  Store.prototype.mcpListBookmarks = function () {
+    return deepCopy(window.store.bookmarks)
   }
 
   Store.prototype.mcpGetBookmark = function (args) {
@@ -172,9 +154,7 @@ export default Store => {
     if (!bookmark) {
       throw new Error(`Bookmark not found: ${args.id}`)
     }
-    // Return bookmark without sensitive data
-    const { password, passphrase, privateKey, ...safeBookmark } = bookmark
-    return safeBookmark
+    return deepCopy(bookmark)
   }
 
   Store.prototype.mcpAddBookmark = async function (args) {
@@ -219,16 +199,11 @@ export default Store => {
 
   Store.prototype.mcpDeleteBookmark = function (args) {
     const { store } = window
-    const bookmark = store.bookmarks.find(b => b.id === args.id)
-    if (!bookmark) {
-      throw new Error(`Bookmark not found: ${args.id}`)
-    }
-
     store.delItem({ id: args.id }, settingMap.bookmarks)
 
     return {
       success: true,
-      message: `Bookmark "${bookmark.title}" deleted`
+      message: `Bookmark "${args.id}" deleted`
     }
   }
 
@@ -250,14 +225,7 @@ export default Store => {
   // ==================== Bookmark Group APIs ====================
 
   Store.prototype.mcpListBookmarkGroups = function () {
-    const { store } = window
-    return store.bookmarkGroups.map(g => ({
-      id: g.id,
-      title: g.title,
-      level: g.level,
-      bookmarkCount: (g.bookmarkIds || []).length,
-      subgroupCount: (g.bookmarkGroupIds || []).length
-    }))
+    return deepCopy(window.store.bookmarkGroups)
   }
 
   Store.prototype.mcpAddBookmarkGroup = async function (args) {
@@ -282,15 +250,7 @@ export default Store => {
   // ==================== Quick Command APIs ====================
 
   Store.prototype.mcpListQuickCommands = function () {
-    const { store } = window
-    return store.quickCommands.map(q => ({
-      id: q.id,
-      name: q.name,
-      command: q.command,
-      commands: q.commands,
-      inputOnly: q.inputOnly,
-      labels: q.labels
-    }))
+    return deepCopy(window.store.quickCommands)
   }
 
   Store.prototype.mcpAddQuickCommand = function (args) {
@@ -298,7 +258,7 @@ export default Store => {
     const qm = {
       id: uid(),
       name: args.name,
-      command: args.command,
+      commands: args.commands,
       inputOnly: args.inputOnly || false,
       labels: args.labels || []
     }

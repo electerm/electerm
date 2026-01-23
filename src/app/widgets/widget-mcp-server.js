@@ -467,17 +467,20 @@ class ElectermMCPServer {
         'add_electerm_quick_command',
         {
           description: 'Add a new electerm quick command',
-          inputSchema: {
+          inputSchema: z.object({
             name: z.string().describe('Quick command name'),
-            command: z.string().describe('Command to execute'),
-            inputOnly: z.boolean().optional().describe('Input only mode (no enter)'),
+            command: z.string().optional().describe('Single command to execute'),
+            commands: z.array(z.object({
+              command: z.string().describe('Command'),
+              delay: z.number().optional().describe('Delay in ms before executing this command')
+            })).optional().describe('Multiple commands with delays'),
             labels: z.array(z.string()).optional().describe('Tags/labels for the command')
-          }
+          })
         },
-        async ({ name, command, inputOnly, labels }) => {
+        async ({ name, command, commands, labels }) => {
           const result = await self.sendToRenderer('tool-call', {
             toolName: 'add_quick_command',
-            args: { name, command, inputOnly, labels }
+            args: { name, command, commands, labels }
           })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
