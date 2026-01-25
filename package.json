@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "2.4.18",
+  "version": "2.4.26",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -73,7 +73,7 @@
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
     "electerm-icons": "1.0.1",
-    "electron": "38.7.2",
+    "electron": "38.2.2",
     "electron-builder": "26.0.20",
     "filesize": "10.1.6",
     "filesize-parser": "1.5.1",

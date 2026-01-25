@@ -5,7 +5,7 @@ name: win-loose
 
 on:
   push:
-    branches: [ build, test, build-only ]
+    branches: [ build, test, build-only, win-loose ]
 
 jobs:
   build:
