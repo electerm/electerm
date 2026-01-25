@@ -1220,11 +1220,13 @@ class Term extends Component {
 
     this.shellType = shellType
     if (shellType === 'fish') {
-      message.warning(
-        <span>
-          Fish shell is not supported for SFTP follow SSH path. See: <ExternalLink to='https://github.com/electerm/electerm/wiki/Warning-about-sftp-follow-ssh-path-function'>wiki</ExternalLink>
-        </span>
-      )
+      if (this.props.sftpPathFollowSsh) {
+        message.warning(
+          <span>
+            Fish shell is not supported for SFTP follow SSH path. See: <ExternalLink to='https://github.com/electerm/electerm/wiki/Warning-about-sftp-follow-ssh-path-function'>wiki</ExternalLink>
+          </span>
+        )
+      }
       return Promise.resolve()
     }
 
