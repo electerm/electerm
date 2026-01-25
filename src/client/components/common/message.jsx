@@ -26,15 +26,40 @@ const notify = (messages) => {
 let activeMessages = []
 
 function MessageItem ({ id, type, content, duration, onRemove, timestamp }) {
+  const [timeoutId, setTimeoutId] = useState(null)
+
   useEffect(() => {
     if (duration !== 0) {
       const timer = setTimeout(onRemove, duration * 1000)
-      return () => clearTimeout(timer)
+      setTimeoutId(timer)
+      return () => {
+        clearTimeout(timer)
+        setTimeoutId(null)
+      }
     }
   }, [duration, onRemove, timestamp])
 
+  const handleMouseEnter = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+      setTimeoutId(null)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (duration !== 0) {
+      const timer = setTimeout(onRemove, duration * 1000)
+      setTimeoutId(timer)
+    }
+  }
+
   return (
-    <div className={classnames('message-item', type)} id={`message-${id}`}>
+    <div
+      className={classnames('message-item', type)}
+      id={`message-${id}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className='message-content-wrap'>
         {messageIcons[type]}
         <div className='message-content'>{content}</div>

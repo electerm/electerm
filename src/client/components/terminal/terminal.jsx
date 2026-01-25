@@ -1225,7 +1225,7 @@ class Term extends Component {
           <span>
             Fish shell is not supported for SFTP follow SSH path. See: <ExternalLink to='https://github.com/electerm/electerm/wiki/Warning-about-sftp-follow-ssh-path-function'>wiki</ExternalLink>
           </span>
-        )
+          , 7)
       }
       return Promise.resolve()
     }
