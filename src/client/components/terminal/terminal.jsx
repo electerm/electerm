@@ -247,6 +247,14 @@ class Term extends Component {
         }
       }
     }
+    if (
+      !prevSftpFollow &&
+      currSftpFollow &&
+      this.isLocal() &&
+      isWin
+    ) {
+      return this.warnSftpFollowUnsupported()
+    }
   }
 
   timers = {}
@@ -323,6 +331,14 @@ class Term extends Component {
       cancelText: e('cancel'),
       onOk: () => this.onPaste(true)
     })
+  }
+
+  warnSftpFollowUnsupported = () => {
+    message.warning(
+      <span>
+        Fish shell/windows shell is not supported for SFTP follow SSH path feature. See: <ExternalLink to='https://github.com/electerm/electerm/wiki/Warning-about-sftp-follow-ssh-path-function'>wiki</ExternalLink>
+      </span>
+      , 7)
   }
 
   pasteShortcut = (e) => {
@@ -1221,11 +1237,7 @@ class Term extends Component {
     this.shellType = shellType
     if (shellType === 'fish') {
       if (this.props.sftpPathFollowSsh) {
-        message.warning(
-          <span>
-            Fish shell is not supported for SFTP follow SSH path. See: <ExternalLink to='https://github.com/electerm/electerm/wiki/Warning-about-sftp-follow-ssh-path-function'>wiki</ExternalLink>
-          </span>
-          , 7)
+        this.warnSftpFollowUnsupported()
       }
       return Promise.resolve()
     }
