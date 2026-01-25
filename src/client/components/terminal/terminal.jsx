@@ -1096,6 +1096,7 @@ class Term extends Component {
     term.onData(this.onData)
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
+    term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
     await this.remoteInit(term)
   }
 
