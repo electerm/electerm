@@ -65,10 +65,6 @@ export function shortcutExtend (Cls) {
     if (isInAntdInput()) {
       return
     }
-    if (this.cmdAddon) {
-      this.cmdAddon.handleKey(event)
-    }
-
     if (
       this.term &&
       key === 'Backspace' &&
