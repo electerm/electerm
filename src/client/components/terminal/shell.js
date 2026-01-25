@@ -15,6 +15,7 @@
  */
 
 /* eslint-disable no-template-curly-in-string, no-useless-escape */
+import { runCmd } from './terminal-apis.js'
 
 /**
  * Get inline shell integration command for bash (one-liner format)
@@ -70,6 +71,35 @@ function getFishInlineIntegration () {
 }
 
 /**
+ * Get inline shell integration command for sh/ash (one-liner format)
+ * Uses PS1 injection as sh/ash lack PROMPT_COMMAND or advanced traps.
+ */
+function getShInlineIntegration () {
+  return [
+    'if [ -z "$ELECTERM_SHELL_INTEGRATION" ]',
+    'then export ELECTERM_SHELL_INTEGRATION=1',
+    '__e_esc() { printf "%s" "$1" | sed "s/\\\\/\\\\\\\\/g; s/;/\\\\x3b/g"; }',
+    // We wrap the current PS1 with OSC 633 sequences.
+    // \033]633;P;Cwd=... \007 marks the directory
+    // \033]633;A \007 marks the start of the prompt
+    'export PS1="\\e]633;P;Cwd=$(__e_esc "$PWD")\\a\\e]633;A\\a${PS1:-# }"',
+    'fi'
+  ].join('; ')
+}
+
+export function detectShellType (shellStr) {
+  if (shellStr.includes('bash')) {
+    return 'bash'
+  } else if (shellStr.includes('zsh')) {
+    return 'zsh'
+  } else if (shellStr.includes('fish')) {
+    return 'fish'
+  } else {
+    return 'sh'
+  }
+}
+
+/**
  * Get shell integration command based on detected shell type
  * @param {string} shellType - 'bash', 'zsh', or 'fish'
  * @returns {string} Shell integration command to send
@@ -84,7 +114,7 @@ export function getInlineShellIntegration (shellType) {
       return getFishInlineIntegration()
     default:
       // Try bash as default for sh-compatible shells
-      return getBashInlineIntegration()
+      return getShInlineIntegration()
   }
 }
 
@@ -112,27 +142,23 @@ export function getShellIntegrationCommand (shellType = 'bash') {
   const cmd = getInlineShellIntegration(shellType)
   return wrapSilent(cmd, shellType)
 }
+export async function detectRemoteShell (pid) {
+  // 1. We try the version variables first.
+  // 2. We try your verified fish check: fish --version ...
+  // 3. We use ps -p $$ to check the process name (highly reliable in Linux/Docker).
+  // This syntax is safe for Bash, Zsh, and Fish.
+  const cmd = 'fish --version 2>/dev/null | grep -q fish && echo fish || { env | grep -q ZSH_VERSION && echo zsh || { env | grep -q BASH_VERSION && echo bash || { ps -p $$ -o comm= 2>/dev/null || echo sh; }; }; }'
 
-/**
- * Detect shell type from shell path or login script
- * @param {string} shellPath - Path to shell executable or login script
- * @returns {string} Shell type: 'bash', 'zsh', 'fish', or 'bash' (default)
- */
-export function detectShellType (shellPath = '') {
-  if (!shellPath) return 'bash'
+  const r = await runCmd(pid, cmd)
+    .catch((err) => {
+      console.error('detectRemoteShell error', err)
+      return 'sh'
+    })
 
-  const normalizedPath = shellPath.toLowerCase()
+  const shell = r.trim().toLowerCase()
 
-  if (normalizedPath.includes('zsh')) {
-    return 'zsh'
-  } else if (normalizedPath.includes('fish')) {
-    return 'fish'
-  } else if (normalizedPath.includes('bash')) {
-    return 'bash'
-  } else if (normalizedPath.includes('sh')) {
-    // Generic sh, try bash compatibility
-    return 'bash'
-  }
-
-  return 'bash'
+  if (shell.includes('fish')) return 'fish'
+  if (shell.includes('zsh')) return 'zsh'
+  if (shell.includes('bash')) return 'bash'
+  return 'sh' // Fallback for sh/ash/dash
 }

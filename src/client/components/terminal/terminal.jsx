@@ -52,11 +52,13 @@ import AIIcon from '../icons/ai-icon.jsx'
 import { formatBytes } from '../../common/byte-format.js'
 import {
   getShellIntegrationCommand,
+  detectRemoteShell,
   detectShellType
 } from './shell.js'
 import * as fs from './fs.js'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { refs, refsStatic } from '../common/ref.js'
+import ExternalLink from '../common/external-link.jsx'
 import createDefaultLogPath from '../../common/default-log-path.js'
 import SearchResultBar from './terminal-search-bar'
 
@@ -79,6 +81,9 @@ class Term extends Component {
     this.id = `term-${this.props.tab.id}`
     refs.add(this.id, this)
     this.currentInput = ''
+    this.shellInjected = false
+    this.shellType = null
+    this.manualCommandHistory = new Set()
   }
 
   domRef = createRef()
@@ -212,6 +217,33 @@ class Term extends Component {
         this.term.options[name] = curr
         if (['fontFamily', 'fontSize'].includes(name)) {
           this.onResize()
+        }
+      }
+    }
+
+    // Check for shell integration related config changes
+    const prevShowSuggestions = prevProps.config.showCmdSuggestions
+    const currShowSuggestions = props.config.showCmdSuggestions
+    const prevSftpFollow = prevProps.sftpPathFollowSsh
+    const currSftpFollow = props.sftpPathFollowSsh
+
+    if (
+      (!prevShowSuggestions && currShowSuggestions) ||
+      (!prevSftpFollow && currSftpFollow)
+    ) {
+      // Config was toggled to true, try to inject shell integration if not already done
+      if (this.canInjectShellIntegration() && !this.shellInjected) {
+        // If there's an active execution queue, add to it
+        if (this.executionQueue && this.executionQueue.length > 0) {
+          this.executionQueue.unshift({
+            type: 'shell_integration',
+            execute: async () => {
+              await this.injectShellIntegration()
+            }
+          })
+        } else {
+          // No active queue, inject directly
+          this.injectShellIntegration()
         }
       }
     }
@@ -596,7 +628,7 @@ class Term extends Component {
     }
     const r = []
     for (const filePath of files) {
-      const stat = await getLocalFileInfo(filePath).catch(console.log)
+      const stat = await getLocalFileInfo(filePath)
       r.push({ ...stat, filePath })
     }
     return r
@@ -945,6 +977,12 @@ class Term extends Component {
     }
     // Handle Enter
     if (d === '\r' || d === '\n') {
+      // Add to manual command history if shell integration is not available
+      if (this.currentInput.trim() && this.shouldUseManualHistory()) {
+        this.manualCommandHistory.add(this.currentInput.trim())
+        // Also add to global history for suggestions
+        window.store.addCmdHistory(this.currentInput.trim())
+      }
       this.currentInput = ''
       return
     }
@@ -1060,7 +1098,7 @@ class Term extends Component {
   //   })
   // }
 
-  runInitScript = () => {
+  runInitScript = async () => {
     window.store.triggerResize()
     const {
       startDirectory,
@@ -1072,20 +1110,51 @@ class Term extends Component {
     if (startFolder) {
       scripts.unshift({ script: `cd "${startFolder}"`, delay: 0 })
     }
-    this.pendingRunScripts = scripts
 
-    // Inject shell integration from client-side (works for both local and remote)
-    // Skip on Windows as shell integration is not supported there
+    // Create unified execution queue
+    this.executionQueue = []
+
+    // Add shell integration injection to queue if needed
     if (this.canInjectShellIntegration()) {
-      this.injectShellIntegration()
-    } else {
-      // No shell integration, run scripts immediately
-      this.startDelayedScripts()
+      this.executionQueue.push({
+        type: 'shell_integration',
+        execute: async () => {
+          await this.injectShellIntegration()
+        }
+      })
     }
+
+    // Add delayed scripts to queue
+    scripts.forEach(script => {
+      this.executionQueue.push({
+        type: 'delayed_script',
+        script: script.script,
+        delay: script.delay || 0,
+        execute: () => {
+          if (script.script) {
+            this.attachAddon._sendData(script.script + '\r')
+          }
+        }
+      })
+    })
+
+    this.processExecutionQueue()
+  }
+
+  shouldUseManualHistory = () => {
+    const useManual = this.props.config.showCmdSuggestions &&
+      (this.shellType === 'sh' || (isWin && this.isLocal()))
+    return useManual
   }
 
   canInjectShellIntegration = () => {
-    return this.isSsh() || this.isLocal()
+    const { config } = this.props
+    const canInject = (config.showCmdSuggestions || this.props.sftpPathFollowSsh) &&
+    (
+      this.isSsh() ||
+      (this.isLocal() && !isWin)
+    )
+    return canInject
   }
 
   isSsh = () => {
@@ -1095,70 +1164,97 @@ class Term extends Component {
 
   isLocal = () => {
     const { host, type } = this.props.tab
-    return !host && (type === 'local' || type === undefined)
+    return !host &&
+      (type === 'local' || type === undefined)
   }
 
   /**
-   * Start running delayed scripts
-   * Called after shell integration injection completes (or immediately if disabled)
+   * Process the unified execution queue one item at a time
    */
-  startDelayedScripts = () => {
-    const runScripts = this.pendingRunScripts
-    if (runScripts && runScripts.length) {
-      this.delayedScripts = deepCopy(runScripts)
-      this.timers.timerDelay = setTimeout(this.runDelayedScripts, this.delayedScripts[0].delay || 0)
+  processExecutionQueue = async () => {
+    if (!this.executionQueue || this.executionQueue.length === 0) {
+      return
     }
-    this.pendingRunScripts = null
+
+    const item = this.executionQueue.shift()
+
+    try {
+      if (item.type === 'shell_integration') {
+        await item.execute()
+      } else if (item.type === 'delayed_script') {
+        item.execute()
+        // Wait for the specified delay before processing next item
+        if (item.delay > 0) {
+          await new Promise(resolve => {
+            this.timers.timerDelay = setTimeout(resolve, item.delay)
+          })
+        }
+      }
+    } catch (error) {
+      console.error('[Shell Integration] Error processing queue item:', item.type, error)
+    }
+
+    // Process next item
+    this.processExecutionQueue()
   }
 
   /**
    * Inject shell integration commands from client-side
    * This replaces the server-side source xxx.xxx approach
    * Uses output suppression to hide the injection command
+   * Returns a promise that resolves when injection is complete
    */
-  injectShellIntegration = () => {
-    // Detect shell type from login script or local shell config
-    let shellType = 'bash'
+  injectShellIntegration = async () => {
+    if (this.shellInjected) {
+      return Promise.resolve()
+    }
+
+    let shellType
     if (this.isLocal()) {
       const { config } = this.props
       const localShell = isMac ? config.execMac : config.execLinux
       shellType = detectShellType(localShell)
+    } else if (this.isSsh()) {
+      shellType = await detectRemoteShell(this.pid)
     }
 
-    const isRemote = this.isSsh()
+    this.shellType = shellType
+    if (shellType === 'fish') {
+      if (this.props.sftpPathFollowSsh) {
+        message.warning(
+          <span>
+            Fish shell is not supported for SFTP follow SSH path. See: <ExternalLink to='https://github.com/electerm/electerm/wiki/Warning-about-sftp-follow-ssh-path-function'>wiki</ExternalLink>
+          </span>
+        )
+      }
+      return Promise.resolve()
+    }
 
-    // Remote sessions might need longer timeout for shell integration detection
+    // Don't inject for sh type shells unless sftpPathFollowSsh is true
+    if (shellType === 'sh' && !this.props.sftpPathFollowSsh) {
+      return Promise.resolve()
+    }
+
     const integrationCmd = getShellIntegrationCommand(shellType)
 
-    if (integrationCmd && this.attachAddon) {
+    return new Promise((resolve) => {
       // Wait for initial data (prompt/banner) to arrive before injecting
       this.attachAddon.onInitialData(() => {
         if (this.attachAddon) {
           // Start suppressing output before sending the integration command
           // This hides the command and its output until OSC 633 is detected
-          const suppressionTimeout = isRemote ? 5000 : 3000
-          // Pass callback to run delayed scripts after suppression ends
+          const suppressionTimeout = this.isSsh() ? 5000 : 3000
+          // Pass callback to resolve the promise after suppression ends
           this.attachAddon.startOutputSuppression(suppressionTimeout, () => {
-            this.startDelayedScripts()
+            this.shellInjected = true
+            resolve()
           })
           this.attachAddon._sendData(integrationCmd)
+        } else {
+          resolve()
         }
       })
-    }
-  }
-
-  runDelayedScripts = () => {
-    const { delayedScripts } = this
-    if (delayedScripts && delayedScripts.length > 0) {
-      const obj = delayedScripts.shift()
-      if (obj.script) {
-        this.attachAddon._sendData(obj.script + '\r')
-      }
-      if (delayedScripts.length > 0) {
-        const nextDelay = delayedScripts[0].delay || 0
-        this.timers.timerDelay = setTimeout(this.runDelayedScripts, nextDelay)
-      }
-    }
+    })
   }
 
   setStatus = status => {
