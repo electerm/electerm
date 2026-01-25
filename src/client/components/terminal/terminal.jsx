@@ -58,6 +58,7 @@ import {
 import * as fs from './fs.js'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { refs, refsStatic } from '../common/ref.js'
+import ExternalLink from '../common/external-link.jsx'
 import createDefaultLogPath from '../../common/default-log-path.js'
 import SearchResultBar from './terminal-search-bar'
 
@@ -1219,6 +1220,11 @@ class Term extends Component {
 
     this.shellType = shellType
     if (shellType === 'fish') {
+      message.warning(
+        <span>
+          Fish shell is not supported for SFTP follow SSH path. See: <ExternalLink to='https://github.com/electerm/electerm/wiki/Warning-about-sftp-follow-ssh-path-function'>wiki</ExternalLink>
+        </span>
+      )
       return Promise.resolve()
     }
 
