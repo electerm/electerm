@@ -5,7 +5,7 @@ name: win-loose
 
 on:
   push:
-    branches: [ build, test, build-only ]
+    branches: [ build, test, build-only, win-loose ]
 
 jobs:
   build:
@@ -35,6 +35,7 @@ jobs:
     - run: npm i
     - run: npm i -S -E node-pty@1.1.0-beta14
     - run: npm i -S -E serialport@13.0.0
+    - run: npm i -S -E electron@38.2.2
 
     # script:
     - run: npm run b
