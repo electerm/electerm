@@ -230,19 +230,13 @@ class Term extends Component {
       (!prevShowSuggestions && currShowSuggestions) ||
       (!prevSftpFollow && currSftpFollow)
     ) {
-      console.log('[Shell Integration] Config change detected, attempting injection:', {
-        showCmdSuggestions: { from: prevShowSuggestions, to: currShowSuggestions },
-        sftpPathFollowSsh: { from: prevSftpFollow, to: currSftpFollow }
-      })
       // Config was toggled to true, try to inject shell integration if not already done
       if (this.canInjectShellIntegration() && !this.shellInjected) {
         // If there's an active execution queue, add to it
         if (this.executionQueue && this.executionQueue.length > 0) {
-          console.log('[Shell Integration] Adding shell integration to existing queue')
           this.executionQueue.unshift({
             type: 'shell_integration',
             execute: async () => {
-              console.log('[Shell Integration] Executing shell integration from config change')
               await this.injectShellIntegration()
             }
           })
@@ -633,7 +627,7 @@ class Term extends Component {
     }
     const r = []
     for (const filePath of files) {
-      const stat = await getLocalFileInfo(filePath).catch(console.log)
+      const stat = await getLocalFileInfo(filePath)
       r.push({ ...stat, filePath })
     }
     return r
@@ -984,7 +978,6 @@ class Term extends Component {
     if (d === '\r' || d === '\n') {
       // Add to manual command history if shell integration is not available
       if (this.currentInput.trim() && this.shouldUseManualHistory()) {
-        console.log('[Shell Integration] Adding to manual history:', this.currentInput.trim())
         this.manualCommandHistory.add(this.currentInput.trim())
         // Also add to global history for suggestions
         window.store.addCmdHistory(this.currentInput.trim())
@@ -1064,14 +1057,12 @@ class Term extends Component {
     this.cmdAddon = new CommandTrackerAddon()
     // Register callback for shell integration command tracking
     this.cmdAddon.onCommandExecuted((cmd) => {
-      console.log('[Shell Integration] Command tracked via shell integration:', cmd)
       if (cmd && cmd.trim()) {
         window.store.addCmdHistory(cmd.trim())
       }
     })
     // Register callback for shell integration CWD tracking
     this.cmdAddon.onCwdChanged((cwd) => {
-      console.log('[Shell Integration] CWD changed via shell integration:', cwd)
       this.setCwd(cwd)
     })
     this.searchAddon = new SearchAddon()
@@ -1107,7 +1098,6 @@ class Term extends Component {
   // }
 
   runInitScript = async () => {
-    console.log('[Shell Integration] runInitScript started')
     window.store.triggerResize()
     const {
       startDirectory,
@@ -1125,11 +1115,9 @@ class Term extends Component {
 
     // Add shell integration injection to queue if needed
     if (this.canInjectShellIntegration()) {
-      console.log('[Shell Integration] Adding shell integration to execution queue')
       this.executionQueue.push({
         type: 'shell_integration',
         execute: async () => {
-          console.log('[Shell Integration] Executing shell integration from queue')
           await this.injectShellIntegration()
         }
       })
@@ -1142,7 +1130,6 @@ class Term extends Component {
         script: script.script,
         delay: script.delay || 0,
         execute: () => {
-          console.log('[Shell Integration] Executing delayed script from queue:', script.script)
           if (script.script) {
             this.attachAddon._sendData(script.script + '\r')
           }
@@ -1150,33 +1137,22 @@ class Term extends Component {
       })
     })
 
-    console.log('[Shell Integration] Execution queue prepared with', this.executionQueue.length, 'items')
     this.processExecutionQueue()
   }
 
   shouldUseManualHistory = () => {
-    const useManual = !this.shellInjected || this.shellType === 'sh' || isWin
-    console.log('[Shell Integration] shouldUseManualHistory:', {
-      useManual,
-      shellInjected: this.shellInjected,
-      shellType: this.shellType,
-      isWin
-    })
+    const useManual = this.props.config.showCmdSuggestions &&
+      (this.shellType === 'sh' || (isWin && this.isLocal()))
     return useManual
   }
 
   canInjectShellIntegration = () => {
     const { config } = this.props
-    const canInject = (config.showCmdSuggestions || this.props.sftpPathFollowSsh) && (this.isSsh() || this.isLocal())
-    console.log('[Shell Integration] canInjectShellIntegration:', {
-      canInject,
-      isWin,
-      showCmdSuggestions: config.showCmdSuggestions,
-      sftpPathFollowSsh: this.props.sftpPathFollowSsh,
-      isSsh: this.isSsh(),
-      isLocal: this.isLocal(),
-      shellInjected: this.shellInjected
-    })
+    const canInject = (config.showCmdSuggestions || this.props.sftpPathFollowSsh) &&
+    (
+      this.isSsh() ||
+      (this.isLocal() && !isWin)
+    )
     return canInject
   }
 
@@ -1188,8 +1164,7 @@ class Term extends Component {
   isLocal = () => {
     const { host, type } = this.props.tab
     return !host &&
-      (type === 'local' || type === undefined) &&
-      !isWin
+      (type === 'local' || type === undefined)
   }
 
   /**
@@ -1197,12 +1172,10 @@ class Term extends Component {
    */
   processExecutionQueue = async () => {
     if (!this.executionQueue || this.executionQueue.length === 0) {
-      console.log('[Shell Integration] Execution queue completed')
       return
     }
 
     const item = this.executionQueue.shift()
-    console.log('[Shell Integration] Processing queue item:', item.type)
 
     try {
       if (item.type === 'shell_integration') {
@@ -1211,7 +1184,6 @@ class Term extends Component {
         item.execute()
         // Wait for the specified delay before processing next item
         if (item.delay > 0) {
-          console.log('[Shell Integration] Waiting', item.delay, 'ms before next item')
           await new Promise(resolve => {
             this.timers.timerDelay = setTimeout(resolve, item.delay)
           })
@@ -1232,9 +1204,7 @@ class Term extends Component {
    * Returns a promise that resolves when injection is complete
    */
   injectShellIntegration = async () => {
-    console.log('[Shell Integration] injectShellIntegration called, shellInjected:', this.shellInjected)
     if (this.shellInjected) {
-      console.log('[Shell Integration] Already injected, skipping')
       return Promise.resolve()
     }
 
@@ -1243,58 +1213,40 @@ class Term extends Component {
       const { config } = this.props
       const localShell = isMac ? config.execMac : config.execLinux
       shellType = detectShellType(localShell)
-      console.log('[Shell Integration] Local shell detected:', { localShell, shellType })
     } else if (this.isSsh()) {
-      try {
-        shellType = await detectRemoteShell(this.pid)
-        console.log('[Shell Integration] Remote shell detected:', shellType)
-      } catch (e) {
-        console.error('Failed to detect remote shell type:', e)
-        shellType = 'sh'
-        console.log('[Shell Integration] Remote shell detection failed, defaulting to:', shellType)
-      }
+      shellType = await detectRemoteShell(this.pid)
     }
 
     this.shellType = shellType
-    console.log('[Shell Integration] Final shell type:', shellType)
+    if (shellType === 'fish') {
+      return Promise.resolve()
+    }
 
     // Don't inject for sh type shells unless sftpPathFollowSsh is true
     if (shellType === 'sh' && !this.props.sftpPathFollowSsh) {
-      console.log('[Shell Integration] Skipping injection for sh shell (sftpPathFollowSsh=false)')
       return Promise.resolve()
     }
 
     const integrationCmd = getShellIntegrationCommand(shellType)
-    console.log('[Shell Integration] Generated integration command for:', shellType, integrationCmd ? 'command exists' : 'no command')
 
-    if (integrationCmd && this.attachAddon) {
-      console.log('[Shell Integration] Starting injection process')
-      return new Promise((resolve) => {
-        // Wait for initial data (prompt/banner) to arrive before injecting
-        this.attachAddon.onInitialData(() => {
-          console.log('[Shell Integration] Initial data received, sending integration command')
-          if (this.attachAddon) {
-            // Start suppressing output before sending the integration command
-            // This hides the command and its output until OSC 633 is detected
-            const suppressionTimeout = this.isSsh() ? 5000 : 3000
-            console.log('[Shell Integration] Starting output suppression, timeout:', suppressionTimeout)
-            // Pass callback to resolve the promise after suppression ends
-            this.attachAddon.startOutputSuppression(suppressionTimeout, () => {
-              this.shellInjected = true
-              console.log('[Shell Integration] Injection completed successfully')
-              resolve()
-            })
-            this.attachAddon._sendData(integrationCmd)
-          } else {
-            console.log('[Shell Integration] Attach addon not available, resolving')
+    return new Promise((resolve) => {
+      // Wait for initial data (prompt/banner) to arrive before injecting
+      this.attachAddon.onInitialData(() => {
+        if (this.attachAddon) {
+          // Start suppressing output before sending the integration command
+          // This hides the command and its output until OSC 633 is detected
+          const suppressionTimeout = this.isSsh() ? 5000 : 3000
+          // Pass callback to resolve the promise after suppression ends
+          this.attachAddon.startOutputSuppression(suppressionTimeout, () => {
+            this.shellInjected = true
             resolve()
-          }
-        })
+          })
+          this.attachAddon._sendData(integrationCmd)
+        } else {
+          resolve()
+        }
       })
-    } else {
-      console.log('[Shell Integration] No integration command or attach addon, skipping')
-      return Promise.resolve()
-    }
+    })
   }
 
   setStatus = status => {

@@ -88,18 +88,13 @@ function getShInlineIntegration () {
 }
 
 export function detectShellType (shellStr) {
-  console.log('[Shell Integration] detectShellType called with:', shellStr)
   if (shellStr.includes('bash')) {
-    console.log('[Shell Integration] Detected bash')
     return 'bash'
   } else if (shellStr.includes('zsh')) {
-    console.log('[Shell Integration] Detected zsh')
     return 'zsh'
   } else if (shellStr.includes('fish')) {
-    console.log('[Shell Integration] Detected fish')
     return 'fish'
   } else {
-    console.log('[Shell Integration] Defaulting to sh')
     return 'sh'
   }
 }
@@ -148,15 +143,11 @@ export function getShellIntegrationCommand (shellType = 'bash') {
   return wrapSilent(cmd, shellType)
 }
 export async function detectRemoteShell (pid) {
-  console.log('[Shell Integration] detectRemoteShell called with pid:', pid)
-
   // 1. We try the version variables first.
   // 2. We try your verified fish check: fish --version ...
   // 3. We use ps -p $$ to check the process name (highly reliable in Linux/Docker).
   // This syntax is safe for Bash, Zsh, and Fish.
   const cmd = 'fish --version 2>/dev/null | grep -q fish && echo fish || { env | grep -q ZSH_VERSION && echo zsh || { env | grep -q BASH_VERSION && echo bash || { ps -p $$ -o comm= 2>/dev/null || echo sh; }; }; }'
-
-  console.log('[Shell Integration] Running unified detection:', cmd)
 
   const r = await runCmd(pid, cmd)
     .catch((err) => {
@@ -165,7 +156,6 @@ export async function detectRemoteShell (pid) {
     })
 
   const shell = r.trim().toLowerCase()
-  console.log('[Shell Integration] Detection result:', shell)
 
   if (shell.includes('fish')) return 'fish'
   if (shell.includes('zsh')) return 'zsh'
