@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
   CloseOutlined
@@ -26,30 +26,30 @@ const notify = (messages) => {
 let activeMessages = []
 
 function MessageItem ({ id, type, content, duration, onRemove, timestamp }) {
-  const [timeoutId, setTimeoutId] = useState(null)
+  const timeoutIdRef = useRef(null)
 
   useEffect(() => {
     if (duration !== 0) {
       const timer = setTimeout(onRemove, duration * 1000)
-      setTimeoutId(timer)
+      timeoutIdRef.current = timer
       return () => {
-        clearTimeout(timer)
-        setTimeoutId(null)
+        clearTimeout(timeoutIdRef.current)
+        timeoutIdRef.current = null
       }
     }
   }, [duration, onRemove, timestamp])
 
   const handleMouseEnter = () => {
-    if (timeoutId) {
-      clearTimeout(timeoutId)
-      setTimeoutId(null)
+    if (timeoutIdRef.current) {
+      clearTimeout(timeoutIdRef.current)
+      timeoutIdRef.current = null
     }
   }
 
   const handleMouseLeave = () => {
     if (duration !== 0) {
       const timer = setTimeout(onRemove, duration * 1000)
-      setTimeoutId(timer)
+      timeoutIdRef.current = timer
     }
   }
 

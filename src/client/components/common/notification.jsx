@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { CloseOutlined } from '@ant-design/icons'
 import classnames from 'classnames'
 import generateId from '../../common/uid'
@@ -70,17 +70,41 @@ export function NotificationContainer () {
 }
 
 function NotificationItem ({ message, description, type, onClose, duration = 18.5 }) {
+  const timeoutRef = useRef(null)
+
   useEffect(() => {
     if (duration > 0) {
-      const timer = setTimeout(onClose, duration * 1000)
-      return () => clearTimeout(timer)
+      timeoutRef.current = setTimeout(onClose, duration * 1000)
     }
-  }, [duration, onClose])
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+    }
+  }, [])
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (duration > 0 && !timeoutRef.current) {
+      timeoutRef.current = setTimeout(onClose, duration * 1000)
+    }
+  }
 
   const className = classnames('notification', type)
 
   return (
-    <div className={className}>
+    <div
+      className={className}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className='notification-content'>
         <div className='notification-message'>
           <div className='notification-icon'>{messageIcons[type]}</div>
