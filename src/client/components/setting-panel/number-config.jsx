@@ -1,6 +1,4 @@
-import {
-  InputNumber
-} from 'antd'
+import InputNumberConfirm from '../common/input-number-confirm'
 import { isNumber, isNaN } from 'lodash-es'
 
 export default function NumberConfig ({
@@ -40,7 +38,7 @@ export default function NumberConfig ({
   }
   return (
     <div className={`pd2b ${cls || ''}`}>
-      <InputNumber
+      <InputNumberConfirm
         {...opts}
       />
     </div>

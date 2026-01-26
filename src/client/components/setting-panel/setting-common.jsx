@@ -9,8 +9,6 @@ import message from '../common/message'
 import {
   Select,
   Switch,
-  Input,
-  InputNumber,
   Alert,
   Button,
   Table,
@@ -19,6 +17,9 @@ import {
 } from 'antd'
 import deepCopy from 'json-deep-copy'
 import Password from '../common/password'
+import InputConfirm from '../common/input-confirm'
+import InputNumberConfirm from '../common/input-number-confirm'
+import TextareaConfirm from '../common/textarea-confirm'
 import {
   settingMap,
   proxyHelpLink
@@ -149,8 +150,8 @@ export default class SettingCommon extends Component {
     this.props.store.setTheme(id)
   }
 
-  handleCustomCss = (e) => {
-    this.onChangeValue(e.target.value, 'customCss')
+  handleCustomCss = (value) => {
+    this.onChangeValue(value, 'customCss')
   }
 
   onChangeValue = (value, name) => {
@@ -222,7 +223,7 @@ export default class SettingCommon extends Component {
     )
   }
 
-  renderNumber = (name, options, title = '', width = '100%') => {
+  renderNumber = (name, options, title = '') => {
     let value = this.props.config[name]
     if (options.valueParser) {
       value = options.valueParser(value)
@@ -256,13 +257,10 @@ export default class SettingCommon extends Component {
         }
         return vv
       }
-      opts.style = {
-        width
-      }
     }
     return (
       <div className={`pd2b ${cls || ''}`}>
-        <InputNumber
+        <InputNumberConfirm
           {...opts}
         />
       </div>
@@ -272,10 +270,10 @@ export default class SettingCommon extends Component {
   renderText = (name, placeholder) => {
     const value = this.props.config[name]
     const defaultValue = defaultSettings[name]
-    const onChange = (e) => this.onChangeValue(e.target.value, name)
+    const onChange = (v) => this.onChangeValue(v, name)
     return (
       <div className='pd2b'>
-        <Input
+        <InputConfirm
           value={value}
           onChange={onChange}
           placeholder={placeholder || defaultValue}
@@ -289,7 +287,7 @@ export default class SettingCommon extends Component {
     const args = this.props.config[agrsProp]
     const value = this.props.config[name]
     const defaultValue = defaultSettings[name]
-    const onChange = (e) => this.onChangeValue(e.target.value, name)
+    const onChange = (v) => this.onChangeValue(v, name)
     const onChangeArgs = (v) => this.onChangeValue(v, agrsProp)
     const styleArg = {
       style: {
@@ -299,7 +297,7 @@ export default class SettingCommon extends Component {
     return (
       <div className='pd2b'>
         <Space.Compact block>
-          <Input
+          <InputConfirm
             value={value}
             onChange={onChange}
             placeholder={defaultValue}
@@ -569,7 +567,7 @@ export default class SettingCommon extends Component {
 
         <div className='pd2b'>
           <span className='inline-title mg1r'>{e('customCss')}</span>
-          <Input.TextArea
+          <TextareaConfirm
             onChange={this.handleCustomCss}
             value={customCss}
             rows={3}

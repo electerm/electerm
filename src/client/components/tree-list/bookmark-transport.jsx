@@ -62,7 +62,6 @@ export default class BookmarkTransport extends PureComponent {
 
   render () {
     const edit = this.renderEdit()
-    console.log('edit', edit)
     if (edit === null) {
       return (
         <Space.Compact>

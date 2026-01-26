@@ -148,7 +148,7 @@ export default function SyncForm (props) {
     if (syncType === syncTypes.gitee) {
       return (
         <Alert
-          message={
+          title={
             <span>
               Gitee data sync is not recommended. For more information, please refer to the
               <Link to='https://github.com/electerm/electerm/wiki/gitee-data-sync-warning' className='mg1l'>

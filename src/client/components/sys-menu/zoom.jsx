@@ -1,4 +1,4 @@
-import InputNumberConfirm from '../common/input-confirm'
+import InputNumberConfirm from '../common/input-number-confirm'
 
 import {
   MinusCircleOutlined,

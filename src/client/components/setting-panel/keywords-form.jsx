@@ -10,7 +10,7 @@ import {
   PlusOutlined
 } from '@ant-design/icons'
 import { useEffect } from 'react'
-import KeywordInput from './keyword-input'
+import InputConfirm from '../common/input-confirm'
 
 const FormItem = Form.Item
 const FormList = Form.List
@@ -55,7 +55,7 @@ export default function KeywordForm (props) {
             name={[field.name, 'keyword']}
             rules={[{ validator: checker }]}
           >
-            <KeywordInput
+            <InputConfirm
               addonBefore={renderBefore(field.name)}
             />
           </FormItem>

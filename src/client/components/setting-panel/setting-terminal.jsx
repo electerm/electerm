@@ -7,7 +7,6 @@ import message from '../common/message'
 import {
   Select,
   Switch,
-  Input,
   Upload,
   Button,
   AutoComplete,
@@ -23,6 +22,7 @@ import {
 } from '../../common/constants'
 import defaultSettings from '../../common/default-setting'
 import ShowItem from '../common/show-item'
+import InputConfirm from '../common/input-confirm'
 import { osResolve } from '../../common/resolve'
 import { chooseSaveDirectory } from '../../common/choose-save-folder'
 import mapper from '../../common/auto-complete-data-mapper'
@@ -170,7 +170,7 @@ export default class SettingTerminal extends Component {
     const inputProps = {
       value: sessionLogPath,
       placeholder: path,
-      onChange: (e) => this.handleLogChange(e.target.value),
+      onChange: this.handleLogChange,
       addonAfter: (
         <>
           <Button
@@ -197,7 +197,7 @@ export default class SettingTerminal extends Component {
     }
     return (
       <div className='pd2b'>
-        <Input {...inputProps} />
+        <InputConfirm {...inputProps} />
       </div>
     )
   }
@@ -235,10 +235,10 @@ export default class SettingTerminal extends Component {
   renderText = (name, placeholder) => {
     const value = this.props.config[name]
     const defaultValue = defaultSettings[name]
-    const onChange = (e) => this.onChangeValue(e.target.value, name)
+    const onChange = (v) => this.onChangeValue(v, name)
     return (
       <div className='pd2b'>
-        <Input
+        <InputConfirm
           value={value}
           onChange={onChange}
           placeholder={placeholder || defaultValue}
@@ -339,8 +339,8 @@ export default class SettingTerminal extends Component {
               className='width-100'
               options={dataSource.map(this.renderBgOption)}
             >
-              <Input
-                addonAfter={after}
+              <InputConfirm
+                extraAddonAfter={after}
               />
             </AutoComplete>
           </Tooltip>

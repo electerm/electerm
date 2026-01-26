@@ -73,3 +73,6 @@ export const ColorPicker = React.forwardRef((props, ref) => {
     </Popover>
   )
 })
+
+ColorPicker.displayName = 'ColorPicker'
+ColorPicker.static = true

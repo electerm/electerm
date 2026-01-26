@@ -64,7 +64,6 @@ export default Store => {
   Store.prototype.confirmExit = function (type) {
     const { store } = window
     let mod = null
-    console.log('confirmExit called')
     mod = Modal.confirm({
       onCancel: () => mod.destroy(),
       onOk: store.doExit,
