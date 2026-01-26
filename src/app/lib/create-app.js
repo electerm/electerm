@@ -38,15 +38,7 @@ exports.createApp = async function () {
   if (process.env.PROXY_SERVER) {
     app.commandLine.appendSwitch('proxy-server', process.env.PROXY_SERVER)
   }
-  // Disable background networking and component updates to prevent unwanted requests
-  // Disable component updates
-  app.commandLine.appendSwitch('disable-component-update')
 
-  // Disable background networking
-  app.commandLine.appendSwitch('disable-background-networking')
-
-  // Optional: Disable domain reliability monitoring
-  app.commandLine.appendSwitch('disable-domain-reliability')
   const progs = initCommandLine()
   const opts = progs?.options
   const conf = await getDbConfig()
