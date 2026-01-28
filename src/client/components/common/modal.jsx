@@ -57,19 +57,12 @@ export default function Modal (props) {
     if (!open) return
 
     const handleKeyDown = (e) => {
-      const isConfirm = !!document.querySelector('.custom-modal-cancel-btn')
       if (e.key === 'Escape') {
         if (onCancel) {
           onCancel()
           e.preventDefault()
         }
-      } else if ((e.key === 'Enter' || e.key === ' ') && !isConfirm) {
-        // For info, Enter/Space closes
-        if (onCancel) {
-          onCancel()
-          e.preventDefault()
-        }
-      } else if ((e.key === 'Enter' || e.key === ' ') && isConfirm) {
+      } else if ((e.key === 'Enter' || e.key === ' ')) {
         // For confirm, Enter/Space confirms
         const okBtn = document.querySelector('.custom-modal-ok-btn')
         if (okBtn) {
