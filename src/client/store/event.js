@@ -12,13 +12,17 @@ export default Store => {
 
   Store.prototype.blur = function () {
     window.focused = false
-    window.pre.runSync('windowMove', false)
+    if (window.store.shouldSendWindowMove) {
+      window.pre.runSync('windowMove', false)
+    }
     refs.get('term-' + window.store.activeTabId)?.term?.blur()
   }
 
   Store.prototype.onBlur = function () {
     window.focused = false
-    window.pre.runSync('windowMove', false)
+    if (window.store.shouldSendWindowMove) {
+      window.pre.runSync('windowMove', false)
+    }
   }
 
   Store.prototype.selectall = function () {

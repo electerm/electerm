@@ -1,9 +1,6 @@
 // from https://zhuanlan.zhihu.com/p/112564936
 
 const { screen } = require('electron')
-const {
-  isLinux
-} = require('../common/runtime-constants')
 const globalState = require('./glob-state')
 
 let mouseStartPosition = { x: 0, y: 0 }
@@ -16,8 +13,6 @@ function windowMove (canMoving) {
     return
   }
   const size = win.getBounds()
-  const scr = screen.getDisplayNearestPoint(size)
-
   if (canMoving) {
     win.setResizable(false)
     mouseStartPosition = screen.getCursorScreenPoint()
@@ -34,15 +29,8 @@ function windowMove (canMoving) {
       const cursorPosition = screen.getCursorScreenPoint()
       const x = size.x + cursorPosition.x - mouseStartPosition.x
       const y = size.y + cursorPosition.y - mouseStartPosition.y
-      let { width: nw, height: nh } = size
-      if (isLinux && dragCount > 200 && size.width === scr.workAreaSize.width && size.height === scr.workAreaSize.height) {
-        nw = nw - 100
-        nh = nw - 100
-      }
-
       win.setBounds({
-        width: nw,
-        height: nh,
+        ...size,
         x,
         y
       })

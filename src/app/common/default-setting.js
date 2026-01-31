@@ -31,7 +31,7 @@ module.exports = exports.default = {
   checkUpdateOnStart: true,
   cursorBlink: false,
   cursorStyle: 'block',
-  useSystemTitleBar: process.platform === 'linux',
+  useSystemTitleBar: false,
   opacity: 1,
   defaultEditor: '',
   terminalWordSeparator: './\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~ ?',

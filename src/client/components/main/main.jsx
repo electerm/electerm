@@ -37,12 +37,8 @@ import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
 
-function setupGlobalMessageDismiss () {
-}
-
 export default auto(function Index (props) {
   useEffect(() => {
-    setupGlobalMessageDismiss()
     const { store } = props
     window.addEventListener('resize', store.onResize)
     setTimeout(store.triggerResize, 200)
@@ -107,6 +103,7 @@ export default auto(function Index (props) {
     'not-mac': !isMac,
     'is-win': isWin,
     pinned,
+    'not-win': !isWin,
     'qm-pinned': pinnedQuickCommandBar,
     'term-fullscreen': terminalFullScreen,
     'is-main': !isSecondInstance

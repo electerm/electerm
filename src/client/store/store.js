@@ -36,7 +36,8 @@ import {
   settingMap,
   terminalSshConfigType,
   paneMap,
-  staticNewItemTabs
+  staticNewItemTabs,
+  isWin
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import createTitle from '../common/create-title'
@@ -87,6 +88,12 @@ class Store {
       return null
     }
     return tab.props.tab
+  }
+
+  get shouldSendWindowMove () {
+    return isWin &&
+        !window.et.isWebApp &&
+        !window.store.config.useSystemTitleBar
   }
 
   get batchInputSelectedTabIds () {
