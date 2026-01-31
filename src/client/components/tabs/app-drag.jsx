@@ -71,6 +71,10 @@ export default function AppDrag (props) {
       onMouseDown,
       onMouseUp
     })
+  } else {
+    props0.style = {
+      WebkitAppRegion: 'drag'
+    }
   }
   return (
     <div
