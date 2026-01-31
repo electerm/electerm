@@ -40,6 +40,7 @@ const {
 const { saveUserConfig } = require('./user-config-controller')
 const { changeHotkeyReg, initShortCut } = require('./shortcut')
 const lastStateManager = require('./last-state')
+const windowMove = require('./window-drag-move')
 const {
   registerDeepLink,
   unregisterDeepLink,
@@ -128,6 +129,7 @@ function initIpc () {
     confirmExit: () => {
       globalState.set('confirmExit', true)
     },
+    windowMove,
     setPassword,
     checkPassword,
     lookup,
