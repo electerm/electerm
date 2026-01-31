@@ -104,6 +104,7 @@ export default auto(function Index (props) {
     'is-linux': isLinux,
     'is-win': isWin,
     pinned,
+    'not-win': !isWin,
     'qm-pinned': pinnedQuickCommandBar,
     'term-fullscreen': terminalFullScreen,
     'is-main': !isSecondInstance

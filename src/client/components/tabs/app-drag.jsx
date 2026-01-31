@@ -48,17 +48,18 @@ export default function AppDrag (props) {
       window.pre.runGlobalAsync('maximize')
     }
   }
+  if (!window.store.shouldSendWindowMove) {
+    useEffect(() => {
+      // Listen for mouseup at document level to catch mouseup outside window
+      document.addEventListener('mouseup', onMouseUp)
+      window.addEventListener('contextmenu', onMouseUp)
 
-  useEffect(() => {
-    // Listen for mouseup at document level to catch mouseup outside window
-    document.addEventListener('mouseup', onMouseUp)
-    window.addEventListener('contextmenu', onMouseUp)
-
-    return () => {
-      document.removeEventListener('mouseup', onMouseUp)
-      window.removeEventListener('contextmenu', onMouseUp)
-    }
-  }, [])
+      return () => {
+        document.removeEventListener('mouseup', onMouseUp)
+        window.removeEventListener('contextmenu', onMouseUp)
+      }
+    }, [])
+  }
   const props0 = {
     className: 'app-drag',
     onDoubleClick
