@@ -5,6 +5,11 @@
 import { refs } from '../components/common/ref'
 
 export default Store => {
+  Store.prototype.focus = function () {
+    window.focused = true
+    refs.get('term-' + window.store.activeTabId)?.term?.focus()
+  }
+
   Store.prototype.blur = function () {
     window.focused = false
     if (window.store.shouldSendWindowMove) {
@@ -18,10 +23,6 @@ export default Store => {
     if (window.store.shouldSendWindowMove) {
       window.pre.runSync('windowMove', false)
     }
-  }
-
-  Store.prototype.onBlur = function () {
-    window.focused = false
   }
 
   Store.prototype.selectall = function () {
