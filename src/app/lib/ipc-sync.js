@@ -8,7 +8,6 @@ const {
 } = require('electron')
 const log = require('../common/log')
 const contants = require('../common/runtime-constants')
-const windowMove = require('./window-drag-move.js')
 const globalState = require('./glob-state')
 const { transferKeys } = require('../server/transfer')
 const os = require('os')
@@ -44,7 +43,6 @@ module.exports = {
       return false
     }
   },
-  windowMove,
   getFsContants: () => {
     return require('fs').constants
   },
