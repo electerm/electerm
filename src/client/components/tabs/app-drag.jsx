@@ -1,4 +1,7 @@
 import { useEffect, useRef } from 'react'
+import {
+  isLinux
+} from '../../common/constants'
 
 export default function AppDrag (props) {
   const isDraggingRef = useRef(false)
@@ -21,14 +24,14 @@ export default function AppDrag (props) {
 
   function onMouseDown (e) {
     // e.stopPropagation()
-    if (canOperate(e)) {
+    if (canOperate(e) && !isLinux) {
       isDraggingRef.current = true
       window.pre.runSync('windowMove', true)
     }
   }
 
   function onMouseUp (e) {
-    if (isDraggingRef.current) {
+    if (isDraggingRef.current && !isLinux) {
       isDraggingRef.current = false
       window.pre.runSync('windowMove', false)
     }
@@ -51,12 +54,16 @@ export default function AppDrag (props) {
 
   useEffect(() => {
     // Listen for mouseup at document level to catch mouseup outside window
-    document.addEventListener('mouseup', onMouseUp)
-    window.addEventListener('contextmenu', onMouseUp)
+    if (!isLinux) {
+      document.addEventListener('mouseup', onMouseUp)
+      window.addEventListener('contextmenu', onMouseUp)
+    }
 
     return () => {
-      document.removeEventListener('mouseup', onMouseUp)
-      window.removeEventListener('contextmenu', onMouseUp)
+      if (!isLinux) {
+        document.removeEventListener('mouseup', onMouseUp)
+        window.removeEventListener('contextmenu', onMouseUp)
+      }
     }
   }, [])
   return (

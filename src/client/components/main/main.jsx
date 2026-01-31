@@ -18,7 +18,7 @@ import TerminalCmdSuggestions from '../terminal/terminal-command-dropdown'
 import TransportsActionStore from '../file-transfer/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
-import { isMac, isWin, textTerminalBgValue } from '../../common/constants'
+import { isMac, isWin, textTerminalBgValue, isLinux } from '../../common/constants'
 import TermFullscreenControl from './term-fullscreen-control'
 import TerminalInfo from '../terminal-info/terminal-info'
 import { ConfigProvider } from 'antd'
@@ -37,12 +37,8 @@ import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
 
-function setupGlobalMessageDismiss () {
-}
-
 export default auto(function Index (props) {
   useEffect(() => {
-    setupGlobalMessageDismiss()
     const { store } = props
     window.addEventListener('resize', store.onResize)
     setTimeout(store.triggerResize, 200)
@@ -105,6 +101,7 @@ export default auto(function Index (props) {
     'not-system-ui': !store.config.useSystemTitleBar,
     'is-mac': isMac,
     'not-mac': !isMac,
+    'is-linux': isLinux,
     'is-win': isWin,
     pinned,
     'qm-pinned': pinnedQuickCommandBar,
