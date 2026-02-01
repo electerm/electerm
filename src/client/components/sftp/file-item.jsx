@@ -516,9 +516,9 @@ export default class FileSection extends React.Component {
 
   handleBlur = () => {
     const file = copy(this.state.file)
-    const { nameTemp, name, type, isEmpty } = this.state.file
+    const { nameTemp, name, type, id } = this.state.file
     if (name === nameTemp) {
-      if (isEmpty) {
+      if (!id) {
         return this.cancelNew(type)
       }
       delete file.nameTemp
@@ -527,7 +527,7 @@ export default class FileSection extends React.Component {
         file
       })
     }
-    if (isEmpty) {
+    if (!id) {
       return this.createNew(file)
     }
     this.rename(name, nameTemp)
