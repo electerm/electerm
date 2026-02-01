@@ -54,6 +54,8 @@ exports.createWindow = async function (userConfig) {
     win.setWindowButtonVisibility(true)
   }
 
+  win.webContents.session.setSpellCheckerDictionaryDownloadURL('https://00.00/')
+
   globalState.set('win', win)
 
   await initAppServer()
