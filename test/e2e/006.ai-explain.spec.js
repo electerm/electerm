@@ -53,7 +53,7 @@ describe('Terminal Explain with AI', function () {
     await delay(500)
 
     // Click "Explain with AI" in the context menu
-    await client.click('.ant-dropdown-menu-item:has-text("Explain with AI")')
+    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Explain with AI")')
 
     // Verify that the AI panel is opened
     await expect(client.locator('.ai-chat-container')).toBeVisible()

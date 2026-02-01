@@ -34,7 +34,7 @@ describe('tab reload', function () {
 
     // Reload active tab
     await client.rightClick(`.tabs .tab[data-id="${initialTabs.activeId}"]`, 10, 10)
-    await client.click('.ant-dropdown-menu-item:has-text("Reload")')
+    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Reload")')
     await delay(2000)
 
     // Verify replacement
