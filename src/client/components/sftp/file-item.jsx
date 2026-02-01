@@ -90,11 +90,11 @@ export default class FileSection extends React.Component {
     return refsStatic.get('text-editor')
   }
 
-  handleDropdownOpenChange = (open) => {
-    if (open) {
-      this.forceUpdate()
-    }
-  }
+  // handleDropdownOpenChange = (open) => {
+  //   if (open) {
+  //     this.forceUpdate()
+  //   }
+  // }
 
   applyStyle = () => {
     if (!this.domRef) {
@@ -516,9 +516,9 @@ export default class FileSection extends React.Component {
 
   handleBlur = () => {
     const file = copy(this.state.file)
-    const { nameTemp, name, type, isEmpty } = this.state.file
+    const { nameTemp, name, type, id } = this.state.file
     if (name === nameTemp) {
-      if (isEmpty) {
+      if (!id) {
         return this.cancelNew(type)
       }
       delete file.nameTemp
@@ -527,7 +527,7 @@ export default class FileSection extends React.Component {
         file
       })
     }
-    if (isEmpty) {
+    if (!id) {
       return this.createNew(file)
     }
     this.rename(name, nameTemp)
@@ -862,7 +862,6 @@ export default class FileSection extends React.Component {
   }
 
   handleContextMenuCapture = (e) => {
-    window.lastClickedFileId = this.id
     this.props.setClickFileId(this.id)
     if (!this.isSelected(this.state.file.id)) {
       this.onClick(e)
@@ -1217,14 +1216,6 @@ export default class FileSection extends React.Component {
       'data-type': type,
       title: file.name
     }
-    // const ddProps = {
-    //   menu: {
-    //     items: this.renderContextMenu(),
-    //     onClick: this.onContextMenu
-    //   },
-    //   trigger: ['contextMenu'],
-    //   onOpenChange: this.handleDropdownOpenChange
-    // }
     return (
       <div
         ref={this.domRef}

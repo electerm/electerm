@@ -236,13 +236,13 @@ export default class FileListTable extends Component {
   }
 
   getClickedFile = () => {
-    const refKey = this.currentFileId || window.lastClickedFileId
+    const refKey = this.currentFileId
     return filesRef.get(refKey)
   }
 
   handleDropdownOpenChange = (open) => {
     if (open) {
-      this.getClickedFile()?.forceUpdate()
+      this.forceUpdate()
     }
   }
 
