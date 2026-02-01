@@ -3,6 +3,7 @@ window.refs = new Map()
 window.refsStatic = new Map()
 window.refsTransfers = new Map()
 window.refsTabs = new Map()
+window.filesRef = new Map()
 
 class Ref {
   constructor (key) {
@@ -59,3 +60,4 @@ export const refs = new Ref('refs')
 export const refsTransfers = new Ref('refsTransfers')
 export const refsStatic = new Ref('refsStatic')
 export const refsTabs = new TabsRef('refsTabs')
+export const filesRef = new Ref('filesRef')

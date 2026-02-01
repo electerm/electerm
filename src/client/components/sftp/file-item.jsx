@@ -36,11 +36,8 @@ import time from '../../common/time'
 import { filesize } from 'filesize'
 import { createTransferProps } from './transfer-common'
 import generate from '../../common/uid'
-import { refsStatic, refs } from '../common/ref'
+import { refsStatic, refs, filesRef } from '../common/ref'
 import iconsMap from '../sys-menu/icons-map'
-import {
-  Dropdown
-} from 'antd'
 
 const e = window.translate
 
@@ -63,6 +60,7 @@ export default class FileSection extends React.Component {
   }
 
   componentDidMount () {
+    filesRef.add(this.id, this)
     this.applyStyle()
   }
 
@@ -84,6 +82,7 @@ export default class FileSection extends React.Component {
   }
 
   clearRef = () => {
+    filesRef.remove(this.id)
     refs.remove(this.id)
   }
 
@@ -447,20 +446,18 @@ export default class FileSection extends React.Component {
     const {
       id,
       type,
-      isParent
+      isParent,
+      isEmpty
     } = file
-    if (isParent) {
-      return
+    if (isEmpty || isParent) {
+      return this.props.modifier({
+        selectedFiles: new Set()
+      })
     }
     this.props.modifier({
       lastClickedFile: file
     })
     this.onDragEnd(e)
-    if (!id) {
-      return this.props.modifier({
-        selectedFiles: new Set()
-      })
-    }
     const selectedFilesOld = this.props.getSelectedFiles()
     const isSameSide = selectedFilesOld.length &&
       type === selectedFilesOld[0].type
@@ -519,9 +516,9 @@ export default class FileSection extends React.Component {
 
   handleBlur = () => {
     const file = copy(this.state.file)
-    const { nameTemp, name, id, type } = this.state.file
+    const { nameTemp, name, type, isEmpty } = this.state.file
     if (name === nameTemp) {
-      if (!id) {
+      if (isEmpty) {
         return this.cancelNew(type)
       }
       delete file.nameTemp
@@ -530,7 +527,7 @@ export default class FileSection extends React.Component {
         file
       })
     }
-    if (!id) {
+    if (isEmpty) {
       return this.createNew(file)
     }
     this.rename(name, nameTemp)
@@ -854,8 +851,8 @@ export default class FileSection extends React.Component {
     return this.props.renderDelConfirmTitle(files, true)
   }
 
-  showModeEdit (type, id) {
-    if (!id) {
+  showModeEdit (type, isRealFile) {
+    if (!isRealFile) {
       return false
     }
     if (type === typeMap.remote) {
@@ -865,6 +862,8 @@ export default class FileSection extends React.Component {
   }
 
   handleContextMenuCapture = (e) => {
+    window.lastClickedFileId = this.id
+    this.props.setClickFileId(this.id)
     if (!this.isSelected(this.state.file.id)) {
       this.onClick(e)
     }
@@ -925,12 +924,13 @@ export default class FileSection extends React.Component {
         isDirectory,
         size,
         id,
+        isEmpty,
         isParent
       },
       selectedFiles,
       tab
     } = this.props
-    const isRealFile = id && !isParent
+    const isRealFile = !isEmpty && !isParent
     const hasHost = !!tab.host
     const { enableSsh } = tab
     const isLocal = type === typeMap.local
@@ -1202,9 +1202,7 @@ export default class FileSection extends React.Component {
     const props = {
       className,
       draggable: draggable && !isParent,
-      onDoubleClick: this.transferOrEnterDirectory,
       ...pick(this, [
-        'onClick',
         'onDrag',
         'onDragEnter',
         'onDragExit',
@@ -1216,33 +1214,30 @@ export default class FileSection extends React.Component {
       onDragStart: onDragStart || this.onDragStart,
       'data-id': id,
       id: this.id,
-      'data-is-parent': isParent ? 'y' : 'n',
       'data-type': type,
       title: file.name
     }
-    const ddProps = {
-      menu: {
-        items: this.renderContextMenu(),
-        onClick: this.onContextMenu
-      },
-      trigger: ['contextMenu'],
-      onOpenChange: this.handleDropdownOpenChange
-    }
+    // const ddProps = {
+    //   menu: {
+    //     items: this.renderContextMenu(),
+    //     onClick: this.onContextMenu
+    //   },
+    //   trigger: ['contextMenu'],
+    //   onOpenChange: this.handleDropdownOpenChange
+    // }
     return (
-      <Dropdown {...ddProps}>
-        <div
-          ref={this.domRef}
-          {...props}
-          onContextMenu={this.handleContextMenuCapture}
-        >
-          <div className='file-bg' />
-          <div className='file-props-div'>
-            {
-              properties.map(this.renderProp)
-            }
-          </div>
+      <div
+        ref={this.domRef}
+        {...props}
+        onContextMenu={this.handleContextMenuCapture}
+      >
+        <div className='file-bg' />
+        <div className='file-props-div'>
+          {
+            properties.map(this.renderProp)
+          }
         </div>
-      </Dropdown>
+      </div>
     )
   }
 }

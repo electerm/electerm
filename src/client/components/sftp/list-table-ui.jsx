@@ -3,6 +3,7 @@
  */
 
 import { Component } from 'react'
+import { Dropdown } from 'antd'
 import classnames from 'classnames'
 import FileSection from './file-item'
 import PagedList from './paged-list'
@@ -11,6 +12,7 @@ import {
   CheckOutlined
 } from '@ant-design/icons'
 import IconHolder from '../sys-menu/icon-holder'
+import { filesRef } from '../common/ref'
 
 const e = window.translate
 
@@ -168,57 +170,6 @@ export default class FileListTable extends Component {
     'left'
   ]
 
-  // saveOldStyle = () => {
-  //   const { properties } = this.state
-  //   const ids = [
-  //     ...properties,
-  //     ...splitHandles
-  //   ]
-  //   const { type, id } = this.props
-  //   const parentWidth = document.querySelector(
-  //     `#id-${id} .tw-${type} .sftp-table`
-  //   ).clientWidth
-  //   this.oldStyles = ids.reduce((prev, { id, name }) => {
-  //     const sel = `.session-current .tw-${type} .sftp-file-table-header .shi-${name || id}`
-  //     return {
-  //       ...prev,
-  //       [name || id]: {
-  //         style: pick(
-  //           document.querySelector(sel)?.style || {},
-  //           this.positionProps
-  //         ),
-  //         parentWidth
-  //       }
-  //     }
-  //   }, {})
-  // }
-
-  // changePosition = (
-  //   dom,
-  //   xDiff,
-  //   type,
-  //   style
-  // ) => {
-  //   const realWidth = style.width
-  //   const realLeft = style.left
-  //   if (type === 'prev') {
-  //     dom.forEach(d => {
-  //       d.style.width = (realWidth + xDiff) + 'px'
-  //     })
-  //   } else if (type === 'dom') {
-  //     dom.style.left = (realLeft + xDiff) + 'px'
-  //   } else {
-  //     dom.forEach(d => {
-  //       d.style.width = (realWidth - xDiff) + 'px'
-  //       d.style.left = (realLeft + xDiff) + 'px'
-  //     })
-  //   }
-  // }
-
-  // onDragEnd = () => {}
-
-  // onDoubleClick = () => this.resetWidth()
-
   hasPager = () => {
     const {
       pageSize
@@ -230,36 +181,29 @@ export default class FileListTable extends Component {
     return len > pageSize
   }
 
-  // rebuildStyle = (name) => {
-  //   let { style, parentWidth } = this.oldStyles[name]
-  //   style = copy(style)
-  //   const {
-  //     type,
-  //     id
-  //   } = this.props
-  //   const currentParentWidth = document.querySelector(
-  //     `#id-${id} .tw-${type} .sftp-table`
-  //   ).clientWidth
-  //   style.width = (parseFloat(style.width) * currentParentWidth / parentWidth) + 'px'
-  //   style.left = (parseFloat(style.left) * currentParentWidth / parentWidth) + 'px'
-  //   return style
-  // }
-
   // reset
   resetWidth = () => {
     this.setState(this.initFromProps())
+  }
+
+  setClickFileId = (id) => {
+    this.currentFileId = id
   }
 
   renderItem = (item) => {
     const { type } = this.props
     const cls = item.isParent ? 'parent-file-item' : 'real-file-item'
     const key = item.id
+    const fileProps = {
+      ...this.props.getFileProps(item, type),
+      cls,
+      properties: this.state.properties,
+      setClickFileId: this.setClickFileId
+    }
     return (
       <FileSection
-        {...this.props.getFileProps(item, type)}
+        {...fileProps}
         key={key}
-        cls={cls}
-        properties={this.state.properties}
       />
     )
   }
@@ -268,9 +212,59 @@ export default class FileListTable extends Component {
     this.onToggleProp(key)
   }
 
+  handleClick = (e) => {
+    const target = e.target.closest('[data-id]')
+    if (target) {
+      const id = target.getAttribute('data-id')
+      const refKey = 'file-' + id
+      const ref = filesRef.get(refKey)
+      if (ref) {
+        ref.onClick(e)
+      }
+    }
+  }
+
+  handleDoubleClick = (e) => {
+    const target = e.target.closest('[data-id]')
+    if (target) {
+      const id = target.getAttribute('data-id')
+      const ref = filesRef.get('file-' + id)
+      if (ref) {
+        ref.transferOrEnterDirectory(e)
+      }
+    }
+  }
+
+  getClickedFile = () => {
+    const refKey = this.currentFileId || window.lastClickedFileId
+    return filesRef.get(refKey)
+  }
+
+  handleDropdownOpenChange = (open) => {
+    if (open) {
+      this.getClickedFile()?.forceUpdate()
+    }
+  }
+
+  onContextMenuFile = ({ key }) => {
+    if (key !== 'more-submenu') {
+      const inst = this.getClickedFile()
+      if (inst) {
+        inst[key]()
+      }
+    }
+  }
+
+  renderContextMenuFile = () => {
+    const fileInst = this.getClickedFile()
+    return fileInst ? fileInst.renderContextMenu() : []
+  }
+
   renderParent = (type) => {
     const { parentItem } = this.props
-    return parentItem ? this.renderItem(parentItem) : null
+    return parentItem
+      ? this.renderItem(parentItem)
+      : null
   }
 
   render () {
@@ -282,7 +276,9 @@ export default class FileListTable extends Component {
       style: {
         height: height - 42 - 30 - 32 - 90
       },
-      draggable: false
+      draggable: false,
+      onClick: this.handleClick,
+      onDoubleClick: this.handleDoubleClick
     }
     const hasPager = this.hasPager()
     const cls = classnames(
@@ -291,21 +287,37 @@ export default class FileListTable extends Component {
         'sftp-has-pager': hasPager
       }
     )
-
+    const ddProps = {
+      menu: {
+        items: this.renderContextMenuFile(),
+        onClick: this.onContextMenuFile
+      },
+      trigger: ['contextMenu'],
+      onOpenChange: this.handleDropdownOpenChange
+    }
     return (
       <div className={cls}>
         {this.renderTableHeader()}
-        <div
-          {...props}
-        >
-          {this.props.renderEmptyFile(type)}
-          {this.renderParent(type)}
-          <PagedList
-            list={fileList}
-            renderItem={this.renderItem}
-            hasPager={hasPager}
-          />
-        </div>
+        <Dropdown {...ddProps}>
+          <div
+            {...props}
+          >
+            {
+                this.props.renderEmptyFile(
+                  type,
+                  {
+                    setClickFileId: this.setClickFileId
+                  }
+                )
+            }
+            {this.renderParent(type)}
+            <PagedList
+              list={fileList}
+              renderItem={this.renderItem}
+              hasPager={hasPager}
+            />
+          </div>
+        </Dropdown>
       </div>
     )
   }

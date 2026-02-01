@@ -1054,27 +1054,43 @@ export default class Sftp extends Component {
     }
   }
 
-  renderEmptyFile = (type) => {
+  renderEmptyFile = (type, extra = {}) => {
+    const uniqueId = this.getPathUid(type, 'empty')
     const item = {
       type,
       name: '',
-      isDirectory: true
+      isDirectory: true,
+      id: uniqueId,
+      isEmpty: true
+    }
+    const allProps = {
+      ...this.getFileProps(item, type),
+      ...extra,
+      cls: 'virtual-file-unit',
+      key: 'empty' + type,
+      isEmpty: true,
+      draggable: false,
+      ref: ref => {
+        this[type + 'Dom'] = ref
+      }
     }
     return (
       <div
         className={`virtual-file virtual-file-${type}`}
       >
         <FileSection
-          {...this.getFileProps(item, type)}
-          ref={ref => {
-            this[type + 'Dom'] = ref
-          }}
-          draggable={false}
-          cls='virtual-file-unit'
-          key={'empty' + type}
+          {...allProps}
+          key={uniqueId}
         />
       </div>
     )
+  }
+
+  getPathUid = (type, type1) => {
+    const currentPath = this.state[`${type}Path`]
+    const parentPath = resolve(currentPath, '..')
+    const { id } = this.props.tab
+    return `${type1}-${parentPath}-${id}-${type}`
   }
 
   renderParentItem = (type) => {
@@ -1085,8 +1101,7 @@ export default class Sftp extends Component {
       return null
     }
 
-    const { id } = this.props.tab
-    const uniqueId = `parent-${parentPath}-${id}-${type}`
+    const uniqueId = this.getPathUid(type, 'parent')
 
     return {
       type,
