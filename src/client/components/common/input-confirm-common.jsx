@@ -69,12 +69,10 @@ export default function InputConfirmCommon ({
   const inputElement = <InputComponent {...childProps} />
 
   return (
-    <div>
-      <Space.Compact className={cls}>
-        {beforeAddon}
-        {inputElement}
-        {afterAddon}
-      </Space.Compact>
-    </div>
+    <Space.Compact className={cls}>
+      {beforeAddon}
+      {inputElement}
+      {afterAddon}
+    </Space.Compact>
   )
 }

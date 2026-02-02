@@ -6,10 +6,10 @@ import {
   MoonOutlined
 } from '@ant-design/icons'
 import message from '../common/message'
+import { notification } from '../common/notification'
 import {
   Select,
   Switch,
-  Alert,
   Button,
   Table,
   Space,
@@ -42,8 +42,6 @@ const e = window.translate
 export default class SettingCommon extends Component {
   state = {
     ready: false,
-    languageChanged: false,
-    passwordChanged: false,
     submittingPass: false,
     passInputFocused: false,
     placeholderLogin: window.pre.requireAuth ? '********' : e('notSet'),
@@ -82,7 +80,6 @@ export default class SettingCommon extends Component {
       this.setState({
         loginPass: pass ? '********' : '',
         submittingPass: false,
-        passwordChanged: true,
         placeholderLogin: pass ? '********' : e('notSet')
       }, () => {
         this.submitting = false
@@ -121,10 +118,6 @@ export default class SettingCommon extends Component {
     })
   }
 
-  handleRestart = () => {
-    window.location.reload()
-  }
-
   handleResetAll = () => {
     this.saveConfig(
       deepCopy(defaultSettings)
@@ -137,12 +130,23 @@ export default class SettingCommon extends Component {
     })
   }
 
-  handleChangeLang = language => {
-    this.setState({
-      languageChanged: true
-    })
-    return this.saveConfig({
+  handleChangeLang = async language => {
+    await this.saveConfig({
       language
+    })
+    notification.info({
+      message: (
+        <div>
+          {e('saveLang')}
+          <Button
+            onClick={() => window.location.reload()}
+            className='mg1l'
+            size='small'
+          >
+            {e('restartNow')}
+          </Button>
+        </div>
+      )
     })
   }
 
@@ -195,30 +199,6 @@ export default class SettingCommon extends Component {
           onChange={v => this.onChangeValue(v, name)}
         />
         {isNumber(extra) ? null : extra}
-      </div>
-    )
-  }
-
-  renderRestart = (name) => {
-    if (!this.state[name]) {
-      return null
-    }
-    return (
-      <div className='pd1t'>
-        <Alert
-          message={
-            <div>
-              {e('saveLang')}
-              <Button
-                onClick={this.handleRestart}
-                className='mg1l'
-              >
-                {e('restartNow')}
-              </Button>
-            </div>
-          }
-          type='success'
-        />
       </div>
     )
   }
@@ -296,7 +276,7 @@ export default class SettingCommon extends Component {
     }
     return (
       <div className='pd2b'>
-        <Space.Compact block>
+        <Space.Compact className='width-100'>
           <InputConfirm
             value={value}
             onChange={onChange}
@@ -592,7 +572,6 @@ export default class SettingCommon extends Component {
           </Select>
           <Link className='mg1l' to={createEditLangLink(language)}>{e('edit')}</Link>
         </div>
-        {this.renderRestart('languageChanged')}
         <div className='pd1b'>{e('default')} {e('execWindows')}</div>
         {
           this.renderTextExec('execWindows')
