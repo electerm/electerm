@@ -239,12 +239,21 @@ class Term extends Component {
             type: 'shell_integration',
             execute: async () => {
               await this.injectShellIntegration()
+              if (currSftpFollow) {
+                this.attachAddon._sendData('\r')
+              }
             }
           })
         } else {
           // No active queue, inject directly
-          this.injectShellIntegration()
+          this.injectShellIntegration().then(() => {
+            if (currSftpFollow) {
+              this.attachAddon._sendData('\r')
+            }
+          })
         }
+      } else if (this.shellInjected && currSftpFollow) {
+        this.getCwd()
       }
     }
     if (
