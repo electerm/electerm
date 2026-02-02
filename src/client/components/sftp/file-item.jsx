@@ -74,6 +74,7 @@ export default class FileSection extends React.Component {
   }
 
   componentWillUnmount () {
+    filesRef.remove(this.id)
     clearTimeout(this.timer)
     this.timer = null
     this.domRef = null
@@ -82,7 +83,6 @@ export default class FileSection extends React.Component {
   }
 
   clearRef = () => {
-    filesRef.remove(this.id)
     refs.remove(this.id)
   }
 
