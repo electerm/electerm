@@ -1112,7 +1112,7 @@ export default class FileSection extends React.Component {
       <div className='sftp-item'>
         <Input
           value={nameTemp}
-          addonBefore={pre}
+          prefix={pre}
           onChange={this.handleChange}
           onBlur={this.handleBlur}
           onPressEnter={this.handleBlur}

@@ -235,7 +235,7 @@ export default function TerminalBackgroundConfig ({
             options={dataSource.map(renderBgOption)}
           >
             <Input
-              addonAfter={after}
+              suffix={after}
             />
           </AutoComplete>
         </Tooltip>

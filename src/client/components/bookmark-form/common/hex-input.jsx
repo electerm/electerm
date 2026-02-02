@@ -17,6 +17,11 @@ export const HexInput = (props) => {
     return <CheckOutlined className='pointer' onClick={submit} />
   }
   return (
-    <Input addonBefore='#' {...props} value={v} onChange={handleChange} addonAfter={renderAfter()} />
+    <Input
+      prefix='#' {...props}
+      value={v}
+      onChange={handleChange}
+      suffix={renderAfter()}
+    />
   )
 }

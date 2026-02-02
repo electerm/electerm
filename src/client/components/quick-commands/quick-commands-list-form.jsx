@@ -29,14 +29,16 @@ export default function renderQm () {
           name={[field.name, 'delay']}
           required
         >
-          <InputNumber
-            min={1}
-            step={1}
-            max={65535}
-            addonBefore={e('delay')}
-            placeholder={100}
-            className='compact-input'
-          />
+          <Space.Compact>
+            <Space.Addon>{e('delay')}</Space.Addon>
+            <InputNumber
+              min={1}
+              step={1}
+              max={65535}
+              placeholder={100}
+              className='compact-input'
+            />
+          </Space.Compact>
         </FormItem>
         <FormItem
           label=''
@@ -44,20 +46,21 @@ export default function renderQm () {
           required
           className='mg2x'
         >
-          <Input.TextArea
-            autoSize={{ minRows: 1 }}
-            placeholder={e('quickCommand')}
-            className='compact-input qm-input'
-            onFocus={() => {
-              focused.current = i
-            }}
-          />
+          <Space.Compact>
+            <Input.TextArea
+              autoSize={{ minRows: 1 }}
+              placeholder={e('quickCommand')}
+              className='compact-input qm-input'
+              onFocus={() => {
+                focused.current = i
+              }}
+            />
+            <Button
+              icon={<MinusCircleOutlined />}
+              onClick={() => remove(field.name)}
+            />
+          </Space.Compact>
         </FormItem>
-        <Button
-          icon={<MinusCircleOutlined />}
-          onClick={() => remove(field.name)}
-          className='mg24b'
-        />
       </Space>
     )
   }

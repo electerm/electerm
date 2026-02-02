@@ -11,7 +11,8 @@ import {
   Button,
   AutoComplete,
   Tooltip,
-  Flex
+  Flex,
+  Space
 } from 'antd'
 import deepCopy from 'json-deep-copy'
 import {
@@ -176,23 +177,25 @@ export default class SettingTerminal extends Component {
           <Button
             onClick={this.handleChooseFolder}
             className='mg1r'
+            type='text'
             size='small'
           >
             {e('chooseFolder')}
           </Button>
           <Button
             size='small'
+            type='text'
             onClick={() => this.handleLogChange('')}
           >
             {e('reset')}
           </Button>
         </>
       ),
+      prefix: e('terminalLogPath'),
       addonBefore: (
-        <>
-          <span className='mg1r'>{e('terminalLogPath')}</span>
+        <Space.Addon>
           <ShowItem to={path} />
-        </>
+        </Space.Addon>
       )
     }
     return (
@@ -340,7 +343,7 @@ export default class SettingTerminal extends Component {
               options={dataSource.map(this.renderBgOption)}
             >
               <InputConfirm
-                extraAddonAfter={after}
+                addonAfter={after}
               />
             </AutoComplete>
           </Tooltip>

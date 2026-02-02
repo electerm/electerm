@@ -37,11 +37,11 @@ export default function KeywordFilter ({ keyword, type, updateKeyword }) {
   const inputProps = {
     value: text,
     onChange: handleInputChange,
-    addonBefore: <FilterOutlined />,
+    prefix: <FilterOutlined />,
     onKeyPress: handleKeyPress,
     placeholder: e('keyword'),
     className: 'keyword-filter-input',
-    addonAfter: <CheckOutlined onClick={applyFilter} />
+    suffix: <CheckOutlined onClick={applyFilter} />
   }
 
   const tooltipContent = (

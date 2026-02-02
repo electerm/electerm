@@ -570,8 +570,8 @@ export default class ItemListTree extends Component {
         value={categoryTitle}
         onChange={this.handleChangeEdit}
         onPressEnter={this.handleSubmitEdit}
-        addonBefore={colorPicker}
-        addonAfter={confirm}
+        prefix={colorPicker}
+        suffix={confirm}
       />
     )
   }
@@ -757,8 +757,8 @@ export default class ItemListTree extends Component {
           value={bookmarkGroupTitle}
           onPressEnter={this.handleSubmit}
           onChange={this.handleChangeBookmarkGroupTitle}
-          addonBefore={colorPicker}
-          addonAfter={confirm}
+          prefix={colorPicker}
+          suffix={confirm}
           onBlur={this.handleBlurBookmarkGroupTitle}
         />
       </div>

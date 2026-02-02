@@ -268,7 +268,6 @@ export default function renderSshTunnels (props) {
               <InputNumber
                 min={1}
                 max={65535}
-                // addonBefore={e('localPort')}
                 placeholder={e('port')}
               />
             </FormItem>

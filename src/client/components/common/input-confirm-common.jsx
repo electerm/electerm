@@ -7,8 +7,8 @@ export default function InputConfirmCommon ({
   value,
   onChange,
   inputComponent: InputComponent,
-  iconPlacement = 'addonAfter', // 'addonAfter', 'suffix', or 'below'
-  extraAddonAfter,
+  addonBefore,
+  addonAfter,
   ...rest
 }) {
   const [localValue, setLocalValue] = useState(value)
@@ -50,10 +50,11 @@ export default function InputConfirmCommon ({
     : null
   const { className, ...restProps } = rest
   const cls = className ? `${className} input-confirm` : 'input-confirm'
-  const finalAddon = extraAddonAfter || icons
+  const beforeAddon = addonBefore || null
+  const afterAddon = addonAfter || icons
     ? (
       <Space.Addon>
-        {extraAddonAfter}
+        {addonAfter}
         {icons}
       </Space.Addon>
       )
@@ -70,8 +71,9 @@ export default function InputConfirmCommon ({
   return (
     <div>
       <Space.Compact className={cls}>
+        {beforeAddon}
         {inputElement}
-        {finalAddon}
+        {afterAddon}
       </Space.Compact>
     </div>
   )

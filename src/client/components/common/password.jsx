@@ -49,9 +49,6 @@ export default forwardRef(function Password (props, ref) {
     }
   }, [props.onBlur])
 
-  // Keep addonBefore as-is from props; must be null when caps lock is off
-  const addonBefore = props.addonBefore ?? null
-
   // Show caps lock indicator inside prefix to avoid remounting the input wrapper
   let capsPrefix = null
   if (isCapsLockOn) {
@@ -75,7 +72,6 @@ export default forwardRef(function Password (props, ref) {
     <Input.Password
       {...props}
       ref={ref}
-      addonBefore={addonBefore}
       prefix={prefix}
       onKeyDown={handleKeyEvent}
       onKeyUp={handleKeyEvent}

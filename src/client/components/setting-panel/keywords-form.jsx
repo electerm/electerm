@@ -55,16 +55,17 @@ export default function KeywordForm (props) {
             name={[field.name, 'keyword']}
             rules={[{ validator: checker }]}
           >
-            <InputConfirm
-              addonBefore={renderBefore(field.name)}
-            />
+            <Space.Compact>
+              <InputConfirm
+                addonBefore={renderBefore(field.name)}
+              />
+              <Button
+                icon={<MinusCircleOutlined />}
+                onClick={() => remove(field.name)}
+              />
+            </Space.Compact>
           </FormItem>
         </FormItem>
-        <Button
-          icon={<MinusCircleOutlined />}
-          onClick={() => remove(field.name)}
-          className='mg24b'
-        />
       </Space>
     )
   }

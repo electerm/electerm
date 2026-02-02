@@ -201,7 +201,7 @@ export default class ShortcutEdit extends PureComponent {
     return (
       <div className={this.getCls()}>
         <Input
-          addonAfter={this.renderAfter()}
+          suffix={this.renderAfter()}
           value={shortcut}
           className='shortcut-input'
         />

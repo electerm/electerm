@@ -101,7 +101,7 @@ export default auto(function AddrBookmark (props) {
       placement='bottom'
       trigger='click'
     >
-      <StarOutlined />
+      <StarOutlined className={props.className || ''} />
     </Popover>
   )
 })

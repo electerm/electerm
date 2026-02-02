@@ -90,7 +90,7 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
         )
         break
       case 'colorTitle':
-        control = <InputAutoFocus addonBefore={<ColorPickerItem />} {...item.props} />
+        control = <InputAutoFocus prefix={<ColorPickerItem />} {...item.props} />
         break
       case 'password':
         control = <Password {...item.props} />

@@ -86,7 +86,7 @@ export default function Login () {
               readOnly={loading}
               onChange={handlePassChange}
               placeholder={e('password')}
-              addonAfter={renderAfter()}
+              suffix={renderAfter()}
               onPressEnter={handleSubmit}
             />
           </div>

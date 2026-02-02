@@ -206,9 +206,8 @@ export default class TermSearch extends PureComponent {
       value: termSearch,
       className: 'iblock',
       onChange: this.handleChange,
-      suffix: this.renderSuffix(),
+      suffix: <>{this.renderSuffix()} {this.renderAfter()}</>,
       onPressEnter: this.next,
-      addonAfter: this.renderAfter(),
       selectall: true
     }
     return (

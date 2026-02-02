@@ -66,6 +66,7 @@ function renderAddonBefore (props, realPath) {
         realPath={realPath}
         host={host}
         type={type}
+        className='mg1r'
         onClickHistory={props.onClickHistory}
       />
     </>
@@ -134,11 +135,11 @@ export default function AddressBar (props) {
           value={path}
           onChange={e => props.onChange(e, n)}
           onPressEnter={e => props.onGoto(type, e)}
-          addonBefore={renderAddonBefore(props, realPath)}
+          prefix={renderAddonBefore(props, realPath)}
           onFocus={() => props.onInputFocus(type)}
           onBlur={() => props.onInputBlur(type)}
           disabled={loadingSftp}
-          addonAfter={
+          suffix={
             renderAddonAfter(isLoadingRemote, onGoto, GoIcon, type)
           }
         />

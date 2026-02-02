@@ -165,7 +165,7 @@ export default function SimpleEditor (props) {
           enterButton={<SearchOutlined />}
           onSearch={handleSearch}
           onPressEnter={handleSearch}
-          addonAfter={renderAfter()}
+          suffix={renderAfter()}
           style={{ width: 'auto' }}
         />
         <Button

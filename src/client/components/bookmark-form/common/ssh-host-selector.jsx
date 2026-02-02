@@ -53,7 +53,7 @@ export default function SshHostSelector ({ ips = [], useIp, form, onBlur, onPast
           name='host'
           onBlur={props.onBlur}
           onPaste={e => onPaste(e, form)}
-          addonBefore={<ColorPickerItem />}
+          prefix={<ColorPickerItem />}
         />
       </FormItem>
     </FormItem>

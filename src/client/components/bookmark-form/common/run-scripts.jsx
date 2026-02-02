@@ -25,14 +25,16 @@ export default function renderRunScripts () {
             name={[field.name, 'delay']}
             required
           >
-            <InputNumber
-              min={1}
-              step={1}
-              max={65535}
-              addonBefore={e('loginScriptDelay')}
-              rules={[{ required: true, message: e('loginScriptDelay') + ' required' }]}
-              className='compact-input'
-            />
+            <Space.Compact>
+              <Space.Addon>{e('loginScriptDelay')}</Space.Addon>
+              <InputNumber
+                min={1}
+                step={1}
+                max={65535}
+                rules={[{ required: true, message: e('loginScriptDelay') + ' required' }]}
+                className='compact-input'
+              />
+            </Space.Compact>
           </FormItem>
           <FormItem
             label=''

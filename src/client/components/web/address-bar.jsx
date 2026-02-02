@@ -33,12 +33,12 @@ export default function AddressBar (props) {
         <Input
           value={url}
           onClick={handleClick}
-          addonBefore={
+          prefix={
             <ReloadOutlined
               onClick={onReload}
             />
           }
-          addonAfter={
+          suffix={
             <GlobalOutlined
               onClick={onOpen}
             />

@@ -442,7 +442,7 @@ export default class SettingCommon extends Component {
       onFocus: this.handleLoginPassFocus,
       onBlur: this.handleLoginPassBlur,
       onChange: this.handleChangeLoginPass,
-      addonAfter: this.renderLoginPassAfter(),
+      suffix: this.renderLoginPassAfter(),
       placeholder: placeholderLogin
     }
     return (
