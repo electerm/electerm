@@ -37,7 +37,7 @@ describe('bookmark groups', function () {
       return window.store.bookmarkGroups.length
     })
     await delay(200)
-    await client.click('.setting-wrap .ant-input-group-addon .anticon-check')
+    await client.click('.setting-wrap .ant-input-suffix .anticon-check')
     await delay(1200)
     const bookmarkGroupsCount = await client.evaluate(() => {
       return window.store.bookmarkGroups.length
