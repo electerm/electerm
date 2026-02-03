@@ -39,9 +39,15 @@
   right 0
   top 112px
   bottom 0
-  overflow-y scroll
-  .item-list-wrap
-    overflow-y hidden
+  overflow hidden
+  display flex
+  flex-direction column
+  .sidebar-inner
+    flex 1
+    display flex
+    flex-direction column
+    overflow hidden
+    min-height 0
 .not-system-ui.is-mac
   .sidebar-bar
     margin-top 20px

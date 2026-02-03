@@ -72,16 +72,20 @@ export default function AddBtnMenu ({
       <DragHandle
         {...dragProps}
       />
-      <div
-        className={cls}
-        onClick={onNewSsh}
-      >
-        <CodeFilled /> {e('newBookmark')}
+      <div className='add-menu-header'>
+        <div
+          className={cls}
+          onClick={onNewSsh}
+        >
+          <CodeFilled /> {e('newBookmark')}
+        </div>
+        {addTabBtn}
       </div>
-      {addTabBtn}
-      <BookmarksList
-        store={window.store}
-      />
+      <div className='add-menu-list'>
+        <BookmarksList
+          store={window.store}
+        />
+      </div>
     </div>
   )
 }

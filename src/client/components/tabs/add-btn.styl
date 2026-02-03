@@ -8,10 +8,20 @@
   box-shadow 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--main-darker)
   min-width 300px
   max-width 600px
-  overflow-y auto
+  overflow hidden
   margin-top 4px
   padding 4px 15px
+  display flex
+  flex-direction column
   .drag-handle
     right 3px
     display block
+  .add-menu-header
+    flex-shrink 0
+  .add-menu-list
+    flex 1
+    overflow hidden
+    display flex
+    flex-direction column
+    min-height 0
 

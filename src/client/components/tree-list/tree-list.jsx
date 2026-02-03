@@ -849,14 +849,16 @@ export default class ItemListTree extends Component {
       : []
     return (
       <div className={`tree-list item-type-${type}`}>
-        {
-          staticList
-            ? null
-            : this.renderNewButtons()
-        }
-        {
-          this.renderSearch()
-        }
+        <div className='tree-list-header'>
+          {
+            staticList
+              ? null
+              : this.renderNewButtons()
+          }
+          {
+            this.renderSearch()
+          }
+        </div>
         <div className='item-list-wrap' style={listStyle}>
           {this.renderNewCat({ id: '' })}
           {level1Bookgroups.map(this.renderGroup)}

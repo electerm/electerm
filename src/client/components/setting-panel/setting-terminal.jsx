@@ -540,7 +540,7 @@ export default class SettingTerminal extends Component {
             <Flex flex='auto'>{this.renderFontFamily()}</Flex>
           </Flex>
         </div>
-        <div className='pd2b'>
+        <div>
           <div className='pd1b'>
             <span className='inline-title mg1r'>{e('keywordsHighlight')}</span>
             <HelpIcon
