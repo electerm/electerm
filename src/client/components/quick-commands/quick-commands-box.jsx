@@ -23,7 +23,7 @@ const { Option } = Select
 
 export default function QuickCommandsFooterBox (props) {
   const [keyword, setKeyword] = useState('')
-  const [labels, setLabels] = useState(ls.getItemJSON(quickCommandLabelsLsKey, []))
+  const [label, setLabel] = useState(ls.getItem(quickCommandLabelsLsKey, ''))
   const timer = useRef(null)
 
   function handleMouseLeave () {
@@ -68,8 +68,8 @@ export default function QuickCommandsFooterBox (props) {
   }
 
   function handleChangeLabels (v) {
-    ls.setItemJSON(quickCommandLabelsLsKey, v)
-    setLabels(v)
+    ls.setItem(quickCommandLabelsLsKey, v || '')
+    setLabel(v)
   }
 
   // function filterFunc (v, opt) {
@@ -132,10 +132,10 @@ export default function QuickCommandsFooterBox (props) {
     )
   }
 
-  function filterArray (array, keyword, labels) {
+  function filterArray (array, keyword, label) {
     return array.filter(obj => {
       const nameMatches = !keyword || obj.name.toLowerCase().includes(keyword)
-      const labelMatches = !labels.length || labels.some((label) => (obj.labels || []).includes(label))
+      const labelMatches = !label || (obj.labels || []).includes(label)
       return nameMatches && labelMatches
     })
   }
@@ -156,16 +156,16 @@ export default function QuickCommandsFooterBox (props) {
     return renderNoCmd()
   }
   const keyword0 = keyword.toLowerCase()
-  const filtered = filterArray(all, keyword0, labels)
+  const filtered = filterArray(all, keyword0, label)
   const sorted = qmSortByFrequency
     ? sortBy(filtered, (obj) => -(obj.clickCount || 0))
     : filtered
   const sprops = {
-    value: labels,
-    mode: 'multiple',
+    value: label,
     onChange: handleChangeLabels,
     placeholder: e('labels'),
-    className: 'qm-label-select'
+    className: 'qm-label-select',
+    allowClear: true
   }
   const tp = pinnedQuickCommandBar
     ? 'primary'
