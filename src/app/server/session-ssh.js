@@ -134,6 +134,9 @@ class TerminalSshBase extends TerminalBase {
       this.jumpPrivateKeyPathFrom = p
       hoppingOptions.privateKey = await this.catPrivateKeyInJumpServer(conn, p)
       this.jumpSshKeys = list
+    } else {
+      // No private keys found in jump server, mark as drained so we can prompt for password
+      hoppingOptions.sshKeysDrain = true
     }
   }
 
@@ -150,7 +153,7 @@ class TerminalSshBase extends TerminalBase {
         return this.nextConn
       })
       .catch(err => {
-        log.error('error when do jump connect', err, this.nextHost, this.nextPort)
+        log.error('error when do jump connect', this.nextHost, this.nextPort)
         if (err.message.includes('passphrase')) {
           const options = {
             name: `passphase for ${this.jumpHostFrom}/${this.jumpPrivateKeyPathFrom}`,
