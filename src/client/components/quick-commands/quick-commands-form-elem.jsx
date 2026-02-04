@@ -106,7 +106,6 @@ export default function QuickCommandForm (props) {
     return `{{${t}}}`
   }).join(', ')
   const wiki = 'https://github.com/electerm/electerm/wiki/quick-command-templates'
-  console.log('render quick command form', initialValues)
   return (
     <>
       <Form

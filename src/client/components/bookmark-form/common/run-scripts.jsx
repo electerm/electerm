@@ -17,42 +17,44 @@ export default function renderRunScripts () {
     return (
       <>
         <Space
-          align='center'
+          align='baseline'
+          block
           key={field.key}
         >
           <FormItem
             label=''
             name={[field.name, 'delay']}
             required
+            noStyle
           >
-            <Space.Compact>
-              <Space.Addon>{e('loginScriptDelay')}</Space.Addon>
-              <InputNumber
-                min={1}
-                step={1}
-                max={65535}
-                rules={[{ required: true, message: e('loginScriptDelay') + ' required' }]}
-                className='compact-input'
-              />
-            </Space.Compact>
-          </FormItem>
-          <FormItem
-            label=''
-            name={[field.name, 'script']}
-            required
-            className='mg2x'
-          >
-            <Input.TextArea
-              autoSize={{ minRows: 1 }}
-              placeholder={e('loginScript')}
-              className='compact-input'
+            <InputNumber
+              min={1}
+              step={1}
+              prefix={e('loginScriptDelay')}
+              suffix='ms'
+              max={65535}
+              className='number-input'
+              rules={[{ required: true, message: e('loginScriptDelay') + ' required' }]}
             />
           </FormItem>
-          <Button
-            icon={<MinusCircleOutlined />}
-            onClick={() => remove(field.name)}
-            className='mg24b'
-          />
+          <Space.Compact>
+            <FormItem
+              label=''
+              name={[field.name, 'script']}
+              required
+              noStyle
+            >
+              <Input.TextArea
+                autoSize={{ minRows: 1 }}
+                placeholder={e('loginScript')}
+              />
+            </FormItem>
+            <Button
+              icon={<MinusCircleOutlined />}
+              onClick={() => remove(field.name)}
+              className='mg24b'
+            />
+          </Space.Compact>
         </Space>
       </>
     )
