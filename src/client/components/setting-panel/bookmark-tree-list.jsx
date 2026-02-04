@@ -1,10 +1,10 @@
 import TreeList from '../tree-list/tree-list'
-import BookmarkTreeDelete from '../bookmark-form/tree-delete'
+import BookmarkTreeSelect from '../bookmark-form/tree-select'
 
 export default function BookmarkTreeList (props) {
   return props.bookmarkSelectMode
     ? (
-      <BookmarkTreeDelete
+      <BookmarkTreeSelect
         {...props}
       />
       )

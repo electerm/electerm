@@ -2,17 +2,19 @@
  * bookmark select
  */
 
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import BookmarkWrap from './bookmark'
 import History from './history'
 import { Tabs, Tooltip } from 'antd'
+import MultiSelectModal from '../common/multi-select-modal'
 import {
   ArrowsAltOutlined,
   EditOutlined,
   PlusCircleOutlined,
   ShrinkOutlined,
   PushpinOutlined,
-  UnorderedListOutlined
+  UnorderedListOutlined,
+  SelectOutlined
 } from '@ant-design/icons'
 
 const e = window.translate
@@ -20,6 +22,7 @@ const e = window.translate
 export default memo(function SidebarPanel (props) {
   const { sidebarPanelTab, pinned } = props
   const { store } = window
+  const [openSelectModal, setOpenSelectModal] = useState(false)
   const prps = {
     className: 'font16 mg1x mg2l pointer iblock control-icon'
   }
@@ -81,6 +84,12 @@ export default memo(function SidebarPanel (props) {
         <ShrinkOutlined
           {...pop3}
         />
+      </Tooltip>,
+      <Tooltip title={e('open') + ' ' + e('bookmarks')} key='multi'>
+        <SelectOutlined
+          {...prps}
+          onClick={() => setOpenSelectModal(true)}
+        />
       </Tooltip>
     ]
   }
@@ -119,6 +128,10 @@ export default memo(function SidebarPanel (props) {
           ? <BookmarkWrap {...props} />
           : <History store={store} />
       }
+      <MultiSelectModal
+        open={openSelectModal}
+        onClose={() => setOpenSelectModal(false)}
+      />
     </div>
   )
 })

@@ -71,28 +71,42 @@ function buildData (bookmarks, bookmarkGroups) {
   return level1
 }
 
-export default function BookmarkTreeDelete (props) {
-  const { expandedKeys, checkedKeys, bookmarks, bookmarkGroups } = props
+export default function BookmarkTreeSelect (props) {
+  const { expandedKeys: propExpandedKeys, checkedKeys: propCheckedKeys, bookmarks, bookmarkGroups, type = 'delete', onCheck: propOnCheck, onExpand: propOnExpand } = props
 
-  const onExpand = (expandedKeys) => {
+  const expandedKeys = propExpandedKeys !== undefined ? propExpandedKeys : window.store.expandedKeys
+  const checkedKeys = propCheckedKeys !== undefined ? propCheckedKeys : window.store.checkedKeys
+
+  const onExpand = propOnExpand || ((expandedKeys) => {
     window.store.expandedKeys = deepCopy(expandedKeys)
-  }
+  })
 
-  const onCheck = (checkedKeys) => {
+  const onCheck = propOnCheck || ((checkedKeys) => {
     window.store.checkedKeys = deepCopy(checkedKeys)
-  }
+  })
 
-  const handleDel = () => {
+  const handleOperation = () => {
     const { store } = window
     const arr = checkedKeys.filter(d => d !== defaultBookmarkGroupId)
-    store.delItems(arr, settingMap.bookmarks)
-    store.delItems(arr, settingMap.bookmarkGroups)
+    if (type === 'delete') {
+      store.delItems(arr, settingMap.bookmarks)
+      store.delItems(arr, settingMap.bookmarkGroups)
+    } else {
+      store.openBookmarks(arr)
+      if (props.onClose) {
+        props.onClose()
+      }
+    }
     store.checkedKeys = []
   }
 
   const handleCancel = () => {
     const { store } = window
-    store.bookmarkSelectMode = false
+    if (props.onClose) {
+      props.onClose()
+    } else {
+      store.bookmarkSelectMode = false
+    }
     store.checkedKeys = []
   }
 
@@ -109,13 +123,13 @@ export default function BookmarkTreeDelete (props) {
   return (
     <div>
       <div className='pd2'>
-        <Space.Compact>
+        <Space.Compact className='mg2b'>
           <Button
             type='primary'
             disabled={!len}
-            onClick={handleDel}
+            onClick={handleOperation}
           >
-            {e('delSelected')} ({len})
+            {type === 'delete' ? e('delSelected') : e('open')} ({len})
           </Button>
           <Button
             onClick={handleCancel}

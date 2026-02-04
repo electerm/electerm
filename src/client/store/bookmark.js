@@ -19,6 +19,13 @@ export default Store => {
     return window.store.setItems('bookmarks', items)
   }
 
+  Store.prototype.openBookmarks = function (ids) {
+    const { store } = window
+    ids.forEach(id => {
+      store.onSelectBookmark(id)
+    })
+  }
+
   Store.prototype.addSshConfigs = function (items) {
     const { store } = window
 
