@@ -3,11 +3,9 @@ import {
   InputNumber,
   Space,
   Button,
-  Input,
-  Tag
+  Input
 } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
-import { formItemLayout } from '../../common/form-layout'
 import HelpIcon from '../common/help-icon'
 import { copy } from '../../common/clipboard'
 import { useRef } from 'react'
@@ -19,49 +17,51 @@ const e = window.translate
 export default function renderQm () {
   const focused = useRef(0)
   function renderItem (field, i, add, remove) {
+    console.log('render item', field, i)
     return (
-      <Space
+      <Space.Compact
         align='center'
+        block
         key={field.key}
+        className='mg2b'
       >
+        <Space.Addon>{e('delay')}</Space.Addon>
         <FormItem
           label=''
           name={[field.name, 'delay']}
           required
+          noStyle
         >
-          <Space.Compact>
-            <Space.Addon>{e('delay')}</Space.Addon>
-            <InputNumber
-              min={1}
-              step={1}
-              max={65535}
-              placeholder={100}
-              className='compact-input'
-            />
-          </Space.Compact>
+          <InputNumber
+            min={1}
+            step={1}
+            max={65535}
+            placeholder={100}
+            className='compact-input'
+            suffix='ms'
+          />
         </FormItem>
         <FormItem
           label=''
           name={[field.name, 'command']}
           required
           className='mg2x'
+          noStyle
         >
-          <Space.Compact>
-            <Input.TextArea
-              autoSize={{ minRows: 1 }}
-              placeholder={e('quickCommand')}
-              className='compact-input qm-input'
-              onFocus={() => {
-                focused.current = i
-              }}
-            />
-            <Button
-              icon={<MinusCircleOutlined />}
-              onClick={() => remove(field.name)}
-            />
-          </Space.Compact>
+          <Input.TextArea
+            autoSize={{ minRows: 1 }}
+            placeholder={e('quickCommand')}
+            className='compact-input qm-input'
+            onFocus={() => {
+              focused.current = i
+            }}
+          />
         </FormItem>
-      </Space>
+        <Button
+          icon={<MinusCircleOutlined />}
+          onClick={() => remove(field.name)}
+        />
+      </Space.Compact>
     )
   }
   const commonCmds = [
@@ -89,28 +89,29 @@ export default function renderQm () {
 
   const cmds = commonCmds.map(c => {
     return (
-      <Tag
+      <Button
         title={c.desc}
-        variant='solid'
+        type='text'
         key={c.cmd}
+        size='small'
         onClick={() => {
           copy(c.cmd)
         }}
       >
         <b className='pointer'>{c.cmd}</b>
-      </Tag>
+      </Button>
     )
   })
   const label = (
     <div>
-      {e('commonCommands')}
+      {e('quickCommands')}
       <HelpIcon
         title={cmds}
       />
     </div>
   )
   return (
-    <FormItem {...formItemLayout} label={label}>
+    <FormItem label={label}>
       <FormList
         name='commands'
       >
@@ -127,7 +128,6 @@ export default function renderQm () {
                   <Button
                     type='dashed'
                     onClick={() => add()}
-                    block
                     icon={<PlusOutlined />}
                   >
                     {e('quickCommand')}
