@@ -34,6 +34,12 @@ export default function InputConfirmCommon ({
     setIsEditing(false)
   }
 
+  function handleBlur () {
+    if (isEditing) {
+      handleConfirm()
+    }
+  }
+
   const icons = isEditing
     ? (
       <>
@@ -63,7 +69,8 @@ export default function InputConfirmCommon ({
   const childProps = {
     ...restProps,
     value: localValue,
-    onChange: handleChange
+    onChange: handleChange,
+    onBlur: handleBlur
   }
 
   const inputElement = <InputComponent {...childProps} />
