@@ -25,6 +25,15 @@ exports.createApp = async function () {
   if (process.platform === 'linux' || process.env.DISABLE_HARDWARE_ACCELERATION) {
     app.disableHardwareAcceleration()
   }
+  if (process.env.DISABLE_GPU_SANDBOX) {
+    app.disableHardwareAcceleration()
+    app.commandLine.appendSwitch('--disable-gpu')
+    app.commandLine.appendSwitch('--disable-gpu-compositing')
+    app.commandLine.appendSwitch('--disable-gpu-rasterization')
+    app.commandLine.appendSwitch('--disable-gpu-sandbox')
+    app.commandLine.appendSwitch('--disable-software-rasterizer')
+    app.commandLine.appendSwitch('--use-gl', 'swiftshader')
+  }
   // Handle proxy-related command-line arguments
   if (process.env.NO_PROXY_SERVER) {
     app.commandLine.appendSwitch('no-proxy-server')
