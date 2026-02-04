@@ -399,7 +399,11 @@ class Tab extends Component {
   }
 
   render () {
-    const { isLast, tab, currentBatchTabId } = this.props
+    const {
+      isLast,
+      tab,
+      currentBatchTabId
+    } = this.props
     const {
       id,
       isEditting,
@@ -411,10 +415,12 @@ class Tab extends Component {
       terminalOnData
     } = this.state
     const active = id === currentBatchTabId
+    const activeAll = id === window.store.activeTabId
     const cls = classnames(
       `tab-${id}`,
       'tab',
       { active },
+      { 'active-all': activeAll },
       {
         'tab-last': isLast
       },
