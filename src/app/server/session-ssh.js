@@ -74,6 +74,17 @@ class TerminalSshBase extends TerminalBase {
     if (this.initOptions.interactiveValues) {
       return Promise.resolve(this.initOptions.interactiveValues.split('\n'))
     }
+    // Auto-fill password prompt if we have a saved password
+    const { prompts } = options
+    if (prompts && prompts.length === 1 && this.initOptions.password) {
+      const prompt = prompts[0]
+      const promptText = (prompt.prompt || '').toLowerCase()
+      // Check if this is a password prompt (hidden input, contains "password" or is empty)
+      if (!prompt.echo && (promptText.includes('password') || promptText === '')) {
+        return Promise.resolve([this.initOptions.password])
+      }
+    }
+
     const id = generate()
     this.ws?.s({
       id,
@@ -539,7 +550,8 @@ class TerminalSshBase extends TerminalBase {
         'host',
         'port',
         'username',
-        'password',
+        // Don't include password here - use keyboard-interactive instead
+        // This avoids PAM state corruption on 2FA servers
         'privateKey',
         'passphrase',
         'certificate'
@@ -547,9 +559,6 @@ class TerminalSshBase extends TerminalBase {
     )
     if (initOptions.debug) {
       connectOptions.debug = log.log
-    }
-    if (!connectOptions.password) {
-      delete connectOptions.password
     }
     if (!connectOptions.passphrase) {
       delete connectOptions.passphrase
