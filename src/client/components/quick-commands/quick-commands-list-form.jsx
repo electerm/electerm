@@ -17,7 +17,6 @@ const e = window.translate
 export default function renderQm () {
   const focused = useRef(0)
   function renderItem (field, i, add, remove) {
-    console.log('render item', field, i)
     return (
       <Space.Compact
         align='center'
