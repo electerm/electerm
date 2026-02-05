@@ -645,73 +645,75 @@ class TerminalSshBase extends TerminalBase {
       })
       : undefined
     const skipX11 = !!initOptions.connectionHoppings?.length
-    await this.doSshConnect(
+    const result = await this.doSshConnect(
       info,
       undefined,
       undefined,
       skipX11
-    ).catch(err => {
-      log.error('error when do sshConnect', err, this.privateKeyPath)
-      if (
-        err.message.includes(csFailMsg) &&
-        !this.altAlg
-      ) {
-        return this.reTryAltAlg()
-      } else if (err.message.includes('passphrase')) {
-        const options = {
-          name: `passphase for ${this.privateKeyPath || 'privateKey'}`,
-          instructions: [''],
-          prompts: [{
-            echo: false,
-            prompt: 'passphase'
-          }]
-        }
-        return this.onKeyboardEvent(options)
-          .then(data => {
-            const pass = data ? data[0] : ''
-            if (pass) {
-              this.connectOptions.passphrase = data[0]
-              this.sshKeys && this.sshKeys.unshift(this.privateKeyPath)
-            }
-            return this.nextTry(err, !!pass)
-          })
-          .catch(e => {
-            log.error('errored get passphrase for', this.privateKeyPath, e)
-            return this.nextTry(err)
-          })
-      } else if (
-        this.sshKeys &&
-        err.message.includes(failMsg)
-      ) {
-        return this.nextTry(err)
-      } else if (
-        err.message.includes(failMsg)
-      ) {
-        const options = {
-          name: `password for ${this.initOptions.username}@${this.initOptions.host}`,
-          instructions: [''],
-          prompts: [{
-            echo: false,
-            prompt: 'password'
-          }]
-        }
-        return this.onKeyboardEvent(options)
-          .then(data => {
-            if (data && data[0]) {
-              this.connectOptions.password = data[0]
-              return this.sshConnect()
-            } else if (data && data[0] === '') {
-              throw err
-            }
-          })
-          .catch(err => {
-            log.error('errored get password for', err)
-            throw err
-          })
+    ).catch(err => err)
+    if (!(result instanceof Error)) {
+      return this.onInitSshReady()
+    }
+    const err = result
+    log.error('error when do sshConnect', err, this.privateKeyPath)
+    if (
+      err.message.includes(csFailMsg) &&
+      !this.altAlg
+    ) {
+      return this.reTryAltAlg()
+    } else if (err.message.includes('passphrase')) {
+      const options = {
+        name: `passphase for ${this.privateKeyPath || 'privateKey'}`,
+        instructions: [''],
+        prompts: [{
+          echo: false,
+          prompt: 'passphase'
+        }]
       }
+      return this.onKeyboardEvent(options)
+        .then(data => {
+          const pass = data ? data[0] : ''
+          if (pass) {
+            this.connectOptions.passphrase = data[0]
+            this.sshKeys && this.sshKeys.unshift(this.privateKeyPath)
+          }
+          return this.nextTry(err, !!pass)
+        })
+        .catch(e => {
+          log.error('errored get passphrase for', this.privateKeyPath, e)
+          return this.nextTry(err)
+        })
+    } else if (
+      this.sshKeys &&
+      err.message.includes(failMsg)
+    ) {
       return this.nextTry(err)
-    })
-    return this.onInitSshReady()
+    } else if (
+      err.message.includes(failMsg)
+    ) {
+      const options = {
+        name: `password for ${this.initOptions.username}@${this.initOptions.host}`,
+        instructions: [''],
+        prompts: [{
+          echo: false,
+          prompt: 'password'
+        }]
+      }
+      return this.onKeyboardEvent(options)
+        .then(data => {
+          if (data && data[0]) {
+            this.connectOptions.password = data[0]
+            return this.sshConnect()
+          } else if (data && data[0] === '') {
+            throw err
+          }
+        })
+        .catch(err => {
+          log.error('errored get password for', err)
+          throw err
+        })
+    }
+    return this.nextTry(err)
   }
 
   nextTry (err, forceRetry = false) {
