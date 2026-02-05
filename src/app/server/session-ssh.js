@@ -689,6 +689,12 @@ class TerminalSshBase extends TerminalBase {
     ) {
       return this.nextTry(err)
     } else if (
+      !this.connectOptions.password &&
+      this.initOptions.password
+    ) {
+      this.connectOptions.password = this.initOptions.password
+      return this.sshConnect()
+    } else if (
       err.message.includes(failMsg)
     ) {
       const options = {
