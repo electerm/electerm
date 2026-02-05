@@ -151,8 +151,23 @@ class TerminalSshBase extends TerminalBase {
     }
   }
 
-  retryJump () {
-    return this.doSshConnect(
+  handleKeyboardEventForRetryJump (options) {
+    return this.onKeyboardEvent(options)
+      .then(data => {
+        if (data && data[0]) {
+          this.hoppingOptions.passphrase = data[0]
+          this.jumpSshKeys && this.jumpSshKeys.unshift(this.jumpPrivateKeyPathFrom)
+        }
+        return this.jumpConnect(true, true)
+      })
+      .catch(e => {
+        log.error('errored get passphrase for', this.jumpHostFrom, this.jumpPrivateKeyPathFrom, e)
+        return this.jumpConnect(true, false)
+      })
+  }
+
+  async retryJump () {
+    const next = await this.doSshConnect(
       undefined,
       this.nextConn,
       this.hoppingOptions,
@@ -163,74 +178,68 @@ class TerminalSshBase extends TerminalBase {
         this.jumpPortFrom = this.initHoppingOptions.port
         return this.nextConn
       })
-      .catch(err => {
-        log.error('error when do jump connect', this.nextHost, this.nextPort)
-        if (err.message.includes('passphrase')) {
-          const options = {
-            name: `passphase for ${this.jumpHostFrom}/${this.jumpPrivateKeyPathFrom}`,
-            instructions: [''],
-            prompts: [{
-              echo: false,
-              prompt: 'passphase'
-            }]
+      .catch(err => err)
+
+    const isError = next instanceof Error
+    if (!isError) {
+      return next
+    }
+    const err = next
+    log.error('error when do jump connect', this.nextHost, this.nextPort)
+    if (err.message.includes('passphrase')) {
+      const options = {
+        name: `passphase for ${this.jumpHostFrom}/${this.jumpPrivateKeyPathFrom}`,
+        instructions: [''],
+        prompts: [{
+          echo: false,
+          prompt: 'passphase'
+        }]
+      }
+      return this.handleKeyboardEventForRetryJump(options)
+    } else if (
+      !this.jumpSshKeys &&
+      !this.hoppingOptions.sshKeysDrain &&
+      !this.hoppingOptions.password &&
+      !this.hoppingOptions.privateKey &&
+      err.message.includes(failMsg)
+    ) {
+      // SSH agent failed or no agent, try reading private keys from jump server
+      // This will read ~/.ssh keys and retry
+      return this.jumpConnect(true, false)
+    } else if (
+      this.hoppingOptions.sshKeysDrain &&
+      !this.hoppingOptions.password &&
+      err.message.includes(failMsg)
+    ) {
+      // All private keys exhausted, ask for password
+      const options = {
+        name: `password for ${this.hoppingOptions.username}@${this.initHoppingOptions.host}`,
+        instructions: [''],
+        prompts: [{
+          echo: false,
+          prompt: 'password'
+        }]
+      }
+      return this.onKeyboardEvent(options)
+        .then(data => {
+          if (data && data[0]) {
+            this.hoppingOptions.password = data[0]
+            return this.jumpConnect(true, true)
+          } else if (data && data[0] === '') {
+            throw err
           }
-          return this.onKeyboardEvent(options)
-            .then(data => {
-              if (data && data[0]) {
-                this.hoppingOptions.passphrase = data[0]
-                this.jumpSshKeys && this.jumpSshKeys.unshift(this.jumpPrivateKeyPathFrom)
-              }
-              return this.jumpConnect(true, true)
-            })
-            .catch(e => {
-              log.error('errored get passphrase for', this.jumpHostFrom, this.jumpPrivateKeyPathFrom, e)
-              return this.jumpConnect(true, false)
-            })
-        } else if (
-          !this.jumpSshKeys &&
-          !this.hoppingOptions.sshKeysDrain &&
-          !this.hoppingOptions.password &&
-          !this.hoppingOptions.privateKey &&
-          err.message.includes(failMsg)
-        ) {
-          // SSH agent failed or no agent, try reading private keys from jump server
-          // This will read ~/.ssh keys and retry
-          return this.jumpConnect(true, false)
-        } else if (
-          this.hoppingOptions.sshKeysDrain &&
-          !this.hoppingOptions.password &&
-          err.message.includes(failMsg)
-        ) {
-          // All private keys exhausted, ask for password
-          const options = {
-            name: `password for ${this.hoppingOptions.username}@${this.initHoppingOptions.host}`,
-            instructions: [''],
-            prompts: [{
-              echo: false,
-              prompt: 'password'
-            }]
-          }
-          return this.onKeyboardEvent(options)
-            .then(data => {
-              if (data && data[0]) {
-                this.hoppingOptions.password = data[0]
-                return this.jumpConnect(true, true)
-              } else if (data && data[0] === '') {
-                throw err
-              }
-            })
-            .catch(err => {
-              log.error('errored get password for', err)
-              throw err
-            })
-        } else if (
-          this.jumpSshKeys
-        ) {
-          return this.jumpConnect(true, false)
-        } else {
+        })
+        .catch(err => {
+          log.error('errored get password for', err)
           throw err
-        }
-      })
+        })
+    } else if (
+      this.jumpSshKeys
+    ) {
+      return this.jumpConnect(true, false)
+    } else {
+      throw err
+    }
   }
 
   async jumpConnect (reBuildSock = false, skipReadKeys = false) {
@@ -311,6 +320,25 @@ class TerminalSshBase extends TerminalBase {
     }
   }
 
+  async runTunnel (sshTunnel) {
+    return sshTunnelFuncs[sshTunnel.sshTunnel]({
+      ...sshTunnel,
+      conn: this.conn
+    })
+      .then(r => {
+        return {
+          sshTunnel
+        }
+      })
+      .catch(err => {
+        log.error('error when do sshTunnel', err)
+        return {
+          error: err.message,
+          sshTunnel
+        }
+      })
+  }
+
   async onInitSshReady () {
     const {
       initOptions,
@@ -338,22 +366,7 @@ class TerminalSshBase extends TerminalBase {
         sshTunnel.sshTunnel &&
         sshTunnel.sshTunnelLocalPort
       ) {
-        const result = await sshTunnelFuncs[sshTunnel.sshTunnel]({
-          ...sshTunnel,
-          conn: this.conn
-        })
-          .then(r => {
-            return {
-              sshTunnel
-            }
-          })
-          .catch(err => {
-            log.error('error when do sshTunnel', err)
-            return {
-              error: err.message,
-              sshTunnel
-            }
-          })
+        const result = await this.runTunnel(sshTunnel)
         sshTunnelResults.push(result)
       }
     }
