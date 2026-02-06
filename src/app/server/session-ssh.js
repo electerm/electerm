@@ -570,6 +570,9 @@ class TerminalSshBase extends TerminalBase {
         'certificate'
       ])
     )
+    if (initOptions.encode) {
+      connectOptions.sftpEncoding = initOptions.encode
+    }
     if (initOptions.debug) {
       connectOptions.debug = log.log
     }
