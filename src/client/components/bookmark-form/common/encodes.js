@@ -1,6 +1,7 @@
 export default [
   'utf-8',
   'gbk',
+  'gb2312',
   'gb18030',
   'hz-gb-2312',
   'big5',
