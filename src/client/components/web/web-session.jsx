@@ -1,5 +1,5 @@
 import AddressBar from './address-bar'
-// import React, { useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 
 export default function WebSession (props) {
   const {
@@ -8,6 +8,8 @@ export default function WebSession (props) {
     height,
     reloadTab
   } = props
+  const [zoom, setZoom] = useState(1.0)
+  const webviewRef = useRef(null)
   const urlRegex = /^[a-z\d.+-]+:\/\/[^\s/$.?#].[^\s]*$/i
 
   const { url = '' } = tab
@@ -15,6 +17,8 @@ export default function WebSession (props) {
     url,
     title: tab.title,
     description: tab.description,
+    zoom,
+    onZoom: handleZoom,
     onOpen: () => {
       window.openLink(tab.url)
     },
@@ -22,6 +26,19 @@ export default function WebSession (props) {
       reloadTab(
         tab
       )
+    }
+  }
+
+  function handleZoom (v) {
+    setZoom(v)
+    const el = webviewRef.current
+    if (!el) {
+      return
+    }
+    if (el.setZoomFactor) {
+      el.setZoomFactor(v)
+    } else {
+      el.style.zoom = v
     }
   }
 
@@ -64,7 +81,7 @@ export default function WebSession (props) {
         }
       }
       return (
-        <iframe {...iframeProps} />
+        <iframe {...iframeProps} ref={webviewRef} />
       )
     }
     const viewProps = {
@@ -79,7 +96,7 @@ export default function WebSession (props) {
       useragent: tab.useragent || 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
     }
     return (
-      <webview {...viewProps} />
+      <webview {...viewProps} ref={webviewRef} />
     )
   }
 
