@@ -22,12 +22,12 @@ export default function createTitle (res, hide = true) {
     return ''
   }
   const {
-    host, port, username, title, type,
+    host, port, username, title, type, url,
     path, connectionHoppings, sshTunnels
   } = res
   const h = hide && window.store.config.hideIP ? maskHost(host) : host
   const fixTitle = `${username || ''}@${h}:${port}`
-  const extra = host || path ? (path || fixTitle) : ''
+  const extra = host || path ? (path || fixTitle) : (url || '')
   let f = title
     ? `${title}` + (extra ? ` - ${extra}` : '')
     : extra
