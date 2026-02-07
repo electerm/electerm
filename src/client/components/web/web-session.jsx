@@ -1,5 +1,6 @@
 import AddressBar from './address-bar'
-import React, { useState, useRef } from 'react'
+import WebAuthModal from './web-auth-modal'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 
 export default function WebSession (props) {
   const {
@@ -9,6 +10,7 @@ export default function WebSession (props) {
     reloadTab
   } = props
   const [zoom, setZoom] = useState(1.0)
+  const [authRequest, setAuthRequest] = useState(null)
   const webviewRef = useRef(null)
   const urlRegex = /^[a-z\d.+-]+:\/\/[^\s/$.?#].[^\s]*$/i
 
@@ -41,6 +43,37 @@ export default function WebSession (props) {
       el.style.zoom = v
     }
   }
+
+  // Handle HTTP Basic Auth requests from webview
+  useEffect(() => {
+    if (!window.api || !window.api.onWebviewAuthRequest) {
+      return
+    }
+    const removeListener = window.api.onWebviewAuthRequest((data) => {
+      setAuthRequest(data)
+    })
+    return removeListener
+  }, [])
+
+  const handleAuthSubmit = useCallback((username, password) => {
+    if (!authRequest) return
+    window.api.sendWebviewAuthResponse({
+      id: authRequest.id,
+      username,
+      password
+    })
+    setAuthRequest(null)
+  }, [authRequest])
+
+  const handleAuthCancel = useCallback(() => {
+    if (!authRequest) return
+    window.api.sendWebviewAuthResponse({
+      id: authRequest.id,
+      username: '',
+      password: ''
+    })
+    setAuthRequest(null)
+  }, [authRequest])
 
   // TODO: 支持自定义Header和Cookie
   // useEffect(() => {
@@ -108,6 +141,11 @@ export default function WebSession (props) {
       <div className='pd1'>
         {renderView()}
       </div>
+      <WebAuthModal
+        authRequest={authRequest}
+        onAuthSubmit={handleAuthSubmit}
+        onAuthCancel={handleAuthCancel}
+      />
     </div>
   )
 }

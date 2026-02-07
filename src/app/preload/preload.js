@@ -39,6 +39,14 @@ contextBridge.exposeInMainWorld(
     },
     sendMcpResponse: (response) => {
       ipcRenderer.send('mcp-response', response)
+    },
+    onWebviewAuthRequest: (cb) => {
+      const handler = (event, data) => cb(data)
+      ipcRenderer.on('webview-auth-request', handler)
+      return () => ipcRenderer.removeListener('webview-auth-request', handler)
+    },
+    sendWebviewAuthResponse: (response) => {
+      ipcRenderer.send('webview-auth-response', response)
     }
   }
 )
