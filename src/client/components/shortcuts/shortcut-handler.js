@@ -3,6 +3,88 @@ import shortcutsDefaultsGen from './shortcuts-defaults.js'
 import {
   isMacJs
 } from '../../common/constants'
+import keyControlPressed from '../../common/key-control-pressed.js'
+
+function sendInputData (ctx, data, opts = {}) {
+  if (!data) return
+  const { splitChars = false } = opts
+  if (ctx.attachAddon && ctx.attachAddon._sendData) {
+    ctx.attachAddon._sendData(data)
+  }
+  if (!ctx.onData) return
+  if (splitChars) {
+    for (const ch of data) {
+      ctx.onData(ch)
+    }
+    return
+  }
+  ctx.onData(data)
+}
+
+function getSelectionReplaceInfo (term) {
+  if (!term || !term.hasSelection()) return null
+  if (term.buffer?.active?.type === 'alternate') return null
+  const getPos = term.getSelectionPosition?.bind(term)
+  if (!getPos) return null
+  const pos = getPos()
+  if (!pos || !pos.start || !pos.end) return null
+  const buffer = term.buffer.active
+  const cursorY = buffer.cursorY
+  if (pos.start.y !== cursorY || pos.end.y !== cursorY) return null
+  const startX = Math.min(pos.start.x, pos.end.x)
+  const endX = Math.max(pos.start.x, pos.end.x)
+  if (startX === endX) return null
+  return {
+    startX,
+    endX,
+    cursorX: buffer.cursorX
+  }
+}
+
+export function handleTerminalSelectionReplace (event, ctx) {
+  if (
+    !ctx.term ||
+    !ctx.term.hasSelection() ||
+    keyControlPressed(event)
+  ) {
+    return false
+  }
+  const { key } = event
+  const isBackspace = key === 'Backspace'
+  const isDelete = key === 'Delete'
+  const isPrintable = key && key.length === 1
+  if (!isBackspace && !isDelete && !isPrintable) return false
+
+  if (event && event.preventDefault) {
+    event.preventDefault()
+  }
+  if (event && event.stopPropagation) {
+    event.stopPropagation()
+  }
+
+  const info = getSelectionReplaceInfo(ctx.term)
+  if (!info) return false
+
+  const { startX, endX, cursorX } = info
+  const move = startX - cursorX
+  if (move > 0) {
+    sendInputData(ctx, '\x1b[C'.repeat(move))
+  } else if (move < 0) {
+    sendInputData(ctx, '\x1b[D'.repeat(-move))
+  }
+
+  const delCount = endX - startX
+  if (delCount > 0) {
+    sendInputData(ctx, '\x1b[3~'.repeat(delCount))
+  }
+
+  if (isPrintable) {
+    sendInputData(ctx, key, { splitChars: true })
+  }
+
+  ctx.term.clearSelection()
+  return true
+}
 
 function buildConfig (config, filter = d => d) {
   const defs = shortcutsDefaultsGen().filter(filter)
@@ -64,6 +146,9 @@ export function shortcutExtend (Cls) {
     } = event
     if (isInAntdInput()) {
       return
+    }
+    if (handleTerminalSelectionReplace(event, this)) {
+      return false
     }
     if (
       this.term &&
