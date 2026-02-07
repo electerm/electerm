@@ -5,20 +5,19 @@ import {
 } from '../../common/constants'
 import keyControlPressed from '../../common/key-control-pressed.js'
 
-function sendInputData (ctx, data, opts = {}) {
+function sendInputData (ctx, data) {
   if (!data) return
-  const { splitChars = false } = opts
   if (ctx.attachAddon && ctx.attachAddon._sendData) {
     ctx.attachAddon._sendData(data)
   }
-  if (!ctx.onData) return
-  if (splitChars) {
-    for (const ch of data) {
-      ctx.onData(ch)
-    }
-    return
-  }
-  ctx.onData(data)
+  // if (!ctx.onData) return
+  // if (splitChars) {
+  //   for (const ch of data) {
+  //     ctx.onData(ch)
+  //   }
+  //   return
+  // }
+  // ctx.onData(data)
 }
 
 function getSelectionReplaceInfo (term) {
@@ -79,7 +78,7 @@ export function handleTerminalSelectionReplace (event, ctx) {
   }
 
   if (isPrintable) {
-    sendInputData(ctx, key, { splitChars: true })
+    sendInputData(ctx, key)
   }
 
   ctx.term.clearSelection()

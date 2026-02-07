@@ -971,64 +971,69 @@ class Term extends Component {
       ?.openSuggestions(cursorPos, data)
   }
 
+  /**
+   * Read current input directly from terminal buffer
+   * This is more reliable than tracking character-by-character
+   */
   getCurrentInput = () => {
-    return this.currentInput
+    if (!this.term) return ''
+
+    const buffer = this.term.buffer.active
+    const cursorY = buffer.cursorY
+    const cursorX = buffer.cursorX
+
+    // Get the current line from buffer (baseY + cursorY gives absolute position)
+    const absoluteY = buffer.baseY + cursorY
+    const line = buffer.getLine(absoluteY)
+    if (!line) return ''
+
+    // Get text from start of line up to cursor position
+    const lineText = line.translateToString(true, 0, cursorX)
+
+    // Try to extract command after prompt
+    // Common prompt endings with trailing space
+    const promptEndings = ['$ ', '# ', '> ', '% ', '] ', ') ']
+
+    let commandStart = 0
+    for (const ending of promptEndings) {
+      const idx = lineText.lastIndexOf(ending)
+      if (idx !== -1 && idx + ending.length > commandStart) {
+        commandStart = idx + ending.length
+      }
+    }
+
+    return lineText.slice(commandStart)
   }
 
   setCurrentInput = (value) => {
     this.currentInput = value
   }
 
-  updateCurrentInput = (d) => {
-    // Handle backspace (both \x7f and \b)
-    if (d === '\x7f' || d === '\b') {
-      this.currentInput = this.currentInput.slice(0, -1)
-      return
-    }
-    // Handle Ctrl+U (clear line)
-    if (d === '\x15') {
-      this.currentInput = ''
-      return
-    }
-    // Handle Ctrl+W (delete word)
-    if (d === '\x17') {
-      this.currentInput = this.currentInput.replace(/\S*\s*$/, '')
-      return
-    }
-    // Handle Ctrl+C (cancel)
-    if (d === '\x03') {
-      this.currentInput = ''
-      return
-    }
-    // Handle Enter
+  /**
+   * Handle special input events for command history tracking
+   * The actual input reading is done via getCurrentInput from buffer
+   */
+  handleInputEvent = (d) => {
+    // Handle Enter - add command to history
     if (d === '\r' || d === '\n') {
-      // Add to manual command history if shell integration is not available
-      if (this.currentInput.trim() && this.shouldUseManualHistory()) {
-        this.manualCommandHistory.add(this.currentInput.trim())
-        // Also add to global history for suggestions
-        window.store.addCmdHistory(this.currentInput.trim())
+      const currentCmd = this.getCurrentInput()
+      if (currentCmd && currentCmd.trim() && this.shouldUseManualHistory()) {
+        this.manualCommandHistory.add(currentCmd.trim())
+        window.store.addCmdHistory(currentCmd.trim())
       }
-      this.currentInput = ''
-      return
     }
-    // Handle Escape and other control characters
-    if (d.charCodeAt(0) < 32 && d !== '\t') {
-      return
-    }
-    // Handle arrow keys and other escape sequences
-    if (d.startsWith('\x1b')) {
-      return
-    }
-    // Regular character input - append to buffer
-    this.currentInput += d
   }
 
   onData = (d) => {
-    this.updateCurrentInput(d)
-    const data = this.getCurrentInput()
-    if (this.props.config.showCmdSuggestions && data) {
-      const cursorPos = this.getCursorPosition()
-      this.openSuggestions(cursorPos, data)
+    this.handleInputEvent(d)
+    if (this.props.config.showCmdSuggestions) {
+      const data = this.getCurrentInput()
+      if (data) {
+        const cursorPos = this.getCursorPosition()
+        this.openSuggestions(cursorPos, data)
+      } else {
+        this.closeSuggestions()
+      }
     } else {
       this.closeSuggestions()
     }
