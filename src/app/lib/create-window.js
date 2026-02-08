@@ -19,6 +19,7 @@ const getPort = require('./get-port')
 const globalState = require('./glob-state')
 const net = require('net')
 const generateErrorHtml = require('./error-page')
+const webviewHandler = require('./webview-handler')
 
 exports.createWindow = async function (userConfig) {
   globalState.set('closeAction', 'closeApp')
@@ -55,6 +56,8 @@ exports.createWindow = async function (userConfig) {
   }
 
   win.webContents.session.setSpellCheckerDictionaryDownloadURL('https://00.00/')
+
+  webviewHandler.init(win)
 
   globalState.set('win', win)
 
