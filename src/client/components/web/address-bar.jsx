@@ -62,6 +62,7 @@ export default function AddressBar (props) {
               <GlobalOutlined
                 className='pointer'
                 onClick={onOpen}
+                title={window.translate('openInDefaultBrowser')}
               />
               <Dropdown
                 menu={{ items }}

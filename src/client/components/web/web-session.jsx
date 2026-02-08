@@ -121,7 +121,8 @@ export default function WebSession (props) {
       src: url,
       style: {
         width: (width - 10) + 'px',
-        height: (height + hOffset) + 'px'
+        height: (height + hOffset) + 'px',
+        background: '#fff'
       },
       disableblinkfeatures: 'true',
       disablewebsecurity: 'true',

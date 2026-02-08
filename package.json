@@ -98,7 +98,7 @@
     "zmodem-ts": "1.0.6"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "2.1.60",
+    "@electerm/electerm-locales": "2.1.61",
     "@electerm/electerm-themes": "^1.0.1",
     "@electerm/nedb": "1.8.0",
     "@electerm/rdpjs": "^1.0.0",
