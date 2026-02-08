@@ -1,6 +1,5 @@
 const {
-  BrowserWindow,
-  ipcMain
+  BrowserWindow
 } = require('electron')
 const { resolve } = require('path')
 const {
@@ -20,6 +19,7 @@ const getPort = require('./get-port')
 const globalState = require('./glob-state')
 const net = require('net')
 const generateErrorHtml = require('./error-page')
+const webviewHandler = require('./webview-handler')
 
 exports.createWindow = async function (userConfig) {
   globalState.set('closeAction', 'closeApp')
@@ -57,34 +57,7 @@ exports.createWindow = async function (userConfig) {
 
   win.webContents.session.setSpellCheckerDictionaryDownloadURL('https://00.00/')
 
-  // Handle HTTP Basic Auth for webview tags
-  let authRequestId = 0
-  win.webContents.on('did-attach-webview', (event, webviewWebContents) => {
-    webviewWebContents.on('login', (loginEvent, authenticationResponseDetails, authInfo, callback) => {
-      loginEvent.preventDefault()
-      const id = ++authRequestId
-      const requestData = {
-        id,
-        url: authenticationResponseDetails.url,
-        host: authInfo.host,
-        port: authInfo.port,
-        realm: authInfo.realm,
-        scheme: authInfo.scheme,
-        isProxy: authInfo.isProxy
-      }
-      win.webContents.send('webview-auth-request', requestData)
-      const handler = (evt, response) => {
-        if (response.id !== id) return
-        ipcMain.removeListener('webview-auth-response', handler)
-        if (response.username && response.password) {
-          callback(response.username, response.password)
-        } else {
-          callback()
-        }
-      }
-      ipcMain.on('webview-auth-response', handler)
-    })
-  })
+  webviewHandler.init(win)
 
   globalState.set('win', win)
 
