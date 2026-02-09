@@ -102,7 +102,7 @@
     "@electerm/electerm-themes": "^1.0.1",
     "@electerm/nedb": "1.8.0",
     "@electerm/rdpjs": "^1.0.0",
-    "@electerm/ssh2": "1.18.2",
+    "@electerm/ssh2": "1.19.0",
     "@electerm/strip-ansi": "1.0.0",
     "axios": "1.12.2",
     "basic-ftp": "^5.0.5",
