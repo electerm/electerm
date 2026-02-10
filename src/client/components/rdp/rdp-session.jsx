@@ -8,10 +8,8 @@ import {
 } from '../../common/constants'
 import {
   Spin,
-  // Button,
   Select
 } from 'antd'
-import { notification } from '../common/notification'
 import {
   ReloadOutlined,
   EditOutlined
@@ -22,6 +20,25 @@ import resolutions from './resolutions'
 
 const { Option } = Select
 
+// IronRDP WASM module imports — loaded dynamically
+async function loadWasmModule () {
+  if (window.ironRdp) return
+  console.debug('[RDP-CLIENT] Loading IronRDP WASM module...')
+  const mod = await import('ironrdp-wasm')
+  window.ironRdp = {
+    wasmInit: mod.default,
+    wasmSetup: mod.setup,
+    SessionBuilder: mod.SessionBuilder,
+    DesktopSize: mod.DesktopSize,
+    InputTransaction: mod.InputTransaction,
+    DeviceEvent: mod.DeviceEvent,
+    Extension: mod.Extension
+  }
+  await window.ironRdp.wasmInit()
+  window.ironRdp.wasmSetup('info')
+  console.debug('[RDP-CLIENT] IronRDP WASM module loaded and initialized')
+}
+
 export default class RdpSession extends PureComponent {
   constructor (props) {
     const id = `rdp-reso-${props.tab.host}`
@@ -30,10 +47,9 @@ export default class RdpSession extends PureComponent {
     this.canvasRef = createRef()
     this.state = {
       loading: false,
-      bitmapProps: {},
-      aspectRatio: 4 / 3,
       ...resObj
     }
+    this.session = null
   }
 
   componentDidMount () {
@@ -41,13 +57,23 @@ export default class RdpSession extends PureComponent {
   }
 
   componentWillUnmount () {
-    this.socket && this.socket.close()
-    delete this.socket
+    this.cleanup()
   }
 
-  runInitScript = () => {
-
+  cleanup = () => {
+    console.debug('[RDP-CLIENT] cleanup() called')
+    if (this.session) {
+      try {
+        this.session.shutdown()
+        console.debug('[RDP-CLIENT] session.shutdown() called')
+      } catch (e) {
+        console.debug('[RDP-CLIENT] session.shutdown() error:', e)
+      }
+      this.session = null
+    }
   }
+
+  runInitScript = () => {}
 
   setStatus = status => {
     const id = this.props.tab?.id
@@ -56,7 +82,7 @@ export default class RdpSession extends PureComponent {
     })
   }
 
-  remoteInit = async (term = this.term) => {
+  remoteInit = async () => {
     this.setState({
       loading: true
     })
@@ -80,235 +106,277 @@ export default class RdpSession extends PureComponent {
       termType: type,
       ...tab
     })
+
+    console.debug('[RDP-CLIENT] Creating RDP session term, host=', tab.host, 'port=', tab.port)
     const r = await createTerm(opts)
       .catch(err => {
         const text = err.message
         handleErr({ message: text })
       })
-    this.setState({
-      loading: false
-    })
     if (!r) {
+      this.setState({ loading: false })
       this.setStatus(statusMap.error)
+      console.error('[RDP-CLIENT] createTerm failed')
       return
     }
-    this.setStatus(statusMap.success)
+
     const {
       pid, port
     } = r
     this.pid = pid
+    console.debug('[RDP-CLIENT] Term created, pid=', pid, 'port=', port)
+
+    // Build the WebSocket proxy address for IronRDP WASM
     const hs = server
       ? server.replace(/https?:\/\//, '')
       : `${host}:${port}`
     const pre = server.startsWith('https') ? 'wss' : 'ws'
     const { width, height } = this.state
-    const wsUrl = `${pre}://${hs}/rdp/${pid}?&token=${tokenElecterm}&width=${width}&height=${height}`
-    const socket = new WebSocket(wsUrl)
-    socket.onclose = this.oncloseSocket
-    socket.onerror = this.onerrorSocket
-    this.socket = socket
-    socket.onopen = this.runInitScript
-    socket.onmessage = this.onData
-  }
+    // IronRDP connects to the proxy address, which then proxies via RDCleanPath
+    // The WebSocket URL includes the pid and token for auth
+    const proxyAddress = `${pre}://${hs}/rdp/${pid}?token=${tokenElecterm}&width=${width}&height=${height}`
+    console.debug('[RDP-CLIENT] Proxy address:', proxyAddress)
 
-  decompress = (bitmap) => {
-    let fName = null
-    switch (bitmap.bitsPerPixel) {
-      case 15:
-        fName = 'bitmap_decompress_15'
-        break
-      case 16:
-        fName = 'bitmap_decompress_16'
-        break
-      case 24:
-        fName = 'bitmap_decompress_24'
-        break
-      case 32:
-        fName = 'bitmap_decompress_32'
-        break
-      default:
-        throw new Error('invalid bitmap data format')
+    // Load WASM module if not already loaded
+    try {
+      await loadWasmModule()
+    } catch (e) {
+      console.error('[RDP-CLIENT] Failed to load WASM module:', e)
+      this.setState({ loading: false })
+      this.setStatus(statusMap.error)
+      return
     }
-    const rle = window.Module
-    const input = new Uint8Array(bitmap.data.data)
-    const inputPtr = rle._malloc(input.length)
-    const inputHeap = new Uint8Array(rle.HEAPU8.buffer, inputPtr, input.length)
-    inputHeap.set(input)
 
-    const outputWidth = bitmap.destRight - bitmap.destLeft + 1
-    const outputHeight = bitmap.destBottom - bitmap.destTop + 1
-    const ouputSize = outputWidth * outputHeight * 4
-    const outputPtr = rle._malloc(ouputSize)
+    this.setStatus(statusMap.success)
 
-    const outputHeap = new Uint8Array(rle.HEAPU8.buffer, outputPtr, ouputSize)
-
-    rle.ccall(fName,
-      'number',
-      ['number', 'number', 'number', 'number', 'number', 'number', 'number', 'number'],
-      [outputHeap.byteOffset, outputWidth, outputHeight, bitmap.width, bitmap.height, inputHeap.byteOffset, input.length]
-    )
-
-    const output = new Uint8ClampedArray(outputHeap.buffer, outputHeap.byteOffset, ouputSize)
-
-    rle._free(inputPtr)
-    rle._free(outputPtr)
-
-    return { width: outputWidth, height: outputHeight, arr: output }
-  }
-
-  output = (data) => {
-    if (!data.isCompress) {
-      return {
-        width: data.width,
-        height: data.height,
-        arr: new Uint8ClampedArray(data.data)
+    // Connect using IronRDP SessionBuilder
+    try {
+      const canvas = this.canvasRef.current
+      if (!canvas) {
+        console.error('[RDP-CLIENT] Canvas ref not available')
+        this.setState({ loading: false })
+        return
       }
-    }
-    return this.decompress(data)
-  }
 
-  getButtonCode (button) {
-    if (button === 0) {
-      return 1
-    } else if (button === 2) {
-      return 2
-    } else {
-      return 0
-    }
-  }
+      const rdpHost = tab.host
+      const rdpPort = tab.port || 3389
+      const destination = `${rdpHost}:${rdpPort}`
+      const username = tab.username || ''
+      const password = tab.password || ''
 
-  getKeyCode (event) {
-    const { type, button } = event
-    if (type.startsWith('key')) {
-      return scanCode(event)
-    } else if (type === 'mousemove') {
-      return 0
-    } else {
-      return this.getButtonCode(button)
-    }
-  }
+      console.debug('[RDP-CLIENT] Building IronRDP session...')
+      console.debug('[RDP-CLIENT] destination:', destination)
+      console.debug('[RDP-CLIENT] username:', username)
+      console.debug('[RDP-CLIENT] proxyAddress:', proxyAddress)
+      console.debug('[RDP-CLIENT] desktopSize:', width, 'x', height)
 
-  handleCanvasEvent = e => {
-    const {
-      type,
-      clientX,
-      clientY
-    } = e
-    const {
-      left,
-      top
-    } = e.target.getBoundingClientRect()
-    const x = clientX - left
-    const y = clientY - top
-    const keyCode = this.getKeyCode(e)
-    const action = type.startsWith('key')
-      ? 'sendKeyEventScancode'
-      : type === 'mousewheel'
-        ? 'sendWheelEvent'
-        : 'sendPointerEvent'
-    const pressed = type === 'mousedown' || type === 'keydown'
-    let params = []
-    if (type.startsWith('mouse') || type.startsWith('context')) {
-      params = [x, y, keyCode, pressed]
-    } else if (type === 'wheel') {
-      const isHorizontal = false
-      const delta = isHorizontal ? e.deltaX : e.deltaY
-      const step = Math.round(Math.abs(delta) * 15 / 8)
-      params = [x, y, step, delta > 0, isHorizontal]
-    } else if (type === 'keydown' || type === 'keyup') {
-      params = [keyCode, pressed]
-    }
-    this.socket.send(JSON.stringify({
-      action,
-      params
-    }))
-  }
+      const desktopSize = new window.ironRdp.DesktopSize(width, height)
+      const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', false)
 
-  onData = async (msg) => {
-    let { data } = msg
-    data = JSON.parse(data)
-    if (data.action === 'session-rdp-connected') {
-      return this.setState({
+      const builder = new window.ironRdp.SessionBuilder()
+      builder.username(username)
+      builder.password(password)
+      builder.destination(destination)
+      builder.proxyAddress(proxyAddress)
+      builder.authToken('none')
+      builder.desktopSize(desktopSize)
+      builder.renderCanvas(canvas)
+      builder.extension(enableCredsspExt)
+
+      // Cursor style callback
+      builder.setCursorStyleCallbackContext(canvas)
+      builder.setCursorStyleCallback(function (style) {
+        canvas.style.cursor = style || 'default'
+      })
+
+      console.debug('[RDP-CLIENT] Calling builder.connect()...')
+      this.session = await builder.connect()
+
+      const ds = this.session.desktopSize()
+      console.debug('[RDP-CLIENT] Connected! Desktop:', ds.width, 'x', ds.height)
+
+      // Update canvas size to match actual desktop size
+      canvas.width = ds.width
+      canvas.height = ds.height
+
+      this.setState({
         loading: false
       })
+
+      canvas.focus()
+
+      // Run the session event loop (renders frames, handles protocol)
+      console.debug('[RDP-CLIENT] Starting session.run() event loop')
+      this.session.run().then((info) => {
+        console.debug('[RDP-CLIENT] Session ended:', info.reason())
+        this.onSessionEnd()
+      }).catch((e) => {
+        console.error('[RDP-CLIENT] Session error:', this.formatError(e))
+        this.onSessionEnd()
+      })
+    } catch (e) {
+      console.error('[RDP-CLIENT] Connection failed:', this.formatError(e))
+      this.setState({ loading: false })
+      this.setStatus(statusMap.error)
     }
-    const canvas = this.canvasRef.current
-    const ctx = canvas.getContext('2d')
-    const {
-      width,
-      height,
-      arr
-    } = this.output(data)
-    const imageData = ctx.createImageData(width, height)
-    imageData.data.set(arr)
-    ctx.putImageData(imageData, data.destLeft, data.destTop)
   }
 
-  onerrorSocket = err => {
+  formatError = (e) => {
+    if (e && typeof e === 'object' && '__wbg_ptr' in e) {
+      try {
+        const kindNames = {
+          0: 'General',
+          1: 'WrongPassword',
+          2: 'LogonFailure',
+          3: 'AccessDenied',
+          4: 'RDCleanPath',
+          5: 'ProxyConnect',
+          6: 'NegotiationFailure'
+        }
+        const kind = e.kind ? e.kind() : 'Unknown'
+        const bt = e.backtrace ? e.backtrace() : ''
+        return `[${kindNames[kind] || kind}] ${bt}`
+      } catch (_) {}
+    }
+    return e?.message || e?.toString() || String(e)
+  }
+
+  onSessionEnd = () => {
+    console.debug('[RDP-CLIENT] onSessionEnd called')
+    this.session = null
     this.setStatus(statusMap.error)
-    console.error('socket error', err)
   }
 
-  closeMsg = () => {
-    notification.destroy(this.warningKey)
-  }
+  setupInputHandlers = () => {
+    const canvas = this.canvasRef.current
+    if (!canvas || this._inputHandlersSetup) return
+    this._inputHandlersSetup = true
+    console.debug('[RDP-CLIENT] Setting up input handlers')
 
-  handleClickClose = () => {
-    this.closeMsg()
-    this.handleReInit()
-  }
-
-  handleReInit = () => {
-    this.socket.send(JSON.stringify({
-      action: 'reload',
-      params: [
-        this.state.width,
-        this.state.height
-      ]
-    }))
-    this.setState({
-      loading: true
+    canvas.addEventListener('keydown', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (!this.session) return
+      const scancode = this.getScancode(e.code)
+      if (scancode === null) return
+      try {
+        const event = window.ironRdp.DeviceEvent.keyPressed(scancode)
+        const tx = new window.ironRdp.InputTransaction()
+        tx.addEvent(event)
+        this.session.applyInputs(tx)
+      } catch (err) {
+        console.error('[RDP-CLIENT] Key press error:', err)
+      }
     })
+
+    canvas.addEventListener('keyup', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (!this.session) return
+      const scancode = this.getScancode(e.code)
+      if (scancode === null) return
+      try {
+        const event = window.ironRdp.DeviceEvent.keyReleased(scancode)
+        const tx = new window.ironRdp.InputTransaction()
+        tx.addEvent(event)
+        this.session.applyInputs(tx)
+      } catch (err) {
+        console.error('[RDP-CLIENT] Key release error:', err)
+      }
+    })
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!this.session) return
+      try {
+        const rect = canvas.getBoundingClientRect()
+        const scaleX = canvas.width / rect.width
+        const scaleY = canvas.height / rect.height
+        const x = Math.round((e.clientX - rect.left) * scaleX)
+        const y = Math.round((e.clientY - rect.top) * scaleY)
+        const event = window.ironRdp.DeviceEvent.mouseMove(x, y)
+        const tx = new window.ironRdp.InputTransaction()
+        tx.addEvent(event)
+        this.session.applyInputs(tx)
+      } catch (err) {
+        // suppress frequent mouse errors
+      }
+    })
+
+    canvas.addEventListener('mousedown', (e) => {
+      e.preventDefault()
+      canvas.focus()
+      if (!this.session) return
+      try {
+        const event = window.ironRdp.DeviceEvent.mouseButtonPressed(e.button)
+        const tx = new window.ironRdp.InputTransaction()
+        tx.addEvent(event)
+        this.session.applyInputs(tx)
+      } catch (err) {
+        console.error('[RDP-CLIENT] Mouse down error:', err)
+      }
+    })
+
+    canvas.addEventListener('mouseup', (e) => {
+      e.preventDefault()
+      if (!this.session) return
+      try {
+        const event = window.ironRdp.DeviceEvent.mouseButtonReleased(e.button)
+        const tx = new window.ironRdp.InputTransaction()
+        tx.addEvent(event)
+        this.session.applyInputs(tx)
+      } catch (err) {
+        console.error('[RDP-CLIENT] Mouse up error:', err)
+      }
+    })
+
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault()
+      if (!this.session) return
+      try {
+        if (e.deltaY !== 0) {
+          const amount = e.deltaY > 0 ? -1 : 1
+          const event = window.ironRdp.DeviceEvent.wheelRotations(true, amount, 1)
+          const tx = new window.ironRdp.InputTransaction()
+          tx.addEvent(event)
+          this.session.applyInputs(tx)
+        }
+        if (e.deltaX !== 0) {
+          const amount = e.deltaX > 0 ? -1 : 1
+          const event = window.ironRdp.DeviceEvent.wheelRotations(false, amount, 1)
+          const tx = new window.ironRdp.InputTransaction()
+          tx.addEvent(event)
+          this.session.applyInputs(tx)
+        }
+      } catch (err) {
+        console.error('[RDP-CLIENT] Wheel error:', err)
+      }
+    }, { passive: false })
+
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault())
   }
 
-  handleReload = () => {
-    this.closeMsg()
-    this.props.reloadTab(
-      this.props.tab
-    )
+  // Get PS/2 scancode from keyboard event code using existing code-scan module
+  getScancode = (code) => {
+    const sc = scanCode({ code })
+    return sc !== undefined ? sc : null
   }
 
   handleEditResolutions = () => {
     window.store.toggleResolutionEdit()
   }
 
-  oncloseSocket = () => {
-    // this.setStatus(
-    //   statusMap.error
-    // )
-    // this.warningKey = `open${Date.now()}`
-    // notification.warning({
-    //   key: this.warningKey,
-    //   message: e('socketCloseTip'),
-    //   duration: 30,
-    //   description: (
-    //     <div className='pd2y'>
-    //       <Button
-    //         className='mg1r'
-    //         type='primary'
-    //         onClick={this.handleClickClose}
-    //       >
-    //         {m('close')}
-    //       </Button>
-    //       <Button
-    //         icon={<ReloadOutlined />}
-    //         onClick={this.handleReload}
-    //       >
-    //         {m('reload')}
-    //       </Button>
-    //     </div>
-    //   )
-    // })
+  handleReInit = () => {
+    console.debug('[RDP-CLIENT] handleReInit called')
+    this.cleanup()
+    this.props.reloadTab(
+      this.props.tab
+    )
+  }
+
+  handleReload = () => {
+    this.props.reloadTab(
+      this.props.tab
+    )
   }
 
   getAllRes = () => {
@@ -389,6 +457,11 @@ export default class RdpSession extends PureComponent {
     )
   }
 
+  componentDidUpdate () {
+    // Set up native input handlers after canvas is rendered
+    this.setupInputHandlers()
+  }
+
   render () {
     const { width: w, height: h } = this.props
     const rdpProps = {
@@ -401,13 +474,6 @@ export default class RdpSession extends PureComponent {
     const canvasProps = {
       width,
       height,
-      onMouseDown: this.handleCanvasEvent,
-      onMouseUp: this.handleCanvasEvent,
-      onMouseMove: this.handleCanvasEvent,
-      onKeyDown: this.handleCanvasEvent,
-      onKeyUp: this.handleCanvasEvent,
-      onWheel: this.handleCanvasEvent,
-      onContextMenu: this.handleCanvasEvent,
       tabIndex: 0
     }
     return (
