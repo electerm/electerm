@@ -22,7 +22,6 @@ const {
 class TerminalRdp extends TerminalBase {
   init = async () => {
     globalState.setSession(this.pid, this)
-    log.debug(`[RDP:${this.pid}] Session initialized, host=${this.initOptions.host}, port=${this.initOptions.port}`)
     return Promise.resolve(this)
   }
 
@@ -32,7 +31,6 @@ class TerminalRdp extends TerminalBase {
    * The WASM client will send an RDCleanPath Request as the first message.
    */
   start = async (width, height) => {
-    log.debug(`[RDP:${this.pid}] start() called, width=${width}, height=${height}`)
     if (!this.ws) {
       log.error(`[RDP:${this.pid}] No WebSocket available`)
       return
@@ -40,11 +38,6 @@ class TerminalRdp extends TerminalBase {
     this.width = width
     this.height = height
 
-    // Delegate to the RDCleanPath proxy handler
-    // handleConnection expects a ws-compatible object
-    // It will listen for the first binary message (RDCleanPath Request)
-    // and handle the entire handshake + relay
-    log.debug(`[RDP:${this.pid}] Handing off WebSocket to RDCleanPath proxy handler`)
     handleConnection(this.ws)
   }
 
@@ -60,14 +53,11 @@ class TerminalRdp extends TerminalBase {
       port = 3389
     } = this.initOptions
     return new Promise((resolve, reject) => {
-      log.debug(`[RDP:${this.pid}] Testing TCP connection to ${host}:${port}`)
       const socket = net.createConnection({ host, port }, () => {
-        log.debug(`[RDP:${this.pid}] TCP test connection successful`)
         socket.destroy()
         resolve(true)
       })
       socket.on('error', (err) => {
-        log.error(`[RDP:${this.pid}] TCP test connection failed: ${err.message}`)
         reject(err)
       })
       socket.setTimeout(10000, () => {
@@ -78,7 +68,6 @@ class TerminalRdp extends TerminalBase {
   }
 
   kill = () => {
-    log.debug(`[RDP:${this.pid}] kill() called — closing session`)
     if (this.ws) {
       try {
         this.ws.close()

@@ -1,5 +1,3 @@
-'use strict'
-
 const net = require('net')
 const forge = require('node-forge')
 const log = require('../common/log')

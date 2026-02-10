@@ -21,29 +21,21 @@ import resolutions from './resolutions'
 const { Option } = Select
 
 // IronRDP WASM module imports — loaded dynamically
-let wasmInit = null
-let wasmSetup = null
-let SessionBuilder = null
-let DesktopSize = null
-let InputTransaction = null
-let DeviceEvent = null
-let Extension = null
-let wasmInitialized = false
-
 async function loadWasmModule () {
-  if (wasmInitialized) return
+  if (window.ironRdp) return
   console.debug('[RDP-CLIENT] Loading IronRDP WASM module...')
   const mod = await import('ironrdp-wasm')
-  wasmInit = mod.default
-  wasmSetup = mod.setup
-  SessionBuilder = mod.SessionBuilder
-  DesktopSize = mod.DesktopSize
-  InputTransaction = mod.InputTransaction
-  DeviceEvent = mod.DeviceEvent
-  Extension = mod.Extension
-  await wasmInit()
-  wasmSetup('info')
-  wasmInitialized = true
+  window.ironRdp = {
+    wasmInit: mod.default,
+    wasmSetup: mod.setup,
+    SessionBuilder: mod.SessionBuilder,
+    DesktopSize: mod.DesktopSize,
+    InputTransaction: mod.InputTransaction,
+    DeviceEvent: mod.DeviceEvent,
+    Extension: mod.Extension
+  }
+  await window.ironRdp.wasmInit()
+  window.ironRdp.wasmSetup('info')
   console.debug('[RDP-CLIENT] IronRDP WASM module loaded and initialized')
 }
 
@@ -178,10 +170,10 @@ export default class RdpSession extends PureComponent {
       console.debug('[RDP-CLIENT] proxyAddress:', proxyAddress)
       console.debug('[RDP-CLIENT] desktopSize:', width, 'x', height)
 
-      const desktopSize = new DesktopSize(width, height)
-      const enableCredsspExt = new Extension('enable_credssp', false)
+      const desktopSize = new window.ironRdp.DesktopSize(width, height)
+      const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', false)
 
-      const builder = new SessionBuilder()
+      const builder = new window.ironRdp.SessionBuilder()
       builder.username(username)
       builder.password(password)
       builder.destination(destination)
@@ -268,8 +260,8 @@ export default class RdpSession extends PureComponent {
       const scancode = this.getScancode(e.code)
       if (scancode === null) return
       try {
-        const event = DeviceEvent.keyPressed(scancode)
-        const tx = new InputTransaction()
+        const event = window.ironRdp.DeviceEvent.keyPressed(scancode)
+        const tx = new window.ironRdp.InputTransaction()
         tx.addEvent(event)
         this.session.applyInputs(tx)
       } catch (err) {
@@ -284,8 +276,8 @@ export default class RdpSession extends PureComponent {
       const scancode = this.getScancode(e.code)
       if (scancode === null) return
       try {
-        const event = DeviceEvent.keyReleased(scancode)
-        const tx = new InputTransaction()
+        const event = window.ironRdp.DeviceEvent.keyReleased(scancode)
+        const tx = new window.ironRdp.InputTransaction()
         tx.addEvent(event)
         this.session.applyInputs(tx)
       } catch (err) {
@@ -301,8 +293,8 @@ export default class RdpSession extends PureComponent {
         const scaleY = canvas.height / rect.height
         const x = Math.round((e.clientX - rect.left) * scaleX)
         const y = Math.round((e.clientY - rect.top) * scaleY)
-        const event = DeviceEvent.mouseMove(x, y)
-        const tx = new InputTransaction()
+        const event = window.ironRdp.DeviceEvent.mouseMove(x, y)
+        const tx = new window.ironRdp.InputTransaction()
         tx.addEvent(event)
         this.session.applyInputs(tx)
       } catch (err) {
@@ -315,8 +307,8 @@ export default class RdpSession extends PureComponent {
       canvas.focus()
       if (!this.session) return
       try {
-        const event = DeviceEvent.mouseButtonPressed(e.button)
-        const tx = new InputTransaction()
+        const event = window.ironRdp.DeviceEvent.mouseButtonPressed(e.button)
+        const tx = new window.ironRdp.InputTransaction()
         tx.addEvent(event)
         this.session.applyInputs(tx)
       } catch (err) {
@@ -328,8 +320,8 @@ export default class RdpSession extends PureComponent {
       e.preventDefault()
       if (!this.session) return
       try {
-        const event = DeviceEvent.mouseButtonReleased(e.button)
-        const tx = new InputTransaction()
+        const event = window.ironRdp.DeviceEvent.mouseButtonReleased(e.button)
+        const tx = new window.ironRdp.InputTransaction()
         tx.addEvent(event)
         this.session.applyInputs(tx)
       } catch (err) {
@@ -343,15 +335,15 @@ export default class RdpSession extends PureComponent {
       try {
         if (e.deltaY !== 0) {
           const amount = e.deltaY > 0 ? -1 : 1
-          const event = DeviceEvent.wheelRotations(true, amount, 1)
-          const tx = new InputTransaction()
+          const event = window.ironRdp.DeviceEvent.wheelRotations(true, amount, 1)
+          const tx = new window.ironRdp.InputTransaction()
           tx.addEvent(event)
           this.session.applyInputs(tx)
         }
         if (e.deltaX !== 0) {
           const amount = e.deltaX > 0 ? -1 : 1
-          const event = DeviceEvent.wheelRotations(false, amount, 1)
-          const tx = new InputTransaction()
+          const event = window.ironRdp.DeviceEvent.wheelRotations(false, amount, 1)
+          const tx = new window.ironRdp.InputTransaction()
           tx.addEvent(event)
           this.session.applyInputs(tx)
         }

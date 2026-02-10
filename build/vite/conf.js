@@ -4,7 +4,9 @@ import react from '@vitejs/plugin-react'
 import { cwd, version } from './common.js'
 import { resolve } from 'path'
 import def from './def.js'
-import commonjs from 'vite-plugin-commonjs'
+// import commonjs from 'vite-plugin-commonjs'
+import wasm from 'vite-plugin-wasm'
+import topLevelAwait from 'vite-plugin-top-level-await'
 
 // Custom plugin to combine CSS with separate basic.css
 function combineCSSPlugin () {
@@ -81,8 +83,10 @@ function replaceWebAppPlugin () {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    wasm(),
+    topLevelAwait(),
     // htmlPurge(),
-    commonjs(),
+    // commonjs(),
     // externalGlobals({
     //   react: 'React',
     //   'react-dom': 'ReactDOM'
@@ -113,6 +117,7 @@ export default defineConfig({
   },
   root: resolve(cwd, '../..'),
   build: {
+    target: 'esnext',
     emptyOutDir: false,
     outDir: resolve(cwd, '../../work/app/assets'),
     rollupOptions: {
@@ -125,9 +130,7 @@ export default defineConfig({
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
             if (id.includes('react') ||
-              id.includes('react-dom') ||
-              id.includes('scheduler') ||
-              id.includes('prop-types')) {
+              id.includes('react-dom')) {
               return 'react-vendor'
             }
             if (
@@ -171,6 +174,9 @@ export default defineConfig({
             }
             if (id.includes('@novnc/novnc')) {
               return 'novnc'
+            }
+            if (id.includes('ironrdp-wasm')) {
+              return 'ironrdp-wasm'
             }
             // Combine rest of node_modules into one chunk
             return 'vendor'
