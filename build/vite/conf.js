@@ -56,8 +56,7 @@ function buildInput () {
   return {
     electerm: resolve(cwd, '../../src/client/entry/electerm.jsx'),
     basic: resolve(cwd, '../../src/client/entry/basic.js'),
-    worker: resolve(cwd, '../../src/client/entry/worker.js'),
-    rle: resolve(cwd, '../../src/client/entry/rle.js')
+    worker: resolve(cwd, '../../src/client/entry/worker.js')
   }
 }
 
@@ -92,6 +91,14 @@ export default defineConfig({
     combineCSSPlugin(),
     replaceWebAppPlugin()
   ],
+  resolve: {
+    alias: {
+      'ironrdp-wasm': resolve(cwd, '../../node_modules/ironrdp-wasm/pkg/rdp_client.js')
+    }
+  },
+  optimizeDeps: {
+    exclude: ['ironrdp-wasm']
+  },
   // optimizeDeps: {
   //   esbuildOptions: {
   //     loader: {

@@ -49,13 +49,13 @@ if (type === 'rdp') {
     verify(req)
     const term = terminals(req.params.pid)
     term.ws = ws
+    log.debug('ws: connected to rdp session ->', term.pid, 'width=', width, 'height=', height)
     term.start(width, height)
-    const { pid } = term
-    log.debug('ws: connected to rdp session ->', pid)
     ws.on('error', (err) => {
-      log.error(err)
+      log.error('rdp ws error:', err)
     })
     ws.on('close', () => {
+      log.debug('ws: rdp session ws closed ->', term.pid)
       cleanup()
     })
   })

@@ -47,7 +47,6 @@ html
         img.iblock.logo-filter(src='images/electerm.png', alt='', height=80)
     script.
       window.et = !{JSON.stringify(_global)}
-    - var url1 = '/src/client/entry/rle.js'
     - var url = '/src/client/entry/basic.js'
     - if (isDev)
       //- script(src='/external/react.development.js?' + version)
@@ -65,7 +64,6 @@ html
       //- script(src='/external/react.production.min.js?' + version)
       //- script(src='/external/react-dom.production.min.js?' + version)
       - var url = src='/js/basic-' + version + '.js'
-      - var url1 = src='/js/rle-' + version + '.js'
       script(src=url1, type='module')
       script(src=url, type='module')
 

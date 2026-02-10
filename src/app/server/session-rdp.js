@@ -1,154 +1,92 @@
 /**
- * terminal/sftp/serial class
+ * RDP session using IronRDP WASM + RDCleanPath proxy
+ *
+ * Architecture:
+ *   Browser (IronRDP WASM) <--WebSocket--> This Proxy <--TLS--> RDP Server
+ *
+ * The WASM client handles all RDP protocol logic.
+ * This server-side code acts as a RDCleanPath proxy:
+ *   1. Receives RDCleanPath Request from WASM client (ASN.1 DER binary)
+ *   2. TCP connects to the RDP server
+ *   3. Performs X.224 handshake + TLS upgrade
+ *   4. Sends RDCleanPath Response (with certs) back to WASM client
+ *   5. Bidirectional relay: WebSocket <-> TLS
  */
-const _ = require('../lib/lodash.js')
 const log = require('../common/log')
-const rdp = require('@electerm/rdpjs')
 const { TerminalBase } = require('./session-base')
-const { isDev } = require('../common/runtime-constants')
 const globalState = require('./global-state')
+const {
+  handleConnection
+} = require('./rdp-proxy')
 
 class TerminalRdp extends TerminalBase {
   init = async () => {
     globalState.setSession(this.pid, this)
+    log.debug(`[RDP:${this.pid}] Session initialized, host=${this.initOptions.host}, port=${this.initOptions.port}`)
     return Promise.resolve(this)
   }
 
+  /**
+   * Start the RDCleanPath proxy for this session.
+   * Called when the WebSocket connects from the browser.
+   * The WASM client will send an RDCleanPath Request as the first message.
+   */
   start = async (width, height) => {
-    if (this.isRunning) {
+    log.debug(`[RDP:${this.pid}] start() called, width=${width}, height=${height}`)
+    if (!this.ws) {
+      log.error(`[RDP:${this.pid}] No WebSocket available`)
       return
     }
-    this.isRunning = true
-    if (this.channel) {
-      this.channel.close()
-      delete this.channel
-    }
-    const {
-      host,
-      port,
-      ...rest
-    } = this.initOptions
-    const opts = {
-      ...rest,
-      logLevel: isDev ? 'DEBUG' : 'ERROR',
-      screen: {
-        width,
-        height
-      }
-    }
-    if (!opts.domain) {
-      opts.domain = host
-    }
-    const channel = rdp.createClient(opts)
-      .on('error', this.onError)
-      .on('connect', this.onConnect)
-      .on('bitmap', this.onBitmap)
-      .on('end', this.kill)
-      .connect(host, port)
-    this.channel = channel
     this.width = width
     this.height = height
+
+    // Delegate to the RDCleanPath proxy handler
+    // handleConnection expects a ws-compatible object
+    // It will listen for the first binary message (RDCleanPath Request)
+    // and handle the entire handshake + relay
+    log.debug(`[RDP:${this.pid}] Handing off WebSocket to RDCleanPath proxy handler`)
+    handleConnection(this.ws)
   }
 
   resize () {
-
-  }
-
-  onError = (err) => {
-    if (err.message.includes('read ECONNRESET')) {
-      this.ws && this.start(
-        this.width,
-        this.height
-      )
-    } else {
-      log.error('rdp error', err)
-    }
+    // IronRDP handles resize via the WASM session.resize() method
+    // which sends resize PDUs through the existing relay
   }
 
   test = async () => {
+    const net = require('net')
+    const {
+      host,
+      port = 3389
+    } = this.initOptions
     return new Promise((resolve, reject) => {
-      const {
-        host,
-        port,
-        ...rest
-      } = this.initOptions
-      const client = rdp.createClient(rest)
-        .on('error', (err) => {
-          log.error(err)
-          reject(err)
-        })
-        .on('connect', () => {
-          resolve(client)
-        })
-        .connect(host, port)
+      log.debug(`[RDP:${this.pid}] Testing TCP connection to ${host}:${port}`)
+      const socket = net.createConnection({ host, port }, () => {
+        log.debug(`[RDP:${this.pid}] TCP test connection successful`)
+        socket.destroy()
+        resolve(true)
+      })
+      socket.on('error', (err) => {
+        log.error(`[RDP:${this.pid}] TCP test connection failed: ${err.message}`)
+        reject(err)
+      })
+      socket.setTimeout(10000, () => {
+        socket.destroy()
+        reject(new Error('Connection timed out'))
+      })
     })
   }
 
-  onConnect = () => {
-    this.isRunning = false
-    if (this.ws) {
-      if (!this.isWsEventRegistered) {
-        this.ws.on('message', this.onAction)
-        this.ws.on('close', this.kill)
-        this.isWsEventRegistered = true
-      }
-      this.ws.send(
-        JSON.stringify(
-          {
-            action: 'session-rdp-connected',
-            ..._.pick(this.initOptions, [
-              'tabId'
-            ])
-          }
-        )
-      )
-    }
-  }
-
-  onBitmap = (bitmap) => {
-    this.ws && this.ws.send(JSON.stringify(
-      bitmap
-    ))
-  }
-
-  // action: 'sendPointerEvent', params: x, y, button, isPressed
-  // action: 'sendWheelEvent', params: x, y, step, isNegative, isHorizontal
-  // action: 'sendKeyEventScancode', params: code, isPressed
-  // action: 'sendKeyEventUnicode', params: code, isPressed
-  onAction = (_data) => {
-    if (!this.channel || this.isRunning) {
-      return
-    }
-    const data = JSON.parse(_data)
-    const {
-      action,
-      params
-    } = data
-    if (action === 'reload') {
-      this.start(
-        ...params
-      )
-    } else if (
-      [
-        'sendPointerEvent',
-        'sendWheelEvent',
-        'sendKeyEventScancode',
-        'sendKeyEventUnicode'
-      ].includes(action)
-    ) {
-      this.channel[action](...params)
-    } else {
-      log.error('invalid action', action)
-    }
-  }
-
   kill = () => {
-    log.debug('Closed rdp session ' + this.pid)
+    log.debug(`[RDP:${this.pid}] kill() called — closing session`)
     if (this.ws) {
-      this.ws.close()
+      try {
+        this.ws.close()
+      } catch (e) {
+        log.debug(`[RDP:${this.pid}] ws.close() error: ${e.message}`)
+      }
       delete this.ws
     }
-    this.channel && this.channel.close()
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
@@ -170,14 +108,13 @@ exports.session = async function (initOptions, ws) {
 }
 
 /**
- * test ssh connection
+ * test RDP connection (TCP connectivity check)
  * @param {object} options
  */
 exports.test = (options) => {
   return (new TerminalRdp(options, undefined, true))
     .test()
-    .then((res) => {
-      res.close()
+    .then(() => {
       return true
     })
     .catch(() => {

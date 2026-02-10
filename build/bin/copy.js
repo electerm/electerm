@@ -8,10 +8,6 @@ const from0 = resolve(
   __dirname,
   '../../node_modules/electerm-icons/icons'
 )
-const from1 = resolve(
-  __dirname,
-  '../../src/client/entry/rle.wasm'
-)
 const to1 = resolve(
   __dirname,
   '../../work/app/assets/images/'
@@ -19,10 +15,6 @@ const to1 = resolve(
 const to2 = resolve(
   __dirname,
   '../../work/app/assets/icons'
-)
-const to3 = resolve(
-  __dirname,
-  '../../work/app/assets'
 )
 const arr = [
   {
@@ -32,10 +24,6 @@ const arr = [
   }, {
     from: from0,
     to: to2
-  }, {
-    from: from1,
-    to: to3,
-    file: true
   }
 ]
 
