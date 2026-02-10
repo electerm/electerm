@@ -15,7 +15,11 @@ describe('Terminal Suggestions Dropdown', function () {
 
     // Type the partial command and check initial suggestions count
     const partialCommand = 'test-unique'
-    await client.type('.xterm-helper-textarea', partialCommand)
+    await client.keyboard.type(partialCommand)
+    await delay(100)
+    await client.keyboard.press('ArrowRight')
+    await delay(100)
+    await client.keyboard.press('ArrowRight')
 
     // Verify suggestions panel is visible
     const suggestionElement = await client.locator('.terminal-suggestions-wrap').first()
@@ -25,7 +29,7 @@ describe('Terminal Suggestions Dropdown', function () {
     const initialSuggestions = await client.locator('.suggestion-item').count()
 
     // Continue typing to make it a unique command
-    await client.type('.xterm-helper-textarea', '-command-' + Date.now())
+    await client.keyboard.type('-command-' + Date.now())
 
     // Verify AI suggestions button
     const aiSuggestionsButton = await client.locator('.terminal-suggestions-sticky div').first()
@@ -39,7 +43,11 @@ describe('Terminal Suggestions Dropdown', function () {
     await delay(1000)
 
     // Type the same partial command again
-    await client.type('.xterm-helper-textarea', partialCommand)
+    await client.keyboard.type(partialCommand)
+    await delay(100)
+    await client.keyboard.press('ArrowRight')
+    await delay(100)
+    await client.keyboard.press('ArrowRight')
 
     // Verify suggestions are visible again
     // The suggestions list should filter commands that start with the partial input

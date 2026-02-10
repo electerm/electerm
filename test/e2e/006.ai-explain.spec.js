@@ -34,11 +34,21 @@ describe('Terminal Explain with AI', function () {
   })
 
   it.afterEach(async () => {
+    await client.evaluate(() => {
+      return window.store.setConfig({
+        showCmdSuggestions: false
+      })
+    })
     await electronApp.close()
   })
 
   it('should explain selected text with AI', async function () {
     // Type some text in the terminal
+    await client.evaluate(() => {
+      return window.store.setConfig({
+        showCmdSuggestions: true
+      })
+    })
     const testCommand = 'ls -la'
     await client.type('.xterm-helper-textarea', testCommand)
     await client.keyboard.press('Enter')

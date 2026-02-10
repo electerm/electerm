@@ -1021,6 +1021,7 @@ class Term extends Component {
         this.manualCommandHistory.add(currentCmd.trim())
         window.store.addCmdHistory(currentCmd.trim())
       }
+      this.closeSuggestions()
     }
   }
 
@@ -1028,7 +1029,7 @@ class Term extends Component {
     this.handleInputEvent(d)
     if (this.props.config.showCmdSuggestions) {
       const data = this.getCurrentInput()
-      if (data) {
+      if (data && d !== '\r' && d !== '\n') {
         const cursorPos = this.getCursorPosition()
         this.openSuggestions(cursorPos, data)
       } else {

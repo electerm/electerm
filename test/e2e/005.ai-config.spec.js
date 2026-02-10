@@ -34,6 +34,11 @@ describe('AI Config and Suggestions', function () {
   })
 
   it.afterEach(async () => {
+    await client.evaluate(() => {
+      return window.store.setConfig({
+        showCmdSuggestions: false
+      })
+    })
     await electronApp.close()
   })
 
@@ -72,6 +77,11 @@ describe('AI Config and Suggestions', function () {
 
   it('should verify AI functionality after configuration', async function () {
     // Click AI button after configuration
+    await client.evaluate(() => {
+      return window.store.setConfig({
+        showCmdSuggestions: true
+      })
+    })
     await client.click('.terminal-footer-ai .ai-icon')
     await delay(1000)
 
@@ -85,10 +95,19 @@ describe('AI Config and Suggestions', function () {
   it('should test AI suggestions functionality', async function () {
     // Open a terminal or ensure we're in a context where we can input commands
     // You might need to add steps here to open a terminal tab if it's not open by default
-
+    // Click AI button after configuration
+    await client.evaluate(() => {
+      return window.store.setConfig({
+        showCmdSuggestions: true
+      })
+    })
     // Input a command
     const testCommand = 'test'
-    await client.type('.xterm-helper-textarea', testCommand)
+    await client.keyboard.type(testCommand)
+    await delay(100)
+    await client.keyboard.press('ArrowRight')
+    await delay(100)
+    await client.keyboard.press('ArrowRight')
     await delay(500)
 
     // Get the initial count of suggestions
