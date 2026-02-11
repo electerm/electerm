@@ -82,16 +82,27 @@ export default class RdpSession extends PureComponent {
     })
   }
 
+  buildWsUrl = (port, type = 'rdp', extra = '') => {
+    const { host, tokenElecterm } = this.props.config
+    const { id } = this.props.tab
+    if (window.et.buildWsUrl) {
+      return window.et.buildWsUrl(
+        host,
+        port,
+        tokenElecterm,
+        id,
+        type,
+        extra
+      )
+    }
+    return `ws://${host}:${port}/${type}/${id}?token=${tokenElecterm}${extra}`
+  }
+
   remoteInit = async () => {
     this.setState({
       loading: true
     })
     const { config } = this.props
-    const {
-      host,
-      tokenElecterm,
-      server = ''
-    } = config
     const { id } = this.props
     const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
     const {
@@ -127,16 +138,10 @@ export default class RdpSession extends PureComponent {
     console.debug('[RDP-CLIENT] Term created, pid=', pid, 'port=', port)
 
     // Build the WebSocket proxy address for IronRDP WASM
-    const hs = server
-      ? server.replace(/https?:\/\//, '')
-      : `${host}:${port}`
-    const pre = server.startsWith('https') ? 'wss' : 'ws'
     const { width, height } = this.state
     // IronRDP connects to the proxy address, which then proxies via RDCleanPath
-    // The WebSocket URL includes the pid and token for auth
-    const proxyAddress = `${pre}://${hs}/rdp/${pid}?token=${tokenElecterm}&width=${width}&height=${height}`
-    console.debug('[RDP-CLIENT] Proxy address:', proxyAddress)
-
+    const extra = `&width=${width}&height=${height}`
+    const proxyAddress = this.buildWsUrl(port, 'rdp', extra)
     // Load WASM module if not already loaded
     try {
       await loadWasmModule()

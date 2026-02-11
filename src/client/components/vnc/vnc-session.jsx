@@ -67,11 +67,6 @@ export default class VncSession extends RdpSession {
       loading: true
     })
     const { config } = this.props
-    const {
-      host,
-      tokenElecterm,
-      server = ''
-    } = config
     const { id } = this.props
     const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
     const {
@@ -107,12 +102,8 @@ export default class VncSession extends RdpSession {
     const { pid, port } = r
     this.pid = pid
     this.port = port
-    const hs = server
-      ? server.replace(/https?:\/\//, '')
-      : `${host}:${port}`
-    const pre = server.startsWith('https') ? 'wss' : 'ws'
     const { width, height } = this.state
-    const wsUrl = `${pre}://${hs}/vnc/${pid}?token=${tokenElecterm}&width=${width}&height=${height}`
+    const wsUrl = this.buildWsUrl(port, 'vnc', `&width=${width}&height=${height}`)
     const vncOpts = {
       clipViewport,
       scaleViewport,

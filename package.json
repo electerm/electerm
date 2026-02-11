@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "2.7.8",
+  "version": "2.7.9",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -77,7 +77,6 @@
     "electron-builder": "26.0.20",
     "filesize": "10.1.6",
     "filesize-parser": "1.5.1",
-    "firacode": "^6.2.0",
     "ftp-srv": "^4.6.3",
     "glob": "^11.0.0",
     "ironrdp-wasm": "1.0.1",

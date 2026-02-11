@@ -11,8 +11,9 @@ const isNode16 = nodeVersion === 16
 
 const manualChunks = (id) => {
   if (id.includes('node_modules')) {
-    if (id.includes('react') ||
-      id.includes('react-dom')) {
+    if (id.match(/node_modules\/(react|react-dom|scheduler)\//) ||
+      id.includes('object-assign') ||
+      id.includes('loose-envify')) {
       return 'react-vendor'
     }
     if (
@@ -36,8 +37,29 @@ const manualChunks = (id) => {
     if (id.includes('antd')) {
       return 'antd'
     }
-    if (id.includes('@xterm/addon')) {
-      return 'xterm-addons'
+    if (id.includes('@xterm/addon-attach')) {
+      return 'xterm-addon-attach'
+    }
+    if (id.includes('@xterm/addon-fit')) {
+      return 'xterm-addon-fit'
+    }
+    if (id.includes('@xterm/addon-search')) {
+      return 'xterm-addon-search'
+    }
+    if (id.includes('@xterm/addon-web-links')) {
+      return 'xterm-addon-web-links'
+    }
+    if (id.includes('@xterm/addon-canvas')) {
+      return 'xterm-addon-canvas'
+    }
+    if (id.includes('@xterm/addon-ligatures')) {
+      return 'xterm-addon-ligatures'
+    }
+    if (id.includes('@xterm/addon-unicode11')) {
+      return 'xterm-addon-unicode11'
+    }
+    if (id.includes('@xterm/addon-webgl')) {
+      return 'xterm-addon-webgl'
     }
     if (id.includes('@xterm')) {
       return 'xterm'
