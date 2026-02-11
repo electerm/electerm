@@ -5,8 +5,65 @@ import { cwd, version } from './common.js'
 import { resolve } from 'path'
 import def from './def.js'
 // import commonjs from 'vite-plugin-commonjs'
-import wasm from 'vite-plugin-wasm'
-import topLevelAwait from 'vite-plugin-top-level-await'
+
+const nodeVersion = parseInt(process.version.split('.')[0].slice(1))
+const isNode16 = nodeVersion === 16
+
+const manualChunks = (id) => {
+  if (id.includes('node_modules')) {
+    if (id.includes('react') ||
+      id.includes('react-dom')) {
+      return 'react-vendor'
+    }
+    if (
+      id.includes('react-delta-hooks') ||
+      id.includes('react-markdown')
+    ) {
+      return 'react-utils'
+    }
+    if (id.includes('lodash-es')) {
+      return 'lodash-es'
+    }
+    if (id.includes('dayjs')) {
+      return 'dayjs'
+    }
+    if (id.includes('@ant-design/icons')) {
+      return 'ant-icons'
+    }
+    if (id.includes('@ant-design') || id.includes('@rc-component') || id.includes('classnames') || id.includes('@ctrl/tinycolor')) {
+      return 'antd-deps'
+    }
+    if (id.includes('antd')) {
+      return 'antd'
+    }
+    if (id.includes('@xterm/addon')) {
+      return 'xterm-addons'
+    }
+    if (id.includes('@xterm')) {
+      return 'xterm'
+    }
+    if (id.includes('trzsz')) {
+      return 'trzsz'
+    }
+    if (id.includes('manate')) {
+      return 'manate'
+    }
+    if (id.includes('zmodem-ts')) {
+      return 'zmodem-ts'
+    }
+    if (id.includes('electerm-icons')) {
+      return 'electerm-icons'
+    }
+    if (id.includes('@novnc/novnc')) {
+      return 'novnc'
+    }
+    if (id.includes('ironrdp-wasm')) {
+      return 'ironrdp-wasm'
+    }
+    // Combine rest of node_modules into one chunk
+    return 'vendor'
+  }
+}
 
 // Custom plugin to combine CSS with separate basic.css
 function combineCSSPlugin () {
@@ -83,8 +140,8 @@ function replaceWebAppPlugin () {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    wasm(),
-    topLevelAwait(),
+    // wasm(),
+    // topLevelAwait(),
     // htmlPurge(),
     // commonjs(),
     // externalGlobals({
@@ -127,61 +184,7 @@ export default defineConfig({
       //   'react-dom'
       // ],
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') ||
-              id.includes('react-dom')) {
-              return 'react-vendor'
-            }
-            if (
-              id.includes('react-delta-hooks') ||
-              id.includes('react-markdown')
-            ) {
-              return 'react-utils'
-            }
-            if (id.includes('lodash-es')) {
-              return 'lodash-es'
-            }
-            if (id.includes('dayjs')) {
-              return 'dayjs'
-            }
-            if (id.includes('@ant-design/icons')) {
-              return 'ant-icons'
-            }
-            if (id.includes('@ant-design') || id.includes('@rc-component') || id.includes('classnames') || id.includes('@ctrl/tinycolor')) {
-              return 'antd-deps'
-            }
-            if (id.includes('antd')) {
-              return 'antd'
-            }
-            if (id.includes('@xterm/addon')) {
-              return 'xterm-addons'
-            }
-            if (id.includes('@xterm')) {
-              return 'xterm'
-            }
-            if (id.includes('trzsz')) {
-              return 'trzsz'
-            }
-            if (id.includes('manate')) {
-              return 'manate'
-            }
-            if (id.includes('zmodem-ts')) {
-              return 'zmodem-ts'
-            }
-            if (id.includes('electerm-icons')) {
-              return 'electerm-icons'
-            }
-            if (id.includes('@novnc/novnc')) {
-              return 'novnc'
-            }
-            if (id.includes('ironrdp-wasm')) {
-              return 'ironrdp-wasm'
-            }
-            // Combine rest of node_modules into one chunk
-            return 'vendor'
-          }
-        },
+        ...(isNode16 ? {} : { manualChunks }),
         inlineDynamicImports: false,
         format: 'esm',
         entryFileNames: `js/[name]-${version}.js`,
