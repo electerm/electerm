@@ -46,6 +46,10 @@ export default class ZmodemSession extends EventEmitter {
     this.sender = null
     this.addon.session = null
     this.emit('session_end')
+    if (this.fd) {
+      await fs.close(this.fd)
+      this.fd = null
+    }
   }
 
   // --- Receiver Logic ---
@@ -304,6 +308,15 @@ export default class ZmodemSession extends EventEmitter {
     return didWork
   }
 
+  async openFile () {
+    if (this.fd) {
+      return this.fd
+    }
+    const fd = await fs.open(this.sendingFile.filePath, 'r')
+    this.fd = fd
+    return fd
+  }
+
   async loadBufferAndFeed (offset, length) {
     if (!this.sender || !this.sendingFile) {
       this._reading = false
@@ -312,10 +325,9 @@ export default class ZmodemSession extends EventEmitter {
     try {
       const readSize = Math.max(length, BUFFER_SIZE)
       // Use fs to read
-      const fd = await fs.open(this.sendingFile.filePath, 'r')
+      const fd = await this.openFile()
       const buffer = new Uint8Array(readSize)
       const { bytesRead } = await fs.read(fd, buffer, 0, readSize, offset)
-      await fs.close(fd)
 
       if (!this.sender) return
       const u8 = buffer.subarray(0, bytesRead)
