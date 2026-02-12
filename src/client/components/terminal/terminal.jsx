@@ -24,8 +24,7 @@ import {
   isWin,
   transferTypeMap,
   rendererTypes,
-  isMac,
-  zmodemTransferPackSize
+  isMac
 } from '../../common/constants.js'
 import deepCopy from 'json-deep-copy'
 import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
@@ -598,40 +597,30 @@ class Term extends Component {
   }
 
   zmodemTransferFile = async (file, filesRemaining, sizeRemaining) => {
-    const offer = {
-      obj: file,
-      name: file.name,
-      size: file.size,
-      files_remaining: filesRemaining,
-      bytes_remaining: sizeRemaining
-    }
-    const xfer = await this.zsession.send_offer(offer)
-    if (!xfer) {
-      this.onZmodemEnd()
-      return window.store.onError(new Error('Transfer cancelled, maybe file already exists'))
-    }
+    // Initialize transfer state
     this.zmodemStartTime = Date.now()
-    const fd = await fs.open(file.filePath, 'r')
-    let start = 0
-    const { size } = file
-    let inited = false
-    while (start < size || !inited) {
-      const rest = size - start
-      const len = rest > zmodemTransferPackSize ? zmodemTransferPackSize : rest
-      const buffer = new Uint8Array(len)
-      const newArr = await fs.read(fd, buffer, 0, len, null)
-      const n = newArr.length
-      await xfer.send(newArr)
-      start = start + n
-      inited = true
-      this.updateZmodemProgress(start, file.name, size, transferTypeMap.upload)
-      if (n < zmodemTransferPackSize || start >= file.size || this.onCanceling) {
-        break
-      }
+    this.zmodemTransfer = {
+      type: transferTypeMap.upload,
+      start: 0,
+      name: file.name,
+      size: file.size
     }
-    await fs.close(fd)
-    this.finishZmodemTransfer()
-    await xfer.end()
+    this.writeZmodemProgress()
+
+    const onProgress = (bytes) => {
+      this.updateZmodemProgress(bytes, file.name, file.size, transferTypeMap.upload)
+    }
+    this.zsession.on('progress', onProgress)
+
+    try {
+      await this.zsession.sendFile(file)
+      this.finishZmodemTransfer()
+    } catch (e) {
+      window.store.onError(e)
+      this.onZmodemEnd()
+    } finally {
+      this.zsession.off('progress', onProgress)
+    }
   }
 
   openFileSelect = async () => {
@@ -690,6 +679,9 @@ class Term extends Component {
       filesRemaining = filesRemaining - 1
       sizeRemaining = sizeRemaining - f.size
     }
+    if (this.zsession) {
+      await this.zsession.finish()
+    }
     this.onZmodemEnd()
   }
 
@@ -700,6 +692,15 @@ class Term extends Component {
   }
 
   onZmodemEnd = async () => {
+    if (this.zmodemTransfer) {
+      const {
+        name, size, type
+      } = this.zmodemTransfer
+      if (size) {
+        this.updateZmodemProgress(size, name, size, type)
+        this.updateZmodemProgress.flush()
+      }
+    }
     this.zmodemSavePath = null
     this.onCanceling = true
     if (this.downloadFd) {
