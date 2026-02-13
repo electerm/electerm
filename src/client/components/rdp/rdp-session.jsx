@@ -17,6 +17,7 @@ import {
 import * as ls from '../../common/safe-local-storage'
 import scanCode from './code-scan'
 import resolutions from './resolutions'
+import { readClipboardAsync } from '../../common/clipboard'
 
 const { Option } = Select
 
@@ -32,7 +33,8 @@ async function loadWasmModule () {
     DesktopSize: mod.DesktopSize,
     InputTransaction: mod.InputTransaction,
     DeviceEvent: mod.DeviceEvent,
-    Extension: mod.Extension
+    Extension: mod.Extension,
+    ClipboardData: mod.ClipboardData
   }
   await window.ironRdp.wasmInit()
   window.ironRdp.wasmSetup('info')
@@ -188,6 +190,29 @@ export default class RdpSession extends PureComponent {
       builder.renderCanvas(canvas)
       builder.extension(enableCredsspExt)
 
+      // Clipboard callbacks
+      builder.remoteClipboardChangedCallback((clipboardData) => {
+        try {
+          if (clipboardData.isEmpty()) {
+            return
+          }
+          const items = clipboardData.items()
+          for (const item of items) {
+            if (item.mimeType() === 'text/plain') {
+              const text = item.value()
+              console.debug('[RDP-CLIENT] Received clipboard text:', text)
+              window.pre.writeClipboard(text)
+            }
+          }
+        } catch (e) {
+          console.error('[RDP-CLIENT] Clipboard error:', e)
+        }
+      })
+
+      builder.forceClipboardUpdateCallback(() => {
+        this.syncLocalToRemote()
+      })
+
       // Cursor style callback
       builder.setCursorStyleCallbackContext(canvas)
       builder.setCursorStyleCallback(function (style) {
@@ -244,6 +269,20 @@ export default class RdpSession extends PureComponent {
       } catch (_) {}
     }
     return e?.message || e?.toString() || String(e)
+  }
+
+  syncLocalToRemote = async () => {
+    if (!this.session) return
+    try {
+      const text = await readClipboardAsync()
+      if (text) {
+        const data = new window.ironRdp.ClipboardData()
+        data.addText('text/plain', text)
+        await this.session.onClipboardPaste(data)
+      }
+    } catch (e) {
+      console.error('[RDP-CLIENT] Local clipboard sync error:', e)
+    }
   }
 
   onSessionEnd = () => {
@@ -358,6 +397,14 @@ export default class RdpSession extends PureComponent {
     }, { passive: false })
 
     canvas.addEventListener('contextmenu', (e) => e.preventDefault())
+
+    canvas.addEventListener('paste', () => {
+      this.syncLocalToRemote()
+    })
+
+    canvas.addEventListener('focus', () => {
+      this.syncLocalToRemote()
+    })
   }
 
   // Get PS/2 scancode from keyboard event code using existing code-scan module
