@@ -176,7 +176,7 @@ export default class RdpSession extends PureComponent {
       console.debug('[RDP-CLIENT] desktopSize:', width, 'x', height)
 
       const desktopSize = new window.ironRdp.DesktopSize(width, height)
-      const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', false)
+      const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', true)
 
       const builder = new window.ironRdp.SessionBuilder()
       builder.username(username)
