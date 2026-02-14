@@ -23,7 +23,7 @@ export default function RemoteFloatControl (props) {
   if (!isFullScreen) return null
 
   function onExitFullScreen () {
-    window.store.toggleTermFullscreen(false)
+    window.store.toggleSessFullscreen(false)
   }
 
   const items = [

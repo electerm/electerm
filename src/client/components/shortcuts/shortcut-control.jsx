@@ -185,9 +185,9 @@ class ShortcutControl extends React.PureComponent {
   togglefullscreenShortcut = throttle((e) => {
     e.stopPropagation()
     if (window.store.fullscreen) {
-      window.store.toggleTermFullscreen(false)
+      window.store.toggleSessFullscreen(false)
     } else {
-      window.store.toggleTermFullscreen(true)
+      window.store.toggleSessFullscreen(true)
     }
   }, 500)
 
