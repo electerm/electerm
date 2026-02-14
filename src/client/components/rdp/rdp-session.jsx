@@ -450,7 +450,65 @@ export default class RdpSession extends PureComponent {
     return null
   }
 
+  getControlProps = (options = {}) => {
+    const {
+      fixedPosition = true,
+      showExitFullscreen = true,
+      className = ''
+    } = options
+
+    return {
+      isFullScreen: this.props.fullscreen,
+      onSendCtrlAltDel: this.handleSendCtrlAltDel,
+      screens: [], // RDP doesn't have multi-screen support like VNC
+      currentScreen: null,
+      onSelectScreen: () => {}, // No-op for RDP
+      fixedPosition,
+      showExitFullscreen,
+      className
+    }
+  }
+
+  handleSendCtrlAltDel = () => {
+    if (!this.session) return
+    try {
+      // Send Ctrl+Alt+Del sequence using IronRDP
+      const tx = new window.ironRdp.InputTransaction()
+
+      // Ctrl key press
+      const ctrlScancode = 0x1D // Left Ctrl scancode
+      tx.addEvent(window.ironRdp.DeviceEvent.keyPressed(ctrlScancode))
+
+      // Alt key press
+      const altScancode = 0x38 // Left Alt scancode
+      tx.addEvent(window.ironRdp.DeviceEvent.keyPressed(altScancode))
+
+      // Del key press
+      const delScancode = 0x53 // Delete scancode
+      tx.addEvent(window.ironRdp.DeviceEvent.keyPressed(delScancode))
+
+      // Del key release
+      tx.addEvent(window.ironRdp.DeviceEvent.keyReleased(delScancode))
+
+      // Alt key release
+      tx.addEvent(window.ironRdp.DeviceEvent.keyReleased(altScancode))
+
+      // Ctrl key release
+      tx.addEvent(window.ironRdp.DeviceEvent.keyReleased(ctrlScancode))
+
+      this.session.applyInputs(tx)
+      console.log('[RDP-CLIENT] Sent Ctrl+Alt+Del')
+    } catch (err) {
+      console.error('[RDP-CLIENT] Failed to send Ctrl+Alt+Del:', err)
+    }
+  }
+
   renderControl = () => {
+    const contrlProps = this.getControlProps({
+      fixedPosition: false,
+      showExitFullscreen: false,
+      className: 'mg1l'
+    })
     const {
       id
     } = this.state
@@ -492,6 +550,7 @@ export default class RdpSession extends PureComponent {
         </div>
         <div className='fright'>
           {this.props.fullscreenIcon()}
+          <RemoteFloatControl {...contrlProps} />
         </div>
       </div>
     )
@@ -529,9 +588,7 @@ export default class RdpSession extends PureComponent {
       height,
       tabIndex: 0
     }
-    const controlProps = {
-      isFullScreen: this.props.fullscreen
-    }
+    const controlProps = this.getControlProps()
     return (
       <Spin spinning={loading}>
         <div
