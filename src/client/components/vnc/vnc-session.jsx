@@ -31,7 +31,6 @@ export default class VncSession extends PureComponent {
       types: [],
       showConfirm: false,
       loading: false,
-      aspectRatio: 4 / 3,
       name: '',
       screens: [],
       currentScreen: 'all',
@@ -75,10 +74,6 @@ export default class VncSession extends PureComponent {
   }
 
   renderControl = () => {
-    const {
-      screens,
-      currentScreen
-    } = this.state
     return (
       <div className='pd1 fix session-v-info'>
         <div className='fleft'>
@@ -86,25 +81,7 @@ export default class VncSession extends PureComponent {
             onClick={this.handleReInit}
             className='mg2r mg1l pointer'
           />
-          {
-            screens.length > 0
-              ? (
-                <Select
-                  value={currentScreen}
-                  onChange={this.handleSelectScreen}
-                  className='mg2r'
-                  popupMatchSelectWidth={false}
-                >
-                  <Option value='all'>{e('allScreens')}</Option>
-                  {
-                    screens.map(s => (
-                      <Option key={s.id} value={s.id}>{s.name}</Option>
-                    ))
-                  }
-                </Select>
-                )
-              : null
-          }
+          {this.renderScreensSelect()}
           {this.renderInfo()}
           {this.renderHelp()}
         </div>
@@ -112,6 +89,31 @@ export default class VncSession extends PureComponent {
           {this.props.fullscreenIcon()}
         </div>
       </div>
+    )
+  }
+
+  renderScreensSelect = () => {
+    const {
+      screens,
+      currentScreen
+    } = this.state
+    if (screens.length === 0) {
+      return null
+    }
+    return (
+      <Select
+        value={currentScreen}
+        onChange={this.handleSelectScreen}
+        className='mg2r'
+        popupMatchSelectWidth={false}
+      >
+        <Option value='all'>{e('allScreens')}</Option>
+        {
+          screens.map(s => (
+            <Option key={s.id} value={s.id}>{s.name}</Option>
+          ))
+        }
+      </Select>
     )
   }
 
@@ -531,6 +533,13 @@ export default class VncSession extends PureComponent {
       },
       className: 'vnc-session-wrap session-v-wrap'
     }
+    const contrlProps = {
+      isFullScreen: this.props.fullscreen,
+      onSendCtrlAltDel: this.handleSendCtrlAltDel,
+      screens: this.state.screens.length ? [{ id: 'all', name: 'All Screens' }, ...this.state.screens] : [],
+      currentScreen: this.state.currentScreen,
+      onSelectScreen: this.handleSelectScreen
+    }
     return (
       <Spin spinning={loading}>
         <div
@@ -542,11 +551,7 @@ export default class VncSession extends PureComponent {
         >
           {this.renderControl()}
           <RemoteFloatControl
-            isFullScreen={this.props.fullscreen}
-            onSendCtrlAltDel={this.handleSendCtrlAltDel}
-            screens={this.state.screens.length ? [{ id: 'all', name: 'All Screens' }, ...this.state.screens] : []}
-            currentScreen={this.state.currentScreen}
-            onSelectScreen={this.handleSelectScreen}
+            {...contrlProps}
           />
           <div
             {...divProps}
