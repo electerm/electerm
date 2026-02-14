@@ -55,6 +55,7 @@ import { refs, refsStatic } from '../common/ref.js'
 import ExternalLink from '../common/external-link.jsx'
 import createDefaultLogPath from '../../common/default-log-path.js'
 import SearchResultBar from './terminal-search-bar'
+import RemoteFloatControl from '../common/remote-float-control'
 
 const e = window.translate
 
@@ -1293,7 +1294,7 @@ class Term extends Component {
 
   render () {
     const { loading } = this.state
-    const { height, width, left, top } = this.props
+    const { height, width, left, top, fullscreen } = this.props
     const { id } = this.props.tab
     const isActive = this.isActiveTerminal()
     const cls = classnames(
@@ -1358,6 +1359,9 @@ class Term extends Component {
             close={this.closeNormalBuffer}
           />
           <SearchResultBar {...barProps} />
+          <RemoteFloatControl
+            isFullScreen={fullscreen}
+          />
           <Spin className='loading-wrapper' spinning={loading} />
         </div>
       </Dropdown>

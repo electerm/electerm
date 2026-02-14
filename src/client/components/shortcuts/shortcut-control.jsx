@@ -184,9 +184,11 @@ class ShortcutControl extends React.PureComponent {
 
   togglefullscreenShortcut = throttle((e) => {
     e.stopPropagation()
-    const x = document.querySelector('.term-fullscreen-control') ||
-    document.querySelector('.session-current .term-fullscreen-control1')
-    x && x.click()
+    if (window.store.fullscreen) {
+      window.store.toggleTermFullscreen(false)
+    } else {
+      window.store.toggleTermFullscreen(true)
+    }
   }, 500)
 
   zoominShortcut = throttle((e) => {

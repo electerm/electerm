@@ -18,6 +18,7 @@ import * as ls from '../../common/safe-local-storage'
 import scanCode from './code-scan'
 import resolutions from './resolutions'
 import { readClipboardAsync } from '../../common/clipboard'
+import RemoteFloatControl from '../common/remote-float-control'
 
 const { Option } = Select
 
@@ -44,7 +45,7 @@ async function loadWasmModule () {
 export default class RdpSession extends PureComponent {
   constructor (props) {
     const id = `rdp-reso-${props.tab.host}`
-    const resObj = ls.getItemJSON(id, resolutions[0])
+    const resObj = ls.getItemJSON(id, resolutions[1])
     super(props)
     this.canvasRef = createRef()
     this.state = {
@@ -434,7 +435,7 @@ export default class RdpSession extends PureComponent {
   getAllRes = () => {
     return [
       ...this.props.resolutions,
-      ...resolutions
+      ...resolutions.slice(1)
     ]
   }
 
@@ -528,6 +529,9 @@ export default class RdpSession extends PureComponent {
       height,
       tabIndex: 0
     }
+    const controlProps = {
+      isFullScreen: this.props.fullscreen
+    }
     return (
       <Spin spinning={loading}>
         <div
@@ -535,6 +539,7 @@ export default class RdpSession extends PureComponent {
           className='rdp-session-wrap session-v-wrap'
         >
           {this.renderControl()}
+          <RemoteFloatControl {...controlProps} />
           <canvas
             {...canvasProps}
             ref={this.canvasRef}

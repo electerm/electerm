@@ -64,6 +64,15 @@
   background var(--main)
   overflow scroll
   z-index 99
+  &::-webkit-scrollbar
+    width 16px
+    height 16px
+  &::-webkit-scrollbar-track
+    background var(--main-dark)
+    box-shadow inset 0 0 5px var(--main-darker)
+  &::-webkit-scrollbar-thumb
+    background var(--primary)
+    border-radius 0
 .vnc-session-wrap > div
   display block !important
   width auto !important

@@ -19,7 +19,6 @@ import TransportsActionStore from '../file-transfer/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
 import { isMac, isWin, textTerminalBgValue } from '../../common/constants'
-import TermFullscreenControl from './term-fullscreen-control'
 import TerminalInfo from '../terminal-info/terminal-info'
 import { ConfigProvider } from 'antd'
 import { NotificationContainer } from '../common/notification'
@@ -36,6 +35,7 @@ import WorkspaceSaveModal from '../tabs/workspace-save-modal'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
+import './term-fullscreen.styl'
 
 export default auto(function Index (props) {
   useEffect(() => {
@@ -79,7 +79,7 @@ export default auto(function Index (props) {
   const {
     configLoaded,
     config,
-    terminalFullScreen,
+    fullscreen,
     pinned,
     isSecondInstance,
     pinnedQuickCommandBar,
@@ -105,7 +105,7 @@ export default auto(function Index (props) {
     pinned,
     'not-win': !isWin,
     'qm-pinned': pinnedQuickCommandBar,
-    'term-fullscreen': terminalFullScreen,
+    fullscreen,
     'is-main': !isSecondInstance
   })
   const ext1 = {
@@ -243,9 +243,6 @@ export default auto(function Index (props) {
       <div {...ext1}>
         <InputContextMenu />
         <ShortcutControl config={config} />
-        <TermFullscreenControl
-          terminalFullScreen={terminalFullScreen}
-        />
         <CssOverwrite
           {...confsCss}
           wsInited={wsInited}
