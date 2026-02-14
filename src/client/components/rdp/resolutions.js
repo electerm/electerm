@@ -1,5 +1,11 @@
 export default [
   {
+    id: 'res-auto',
+    width: 'auto',
+    height: 'auto',
+    readonly: true
+  },
+  {
     id: 'res-1024x768',
     width: 1024,
     height: 768,

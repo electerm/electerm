@@ -179,7 +179,8 @@ export default auto(function Layout (props) {
       'leftSidebarWidth',
       'pinned',
       'openedSideBar',
-      'config'
+      'config',
+      'fullscreen'
     ]),
     tabs: store.tabs,
     layout

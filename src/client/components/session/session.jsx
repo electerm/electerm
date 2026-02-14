@@ -283,7 +283,8 @@ export default class SessionWrapper extends Component {
           'delTab',
           'config',
           'reloadTab',
-          'editTab'
+          'editTab',
+          'fullscreen'
         ]),
         ...pick(
           this,
@@ -462,7 +463,7 @@ export default class SessionWrapper extends Component {
   handleFullscreen = () => {
     // Make this tab the active tab before fullscreening
     window.store.activeTabId = this.props.tab.id
-    window.store.toggleTermFullscreen(true, this.props.tab.id)
+    window.store.toggleSessFullscreen(true, this.props.tab.id)
   }
 
   toggleBroadcastInput = () => {
@@ -492,7 +493,7 @@ export default class SessionWrapper extends Component {
     return (
       <Tooltip title={title} placement='bottomLeft'>
         <FullscreenOutlined
-          className='mg1r icon-info iblock pointer spliter term-fullscreen-control1'
+          className='mg1r icon-info iblock pointer spliter fullscreen-control-icon'
           onClick={this.handleFullscreen}
         />
       </Tooltip>

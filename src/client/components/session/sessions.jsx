@@ -75,7 +75,8 @@ export default class Sessions extends Component {
           'appPath',
           'leftSidebarWidth',
           'pinned',
-          'openedSideBar'
+          'openedSideBar',
+          'fullscreen'
         ]),
         config,
         ...pick(this, [

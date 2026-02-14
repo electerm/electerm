@@ -193,7 +193,7 @@ export default () => {
     height: 500,
     isMaximized: window.pre.runSync('isMaximized'),
     hasNodePty: window.pre.runSync('nodePtyCheck'),
-    terminalFullScreen: false,
+    fullscreen: false,
     hideDelKeyTip: ls.getItem(dismissDelKeyTipLsKey) === 'y',
     tabsHeight: 36,
 

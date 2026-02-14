@@ -37,8 +37,8 @@ export default Store => {
     window.dispatchEvent(new Event('resize'))
   }
 
-  Store.prototype.toggleTermFullscreen = function (terminalFullScreen) {
-    window.store.terminalFullScreen = terminalFullScreen
+  Store.prototype.toggleSessFullscreen = function (fullscreen) {
+    window.store.fullscreen = fullscreen
     setTimeout(window.store.triggerResize, 500)
   }
 }
