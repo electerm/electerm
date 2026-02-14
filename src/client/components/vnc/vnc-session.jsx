@@ -32,9 +32,7 @@ export default class VncSession extends PureComponent {
       loading: false,
       name: '',
       screens: [],
-      currentScreen: '0',
-      width: 'auto',
-      height: 'auto'
+      currentScreen: '0'
     }
   }
 
@@ -55,6 +53,23 @@ export default class VncSession extends PureComponent {
     this.props.editTab(id, {
       status
     })
+  }
+
+  getScreenSize = () => {
+    const { screens, currentScreen } = this.state
+    const currentScreenData = screens.find(s => s.id === currentScreen)
+    return {
+      remoteWidth: currentScreenData ? currentScreenData.width : null,
+      remoteHeight: currentScreenData ? currentScreenData.height : null
+    }
+  }
+
+  calcCanvasSize = () => {
+    const { width, height } = this.props
+    return {
+      width: width - 10,
+      height: height - 80
+    }
   }
 
   buildWsUrl = (port, type = 'rdp', extra = '') => {
@@ -155,21 +170,21 @@ export default class VncSession extends PureComponent {
     const { pid, port } = r
     this.pid = pid
     this.port = port
-    let { width, height } = this.state
-    if (width === 'auto' || scaleViewport) {
-      width = this.props.width
-      height = this.props.height
-    }
+    const { width, height } = this.calcCanvasSize()
     const wsUrl = this.buildWsUrl(port, 'vnc', `&width=${width}&height=${height}`)
+    // When scaleViewport is false, we don't set fixed dimensions on the canvas
+    // so it can render at the actual remote screen size
     const vncOpts = {
       clipViewport,
       scaleViewport,
       viewOnly,
-      style: {
-        width: width + 'px',
-        height: height + 'px',
-        overflow: scaleViewport ? 'hidden' : 'auto'
-      },
+      style: scaleViewport
+        ? {
+            width: width + 'px',
+            height: height + 'px',
+            overflow: 'hidden'
+          }
+        : {},
       credentials: {}
     }
     if (username) {
@@ -292,7 +307,8 @@ export default class VncSession extends PureComponent {
       'bell',
       'desktopname',
       'capabilities',
-      'screens'
+      'screens',
+      'desktopsize'
     ]
     for (const event of events) {
       rfb.addEventListener(event, this[`on${window.capitalizeFirstLetter(event)}`])
@@ -304,9 +320,13 @@ export default class VncSession extends PureComponent {
 
   onConnect = (event) => {
     this.setStatus(statusMap.success)
+    // Capture the remote desktop size from the RFB connection
     this.setState({
       loading: false
     })
+  }
+
+  onDesktopsize = (event) => {
   }
 
   onDisconnect = () => {
@@ -499,17 +519,29 @@ export default class VncSession extends PureComponent {
 
   render () {
     const { width: w, height: h } = this.props
-    let { width, loading, screens } = this.state
+    const { loading, screens } = this.state
+    const { remoteWidth, remoteHeight } = this.getScreenSize()
     const { scaleViewport = true } = this.props.tab
-    if (width === 'auto' || scaleViewport) {
-      width = w
+    // When not in scale mode, we need a wrapper with container size,
+    // and the inner div should have remote screen size to show scrollbars
+    const isScaled = scaleViewport
+
+    const {
+      width: innerWidth,
+      height: innerHeight
+    } = this.calcCanvasSize()
+    const wrapperStyle = {
+      width: innerWidth + 'px',
+      height: innerHeight + 'px',
+      overflow: isScaled ? 'hidden' : 'auto'
+    }
+    const remoteStyle = {
+      width: isScaled ? '100%' : remoteWidth + 'px',
+      height: isScaled ? '100%' : remoteHeight + 'px',
+      overflow: 'hidden'
     }
     const divProps = {
-      style: {
-        width: '100%',
-        height: (h - 40) + 'px',
-        overflow: scaleViewport ? 'hidden' : 'auto'
-      },
+      style: remoteStyle,
       className: 'vnc-session-wrap session-v-wrap'
     }
     const contrlProps = {
@@ -533,9 +565,14 @@ export default class VncSession extends PureComponent {
             {...contrlProps}
           />
           <div
-            {...divProps}
-            ref={this.domRef}
-          />
+            style={wrapperStyle}
+            className='vnc-scroll-wrapper'
+          >
+            <div
+              {...divProps}
+              ref={this.domRef}
+            />
+          </div>
           {this.renderConfirm()}
         </div>
       </Spin>
