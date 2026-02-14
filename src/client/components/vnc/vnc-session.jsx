@@ -8,7 +8,6 @@ import {
 } from '../../common/constants'
 import {
   Spin,
-  Tag,
   Select
 } from 'antd'
 import {
@@ -33,7 +32,7 @@ export default class VncSession extends PureComponent {
       loading: false,
       name: '',
       screens: [],
-      currentScreen: 'all',
+      currentScreen: '0',
       width: 'auto',
       height: 'auto'
     }
@@ -48,6 +47,7 @@ export default class VncSession extends PureComponent {
   componentWillUnmount () {
     this.rfb && this.rfb.disconnect()
     delete this.rfb
+    clearTimeout(this.timer)
   }
 
   setStatus = status => {
@@ -83,7 +83,6 @@ export default class VncSession extends PureComponent {
           />
           {this.renderScreensSelect()}
           {this.renderInfo()}
-          {this.renderHelp()}
         </div>
         <div className='fright'>
           {this.props.fullscreenIcon()}
@@ -97,7 +96,7 @@ export default class VncSession extends PureComponent {
       screens,
       currentScreen
     } = this.state
-    if (screens.length === 0) {
+    if (screens.length <= 1) {
       return null
     }
     return (
@@ -107,7 +106,6 @@ export default class VncSession extends PureComponent {
         className='mg2r'
         popupMatchSelectWidth={false}
       >
-        <Option value='all'>{e('allScreens')}</Option>
         {
           screens.map(s => (
             <Option key={s.id} value={s.id}>{s.name}</Option>
@@ -116,21 +114,6 @@ export default class VncSession extends PureComponent {
       </Select>
     )
   }
-
-  // computeProps = () => {
-  //   const {
-  //     height,
-  //     width,
-  //     tabsHeight,
-  //     leftSidebarWidth,
-  //     pinned,
-  //     openedSideBar
-  //   } = this.props
-  //   return {
-  //     width: width - (pinned && openedSideBar ? leftSidebarWidth : 0),
-  //     height: height - tabsHeight
-  //   }
-  // }
 
   remoteInit = async (term = this.term) => {
     this.setState({
@@ -388,10 +371,12 @@ export default class VncSession extends PureComponent {
   }
 
   onScreens = (event) => {
-    const screens = event.detail
-    if (screens && screens.length) {
+    const screensData = event.detail
+    if (screensData && screensData.length) {
+      const screens = this.processScreens(screensData)
       this.setState({
-        screens: this.processScreens(screens)
+        screens,
+        currentScreen: screens[0].id
       })
     }
   }
@@ -440,7 +425,7 @@ export default class VncSession extends PureComponent {
     }
 
     // Handle scrolling to the selected screen
-    setTimeout(() => {
+    this.timer = setTimeout(() => {
       if (currentScreen === 'all') {
         container.scrollTo(0, 0)
       } else {
@@ -486,12 +471,6 @@ export default class VncSession extends PureComponent {
     )
   }
 
-  renderHelp = () => {
-    return (
-      <Tag color='red' className='mg1l' variant='solid'>Beta</Tag>
-    )
-  }
-
   handleSendCtrlAltDel = () => {
     this.rfb?.sendCtrlAltDel()
   }
@@ -520,7 +499,7 @@ export default class VncSession extends PureComponent {
 
   render () {
     const { width: w, height: h } = this.props
-    let { width, loading } = this.state
+    let { width, loading, screens } = this.state
     const { scaleViewport = true } = this.props.tab
     if (width === 'auto' || scaleViewport) {
       width = w
@@ -536,7 +515,7 @@ export default class VncSession extends PureComponent {
     const contrlProps = {
       isFullScreen: this.props.fullscreen,
       onSendCtrlAltDel: this.handleSendCtrlAltDel,
-      screens: this.state.screens.length ? [{ id: 'all', name: 'All Screens' }, ...this.state.screens] : [],
+      screens: screens.length > 1 ? screens : [],
       currentScreen: this.state.currentScreen,
       onSelectScreen: this.handleSelectScreen
     }
