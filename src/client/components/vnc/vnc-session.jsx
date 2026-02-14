@@ -74,10 +74,6 @@ export default class VncSession extends PureComponent {
     return `ws://${host}:${port}/${type}/${id}?token=${tokenElecterm}${extra}`
   }
 
-  handleExitFullScreen = () => {
-    window.store.toggleTermFullscreen(false)
-  }
-
   renderControl = () => {
     const {
       screens,
@@ -547,7 +543,6 @@ export default class VncSession extends PureComponent {
           {this.renderControl()}
           <RemoteFloatControl
             isFullScreen={this.props.fullscreen}
-            onExitFullScreen={this.handleExitFullScreen}
             onSendCtrlAltDel={this.handleSendCtrlAltDel}
             screens={this.state.screens.length ? [{ id: 'all', name: 'All Screens' }, ...this.state.screens] : []}
             currentScreen={this.state.currentScreen}
