@@ -17,23 +17,28 @@ export default function RemoteFloatControl (props) {
     onSendCtrlAltDel,
     screens = [],
     onSelectScreen,
-    currentScreen
+    currentScreen,
+    fixedPosition = true,
+    showExitFullscreen = true,
+    className = ''
   } = props
 
-  if (!isFullScreen) return null
+  if (fixedPosition && !isFullScreen) return null
 
   function onExitFullScreen () {
     window.store.toggleSessFullscreen(false)
   }
 
-  const items = [
-    {
+  const items = []
+
+  if (showExitFullscreen && isFullScreen) {
+    items.push({
       key: 'exit-fullscreen',
       label: e('exitFullscreen') || 'Exit Fullscreen',
       icon: <FullscreenExitOutlined />,
       onClick: onExitFullScreen
-    }
-  ]
+    })
+  }
 
   if (onSendCtrlAltDel) {
     items.push({
@@ -58,11 +63,15 @@ export default function RemoteFloatControl (props) {
     })
   }
 
+  const containerClassName = (fixedPosition ? 'remote-float-control' : 'remote-float-control-inline') + (className ? ' ' + className : '')
+  const buttonClassName = fixedPosition ? 'remote-float-btn' : 'remote-float-btn-inline'
+  const iconClassName = fixedPosition ? 'font20' : ''
+
   return (
-    <div className='remote-float-control'>
+    <div className={containerClassName}>
       <Dropdown menu={{ items }} trigger={['click']}>
-        <div className='remote-float-btn'>
-          <MoreOutlined className='font20' />
+        <div className={buttonClassName}>
+          <MoreOutlined className={iconClassName} />
         </div>
       </Dropdown>
     </div>

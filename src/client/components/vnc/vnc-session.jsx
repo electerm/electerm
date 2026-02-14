@@ -88,7 +88,35 @@ export default class VncSession extends PureComponent {
     return `ws://${host}:${port}/${type}/${id}?token=${tokenElecterm}${extra}`
   }
 
+  getControlProps = (options = {}) => {
+    const {
+      screens,
+      currentScreen
+    } = this.state
+    const {
+      fixedPosition = true,
+      showExitFullscreen = true,
+      className = ''
+    } = options
+
+    return {
+      isFullScreen: this.props.fullscreen,
+      onSendCtrlAltDel: this.handleSendCtrlAltDel,
+      screens: screens.length > 1 ? screens : [],
+      currentScreen,
+      onSelectScreen: this.handleSelectScreen,
+      fixedPosition,
+      showExitFullscreen,
+      className
+    }
+  }
+
   renderControl = () => {
+    const contrlProps = this.getControlProps({
+      fixedPosition: false,
+      showExitFullscreen: false,
+      className: 'mg1l'
+    })
     return (
       <div className='pd1 fix session-v-info'>
         <div className='fleft'>
@@ -101,6 +129,7 @@ export default class VncSession extends PureComponent {
         </div>
         <div className='fright'>
           {this.props.fullscreenIcon()}
+          <RemoteFloatControl {...contrlProps} />
         </div>
       </div>
     )
@@ -519,7 +548,7 @@ export default class VncSession extends PureComponent {
 
   render () {
     const { width: w, height: h } = this.props
-    const { loading, screens } = this.state
+    const { loading } = this.state
     const { remoteWidth, remoteHeight } = this.getScreenSize()
     const { scaleViewport = true } = this.props.tab
     // When not in scale mode, we need a wrapper with container size,
@@ -544,13 +573,7 @@ export default class VncSession extends PureComponent {
       style: remoteStyle,
       className: 'vnc-session-wrap session-v-wrap'
     }
-    const contrlProps = {
-      isFullScreen: this.props.fullscreen,
-      onSendCtrlAltDel: this.handleSendCtrlAltDel,
-      screens: screens.length > 1 ? screens : [],
-      currentScreen: this.state.currentScreen,
-      onSelectScreen: this.handleSelectScreen
-    }
+    const contrlProps = this.getControlProps()
     return (
       <Spin spinning={loading}>
         <div
