@@ -2,8 +2,6 @@ import { WasmReceiver, WasmSender } from 'zmodem2-wasm'
 import * as fs from './fs.js'
 import EventEmitter from './event-emitter.js'
 
-const BUFFER_SIZE = 10 * 1024 * 1024 // 10MB
-
 export default class ZmodemSession extends EventEmitter {
   constructor (addon, type) {
     super()
@@ -11,9 +9,6 @@ export default class ZmodemSession extends EventEmitter {
     this.type = type
     this.socket = addon.socket
     this.term = addon.term
-    this._fileBuffer = null
-    this._fileBufferOffset = 0
-    this._reading = false
     this.currentTransfer = null
   }
 
@@ -149,9 +144,6 @@ export default class ZmodemSession extends EventEmitter {
     if (!this.sender) {
       this.sender = new WasmSender()
     }
-    this._reading = false
-    this._fileBuffer = null
-    this._fileBufferOffset = 0
     this.sentBytes = 0
 
     return new Promise((resolve, reject) => {
@@ -160,10 +152,21 @@ export default class ZmodemSession extends EventEmitter {
 
       try {
         this.sender.start_file(file.name, file.size)
-        this.pumpSender()
+        this.drainSenderOutgoing()
+
+        // Open file and start polling
+        fs.open(file.filePath, 'r').then(fd => {
+          this.fd = fd
+          this.pollSender()
+        }).catch(e => {
+          console.error('Failed to open file', e)
+          reject(e)
+          this.close()
+        })
       } catch (e) {
         console.error('Failed to start sender', e)
         reject(e)
+        this.close()
       }
     })
   }
@@ -172,30 +175,79 @@ export default class ZmodemSession extends EventEmitter {
     if (!this.sender) return
     const u8 = typeof data === 'string' ? new TextEncoder().encode(data) : new Uint8Array(data)
 
-    let offset = 0
-    let loopCount = 0
+    try {
+      this.sender.feed(u8)
+      this.drainSenderOutgoing()
+      this.pollSender()
+    } catch (e) {
+      console.error('Sender error:', e)
+      if (this.currentFileReject) {
+        this.currentFileReject(e)
+        this.currentFileReject = null
+      }
+      this.close()
+    }
+  }
 
-    while (offset < u8.length && loopCount++ < 1000) {
-      if (!this.sender) break
-      try {
-        const chunk = u8.subarray(offset)
-        const consumed = this.sender.feed(chunk)
-        offset += consumed
+  drainSenderOutgoing () {
+    if (!this.sender) return
+    const outgoing = this.sender.drain_outgoing()
+    if (outgoing && outgoing.length > 0) {
+      this.socket.send(outgoing)
+    }
+  }
 
-        const drained = this.pumpSender()
+  pollSender () {
+    if (!this.sender) return
 
-        if (consumed === 0 && !drained) {
+    try {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const event = this.sender.poll()
+        if (!event) break
+
+        if (event.type === 'need_file_data') {
+          this.sendFileData(event.offset, event.length)
+          break
+        } else if (event.type === 'file_complete') {
+          if (this.currentFileResolve) {
+            this.currentFileResolve()
+            this.currentFileResolve = null
+          }
+        } else if (event.type === 'session_complete') {
+          this.close()
           break
         }
-      } catch (e) {
-        console.error('Sender error:', e)
-        if (this.currentFileReject) {
-          this.currentFileReject(e)
-          this.currentFileReject = null
-        }
-        this.close()
-        break
       }
+    } catch (e) {
+      console.error('Poll sender error', e)
+      this.close()
+    }
+  }
+
+  async sendFileData (offset, length) {
+    if (!this.fd || !this.sender) return
+
+    try {
+      const buffer = new Uint8Array(length)
+      // fs.read in fs.js returns the subarray with data
+      const data = await fs.read(this.fd, buffer, 0, length, offset)
+
+      if (data && data.length > 0) {
+        this.sender.feed_file(data)
+        this.sentBytes = offset + data.length
+        this.emit('progress', this.sentBytes)
+
+        this.drainSenderOutgoing()
+        this.pollSender()
+      }
+    } catch (e) {
+      console.error('Send file data error', e)
+      if (this.currentFileReject) {
+        this.currentFileReject(e)
+        this.currentFileReject = null
+      }
+      this.close()
     }
   }
 
@@ -203,7 +255,8 @@ export default class ZmodemSession extends EventEmitter {
     return new Promise((resolve) => {
       if (this.sender) {
         this.sender.finish_session()
-        this.pumpSender()
+        this.drainSenderOutgoing()
+        this.pollSender()
         // wait for session_complete
         const onEnd = () => {
           this.off('session_end', onEnd)
@@ -214,142 +267,5 @@ export default class ZmodemSession extends EventEmitter {
         resolve()
       }
     })
-  }
-
-  pumpSender () {
-    if (!this.sender) return false
-    let didWork = false
-
-    const outgoingChunks = []
-    let totalOutgoingSize = 0
-    const FLUSH_THRESHOLD = 64 * 1024
-
-    const flushOutgoing = () => {
-      if (outgoingChunks.length === 0) return
-      if (outgoingChunks.length === 1) {
-        this.socket.send(outgoingChunks[0])
-      } else {
-        this.socket.send(new Blob(outgoingChunks))
-      }
-      outgoingChunks.length = 0
-      totalOutgoingSize = 0
-    }
-
-    try {
-      const outgoing = this.sender.drain_outgoing()
-      if (outgoing && outgoing.length > 0) {
-        outgoingChunks.push(outgoing)
-        totalOutgoingSize += outgoing.length
-        didWork = true
-      }
-
-      while (true) {
-        const event = this.sender.poll()
-        if (!event) break
-
-        didWork = true
-
-        if (event.type === 'need_file_data') {
-          const start = event.offset
-          const length = event.length
-
-          if (this._fileBuffer &&
-            start >= this._fileBufferOffset &&
-            (start + length) <= (this._fileBufferOffset + this._fileBuffer.byteLength)) {
-            const relativeStart = start - this._fileBufferOffset
-            const chunk = this._fileBuffer.subarray(relativeStart, relativeStart + length)
-            this.sender.feed_file(chunk)
-
-            this.sentBytes = start + chunk.length
-            this.emit('progress', this.sentBytes)
-
-            const outgoing = this.sender.drain_outgoing()
-            if (outgoing && outgoing.length > 0) {
-              outgoingChunks.push(outgoing)
-              totalOutgoingSize += outgoing.length
-
-              if (totalOutgoingSize > FLUSH_THRESHOLD) {
-                flushOutgoing()
-              }
-            }
-            continue
-          }
-
-          if (this.sendingFile && !this._reading) {
-            flushOutgoing()
-            this._reading = true
-            this.loadBufferAndFeed(start, length)
-            break
-          } else if (this._reading) {
-            break
-          }
-        } else if (event.type === 'file_complete') {
-          // this.sender.finish_session() // Handled by finish()
-          if (this.currentFileResolve) {
-            this.currentFileResolve()
-            this.currentFileResolve = null
-          }
-        } else if (event.type === 'session_complete') {
-          this.close()
-          flushOutgoing()
-          return true
-        }
-      }
-    } catch (e) {
-      console.error('Pump Sender Error:', e)
-      if (this.currentFileReject) {
-        this.currentFileReject(e)
-        this.currentFileReject = null
-      }
-      this.close()
-    }
-
-    flushOutgoing()
-    return didWork
-  }
-
-  async openFile () {
-    if (this.fd) {
-      return this.fd
-    }
-    const fd = await fs.open(this.sendingFile.filePath, 'r')
-    this.fd = fd
-    return fd
-  }
-
-  async loadBufferAndFeed (offset, length) {
-    if (!this.sender || !this.sendingFile) {
-      this._reading = false
-      return
-    }
-    try {
-      const readSize = Math.max(length, BUFFER_SIZE)
-      // Use fs to read
-      const fd = await this.openFile()
-      const buffer = new Uint8Array(readSize)
-      const { bytesRead } = await fs.read(fd, buffer, 0, readSize, offset)
-
-      if (!this.sender) return
-      const u8 = buffer.subarray(0, bytesRead)
-
-      this._fileBuffer = u8
-      this._fileBufferOffset = offset
-
-      const feedLen = Math.min(length, u8.length)
-      const chunk = u8.subarray(0, feedLen)
-
-      this.sender.feed_file(chunk)
-
-      this.sentBytes = offset + chunk.length
-      this.emit('progress', this.sentBytes)
-
-      this._reading = false
-
-      this.pumpSender()
-    } catch (e) {
-      console.error('Buffer read error', e)
-      this._reading = false
-      try { this.pumpSender() } catch (_) {}
-    }
   }
 }
