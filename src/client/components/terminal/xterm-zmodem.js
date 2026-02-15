@@ -211,7 +211,7 @@ export class AddonZmodem {
   }
 
   writeZmodemProgress = () => {
-    if (this.onCanceling) {
+    if (this.onCanceling || !this.term) {
       return
     }
     const {
@@ -345,8 +345,8 @@ export class AddonZmodem {
       )
     }
     this.session = null
-    this.term.focus()
-    this.term.write('\r\n')
+    this.term?.focus()
+    this.term?.write('\r\n')
     this.ctx.onZmodem = false
     this.downloadFd = null
   }

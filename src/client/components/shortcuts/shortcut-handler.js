@@ -178,7 +178,7 @@ export function shortcutExtend (Cls) {
       ctrlKey &&
       this.zmodemAddon
     ) {
-      this.onZmodemEnd.onZmodemEnd()
+      this.zmodemAddon.onZmodemEnd()
     }
 
     let codeName
