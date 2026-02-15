@@ -16,9 +16,19 @@ import {
 import message from '../common/message'
 import Modal from '../common/modal'
 import { copy } from '../../common/clipboard'
-import RFB from '@novnc/novnc/core/rfb'
 import VncForm from './vnc-form'
 import RemoteFloatControl from '../common/remote-float-control'
+
+// noVNC module imports — loaded dynamically
+async function loadVncModule () {
+  if (window.novnc) return
+  console.debug('[VNC-CLIENT] Loading noVNC module...')
+  const mod = await import('@novnc/novnc/core/rfb')
+  window.novnc = {
+    RFB: mod.default
+  }
+  console.debug('[VNC-CLIENT] noVNC module loaded')
+}
 
 const { Option } = Select
 const e = window.translate
@@ -199,6 +209,17 @@ export default class VncSession extends PureComponent {
     const { pid, port } = r
     this.pid = pid
     this.port = port
+
+    // Load VNC module if not already loaded
+    try {
+      await loadVncModule()
+    } catch (e) {
+      console.error('[VNC-CLIENT] Failed to load VNC module:', e)
+      this.setState({ loading: false })
+      this.setStatus(statusMap.error)
+      return
+    }
+
     const { width, height } = this.calcCanvasSize()
     const wsUrl = this.buildWsUrl(port, 'vnc', `&width=${width}&height=${height}`)
     // When scaleViewport is false, we don't set fixed dimensions on the canvas
@@ -222,6 +243,7 @@ export default class VncSession extends PureComponent {
     if (password) {
       vncOpts.credentials.password = password
     }
+    const RFB = window.novnc.RFB
     const rfb = new RFB(
       this.getDom(),
       wsUrl,
