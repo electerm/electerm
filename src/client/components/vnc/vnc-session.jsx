@@ -182,6 +182,9 @@ export default class VncSession extends PureComponent {
       viewOnly = false,
       scaleViewport = true,
       clipViewport = false,
+      qualityLevel = 3, // 0-9, lower = faster performance
+      compressionLevel = 1, // 0-9, lower = faster performance
+      shared = true,
       username,
       password
     } = tab
@@ -228,6 +231,9 @@ export default class VncSession extends PureComponent {
       clipViewport,
       scaleViewport,
       viewOnly,
+      qualityLevel, // JPEG quality 0-9, lower = faster
+      compressionLevel, // Compression 0-9, lower = faster
+      shared, // Allow shared connections
       style: scaleViewport
         ? {
             width: width + 'px',
