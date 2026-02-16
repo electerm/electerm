@@ -208,9 +208,34 @@ const readCustom = (p1, len, ...args) => {
   })
 }
 
+const readCustomIpc = (p1, len, ...args) => {
+  return new Promise((resolve, reject) => {
+    fs.read(p1, Buffer.alloc(len), ...args, (err, n, buffer) => {
+      if (err) {
+        return reject(err)
+      }
+      // Return buffer directly for IPC transfer
+      return resolve({ n, buffer })
+    })
+  })
+}
+
 const writeCustom = (p1, arr) => {
   return new Promise((resolve, reject) => {
     const narr = decodeBase64String(arr)
+    fs.write(p1, narr, (err, n) => {
+      if (err) {
+        return reject(err)
+      }
+      return resolve(1)
+    })
+  })
+}
+
+const writeCustomIpc = (p1, arr) => {
+  return new Promise((resolve, reject) => {
+    // arr is already a Buffer when coming from IPC
+    const narr = Buffer.isBuffer(arr) ? arr : Buffer.from(arr)
     fs.write(p1, narr, (err, n) => {
       if (err) {
         return reject(err)
@@ -264,10 +289,12 @@ const fsExport = Object.assign(
     zipFolder,
     unzipFile,
     readCustom,
+    readCustomIpc,
     statCustom,
     openCustom,
     closeCustom,
-    writeCustom
+    writeCustom,
+    writeCustomIpc
   },
   {
     readdirAsync: (_path) => {

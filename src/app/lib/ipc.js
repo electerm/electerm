@@ -68,6 +68,7 @@ const { initCommandLine } = require('./command-line')
 const { watchFile, unwatchFile } = require('./watch-file')
 const lookup = require('../common/lookup')
 const { AIchat, getStreamContent } = require('./ai')
+const { fsExport } = require('./fs')
 
 async function initAppServer () {
   const {
@@ -198,7 +199,11 @@ function initIpc () {
     registerDeepLink,
     unregisterDeepLink,
     checkProtocolRegistration,
-    getPendingDeepLink
+    getPendingDeepLink,
+    fsWrite: fsExport.writeCustomIpc,
+    fsRead: fsExport.readCustomIpc,
+    fsOpen: fsExport.openCustom,
+    fsClose: fsExport.closeCustom
   }
   ipcMain.handle('async', (event, { name, args }) => {
     return asyncGlobals[name](...args)
