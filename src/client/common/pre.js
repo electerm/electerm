@@ -89,26 +89,47 @@ const fs = {
   },
   open: (...args) => {
     const cb = args.pop()
-    window.fs.openCustom(...args)
+    if (window.et.isWebApp) {
+      window.fs.openCustom(...args)
+        .then((data) => cb(undefined, data))
+        .catch((err) => cb(err))
+      return
+    }
+    runGlobalAsync('fsOpen', ...args)
       .then((data) => cb(undefined, data))
       .catch((err) => cb(err))
   },
   read: (p1, arr, ...args) => {
     const cb = args.pop()
-    window.fs.readCustom(
-      p1,
-      arr.length,
-      ...args
-    )
+    if (window.et.isWebApp) {
+      window.fs.readCustom(
+        p1,
+        arr.length,
+        ...args
+      )
+        .then((data) => {
+          const { n, newArr } = data
+          const newArr1 = decodeBase64String(newArr)
+          cb(undefined, n, newArr1)
+        })
+        .catch(err => cb(err))
+      return
+    }
+    runGlobalAsync('fsRead', p1, arr.length, ...args)
       .then((data) => {
-        const { n, newArr } = data
-        const newArr1 = decodeBase64String(newArr)
-        cb(undefined, n, newArr1)
+        const { n, buffer } = data
+        cb(undefined, n, buffer)
       })
       .catch(err => cb(err))
   },
   close: (fd, cb) => {
-    window.fs.closeCustom(fd)
+    if (window.et.isWebApp) {
+      window.fs.closeCustom(fd)
+        .then((data) => cb(undefined, data))
+        .catch((err) => cb(err))
+      return
+    }
+    runGlobalAsync('fsClose', fd)
       .then((data) => cb(undefined, data))
       .catch((err) => cb(err))
   },
@@ -124,7 +145,13 @@ const fs = {
       .catch((err) => cb(err))
   },
   write: (p1, buf, cb) => {
-    window.fs.writeCustom(p1, encodeUint8Array(buf))
+    if (window.et.isWebApp) {
+      window.fs.writeCustom(p1, encodeUint8Array(buf))
+        .then((data) => cb(undefined, data))
+        .catch((err) => cb(err))
+      return
+    }
+    runGlobalAsync('fsWrite', p1, buf)
       .then((data) => cb(undefined, data))
       .catch((err) => cb(err))
   },
