@@ -164,6 +164,7 @@ class ZmodemSession {
       }
       this.state = ZMODEM_STATE.WAITING_SAVE_PATH
     } catch (e) {
+      log.error('Failed to start zmodem receiver', e)
       this.endSession()
     }
   }
@@ -213,6 +214,7 @@ class ZmodemSession {
           break
         }
       } catch (e) {
+        log.error('Zmodem receiver error:', e)
         this.endSession()
         break
       }
@@ -260,6 +262,7 @@ class ZmodemSession {
         didWork = true
       }
     } catch (e) {
+      log.error('Zmodem receiver pump error:', e)
       this.endSession()
     }
     return didWork
@@ -313,6 +316,7 @@ class ZmodemSession {
         this.sendProgress()
       }
     } catch (e) {
+      log.error('Failed to write file data', e)
       this.endSession()
     }
   }
@@ -387,6 +391,7 @@ class ZmodemSession {
         message: 'ZMODEM send session started, please select files'
       })
     } catch (e) {
+      log.error('Failed to start zmodem sender', e)
       this.endSession()
     }
   }
@@ -425,6 +430,7 @@ class ZmodemSession {
           break
         }
       } catch (e) {
+        log.error('Zmodem sender error:', e)
         this.endSession()
         break
       }
@@ -493,6 +499,7 @@ class ZmodemSession {
         didWork = true
       }
     } catch (e) {
+      log.error('Zmodem sender pump error', e)
       this.endSession()
     }
 
@@ -540,6 +547,7 @@ class ZmodemSession {
         }
       }
     } catch (e) {
+      log.error('Failed to read file data for sending', e)
       this.endSession()
     }
   }
@@ -617,6 +625,7 @@ class ZmodemSession {
         size: file.size
       })
     } catch (e) {
+      log.error('Failed to send file', e)
       this.endSession()
     }
   }
@@ -634,6 +643,7 @@ class ZmodemSession {
         this.writeToTerminal(Buffer.from(outgoing))
       }
     } catch (e) {
+      log.error('Failed to finish sender session', e)
       this.endSession()
     }
   }
@@ -705,6 +715,7 @@ class ZmodemSession {
         size
       })
     } catch (e) {
+      log.error('Failed to prepare receive file', e)
       this.endSession()
     }
   }
@@ -728,6 +739,7 @@ class ZmodemSession {
       try {
         fs.closeSync(this.downloadFd)
       } catch (e) {
+        log.error('Error closing download file', e)
       }
       this.downloadFd = null
     }
@@ -736,6 +748,7 @@ class ZmodemSession {
       try {
         fs.closeSync(this.uploadFd)
       } catch (e) {
+        log.error('Error closing upload file', e)
       }
       this.uploadFd = null
     }
