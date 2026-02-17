@@ -70,9 +70,6 @@ const manualChunks = (id) => {
     if (id.includes('manate')) {
       return 'manate'
     }
-    if (id.includes('zmodem2-wasm')) {
-      return 'zmodem2-wasm'
-    }
     if (id.includes('electerm-icons')) {
       return 'electerm-icons'
     }
@@ -180,7 +177,7 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    exclude: ['ironrdp-wasm', 'zmodem2-wasm']
+    exclude: ['ironrdp-wasm']
   },
   // optimizeDeps: {
   //   esbuildOptions: {
