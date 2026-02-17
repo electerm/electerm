@@ -92,7 +92,8 @@ export default function TerminalInfoDisk (props) {
       },
       render: (v) => {
         if (k === 'up' || k === 'down') {
-          return filesize(v)
+          console.log('render traffic', k, v)
+          return filesize(v || 0)
         }
         return v
       }
