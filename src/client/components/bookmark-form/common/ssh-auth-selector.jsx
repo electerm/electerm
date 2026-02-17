@@ -4,7 +4,6 @@
 import {
   Button,
   Input,
-  Upload,
   AutoComplete,
   Form,
   Select
@@ -12,7 +11,7 @@ import {
 import { formItemLayout } from '../../../common/form-layout'
 import { uniqBy } from 'lodash-es'
 import Password from '../../common/password'
-import { getFilePath } from '../../../common/file-drop-utils'
+import Upload from '../../common/upload'
 
 const { TextArea } = Input
 const FormItem = Form.Item
@@ -27,12 +26,11 @@ export default function renderAuth (props) {
     profileFilter = (d) => d
   } = props
   const commonBeforeUpload = (fieldName) => async (file) => {
-    const filePath = getFilePath(file)
+    const filePath = file.filePath
     const content = await window.fs.readFile(filePath)
     form.setFieldsValue({
       [fieldName]: content
     })
-    return false
   }
   const renderKeyField = (key, label, desc) => (
     <FormItem

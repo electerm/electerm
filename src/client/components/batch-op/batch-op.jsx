@@ -7,7 +7,6 @@ import {
   CloseCircleOutlined
 } from '@ant-design/icons'
 import {
-  Upload,
   Input,
   Button,
   Table,
@@ -28,11 +27,11 @@ import { pick } from 'lodash-es'
 import { runCmd } from '../terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
 import uid from '../../common/uid'
-import { getFilePath } from '../../common/file-drop-utils'
 import wait from '../../common/wait'
 import { getFolderFromFilePath } from '../sftp/file-read'
 import resolveFilePath from '../../common/resolve'
 import { refsStatic } from '../common/ref'
+import Upload from '../common/upload'
 
 const e = window.translate
 
@@ -407,7 +406,7 @@ export default class BatchOp extends PureComponent {
   }
 
   beforeUpload = async (file) => {
-    const filePath = getFilePath(file)
+    const filePath = file.filePath
     const text = await window.fs.readFile(filePath)
     this.setState({
       text

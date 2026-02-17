@@ -7,7 +7,6 @@ import message from '../common/message'
 import {
   Select,
   Switch,
-  Upload,
   Button,
   AutoComplete,
   Tooltip,
@@ -34,9 +33,9 @@ import KeywordsTransport from './keywords-transport'
 import fs from '../../common/fs'
 import uid from '../../common/uid'
 import createDefaultSessionLogPath from '../../common/default-log-path'
-import { getFilePath } from '../../common/file-drop-utils'
 import TerminalBackgroundConfig from './terminal-bg-config'
 import NumberConfig from './number-config'
+import Upload from '../common/upload'
 import './setting.styl'
 
 const { Option } = Select
@@ -264,11 +263,9 @@ export default class SettingTerminal extends Component {
     const after = (
       <Upload
         beforeUpload={(file) => {
-          const filePath = getFilePath(file)
+          const filePath = file.filePath
           this.onChangeValue(filePath, name)
-          return false
         }}
-        showUploadList={false}
       >
         <span>{e('chooseFile')}</span>
       </Upload>

@@ -7,15 +7,15 @@ import {
   MenuOutlined,
   EditOutlined
 } from '@ant-design/icons'
-import { Button, Space, Dropdown, Upload } from 'antd'
+import { Button, Space, Dropdown } from 'antd'
 import copy from 'json-deep-copy'
 import time from '../../common/time'
 import { uniq } from 'lodash-es'
 import { fixBookmarks } from '../../common/db-fix'
 import download from '../../common/download'
-import { getFilePath } from '../../common/file-drop-utils'
 import delay from '../../common/wait'
 import { action } from 'manate'
+import Upload from '../common/upload'
 
 const e = window.translate
 
@@ -31,7 +31,7 @@ export default function BookmarkToolbar (props) {
   } = props
   const upload = action(async (file) => {
     const { store } = window
-    const filePath = getFilePath(file)
+    const filePath = file.filePath
     const txt = await window.fs.readFile(filePath)
 
     const content = JSON.parse(txt)

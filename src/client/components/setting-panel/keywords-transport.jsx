@@ -1,13 +1,12 @@
 import BookmarkTransport from '../tree-list/bookmark-transport'
 import download from '../../common/download'
 import time from '../../common/time'
-import { getFilePath } from '../../common/file-drop-utils'
 
 export default class KeywordsTransport extends BookmarkTransport {
   name = 'keywords-highlight'
   beforeUpload = async (file) => {
     const { store } = this.props
-    const filePath = getFilePath(file)
+    const filePath = file.filePath
     const txt = await window.fs.readFile(filePath)
     try {
       store.setConfig({
@@ -28,6 +27,7 @@ export default class KeywordsTransport extends BookmarkTransport {
     const { store } = this.props
     const arr = store.config.keywords || []
     const txt = JSON.stringify(arr, null, 2)
+    console.log(txt, 'txt')
     const stamp = time(undefined, 'YYYY-MM-DD-HH-mm-ss')
     download('electerm-' + this.name + '-' + stamp + '.json', txt)
   }

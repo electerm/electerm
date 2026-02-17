@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Button, Input, Upload, Form, Space } from 'antd'
+import { Button, Input, Form, Space } from 'antd'
 import message from '../common/message'
 import {
   convertTheme,
@@ -13,7 +13,7 @@ import generate from '../../common/uid'
 import Link from '../common/external-link'
 import InputAutoFocus from '../common/input-auto-focus'
 import ThemePicker from './theme-editor'
-import { getFilePath } from '../../common/file-drop-utils'
+import Upload from '../common/upload'
 // import './theme-form.styl'
 
 const { TextArea } = Input
@@ -154,7 +154,7 @@ export default function ThemeForm (props) {
   }
 
   async function beforeUpload (file) {
-    const filePath = getFilePath(file)
+    const filePath = file.filePath
     const txt = await window.fs.readFile(filePath)
     const { name, themeConfig, uiThemeConfig } = convertTheme(txt)
     const tt = convertThemeToText({
@@ -165,7 +165,6 @@ export default function ThemeForm (props) {
       themeText: tt
     })
     setTxt(tt)
-    return false
   }
 
   function handleSwitchEditor (e) {

@@ -13,7 +13,6 @@ import download from '../common/download'
 import { fixBookmarks } from '../common/db-fix'
 import dayjs from 'dayjs'
 import parseJsonSafe from '../common/parse-json-safe'
-import { getFilePath } from '../common/file-drop-utils'
 
 const {
   version: packVer
@@ -418,7 +417,7 @@ export default (Store) => {
   }
 
   Store.prototype.importAll = async function (file) {
-    const filePath = getFilePath(file)
+    const filePath = file.filePath
     const txt = await window.fs
       .readFile(filePath)
     const { store } = window

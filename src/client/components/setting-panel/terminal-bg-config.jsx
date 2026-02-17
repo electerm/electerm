@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import {
   AutoComplete,
-  Upload,
   Tooltip,
   Input
 } from 'antd'
@@ -12,7 +11,7 @@ import {
 import defaultSettings from '../../common/default-setting'
 import NumberConfig from './number-config'
 import TextBgModal from './text-bg-modal.jsx'
-import { getFilePath } from '../../common/file-drop-utils'
+import Upload from '../common/upload'
 
 const e = window.translate
 
@@ -33,11 +32,9 @@ export default function TerminalBackgroundConfig ({
   const after = (
     <Upload
       beforeUpload={(file) => {
-        const filePath = getFilePath(file)
+        const filePath = file.filePath
         onChangeValue(filePath, name)
-        return false
       }}
-      showUploadList={false}
     >
       <span>{e('chooseFile')}</span>
     </Upload>

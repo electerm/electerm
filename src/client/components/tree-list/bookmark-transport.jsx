@@ -8,7 +8,8 @@ import {
   ImportOutlined,
   EditOutlined
 } from '@ant-design/icons'
-import { Upload, Button, Space } from 'antd'
+import { Button, Space } from 'antd'
+import Upload from '../common/upload'
 
 const e = window.translate
 

@@ -4,7 +4,6 @@
 
 import {
   Button,
-  Upload,
   Switch,
   Tooltip
 } from 'antd'
@@ -13,6 +12,7 @@ import {
   ExportOutlined,
   InfoCircleOutlined
 } from '@ant-design/icons'
+import Upload from '../common/upload'
 
 const e = window.translate
 
@@ -34,6 +34,7 @@ export default function DataTransport (props) {
         <Upload
           beforeUpload={store.importAll}
           fileList={[]}
+          className='inline'
         >
           <Button
             icon={<ImportOutlined />}
