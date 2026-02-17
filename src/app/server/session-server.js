@@ -26,6 +26,7 @@ const {
   isWin
 } = require('../common/runtime-constants')
 const wsDec = require('./ws-dec')
+const { zmodemManager } = require('./zmodem')
 
 const {
   tokenElecterm,
@@ -85,8 +86,21 @@ if (type === 'rdp') {
     const dataBuffer = []
     let sendTimeout = null
 
+    // Create ws.s function for zmodem to send messages to client
+    ws.s = (data) => {
+      ws.send(JSON.stringify(data))
+    }
+
     // In the WebSocket setup, replace the data handler:
     term.on('data', function (data) {
+      // Check if zmodem session is active and handle data
+      if (zmodemManager.isActive(pid)) {
+        // Let zmodem handle the data, but still log it
+        term.writeLog(data)
+        zmodemManager.handleData(pid, data, term, ws)
+        return
+      }
+
       // Buffer incoming data instead of sending immediately
       dataBuffer.push(data)
 
@@ -99,8 +113,12 @@ if (type === 'rdp') {
           // Write to log (keep this)
           term.writeLog(combinedData)
 
-          // Send to WebSocket
-          ws.send(combinedData)
+          // Check for zmodem escape sequence before sending to client
+          const consumed = zmodemManager.handleData(pid, combinedData, term, ws)
+          if (!consumed) {
+            // Not zmodem data, send to WebSocket
+            ws.send(combinedData)
+          }
 
           // Reset timeout
           sendTimeout = null
@@ -109,6 +127,8 @@ if (type === 'rdp') {
     })
 
     function onClose () {
+      // Clean up zmodem session
+      zmodemManager.destroySession(pid)
       term.kill()
       log.debug('Closed terminal ' + pid)
       // Clean things up
@@ -123,6 +143,18 @@ if (type === 'rdp') {
 
     ws.on('message', function (msg) {
       try {
+        // Check if message is a zmodem control message (JSON)
+        if (typeof msg === 'string') {
+          try {
+            const parsed = JSON.parse(msg)
+            if (parsed.action === 'zmodem-event') {
+              zmodemManager.handleMessage(pid, parsed, term, ws)
+              return
+            }
+          } catch (e) {
+            // Not JSON, treat as regular terminal input
+          }
+        }
         term.write(msg)
       } catch (ex) {
         log.error(ex)

@@ -107,6 +107,19 @@ export default class AttachAddonCustom extends AttachAddon {
   }
 
   onMsg = (ev) => {
+    // Check if it's a JSON zmodem control message
+    if (typeof ev.data === 'string') {
+      try {
+        const msg = JSON.parse(ev.data)
+        if (msg.action === 'zmodem-event') {
+          // Let zmodem-client handle this, don't write to terminal
+          return
+        }
+      } catch (e) {
+        // Not JSON, continue processing
+      }
+    }
+
     // When in alternate screen mode (like vim, less, or TUI apps like Claude Code),
     // bypass trzsz processing to avoid interference with the application's display
     if (this.term?.buffer?.active?.type === 'alternate') {

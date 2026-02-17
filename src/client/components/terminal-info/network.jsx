@@ -5,7 +5,7 @@
 import { Table } from 'antd'
 import { isEmpty } from 'lodash-es'
 import { useEffect, useState } from 'react'
-import { formatBytes } from '../../common/byte-format'
+import { filesize } from 'filesize'
 import copy from 'json-deep-copy'
 import { ApiOutlined } from '@ant-design/icons'
 
@@ -92,7 +92,7 @@ export default function TerminalInfoDisk (props) {
       },
       render: (v) => {
         if (k === 'up' || k === 'down') {
-          return formatBytes(v)
+          return filesize(v)
         }
         return v
       }

@@ -34,7 +34,7 @@ import { CanvasAddon } from '@xterm/addon-canvas'
 import { WebglAddon } from '@xterm/addon-webgl'
 import { LigaturesAddon } from '@xterm/addon-ligatures'
 import getProxy from '../../common/get-proxy.js'
-import { AddonZmodem } from './xterm-zmodem.js'
+import { ZmodemClient } from './zmodem-client.js'
 import { Unicode11Addon } from '@xterm/addon-unicode11'
 import keyControlPressed from '../../common/key-control-pressed.js'
 import { Terminal } from '@xterm/xterm'
@@ -154,7 +154,7 @@ class Term extends Component {
     }
     this.attachAddon = null
     this.fitAddon = null
-    this.zmodemAddon = null
+    this.zmodemClient = null
     this.searchAddon = null
     this.fitAddon = null
     this.cmdAddon = null
@@ -1134,10 +1134,9 @@ class Term extends Component {
     }
     term.loadAddon(new WebLinksAddon(this.webLinkHandler))
     term.focus()
-    this.zmodemAddon = new AddonZmodem()
+    this.zmodemClient = new ZmodemClient(this)
+    this.zmodemClient.init(socket)
     this.fitAddon.fit()
-    term.loadAddon(this.zmodemAddon)
-    term.zmodemAttach(this)
     term.displayRaw = displayRaw
     term.loadAddon(
       new KeywordHighlighterAddon(keywords)
