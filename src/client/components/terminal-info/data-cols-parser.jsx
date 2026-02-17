@@ -1,6 +1,6 @@
 import { copy } from '../../common/clipboard'
 import filesizeParser from 'filesize-parser'
-import { formatBytes } from '../../common/byte-format'
+import { filesize } from 'filesize'
 
 const valueParserMaps = {
   size: v => v,
@@ -23,7 +23,8 @@ function copyValue (event) {
 export default (data) => {
   return Object.keys(data).map(k => {
     const rd = (txt) => {
-      const r = k === 'mem' ? formatBytes(parseInt(txt, 10)) : txt
+      // txt is in KB, convert to bytes for filesize function
+      const r = k === 'mem' ? filesize(parseInt(txt, 10) * 1024) : txt
       const itemProps = {
         className: 'activity-item pointer',
         'data-content': r,

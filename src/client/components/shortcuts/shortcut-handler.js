@@ -176,9 +176,11 @@ export function shortcutExtend (Cls) {
       !altKey &&
       !shiftKey &&
       ctrlKey &&
-      this.zmodemAddon
+      this.zmodemClient &&
+      this.zmodemClient.isActive
     ) {
-      this.onZmodemEnd.onZmodemEnd()
+      this.zmodemClient.cancel()
+      return false
     }
 
     let codeName
