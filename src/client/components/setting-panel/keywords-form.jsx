@@ -54,6 +54,7 @@ export default function KeywordForm (props) {
         >
           <InputConfirm
             addonBefore={renderBefore(field.name)}
+            onChange={handleTrigger}
           />
         </FormItem>
         <Button
@@ -69,7 +70,9 @@ export default function KeywordForm (props) {
     const { themeConfig } = props
     return (
       <FormItem name={[name, 'color']} noStyle>
-        <Select>
+        <Select
+          onChange={handleTrigger}
+        >
           {
             colors.map(color => {
               const ps = {
