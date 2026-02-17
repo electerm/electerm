@@ -7,7 +7,7 @@
  * The WASM client handles all RDP protocol logic.
  * This server-side code acts as a RDCleanPath proxy:
  *   1. Receives RDCleanPath Request from WASM client (ASN.1 DER binary)
- *   2. TCP connects to the RDP server
+ *   2. TCP connects to the RDP server (optionally through proxy)
  *   3. Performs X.224 handshake + TLS upgrade
  *   4. Sends RDCleanPath Response (with certs) back to WASM client
  *   5. Bidirectional relay: WebSocket <-> TLS
@@ -38,7 +38,15 @@ class TerminalRdp extends TerminalBase {
     this.width = width
     this.height = height
 
-    handleConnection(this.ws)
+    const {
+      proxy,
+      readyTimeout
+    } = this.initOptions
+
+    handleConnection(this.ws, {
+      proxy,
+      readyTimeout
+    })
   }
 
   resize () {
@@ -48,10 +56,28 @@ class TerminalRdp extends TerminalBase {
 
   test = async () => {
     const net = require('net')
+    const proxySock = require('./socks')
     const {
       host,
-      port = 3389
+      port = 3389,
+      proxy,
+      readyTimeout = 10000
     } = this.initOptions
+
+    if (proxy) {
+      // Test connection through proxy
+      const proxyResult = await proxySock({
+        readyTimeout,
+        host,
+        port,
+        proxy
+      })
+      const socket = proxyResult.socket
+      socket.destroy()
+      return true
+    }
+
+    // Direct connection test
     return new Promise((resolve, reject) => {
       const socket = net.createConnection({ host, port }, () => {
         socket.destroy()
@@ -60,7 +86,7 @@ class TerminalRdp extends TerminalBase {
       socket.on('error', (err) => {
         reject(err)
       })
-      socket.setTimeout(10000, () => {
+      socket.setTimeout(readyTimeout, () => {
         socket.destroy()
         reject(new Error('Connection timed out'))
       })

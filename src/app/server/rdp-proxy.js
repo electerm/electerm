@@ -1,6 +1,7 @@
 const net = require('net')
 const forge = require('node-forge')
 const log = require('../common/log')
+const proxySock = require('./socks')
 
 // Debug prefix for all RDP proxy messages
 const LOG_PREFIX = '[RDP-PROXY]'
@@ -311,8 +312,54 @@ function parseDestination (destination) {
 // RDP server certificates. node-forge avoids this entirely.
 
 /**
+ * Create a TCP connection (direct or through proxy)
+ * @param {string} host
+ * @param {number} port
+ * @param {object} options
+ * @param {string} options.proxy - Proxy URL
+ * @param {number} options.readyTimeout - Connection timeout
+ * @param {Buffer} x224Request - X.224 Connection Request to send
+ * @param {function} logPrefix - Log prefix function
+ * @returns {Promise<net.Socket>}
+ */
+async function createTcpConnection (host, port, options, x224Request, logPrefix) {
+  if (options.proxy) {
+    log.debug(`${logPrefix} Connecting through proxy: ${options.proxy}`)
+    const proxyResult = await proxySock({
+      readyTimeout: options.readyTimeout || 15000,
+      host,
+      port,
+      proxy: options.proxy
+    })
+    const tcpSocket = proxyResult.socket
+    log.debug(`${logPrefix} ✓ Proxy connection established`)
+
+    // Send X.224 Connection Request over proxied connection
+    tcpSocket.write(x224Request, () => {
+      log.debug(`${logPrefix} ✓ Sent X.224 Connection Request (${x224Request.length} bytes)`)
+    })
+    return tcpSocket
+  }
+
+  return new Promise((resolve, reject) => {
+    const tcpSocket = net.createConnection({ host, port }, () => {
+      log.debug(`${logPrefix} ✓ TCP connection established`)
+
+      // Send X.224 Connection Request over raw TCP
+      tcpSocket.write(x224Request, () => {
+        log.debug(`${logPrefix} ✓ Sent X.224 Connection Request (${x224Request.length} bytes)`)
+      })
+      resolve(tcpSocket)
+    })
+    tcpSocket.once('error', (err) => {
+      reject(new Error(`TCP connection failed: ${err.message}`))
+    })
+  })
+}
+
+/**
  * Perform the RDCleanPath proxy handshake:
- * 1. TCP connect to RDP server
+ * 1. TCP connect to RDP server (optionally through proxy)
  * 2. Send X.224 Connection Request (raw TCP)
  * 3. Read X.224 Connection Confirm (raw TCP)
  * 4. TLS handshake via node-forge (bypasses BoringSSL)
@@ -321,11 +368,23 @@ function parseDestination (destination) {
  * @param {string} host
  * @param {number} port
  * @param {Buffer} x224Request - X.224 Connection Request bytes
+ * @param {object} options - Optional settings
+ * @param {string} options.proxy - Proxy URL (e.g., 'socks5://127.0.0.1:1080' or 'http://proxy:8080')
+ * @param {number} options.readyTimeout - Connection timeout in ms
  * @returns {Promise<{ x224Response: Buffer, certChain: Buffer[], forgeTls: object, tcpSocket: net.Socket }>}
  */
-function performRDPHandshake (host, port, x224Request) {
+async function performRDPHandshake (host, port, x224Request, options = {}) {
+  const logPrefix = `${LOG_PREFIX} [${host}:${port}]`
+
+  // Step 1: TCP connect (direct or through proxy)
+  let tcpSocket
+  try {
+    tcpSocket = await createTcpConnection(host, port, options, x224Request, logPrefix)
+  } catch (err) {
+    throw new Error(`Connection failed: ${err.message}`)
+  }
+
   return new Promise((resolve, reject) => {
-    const logPrefix = `${LOG_PREFIX} [${host}:${port}]`
     let settled = false
 
     function settle (err, result) {
@@ -334,16 +393,6 @@ function performRDPHandshake (host, port, x224Request) {
       if (err) reject(err)
       else resolve(result)
     }
-
-    // Step 1: TCP connect
-    const tcpSocket = net.createConnection({ host, port }, () => {
-      log.debug(`${logPrefix} ✓ TCP connection established`)
-
-      // Step 2: Send X.224 Connection Request over raw TCP
-      tcpSocket.write(x224Request, () => {
-        log.debug(`${logPrefix} ✓ Sent X.224 Connection Request (${x224Request.length} bytes)`)
-      })
-    })
 
     tcpSocket.once('error', (err) => {
       settle(new Error(`TCP connection failed: ${err.message}`))
@@ -553,8 +602,11 @@ function setupForgeRelay (ws, forgeTls, tcpSocket) {
  * 6. Bidirectional relay: WebSocket ↔ TLS
  *
  * @param {WebSocket} ws - The WebSocket connection
+ * @param {object} options - Optional settings
+ * @param {string} options.proxy - Proxy URL (e.g., 'socks5://127.0.0.1:1080' or 'http://proxy:8080')
+ * @param {number} options.readyTimeout - Connection timeout in ms
  */
-function handleConnection (ws) {
+function handleConnection (ws, options = {}) {
   log.debug(`${LOG_PREFIX} New WebSocket connection for RDCleanPath proxy`)
 
   // Wait for the first binary message: RDCleanPath Request
@@ -575,7 +627,8 @@ function handleConnection (ws) {
       const { x224Response, certChain, forgeTls, tcpSocket } = await performRDPHandshake(
         host,
         port,
-        request.x224ConnectionRequest
+        request.x224ConnectionRequest,
+        options
       )
 
       // Step 6: Build and send RDCleanPath response

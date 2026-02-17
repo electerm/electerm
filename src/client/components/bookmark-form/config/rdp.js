@@ -31,6 +31,7 @@ const rdpConfig = {
         { ...commonFields.password, rules: [{ required: true, message: e('password') + ' required' }] },
         commonFields.description,
         { type: 'input', name: 'domain', label: () => e('domain') },
+        commonFields.proxy,
         commonFields.type
       ]
     }
