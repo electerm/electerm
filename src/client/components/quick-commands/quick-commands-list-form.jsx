@@ -20,9 +20,8 @@ export default function renderQm () {
     return (
       <Space.Compact
         align='center'
-        block
+        className='width-100 mg2b'
         key={field.key}
-        className='mg2b'
       >
         <Space.Addon>{e('delay')}</Space.Addon>
         <FormItem

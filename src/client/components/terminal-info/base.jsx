@@ -130,7 +130,7 @@ export default class TerminalInfoBase extends Component {
       terminalInfos
     } = this.props
     return (
-      <Space.Compact block>
+      <Space.Compact className='width-100'>
         {
           defaults.terminalInfos.map(f => {
             const type = terminalInfos.includes(f) ? 'primary' : 'default'

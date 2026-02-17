@@ -100,7 +100,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         className='ai-config-form'
       >
         <Form.Item label='API URL' required>
-          <Space.Compact block>
+          <Space.Compact className='width-100'>
             <Form.Item
               label='API URL'
               name='baseURLAI'

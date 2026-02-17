@@ -69,7 +69,7 @@ export default auto(function WorkspaceSaveModal ({ store }) {
       width={400}
     >
       <div className='pd1y'>
-        <Space direction='vertical' block>
+        <Space direction='vertical' className='width-100'>
           <Radio.Group
             value={saveMode}
             onChange={ev => setSaveMode(ev.target.value)}
