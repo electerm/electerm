@@ -27,7 +27,6 @@ export default class KeywordsTransport extends BookmarkTransport {
     const { store } = this.props
     const arr = store.config.keywords || []
     const txt = JSON.stringify(arr, null, 2)
-    console.log(txt, 'txt')
     const stamp = time(undefined, 'YYYY-MM-DD-HH-mm-ss')
     download('electerm-' + this.name + '-' + stamp + '.json', txt)
   }
