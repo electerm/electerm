@@ -38,9 +38,9 @@ class ZmodemSession {
     this.receiver = null
     this.sender = null
     this.currentTransfer = null
-    this.downloadFd = null
+    this.downloadStream = null // Write stream for file download
     this.downloadPath = null
-    this.uploadFd = null
+    this.uploadStream = null // Read stream for file upload
     this.uploadPath = null
     this.transferSize = 0
     this.transferredBytes = 0
@@ -48,7 +48,8 @@ class ZmodemSession {
     this.savePath = null
     this.pendingFiles = []
     this.currentFileIndex = 0
-    this.fileBuffer = null // Buffer for file data during upload
+    this.fileBuffer = null // Buffer for file data during upload (used for small chunks)
+    this.fileReadPosition = 0 // Track read position for streaming
     this.pendingData = [] // Buffer for incoming data before save path is set
     this.pendingFileInfo = null // Buffer for file info before save path is set
     this.pendingSendData = [] // Buffer for incoming data before files are selected
@@ -298,7 +299,7 @@ class ZmodemSession {
    * @param {Buffer} data - File data chunk
    */
   handleFileData (data) {
-    if (!this.downloadFd || !this.currentTransfer) return
+    if (!this.downloadStream || !this.currentTransfer) return
 
     try {
       // Set start time on first data received
@@ -306,7 +307,11 @@ class ZmodemSession {
         this.startTime = Date.now()
       }
 
-      fs.writeSync(this.downloadFd, data)
+      // Write to stream (non-blocking)
+      if (!this.downloadStream.write(data)) {
+        // Stream buffer is full, wait for drain
+        // The stream will handle backpressure automatically
+      }
       this.transferredBytes += data.length
 
       // Throttled progress update
@@ -331,9 +336,9 @@ class ZmodemSession {
       this.sendProgress()
     }
 
-    if (this.downloadFd) {
-      fs.closeSync(this.downloadFd)
-      this.downloadFd = null
+    if (this.downloadStream) {
+      this.downloadStream.end()
+      this.downloadStream = null
     }
 
     this.sendToClient({
@@ -507,24 +512,44 @@ class ZmodemSession {
   }
 
   /**
-   * Send file data to sender
+   * Send file data to sender using streaming read
    * @param {number} offset - File offset
    * @param {number} length - Data length to read
    */
   sendFileData (offset, length) {
-    if (!this.fileBuffer || !this.sender) return
+    if (!this.currentTransfer || !this.sender) return
 
     try {
-      const data = this.fileBuffer.slice(offset, offset + length)
+      // Check if we need to read more data from file
+      // Use a buffer pool for streaming reads
+      const CHUNK_SIZE = 64 * 1024 // 64KB chunks for streaming
+      const data = Buffer.allocUnsafe(Math.min(length, CHUNK_SIZE))
 
-      if (data.length > 0) {
+      // Read from current position if using streaming
+      if (!this.uploadFd) {
+        // Open file descriptor for streaming read
+        this.uploadFd = fs.openSync(this.uploadPath, 'r')
+        this.fileReadPosition = 0
+      }
+
+      // Seek to correct position if needed
+      if (offset !== this.fileReadPosition) {
+        // For random access, we need to seek
+        // But zmodem typically reads sequentially, so this should be rare
+      }
+
+      const bytesRead = fs.readSync(this.uploadFd, data, 0, Math.min(length, CHUNK_SIZE), offset)
+      const actualData = data.slice(0, bytesRead)
+      this.fileReadPosition = offset + bytesRead
+
+      if (actualData.length > 0) {
         // Set start time on first data transfer
         if (this.transferredBytes === 0) {
           this.startTime = Date.now()
         }
 
-        this.sender.feedFile(new Uint8Array(data))
-        this.transferredBytes = offset + data.length
+        this.sender.feedFile(new Uint8Array(actualData))
+        this.transferredBytes = offset + actualData.length
 
         // Throttled progress update
         const now = Date.now()
@@ -538,8 +563,14 @@ class ZmodemSession {
         if (outgoing && outgoing.length > 0) {
           this.writeToTerminal(Buffer.from(outgoing))
         }
-      } else if (offset >= this.currentTransfer.size) {
-        // All data sent, finish session
+      }
+
+      if (bytesRead === 0 || offset + bytesRead >= this.currentTransfer.size) {
+        // All data sent, close file and finish session
+        if (this.uploadFd) {
+          fs.closeSync(this.uploadFd)
+          this.uploadFd = null
+        }
         this.sender.finishSession()
         const outgoing = this.sender.drainOutgoing()
         if (outgoing && outgoing.length > 0) {
@@ -592,7 +623,7 @@ class ZmodemSession {
   }
 
   /**
-   * Send a file
+   * Send a file using streaming (no full file read into memory)
    * @param {Object} file - File info { path, name, size }
    */
   sendFile (file) {
@@ -606,11 +637,17 @@ class ZmodemSession {
       this.transferSize = file.size
       this.transferredBytes = 0
       this.uploadPath = file.path
+      this.fileReadPosition = 0
+      this.fileBuffer = null // No longer buffer entire file
 
-      // Read entire file into memory for sending
-      this.fileBuffer = fs.readFileSync(file.path)
+      // Close any previous upload file descriptor
+      if (this.uploadFd) {
+        fs.closeSync(this.uploadFd)
+        this.uploadFd = null
+      }
 
       // Start file transfer (startTime will be set when first data is sent)
+      // File will be read in chunks in sendFileData()
       this.sender.startFile(file.name, file.size)
 
       // Drain outgoing after starting file
@@ -683,7 +720,7 @@ class ZmodemSession {
   }
 
   /**
-   * Prepare to receive a file
+   * Prepare to receive a file using write stream
    * @param {string} name - File name
    * @param {number} size - File size
    */
@@ -703,7 +740,10 @@ class ZmodemSession {
       }
 
       this.downloadPath = filePath
-      this.downloadFd = fs.openSync(filePath, 'w')
+      // Create write stream for streaming file write
+      this.downloadStream = fs.createWriteStream(filePath, {
+        highWaterMark: 64 * 1024 // 64KB buffer for better performance
+      })
       this.transferSize = size
       this.transferredBytes = 0
       // startTime will be set when first data is received
@@ -734,14 +774,14 @@ class ZmodemSession {
    * End zmodem session
    */
   endSession () {
-    // Close any open file handles
-    if (this.downloadFd) {
+    // Close any open file streams
+    if (this.downloadStream) {
       try {
-        fs.closeSync(this.downloadFd)
+        this.downloadStream.end()
       } catch (e) {
-        log.error('Error closing download file', e)
+        log.error('Error closing download stream', e)
       }
-      this.downloadFd = null
+      this.downloadStream = null
     }
 
     if (this.uploadFd) {
@@ -775,6 +815,7 @@ class ZmodemSession {
     this.currentFileIndex = 0
     this.savePath = null
     this.fileBuffer = null
+    this.fileReadPosition = 0
     this.pendingData = []
     this.pendingFileInfo = null
     this.pendingSendData = []
