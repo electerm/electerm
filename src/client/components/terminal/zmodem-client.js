@@ -5,54 +5,34 @@
 
 import { throttle } from 'lodash-es'
 import { filesize } from 'filesize'
+import { TransferClientBase } from './transfer-client-base.js'
 import { transferTypeMap } from '../../common/constants.js'
-import { getLocalFileInfo } from '../sftp/file-read.js'
 
 const ZMODEM_SAVE_PATH_KEY = 'zmodem-save-path'
 
 /**
  * ZmodemClient class handles zmodem UI and client-side logic
  */
-export class ZmodemClient {
+export class ZmodemClient extends TransferClientBase {
   constructor (terminal) {
-    this.terminal = terminal
-    this.socket = null
-    this.isActive = false
-    this.currentTransfer = null
-    this.savePath = null
+    super(terminal, ZMODEM_SAVE_PATH_KEY)
     this.transferStartTime = 0
   }
 
   /**
-   * Initialize zmodem client with socket
-   * @param {WebSocket} socket - WebSocket connection
+   * Get the action name for this protocol
+   * @returns {string}
    */
-  init (socket) {
-    this.socket = socket
-    this.setupMessageHandler()
+  getActionName () {
+    return 'zmodem-event'
   }
 
   /**
-   * Setup message handler for zmodem events from server
+   * Get protocol display name
+   * @returns {string}
    */
-  setupMessageHandler () {
-    if (!this.socket) return
-
-    // Use addEventListener to avoid conflicting with attach-addon's onmessage
-    this.messageHandler = (event) => {
-      // Check if it's a JSON message (zmodem control message)
-      if (typeof event.data === 'string') {
-        try {
-          const msg = JSON.parse(event.data)
-          if (msg.action === 'zmodem-event') {
-            this.handleServerEvent(msg)
-          }
-        } catch (e) {
-          // Not JSON, ignore
-        }
-      }
-    }
-    this.socket.addEventListener('message', this.messageHandler)
+  getProtocolDisplayName () {
+    return 'ZMODEM'
   }
 
   /**
@@ -91,24 +71,11 @@ export class ZmodemClient {
   }
 
   /**
-   * Send message to server
-   * @param {Object} msg - Message to send
-   */
-  sendToServer (msg) {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify({
-        action: 'zmodem-event',
-        ...msg
-      }))
-    }
-  }
-
-  /**
    * Handle receive session start
    */
   async onReceiveStart () {
     this.isActive = true
-    this.writeBanner('RECEIVE')
+    this.writeBanner('RECEIVE', 'Recommend use trzsz instead: https://github.com/trzsz/trzsz')
 
     // Ask user for save directory
     const savePath = await this.openSaveFolderSelect()
@@ -132,7 +99,7 @@ export class ZmodemClient {
    */
   async onSendStart () {
     this.isActive = true
-    this.writeBanner('SEND')
+    this.writeBanner('SEND', 'Recommend use trzsz instead: https://github.com/trzsz/trzsz')
 
     // Ask user to select files
     const files = await this.openFileSelect()
@@ -230,31 +197,6 @@ export class ZmodemClient {
   }
 
   /**
-   * Handle session end
-   */
-  onSessionEnd () {
-    this.isActive = false
-    this.currentTransfer = null
-    this.savePath = null
-    if (this.terminal && this.terminal.term) {
-      this.terminal.term.focus()
-      this.terminal.term.write('\r\n')
-    }
-  }
-
-  /**
-   * Write banner to terminal
-   * @param {string} type - 'RECEIVE' or 'SEND'
-   */
-  writeBanner (type) {
-    const border = '='.repeat(50)
-    this.writeToTerminal(`\r\n${border}\r\n`)
-    this.writeToTerminal('\x1b[33m\x1b[1mRecommend use trzsz instead: https://github.com/trzsz/trzsz\x1b[0m\r\n')
-    this.writeToTerminal(`${border}\r\n\r\n`)
-    this.writeToTerminal(`\x1b[32m\x1b[1mZMODEM::${type}::START\x1b[0m\r\n`)
-  }
-
-  /**
    * Write progress to terminal (throttled for updates, immediate for completion)
    * @param {boolean} isComplete - Whether this is the final completion display
    */
@@ -284,101 +226,6 @@ export class ZmodemClient {
     // Clear line and write progress
     const str = `\r\x1b[2K\x1b[32m${displayName}\x1b[0m: ${percent}%, ${formatSize(transferred)}/${formatSize(size)}, ${formatSize(speed)}/s${isComplete ? ' \x1b[32m\x1b[1m[DONE]\x1b[0m' : ''}`
     this.writeToTerminal(str + '\r')
-  }
-
-  /**
-   * Write text to terminal
-   * @param {string} text - Text to write
-   */
-  writeToTerminal (text) {
-    if (this.terminal && this.terminal.term) {
-      this.terminal.term.write(text)
-    }
-  }
-
-  /**
-   * Open file select dialog
-   * @returns {Promise<Array>} - Selected files
-   */
-  openFileSelect = async () => {
-    const properties = [
-      'openFile',
-      'multiSelections',
-      'showHiddenFiles',
-      'noResolveAliases',
-      'treatPackageAsDirectory',
-      'dontAddToRecent'
-    ]
-    const files = await window.api.openDialog({
-      title: 'Choose some files to send',
-      message: 'Choose some files to send',
-      properties
-    }).catch(() => false)
-    if (!files || !files.length) {
-      return null
-    }
-    const r = []
-    for (const filePath of files) {
-      const stat = await getLocalFileInfo(filePath)
-      r.push({ ...stat, filePath, path: filePath })
-    }
-    return r
-  }
-
-  /**
-   * Open save folder select dialog
-   * @returns {Promise<string>} - Selected folder path
-   */
-  openSaveFolderSelect = async () => {
-    // Try to use last saved path
-    const lastPath = window.localStorage.getItem(ZMODEM_SAVE_PATH_KEY)
-
-    const savePaths = await window.api.openDialog({
-      title: 'Choose a folder to save file(s)',
-      message: 'Choose a folder to save file(s)',
-      defaultPath: lastPath || undefined,
-      properties: [
-        'openDirectory',
-        'showHiddenFiles',
-        'createDirectory',
-        'noResolveAliases',
-        'treatPackageAsDirectory',
-        'dontAddToRecent'
-      ]
-    }).catch(() => false)
-    if (!savePaths || !savePaths.length) {
-      return null
-    }
-    // Save for next time
-    window.localStorage.setItem(ZMODEM_SAVE_PATH_KEY, savePaths[0])
-    return savePaths[0]
-  }
-
-  /**
-   * Cancel ongoing transfer
-   */
-  cancel () {
-    if (!this.isActive) return
-    this.writeToTerminal('\r\n\x1b[33m\x1b[1mZMODEM transfer cancelled by user\x1b[0m\r\n')
-    this.sendToServer({
-      event: 'cancel'
-    })
-    this.onSessionEnd()
-  }
-
-  /**
-   * Clean up resources
-   */
-  destroy () {
-    if (this.socket && this.messageHandler) {
-      this.socket.removeEventListener('message', this.messageHandler)
-      this.messageHandler = null
-    }
-    this.isActive = false
-    this.currentTransfer = null
-    this.savePath = null
-    this.socket = null
-    this.terminal = null
   }
 }
 

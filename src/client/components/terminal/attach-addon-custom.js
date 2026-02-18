@@ -86,33 +86,26 @@ export default class AttachAddonCustom extends AttachAddon {
   }
 
   activate (terminal = this.term) {
-    this.trzsz = window.newTrzsz(
-      this.writeToTerminal,
-      this.sendToServer,
-      terminal.cols,
-      this.isWindowsShell
-    )
+    // Note: trzsz is now handled server-side like zmodem, no client-side TrzszFilter needed
 
     this.addSocketListener(this._socket, 'message', this.onMsg)
 
     if (this._bidirectional) {
-      this._disposables.push(terminal.onData((data) => this.trzsz.processTerminalInput(data)))
-      this._disposables.push(terminal.onBinary((data) => this.trzsz.processBinaryInput(data)))
+      this._disposables.push(terminal.onData((data) => this.sendToServer(data)))
+      this._disposables.push(terminal.onBinary((data) => this.sendToServer(new Uint8Array(data))))
     }
-
-    this._disposables.push(terminal.onResize((size) => this.trzsz.setTerminalColumns(size.cols)))
 
     this._disposables.push(this.addSocketListener(this._socket, 'close', () => this.dispose()))
     this._disposables.push(this.addSocketListener(this._socket, 'error', () => this.dispose()))
   }
 
   onMsg = (ev) => {
-    // Check if it's a JSON zmodem control message
+    // Check if it's a JSON zmodem or trzsz control message
     if (typeof ev.data === 'string') {
       try {
         const msg = JSON.parse(ev.data)
-        if (msg.action === 'zmodem-event') {
-          // Let zmodem-client handle this, don't write to terminal
+        if (msg.action === 'zmodem-event' || msg.action === 'trzsz-event') {
+          // Let zmodem-client or trzsz-client handle this, don't write to terminal
           return
         }
       } catch (e) {
@@ -120,13 +113,8 @@ export default class AttachAddonCustom extends AttachAddon {
       }
     }
 
-    // When in alternate screen mode (like vim, less, or TUI apps like Claude Code),
-    // bypass trzsz processing to avoid interference with the application's display
-    if (this.term?.buffer?.active?.type === 'alternate') {
-      this.writeToTerminal(ev.data)
-    } else {
-      this.trzsz.processServerOutput(ev.data)
-    }
+    // Write data to terminal
+    this.writeToTerminal(ev.data)
   }
 
   /**
