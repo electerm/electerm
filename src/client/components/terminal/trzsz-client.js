@@ -46,7 +46,7 @@ export class TrzszClient extends TransferClientBase {
         this.onSendStart(msg.directory)
         break
       case 'session-complete':
-        this.onSessionComplete(msg.message)
+        this.onSessionComplete(msg)
         break
       case 'error':
         this.onError(msg.message)
@@ -114,12 +114,29 @@ export class TrzszClient extends TransferClientBase {
 
   /**
    * Handle session complete
-   * @param {string} message - Completion message
+   * @param {Object} msg - Completion message with files and savePath
    */
-  onSessionComplete (message) {
-    if (message) {
-      this.writeToTerminal(`\r\n\x1b[32m\x1b[1m${message}\x1b[0m\r\n`)
+  onSessionComplete (msg) {
+    // Display completion message
+    if (msg.message) {
+      this.writeToTerminal(`\r\n\x1b[32m\x1b[1m${msg.message}\x1b[0m\r\n`)
     }
+
+    // Display saved files for download
+    if (msg.files && msg.files.length > 0) {
+      const fileCount = msg.files.length
+      const savePath = msg.savePath || ''
+
+      this.writeToTerminal(`\r\n\x1b[32m\x1b[1mSaved ${fileCount} ${fileCount > 1 ? 'files' : 'file'}\x1b[0m\r\n`)
+      if (savePath) {
+        this.writeToTerminal(`\x1b[36mDestination: ${savePath}\x1b[0m\r\n`)
+      }
+      for (const file of msg.files) {
+        const fileName = file.split('/').pop().split('\\').pop()
+        this.writeToTerminal(`  - ${fileName}\r\n`)
+      }
+    }
+
     this.onSessionEnd()
   }
 
