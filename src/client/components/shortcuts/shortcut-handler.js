@@ -175,12 +175,18 @@ export function shortcutExtend (Cls) {
       type === 'keydown' &&
       !altKey &&
       !shiftKey &&
-      ctrlKey &&
-      this.zmodemClient &&
-      this.zmodemClient.isActive
+      ctrlKey
     ) {
-      this.zmodemClient.cancel()
-      return false
+      // Cancel zmodem transfer if active
+      if (this.zmodemClient && this.zmodemClient.isActive) {
+        this.zmodemClient.cancel()
+        return false
+      }
+      // Cancel trzsz transfer if active
+      if (this.trzszClient && this.trzszClient.isActive) {
+        this.trzszClient.cancel()
+        return false
+      }
     }
 
     let codeName

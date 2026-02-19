@@ -27,6 +27,7 @@ const {
 } = require('../common/runtime-constants')
 const wsDec = require('./ws-dec')
 const { zmodemManager } = require('./zmodem')
+const { trzszManager } = require('./trzsz')
 
 const {
   tokenElecterm,
@@ -101,6 +102,14 @@ if (type === 'rdp') {
         return
       }
 
+      // Check if trzsz session is active and handle data
+      if (trzszManager.isActive(pid)) {
+        // Let trzsz handle the data, but still log it
+        term.writeLog(data)
+        trzszManager.handleData(pid, data, term, ws)
+        return
+      }
+
       // Buffer incoming data instead of sending immediately
       dataBuffer.push(data)
 
@@ -114,11 +123,21 @@ if (type === 'rdp') {
           term.writeLog(combinedData)
 
           // Check for zmodem escape sequence before sending to client
-          const consumed = zmodemManager.handleData(pid, combinedData, term, ws)
-          if (!consumed) {
-            // Not zmodem data, send to WebSocket
-            ws.send(combinedData)
+          const zmodemConsumed = zmodemManager.handleData(pid, combinedData, term, ws)
+          if (zmodemConsumed) {
+            sendTimeout = null
+            return
           }
+
+          // Check for trzsz magic key before sending to client
+          const trzszConsumed = trzszManager.handleData(pid, combinedData, term, ws)
+          if (trzszConsumed) {
+            sendTimeout = null
+            return
+          }
+
+          // Not zmodem or trzsz data, send to WebSocket
+          ws.send(combinedData)
 
           // Reset timeout
           sendTimeout = null
@@ -129,6 +148,8 @@ if (type === 'rdp') {
     function onClose () {
       // Clean up zmodem session
       zmodemManager.destroySession(pid)
+      // Clean up trzsz session
+      trzszManager.destroySession(pid)
       term.kill()
       log.debug('Closed terminal ' + pid)
       // Clean things up
@@ -143,12 +164,16 @@ if (type === 'rdp') {
 
     ws.on('message', function (msg) {
       try {
-        // Check if message is a zmodem control message (JSON)
+        // Check if message is a zmodem or trzsz control message (JSON)
         if (typeof msg === 'string') {
           try {
             const parsed = JSON.parse(msg)
             if (parsed.action === 'zmodem-event') {
               zmodemManager.handleMessage(pid, parsed, term, ws)
+              return
+            }
+            if (parsed.action === 'trzsz-event') {
+              trzszManager.handleMessage(pid, parsed, term, ws)
               return
             }
           } catch (e) {

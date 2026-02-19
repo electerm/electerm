@@ -35,6 +35,7 @@ import { WebglAddon } from '@xterm/addon-webgl'
 import { LigaturesAddon } from '@xterm/addon-ligatures'
 import getProxy from '../../common/get-proxy.js'
 import { ZmodemClient } from './zmodem-client.js'
+import { TrzszClient } from './trzsz-client.js'
 import { Unicode11Addon } from '@xterm/addon-unicode11'
 import keyControlPressed from '../../common/key-control-pressed.js'
 import { Terminal } from '@xterm/xterm'
@@ -155,6 +156,7 @@ class Term extends Component {
     this.attachAddon = null
     this.fitAddon = null
     this.zmodemClient = null
+    this.trzszClient = null
     this.searchAddon = null
     this.fitAddon = null
     this.cmdAddon = null
@@ -1136,6 +1138,8 @@ class Term extends Component {
     term.focus()
     this.zmodemClient = new ZmodemClient(this)
     this.zmodemClient.init(socket)
+    this.trzszClient = new TrzszClient(this)
+    this.trzszClient.init(socket)
     this.fitAddon.fit()
     term.displayRaw = displayRaw
     term.loadAddon(

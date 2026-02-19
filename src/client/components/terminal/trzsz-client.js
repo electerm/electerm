@@ -1,6 +1,6 @@
 /**
- * Zmodem client handler for web terminal
- * Handles UI interactions and communicates with server-side zmodem
+ * Trzsz client handler for web terminal
+ * Handles UI interactions and communicates with server-side trzsz
  */
 
 import { throttle } from 'lodash-es'
@@ -8,15 +8,17 @@ import { filesize } from 'filesize'
 import { TransferClientBase } from './transfer-client-base.js'
 import { transferTypeMap } from '../../common/constants.js'
 
-const ZMODEM_SAVE_PATH_KEY = 'zmodem-save-path'
+const TRZSZ_SAVE_PATH_KEY = 'trzsz-save-path'
 
 /**
- * ZmodemClient class handles zmodem UI and client-side logic
+ * TrzszClient class handles trzsz UI and client-side logic
  */
-export class ZmodemClient extends TransferClientBase {
+export class TrzszClient extends TransferClientBase {
   constructor (terminal) {
-    super(terminal, ZMODEM_SAVE_PATH_KEY)
+    super(terminal, TRZSZ_SAVE_PATH_KEY)
     this.transferStartTime = 0
+    this.totalTransferred = 0
+    this.totalSpeed = 0
   }
 
   /**
@@ -24,7 +26,7 @@ export class ZmodemClient extends TransferClientBase {
    * @returns {string}
    */
   getActionName () {
-    return 'zmodem-event'
+    return 'trzsz-event'
   }
 
   /**
@@ -32,11 +34,11 @@ export class ZmodemClient extends TransferClientBase {
    * @returns {string}
    */
   getProtocolDisplayName () {
-    return 'ZMODEM'
+    return 'TRZSZ'
   }
 
   /**
-   * Handle server zmodem events
+   * Handle server trzsz events
    * @param {Object} msg - Message from server
    */
   handleServerEvent (msg) {
@@ -47,13 +49,16 @@ export class ZmodemClient extends TransferClientBase {
         this.onReceiveStart()
         break
       case 'send-start':
-        this.onSendStart()
+        this.onSendStart(msg.directory)
+        break
+      case 'file-count':
+        this.onFileCount(msg.count)
         break
       case 'file-start':
         this.onFileStart(msg.name, msg.size)
         break
-      case 'file-prepared':
-        this.onFilePrepared(msg.name, msg.path, msg.size)
+      case 'file-size':
+        this.onFileSize(msg.name, msg.size)
         break
       case 'progress':
         this.onProgress(msg)
@@ -61,8 +66,11 @@ export class ZmodemClient extends TransferClientBase {
       case 'file-complete':
         this.onFileComplete(msg.name, msg.path)
         break
-      case 'file-skipped':
-        this.onFileSkipped(msg.name, msg.message)
+      case 'session-complete':
+        this.onSessionComplete(msg)
+        break
+      case 'session-error':
+        this.onError(msg.error)
         break
       case 'session-end':
         this.onSessionEnd()
@@ -71,11 +79,11 @@ export class ZmodemClient extends TransferClientBase {
   }
 
   /**
-   * Handle receive session start
+   * Handle receive session start (download from remote)
    */
   async onReceiveStart () {
     this.isActive = true
-    this.writeBanner('RECEIVE', 'Recommend use trzsz instead: https://github.com/trzsz/trzsz')
+    this.writeBanner('RECEIVE')
 
     // Ask user for save directory
     const savePath = await this.openSaveFolderSelect()
@@ -88,21 +96,28 @@ export class ZmodemClient extends TransferClientBase {
     } else {
       // User cancelled, end session
       this.sendToServer({
-        event: 'cancel'
+        event: 'set-save-path',
+        path: null
       })
       this.onSessionEnd()
     }
   }
 
   /**
-   * Handle send session start
+   * Handle send session start (upload to remote)
+   * @param {boolean} directory - Whether to select directories
    */
-  async onSendStart () {
+  async onSendStart (directory = false) {
     this.isActive = true
-    this.writeBanner('SEND', 'Recommend use trzsz instead: https://github.com/trzsz/trzsz')
+    this.writeBanner('SEND')
 
-    // Ask user to select files
-    const files = await this.openFileSelect()
+    // Ask user to select files or directories
+    const files = await this.openFileSelect({
+      directory,
+      title: directory ? 'Choose directories to send' : 'Choose some files to send',
+      message: directory ? 'Choose directories to send' : 'Choose some files to send'
+    })
+
     if (files && files.length > 0) {
       this.sendToServer({
         event: 'send-files',
@@ -111,10 +126,19 @@ export class ZmodemClient extends TransferClientBase {
     } else {
       // User cancelled, end session
       this.sendToServer({
-        event: 'cancel'
+        event: 'send-files',
+        files: []
       })
       this.onSessionEnd()
     }
+  }
+
+  /**
+   * Handle file count event
+   * @param {number} count - Number of files
+   */
+  onFileCount (count) {
+    this.writeToTerminal(`\r\n\x1b[36mReceiving ${count} file${count > 1 ? 's' : ''}...\x1b[0m\r\n`)
   }
 
   /**
@@ -135,15 +159,13 @@ export class ZmodemClient extends TransferClientBase {
   }
 
   /**
-   * Handle file prepared event (for receive)
+   * Handle file size event
    * @param {string} name - File name
-   * @param {string} path - File path
    * @param {number} size - File size
    */
-  onFilePrepared (name, path, size) {
-    // Store the full path for display
+  onFileSize (name, size) {
     if (this.currentTransfer) {
-      this.currentTransfer.path = path
+      this.currentTransfer.size = size
     }
   }
 
@@ -187,16 +209,6 @@ export class ZmodemClient extends TransferClientBase {
   }
 
   /**
-   * Handle file skipped (already exists on remote side)
-   * @param {string} name - File name
-   * @param {string} message - Skip message
-   */
-  onFileSkipped (name, message) {
-    this.writeToTerminal(`\r\n\x1b[33m\x1b[1mSKIPPED: ${name} - ${message}\x1b[0m\r\n`)
-    this.currentTransfer = null
-  }
-
-  /**
    * Write progress to terminal (throttled for updates, immediate for completion)
    * @param {boolean} isComplete - Whether this is the final completion display
    */
@@ -227,6 +239,68 @@ export class ZmodemClient extends TransferClientBase {
     const str = `\r\x1b[2K\x1b[32m${displayName}\x1b[0m: ${percent}%, ${formatSize(transferred)}/${formatSize(size)}, ${formatSize(speed)}/s${isComplete ? ' \x1b[32m\x1b[1m[DONE]\x1b[0m' : ''}`
     this.writeToTerminal(str + '\r')
   }
+
+  /**
+   * Handle session complete
+   * @param {Object} msg - Completion message with files and savePath
+   */
+  onSessionComplete (msg) {
+    // Add newline to preserve progress display
+    this.writeToTerminal('\r\n')
+
+    // Display completion message
+    if (msg.message) {
+      this.writeToTerminal(`\x1b[32m\x1b[1m${msg.message}\x1b[0m\r\n`)
+    }
+
+    // Display saved files for download
+    if (msg.files && msg.files.length > 0) {
+      const fileCount = msg.files.length
+      const savePath = msg.savePath || ''
+
+      // Format file size
+      const formatSize = (bytes) => filesize(bytes)
+
+      // Display total transfer info
+      if (msg.totalBytes && msg.totalBytes > 0) {
+        const totalSize = formatSize(msg.totalBytes)
+        const elapsed = msg.totalElapsed ? msg.totalElapsed.toFixed(1) : '0.0'
+        const speed = msg.avgSpeed ? formatSize(msg.avgSpeed) : '0 B'
+        this.writeToTerminal(`\x1b[32m\x1b[1mTransferred ${fileCount} ${fileCount > 1 ? 'files' : 'file'} (${totalSize}) in ${elapsed}s, avg speed: ${speed}/s\x1b[0m\r\n`)
+      } else {
+        this.writeToTerminal(`\x1b[32m\x1b[1mSaved ${fileCount} ${fileCount > 1 ? 'files' : 'file'}\x1b[0m\r\n`)
+      }
+
+      if (savePath) {
+        this.writeToTerminal(`\x1b[36mDestination: ${savePath}\x1b[0m\r\n`)
+      }
+
+      // Display file list with sizes
+      if (msg.completedFiles && msg.completedFiles.length > 0) {
+        for (const file of msg.completedFiles) {
+          const sizeStr = file.size ? ` (${formatSize(file.size)})` : ''
+          this.writeToTerminal(`  - ${file.name}${sizeStr}\r\n`)
+        }
+      } else {
+        // Fallback to just file names
+        for (const file of msg.files) {
+          const fileName = file.split('/').pop().split('\\').pop()
+          this.writeToTerminal(`  - ${fileName}\r\n`)
+        }
+      }
+    }
+
+    this.onSessionEnd()
+  }
+
+  /**
+   * Handle error
+   * @param {string} message - Error message
+   */
+  onError (message) {
+    this.writeToTerminal(`\r\n\x1b[31m\x1b[1mTRZSZ Error: ${message}\x1b[0m\r\n`)
+    this.onSessionEnd()
+  }
 }
 
-export default ZmodemClient
+export default TrzszClient
