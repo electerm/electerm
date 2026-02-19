@@ -2,7 +2,7 @@
  * Config-driven bookmark form (drop-in replacement)
  */
 import { PureComponent } from 'react'
-import { Radio } from 'antd'
+import { Radio, Button } from 'antd'
 import {
   settingMap,
   connectionMap,
@@ -16,9 +16,10 @@ import {
   newBookmarkIdPrefix
 } from '../../common/constants'
 import { createTitleWithTag } from '../../common/create-title'
-import { LoadingOutlined, BookOutlined } from '@ant-design/icons'
+import { LoadingOutlined, BookOutlined, RobotOutlined } from '@ant-design/icons'
 import sessionConfig from './config/session-config'
 import renderForm from './render-form'
+import AIBookmarkForm from './ai-bookmark-form'
 import './bookmark-form.styl'
 
 const e = window.translate
@@ -38,7 +39,7 @@ export default class BookmarkIndex2 extends PureComponent {
     ].includes(initType)) {
       initType = connectionMap.ssh
     }
-    this.state = { ready: false, bookmarkType: initType }
+    this.state = { ready: false, bookmarkType: initType, aiMode: false }
   }
 
   componentDidMount () {
@@ -51,6 +52,26 @@ export default class BookmarkIndex2 extends PureComponent {
 
   handleChange = (e) => {
     this.setState({ bookmarkType: e.target.value })
+  }
+
+  handleToggleAIMode = () => {
+    if (window.store.aiConfigMissing()) {
+      window.store.toggleAIConfig()
+      return
+    }
+    this.setState(prev => ({ aiMode: !prev.aiMode }))
+  }
+
+  handleAIGenerated = (data) => {
+    // Exit AI mode and update form with generated data
+    this.setState({ aiMode: false })
+    // Trigger form update through store
+    const { store } = this.props
+    const newItem = {
+      ...data,
+      id: newBookmarkIdPrefix + Date.now()
+    }
+    store.setSettingItem(newItem)
   }
 
   renderTypes (bookmarkType, isNew, keys) {
@@ -81,12 +102,28 @@ export default class BookmarkIndex2 extends PureComponent {
     )
   }
 
+  renderAIButton (isNew) {
+    if (!isNew) return null
+    const { aiMode } = this.state
+    return (
+      <Button
+        type={aiMode ? 'primary' : 'default'}
+        size='small'
+        className='mg1l'
+        icon={<RobotOutlined />}
+        onClick={this.handleToggleAIMode}
+      >
+        {e('createBookmarkByAI') || 'Create by AI'}
+      </Button>
+    )
+  }
+
   render () {
     const { formData } = this.props
     const { id = '' } = formData
     const { type } = this.props
     if (type !== settingMap.bookmarks) return null
-    const { ready, bookmarkType } = this.state
+    const { ready, bookmarkType, aiMode } = this.state
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
@@ -105,8 +142,16 @@ export default class BookmarkIndex2 extends PureComponent {
           </span>
           {this.renderTitle(formData, isNew)}
           {this.renderTypes(bookmarkType, isNew, keys)}
+          {this.renderAIButton(isNew)}
         </div>
-        {renderForm(bookmarkType, this.props)}
+        {aiMode
+          ? (
+            <AIBookmarkForm
+              onGenerated={this.handleAIGenerated}
+              onCancel={() => this.setState({ aiMode: false })}
+            />
+            )
+          : renderForm(bookmarkType, this.props)}
       </div>
     )
   }
