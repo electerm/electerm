@@ -12,32 +12,6 @@ const props = runSync('getConstants')
 props.env = JSON.parse(props.env)
 props.versions = JSON.parse(props.versions)
 
-// Encoding function
-function encodeUint8Array (uint8Array) {
-  let str = ''
-  const len = uint8Array.byteLength
-
-  for (let i = 0; i < len; i++) {
-    str += String.fromCharCode(uint8Array[i])
-  }
-
-  return btoa(str)
-}
-
-// Decoding function
-function decodeBase64String (base64String) {
-  const str = atob(base64String)
-  const len = str.length
-
-  const uint8Array = new Uint8Array(len)
-
-  for (let i = 0; i < len; i++) {
-    uint8Array[i] = str.charCodeAt(i)
-  }
-
-  return uint8Array
-}
-
 window.pre = {
   requireAuth: runSync('shouldAuth'),
   readClipboard: () => {
@@ -71,101 +45,8 @@ const path = {
   basename: window.pre.basename
 }
 
-const fs = {
-  stat: (path, cb) => {
-    window.fs.statCustom(path)
-      .catch(err => cb(err))
-      .then(obj => {
-        obj.isDirectory = () => obj.isD
-        obj.isFile = () => obj.isF
-        cb(undefined, obj)
-      })
-  },
-  access: (...args) => {
-    const cb = args.pop()
-    window.fs.access(...args)
-      .then((data) => cb(undefined, data))
-      .catch((err) => cb(err))
-  },
-  open: (...args) => {
-    const cb = args.pop()
-    if (window.et.isWebApp) {
-      window.fs.openCustom(...args)
-        .then((data) => cb(undefined, data))
-        .catch((err) => cb(err))
-      return
-    }
-    runGlobalAsync('fsOpen', ...args)
-      .then((data) => cb(undefined, data))
-      .catch((err) => cb(err))
-  },
-  read: (p1, arr, ...args) => {
-    const cb = args.pop()
-    if (window.et.isWebApp) {
-      window.fs.readCustom(
-        p1,
-        arr.length,
-        ...args
-      )
-        .then((data) => {
-          const { n, newArr } = data
-          const newArr1 = decodeBase64String(newArr)
-          cb(undefined, n, newArr1)
-        })
-        .catch(err => cb(err))
-      return
-    }
-    runGlobalAsync('fsRead', p1, arr.length, ...args)
-      .then((data) => {
-        const { n, buffer } = data
-        cb(undefined, n, buffer)
-      })
-      .catch(err => cb(err))
-  },
-  close: (fd, cb) => {
-    if (window.et.isWebApp) {
-      window.fs.closeCustom(fd)
-        .then((data) => cb(undefined, data))
-        .catch((err) => cb(err))
-      return
-    }
-    runGlobalAsync('fsClose', fd)
-      .then((data) => cb(undefined, data))
-      .catch((err) => cb(err))
-  },
-  readdir: (p, cb) => {
-    window.fs.readdir(p)
-      .then((data) => cb(undefined, data))
-      .catch((err) => cb(err))
-  },
-  mkdir: (...args) => {
-    const cb = args.pop()
-    window.fs.mkdir(...args)
-      .then((data) => cb(undefined, data))
-      .catch((err) => cb(err))
-  },
-  write: (p1, buf, cb) => {
-    if (window.et.isWebApp) {
-      window.fs.writeCustom(p1, encodeUint8Array(buf))
-        .then((data) => cb(undefined, data))
-        .catch((err) => cb(err))
-      return
-    }
-    runGlobalAsync('fsWrite', p1, buf)
-      .then((data) => cb(undefined, data))
-      .catch((err) => cb(err))
-  },
-  realpath: (p, cb) => {
-    window.fs.realpath(p)
-      .then((data) => cb(undefined, data))
-      .catch((err) => cb(err))
-  },
-  constants: runSync('getFsContants')
-}
-
 window.reqs = {
-  path,
-  fs
+  path
 }
 
 function require (name) {

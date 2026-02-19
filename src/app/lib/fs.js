@@ -1,5 +1,4 @@
 const fss = require('fs/promises')
-const fs = require('fs')
 const log = require('../common/log')
 const path = require('path')
 const { isWin, isMac, tempDir } = require('../common/runtime-constants')
@@ -11,16 +10,6 @@ const execAsync = promisify(
 const { getSizeCount, getSizeCountWin } = require('../common/get-folder-size-and-file-count.js')
 
 const ROOT_PATH = '/'
-
-// Encoding function
-function encodeUint8Array (uint8Arr) {
-  return Buffer.from(uint8Arr).toString('base64')
-}
-
-// Decoding function
-function decodeBase64String (base64String) {
-  return new Uint8Array(Buffer.from(base64String, 'base64'))
-}
 
 const isWinDrive = function (path) {
   return /^\w+:$/.test(path)
@@ -197,81 +186,11 @@ async function listWindowsRootPath () {
   })
 }
 
-const readCustom = (p1, len, ...args) => {
-  return new Promise((resolve, reject) => {
-    fs.read(p1, new Uint8Array(len), ...args, (err, n, buffer) => {
-      if (err) {
-        return reject(err)
-      }
-      return resolve({ n, newArr: encodeUint8Array(buffer) })
-    })
-  })
-}
-
-const readCustomIpc = (p1, len, ...args) => {
-  return new Promise((resolve, reject) => {
-    fs.read(p1, Buffer.alloc(len), ...args, (err, n, buffer) => {
-      if (err) {
-        return reject(err)
-      }
-      // Return buffer directly for IPC transfer
-      return resolve({ n, buffer })
-    })
-  })
-}
-
-const writeCustom = (p1, arr) => {
-  return new Promise((resolve, reject) => {
-    const narr = decodeBase64String(arr)
-    fs.write(p1, narr, (err, n) => {
-      if (err) {
-        return reject(err)
-      }
-      return resolve(1)
-    })
-  })
-}
-
-const writeCustomIpc = (p1, arr) => {
-  return new Promise((resolve, reject) => {
-    // arr is already a Buffer when coming from IPC
-    const narr = Buffer.isBuffer(arr) ? arr : Buffer.from(arr)
-    fs.write(p1, narr, (err, n) => {
-      if (err) {
-        return reject(err)
-      }
-      return resolve(1)
-    })
-  })
-}
-
 const statCustom = async (...args) => {
   const st = await fss.stat(...args)
   st.isD = st.isDirectory()
   st.isF = st.isFile()
   return st
-}
-
-const openCustom = async (...args) => {
-  return new Promise((resolve, reject) => {
-    fs.open(...args, (err, n) => {
-      if (err) {
-        return reject(err)
-      }
-      return resolve(n)
-    })
-  })
-}
-
-const closeCustom = async (...args) => {
-  return new Promise((resolve, reject) => {
-    fs.close(...args, (err) => {
-      if (err) {
-        return reject(err)
-      }
-      return resolve(true)
-    })
-  })
 }
 
 const fsExport = Object.assign(
@@ -288,13 +207,7 @@ const fsExport = Object.assign(
     openFile,
     zipFolder,
     unzipFile,
-    readCustom,
-    readCustomIpc,
-    statCustom,
-    openCustom,
-    closeCustom,
-    writeCustom,
-    writeCustomIpc
+    statCustom
   },
   {
     readdirAsync: (_path) => {
