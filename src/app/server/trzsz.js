@@ -164,6 +164,9 @@ class TrzszSession {
     this.transferPromise = null
     this.lastProgressUpdate = 0
     this._pendingComplete = null
+    this.completedFiles = [] // Track completed files with sizes
+    this.totalBytes = 0 // Total bytes transferred
+    this.transferStartTime = 0 // Overall transfer start time
   }
 
   /**
@@ -221,14 +224,22 @@ class TrzszSession {
       return true
     }
 
-    // If we have a pending completion message, check for "Success" from server
+    // If we have a pending completion message, filter out server messages
     if (this._pendingComplete) {
       const str = Buffer.isBuffer(data) ? data.toString('binary') : data
+      // Check for "Success" from server - send completion message
       if (str.trim() === 'Success' || str.includes('Success')) {
         // Send the session-complete event now
         this.sendToClient(this._pendingComplete)
         this._pendingComplete = null
+        // End the session after sending completion
+        this.endSession()
         return true // Consume the "Success" message
+      }
+      // Filter out "Saved" message from server during upload
+      if (str.includes('Saved') && str.includes('file')) {
+        this.endSession()
+        return true // Consume the "Saved" message
       }
     }
 
@@ -266,6 +277,11 @@ class TrzszSession {
    */
   async startUploadProcess () {
     try {
+      // Reset tracking variables for new session
+      this.completedFiles = []
+      this.totalBytes = 0
+      this.transferStartTime = 0
+
       // Send action to server (confirm=true means we want to upload)
       await this.transfer.sendAction(true, false)
 
@@ -295,6 +311,10 @@ class TrzszSession {
         return reader
       })
 
+      // Calculate total size for upload
+      this.totalBytes = this.fileReaders.reduce((sum, reader) => sum + reader.size, 0)
+      this.transferStartTime = Date.now()
+
       // Send files
       const progressCallback = {
         onNum: (num) => {
@@ -304,6 +324,13 @@ class TrzszSession {
           })
         },
         onName: (name) => {
+          // Save previous file info if exists
+          if (this.currentTransfer && this.currentTransfer.size > 0) {
+            this.completedFiles.push({
+              name: this.currentTransfer.name,
+              size: this.currentTransfer.size
+            })
+          }
           this.currentTransfer = {
             name,
             size: 0
@@ -335,6 +362,13 @@ class TrzszSession {
           }
         },
         onDone: () => {
+          // Add completed file to list
+          if (this.currentTransfer && this.currentTransfer.size > 0) {
+            this.completedFiles.push({
+              name: this.currentTransfer.name,
+              size: this.currentTransfer.size
+            })
+          }
           this.sendToClient({
             event: 'file-complete',
             name: this.currentTransfer?.name,
@@ -345,14 +379,25 @@ class TrzszSession {
 
       const remoteNames = await this.transfer.sendFiles(this.fileReaders, progressCallback)
 
+      // Calculate total transfer time and speed
+      const totalElapsed = this.transferStartTime > 0
+        ? (Date.now() - this.transferStartTime) / 1000
+        : 0
+      const avgSpeed = totalElapsed > 0 ? Math.round(this.totalBytes / totalElapsed) : 0
+
       // Store completion message to send after "Success" from server
       this._pendingComplete = {
         event: 'session-complete',
         message: 'Upload complete',
-        files: remoteNames
+        files: remoteNames,
+        totalBytes: this.totalBytes,
+        totalElapsed,
+        avgSpeed,
+        completedFiles: this.completedFiles
       }
 
       // Send EXIT message to server (server will respond with "Success")
+      // Don't call endSession() here - let handleData() handle it when "Success" arrives
       await this.transfer.clientExit('Success')
 
       // Close all file readers
@@ -360,7 +405,9 @@ class TrzszSession {
         reader.closeFile()
       }
 
-      this.endSession()
+      // Set state to IDLE but don't clear _pendingComplete yet
+      // handleData() will send session-complete when "Success" arrives
+      this.state = TRZSZ_STATE.IDLE
     } catch (err) {
       log.error('Trzsz upload error:', err)
       this.sendToClient({
@@ -386,6 +433,14 @@ class TrzszSession {
    */
   createTransfer () {
     this.transfer = new TrzszTransfer((data) => {
+      const str = typeof data === 'string' ? data : Buffer.from(data).toString('binary')
+
+      // Filter out server's save message (contains "Saved" and "file/directory")
+      // This message would flush the client-side progress display
+      if (str.includes('Saved') && (str.includes('file') || str.includes('directory'))) {
+        return // Don't write server's save message
+      }
+
       this.writeToTerminal(Buffer.from(data))
     }, false)
     return this.transfer
@@ -397,6 +452,10 @@ class TrzszSession {
   startReceiver () {
     try {
       this.createTransfer()
+      // Reset tracking variables for new session
+      this.completedFiles = []
+      this.totalBytes = 0
+      this.transferStartTime = 0
       this.state = TRZSZ_STATE.WAITING_SAVE_PATH
 
       // Notify client to ask for save path
@@ -470,9 +529,22 @@ class TrzszSession {
           })
         },
         onName: (name) => {
+          // Save previous file info if exists
+          if (this.currentTransfer && this.currentTransfer.size > 0) {
+            this.completedFiles.push({
+              name: this.currentTransfer.name,
+              size: this.currentTransfer.size,
+              path: this.downloadPath
+            })
+            this.totalBytes += this.currentTransfer.size
+          }
           this.currentTransfer = {
             name,
             size: 0
+          }
+          // Set overall start time on first file
+          if (!this.transferStartTime) {
+            this.transferStartTime = Date.now()
           }
           this.sendToClient({
             event: 'file-start',
@@ -500,6 +572,15 @@ class TrzszSession {
           }
         },
         onDone: () => {
+          // Add completed file to list
+          if (this.currentTransfer && this.currentTransfer.size > 0) {
+            this.completedFiles.push({
+              name: this.currentTransfer.name,
+              size: this.currentTransfer.size,
+              path: this.downloadPath
+            })
+            this.totalBytes += this.currentTransfer.size
+          }
           this.sendToClient({
             event: 'file-complete',
             name: this.currentTransfer?.name,
@@ -528,31 +609,30 @@ class TrzszSession {
         writer.closeFile()
       }
 
+      // Calculate total transfer time and speed
+      const totalElapsed = this.transferStartTime > 0
+        ? (Date.now() - this.transferStartTime) / 1000
+        : 0
+      const avgSpeed = totalElapsed > 0 ? Math.round(this.totalBytes / totalElapsed) : 0
+
       // Store completion message to send after "Success" from server
       this._pendingComplete = {
         event: 'session-complete',
         message: 'Download complete',
         files: savedFilePaths,
-        savePath: downloadDir
+        savePath: downloadDir,
+        totalBytes: this.totalBytes,
+        totalElapsed,
+        avgSpeed,
+        completedFiles: this.completedFiles
       }
 
-      // End session first to stop processing incoming data
+      // Set state to IDLE but don't clear _pendingComplete yet
+      // handleData() will send session-complete when "Success" arrives
       this.state = TRZSZ_STATE.IDLE
 
       // Send EXIT message to server (server will respond with "Success")
       await this.transfer.clientExit('Success')
-
-      // Cleanup
-      if (this.transfer) {
-        this.transfer.cleanup()
-      }
-      this.transfer = null
-      this.currentTransfer = null
-      this.downloadPath = null
-      this.pendingFiles = []
-      this.fileReaders = []
-      this.fileWriters = []
-      this.pendingData = []
     } catch (err) {
       log.error('Trzsz download error:', err)
       this.sendToClient({
@@ -686,6 +766,10 @@ class TrzszSession {
     this.fileWriters = []
     this.pendingData = []
     this.savePath = null
+    this.completedFiles = []
+    this.totalBytes = 0
+    this.transferStartTime = 0
+    this._pendingComplete = null
   }
 
   /**
