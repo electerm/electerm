@@ -28,7 +28,6 @@ const vncConfig = {
       key: 'auth',
       label: e('auth'),
       fields: [
-        { type: 'vncWarning', name: 'vncWarning' },
         commonFields.category,
         commonFields.colorTitle,
         { type: 'input', name: 'host', label: () => e('host'), rules: [{ required: true, message: e('host') + ' required' }] },
