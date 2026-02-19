@@ -64,9 +64,6 @@ const manualChunks = (id) => {
     if (id.includes('@xterm')) {
       return 'xterm'
     }
-    if (id.includes('trzsz')) {
-      return 'trzsz'
-    }
     if (id.includes('manate')) {
       return 'manate'
     }

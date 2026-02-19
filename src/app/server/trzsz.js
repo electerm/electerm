@@ -8,7 +8,7 @@ const path = require('path')
 const log = require('../common/log')
 
 // Import trzsz2 (pure JS protocol implementation)
-const { TrzszTransfer } = require('trzsz2')
+const { TrzszTransfer } = require('trzsz2/cjs-full')
 
 // Trzsz state constants
 const TRZSZ_STATE = {

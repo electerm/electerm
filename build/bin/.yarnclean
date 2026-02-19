@@ -39,5 +39,6 @@ examples
 coverage
 .nyc_output
 dist/esm
-# ignores
-<!-- !*.d.ts -->
+zmodem2/dist/cjs
+zmodem2/dist/browser
+
