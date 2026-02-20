@@ -13,7 +13,7 @@ const vncConfig = {
     return createBaseInitValues(props, terminalVncType, {
       port: 5900,
       viewOnly: false,
-      clipViewport: true,
+      clipViewport: false,
       scaleViewport: true,
       qualityLevel: 3, // 0-9, lower = faster performance, default 6
       compressionLevel: 1, // 0-9, lower = faster performance, default 2

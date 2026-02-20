@@ -2,135 +2,37 @@
  * AI-powered bookmark generation form
  */
 import { useState } from 'react'
-import { Button, Input, Modal, message } from 'antd'
+import { Button, Input, Modal, message, Space, Alert } from 'antd'
 import {
   RobotOutlined,
   LoadingOutlined,
   CheckOutlined,
-  CloseOutlined
+  CloseOutlined,
+  EditOutlined,
+  CopyOutlined,
+  DownloadOutlined,
+  EyeOutlined
 } from '@ant-design/icons'
-import { connectionMap } from '../../common/constants'
+import SimpleEditor from '../text-editor/simple-editor'
+import { copy } from '../../common/clipboard'
+import download from '../../common/download'
+import AICategorySelect from './common/ai-category-select.jsx'
+import HelpIcon from '../common/help-icon'
+import { buildPrompt } from './bookmark-schema.js'
+import { fixBookmarkData } from './fix-bookmark-default.js'
+import generate from '../../common/id-with-stamp'
 
 const { TextArea } = Input
 const e = window.translate
 
-// Bookmark schema for AI to understand the format
-const bookmarkSchema = {
-  ssh: {
-    type: 'ssh',
-    host: 'string (required) - hostname or IP address',
-    port: 'number (default: 22) - SSH port',
-    username: 'string (required) - SSH username',
-    password: 'string - password for authentication',
-    privateKey: 'string - path to private key file for key-based auth',
-    passphrase: 'string - passphrase for private key',
-    title: 'string - bookmark title',
-    description: 'string - bookmark description',
-    authType: 'string - "password" or "privateKey"',
-    startDirectory: 'string - remote starting directory',
-    startDirectoryLocal: 'string - local starting directory'
-  },
-  telnet: {
-    type: 'telnet',
-    host: 'string (required) - hostname or IP address',
-    port: 'number (default: 23) - Telnet port',
-    username: 'string - username',
-    password: 'string - password',
-    title: 'string - bookmark title',
-    description: 'string - bookmark description'
-  },
-  serial: {
-    type: 'serial',
-    port: 'string (required) - serial port path, e.g., /dev/ttyUSB0 or COM1',
-    baudRate: 'number (default: 9600) - baud rate',
-    dataBits: 'number (default: 8) - data bits',
-    stopBits: 'number (default: 1) - stop bits',
-    parity: 'string - "none", "even", "odd", "mark", "space"',
-    title: 'string - bookmark title',
-    description: 'string - bookmark description'
-  },
-  vnc: {
-    type: 'vnc',
-    host: 'string (required) - hostname or IP address',
-    port: 'number (default: 5900) - VNC port',
-    password: 'string - VNC password',
-    title: 'string - bookmark title',
-    description: 'string - bookmark description'
-  },
-  rdp: {
-    type: 'rdp',
-    host: 'string (required) - hostname or IP address',
-    port: 'number (default: 3389) - RDP port',
-    username: 'string - username',
-    password: 'string - password',
-    title: 'string - bookmark title',
-    description: 'string - bookmark description'
-  },
-  ftp: {
-    type: 'ftp',
-    host: 'string (required) - hostname or IP address',
-    port: 'number (default: 21) - FTP port',
-    username: 'string - username',
-    password: 'string - password',
-    title: 'string - bookmark title',
-    description: 'string - bookmark description'
-  },
-  web: {
-    type: 'web',
-    url: 'string (required) - website URL',
-    title: 'string - bookmark title',
-    description: 'string - bookmark description'
-  },
-  local: {
-    type: 'local',
-    title: 'string - bookmark title',
-    description: 'string - bookmark description',
-    startDirectoryLocal: 'string - local starting directory'
-  }
-}
-
-function buildPrompt (description) {
-  const lang = window.store.getLangName()
-  const schemaDescription = Object.entries(bookmarkSchema)
-    .map(([type, fields]) => {
-      const fieldList = Object.entries(fields)
-        .map(([key, desc]) => `    ${key}: ${desc}`)
-        .join('\n')
-      return `  ${type}:\n${fieldList}`
-    })
-    .join('\n\n')
-
-  return `You are a bookmark configuration generator. Based on the user's natural language description, generate a bookmark configuration in JSON format.
-
-Available bookmark types and their fields:
-${schemaDescription}
-
-Important rules:
-1. Analyze the user's description to determine the most appropriate connection type
-2. For SSH connections, use type "ssh" and default port 22 unless specified
-3. For Telnet connections, use type "telnet" and default port 23 unless specified
-4. For VNC connections, use type "vnc" and default port 5900 unless specified
-5. For RDP connections, use type "rdp" and default port 3389 unless specified
-6. For FTP connections, use type "ftp" and default port 21 unless specified
-7. For Serial connections, use type "serial"
-8. For Web/Browser connections, use type "web" with a URL field
-9. For Local terminal, use type "local"
-10. Only include fields that are relevant to the connection type
-11. Always include a meaningful title if not specified
-12. Respond ONLY with valid JSON, no markdown formatting or explanations
-13. Reply in ${lang} language
-
-User description: ${description}
-
-Generate the bookmark JSON:`
-}
-
 export default function AIBookmarkForm (props) {
-  const { onGenerated, onCancel } = props
+  const { onCancel } = props
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
-  const [generatedData, setGeneratedData] = useState(null)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [editMode, setEditMode] = useState(false)
+  const [editorText, setEditorText] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('default')
 
   const handleGenerate = async () => {
     if (window.store.aiConfigMissing()) {
@@ -180,18 +82,10 @@ export default function AIBookmarkForm (props) {
         jsonStr = jsonStr.trim()
 
         bookmarkData = JSON.parse(jsonStr)
-
-        // Validate and set defaults
-        if (!bookmarkData.type) {
-          bookmarkData.type = connectionMap.ssh
-        }
-
-        // Ensure required fields have defaults
-        if (bookmarkData.type === connectionMap.ssh && !bookmarkData.port) {
-          bookmarkData.port = 22
-        }
-
-        setGeneratedData(bookmarkData)
+        const pretty = JSON.stringify(bookmarkData, null, 2)
+        setEditorText(pretty)
+        // set default category when preview opens
+        setSelectedCategory('default')
         setShowConfirm(true)
       }
     } catch (error) {
@@ -202,13 +96,59 @@ export default function AIBookmarkForm (props) {
     }
   }
 
-  const handleConfirm = () => {
-    if (onGenerated && generatedData) {
-      onGenerated(generatedData)
+  function getGeneratedData () {
+    if (!editorText) return message.warning(e('noData') || 'No data')
+    let parsed = null
+    try {
+      parsed = fixBookmarkData(JSON.parse(editorText))
+    } catch (err) {
+      return message.error(e('invalidJson') || 'Invalid JSON')
+    }
+    if (!parsed) return []
+    return Array.isArray(parsed) ? parsed : [parsed]
+  }
+
+  const createBookmark = async (bm) => {
+    const { store } = window
+    const { addItem } = store
+    const fixedBm = fixBookmarkData(bm)
+    if (!fixedBm.id) {
+      fixedBm.id = generate()
+    }
+    if (fixedBm.connectionHoppings?.length) {
+      fixedBm.hasHopping = true
+    }
+
+    // Add bookmark
+    addItem(fixedBm, 'bookmarks')
+
+    // Ensure the bookmark id is registered in its group
+    try {
+      const groupId = fixedBm.category || selectedCategory || 'default'
+      const group = window.store.bookmarkGroups.find(g => g.id === groupId)
+      if (group) {
+        group.bookmarkIds = [
+          ...new Set([...(group.bookmarkIds || []), fixedBm.id])
+        ]
+        fixedBm.color = group.color
+      }
+    } catch (err) {
+      console.error('Failed to update bookmark group:', err)
+    }
+  }
+
+  const handleConfirm = async () => {
+    const parsed = getGeneratedData()
+    if (!parsed.length) {
+      return
+    }
+    for (const item of parsed) {
+      // set defaults like mcpAddBookmark would
+      await createBookmark(item)
     }
     setShowConfirm(false)
     setDescription('')
-    setGeneratedData(null)
+    message.success(e('Done'))
   }
 
   const handleCancelConfirm = () => {
@@ -217,65 +157,164 @@ export default function AIBookmarkForm (props) {
 
   const handleCancel = () => {
     setDescription('')
-    setGeneratedData(null)
     if (onCancel) {
       onCancel()
     }
   }
 
+  const handleToggleEdit = () => {
+    setEditMode(!editMode)
+  }
+
+  const handleEditorChange = (e) => {
+    // SimpleEditor passes event-like or value via onChange
+    const val = e && e.target ? e.target.value : e
+    setEditorText(val)
+  }
+
+  const handleCopy = () => {
+    copy(editorText)
+  }
+
+  const handleSaveToFile = async () => {
+    const parsed = getGeneratedData()
+    if (!parsed.length) {
+      return
+    }
+    const date = new Date().toISOString().slice(0, 10)
+    const fileName = `bookmarks-${date}.json`
+    await download(fileName, editorText)
+  }
+
+  const renderEditor = () => {
+    const editorProps = {
+      value: editorText,
+      onChange: handleEditorChange
+    }
+    return (
+      <SimpleEditor
+        {...editorProps}
+      />
+    )
+  }
+
+  const renderPreview = () => {
+    if (editMode) {
+      return renderEditor()
+    }
+    return (
+      <pre className='ai-bookmark-json-preview'>
+        {editorText}
+      </pre>
+    )
+  }
+
+  const renderCategorySelect = () => {
+    return (
+      <AICategorySelect
+        bookmarkGroups={window.store.bookmarkGroups}
+        value={selectedCategory}
+        onChange={setSelectedCategory}
+      />
+    )
+  }
+
+  const textAreaProps = {
+    value: description,
+    onChange: e => setDescription(e.target.value),
+    placeholder: e('createBookmarkByAI'),
+    autoSize: { minRows: 4, maxRows: 8 },
+    disabled: loading
+  }
+
+  const generateBtnProps = {
+    type: 'primary',
+    onClick: handleGenerate,
+    disabled: !description.trim(),
+    icon: loading ? <LoadingOutlined /> : <RobotOutlined />,
+    loading
+  }
+
+  const modalProps = {
+    title: e('confirmBookmarkData') || 'Confirm Bookmark Data',
+    open: showConfirm,
+    onCancel: handleCancelConfirm,
+    footer: [
+      <Button key='cancel' onClick={handleCancelConfirm}>
+        <CloseOutlined /> {e('cancel')}
+      </Button>,
+      <Button key='confirm' type='primary' onClick={handleConfirm}>
+        <CheckOutlined /> {e('confirm')}
+      </Button>
+    ],
+    width: '80%'
+  }
+
+  const editBtnProps = {
+    icon: editMode ? <EyeOutlined /> : <EditOutlined />,
+    title: editMode ? e('preview') : e('edit'),
+    onClick: handleToggleEdit
+  }
+
+  const copyBtnProps = {
+    icon: <CopyOutlined />,
+    title: e('copy'),
+    onClick: handleCopy
+  }
+
+  const downloadBtnProps = {
+    icon: <DownloadOutlined />,
+    title: e('download'),
+    onClick: handleSaveToFile
+  }
+
+  const cancelProps = {
+    onClick: handleCancel,
+    title: e('cancel'),
+    icon: <CloseOutlined />,
+    className: 'mg1l'
+  }
+
   return (
     <div className='ai-bookmark-form pd2'>
-      <div className='pd1b'>
-        <RobotOutlined className='mg1r' />
-        <span>{e('createBookmarkByAI') || 'Create Bookmark by AI'}</span>
+      <div className='pd1b ai-bookmark-header'>
+        <span className='ai-title'>
+          <RobotOutlined className='mg1r' />
+          {e('createBookmarkByAI')}
+        </span>
+        <HelpIcon link='https://github.com/electerm/electerm/wiki/Create-bookmark-by-AI' />
       </div>
       <div className='pd1b'>
-        <TextArea
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          placeholder={e('aiBookmarkPlaceholder') || 'Describe your bookmark in natural language, e.g., "SSH connection to my server at 192.168.1.100 with username admin"'}
-          autoSize={{ minRows: 4, maxRows: 8 }}
-          disabled={loading}
+        <Alert
+          type='info'
+          showIcon
+          title={e('aiSecurityNotice')}
         />
       </div>
+      <div className='pd1b'>
+        <TextArea {...textAreaProps} />
+      </div>
       <div className='pd1t'>
-        <Button
-          type='primary'
-          onClick={handleGenerate}
-          disabled={!description.trim()}
-          icon={loading ? <LoadingOutlined /> : <RobotOutlined />}
-          loading={loading}
-        >
-          {e('generate') || 'Generate'}
+        <Button {...generateBtnProps}>
+          {e('submit')}
         </Button>
-        <Button
-          className='mg1l'
-          onClick={handleCancel}
-        >
+        <Button {...cancelProps}>
           {e('cancel')}
         </Button>
       </div>
 
-      <Modal
-        title={e('confirmBookmarkData') || 'Confirm Bookmark Data'}
-        open={showConfirm}
-        onCancel={handleCancelConfirm}
-        footer={[
-          <Button key='cancel' onClick={handleCancelConfirm}>
-            <CloseOutlined /> {e('cancel')}
-          </Button>,
-          <Button key='confirm' type='primary' onClick={handleConfirm}>
-            <CheckOutlined /> {e('confirm')}
-          </Button>
-        ]}
-        width={600}
-      >
-        <div className='pd1b'>
-          {e('aiGeneratedBookmarkDesc') || 'AI has generated the following bookmark data. Please review and confirm:'}
+      <Modal {...modalProps}>
+        <div className='pd1y'>
+          <Space.Compact className='ai-action-buttons'>
+            <Button {...editBtnProps} />
+            <Button {...copyBtnProps} />
+            <Button {...downloadBtnProps} />
+          </Space.Compact>
         </div>
-        <pre className='ai-bookmark-json-preview'>
-          {generatedData ? JSON.stringify(generatedData, null, 2) : ''}
-        </pre>
+        <div className='pd1y'>
+          {renderCategorySelect()}
+        </div>
+        {renderPreview()}
       </Modal>
     </div>
   )

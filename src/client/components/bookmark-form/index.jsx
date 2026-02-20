@@ -54,6 +54,10 @@ export default class BookmarkIndex2 extends PureComponent {
     this.setState({ bookmarkType: e.target.value })
   }
 
+  handleCancelAiMode = () => {
+    this.setState({ aiMode: false })
+  }
+
   handleToggleAIMode = () => {
     if (window.store.aiConfigMissing()) {
       window.store.toggleAIConfig()
@@ -62,20 +66,8 @@ export default class BookmarkIndex2 extends PureComponent {
     this.setState(prev => ({ aiMode: !prev.aiMode }))
   }
 
-  handleAIGenerated = (data) => {
-    // Exit AI mode and update form with generated data
-    this.setState({ aiMode: false })
-    // Trigger form update through store
-    const { store } = this.props
-    const newItem = {
-      ...data,
-      id: newBookmarkIdPrefix + Date.now()
-    }
-    store.setSettingItem(newItem)
-  }
-
   renderTypes (bookmarkType, isNew, keys) {
-    if (!isNew) return null
+    if (!isNew || this.state.aiMode) return null
     return (
       <Radio.Group
         buttonStyle='solid'
@@ -103,19 +95,36 @@ export default class BookmarkIndex2 extends PureComponent {
   }
 
   renderAIButton (isNew) {
-    if (!isNew) return null
-    const { aiMode } = this.state
+    if (!isNew || this.state.aiMode) {
+      return null
+    }
     return (
       <Button
-        type={aiMode ? 'primary' : 'default'}
+        type='primary'
         size='small'
-        className='mg1l'
+        className='mg2l'
         icon={<RobotOutlined />}
         onClick={this.handleToggleAIMode}
       >
-        {e('createBookmarkByAI') || 'Create by AI'}
+        {e('createBookmarkByAI')}
       </Button>
     )
+  }
+
+  renderAiForm () {
+    return (
+      <AIBookmarkForm
+        onCancel={this.handleCancelAiMode}
+      />
+    )
+  }
+
+  renderForm () {
+    const { bookmarkType, aiMode } = this.state
+    if (aiMode) {
+      return this.renderAiForm()
+    }
+    return renderForm(bookmarkType, this.props)
   }
 
   render () {
@@ -123,7 +132,7 @@ export default class BookmarkIndex2 extends PureComponent {
     const { id = '' } = formData
     const { type } = this.props
     if (type !== settingMap.bookmarks) return null
-    const { ready, bookmarkType, aiMode } = this.state
+    const { ready, bookmarkType } = this.state
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
@@ -144,14 +153,7 @@ export default class BookmarkIndex2 extends PureComponent {
           {this.renderTypes(bookmarkType, isNew, keys)}
           {this.renderAIButton(isNew)}
         </div>
-        {aiMode
-          ? (
-            <AIBookmarkForm
-              onGenerated={this.handleAIGenerated}
-              onCancel={() => this.setState({ aiMode: false })}
-            />
-            )
-          : renderForm(bookmarkType, this.props)}
+        {this.renderForm()}
       </div>
     )
   }
