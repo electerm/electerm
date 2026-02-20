@@ -103,21 +103,60 @@ describe('AI Create Bookmark', function () {
     expect(previewText).toContain('Test Server')
     expect(previewText).toContain('test.example.com')
 
+    log('toggle to edit mode')
+    const editBtn = client.locator('.ai-action-buttons .anticon-edit')
+    await editBtn.click()
+    await delay(500)
+
+    log('verify editor is shown')
+    await client.hasElem('.simple-editor')
+
+    log('edit title and port in editor')
+    const timestamp = Date.now()
+    const editor = client.locator('.simple-editor textarea')
+    const editorContent = await editor.inputValue()
+    const updatedContent = editorContent
+      .replace('"title": "Test Server"', `"title": "Test Server ${timestamp}"`)
+      .replace('"port": 22', '"port": 23')
+    await editor.fill(updatedContent)
+    await delay(500)
+
+    log('toggle back to preview mode')
+    const previewBtn = client.locator('.ai-action-buttons .anticon-eye')
+    await previewBtn.click()
+    await delay(500)
+
+    log('verify preview shows updated port')
+    const updatedPreview = client.locator('.ai-bookmark-json-preview')
+    const updatedPreviewText = await updatedPreview.textContent()
+    expect(updatedPreviewText).toContain('"port": 23')
+    expect(updatedPreviewText).toContain(`"title": "Test Server ${timestamp}"`)
+
+    log('test copy button')
+    const copyBtn = client.locator('.ai-action-buttons .anticon-copy')
+    await copyBtn.click()
+    await delay(500)
+
+    log('verify clipboard content')
+    const clipboardContent = await client.readClipboard()
+    expect(clipboardContent).toContain('"port": 23')
+
     log('confirm bookmark creation')
     const confirmBtn = client.locator('.custom-modal-wrap .custom-modal-footer-buttons button:has-text("Confirm")')
     await confirmBtn.click()
     await delay(1000)
 
-    log('verify bookmark was created')
+    log('verify bookmark was created with updated port')
     const bookmarks = await client.evaluate(() => {
       return window.store.bookmarks
     })
     const createdBookmark = bookmarks.find(b =>
-      b.title && b.title.includes('Test Server')
+      b.title && b.title.includes(timestamp.toString())
     )
     expect(createdBookmark).toBeDefined()
+    expect(createdBookmark.title).toContain(timestamp.toString())
     expect(createdBookmark.host).toEqual('test.example.com')
-    expect(createdBookmark.port).toEqual(22)
+    expect(createdBookmark.port).toEqual(23)
     expect(createdBookmark.username).toEqual('testuser')
 
     await delay(500)

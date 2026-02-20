@@ -34,7 +34,7 @@ function generateTestCommands (userInput) {
 // Generate a test bookmark based on description
 function generateTestBookmark (description) {
   return {
-    title: `Test Server - ${description.slice(0, 20)}`,
+    title: 'Test Server',
     host: 'test.example.com',
     port: 22,
     username: 'testuser',

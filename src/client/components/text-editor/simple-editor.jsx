@@ -155,7 +155,7 @@ export default function SimpleEditor (props) {
   }
 
   return (
-    <div>
+    <div className='simple-editor'>
       <Flex className='mg1b' justify='space-between'>
         <Input.Search
           value={searchKeyword}
@@ -182,6 +182,5 @@ export default function SimpleEditor (props) {
         rows={20}
       />
     </div>
-
   )
 }
