@@ -31,6 +31,18 @@ function generateTestCommands (userInput) {
   ]
 }
 
+// Generate a test bookmark based on description
+function generateTestBookmark (description) {
+  return {
+    title: `Test Server - ${description.slice(0, 20)}`,
+    host: 'test.example.com',
+    port: 22,
+    username: 'testuser',
+    type: 'ssh',
+    description
+  }
+}
+
 // Chat completions endpoint
 app.post('/chat/completions', (req, res) => {
   const { messages, stream } = req.body
@@ -45,6 +57,15 @@ app.post('/chat/completions', (req, res) => {
       choices: [{
         message: {
           content: JSON.stringify(mockSuggestions)
+        }
+      }]
+    })
+  } else if (lastMessage.includes('Generate the bookmark JSON')) {
+    const bookmarkData = generateTestBookmark(lastMessage)
+    res.json({
+      choices: [{
+        message: {
+          content: JSON.stringify(bookmarkData, null, 2)
         }
       }]
     })

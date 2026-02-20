@@ -102,7 +102,7 @@ export default class BookmarkIndex2 extends PureComponent {
       <Button
         type='primary'
         size='small'
-        className='mg2l'
+        className='mg2l create-ai-btn'
         icon={<RobotOutlined />}
         onClick={this.handleToggleAIMode}
       >

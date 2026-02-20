@@ -2,7 +2,7 @@
  * AI-powered bookmark generation form
  */
 import { useState } from 'react'
-import { Button, Input, Modal, message, Space, Alert } from 'antd'
+import { Button, Input, message, Space, Alert } from 'antd'
 import {
   RobotOutlined,
   LoadingOutlined,
@@ -18,6 +18,7 @@ import { copy } from '../../common/clipboard'
 import download from '../../common/download'
 import AICategorySelect from './common/ai-category-select.jsx'
 import HelpIcon from '../common/help-icon'
+import Modal from '../common/modal.jsx'
 import { buildPrompt } from './bookmark-schema.js'
 import { fixBookmarkData } from './fix-bookmark-default.js'
 import generate from '../../common/id-with-stamp'
@@ -239,14 +240,16 @@ export default function AIBookmarkForm (props) {
     title: e('confirmBookmarkData') || 'Confirm Bookmark Data',
     open: showConfirm,
     onCancel: handleCancelConfirm,
-    footer: [
-      <Button key='cancel' onClick={handleCancelConfirm}>
-        <CloseOutlined /> {e('cancel')}
-      </Button>,
-      <Button key='confirm' type='primary' onClick={handleConfirm}>
-        <CheckOutlined /> {e('confirm')}
-      </Button>
-    ],
+    footer: (
+      <div className='custom-modal-footer-buttons'>
+        <Button onClick={handleCancelConfirm}>
+          <CloseOutlined /> {e('cancel')}
+        </Button>
+        <Button type='primary' onClick={handleConfirm}>
+          <CheckOutlined /> {e('confirm')}
+        </Button>
+      </div>
+    ),
     width: '80%'
   }
 
