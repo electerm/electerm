@@ -7,7 +7,8 @@ import {
   SettingOutlined,
   UpCircleOutlined,
   BarsOutlined,
-  AppstoreOutlined
+  AppstoreOutlined,
+  RobotOutlined
 } from '@ant-design/icons'
 import { Tooltip } from 'antd'
 import SideBarPanel from './sidebar-panel'
@@ -86,6 +87,7 @@ export default function Sidebar (props) {
 
   const {
     onNewSsh,
+    onNewSshAI,
     openSetting,
     openAbout,
     openSettingSync,
@@ -140,6 +142,14 @@ export default function Sidebar (props) {
           <PlusCircleOutlined
             className='font22 iblock control-icon'
             onClick={onNewSsh}
+          />
+        </SideIcon>
+        <SideIcon
+          title={e('createBookmarkByAI')}
+        >
+          <RobotOutlined
+            className='font20 iblock control-icon'
+            onClick={onNewSshAI}
           />
         </SideIcon>
         <SideIcon

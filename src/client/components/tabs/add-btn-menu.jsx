@@ -80,13 +80,13 @@ export default function AddBtnMenu ({
         >
           <CodeFilled /> {e('newBookmark')}
         </div>
+        {addTabBtn}
         <div
           className={cls}
           onClick={onNewSshAI}
         >
           <RobotOutlined /> {e('createBookmarkByAI')}
         </div>
-        {addTabBtn}
       </div>
       <div className='add-menu-list'>
         <BookmarksList
