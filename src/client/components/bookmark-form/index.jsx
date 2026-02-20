@@ -39,15 +39,31 @@ export default class BookmarkIndex2 extends PureComponent {
     ].includes(initType)) {
       initType = connectionMap.ssh
     }
-    this.state = { ready: false, bookmarkType: initType, aiMode: false }
+    const v = this.getInitAiModeState()
+    this.state = {
+      ready: v,
+      bookmarkType: initType,
+      aiMode: v
+    }
   }
 
   componentDidMount () {
-    this.timer = setTimeout(() => this.setState({ ready: true }), 75)
+    this.timer = setTimeout(() => {
+      this.setState({ ready: true })
+    }, 75)
   }
 
   componentWillUnmount () {
     clearTimeout(this.timer)
+  }
+
+  getInitAiModeState () {
+    const v = window.et.openBookmarkWithAIMode
+    if (v !== true) {
+      return false
+    }
+    delete window.et.openBookmarkWithAIMode
+    return true
   }
 
   handleChange = (e) => {

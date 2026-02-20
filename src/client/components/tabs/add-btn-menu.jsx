@@ -5,7 +5,8 @@
 import React, { useCallback } from 'react'
 import {
   CodeFilled,
-  RightSquareFilled
+  RightSquareFilled,
+  RobotOutlined
 } from '@ant-design/icons'
 import BookmarksList from '../sidebar/bookmark-select'
 import DragHandle from '../common/drag-handle'
@@ -23,7 +24,7 @@ export default function AddBtnMenu ({
   addPanelWidth,
   setAddPanelWidth
 }) {
-  const { onNewSsh } = window.store
+  const { onNewSsh, onNewSshAI } = window.store
   const cls = 'pd2x pd1y context-item pointer'
   const addTabBtn = window.store.hasNodePty
     ? (
@@ -78,6 +79,12 @@ export default function AddBtnMenu ({
           onClick={onNewSsh}
         >
           <CodeFilled /> {e('newBookmark')}
+        </div>
+        <div
+          className={cls}
+          onClick={onNewSshAI}
+        >
+          <RobotOutlined /> {e('createBookmarkByAI')}
         </div>
         {addTabBtn}
       </div>
