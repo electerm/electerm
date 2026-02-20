@@ -2,7 +2,7 @@
  * Config-driven bookmark form (drop-in replacement)
  */
 import { PureComponent } from 'react'
-import { Radio } from 'antd'
+import { Radio, Button } from 'antd'
 import {
   settingMap,
   connectionMap,
@@ -16,9 +16,10 @@ import {
   newBookmarkIdPrefix
 } from '../../common/constants'
 import { createTitleWithTag } from '../../common/create-title'
-import { LoadingOutlined, BookOutlined } from '@ant-design/icons'
+import { LoadingOutlined, BookOutlined, RobotOutlined } from '@ant-design/icons'
 import sessionConfig from './config/session-config'
 import renderForm from './render-form'
+import AIBookmarkForm from './ai-bookmark-form'
 import './bookmark-form.styl'
 
 const e = window.translate
@@ -38,7 +39,7 @@ export default class BookmarkIndex2 extends PureComponent {
     ].includes(initType)) {
       initType = connectionMap.ssh
     }
-    this.state = { ready: false, bookmarkType: initType }
+    this.state = { ready: false, bookmarkType: initType, aiMode: false }
   }
 
   componentDidMount () {
@@ -53,8 +54,20 @@ export default class BookmarkIndex2 extends PureComponent {
     this.setState({ bookmarkType: e.target.value })
   }
 
+  handleCancelAiMode = () => {
+    this.setState({ aiMode: false })
+  }
+
+  handleToggleAIMode = () => {
+    if (window.store.aiConfigMissing()) {
+      window.store.toggleAIConfig()
+      return
+    }
+    this.setState(prev => ({ aiMode: !prev.aiMode }))
+  }
+
   renderTypes (bookmarkType, isNew, keys) {
-    if (!isNew) return null
+    if (!isNew || this.state.aiMode) return null
     return (
       <Radio.Group
         buttonStyle='solid'
@@ -81,6 +94,39 @@ export default class BookmarkIndex2 extends PureComponent {
     )
   }
 
+  renderAIButton (isNew) {
+    if (!isNew || this.state.aiMode) {
+      return null
+    }
+    return (
+      <Button
+        type='primary'
+        size='small'
+        className='mg2l create-ai-btn'
+        icon={<RobotOutlined />}
+        onClick={this.handleToggleAIMode}
+      >
+        {e('createBookmarkByAI')}
+      </Button>
+    )
+  }
+
+  renderAiForm () {
+    return (
+      <AIBookmarkForm
+        onCancel={this.handleCancelAiMode}
+      />
+    )
+  }
+
+  renderForm () {
+    const { bookmarkType, aiMode } = this.state
+    if (aiMode) {
+      return this.renderAiForm()
+    }
+    return renderForm(bookmarkType, this.props)
+  }
+
   render () {
     const { formData } = this.props
     const { id = '' } = formData
@@ -105,8 +151,9 @@ export default class BookmarkIndex2 extends PureComponent {
           </span>
           {this.renderTitle(formData, isNew)}
           {this.renderTypes(bookmarkType, isNew, keys)}
+          {this.renderAIButton(isNew)}
         </div>
-        {renderForm(bookmarkType, this.props)}
+        {this.renderForm()}
       </div>
     )
   }

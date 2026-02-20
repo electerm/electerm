@@ -14,7 +14,7 @@ const e = window.translate
 export default function BookmarkCategorySelect ({
   bookmarkGroups = [],
   form,
-  formItemLayout,
+  formItemLayout = defaultFormItemLayout,
   name = 'category',
   onChange,
   formData = {} // Add formData prop to access bookmark ID
@@ -67,11 +67,9 @@ export default function BookmarkCategorySelect ({
     }
   }
 
-  const layout = formItemLayout || defaultFormItemLayout
-
   return (
     <FormItem
-      {...layout}
+      {...formItemLayout}
       label={e('bookmarkCategory')}
       name={name}
     >
