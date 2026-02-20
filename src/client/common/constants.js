@@ -67,7 +67,8 @@ export const connectionMap = buildConst([
   'web',
   'rdp',
   'vnc',
-  'ftp'
+  'ftp',
+  'spice'
 ])
 
 export const authTypeMap = buildConst([
@@ -143,6 +144,7 @@ export const terminalSerialType = 'serial'
 export const terminalTelnetType = 'telnet'
 export const terminalLocalType = 'local'
 export const terminalFtpType = 'ftp'
+export const terminalSpiceType = 'spice'
 export const openedSidebarKey = 'opened-sidebar'
 export const sidebarPinnedKey = 'sidebar-pinned'
 export const pinnedQuickCommandBarKey = 'pinned-quick-command-bar'

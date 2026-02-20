@@ -77,6 +77,22 @@ if (type === 'rdp') {
       cleanup()
     })
   })
+} else if (type === 'spice') {
+  app.ws('/spice/:pid', function (ws, req) {
+    const { query } = req
+    verify(req)
+    const { pid } = req.params
+    const term = terminals(pid)
+    term.ws = ws
+    term.start(query)
+    log.debug('ws: connected to spice session ->', pid)
+    ws.on('error', (err) => {
+      log.error(err)
+    })
+    ws.on('close', () => {
+      cleanup()
+    })
+  })
 } else {
   app.ws('/terminals/:pid', function (ws, req) {
     verify(req)
