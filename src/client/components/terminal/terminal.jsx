@@ -26,19 +26,11 @@ import {
 } from '../../common/constants.js'
 import deepCopy from 'json-deep-copy'
 import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
-import { FitAddon } from '@xterm/addon-fit'
 import AttachAddon from './attach-addon-custom.js'
-import { SearchAddon } from '@xterm/addon-search'
-import { WebLinksAddon } from '@xterm/addon-web-links'
-import { CanvasAddon } from '@xterm/addon-canvas'
-import { WebglAddon } from '@xterm/addon-webgl'
-import { LigaturesAddon } from '@xterm/addon-ligatures'
 import getProxy from '../../common/get-proxy.js'
 import { ZmodemClient } from './zmodem-client.js'
 import { TrzszClient } from './trzsz-client.js'
-import { Unicode11Addon } from '@xterm/addon-unicode11'
 import keyControlPressed from '../../common/key-control-pressed.js'
-import { Terminal } from '@xterm/xterm'
 import NormalBuffer from './normal-buffer.jsx'
 import { createTerm, resizeTerm } from './terminal-apis.js'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
@@ -57,6 +49,16 @@ import ExternalLink from '../common/external-link.jsx'
 import createDefaultLogPath from '../../common/default-log-path.js'
 import SearchResultBar from './terminal-search-bar'
 import RemoteFloatControl from '../common/remote-float-control'
+import {
+  loadTerminal,
+  loadFitAddon,
+  loadWebLinksAddon,
+  loadCanvasAddon,
+  loadWebglAddon,
+  loadSearchAddon,
+  loadLigaturesAddon,
+  loadUnicode11Addon
+} from './xterm-loader.js'
 
 const e = window.translate
 
@@ -115,7 +117,7 @@ class Term extends Component {
     ) {
       this.onResize()
     }
-    if (shouldChange) {
+    if (shouldChange && this.term) {
       this.term.focus()
     }
     this.checkConfigChange(
@@ -126,7 +128,7 @@ class Term extends Component {
       this.props.themeConfig,
       prevProps.themeConfig
     )
-    if (themeChanged) {
+    if (themeChanged && this.term) {
       this.term.options.theme = {
         ...deepCopy(this.props.themeConfig),
         background: 'rgba(0,0,0,0)'
@@ -139,7 +141,9 @@ class Term extends Component {
     if (window.store.activeTerminalId === this.props.tab.id) {
       window.store.activeTerminalId = ''
     }
-    this.term.parent = null
+    if (this.term) {
+      this.term.parent = null
+    }
     Object.keys(this.timers).forEach(k => {
       clearTimeout(this.timers[k])
       this.timers[k] = null
@@ -182,7 +186,7 @@ class Term extends Component {
     }
   ]
 
-  initAttachAddon = () => {
+  initAttachAddon = async () => {
     this.attachAddon = new AttachAddon(
       this.term,
       this.socket,
@@ -191,7 +195,7 @@ class Term extends Component {
     this.attachAddon.decoder = new TextDecoder(
       this.encode || this.props.tab.encode || 'utf-8'
     )
-    this.term.loadAddon(this.attachAddon)
+    await this.attachAddon.activate(this.term)
   }
 
   getValue = (props, type, name) => {
@@ -753,25 +757,28 @@ class Term extends Component {
     }
   }
 
-  loadRenderer = (term, config) => {
+  loadRenderer = async (term, config) => {
     if (config.rendererType === rendererTypes.canvas) {
+      const CanvasAddon = await loadCanvasAddon()
       term.loadAddon(new CanvasAddon())
     } else if (config.rendererType === rendererTypes.webGL) {
       try {
+        const WebglAddon = await loadWebglAddon()
         term.loadAddon(new WebglAddon())
       } catch (e) {
         console.error('render with webgl failed, fallback to canvas')
         console.error(e)
+        const CanvasAddon = await loadCanvasAddon()
         term.loadAddon(new CanvasAddon())
       }
     }
   }
 
   initTerminal = async () => {
-    // let {password, privateKey, host} = this.props.tab
     const { themeConfig, tab = {}, config = {} } = this.props
     const tc = deepCopy(themeConfig)
     tc.background = 'rgba(0,0,0,0)'
+    const Terminal = await loadTerminal()
     const term = new Terminal({
       allowProposedApi: true,
       scrollback: config.scrollback,
@@ -779,7 +786,6 @@ class Term extends Component {
       fontFamily: tab.fontFamily || config.fontFamily,
       theme: tc,
       allowTransparency: true,
-      // lineHeight: 1.2,
       wordSeparator: config.terminalWordSeparator,
       cursorStyle: config.cursorStyle,
       cursorBlink: config.cursorBlink,
@@ -787,36 +793,31 @@ class Term extends Component {
       screenReaderMode: config.screenReaderMode
     })
 
-    // term.onLineFeed(this.onLineFeed)
-    // term.onTitleChange(this.onTitleChange)
     term.parent = this
     term.onSelectionChange(this.onSelection)
     term.open(this.domRef.current, true)
-    this.loadRenderer(term, config)
-    // term.textarea.addEventListener('click', this.setActive)
-    // term.onKey(this.onKey)
-    // term.textarea.addEventListener('blur', this.onBlur)
+    await this.loadRenderer(term, config)
 
-    // term.on('keydown', this.handleEvent)
+    const FitAddon = await loadFitAddon()
     this.fitAddon = new FitAddon()
     this.cmdAddon = new CommandTrackerAddon()
-    // Register callback for shell integration command tracking
     this.cmdAddon.onCommandExecuted((cmd) => {
       if (cmd && cmd.trim()) {
         window.store.addCmdHistory(cmd.trim())
       }
     })
-    // Register callback for shell integration CWD tracking
     this.cmdAddon.onCwdChanged((cwd) => {
       this.setCwd(cwd)
     })
+    const SearchAddon = await loadSearchAddon()
     this.searchAddon = new SearchAddon()
+    const LigaturesAddon = await loadLigaturesAddon()
     const ligtureAddon = new LigaturesAddon()
     this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
+    const Unicode11Addon = await loadUnicode11Addon()
     const unicode11Addon = new Unicode11Addon()
     term.loadAddon(unicode11Addon)
     term.loadAddon(ligtureAddon)
-    // activate the new version
     term.unicode.activeVersion = '11'
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
@@ -1124,8 +1125,8 @@ class Term extends Component {
     this.socket = socket
     this.initSocketEvents()
     this.term = term
-    socket.onopen = () => {
-      this.initAttachAddon()
+    socket.onopen = async () => {
+      await this.initAttachAddon()
       this.runInitScript()
       term._initialized = true
     }
@@ -1134,6 +1135,7 @@ class Term extends Component {
     if (pick(term, 'buffer._onBufferChange._listeners')) {
       term.buffer._onBufferChange._listeners.push(this.onBufferChange)
     }
+    const WebLinksAddon = await loadWebLinksAddon()
     term.loadAddon(new WebLinksAddon(this.webLinkHandler))
     term.focus()
     this.zmodemClient = new ZmodemClient(this)
