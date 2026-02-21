@@ -18,8 +18,7 @@ async function loadSpiceModule () {
   if (window.spiceHtml5) return
   const mod = await import('@spice-project/spice-html5')
   window.spiceHtml5 = {
-    SpiceMainConn: mod.SpiceMainConn,
-    sendCtrlAltDel: mod.sendCtrlAltDel
+    SpiceMainConn: mod.SpiceMainConn
   }
 }
 
@@ -93,7 +92,7 @@ export default class SpiceSession extends PureComponent {
 
     return {
       isFullScreen: this.props.fullscreen,
-      onSendCtrlAltDel: this.handleSendCtrlAltDel,
+      onSendCtrlAltDel: undefined,
       screens: [],
       currentScreen: null,
       onSelectScreen: () => {},
@@ -213,16 +212,6 @@ export default class SpiceSession extends PureComponent {
     this.props.reloadTab(
       this.props.tab
     )
-  }
-
-  handleSendCtrlAltDel = () => {
-    if (this.spiceConn && window.spiceHtml5?.sendCtrlAltDel) {
-      try {
-        window.spiceHtml5.sendCtrlAltDel(this.spiceConn)
-      } catch (err) {
-        console.error('[SPICE] Failed to send Ctrl+Alt+Del:', err)
-      }
-    }
   }
 
   renderInfo () {
