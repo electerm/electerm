@@ -1,7 +1,16 @@
 window.xtermAddons = window.xtermAddons || {}
 
+let xtermCssLoaded = false
+
+function loadXtermCss () {
+  if (xtermCssLoaded) return
+  xtermCssLoaded = true
+  import('@xterm/xterm/css/xterm.css')
+}
+
 export async function loadTerminal () {
   if (window.xtermAddons.Terminal) return window.xtermAddons.Terminal
+  loadXtermCss()
   const mod = await import('@xterm/xterm')
   window.xtermAddons.Terminal = mod.Terminal
   return window.xtermAddons.Terminal

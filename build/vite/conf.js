@@ -93,7 +93,7 @@ function combineCSSPlugin () {
       let basicCSS = ''
 
       for (const fileName in bundle) {
-        if (fileName.endsWith('.css')) {
+        if (fileName.endsWith('.css') && !fileName.includes('xterm.css')) {
           // Get the CSS source
           const cssSource = bundle[fileName].source
           // Check if this CSS is from basic.js's imports
@@ -210,6 +210,9 @@ export default defineConfig({
         chunkFileNames: `chunk/[name]-${version}-[hash].js`,
         assetFileNames: chunkInfo => {
           const { name } = chunkInfo
+          if (name.includes('xterm.css')) {
+            return `css/${version}-[hash]-${name}`
+          }
           return name.endsWith('.css')
             ? `css/_temp_${name}`
             : `images/${name}`
