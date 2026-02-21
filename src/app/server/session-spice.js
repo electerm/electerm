@@ -3,15 +3,18 @@ const { TerminalBase } = require('./session-base')
 const globalState = require('./global-state')
 const { handleConnection } = require('./spice-proxy')
 
+let channelCounter = 0
+
 class TerminalSpice extends TerminalBase {
   init = async () => {
+    this.wsMap = new Map()
     globalState.setSession(this.pid, this)
     return Promise.resolve(this)
   }
 
-  start = async (query = {}) => {
-    if (!this.ws) {
-      log.error(`[SPICE:${this.pid}] No WebSocket available`)
+  start = async (query = {}, ws) => {
+    if (!ws) {
+      log.error(`[SPICE:${this.pid}] No WebSocket provided`)
       return
     }
 
@@ -22,18 +25,31 @@ class TerminalSpice extends TerminalBase {
       readyTimeout = 10000
     } = this.initOptions
 
-    log.debug(`[SPICE:${this.pid}] Starting SPICE session to ${host}:${port}`)
+    channelCounter++
+    const connId = `${channelCounter}`
+    this.wsMap.set(connId, ws)
 
-    handleConnection(this.ws, {
+    log.debug(`[SPICE:${this.pid}] Starting SPICE channel #${connId} to ${host}:${port}, total channels: ${this.wsMap.size}`)
+
+    const cleanup = () => {
+      this.wsMap.delete(connId)
+      log.debug(`[SPICE:${this.pid}] Channel #${connId} closed, remaining: ${this.wsMap.size}`)
+      if (this.wsMap.size === 0) {
+        this.kill()
+      }
+    }
+
+    handleConnection(ws, {
       host,
       port,
       proxy,
-      readyTimeout
+      readyTimeout,
+      onCleanup: cleanup,
+      channelId: `#${connId}`
     })
   }
 
   resize = () => {
-    // SPICE handles resize via the client
   }
 
   test = async () => {
@@ -74,15 +90,15 @@ class TerminalSpice extends TerminalBase {
   }
 
   kill = () => {
-    log.debug('Closed SPICE session ' + this.pid)
-    if (this.ws) {
+    log.debug('Closed SPICE session ' + this.pid + ', remaining connections: ' + this.wsMap.size)
+    for (const ws of this.wsMap.values()) {
       try {
-        this.ws.close()
+        ws.close()
       } catch (e) {
         log.debug(`[SPICE:${this.pid}] ws.close() error:`, e.message)
       }
-      delete this.ws
     }
+    this.wsMap.clear()
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }

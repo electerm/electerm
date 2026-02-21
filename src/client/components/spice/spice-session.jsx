@@ -16,13 +16,11 @@ import RemoteFloatControl from '../common/remote-float-control'
 
 async function loadSpiceModule () {
   if (window.spiceHtml5) return
-  console.debug('[SPICE-CLIENT] Loading SPICE HTML5 module...')
   const mod = await import('@spice-project/spice-html5')
   window.spiceHtml5 = {
     SpiceMainConn: mod.SpiceMainConn,
-    SpiceConn: mod.SpiceConn
+    sendCtrlAltDel: mod.sendCtrlAltDel
   }
-  console.debug('[SPICE-CLIENT] SPICE HTML5 module loaded')
 }
 
 export default class SpiceSession extends PureComponent {
@@ -33,6 +31,7 @@ export default class SpiceSession extends PureComponent {
       connected: false
     }
     this.spiceConn = null
+    this.screenId = `spice-screen-${props.tab.id}`
   }
 
   domRef = createRef()
@@ -46,14 +45,10 @@ export default class SpiceSession extends PureComponent {
   }
 
   cleanup = () => {
-    console.debug('[SPICE-CLIENT] cleanup() called')
     if (this.spiceConn) {
       try {
         this.spiceConn.stop()
-        console.debug('[SPICE-CLIENT] spiceConn.stop() called')
-      } catch (e) {
-        console.debug('[SPICE-CLIENT] spiceConn.stop() error:', e)
-      }
+      } catch (e) {}
       this.spiceConn = null
     }
   }
@@ -152,7 +147,6 @@ export default class SpiceSession extends PureComponent {
       ...tab
     })
 
-    console.debug('[SPICE-CLIENT] Creating SPICE session term, host=', tab.host, 'port=', tab.port)
     const r = await createTerm(opts)
       .catch(err => {
         const text = err.message
@@ -161,18 +155,16 @@ export default class SpiceSession extends PureComponent {
     if (!r) {
       this.setState({ loading: false })
       this.setStatus(statusMap.error)
-      console.error('[SPICE-CLIENT] createTerm failed')
       return
     }
 
     const { pid, port } = r
     this.pid = pid
-    console.debug('[SPICE-CLIENT] Term created, pid=', pid, 'port=', port)
 
     try {
       await loadSpiceModule()
     } catch (e) {
-      console.error('[SPICE-CLIENT] Failed to load SPICE module:', e)
+      console.error('[SPICE] Failed to load SPICE module:', e)
       this.setState({ loading: false })
       this.setStatus(statusMap.error)
       return
@@ -184,21 +176,12 @@ export default class SpiceSession extends PureComponent {
     const wsUrl = this.buildWsUrl(port, 'spice', `&width=${width}&height=${height}`)
 
     try {
-      const container = this.domRef.current
-      if (!container) {
-        console.error('[SPICE-CLIENT] Container ref not available')
-        this.setState({ loading: false })
-        return
-      }
-
-      console.debug('[SPICE-CLIENT] Connecting to SPICE server:', wsUrl)
-
       const SpiceMainConn = window.spiceHtml5.SpiceMainConn
       const spiceOpts = {
         uri: wsUrl,
         password: password || '',
+        screen_id: this.screenId,
         onsuccess: () => {
-          console.debug('[SPICE-CLIENT] Connected successfully')
           this.setState({
             loading: false,
             connected: true
@@ -206,28 +189,26 @@ export default class SpiceSession extends PureComponent {
           this.setStatus(statusMap.success)
         },
         onerror: (e) => {
-          console.error('[SPICE-CLIENT] Connection error:', e)
+          console.error('[SPICE] Connection error:', e)
           this.setState({ loading: false })
           this.setStatus(statusMap.error)
         },
-        onagent: (agent) => {
-          console.debug('[SPICE-CLIENT] Agent connected')
-        }
+        onagent: () => {}
       }
 
       this.spiceConn = new SpiceMainConn(spiceOpts)
+
       this.setState({
         loading: false
       })
     } catch (e) {
-      console.error('[SPICE-CLIENT] Connection failed:', e)
+      console.error('[SPICE] Connection failed:', e)
       this.setState({ loading: false })
       this.setStatus(statusMap.error)
     }
   }
 
   handleReInit = () => {
-    console.debug('[SPICE-CLIENT] handleReInit called')
     this.cleanup()
     this.props.reloadTab(
       this.props.tab
@@ -235,12 +216,11 @@ export default class SpiceSession extends PureComponent {
   }
 
   handleSendCtrlAltDel = () => {
-    if (this.spiceConn) {
+    if (this.spiceConn && window.spiceHtml5?.sendCtrlAltDel) {
       try {
-        this.spiceConn.sendCtrlAltDel()
-        console.debug('[SPICE-CLIENT] Sent Ctrl+Alt+Del')
+        window.spiceHtml5.sendCtrlAltDel(this.spiceConn)
       } catch (err) {
-        console.error('[SPICE-CLIENT] Failed to send Ctrl+Alt+Del:', err)
+        console.error('[SPICE] Failed to send Ctrl+Alt+Del:', err)
       }
     }
   }
@@ -285,6 +265,7 @@ export default class SpiceSession extends PureComponent {
           >
             <div
               ref={this.domRef}
+              id={this.screenId}
               className='spice-session-wrap session-v-wrap'
               style={{
                 width: '100%',

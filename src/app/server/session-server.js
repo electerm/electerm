@@ -83,14 +83,10 @@ if (type === 'rdp') {
     verify(req)
     const { pid } = req.params
     const term = terminals(pid)
-    term.ws = ws
-    term.start(query)
     log.debug('ws: connected to spice session ->', pid)
+    term.start(query, ws)
     ws.on('error', (err) => {
       log.error(err)
-    })
-    ws.on('close', () => {
-      cleanup()
     })
   })
 } else {
