@@ -8,6 +8,7 @@ import serial from './serial'
 import local from './local'
 import rdp from './rdp'
 import ftp from './ftp'
+import spice from './spice'
 
 const sessionConfig = {
   [connectionMap.ssh]: ssh,
@@ -17,7 +18,8 @@ const sessionConfig = {
   [connectionMap.vnc]: vnc,
   [connectionMap.rdp]: rdp,
   [connectionMap.ftp]: ftp,
-  [connectionMap.web]: web
+  [connectionMap.web]: web,
+  [connectionMap.spice]: spice
 }
 
 export default sessionConfig

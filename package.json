@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "2.9.0",
+  "version": "2.10.0",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -57,6 +57,7 @@
     "@electron/rebuild": "4.0.1",
     "@fontsource/maple-mono": "^5.2.5",
     "@novnc/novnc": "1.4.0",
+    "@spice-project/spice-html5": "^0.2.1",
     "@types/node": "22.9.3",
     "@vitejs/plugin-react": "4.3.4",
     "@xterm/addon-attach": "0.11.0",

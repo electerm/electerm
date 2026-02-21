@@ -8,6 +8,7 @@ import Sftp from '../sftp/sftp-entry'
 import RdpSession from '../rdp/rdp-session'
 import VncSession from '../vnc/vnc-session'
 import WebSession from '../web/web-session.jsx'
+import SpiceSession from '../spice/spice-session'
 import {
   SearchOutlined,
   FullscreenOutlined,
@@ -29,7 +30,8 @@ import {
   terminalVncType,
   terminalWebType,
   terminalTelnetType,
-  terminalFtpType
+  terminalFtpType,
+  terminalSpiceType
 } from '../../common/constants'
 import { SplitViewIcon } from '../icons/split-view'
 import { refs } from '../common/ref'
@@ -269,7 +271,7 @@ export default class SessionWrapper extends Component {
         />
       )
     }
-    if (type === terminalRdpType || type === terminalVncType) {
+    if (type === terminalRdpType || type === terminalVncType || type === terminalSpiceType) {
       const rdpProps = {
         tab: this.props.tab,
         ...pick(this.props, [
@@ -295,6 +297,13 @@ export default class SessionWrapper extends Component {
       if (type === terminalVncType) {
         return (
           <VncSession
+            {...rdpProps}
+          />
+        )
+      }
+      if (type === terminalSpiceType) {
+        return (
+          <SpiceSession
             {...rdpProps}
           />
         )
@@ -373,7 +382,8 @@ export default class SessionWrapper extends Component {
       type === terminalVncType ||
       type === terminalWebType ||
       type === terminalTelnetType ||
-      type === terminalFtpType
+      type === terminalFtpType ||
+      type === terminalSpiceType
   }
 
   calcSftpWidthHeight = () => {

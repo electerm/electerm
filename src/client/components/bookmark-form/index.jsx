@@ -13,7 +13,8 @@ import {
   terminalLocalType,
   terminalTelnetType,
   terminalFtpType,
-  newBookmarkIdPrefix
+  newBookmarkIdPrefix,
+  terminalSpiceType
 } from '../../common/constants'
 import { createTitleWithTag } from '../../common/create-title'
 import { LoadingOutlined, BookOutlined, RobotOutlined } from '@ant-design/icons'
@@ -35,7 +36,8 @@ export default class BookmarkIndex2 extends PureComponent {
       terminalSerialType,
       terminalRdpType,
       terminalVncType,
-      terminalFtpType
+      terminalFtpType,
+      terminalSpiceType
     ].includes(initType)) {
       initType = connectionMap.ssh
     }
