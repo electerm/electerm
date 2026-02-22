@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { CloseOutlined } from '@ant-design/icons'
+import { CloseOutlined, CopyOutlined } from '@ant-design/icons'
 import classnames from 'classnames'
 import generateId from '../../common/uid'
 import { messageIcons } from '../../common/icon-helpers.jsx'
+import { copy } from '../../common/clipboard'
 import './notification.styl'
 
 const notifications = []
@@ -97,6 +98,11 @@ function NotificationItem ({ message, description, type, onClose, duration = 18.
     }
   }
 
+  const handleCopy = (text, e) => {
+    e.stopPropagation()
+    copy(text)
+  }
+
   const className = classnames('notification', type)
 
   return (
@@ -109,8 +115,20 @@ function NotificationItem ({ message, description, type, onClose, duration = 18.
         <div className='notification-message'>
           <div className='notification-icon'>{messageIcons[type]}</div>
           <div className='notification-title' title={message}>{message}</div>
+          <CopyOutlined
+            className='notification-copy-icon'
+            onClick={(e) => handleCopy(message, e)}
+          />
         </div>
-        {description && <div className='notification-description'>{description}</div>}
+        {description && (
+          <div className='notification-description'>
+            {description}
+            <CopyOutlined
+              className='notification-copy-icon'
+              onClick={(e) => handleCopy(description, e)}
+            />
+          </div>
+        )}
       </div>
       <CloseOutlined className='notification-close' onClick={onClose} />
     </div>

@@ -33,9 +33,10 @@
   top 10px
 
 .notification-description
-  word-wrap break-all
+  word-wrap break-word
   max-height 200px
   overflow auto
+  padding 10px 0 0 0
 
 .notification-close
   position absolute
@@ -49,3 +50,18 @@
   padding 0
   &:hover
     color var(--text)
+
+.notification-copy-icon
+  cursor pointer
+  font-size 14px
+  position absolute
+  right 10px
+  top 45px
+  margin-left 8px
+  display none
+.notification-message .notification-copy-icon
+  right 38px
+  top 14px
+.notification-message:hover .notification-copy-icon,
+.notification-description:hover .notification-copy-icon
+  display inline-block
