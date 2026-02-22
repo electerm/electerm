@@ -3,9 +3,9 @@ const { TerminalBase } = require('./session-base')
 const globalState = require('./global-state')
 const { handleConnection } = require('./spice-proxy')
 
-let channelCounter = 0
-
 class TerminalSpice extends TerminalBase {
+  channelCounter = 0
+
   init = async () => {
     this.wsMap = new Map()
     globalState.setSession(this.pid, this)
@@ -25,8 +25,8 @@ class TerminalSpice extends TerminalBase {
       readyTimeout = 10000
     } = this.initOptions
 
-    channelCounter++
-    const connId = `${channelCounter}`
+    this.channelCounter++
+    const connId = `${this.channelCounter}`
     this.wsMap.set(connId, ws)
 
     log.debug(`[SPICE:${this.pid}] Starting SPICE channel #${connId} to ${host}:${port}, total channels: ${this.wsMap.size}`)
