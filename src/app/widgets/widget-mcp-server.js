@@ -12,6 +12,12 @@ const { z } = require('zod')
 const express = require('express')
 const uid = require('../common/uid')
 const globalState = require('../lib/glob-state')
+const {
+  sshBookmarkSchema,
+  telnetBookmarkSchema,
+  serialBookmarkSchema,
+  localBookmarkSchema
+} = require('../common/bookmark-zod-schemas')
 
 const widgetInfo = {
   name: 'MCP Server',
@@ -302,23 +308,12 @@ class ElectermMCPServer {
         'add_electerm_bookmark_ssh',
         {
           description: 'Add a new SSH bookmark to electerm',
-          inputSchema: {
-            title: z.string().describe('Bookmark title'),
-            host: z.string().describe('SSH host address'),
-            port: z.number().optional().describe('SSH port (default 22)'),
-            username: z.string().optional().describe('SSH username'),
-            password: z.string().optional().describe('SSH password'),
-            authType: z.enum(['password', 'privateKey', 'keyboard-interactive']).optional().describe('Authentication type'),
-            privateKey: z.string().optional().describe('Private key content (for privateKey auth)'),
-            passphrase: z.string().optional().describe('Private key passphrase'),
-            useSshAgent: z.boolean().optional().describe('Use SSH agent'),
-            description: z.string().optional().describe('Bookmark description')
-          }
+          inputSchema: sshBookmarkSchema
         },
-        async ({ title, host, port, username, password, authType, privateKey, passphrase, useSshAgent, description }) => {
+        async (args) => {
           const result = await self.sendToRenderer('tool-call', {
             toolName: 'add_bookmark',
-            args: { title, host, port, username, password, authType, privateKey, passphrase, useSshAgent, description, type: 'ssh' }
+            args: { ...args, type: 'ssh' }
           })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
@@ -328,21 +323,12 @@ class ElectermMCPServer {
         'add_electerm_bookmark_telnet',
         {
           description: 'Add a new Telnet bookmark to electerm',
-          inputSchema: {
-            title: z.string().describe('Bookmark title'),
-            host: z.string().describe('Telnet host address'),
-            port: z.number().optional().describe('Telnet port (default 23)'),
-            username: z.string().optional().describe('Telnet username'),
-            password: z.string().optional().describe('Telnet password'),
-            loginPrompt: z.string().optional().describe('Login prompt regex'),
-            passwordPrompt: z.string().optional().describe('Password prompt regex'),
-            description: z.string().optional().describe('Bookmark description')
-          }
+          inputSchema: telnetBookmarkSchema
         },
-        async ({ title, host, port, username, password, loginPrompt, passwordPrompt, description }) => {
+        async (args) => {
           const result = await self.sendToRenderer('tool-call', {
             toolName: 'add_bookmark',
-            args: { title, host, port, username, password, loginPrompt, passwordPrompt, description, type: 'telnet' }
+            args: { ...args, type: 'telnet' }
           })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
@@ -352,24 +338,27 @@ class ElectermMCPServer {
         'add_electerm_bookmark_serial',
         {
           description: 'Add a new Serial bookmark to electerm',
-          inputSchema: {
-            title: z.string().describe('Bookmark title'),
-            path: z.string().describe('Serial device path'),
-            baudRate: z.number().optional().describe('Baud rate (default 9600)'),
-            dataBits: z.number().optional().describe('Data bits (default 8)'),
-            stopBits: z.number().optional().describe('Stop bits (default 1)'),
-            parity: z.enum(['none', 'even', 'odd', 'mark', 'space']).optional().describe('Parity (default none)'),
-            rtscts: z.boolean().optional().describe('RTS/CTS flow control'),
-            xon: z.boolean().optional().describe('XON/XOFF flow control'),
-            xoff: z.boolean().optional().describe('XOFF flow control'),
-            xany: z.boolean().optional().describe('XANY flow control'),
-            description: z.string().optional().describe('Bookmark description')
-          }
+          inputSchema: serialBookmarkSchema
         },
-        async ({ title, path, baudRate, dataBits, stopBits, parity, rtscts, xon, xoff, xany, description }) => {
+        async (args) => {
           const result = await self.sendToRenderer('tool-call', {
             toolName: 'add_bookmark',
-            args: { title, path, baudRate, dataBits, stopBits, parity, rtscts, xon, xoff, xany, description, type: 'serial' }
+            args: { ...args, type: 'serial' }
+          })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+
+      server.registerTool(
+        'add_electerm_bookmark_local',
+        {
+          description: 'Add a new Local terminal bookmark to electerm',
+          inputSchema: localBookmarkSchema
+        },
+        async (args) => {
+          const result = await self.sendToRenderer('tool-call', {
+            toolName: 'add_bookmark',
+            args: { ...args, type: 'local' }
           })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }

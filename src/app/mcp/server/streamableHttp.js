@@ -1,3 +1,34 @@
+const { z } = require('zod')
+
+function zodToJsonSchema (zodSchema) {
+  if (!zodSchema) {
+    return { type: 'object', properties: {} }
+  }
+  try {
+    if (zodSchema && typeof zodSchema === 'object') {
+      const hasZodStandard = Object.values(zodSchema).some(
+        v => v && typeof v === 'object' && '~standard' in v
+      )
+      if (hasZodStandard) {
+        const zodObject = z.object(
+          Object.fromEntries(
+            Object.entries(zodSchema).map(([key, value]) => [key, value])
+          )
+        )
+        const jsonSchema = z.toJSONSchema(zodObject)
+        return jsonSchema || { type: 'object', properties: {} }
+      }
+    }
+    if (zodSchema && typeof zodSchema === 'object' && '~standard' in zodSchema) {
+      const jsonSchema = z.toJSONSchema(zodSchema)
+      return jsonSchema || { type: 'object', properties: {} }
+    }
+    return { type: 'object', properties: {} }
+  } catch (e) {
+    return { type: 'object', properties: {} }
+  }
+}
+
 class StreamableHTTPServerTransport {
   constructor (options) {
     this.sessionIdGenerator = options.sessionIdGenerator
@@ -5,6 +36,7 @@ class StreamableHTTPServerTransport {
     this.onclose = null
     this.server = null
     this.sessionId = null
+    this.initialized = false
   }
 
   async connect (server) {
@@ -26,7 +58,6 @@ class StreamableHTTPServerTransport {
 
   async handleRequest (req, res, body) {
     if (body) {
-      // POST request with JSON-RPC
       const request = body
       let result
       if (request.method === 'initialize') {
@@ -36,7 +67,9 @@ class StreamableHTTPServerTransport {
           result: {
             protocolVersion: '2024-11-05',
             capabilities: {
-              tools: {}
+              tools: {
+                listChanged: false
+              }
             },
             serverInfo: {
               name: this.server.name,
@@ -45,11 +78,15 @@ class StreamableHTTPServerTransport {
           }
         }
         res.setHeader('mcp-session-id', this.sessionId)
+      } else if (request.method === 'notifications/initialized') {
+        this.initialized = true
+        res.status(200).end()
+        return
       } else if (request.method === 'tools/list') {
         const tools = Array.from(this.server.tools.entries()).map(([name, { description, inputSchema }]) => ({
           name,
           description,
-          inputSchema
+          inputSchema: zodToJsonSchema(inputSchema)
         }))
         result = {
           jsonrpc: '2.0',
@@ -71,32 +108,38 @@ class StreamableHTTPServerTransport {
             result = {
               jsonrpc: '2.0',
               id: request.id,
-              error: { code: -32603, message: error.message }
+              result: {
+                content: [{ type: 'text', text: error.message }],
+                isError: true
+              }
             }
           }
         } else {
           result = {
             jsonrpc: '2.0',
             id: request.id,
-            error: { code: -32601, message: 'Method not found' }
+            error: { code: -32601, message: `Tool not found: ${name}` }
           }
+        }
+      } else if (request.method === 'ping') {
+        result = {
+          jsonrpc: '2.0',
+          id: request.id,
+          result: {}
         }
       } else {
         result = {
           jsonrpc: '2.0',
           id: request.id,
-          error: { code: -32600, message: 'Invalid Request' }
+          error: { code: -32601, message: `Method not found: ${request.method}` }
         }
       }
       this._sendSSE(res, result)
     } else {
-      // GET or DELETE
       if (req.method === 'DELETE') {
-        // Close session
         this.close()
         res.status(200).end()
       } else {
-        // GET for SSE or something
         res.status(200).end()
       }
     }
