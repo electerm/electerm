@@ -16,9 +16,10 @@ import RemoteFloatControl from '../common/remote-float-control'
 
 async function loadSpiceModule () {
   if (window.spiceHtml5) return
-  const mod = await import('@spice-project/spice-html5')
+  const mod = await import('spice-client')
   window.spiceHtml5 = {
-    SpiceMainConn: mod.SpiceMainConn
+    SpiceMainConn: mod.SpiceMainConn,
+    sendCtrlAltDel: mod.sendCtrlAltDel
   }
 }
 
@@ -83,6 +84,12 @@ export default class SpiceSession extends PureComponent {
     }
   }
 
+  handleSendCtrlAltDel = () => {
+    if (this.spiceConn && window.spiceHtml5?.sendCtrlAltDel) {
+      window.spiceHtml5.sendCtrlAltDel(this.spiceConn)
+    }
+  }
+
   getControlProps = (options = {}) => {
     const {
       fixedPosition = true,
@@ -92,7 +99,7 @@ export default class SpiceSession extends PureComponent {
 
     return {
       isFullScreen: this.props.fullscreen,
-      onSendCtrlAltDel: undefined,
+      onSendCtrlAltDel: this.handleSendCtrlAltDel,
       screens: [],
       currentScreen: null,
       onSelectScreen: () => {},
