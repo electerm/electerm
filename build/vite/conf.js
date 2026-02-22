@@ -76,7 +76,7 @@ const manualChunks = (id) => {
     if (id.includes('ironrdp-wasm')) {
       return 'ironrdp-wasm'
     }
-    if (id.includes('@spice-project/spice-html5')) {
+    if (id.includes('spice-client')) {
       return 'spice'
     }
     // Combine rest of node_modules into one chunk
@@ -177,7 +177,7 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    exclude: ['ironrdp-wasm', '@spice-project/spice-html5']
+    exclude: ['ironrdp-wasm']
   },
   // optimizeDeps: {
   //   esbuildOptions: {
