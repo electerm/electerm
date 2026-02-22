@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "2.10.0",
+  "version": "2.10.6",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -90,7 +90,7 @@
     "react-markdown": "9.0.1",
     "replace-in-file": "6.3.5",
     "shelljs": "0.8.5",
-    "spice-client": "^1.1.0",
+    "spice-client": "1.1.1",
     "standard": "^17.1.0",
     "stylus": "^0.64.0",
     "vite": "7.3.1"
