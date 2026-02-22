@@ -118,7 +118,6 @@ export default class BookmarkIndex2 extends PureComponent {
     }
     return (
       <Button
-        type='primary'
         size='small'
         className='mg2l create-ai-btn'
         icon={<RobotOutlined />}
@@ -162,7 +161,7 @@ export default class BookmarkIndex2 extends PureComponent {
     const keys = Object.keys(sessionConfig)
     return (
       <div className='form-wrap pd1x'>
-        <div className='form-title pd1t pd1x pd2b'>
+        <div className='form-title pd1t pd1x pd2b bold'>
           <BookOutlined className='mg1r' />
           <span>
             {((!isNew ? e('edit') : e('new')) + ' ' + e(settingMap.bookmarks))}
