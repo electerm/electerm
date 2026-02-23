@@ -1,7 +1,7 @@
 /**
  * AI-powered bookmark generation form
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button, Input, message, Space, Alert } from 'antd'
 import {
   RobotOutlined,
@@ -23,18 +23,24 @@ import { buildPrompt } from './bookmark-schema.js'
 import { fixBookmarkData } from './fix-bookmark-default.js'
 import generate from '../../common/id-with-stamp'
 import AIBookmarkHistory, { addHistoryItem } from './ai-bookmark-history.jsx'
+import { getItem, setItem } from '../../common/safe-local-storage'
 
+const STORAGE_KEY_DESC = 'ai_bookmark_description'
 const { TextArea } = Input
 const e = window.translate
 
 export default function AIBookmarkForm (props) {
   const { onCancel } = props
-  const [description, setDescription] = useState('')
+  const [description, setDescription] = useState(() => getItem(STORAGE_KEY_DESC) || '')
   const [loading, setLoading] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [editorText, setEditorText] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('default')
+
+  useEffect(() => {
+    setItem(STORAGE_KEY_DESC, description)
+  }, [description])
 
   const handleGenerate = async () => {
     if (window.store.aiConfigMissing()) {
@@ -150,7 +156,7 @@ export default function AIBookmarkForm (props) {
       await createBookmark(item)
     }
     setShowConfirm(false)
-    setDescription('')
+    setDescription('') // Clear description only on successful creation
     message.success(e('Done'))
   }
 
@@ -159,7 +165,6 @@ export default function AIBookmarkForm (props) {
   }
 
   const handleCancel = () => {
-    setDescription('')
     if (onCancel) {
       onCancel()
     }
