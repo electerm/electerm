@@ -22,10 +22,12 @@ import Modal from '../common/modal.jsx'
 import { buildPrompt } from './bookmark-schema.js'
 import { fixBookmarkData } from './fix-bookmark-default.js'
 import generate from '../../common/id-with-stamp'
-import AIBookmarkHistory, { addHistoryItem } from './ai-bookmark-history.jsx'
+import AiHistory, { addHistoryItem } from '../ai/ai-history.jsx'
 import { getItem, setItem } from '../../common/safe-local-storage'
 
 const STORAGE_KEY_DESC = 'ai_bookmark_description'
+const STORAGE_KEY_HISTORY = 'ai_bookmark_history'
+const EVENT_NAME_HISTORY = 'ai-bookmark-history-update'
 const { TextArea } = Input
 const e = window.translate
 
@@ -95,7 +97,7 @@ export default function AIBookmarkForm (props) {
         // set default category when preview opens
         setSelectedCategory('default')
         setShowConfirm(true)
-        addHistoryItem(description)
+        addHistoryItem(STORAGE_KEY_HISTORY, description, EVENT_NAME_HISTORY)
       }
     } catch (error) {
       console.error('AI bookmark generation error:', error)
@@ -304,7 +306,11 @@ export default function AIBookmarkForm (props) {
       <div className='pd1b'>
         <TextArea {...textAreaProps} />
       </div>
-      <AIBookmarkHistory onSelect={setDescription} />
+      <AiHistory
+        storageKey={STORAGE_KEY_HISTORY}
+        eventName={EVENT_NAME_HISTORY}
+        onSelect={setDescription}
+      />
       <div className='pd1t'>
         <Button {...generateBtnProps}>
           {e('submit')}

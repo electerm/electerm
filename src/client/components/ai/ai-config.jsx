@@ -13,9 +13,13 @@ import {
   aiConfigWikiLink
 } from '../../common/constants'
 import Password from '../common/password'
+import AiHistory, { addHistoryItem } from './ai-history'
 
 // Comprehensive API provider configurations
 import providers from './providers'
+
+const STORAGE_KEY_CONFIG = 'ai_config_history'
+const EVENT_NAME_CONFIG = 'ai-config-history-update'
 
 const e = window.translate
 const defaultRoles = [
@@ -66,14 +70,27 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
 
   const handleSubmit = async (values) => {
     onSubmit(values)
+    addHistoryItem(STORAGE_KEY_CONFIG, values, EVENT_NAME_CONFIG)
+  }
+
+  function handleSelectHistory (item) {
+    if (item && typeof item === 'object') {
+      form.setFieldsValue(item)
+    }
+  }
+
+  function renderHistoryItem (item) {
+    if (!item || typeof item !== 'object') return { label: 'Unknown', title: 'Unknown' }
+    const model = item.modelAI || 'Default Model'
+    const rolePrefix = item.roleAI ? item.roleAI.substring(0, 15) + '...' : ''
+    const label = `[${model}] ${rolePrefix}`
+    const title = `Model: ${item.modelAI}\nRole: ${item.roleAI}\nURL: ${item.baseURLAI}`
+    return { label, title }
   }
 
   function handleChange (v) {
     const options = getModelOptions(v)
     setModelOptions(options)
-    form.setFieldsValue({
-      modelAI: options[0]?.value || ''
-    })
   }
 
   if (!showAIConfig) {
@@ -199,6 +216,12 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           </Button>
         </Form.Item>
       </Form>
+      <AiHistory
+        storageKey={STORAGE_KEY_CONFIG}
+        eventName={EVENT_NAME_CONFIG}
+        onSelect={handleSelectHistory}
+        renderItem={renderHistoryItem}
+      />
       <AiCache />
     </>
   )
