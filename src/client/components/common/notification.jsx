@@ -70,6 +70,19 @@ export function NotificationContainer () {
   )
 }
 
+function getTextFromReactChildren (children) {
+  if (typeof children === 'string' || typeof children === 'number') {
+    return String(children)
+  }
+  if (React.isValidElement(children)) {
+    return getTextFromReactChildren(children.props.children)
+  }
+  if (Array.isArray(children)) {
+    return children.map(getTextFromReactChildren).join('\n')
+  }
+  return ''
+}
+
 function NotificationItem ({ message, description, type, onClose, duration = 18.5 }) {
   const timeoutRef = useRef(null)
 
@@ -100,7 +113,8 @@ function NotificationItem ({ message, description, type, onClose, duration = 18.
 
   const handleCopy = (text, e) => {
     e.stopPropagation()
-    copy(text)
+    const textToCopy = getTextFromReactChildren(text)
+    copy(textToCopy)
   }
 
   const className = classnames('notification', type)
