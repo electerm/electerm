@@ -82,7 +82,7 @@ export default class VncSession extends PureComponent {
     }
   }
 
-  buildWsUrl = (port, type = 'rdp', extra = '') => {
+  buildWsUrl = (port, type = 'vnc', extra = '') => {
     const { host, tokenElecterm } = this.props.config
     const { id } = this.props.tab
     if (window.et.buildWsUrl) {

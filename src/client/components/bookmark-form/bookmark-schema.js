@@ -137,6 +137,18 @@ const bookmarkSchema = {
     description: 'string - bookmark description',
     startDirectoryLocal: 'string - local starting directory',
     runScripts: 'array - run scripts after connected ({delay,script})'
+  },
+  spice: {
+    type: 'spice',
+    host: 'string (required) - hostname or IP address',
+    port: 'number (default: 5900) - Spice port',
+    password: 'string - Spice password',
+    title: 'string - bookmark title',
+    viewOnly: 'boolean - view only mode, default is false',
+    scaleViewport: 'boolean - scale viewport to window, default is true',
+    description: 'string - bookmark description',
+    profile: 'string - profile id',
+    proxy: 'string - proxy address (socks5://...)'
   }
 }
 

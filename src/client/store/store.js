@@ -125,7 +125,7 @@ class Store {
     const {
       type
     } = currentTab
-    if (type === 'web' || type === 'rdp' || type === 'vnc') {
+    if (type === 'web' || type === 'rdp' || type === 'vnc' || type === 'spice') {
       return false
     }
     return currentTab.sshSftpSplitView ||

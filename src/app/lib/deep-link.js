@@ -10,6 +10,8 @@ const {
 } = require('../common/runtime-constants')
 const globalState = require('./glob-state')
 
+const SUPPORTED_PROTOCOLS = ['ssh', 'telnet', 'rdp', 'vnc', 'serial', 'spice', 'electerm']
+
 /**
  * Parse a protocol URL and convert it to electerm options
  * @param {string} url - The protocol URL (e.g., telnet://192.168.2.31:34554)
@@ -30,12 +32,16 @@ function parseProtocolUrl (url) {
 
     // Parse the URL
     const urlObj = new URL(url)
-    const protocol = urlObj.protocol.replace(':', '').toLowerCase()
-
-    // Supported protocols
-    const supportedProtocols = ['ssh', 'telnet', 'rdp', 'vnc', 'serial']
-
-    if (!supportedProtocols.includes(protocol)) {
+    console.log('urlObj:', urlObj)
+    const {
+      username,
+      password,
+      hostname,
+      port,
+      searchParams
+    } = urlObj
+    const protocol = urlObj.protocol.slice(0, -1)
+    if (!SUPPORTED_PROTOCOLS.includes(protocol)) {
       log.warn('Unsupported protocol:', protocol)
       return null
     }
@@ -45,42 +51,39 @@ function parseProtocolUrl (url) {
       tp: protocol,
       fromCmdLine: true
     }
+    const parseOpts = {
+      username,
+      password,
+      port
+    }
+    ;['password', 'username'].forEach(key => {
+      if (!parseOpts[key]) {
+        delete parseOpts[key]
+      }
+    })
+    for (const [key, value] of searchParams.entries()) {
+      parseOpts[key] = value
+    }
 
     // Parse based on protocol type
     if (protocol === 'serial') {
       // serial://COM1?baudRate=115200&dataBits=8&stopBits=1&parity=none
-      options.opts = JSON.stringify({
-        port: urlObj.hostname || urlObj.pathname.replace('/', ''),
-        baudRate: parseInt(urlObj.searchParams.get('baudRate') || '115200'),
-        dataBits: parseInt(urlObj.searchParams.get('dataBits') || '8'),
-        stopBits: parseInt(urlObj.searchParams.get('stopBits') || '1'),
-        parity: urlObj.searchParams.get('parity') || 'none'
-      })
+      parseOpts.port = hostname
     } else {
-      // For ssh, telnet, rdp, vnc: protocol://[user[:password]@]host[:port][?params]
-      const host = urlObj.hostname
-      const port = urlObj.port || getDefaultPort(protocol)
-      const username = urlObj.username || undefined
-      const password = urlObj.password || undefined
-
-      // Get additional parameters from query string
-      const title = urlObj.searchParams.get('title') || urlObj.searchParams.get('name')
-      const privateKeyPath = urlObj.searchParams.get('privateKey') || urlObj.searchParams.get('key')
-
-      options.opts = JSON.stringify({
-        host,
-        port: parseInt(port),
-        ...(username && { username }),
-        ...(password && { password }),
-        ...(title && { title }),
-        ...(privateKeyPath && { privateKeyPath })
-      })
-
-      // Handle title separately if provided
-      if (title) {
-        options.title = title
-      }
+      parseOpts.host = hostname
     }
+
+    if (parseOpts.opts) {
+      const opts = JSON.parse(parseOpts.opts)
+      Object.assign(parseOpts, opts)
+      delete parseOpts.opts
+    }
+
+    if (protocol === 'electerm') {
+      options.tp = parseOpts.type || parseOpts.tp || 'ssh'
+    }
+
+    options.opts = JSON.stringify(parseOpts)
 
     log.info('Parsed deep link options:', options)
 
@@ -97,21 +100,6 @@ function parseProtocolUrl (url) {
 }
 
 /**
- * Get default port for a protocol
- * @param {string} protocol
- * @returns {number}
- */
-function getDefaultPort (protocol) {
-  const defaultPorts = {
-    ssh: 22,
-    telnet: 23,
-    rdp: 3389,
-    vnc: 5900
-  }
-  return defaultPorts[protocol] || 22
-}
-
-/**
  * Register electerm as a handler for supported protocols
  * Note: This makes electerm available as a handler but doesn't force it as default.
  * Users can still choose their preferred app in system settings.
@@ -120,7 +108,7 @@ function getDefaultPort (protocol) {
  * @returns {object} - Status of registration for each protocol
  */
 function registerDeepLink (force = false) {
-  const protocols = ['ssh', 'telnet', 'rdp', 'vnc', 'serial']
+  const protocols = SUPPORTED_PROTOCOLS
   const results = {}
 
   // Only register in packaged app or when explicitly requested
@@ -161,7 +149,7 @@ function registerDeepLink (force = false) {
  * @returns {object} - Status of each protocol
  */
 function checkProtocolRegistration () {
-  const protocols = ['ssh', 'telnet', 'rdp', 'vnc', 'serial']
+  const protocols = SUPPORTED_PROTOCOLS
   const status = {}
 
   protocols.forEach(protocol => {
@@ -176,7 +164,7 @@ function checkProtocolRegistration () {
  * @param {Array<string>} protocols - Optional array of specific protocols to unregister
  * @returns {object} - Status of unregistration
  */
-function unregisterDeepLink (protocols = ['ssh', 'telnet', 'rdp', 'vnc', 'serial']) {
+function unregisterDeepLink (protocols = SUPPORTED_PROTOCOLS) {
   const results = {}
 
   protocols.forEach(protocol => {

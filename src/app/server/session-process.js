@@ -102,6 +102,7 @@ exports.terminal = async function (initOptions, ws, uid) {
     'local',
     'rdp',
     'vnc',
+    'spice',
     'ftp'
   ].includes(type)
   if (isSsh) {

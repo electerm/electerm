@@ -36,6 +36,14 @@
     {
       "name": "Serial Protocol",
       "schemes": ["serial"]
+    },
+    {
+      "name": "Spice Protocol",
+      "schemes": ["spice"]
+    },
+    {
+      "name": "Electerm Protocol",
+      "schemes": ["electerm"]
     }
   ],
   "appx": {

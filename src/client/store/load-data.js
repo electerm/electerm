@@ -56,7 +56,7 @@ export async function addTabFromCommandLine (store, opts) {
     passphrase: options.passphrase,
     password: options.password,
     // port: options.port ? parseInt(options.port, 10) : 22,
-    type: 'remote',
+    type: 'ssh',
     status: statusMap.processing,
     id: generate(),
     encode: encodes[0],
