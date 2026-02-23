@@ -22,6 +22,7 @@ import Modal from '../common/modal.jsx'
 import { buildPrompt } from './bookmark-schema.js'
 import { fixBookmarkData } from './fix-bookmark-default.js'
 import generate from '../../common/id-with-stamp'
+import AIBookmarkHistory, { addHistoryItem } from './ai-bookmark-history.jsx'
 
 const { TextArea } = Input
 const e = window.translate
@@ -88,6 +89,7 @@ export default function AIBookmarkForm (props) {
         // set default category when preview opens
         setSelectedCategory('default')
         setShowConfirm(true)
+        addHistoryItem(description)
       }
     } catch (error) {
       console.error('AI bookmark generation error:', error)
@@ -297,6 +299,7 @@ export default function AIBookmarkForm (props) {
       <div className='pd1b'>
         <TextArea {...textAreaProps} />
       </div>
+      <AIBookmarkHistory onSelect={setDescription} />
       <div className='pd1t'>
         <Button {...generateBtnProps}>
           {e('submit')}
