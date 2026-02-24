@@ -9,7 +9,7 @@ const log = require('../common/log')
 const generate = require('../common/uid')
 
 // Import zmodem2 (pure JS, no WASM)
-const { Sender, Receiver, SenderEvent, ReceiverEvent } = require('zmodem2/cjs-full')
+const { Sender, Receiver, SenderEvent, ReceiverEvent } = require('zmodem2')
 
 // Zmodem state constants
 const ZMODEM_STATE = {

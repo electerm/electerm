@@ -41,4 +41,7 @@ coverage
 dist/esm
 zmodem2/dist/cjs
 zmodem2/dist/browser
+zmodem2/dist/esm
+trzsz2/dist/cjs
+trzsz2/dist/esm
 
