@@ -7,12 +7,15 @@ import {
   statusMap
 } from '../../common/constants'
 import {
-  Spin
-} from 'antd'
-import {
   ReloadOutlined
 } from '@ant-design/icons'
+import {
+  Spin,
+  Switch
+} from 'antd'
+import * as ls from '../../common/safe-local-storage'
 import RemoteFloatControl from '../common/remote-float-control'
+import './spice.styl'
 
 async function loadSpiceModule () {
   if (window.spiceHtml5) return
@@ -25,10 +28,13 @@ async function loadSpiceModule () {
 
 export default class SpiceSession extends PureComponent {
   constructor (props) {
+    const scaleViewportId = `spice-scale-view-${props.tab.host}`
+    const scaleViewport = ls.getItemJSON(scaleViewportId, false)
     super(props)
     this.state = {
       loading: false,
-      connected: false
+      connected: false,
+      scaleViewport
     }
     this.spiceConn = null
     this.screenId = `spice-screen-${props.tab.id}`
@@ -90,6 +96,14 @@ export default class SpiceSession extends PureComponent {
     }
   }
 
+  handleScaleViewChange = (v) => {
+    const scaleViewportId = `spice-scale-view-${this.props.tab.host}`
+    ls.setItemJSON(scaleViewportId, v)
+    this.setState({
+      scaleViewport: v
+    })
+  }
+
   getControlProps = (options = {}) => {
     const {
       fixedPosition = true,
@@ -115,6 +129,13 @@ export default class SpiceSession extends PureComponent {
       showExitFullscreen: false,
       className: 'mg1l'
     })
+    const scaleProps = {
+      checked: this.state.scaleViewport,
+      onChange: this.handleScaleViewChange,
+      unCheckedChildren: window.translate('scaleViewport'),
+      checkedChildren: window.translate('scaleViewport'),
+      className: 'mg1l'
+    }
     return (
       <div className='pd1 fix session-v-info'>
         <div className='fleft'>
@@ -123,6 +144,9 @@ export default class SpiceSession extends PureComponent {
             className='mg2r mg1l pointer'
           />
           {this.renderInfo()}
+          <Switch
+            {...scaleProps}
+          />
         </div>
         <div className='fright'>
           {this.props.fullscreenIcon()}
@@ -236,18 +260,19 @@ export default class SpiceSession extends PureComponent {
 
   render () {
     const { width: w, height: h } = this.props
-    const { loading } = this.state
+    const { loading, scaleViewport } = this.state
     const { width: innerWidth, height: innerHeight } = this.calcCanvasSize()
     const wrapperStyle = {
       width: innerWidth + 'px',
       height: innerHeight + 'px',
-      overflow: 'hidden'
+      overflow: scaleViewport ? 'hidden' : 'auto'
     }
+    const cls = `spice-session-wrap session-v-wrap${scaleViewport ? ' scale-viewport' : ''}`
     const contrlProps = this.getControlProps()
     return (
       <Spin spinning={loading}>
         <div
-          className='rdp-session-wrap session-v-wrap'
+          className={cls}
           style={{
             width: w + 'px',
             height: h + 'px'
@@ -262,11 +287,6 @@ export default class SpiceSession extends PureComponent {
             <div
               ref={this.domRef}
               id={this.screenId}
-              className='spice-session-wrap session-v-wrap'
-              style={{
-                width: '100%',
-                height: '100%'
-              }}
             />
           </div>
         </div>
