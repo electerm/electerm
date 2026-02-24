@@ -7,13 +7,14 @@ import {
   statusMap
 } from '../../common/constants'
 import {
-  Spin,
-  Select
-} from 'antd'
-import {
   ReloadOutlined,
   EditOutlined
 } from '@ant-design/icons'
+import {
+  Spin,
+  Select,
+  Switch
+} from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import scanCode from './code-scan'
 import resolutions from './resolutions'
@@ -46,10 +47,13 @@ export default class RdpSession extends PureComponent {
   constructor (props) {
     const id = `rdp-reso-${props.tab.host}`
     const resObj = ls.getItemJSON(id, resolutions[1])
+    const scaleViewportId = `rdp-scale-view-${props.tab.host}`
+    const scaleViewport = ls.getItemJSON(scaleViewportId, false)
     super(props)
     this.canvasRef = createRef()
     this.state = {
       loading: false,
+      scaleViewport,
       ...resObj
     }
     this.session = null
@@ -76,7 +80,7 @@ export default class RdpSession extends PureComponent {
     }
   }
 
-  runInitScript = () => {}
+  runInitScript = () => { }
 
   setStatus = status => {
     const id = this.props.tab?.id
@@ -267,7 +271,7 @@ export default class RdpSession extends PureComponent {
         const kind = e.kind ? e.kind() : 'Unknown'
         const bt = e.backtrace ? e.backtrace() : ''
         return `[${kindNames[kind] || kind}] ${bt}`
-      } catch (_) {}
+      } catch (_) { }
     }
     return e?.message || e?.toString() || String(e)
   }
@@ -446,6 +450,14 @@ export default class RdpSession extends PureComponent {
     this.setState(res, this.handleReInit)
   }
 
+  handleScaleViewChange = (v) => {
+    const scaleViewportId = `rdp-scale-view-${this.props.tab.host}`
+    ls.setItemJSON(scaleViewportId, v)
+    this.setState({
+      scaleViewport: v
+    })
+  }
+
   renderHelp = () => {
     return null
   }
@@ -462,7 +474,7 @@ export default class RdpSession extends PureComponent {
       onSendCtrlAltDel: this.handleSendCtrlAltDel,
       screens: [], // RDP doesn't have multi-screen support like VNC
       currentScreen: null,
-      onSelectScreen: () => {}, // No-op for RDP
+      onSelectScreen: () => { }, // No-op for RDP
       fixedPosition,
       showExitFullscreen,
       className
@@ -517,8 +529,17 @@ export default class RdpSession extends PureComponent {
       onChange: this.handleResChange,
       popupMatchSelectWidth: false
     }
+    const scaleProps = {
+      checked: this.state.scaleViewport,
+      onChange: this.handleScaleViewChange,
+      unCheckedChildren: window.translate('scaleViewport'),
+      checkedChildren: window.translate('scaleViewport'),
+      className: 'mg1l'
+    }
     return (
-      <div className='pd1 fix session-v-info'>
+      <div
+        className='pd1 fix session-v-info'
+      >
         <div className='fleft'>
           <ReloadOutlined
             onClick={this.handleReInit}
@@ -547,6 +568,9 @@ export default class RdpSession extends PureComponent {
           />
           {this.renderInfo()}
           {this.renderHelp()}
+          <Switch
+            {...scaleProps}
+          />
         </div>
         <div className='fright'>
           {this.props.fullscreenIcon()}
@@ -582,25 +606,34 @@ export default class RdpSession extends PureComponent {
         height: h + 'px'
       }
     }
-    const { width, height, loading } = this.state
+    const { width, height, loading, scaleViewport } = this.state
     const canvasProps = {
       width,
       height,
       tabIndex: 0
     }
+    if (scaleViewport) {
+      Object.assign(canvasProps, {
+        style: {
+          width: '100%',
+          objectFit: 'contain'
+        }
+      })
+    }
+    const cls = 'rdp-session-wrap session-v-wrap'
     const controlProps = this.getControlProps()
     return (
       <Spin spinning={loading}>
         <div
           {...rdpProps}
-          className='rdp-session-wrap session-v-wrap'
+          className={cls}
         >
           {this.renderControl()}
-          <RemoteFloatControl {...controlProps} />
           <canvas
             {...canvasProps}
             ref={this.canvasRef}
           />
+          <RemoteFloatControl {...controlProps} />
         </div>
       </Spin>
     )
