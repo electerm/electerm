@@ -17,6 +17,7 @@ class Ftp extends TerminalBase {
   async connect (initOptions) {
     this.client = new FtpClientWrapper()
     this.client.verbose = initOptions.debug
+    this.client.setEncoding(initOptions.encode || 'utf-8')
     await this.client.access({
       host: initOptions.host,
       port: initOptions.port || 21,
@@ -136,21 +137,24 @@ class Ftp extends TerminalBase {
 
   async list (remotePath) {
     const list = await this.client.list(remotePath)
-    return list.map(item => ({
-      type: item.type === 2 ? 'd' : '-',
-      name: item.name,
-      size: item.size,
-      modifyTime: new Date(item.modifiedAt).getTime(),
-      accessTime: new Date(item.modifiedAt).getTime(),
-      mode: 0o777, // Default permissions since FTP doesn't provide this
-      rights: {
-        user: 'rwx',
-        group: 'rwx',
-        other: 'rwx'
-      },
-      owner: 'owner',
-      group: 'group'
-    }))
+    return list.map(item => {
+      console.log('item.name', item.name)
+      return {
+        type: item.type === 2 ? 'd' : '-',
+        name: item.name,
+        size: item.size,
+        modifyTime: new Date(item.modifiedAt).getTime(),
+        accessTime: new Date(item.modifiedAt).getTime(),
+        mode: 0o777, // Default permissions since FTP doesn't provide this
+        rights: {
+          user: 'rwx',
+          group: 'rwx',
+          other: 'rwx'
+        },
+        owner: 'owner',
+        group: 'group'
+      }
+    })
   }
 
   async readFile (remotePath) {

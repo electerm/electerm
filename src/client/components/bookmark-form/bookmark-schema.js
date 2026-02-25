@@ -120,6 +120,7 @@ const bookmarkSchema = {
     user: 'string - username',
     secure: 'boolean - use secure FTP (FTPS), default is false',
     password: 'string - password',
+    encode: 'string - charset for file names, default is utf-8',
     title: 'string - bookmark title',
     profile: 'string - profile id',
     description: 'string - bookmark description'

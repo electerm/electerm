@@ -15,6 +15,7 @@ const ftpConfig = {
       user: '',
       password: '',
       secure: false,
+      encode: 'utf-8',
       ...getAuthTypeDefault(props)
     })
   },
@@ -32,6 +33,7 @@ const ftpConfig = {
         { type: 'input', name: 'user', label: () => e('username') },
         { type: 'password', name: 'password', label: () => e('password') },
         { type: 'switch', name: 'secure', label: () => e('secure'), valuePropName: 'checked' },
+        commonFields.encode,
         commonFields.type
       ]
     }
