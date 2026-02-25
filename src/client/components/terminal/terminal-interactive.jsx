@@ -28,6 +28,7 @@ export default function TermInteractive () {
     } else if (
       e &&
       e.data &&
+      typeof e.data === 'string' &&
       e.data.includes('ssh-tunnel-result')
     ) {
       updateTab(JSON.parse(e.data))
