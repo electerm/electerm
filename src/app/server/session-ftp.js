@@ -138,7 +138,6 @@ class Ftp extends TerminalBase {
   async list (remotePath) {
     const list = await this.client.list(remotePath)
     return list.map(item => {
-      console.log('item.name', item.name)
       return {
         type: item.type === 2 ? 'd' : '-',
         name: item.name,
