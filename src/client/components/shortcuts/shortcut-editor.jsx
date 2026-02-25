@@ -1,4 +1,4 @@
-import { PureComponent } from 'react'
+import { PureComponent, createRef } from 'react'
 import {
   Button,
   Input
@@ -19,39 +19,27 @@ export default class ShortcutEdit extends PureComponent {
     data: null
   }
 
+  containerRef = createRef()
+
+  componentWillUnmount () {
+    this.removeEventListener()
+  }
+
   addEventListener = () => {
-    const elem = document.querySelector('.ant-drawer')
-    elem?.addEventListener('click', this.handleClickOuter)
+    document.addEventListener('click', this.handleClickOuter, true)
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('mousewheel', this.handleKeyDown)
   }
 
   removeEventListener = () => {
-    const elem = document.querySelector('.ant-drawer')
-    elem?.removeEventListener('click', this.handleClickOuter)
+    document.removeEventListener('click', this.handleClickOuter, true)
     document.removeEventListener('keydown', this.handleKeyDown)
     document.removeEventListener('mousewheel', this.handleKeyDown)
   }
 
-  isInsideElement = (event) => {
-    const { target } = event
-    const cls = this.getCls()
-    if (!target || !target.classList) {
-      return false
-    } else if (target.classList.contains(cls)) {
-      return true
-    } else {
-      const parent = target.parentElement
-      if (parent !== null) {
-        return this.isInsideElement({ target: parent })
-      } else {
-        return false
-      }
-    }
-  }
-
   handleClickOuter = (e) => {
-    if (!this.isInsideElement(e)) {
+    const container = this.containerRef.current
+    if (container && !container.contains(e.target)) {
       this.handleCancel()
     }
   }
@@ -76,11 +64,6 @@ export default class ShortcutEdit extends PureComponent {
       name, this.state.shortcut
     )
     this.handleCancel()
-  }
-
-  getCls = () => {
-    const { index } = this.props.data
-    return 'shortcut-control-' + index
   }
 
   warnCtrolKey = throttle(() => {
@@ -128,13 +111,6 @@ export default class ShortcutEdit extends PureComponent {
     }
     this.setState({
       shortcut: r
-    })
-  }
-
-  handleClickOutside = () => {
-    this.removeEventListener()
-    this.setState({
-      editMode: false
     })
   }
 
@@ -199,7 +175,7 @@ export default class ShortcutEdit extends PureComponent {
       return this.renderStatic()
     }
     return (
-      <div className={this.getCls()}>
+      <div ref={this.containerRef}>
         <Input
           suffix={this.renderAfter()}
           value={shortcut}
