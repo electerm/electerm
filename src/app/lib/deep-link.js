@@ -32,7 +32,6 @@ function parseProtocolUrl (url) {
 
     // Parse the URL
     const urlObj = new URL(url)
-    console.log('urlObj:', urlObj)
     const {
       username,
       password,
