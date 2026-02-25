@@ -165,7 +165,7 @@ describe('AI Create Bookmark', function () {
     await client.hasElem('.ai-bookmark-form')
 
     log('click cancel button to return to normal form')
-    const cancelBtn = client.locator('.ai-bookmark-form .anticon-close').first()
+    const cancelBtn = client.locator('.ai-bookmark-form .ant-btn .anticon-close').first()
     await cancelBtn.click()
     await delay(1500)
 
