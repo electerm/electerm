@@ -3,6 +3,7 @@ import {
   Button,
   Space
 } from 'antd'
+import { useState } from 'react'
 import { defaultBookmarkGroupId, settingMap } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import { createTitleWithTag } from '../../common/create-title'
@@ -72,18 +73,14 @@ function buildData (bookmarks, bookmarkGroups) {
 }
 
 export default function BookmarkTreeSelect (props) {
-  const { expandedKeys: propExpandedKeys, checkedKeys: propCheckedKeys, bookmarks, bookmarkGroups, type = 'delete', onCheck: propOnCheck, onExpand: propOnExpand } = props
+  const { bookmarks, bookmarkGroups, type = 'delete', expandedKeys: propExpandedKeys, checkedKeys: propCheckedKeys } = props
 
-  const expandedKeys = propExpandedKeys !== undefined ? propExpandedKeys : window.store.expandedKeys
-  const checkedKeys = propCheckedKeys !== undefined ? propCheckedKeys : window.store.checkedKeys
+  const [expandedKeys, setExpandedKeys] = useState(() => deepCopy(propExpandedKeys || []))
+  const [checkedKeys, setCheckedKeys] = useState(() => deepCopy(propCheckedKeys || []))
 
-  const onExpand = propOnExpand || ((expandedKeys) => {
-    window.store.expandedKeys = deepCopy(expandedKeys)
-  })
+  const onExpand = setExpandedKeys
 
-  const onCheck = propOnCheck || ((checkedKeys) => {
-    window.store.checkedKeys = deepCopy(checkedKeys)
-  })
+  const onCheck = setCheckedKeys
 
   const handleOperation = () => {
     const { store } = window
@@ -97,7 +94,7 @@ export default function BookmarkTreeSelect (props) {
         props.onClose()
       }
     }
-    store.checkedKeys = []
+    setCheckedKeys([])
   }
 
   const handleCancel = () => {
@@ -107,7 +104,7 @@ export default function BookmarkTreeSelect (props) {
     } else {
       store.bookmarkSelectMode = false
     }
-    store.checkedKeys = []
+    setCheckedKeys([])
   }
 
   const rProps = {
