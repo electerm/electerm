@@ -121,8 +121,8 @@ export default function BookmarkTreeSelect (props) {
   }
   const len = checkedKeys.length
   return (
-    <div>
-      <div className='pd2'>
+    <div className='tree-select-wrapper pd2'>
+      <div className='tree-select-header'>
         <Space.Compact className='mg2b'>
           <Button
             type='primary'
@@ -137,6 +137,8 @@ export default function BookmarkTreeSelect (props) {
             {e('cancel')}
           </Button>
         </Space.Compact>
+      </div>
+      <div className='tree-select-content'>
         <Tree {...rProps} />
       </div>
     </div>

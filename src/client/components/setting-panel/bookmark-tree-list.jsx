@@ -6,6 +6,7 @@ export default function BookmarkTreeList (props) {
     ? (
       <BookmarkTreeSelect
         {...props}
+        type='delete'
       />
       )
     : (
