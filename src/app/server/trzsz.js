@@ -8,7 +8,7 @@ const path = require('path')
 const log = require('../common/log')
 
 // Import trzsz2 (pure JS protocol implementation)
-const { TrzszTransfer } = require('trzsz2/cjs-full')
+const { TrzszTransfer } = require('trzsz2')
 
 // Trzsz state constants
 const TRZSZ_STATE = {
@@ -18,9 +18,13 @@ const TRZSZ_STATE = {
   WAITING_SAVE_PATH: 'waiting_save_path'
 }
 
-// Trzsz magic key prefix for detection
+// Trzsz magic key prefix for detection (buffer form for fast binary search)
 const TRZSZ_MAGIC_KEY_PREFIX = '::TRZSZ:TRANSFER:'
-const TRZSZ_MAGIC_KEY_REGEXP = /::TRZSZ:TRANSFER:([SRD]):(\d+\.\d+\.\d+)(:\d+)?/
+const TRZSZ_MAGIC_KEY_PREFIX_BUFFER = Buffer.from('::TRZSZ:TRANSFER:')
+
+// Buffer constants for faster string matching
+const TRZSZ_SUCCESS_BUFFER = Buffer.from('Success')
+const TRZSZ_SAVED_BUFFER = Buffer.from('Saved')
 
 /**
  * FileReader - TrzszFileReader implementation for reading files from disk
@@ -167,27 +171,33 @@ class TrzszSession {
     this.completedFiles = [] // Track completed files with sizes
     this.totalBytes = 0 // Total bytes transferred
     this.transferStartTime = 0 // Overall transfer start time
+    this._completionTimeout = null // Timeout for auto-ending session
   }
 
   /**
-   * Check if data contains trzsz magic key
+   * Check if data contains trzsz magic key using buffer detection
    * @param {Buffer|string} data - Data to check
    * @returns {Object|null} - { type: 'receive'|'send', offset: number } or null
    */
   detectTrzszStart (data) {
-    let str = data
+    // Use buffer for faster detection
+    let buf
     if (Buffer.isBuffer(data)) {
-      str = data.toString('binary')
+      buf = data
+    } else {
+      buf = Buffer.from(data)
     }
 
-    const idx = str.lastIndexOf(TRZSZ_MAGIC_KEY_PREFIX)
+    // Find trzsz magic key prefix using buffer search (fast built-in method)
+    const idx = buf.indexOf(TRZSZ_MAGIC_KEY_PREFIX_BUFFER)
     if (idx < 0) return null
 
-    const buffer = str.substring(idx)
-    const found = buffer.match(TRZSZ_MAGIC_KEY_REGEXP)
-    if (!found) return null
+    // Check the character after the prefix to determine direction
+    // Format: ::TRZSZ:TRANSFER:[S|R|D]:version[:options]
+    const afterPrefix = idx + TRZSZ_MAGIC_KEY_PREFIX_BUFFER.length
+    if (afterPrefix >= buf.length) return null
 
-    const direction = found[1]
+    const direction = String.fromCharCode(buf[afterPrefix])
     if (direction === 'R') {
       // Server is ready to receive files (we upload)
       return { type: 'send', offset: idx }
@@ -226,9 +236,23 @@ class TrzszSession {
 
     // If we have a pending completion message, filter out server messages
     if (this._pendingComplete) {
-      const str = Buffer.isBuffer(data) ? data.toString('binary') : data
+      // Quick check using buffer to avoid string conversion overhead for every chunk
+      let containsSuccess = false
+      let containsSaved = false
+
+      if (Buffer.isBuffer(data)) {
+        // Use indexOf for faster searching in buffer
+        const successIdx = data.indexOf(TRZSZ_SUCCESS_BUFFER)
+        containsSuccess = successIdx >= 0
+        const savedIdx = data.indexOf(TRZSZ_SAVED_BUFFER)
+        containsSaved = savedIdx >= 0
+      } else {
+        containsSuccess = data.includes('Success')
+        containsSaved = data.includes('Saved')
+      }
+
       // Check for "Success" from server - send completion message
-      if (str.trim() === 'Success' || str.includes('Success')) {
+      if (containsSuccess) {
         // Send the session-complete event now
         this.sendToClient(this._pendingComplete)
         this._pendingComplete = null
@@ -237,9 +261,16 @@ class TrzszSession {
         return true // Consume the "Success" message
       }
       // Filter out "Saved" message from server during upload
-      if (str.includes('Saved') && str.includes('file')) {
+      if (containsSaved) {
         this.endSession()
         return true // Consume the "Saved" message
+      }
+      // After upload ends, still need to receive data from server
+      // Feed data to transfer even when state is IDLE (but _pendingComplete is set)
+      // This ensures we receive the server's response properly
+      if (this.transfer) {
+        this.feedData(data)
+        return true
       }
     }
 
@@ -395,6 +426,17 @@ class TrzszSession {
         avgSpeed,
         completedFiles: this.completedFiles
       }
+
+      // Set a timeout to auto-end session if server doesn't respond with "Success"
+      // This prevents hanging indefinitely
+      this._completionTimeout = setTimeout(() => {
+        if (this._pendingComplete) {
+          log.warn('Trzsz upload: timeout waiting for server response, auto-ending session')
+          this.sendToClient(this._pendingComplete)
+          this._pendingComplete = null
+          this.endSession()
+        }
+      }, 5000) // 5 second timeout
 
       // Send EXIT message to server (server will respond with "Success")
       // Don't call endSession() here - let handleData() handle it when "Success" arrives
@@ -627,6 +669,17 @@ class TrzszSession {
         completedFiles: this.completedFiles
       }
 
+      // Set a timeout to auto-end session if server doesn't respond with "Success"
+      // This prevents hanging indefinitely
+      this._completionTimeout = setTimeout(() => {
+        if (this._pendingComplete) {
+          log.warn('Trzsz download: timeout waiting for server response, auto-ending session')
+          this.sendToClient(this._pendingComplete)
+          this._pendingComplete = null
+          this.endSession()
+        }
+      }, 5000) // 5 second timeout
+
       // Set state to IDLE but don't clear _pendingComplete yet
       // handleData() will send session-complete when "Success" arrives
       this.state = TRZSZ_STATE.IDLE
@@ -723,6 +776,12 @@ class TrzszSession {
    * End trzsz session
    */
   endSession () {
+    // Clear completion timeout if set
+    if (this._completionTimeout) {
+      clearTimeout(this._completionTimeout)
+      this._completionTimeout = null
+    }
+
     // Close any open file writers
     for (const writer of this.fileWriters) {
       try {
@@ -791,7 +850,8 @@ class TrzszSession {
    * @returns {boolean}
    */
   isActive () {
-    return this.state !== TRZSZ_STATE.IDLE
+    // Also consider session active when waiting for server response
+    return this.state !== TRZSZ_STATE.IDLE || this._pendingComplete !== null
   }
 
   /**
@@ -894,18 +954,5 @@ module.exports = {
   TrzszManager,
   trzszManager,
   TRZSZ_STATE,
-  TRZSZ_MAGIC_KEY_PREFIX,
-  detectTrzszStart: (data) => {
-    let str = data
-    if (Buffer.isBuffer(data)) {
-      str = data.toString('binary')
-    }
-
-    const idx = str.lastIndexOf(TRZSZ_MAGIC_KEY_PREFIX)
-    if (idx < 0) return false
-
-    const buffer = str.substring(idx)
-    const found = buffer.match(TRZSZ_MAGIC_KEY_REGEXP)
-    return !!found
-  }
+  TRZSZ_MAGIC_KEY_PREFIX
 }
