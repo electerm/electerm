@@ -695,30 +695,6 @@ class TerminalSshBase extends TerminalBase {
     ) {
       this.connectOptions.password = this.initOptions.password
       return this.sshConnect()
-    } else if (
-      err.message.includes(failMsg)
-    ) {
-      const options = {
-        name: `password for ${this.initOptions.username}@${this.initOptions.host}`,
-        instructions: [''],
-        prompts: [{
-          echo: false,
-          prompt: 'password'
-        }]
-      }
-      return this.onKeyboardEvent(options)
-        .then(data => {
-          if (data && data[0]) {
-            this.connectOptions.password = data[0]
-            return this.sshConnect()
-          } else if (data && data[0] === '') {
-            throw err
-          }
-        })
-        .catch(err => {
-          log.error('errored get password for', err)
-          throw err
-        })
     }
     return this.nextTry(err)
   }
