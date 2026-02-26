@@ -25,7 +25,7 @@ export default function AIChatHistoryItem ({ item }) {
   }
 
   const alertProps = {
-    message: (
+    title: (
       <>
         <span className='pointer mg1r' onClick={toggleOutput}>
           {showOutput ? <CaretDownOutlined /> : <CaretRightOutlined />}

@@ -100,7 +100,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   return (
     <>
       <Alert
-        message={
+        title={
           <Link to={aiConfigWikiLink}>WIKI: {aiConfigWikiLink}</Link>
         }
         type='info'
