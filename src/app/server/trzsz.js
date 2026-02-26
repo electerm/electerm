@@ -19,7 +19,6 @@ const TRZSZ_STATE = {
 }
 
 // Trzsz magic key prefix for detection (buffer form for fast binary search)
-const TRZSZ_MAGIC_KEY_PREFIX = '::TRZSZ:TRANSFER:'
 const TRZSZ_MAGIC_KEY_PREFIX_BUFFER = Buffer.from('::TRZSZ:TRANSFER:')
 
 // Buffer constants for faster string matching
@@ -950,9 +949,5 @@ class TrzszManager {
 const trzszManager = new TrzszManager()
 
 module.exports = {
-  TrzszSession,
-  TrzszManager,
-  trzszManager,
-  TRZSZ_STATE,
-  TRZSZ_MAGIC_KEY_PREFIX
+  trzszManager
 }
