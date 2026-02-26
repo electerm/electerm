@@ -18,9 +18,8 @@ export default class ScrollFiles extends Component {
   }
 
   renderList () {
-    const {
-      page, pageSize
-    } = this.state
+    const page = this.props.page ?? this.state.page
+    const pageSize = this.props.pageSize ?? this.state.pageSize
     const start = (page - 1) * pageSize
     const end = start + pageSize
     const {
@@ -52,10 +51,6 @@ export default class ScrollFiles extends Component {
   }
 
   render () {
-    const arr = this.renderList()
-    if (this.props.hasPager) {
-      arr.push(this.renderPager())
-    }
-    return arr
+    return this.renderList()
   }
 }

@@ -3,7 +3,7 @@
  */
 
 import { Component } from 'react'
-import { Dropdown } from 'antd'
+import { Dropdown, Pagination } from 'antd'
 import classnames from 'classnames'
 import FileSection from './file-item'
 import PagedList from './paged-list'
@@ -37,7 +37,8 @@ export default class FileListTable extends Component {
     })
     return {
       pageSize: 100,
-      properties
+      properties,
+      page: 1
     }
   }
 
@@ -181,6 +182,29 @@ export default class FileListTable extends Component {
     return len > pageSize
   }
 
+  onPageChange = (page) => {
+    this.setState({ page })
+  }
+
+  renderPager () {
+    const { page, pageSize } = this.state
+    const { fileList } = this.props
+    const props = {
+      current: page,
+      pageSize,
+      total: fileList.length,
+      showLessItems: true,
+      showSizeChanger: false,
+      simple: false,
+      onChange: this.onPageChange
+    }
+    return (
+      <div className='pd1b pager-wrap'>
+        <Pagination {...props} />
+      </div>
+    )
+  }
+
   // reset
   resetWidth = () => {
     this.setState(this.initFromProps())
@@ -315,9 +339,12 @@ export default class FileListTable extends Component {
               list={fileList}
               renderItem={this.renderItem}
               hasPager={hasPager}
+              page={this.state.page}
+              pageSize={this.state.pageSize}
             />
           </div>
         </Dropdown>
+        {hasPager && this.renderPager()}
       </div>
     )
   }
