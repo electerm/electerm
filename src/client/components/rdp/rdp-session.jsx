@@ -20,6 +20,7 @@ import scanCode from './code-scan'
 import resolutions from './resolutions'
 import { readClipboardAsync } from '../../common/clipboard'
 import RemoteFloatControl from '../common/remote-float-control'
+import './rdp.styl'
 
 const { Option } = Select
 
@@ -538,7 +539,7 @@ export default class RdpSession extends PureComponent {
     }
     return (
       <div
-        className='pd1 fix session-v-info'
+        className='pd1 fix session-v-info block'
       >
         <div className='fleft'>
           <ReloadOutlined
@@ -613,14 +614,9 @@ export default class RdpSession extends PureComponent {
       tabIndex: 0
     }
     if (scaleViewport) {
-      Object.assign(canvasProps, {
-        style: {
-          width: '100%',
-          objectFit: 'contain'
-        }
-      })
+      canvasProps.className = 'scale-viewport'
     }
-    const cls = 'rdp-session-wrap session-v-wrap'
+    const cls = `rdp-session-wrap session-v-wrap${scaleViewport ? ' scale-viewport' : ''}`
     const controlProps = this.getControlProps()
     return (
       <Spin spinning={loading}>

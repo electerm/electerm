@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "2.10.27",
+  "version": "2.10.36",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -69,7 +69,7 @@
     "@xterm/addon-web-links": "0.11.0",
     "@xterm/addon-webgl": "0.18.0",
     "@xterm/xterm": "5.5.0",
-    "antd": "6.1.2",
+    "antd": "6.3.1",
     "classnames": "2.5.1",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
