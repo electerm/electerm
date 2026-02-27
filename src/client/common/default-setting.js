@@ -29,6 +29,7 @@ export default {
   terminalBackgroundTextColor: '#ffffff',
   terminalBackgroundTextFontFamily: 'Maple Mono',
   rendererType: 'canvas',
+  enableSixel: true,
   terminalType: 'xterm-256color',
   keepaliveCountMax: 10,
   saveTerminalLogToFile: false,

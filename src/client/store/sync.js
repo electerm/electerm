@@ -488,6 +488,7 @@ export default (Store) => {
       'hotkey',
       'sshReadyTimeout',
       'scrollback',
+      'enableSixel',
       'fontSize',
       'execWindows',
       'execMac',

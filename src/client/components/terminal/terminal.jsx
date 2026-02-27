@@ -57,7 +57,8 @@ import {
   loadWebglAddon,
   loadSearchAddon,
   loadLigaturesAddon,
-  loadUnicode11Addon
+  loadUnicode11Addon,
+  loadImageAddon
 } from './xterm-loader.js'
 
 const e = window.translate
@@ -164,6 +165,7 @@ class Term extends Component {
     this.searchAddon = null
     this.fitAddon = null
     this.cmdAddon = null
+    this.imageAddon = null
     // Clear the notification if it exists
     if (this.socketCloseWarning) {
       notification.destroy(this.socketCloseWarning.key)
@@ -816,6 +818,19 @@ class Term extends Component {
     this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
     const Unicode11Addon = await loadUnicode11Addon()
     const unicode11Addon = new Unicode11Addon()
+    if (config.enableSixel !== false) {
+      try {
+        const ImageAddon = await loadImageAddon()
+        this.imageAddon = new ImageAddon({
+          enableSizeReports: false,
+          sixelSupport: true,
+          iipSupport: false
+        })
+        term.loadAddon(this.imageAddon)
+      } catch (err) {
+        console.error('load sixel addon failed', err)
+      }
+    }
     term.loadAddon(unicode11Addon)
     term.loadAddon(ligtureAddon)
     term.unicode.activeVersion = '11'
