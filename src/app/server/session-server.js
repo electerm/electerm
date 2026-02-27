@@ -98,6 +98,79 @@ if (type === 'rdp') {
 
     const dataBuffer = []
     let sendTimeout = null
+    let inSixel = false
+    let prevWasEsc = false
+
+    const scanSixelState = (buf, commit = false) => {
+      const len = buf.length
+      let nextInSixel = inSixel
+      let nextPrevWasEsc = prevWasEsc
+      let hitBoundary = false
+
+      for (let i = 0; i < len; i++) {
+        const ch = buf[i]
+
+        if (!nextInSixel) {
+          // DCS start: ESC P (7-bit) or 0x90 (8-bit)
+          if ((nextPrevWasEsc && ch === 0x50) || ch === 0x90) {
+            nextInSixel = true
+            nextPrevWasEsc = false
+            hitBoundary = true
+            continue
+          }
+        } else {
+          // ST end: ESC \ (7-bit) or 0x9c (8-bit)
+          if ((nextPrevWasEsc && ch === 0x5c) || ch === 0x9c) {
+            nextInSixel = false
+            nextPrevWasEsc = false
+            hitBoundary = true
+            continue
+          }
+        }
+
+        nextPrevWasEsc = ch === 0x1b
+      }
+
+      if (commit) {
+        inSixel = nextInSixel
+        prevWasEsc = nextPrevWasEsc
+      }
+
+      return {
+        hitBoundary,
+        inSixel: nextInSixel
+      }
+    }
+
+    const flushBufferedData = () => {
+      if (!dataBuffer.length) {
+        sendTimeout = null
+        return
+      }
+      const combinedData = Buffer.concat(dataBuffer.splice(0).map(d => Buffer.isBuffer(d) ? d : Buffer.from(d)))
+
+      // Write to log (keep this)
+      term.writeLog(combinedData)
+
+      // Check for zmodem escape sequence before sending to client
+      const zmodemConsumed = zmodemManager.handleData(pid, combinedData, term, ws)
+      if (zmodemConsumed) {
+        sendTimeout = null
+        return
+      }
+
+      // Check for trzsz magic key before sending to client
+      const trzszConsumed = trzszManager.handleData(pid, combinedData, term, ws)
+      if (trzszConsumed) {
+        sendTimeout = null
+        return
+      }
+
+      // Not zmodem or trzsz data, send to WebSocket
+      ws.send(combinedData)
+      scanSixelState(combinedData, true)
+      sendTimeout = null
+    }
 
     // Create ws.s function for zmodem to send messages to client
     ws.s = (data) => {
@@ -122,38 +195,41 @@ if (type === 'rdp') {
         return
       }
 
-      // Buffer incoming data instead of sending immediately
-      dataBuffer.push(data)
+      const chunk = Buffer.isBuffer(data) ? data : Buffer.from(data)
+      const sixelScan = scanSixelState(chunk, false)
+      const shouldBypassBatch = inSixel || sixelScan.hitBoundary || chunk.length > 16384
+
+      // Bypass batching for SIXEL/control-heavy or very large chunks to avoid parser desync.
+      if (shouldBypassBatch) {
+        if (sendTimeout) {
+          clearTimeout(sendTimeout)
+          sendTimeout = null
+        }
+        if (dataBuffer.length) {
+          flushBufferedData()
+        }
+        term.writeLog(chunk)
+        const zmodemConsumed = zmodemManager.handleData(pid, chunk, term, ws)
+        if (zmodemConsumed) {
+          scanSixelState(chunk, true)
+          return
+        }
+        const trzszConsumed = trzszManager.handleData(pid, chunk, term, ws)
+        if (trzszConsumed) {
+          scanSixelState(chunk, true)
+          return
+        }
+        ws.send(chunk)
+        scanSixelState(chunk, true)
+        return
+      }
+
+      // Buffer incoming data instead of sending immediately for normal text workload
+      dataBuffer.push(chunk)
 
       // If no timeout is pending, schedule a batched send
       if (!sendTimeout) {
-        sendTimeout = setTimeout(() => {
-          // Combine buffered data
-          const combinedData = Buffer.concat(dataBuffer.splice(0).map(d => Buffer.isBuffer(d) ? d : Buffer.from(d)))
-
-          // Write to log (keep this)
-          term.writeLog(combinedData)
-
-          // Check for zmodem escape sequence before sending to client
-          const zmodemConsumed = zmodemManager.handleData(pid, combinedData, term, ws)
-          if (zmodemConsumed) {
-            sendTimeout = null
-            return
-          }
-
-          // Check for trzsz magic key before sending to client
-          const trzszConsumed = trzszManager.handleData(pid, combinedData, term, ws)
-          if (trzszConsumed) {
-            sendTimeout = null
-            return
-          }
-
-          // Not zmodem or trzsz data, send to WebSocket
-          ws.send(combinedData)
-
-          // Reset timeout
-          sendTimeout = null
-        }, 10) // Small delay (10ms) to throttle; adjust based on testing
+        sendTimeout = setTimeout(flushBufferedData, 10) // Small delay (10ms) to throttle; adjust based on testing
       }
     })
 
