@@ -3,11 +3,21 @@
  * Uses trzsz2 (pure JS) for protocol implementation
  *
  * Performance improvements over original:
- * 1. Async file I/O with adaptive buffer sizing (matches trzsz default 10MB)
- * 2. Write buffering with backpressure handling (drain events)
- * 3. Event-driven file selection instead of polling loop
- * 4. Batched progress updates with configurable interval
- * 5. Proper stream pipeline for writes with highWaterMark tuning
+ * 1. CFG message bufsize injection — the trzsz2 library sends a small default bufsize
+ *    (~6-8 KB) in the #CFG: config message to the remote tsz/trz server. With 50ms RTT,
+ *    that yields only ~130 kB/s. We intercept the config in the write callback and
+ *    replace bufsize with 10MB, pushing throughput toward network limits.
+ * 2. Immediate write-through in TrzszTransfer callback — no pendingHeader buffering.
+ *    The old code held back #DATA: header lines until the next write callback, which
+ *    starved the remote of data during async readFile() calls and added a full
+ *    event-loop round-trip of latency per chunk.
+ * 3. Read-ahead buffer in FileReader — always reads READ_CHUNK_SIZE from disk and
+ *    serves small requests from cache, amortizing async/event-loop overhead across
+ *    many chunk requests from the trzsz2 library.
+ * 4. Reusable pre-allocated read buffer — avoids per-read Buffer.allocUnsafe() GC churn.
+ * 5. Write buffering with backpressure handling (drain events) for downloads.
+ * 6. Event-driven file selection instead of polling loop.
+ * 7. Batched progress updates with configurable interval.
  */
 const fs = require('fs')
 const { open } = require('fs/promises')
@@ -27,7 +37,11 @@ const TRZSZ_SUCCESS_BUFFER = Buffer.from('Success')
 const TRZSZ_SAVED_BUFFER = Buffer.from('Saved')
 const TRZSZ_SAVED_FILE_BUFFER = Buffer.from('Saved file')
 const TRZSZ_SAVED_DIR_BUFFER = Buffer.from('Saved directory')
-const TRZSZ_DATA_HEADER_BUFFER = Buffer.from('#DATA:')
+// The #CFG: line is the config message sent by us (the receiver) to the remote sender.
+// It carries a base64-encoded JSON with fields like bufsize, timeout, escape, etc.
+// We intercept it to inject a large bufsize so the remote sends big chunks.
+const TRZSZ_CFG_HEADER = '#CFG:'
+const TRZSZ_CFG_HEADER_BUFFER = Buffer.from(TRZSZ_CFG_HEADER)
 // Tuning constants
 const READ_CHUNK_SIZE = 10 * 1024 * 1024 // 10MB default buffer (matches trzsz default -B bufsize)
 const WRITE_HIGH_WATER_MARK = 10 * 1024 * 1024 // 10MB write buffer before backpressure
@@ -46,6 +60,9 @@ class FileReader {
     this.pathId = 0
     this.relPath = [fileName]
     this.isDirectory = false
+    this._cacheBuffer = null
+    this._cacheOffset = 0
+    this._cacheEnd = 0
   }
 
   async open () {
@@ -60,14 +77,38 @@ class FileReader {
   isDir () { return this.isDirectory }
   getSize () { return this.size }
   async readFile (buf) {
-    const requestedSize = buf ? buf.byteLength : READ_CHUNK_SIZE
-    const target = Buffer.allocUnsafe(requestedSize)
-    const { bytesRead } = await this.fileHandle.read(target, 0, requestedSize, this.offset)
-    this.offset += bytesRead
-    if (bytesRead === 0) {
-      return new Uint8Array(0)
+    // KEY PERFORMANCE FIX: Always return READ_CHUNK_SIZE bytes, not buf.byteLength.
+    //
+    // trzsz2 passes `buf` as a size *hint* for pre-allocation. The RETURNED buffer's
+    // actual length is what trzsz2 uses as the protocol block size. If we return tiny
+    // buffers (e.g. buf.byteLength = 10KB), the protocol uses 10KB blocks and at
+    // 20ms RTT we get ~500 kB/s. If we return 10MB blocks, speed rises ~1000x to
+    // network-limited throughput. This is the single biggest performance lever.
+    if (this._cacheBuffer && this._cacheOffset < this._cacheEnd) {
+      // Serve the full remaining cache in one shot — don't split by buf.byteLength
+      const available = this._cacheEnd - this._cacheOffset
+      const result = new Uint8Array(this._cacheBuffer.buffer, this._cacheBuffer.byteOffset + this._cacheOffset, available)
+      this._cacheOffset = this._cacheEnd
+      this.offset += available
+      return result
     }
-    return new Uint8Array(target.buffer, target.byteOffset, bytesRead)
+
+    const remaining = this.size - this.offset
+    if (remaining <= 0) return new Uint8Array(0)
+
+    const readSize = Math.min(READ_CHUNK_SIZE, remaining)
+    if (!this._cacheBuffer || this._cacheBuffer.byteLength < readSize) {
+      this._cacheBuffer = Buffer.allocUnsafe(readSize)
+    }
+    const { bytesRead } = await this.fileHandle.read(this._cacheBuffer, 0, readSize, this.offset)
+    if (bytesRead === 0) return new Uint8Array(0)
+
+    this.offset += bytesRead
+    // Mark cache as fully consumed (we're returning everything in one go)
+    this._cacheOffset = bytesRead
+    this._cacheEnd = bytesRead
+    // Return the full read as a single large block
+    return new Uint8Array(this._cacheBuffer.buffer, this._cacheBuffer.byteOffset, bytesRead)
   }
 
   async closeFile () {
@@ -75,6 +116,9 @@ class FileReader {
       await this.fileHandle.close().catch(() => {})
       this.fileHandle = null
     }
+    this._cacheBuffer = null
+    this._cacheOffset = 0
+    this._cacheEnd = 0
   }
 }
 
@@ -173,7 +217,6 @@ class TrzszSession {
     this.pendingFiles = []
     this.fileReaders = []
     this.fileWriters = []
-    this.pendingData = []
     this.lastProgressUpdate = 0
     this._pendingComplete = null
     this.completedFiles = []
@@ -181,6 +224,7 @@ class TrzszSession {
     this.transferStartTime = 0
     this._completionTimeout = null
     this._filesResolve = null
+    this._savePathResolve = null
   }
 
   /**
@@ -214,10 +258,6 @@ class TrzszSession {
    * Returns true if data was consumed by trzsz
    */
   handleData (data) {
-    if (this.state === TRZSZ_STATE.WAITING_SAVE_PATH) {
-      this.pendingData.push(data)
-      return true
-    }
     if (this._pendingComplete) {
       const buf = Buffer.isBuffer(data) ? data : Buffer.from(data)
       if (buf.indexOf(TRZSZ_SUCCESS_BUFFER) >= 0) {
@@ -385,27 +425,67 @@ class TrzszSession {
   }
 
   createTransfer () {
-    let pendingHeader = null
     this.transfer = new TrzszTransfer((data) => {
-      const buf = typeof data === 'string' ? Buffer.from(data, 'binary') : (Buffer.isBuffer(data) ? data : Buffer.from(data))
+      let buf = typeof data === 'string' ? Buffer.from(data, 'binary') : (Buffer.isBuffer(data) ? data : Buffer.from(data))
+
+      // Suppress "Saved file" / "Saved directory" terminal noise — cosmetic status
+      // lines from the remote that would clutter the terminal display.
       if (buf.length < 200) {
         if (buf.indexOf(TRZSZ_SAVED_FILE_BUFFER) >= 0 || buf.indexOf(TRZSZ_SAVED_DIR_BUFFER) >= 0) {
           return
         }
-        if (buf.length >= 6 && buf.indexOf(TRZSZ_DATA_HEADER_BUFFER) === 0) {
-          pendingHeader = buf
-          return
+      }
+
+      // === DOWNLOAD SPEED FIX: Intercept #CFG: and inject large bufsize ===
+      // When we're the receiver (tsz on server → client downloading), we send a
+      // #CFG: message to the remote with our desired chunk size (bufsize).
+      // trzsz2's default bufsize is tiny (~6-8 KB), so at 50ms RTT the remote can
+      // only send ~130 kB/s. By injecting bufsize=10MB, the remote sends large chunks
+      // and throughput scales to near network limits.
+      //
+      // The message format is:  #CFG:<base64(json)>\n
+      // We safely fall through to the original buf if parsing fails for any reason.
+      const cfgIdx = buf.indexOf(TRZSZ_CFG_HEADER_BUFFER)
+      if (cfgIdx >= 0) {
+        try {
+          const afterHeader = cfgIdx + TRZSZ_CFG_HEADER_BUFFER.length
+          const newlineIdx = buf.indexOf(10, afterHeader) // 10 = '\n'
+          const base64End = newlineIdx >= 0 ? newlineIdx : buf.length
+          const base64Part = buf.slice(afterHeader, base64End).toString().trim()
+          if (base64Part.length > 0) {
+            const configJson = Buffer.from(base64Part, 'base64').toString()
+            const config = JSON.parse(configJson)
+            if (typeof config.bufsize === 'number' && config.bufsize < READ_CHUNK_SIZE) {
+              config.bufsize = READ_CHUNK_SIZE
+              const newBase64 = Buffer.from(JSON.stringify(config)).toString('base64')
+              const before = buf.slice(0, cfgIdx)
+              const after = newlineIdx >= 0 ? buf.slice(newlineIdx) : Buffer.alloc(0)
+              buf = Buffer.concat([before, Buffer.from(TRZSZ_CFG_HEADER + newBase64), after])
+              log.debug('trzsz: injected bufsize', READ_CHUNK_SIZE, 'into #CFG config')
+            }
+          }
+        } catch (e) {
+          log.warn('trzsz: #CFG parse failed, using original config:', e.message)
         }
       }
-      if (pendingHeader) {
-        const combined = Buffer.concat([pendingHeader, buf])
-        pendingHeader = null
-        this.writeToTerminal(combined)
-      } else {
-        this.writeToTerminal(buf)
-      }
+
+      // Write immediately — no buffering. The previous pendingHeader approach held back
+      // #DATA: lines until the next write callback, which caused a pipeline stall:
+      // the remote couldn't receive (and ACK) the header while we were doing
+      // an async readFile(), adding a full event-loop round-trip of latency per chunk.
+      this.writeToTerminal(buf)
     }, false)
     return this.transfer
+  }
+
+  /**
+   * Wait for save path using event-driven approach (no polling)
+   */
+  _waitForSavePath () {
+    if (this.savePath) return Promise.resolve(this.savePath)
+    return new Promise((resolve) => {
+      this._savePathResolve = resolve
+    })
   }
 
   startReceiver () {
@@ -414,23 +494,43 @@ class TrzszSession {
       this.completedFiles = []
       this.totalBytes = 0
       this.transferStartTime = 0
-      this.state = TRZSZ_STATE.WAITING_SAVE_PATH
+      // Set to RECEIVING immediately — all incoming data goes directly to addReceivedData.
+      // Previously WAITING_SAVE_PATH buffered data and delayed sendAction/recvConfig until
+      // the user picked a save path, leaving the remote server idle. Now we handshake
+      // immediately in parallel with the user selecting the path.
+      this.state = TRZSZ_STATE.RECEIVING
       this.sendToClient({
         event: 'receive-start',
         message: 'TRZSZ receive session started'
       })
+      // Fire-and-forget async handshake runs in parallel with save-path dialog
+      this._runReceiverHandshake()
     } catch (e) {
       log.error('Failed to start trzsz receiver', e)
       this.endSession()
     }
   }
 
-  async processPendingData () {
-    if (this.state !== TRZSZ_STATE.WAITING_SAVE_PATH) return
-    this.state = TRZSZ_STATE.RECEIVING
+  async _runReceiverHandshake () {
     try {
+      // Handshake happens immediately — remote gets our action ASAP and can start
+      // sending its config without waiting for the UI dialog to complete.
       await this.transfer.sendAction(true, false)
       await this.transfer.recvConfig()
+      // Wait for save path (user dialog) — in most cases the network RTT above
+      // already consumed most of the dialog latency, so this resolves quickly.
+      await this._waitForSavePath()
+      if (this.state !== TRZSZ_STATE.RECEIVING) return
+      await this._startFileReceiving()
+    } catch (err) {
+      log.error('Trzsz receiver handshake error:', err)
+      this.sendToClient({ event: 'session-error', error: err.message })
+      this.endSession()
+    }
+  }
+
+  async _startFileReceiving () {
+    try {
       const downloadDir = this.savePath
       if (!fs.existsSync(downloadDir)) {
         fs.mkdirSync(downloadDir, { recursive: true })
@@ -454,18 +554,12 @@ class TrzszSession {
         return writer
       }
       const progressCallback = this._createProgressCallback('download')
-      // Feed all pending data at once
-      for (const data of this.pendingData) {
-        this.transfer.addReceivedData(data)
-      }
-      this.pendingData = []
       const savedFiles = await this.transfer.recvFiles(
         downloadDir,
         openSaveFile,
         progressCallback
       )
       const savedFilePaths = savedFiles.map(name => path.join(downloadDir, name))
-      // Close all writers concurrently
       await Promise.all(this.fileWriters.map(w => w.closeFile()))
       const totalElapsed = this.transferStartTime > 0
         ? (Date.now() - this.transferStartTime) / 1000
@@ -530,7 +624,10 @@ class TrzszSession {
 
   setSavePath (savePath) {
     this.savePath = savePath
-    this.processPendingData()
+    if (this._savePathResolve) {
+      this._savePathResolve(savePath)
+      this._savePathResolve = null
+    }
   }
 
   /**
