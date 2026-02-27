@@ -5,6 +5,6 @@ export default function hasActiveInput (className = 'ant-input-search') {
     activeElement.tagName === 'TEXTAREA'
   )
   const hasClass = className ? activeElement.classList.contains(className) : true
-  const hasInputDropDown = document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden)')
+  const hasInputDropDown = document.querySelector('.input-context-menu')
   return (isInput && hasClass) || hasInputDropDown
 }

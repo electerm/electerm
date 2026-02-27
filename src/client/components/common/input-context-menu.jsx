@@ -63,7 +63,6 @@ function handleCopy (element) {
  */
 async function handlePaste (element) {
   if (!isInputElement(element) || element.readOnly || element.disabled) return
-
   element.focus()
   const clipboardText = await readClipboardAsync()
 
@@ -89,7 +88,7 @@ function insertTextAtCursor (element, text) {
         triggerInputEvents(element)
       }
     } catch (error) {
-      console.log('execCommand insertText failed:', error)
+      console.error('execCommand insertText failed:', error)
     }
   }
 }
@@ -135,7 +134,7 @@ function handleCut (element) {
           triggerInputEvents(element)
         }
       } catch (error) {
-        console.log('execCommand cut failed:', error)
+        console.error('execCommand cut failed:', error)
       }
     }
   }
@@ -197,12 +196,15 @@ const InputContextMenu = () => {
   const [targetElement, setTargetElement] = useState(null)
   const menuRef = useRef(null)
 
-  const handleMenuClick = async ({ key }) => {
+  const handleMenuClick = async ({ key, domEvent }) => {
+    domEvent.preventDefault()
+    domEvent.stopPropagation()
     // Keep reference to current element before closing menu
     const currentElement = targetElement
     // Close menu first
     setVisible(false)
     setTargetElement(null)
+
     // Execute action with preserved element reference
     if (currentElement) {
       setTimeout(async () => {
@@ -246,7 +248,12 @@ const InputContextMenu = () => {
     }
 
     const handleClick = (event) => {
-      if (visible && menuRef.current && !menuRef.current.contains(event.target)) {
+      const isInDropdown = event.target.closest('.ant-dropdown')
+      if (
+        visible &&
+        menuRef.current &&
+        !isInDropdown
+      ) {
         setVisible(false)
         setTargetElement(null)
       }
@@ -284,6 +291,7 @@ const InputContextMenu = () => {
         }}
         open={visible}
         placement='bottomLeft'
+        className='input-context-menu'
       >
         <div style={{ width: 1, height: 1 }} />
       </Dropdown>
