@@ -40,8 +40,8 @@ const TRZSZ_SAVED_DIR_BUFFER = Buffer.from('Saved directory')
 // The #CFG: line is the config message sent by us (the receiver) to the remote sender.
 // It carries a base64-encoded JSON with fields like bufsize, timeout, escape, etc.
 // We intercept it to inject a large bufsize so the remote sends big chunks.
-const TRZSZ_CFG_HEADER = '#CFG:'
-const TRZSZ_CFG_HEADER_BUFFER = Buffer.from(TRZSZ_CFG_HEADER)
+// const TRZSZ_CFG_HEADER = '#CFG:'
+// const TRZSZ_CFG_HEADER_BUFFER = Buffer.from(TRZSZ_CFG_HEADER)
 // Tuning constants
 const READ_CHUNK_SIZE = 10 * 1024 * 1024 // 10MB default buffer (matches trzsz default -B bufsize)
 const WRITE_HIGH_WATER_MARK = 10 * 1024 * 1024 // 10MB write buffer before backpressure
@@ -426,7 +426,7 @@ class TrzszSession {
 
   createTransfer () {
     this.transfer = new TrzszTransfer((data) => {
-      let buf = typeof data === 'string' ? Buffer.from(data, 'binary') : (Buffer.isBuffer(data) ? data : Buffer.from(data))
+      const buf = typeof data === 'string' ? Buffer.from(data, 'binary') : (Buffer.isBuffer(data) ? data : Buffer.from(data))
 
       // Suppress "Saved file" / "Saved directory" terminal noise — cosmetic status
       // lines from the remote that would clutter the terminal display.
@@ -435,40 +435,6 @@ class TrzszSession {
           return
         }
       }
-
-      // === DOWNLOAD SPEED FIX: Intercept #CFG: and inject large bufsize ===
-      // When we're the receiver (tsz on server → client downloading), we send a
-      // #CFG: message to the remote with our desired chunk size (bufsize).
-      // trzsz2's default bufsize is tiny (~6-8 KB), so at 50ms RTT the remote can
-      // only send ~130 kB/s. By injecting bufsize=10MB, the remote sends large chunks
-      // and throughput scales to near network limits.
-      //
-      // The message format is:  #CFG:<base64(json)>\n
-      // We safely fall through to the original buf if parsing fails for any reason.
-      const cfgIdx = buf.indexOf(TRZSZ_CFG_HEADER_BUFFER)
-      if (cfgIdx >= 0) {
-        try {
-          const afterHeader = cfgIdx + TRZSZ_CFG_HEADER_BUFFER.length
-          const newlineIdx = buf.indexOf(10, afterHeader) // 10 = '\n'
-          const base64End = newlineIdx >= 0 ? newlineIdx : buf.length
-          const base64Part = buf.slice(afterHeader, base64End).toString().trim()
-          if (base64Part.length > 0) {
-            const configJson = Buffer.from(base64Part, 'base64').toString()
-            const config = JSON.parse(configJson)
-            if (typeof config.bufsize === 'number' && config.bufsize < READ_CHUNK_SIZE) {
-              config.bufsize = READ_CHUNK_SIZE
-              const newBase64 = Buffer.from(JSON.stringify(config)).toString('base64')
-              const before = buf.slice(0, cfgIdx)
-              const after = newlineIdx >= 0 ? buf.slice(newlineIdx) : Buffer.alloc(0)
-              buf = Buffer.concat([before, Buffer.from(TRZSZ_CFG_HEADER + newBase64), after])
-              log.debug('trzsz: injected bufsize', READ_CHUNK_SIZE, 'into #CFG config')
-            }
-          }
-        } catch (e) {
-          log.warn('trzsz: #CFG parse failed, using original config:', e.message)
-        }
-      }
-
       // Write immediately — no buffering. The previous pendingHeader approach held back
       // #DATA: lines until the next write callback, which caused a pipeline stall:
       // the remote couldn't receive (and ACK) the header while we were doing
