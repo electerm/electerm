@@ -3,13 +3,11 @@
  * Uses trzsz2 (pure JS) for protocol implementation
  *
  * Performance improvements over original:
- * 1. Async file I/O with pre-allocated read buffers (no sync blocking)
+ * 1. Async file I/O with adaptive buffer sizing (matches trzsz default 10MB)
  * 2. Write buffering with backpressure handling (drain events)
- * 3. Zero-copy buffer handling where possible (avoid Buffer.from / slice copies)
- * 4. Event-driven file selection instead of polling loop
- * 5. Batched progress updates with configurable interval
- * 6. Larger default read chunk size (256KB vs default)
- * 7. Proper stream pipeline for writes with highWaterMark tuning
+ * 3. Event-driven file selection instead of polling loop
+ * 4. Batched progress updates with configurable interval
+ * 5. Proper stream pipeline for writes with highWaterMark tuning
  */
 const fs = require('fs')
 const { open } = require('fs/promises')
@@ -27,13 +25,16 @@ const TRZSZ_STATE = {
 const TRZSZ_MAGIC_KEY_PREFIX_BUFFER = Buffer.from('::TRZSZ:TRANSFER:')
 const TRZSZ_SUCCESS_BUFFER = Buffer.from('Success')
 const TRZSZ_SAVED_BUFFER = Buffer.from('Saved')
+const TRZSZ_SAVED_FILE_BUFFER = Buffer.from('Saved file')
+const TRZSZ_SAVED_DIR_BUFFER = Buffer.from('Saved directory')
+const TRZSZ_DATA_HEADER_BUFFER = Buffer.from('#DATA:')
 // Tuning constants
-const READ_CHUNK_SIZE = 256 * 1024 // 256KB read chunks (vs typical 64KB)
-const WRITE_HIGH_WATER_MARK = 512 * 1024 // 512KB write buffer before backpressure
+const READ_CHUNK_SIZE = 10 * 1024 * 1024 // 10MB default buffer (matches trzsz default -B bufsize)
+const WRITE_HIGH_WATER_MARK = 10 * 1024 * 1024 // 10MB write buffer before backpressure
 const PROGRESS_INTERVAL_MS = 300 // Progress update throttle (ms)
 const COMPLETION_TIMEOUT_MS = 5000 // Timeout waiting for server "Success"
 /**
- * Optimized FileReader - uses async I/O with pre-allocated buffer pool
+ * Optimized FileReader - uses async I/O with adaptive buffer sizing
  */
 class FileReader {
   constructor (filePath, fileName) {
@@ -45,8 +46,6 @@ class FileReader {
     this.pathId = 0
     this.relPath = [fileName]
     this.isDirectory = false
-    // Pre-allocate a reusable read buffer to avoid GC pressure
-    this._readBuffer = Buffer.allocUnsafe(READ_CHUNK_SIZE)
   }
 
   async open () {
@@ -60,28 +59,15 @@ class FileReader {
   getRelPath () { return this.relPath }
   isDir () { return this.isDirectory }
   getSize () { return this.size }
-  /**
-   * Read file data - zero-copy optimized
-   * Reuses pre-allocated buffer, returns a view (Uint8Array) without extra copy
-   */
   async readFile (buf) {
     const requestedSize = buf ? buf.byteLength : READ_CHUNK_SIZE
-    const readSize = Math.min(requestedSize, READ_CHUNK_SIZE)
-    // Use the pre-allocated buffer if it fits, otherwise allocate
-    const target = readSize <= this._readBuffer.length
-      ? this._readBuffer
-      : Buffer.allocUnsafe(readSize)
-    const { bytesRead } = await this.fileHandle.read(target, 0, readSize, this.offset)
+    const target = Buffer.allocUnsafe(requestedSize)
+    const { bytesRead } = await this.fileHandle.read(target, 0, requestedSize, this.offset)
     this.offset += bytesRead
     if (bytesRead === 0) {
       return new Uint8Array(0)
     }
-    // Return a Uint8Array view over the buffer without copying
-    // We must copy here because the caller may hold the reference while we reuse the buffer
-    // But we only copy the exact bytes read, not the full buffer
-    const result = new Uint8Array(bytesRead)
-    target.copy(Buffer.from(result.buffer, result.byteOffset, bytesRead), 0, 0, bytesRead)
-    return result
+    return new Uint8Array(target.buffer, target.byteOffset, bytesRead)
   }
 
   async closeFile () {
@@ -91,6 +77,7 @@ class FileReader {
     }
   }
 }
+
 /**
  * Optimized FileWriter - buffered writes with backpressure handling
  */
@@ -193,7 +180,6 @@ class TrzszSession {
     this.totalBytes = 0
     this.transferStartTime = 0
     this._completionTimeout = null
-    // Event-driven file selection (replaces polling loop)
     this._filesResolve = null
   }
 
@@ -399,12 +385,25 @@ class TrzszSession {
   }
 
   createTransfer () {
+    let pendingHeader = null
     this.transfer = new TrzszTransfer((data) => {
-      const str = typeof data === 'string' ? data : Buffer.from(data).toString('binary')
-      if (str.includes('Saved') && (str.includes('file') || str.includes('directory'))) {
-        return
+      const buf = typeof data === 'string' ? Buffer.from(data, 'binary') : (Buffer.isBuffer(data) ? data : Buffer.from(data))
+      if (buf.length < 200) {
+        if (buf.indexOf(TRZSZ_SAVED_FILE_BUFFER) >= 0 || buf.indexOf(TRZSZ_SAVED_DIR_BUFFER) >= 0) {
+          return
+        }
+        if (buf.length >= 6 && buf.indexOf(TRZSZ_DATA_HEADER_BUFFER) === 0) {
+          pendingHeader = buf
+          return
+        }
       }
-      this.writeToTerminal(Buffer.from(data))
+      if (pendingHeader) {
+        const combined = Buffer.concat([pendingHeader, buf])
+        pendingHeader = null
+        this.writeToTerminal(combined)
+      } else {
+        this.writeToTerminal(buf)
+      }
     }, false)
     return this.transfer
   }
@@ -556,7 +555,6 @@ class TrzszSession {
       clearTimeout(this._completionTimeout)
       this._completionTimeout = null
     }
-    // Resolve any pending file wait to prevent hanging
     if (this._filesResolve) {
       this._filesResolve([])
       this._filesResolve = null
