@@ -117,9 +117,9 @@ export default class SettingTerminal extends Component {
     return this.saveConfig(data)
   }
 
-  renderToggle = (name, cls = 'pd2b') => {
+  renderToggle = (name, cls = 'pd2b', label) => {
     const checked = !!this.props.config[name]
-    const txt = e(name)
+    const txt = label || e(name)
     return (
       <div className={cls} key={'rt' + name}>
         <Switch
@@ -580,6 +580,7 @@ export default class SettingTerminal extends Component {
           this.renderToggle('saveTerminalLogToFile')
         }
         {this.renderToggle('addTimeStampToTermLog')}
+        {this.renderToggle('enableSixel', 'pd2b', 'SIXEL')}
         {
           [
             'cursorBlink',
