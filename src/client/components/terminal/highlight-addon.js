@@ -36,6 +36,11 @@ export class KeywordHighlighterAddon {
     return colorMap[color] || colorMap.red
   }
 
+  containsDcsSequence = (text) => {
+    const ESC = String.fromCharCode(27)
+    return text.includes(ESC + 'P')
+  }
+
   escape = str => {
     return str.replace(/\\x1B/g, '\\x1B')
       .replace(/\033/g, '\\033')
@@ -96,6 +101,12 @@ export class KeywordHighlighterAddon {
     this.originalWrite = terminal.write.bind(terminal)
     const self = this
     terminal.write = function (data) {
+      if (typeof data !== 'string') {
+        return self.originalWrite(data)
+      }
+      if (self.containsDcsSequence(data)) {
+        return self.originalWrite(data)
+      }
       self.originalWrite(
         terminal.displayRaw ? self.escape(data) : self.highlightKeywords(data)
       )
