@@ -186,11 +186,6 @@ export default function QuickConnect ({ batch }) {
     setShowInput(false)
   }
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleConnect()
-    }
-  }
   function renderInput () {
     if (!showInput) {
       return null
@@ -198,10 +193,8 @@ export default function QuickConnect ({ batch }) {
     const autoProps = {
       value: inputValue,
       onChange: setInputValue,
-      onEnter: handleKeyPress,
       className: 'quick-connect-input width-100',
-      options: PROTOCOL_OPTIONS,
-      size: 'large'
+      options: PROTOCOL_OPTIONS
     }
     const suffix = inputValue
       ? (
@@ -215,8 +208,8 @@ export default function QuickConnect ({ batch }) {
     const inputProps = {
       ref: inputRef,
       className: 'width-100',
+      onEnter: handleConnect,
       suffix,
-      size: 'large',
       placeholder: 'ssh|rdp|vnc|spice|serial|http|https://[username]:[password]@host:port?opts={...}'
     }
     return (
@@ -231,7 +224,6 @@ export default function QuickConnect ({ batch }) {
 
   const btnProps = {
     onClick: handleToggle,
-    size: 'large',
     icon: <ThunderboltOutlined />,
     title: e('quickConnect')
   }

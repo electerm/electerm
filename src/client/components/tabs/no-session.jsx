@@ -1,7 +1,9 @@
 import { Button } from 'antd'
+import { RobotOutlined } from '@ant-design/icons'
 import LogoElem from '../common/logo-elem.jsx'
 import HistoryPanel from '../sidebar/history'
 import QuickConnect from './quick-connect'
+import './no-session.styl'
 
 const e = window.translate
 
@@ -14,11 +16,15 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
   const handleClick = () => {
     window.openTabBatch = batch
   }
+
+  const handleCreateAIBookmark = () => {
+    window.store.onNewSshAI()
+  }
+
   const newTabDom = window.store.hasNodePty
     ? (
       <Button
         onClick={onNewTab}
-        size='large'
         className='mg1r mg1b add-new-tab-btn'
       >
         {e('newTab')}
@@ -31,13 +37,17 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
         {newTabDom}
         <Button
           onClick={onNewSsh}
-          size='large'
           className='mg1r mg1b'
         >
           {e('newBookmark')}
         </Button>
-      </div>
-      <div className='pd1b'>
+        <Button
+          onClick={handleCreateAIBookmark}
+          className='mg1r mg1b'
+          icon={<RobotOutlined />}
+        >
+          {e('createBookmarkByAI')}
+        </Button>
         <QuickConnect batch={batch} />
       </div>
       <div className='pd3'>
