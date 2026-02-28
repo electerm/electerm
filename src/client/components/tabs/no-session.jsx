@@ -27,15 +27,19 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
     : null
   return (
     <div className='no-sessions electerm-logo-bg' {...props}>
-      {newTabDom}
-      <Button
-        onClick={onNewSsh}
-        size='large'
-        className='mg1r mg1b'
-      >
-        {e('newBookmark')}
-      </Button>
-      <QuickConnect batch={batch} />
+      <div className='pd1b'>
+        {newTabDom}
+        <Button
+          onClick={onNewSsh}
+          size='large'
+          className='mg1r mg1b'
+        >
+          {e('newBookmark')}
+        </Button>
+      </div>
+      <div className='pd1b'>
+        <QuickConnect batch={batch} />
+      </div>
       <div className='pd3'>
         <LogoElem />
       </div>

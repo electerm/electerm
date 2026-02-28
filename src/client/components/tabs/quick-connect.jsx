@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
-import { Button, Tooltip, AutoComplete } from 'antd'
+import { Button, AutoComplete } from 'antd'
 import { ArrowRightOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import message from '../common/message'
 import copy from 'json-deep-copy'
 import newTerm from '../../common/new-terminal'
-import Link from '../../common/external-link'
+import InputAutoFocus from '../common/input-auto-focus'
+import HelpIcon from '../common/help-icon'
 
 const e = window.translate
-const SUPPORTED_PROTOCOLS = ['ssh', 'telnet', 'vnc', 'rdp', 'spice', 'serial', 'ftp', 'http', 'https', 'web']
+const SUPPORTED_PROTOCOLS = ['ssh', 'telnet', 'vnc', 'rdp', 'spice', 'serial', 'ftp', 'http', 'https']
 
 const PROTOCOL_OPTIONS = SUPPORTED_PROTOCOLS.map(p => ({ value: p + '://' }))
 
@@ -190,56 +191,59 @@ export default function QuickConnect ({ batch }) {
       handleConnect()
     }
   }
-  const wiki = 'https://github.com/electerm/electerm/wiki/quick-connect'
-  const tooltipTitle = (
-    <div className='quick-connect-tooltip'>
-      <div>ssh://username:password@host:port</div>
-      <div>telnet://username:password@host:port</div>
-      <div>vnc://username:password@host:port</div>
-      <div>rdp://username:password@host:port</div>
-      <div>spice://password@host:port</div>
-      <div>serial://COM1?opts={'{"baudRate":115200}'}</div>
-      <div>http[s]://host?title=xxx&type=yyy</div>
-      <div className='mg1t'>
-        WIKI: <Link href={wiki}>{wiki}</Link>
+  function renderInput () {
+    if (!showInput) {
+      return null
+    }
+    const autoProps = {
+      value: inputValue,
+      onChange: setInputValue,
+      onEnter: handleKeyPress,
+      className: 'quick-connect-input width-100',
+      options: PROTOCOL_OPTIONS,
+      size: 'large'
+    }
+    const suffix = inputValue
+      ? (
+        <ArrowRightOutlined
+          className='pointer'
+          onClick={handleConnect}
+          title={e('connect')}
+        />
+        )
+      : null
+    const inputProps = {
+      ref: inputRef,
+      className: 'width-100',
+      suffix,
+      size: 'large',
+      placeholder: 'ssh|rdp|vnc|spice|serial|http|https://[username]:[password]@host:port?opts={...}'
+    }
+    return (
+      <div className='pd1y pd2x'>
+        <AutoComplete {...autoProps}>
+          <InputAutoFocus {...inputProps} />
+        </AutoComplete>
       </div>
-    </div>
-  )
+    )
+  }
+  const wiki = 'https://github.com/electerm/electerm/wiki/quick-connect'
 
+  const btnProps = {
+    onClick: handleToggle,
+    size: 'large',
+    icon: <ThunderboltOutlined />,
+    title: e('quickConnect')
+  }
   return (
     <>
       <Button
-        onClick={handleToggle}
-        size='large'
-        className='mg1r mg1b'
-        title={e('quickConnect')}
+        {...btnProps}
       >
-        <ThunderboltOutlined />
-        <span className='mg1l'>{e('quickConnect')}</span>
+        <span className='mg1r'>{e('quickConnect')}</span>
+        <HelpIcon link={wiki} />
       </Button>
-      {showInput && (
-        <div className='quick-connect-input-wrapper pd1b pd2x'>
-          <Tooltip title={tooltipTitle} placement='right'>
-            <AutoComplete
-              ref={inputRef}
-              value={inputValue}
-              onChange={setInputValue}
-              onKeyPress={handleKeyPress}
-              options={PROTOCOL_OPTIONS}
-              placeholder={e('quickConnectPlaceholder') || 'ssh://user@host:22'}
-              className='quick-connect-input'
-              size='large'
-              suffixIcon={
-                <ArrowRightOutlined
-                  className='pointer'
-                  onClick={handleConnect}
-                  title={e('connect')}
-                />
-              }
-            />
-          </Tooltip>
-        </div>
-      )}
+      {renderInput()}
     </>
   )
 }
