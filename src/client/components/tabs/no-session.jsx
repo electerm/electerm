@@ -1,6 +1,7 @@
 import { Button } from 'antd'
 import LogoElem from '../common/logo-elem.jsx'
 import HistoryPanel from '../sidebar/history'
+import QuickConnect from './quick-connect'
 
 const e = window.translate
 
@@ -34,6 +35,7 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
       >
         {e('newBookmark')}
       </Button>
+      <QuickConnect batch={batch} />
       <div className='pd3'>
         <LogoElem />
       </div>
