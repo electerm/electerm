@@ -8,12 +8,13 @@ import {
   UpCircleOutlined,
   BarsOutlined,
   AppstoreOutlined,
-  RobotOutlined
+  ThunderboltOutlined
 } from '@ant-design/icons'
-import { Tooltip } from 'antd'
+import { Tooltip, Popover } from 'antd'
 import SideBarPanel from './sidebar-panel'
 import TransferList from './transfer-list'
 import MenuBtn from '../sys-menu/menu-btn'
+import QuickConnect from '../tabs/quick-connect'
 import {
   sidebarWidth,
   settingMap,
@@ -87,7 +88,6 @@ export default function Sidebar (props) {
 
   const {
     onNewSsh,
-    onNewSshAI,
     openSetting,
     openAbout,
     openSettingSync,
@@ -144,14 +144,17 @@ export default function Sidebar (props) {
             onClick={onNewSsh}
           />
         </SideIcon>
-        <SideIcon
-          title={e('createBookmarkByAI')}
+        <Popover
+          content={<QuickConnect inputOnly />}
+          trigger='click'
+          placement='right'
         >
-          <RobotOutlined
-            className='font20 iblock control-icon'
-            onClick={onNewSshAI}
-          />
-        </SideIcon>
+          <div className='control-icon-wrap' title={e('quickConnect')}>
+            <ThunderboltOutlined
+              className='font20 iblock control-icon'
+            />
+          </div>
+        </Popover>
         <SideIcon
           title={e(settingMap.bookmarks)}
           active={bookmarksActive}

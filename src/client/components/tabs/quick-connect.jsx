@@ -26,7 +26,7 @@ function connectWithOptions (opts, batch) {
   store.addTab(tabOptions)
 }
 
-export default function QuickConnect ({ batch }) {
+export default function QuickConnect ({ batch, inputOnly }) {
   const [showInput, setShowInput] = useState(false)
   const [inputValue, setInputValue] = useState('')
   const inputRef = useRef(null)
@@ -36,6 +36,13 @@ export default function QuickConnect ({ batch }) {
       inputRef.current.focus()
     }
   }, [showInput])
+
+  // When inputOnly is true, always show the input
+  useEffect(() => {
+    if (inputOnly) {
+      setShowInput(true)
+    }
+  }, [inputOnly])
 
   const handleToggle = () => {
     setShowInput(!showInput)
@@ -65,7 +72,7 @@ export default function QuickConnect ({ batch }) {
   }
 
   function renderInput () {
-    if (!showInput) {
+    if (!showInput && !inputOnly) {
       return null
     }
     const inputProps = {
@@ -73,16 +80,23 @@ export default function QuickConnect ({ batch }) {
       value: inputValue,
       onChange: handleChange,
       className: 'width-100 quick-connect-input',
-      onEnter: handleConnect,
-      placeholder: 'ssh|rdp|vnc|spice|serial|http|https://[username]:[password]@host:port?opts={...}'
+      onPressEnter: handleConnect,
+      placeholder: 'ssh|rdp|vnc|spice|serial|http|https://[username]:[password]@host:port?opts={...}',
+      prefix: inputOnly ? <HelpIcon link={wiki} /> : undefined
     }
     const iconProps = {
       onClick: handleConnect,
       title: e('connect'),
       icon: <ArrowRightOutlined />
     }
+    const iconsProps1 = {
+      icon: <ThunderboltOutlined />
+    }
     return (
       <Space.Compact className='pd1y pd2x width-100'>
+        <Button
+          {...iconsProps1}
+        />
         <InputAutoFocus {...inputProps} />
         <Button
           {...iconProps}
@@ -91,6 +105,11 @@ export default function QuickConnect ({ batch }) {
     )
   }
   const wiki = 'https://github.com/electerm/electerm/wiki/quick-connect'
+
+  // If inputOnly is true, don't show the button, just render input directly
+  if (inputOnly) {
+    return renderInput()
+  }
 
   const btnProps = {
     onClick: handleToggle,
