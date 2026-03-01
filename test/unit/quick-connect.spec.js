@@ -11,7 +11,7 @@ const {
   getSupportedProtocols,
   SUPPORTED_PROTOCOLS,
   DEFAULT_PORTS
-} = require('../../src/client/store/parse-quick-connect')
+} = require('../../src/app/common/parse-quick-connect')
 
 describe('parseQuickConnect', function () {
   // Test null/undefined/empty input
@@ -34,7 +34,7 @@ describe('parseQuickConnect', function () {
   // Test SSH protocol
   test('should parse ssh://user@host', () => {
     const result = parseQuickConnect('ssh://user@192.168.1.100')
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.username, 'user')
     assert.strictEqual(result.password, undefined)
@@ -42,7 +42,7 @@ describe('parseQuickConnect', function () {
 
   test('should parse ssh://user:password@host', () => {
     const result = parseQuickConnect('ssh://user:password@192.168.1.100:22')
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.username, 'user')
     assert.strictEqual(result.password, 'password')
@@ -51,14 +51,14 @@ describe('parseQuickConnect', function () {
 
   test('should parse ssh://host (without username)', () => {
     const result = parseQuickConnect('ssh://192.168.1.100')
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.username, undefined)
   })
 
   test('should parse ssh://host:port', () => {
     const result = parseQuickConnect('ssh://192.168.1.100:2222')
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.port, 2222)
   })
@@ -66,14 +66,14 @@ describe('parseQuickConnect', function () {
   // Test SSH shortcut format
   test('should parse user@host (shortcut)', () => {
     const result = parseQuickConnect('user@192.168.1.100')
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.username, 'user')
   })
 
   test('should parse user@host:port (shortcut)', () => {
     const result = parseQuickConnect('user@192.168.1.100:2222')
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.username, 'user')
     assert.strictEqual(result.port, 2222)
@@ -81,21 +81,44 @@ describe('parseQuickConnect', function () {
 
   test('should parse host (shortcut)', () => {
     const result = parseQuickConnect('192.168.1.100')
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.host, '192.168.1.100')
   })
 
   test('should parse host:port (shortcut)', () => {
     const result = parseQuickConnect('192.168.1.100:2222')
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.port, 2222)
+  })
+
+  // Test SSH shortcut format with hostname containing colon
+  test('should parse hostname:port with letters (shortcut)', () => {
+    const result = parseQuickConnect('localhost:23344')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, 'localhost')
+    assert.strictEqual(result.port, 23344)
+  })
+
+  test('should parse hostname:port with multiple labels (shortcut)', () => {
+    const result = parseQuickConnect('my-server:23344')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, 'my-server')
+    assert.strictEqual(result.port, 23344)
+  })
+
+  test('should parse user@hostname:port (shortcut)', () => {
+    const result = parseQuickConnect('user@localhost:23344')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, 'localhost')
+    assert.strictEqual(result.port, 23344)
+    assert.strictEqual(result.username, 'user')
   })
 
   // Test Telnet protocol
   test('should parse telnet://user@host', () => {
     const result = parseQuickConnect('telnet://user@192.168.1.1:23')
-    assert.strictEqual(result.tp, 'telnet')
+    assert.strictEqual(result.type, 'telnet')
     assert.strictEqual(result.host, '192.168.1.1')
     assert.strictEqual(result.username, 'user')
     assert.strictEqual(result.port, 23)
@@ -103,14 +126,14 @@ describe('parseQuickConnect', function () {
 
   test('should parse telnet://host', () => {
     const result = parseQuickConnect('telnet://192.168.1.1')
-    assert.strictEqual(result.tp, 'telnet')
+    assert.strictEqual(result.type, 'telnet')
     assert.strictEqual(result.host, '192.168.1.1')
   })
 
   // Test VNC protocol
   test('should parse vnc://user@host', () => {
     const result = parseQuickConnect('vnc://user@192.168.1.100:5900')
-    assert.strictEqual(result.tp, 'vnc')
+    assert.strictEqual(result.type, 'vnc')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.username, 'user')
     assert.strictEqual(result.port, 5900)
@@ -118,14 +141,14 @@ describe('parseQuickConnect', function () {
 
   test('should parse vnc://host', () => {
     const result = parseQuickConnect('vnc://192.168.1.100')
-    assert.strictEqual(result.tp, 'vnc')
+    assert.strictEqual(result.type, 'vnc')
     assert.strictEqual(result.host, '192.168.1.100')
   })
 
   // Test RDP protocol
   test('should parse rdp://user@host', () => {
     const result = parseQuickConnect('rdp://admin@192.168.1.100:3389')
-    assert.strictEqual(result.tp, 'rdp')
+    assert.strictEqual(result.type, 'rdp')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.username, 'admin')
     assert.strictEqual(result.port, 3389)
@@ -133,21 +156,21 @@ describe('parseQuickConnect', function () {
 
   test('should parse rdp://host', () => {
     const result = parseQuickConnect('rdp://192.168.1.100')
-    assert.strictEqual(result.tp, 'rdp')
+    assert.strictEqual(result.type, 'rdp')
     assert.strictEqual(result.host, '192.168.1.100')
   })
 
   // Test Spice protocol
   test('should parse spice://host', () => {
     const result = parseQuickConnect('spice://192.168.1.100:5900')
-    assert.strictEqual(result.tp, 'spice')
+    assert.strictEqual(result.type, 'spice')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.port, 5900)
   })
 
   test('should parse spice://password:host', () => {
     const result = parseQuickConnect('spice://password:192.168.1.100:5900')
-    assert.strictEqual(result.tp, 'spice')
+    assert.strictEqual(result.type, 'spice')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.password, 'password')
     assert.strictEqual(result.port, 5900)
@@ -156,20 +179,20 @@ describe('parseQuickConnect', function () {
   // Test Serial protocol
   test('should parse serial://COM1', () => {
     const result = parseQuickConnect('serial://COM1')
-    assert.strictEqual(result.tp, 'serial')
+    assert.strictEqual(result.type, 'serial')
     assert.strictEqual(result.path, 'COM1')
   })
 
   test('should parse serial://COM1?baudRate=115200', () => {
     const result = parseQuickConnect('serial://COM1?baudRate=115200')
-    assert.strictEqual(result.tp, 'serial')
+    assert.strictEqual(result.type, 'serial')
     assert.strictEqual(result.path, 'COM1')
     assert.strictEqual(result.baudRate, 115200)
   })
 
   test('should parse serial:///dev/ttyUSB0?baudRate=9600', () => {
     const result = parseQuickConnect('serial:///dev/ttyUSB0?baudRate=9600')
-    assert.strictEqual(result.tp, 'serial')
+    assert.strictEqual(result.type, 'serial')
     assert.strictEqual(result.path, '/dev/ttyUSB0')
     assert.strictEqual(result.baudRate, 9600)
   })
@@ -177,7 +200,7 @@ describe('parseQuickConnect', function () {
   // Test FTP protocol
   test('should parse ftp://user@host', () => {
     const result = parseQuickConnect('ftp://user@ftp.example.com:21')
-    assert.strictEqual(result.tp, 'ftp')
+    assert.strictEqual(result.type, 'ftp')
     assert.strictEqual(result.host, 'ftp.example.com')
     assert.strictEqual(result.username, 'user')
     assert.strictEqual(result.port, 21)
@@ -185,7 +208,7 @@ describe('parseQuickConnect', function () {
 
   test('should parse ftp://user:password@host', () => {
     const result = parseQuickConnect('ftp://user:password@ftp.example.com:21')
-    assert.strictEqual(result.tp, 'ftp')
+    assert.strictEqual(result.type, 'ftp')
     assert.strictEqual(result.host, 'ftp.example.com')
     assert.strictEqual(result.username, 'user')
     assert.strictEqual(result.password, 'password')
@@ -194,60 +217,145 @@ describe('parseQuickConnect', function () {
   // Test HTTP/HTTPS protocols
   test('should parse http://host', () => {
     const result = parseQuickConnect('http://192.168.1.100:8080')
-    assert.strictEqual(result.tp, 'web')
+    assert.strictEqual(result.type, 'web')
     assert.strictEqual(result.url, 'http://192.168.1.100:8080')
   })
 
   test('should parse https://host', () => {
     const result = parseQuickConnect('https://192.168.1.100:8443')
-    assert.strictEqual(result.tp, 'web')
+    assert.strictEqual(result.type, 'web')
     assert.strictEqual(result.url, 'https://192.168.1.100:8443')
   })
 
   test('should parse https://example.com', () => {
     const result = parseQuickConnect('https://example.com')
-    assert.strictEqual(result.tp, 'web')
+    assert.strictEqual(result.type, 'web')
     assert.strictEqual(result.url, 'https://example.com')
   })
 
   test('should parse http://host?query params', () => {
     const result = parseQuickConnect('http://example.com?key=value&foo=bar')
-    assert.strictEqual(result.tp, 'web')
+    assert.strictEqual(result.type, 'web')
     assert.strictEqual(result.url, 'http://example.com?key=value&foo=bar')
   })
 
   test('should parse https://host?title=xxx', () => {
     const result = parseQuickConnect('https://example.com?title=MyPage&type=web')
-    assert.strictEqual(result.tp, 'web')
+    assert.strictEqual(result.type, 'web')
     assert.strictEqual(result.url, 'https://example.com?title=MyPage&type=web')
   })
 
   // Test opts parameter
   test('should parse opts with single quotes', () => {
     const result = parseQuickConnect("ssh://user@host:22?opts='{\"title\": \"My Server\"}'")
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.title, 'My Server')
   })
 
   test('should parse opts with double quotes', () => {
     const result = parseQuickConnect('ssh://user@host:22?opts={"title": "My Server"}')
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.title, 'My Server')
   })
 
   test('should parse opts and merge with other params', () => {
     const result = parseQuickConnect('ssh://user@192.168.1.100:22?title=MyServer&opts={"title":"MyServer","username":"user","password":"password"}')
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.username, 'user')
     assert.strictEqual(result.password, 'password')
     assert.strictEqual(result.title, 'MyServer')
   })
 
+  // Test sshTunnels via opts
+  test('should parse sshTunnels from opts', () => {
+    const result = parseQuickConnect('ssh://user@192.168.1.100:22?opts={"sshTunnels":[{"sshTunnel":"forwardLocalToRemote","sshTunnelLocalPort":8080,"sshTunnelRemoteHost":"localhost","sshTunnelRemotePort":80}]}')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.username, 'user')
+    assert.strictEqual(result.port, 22)
+    assert.deepStrictEqual(result.sshTunnels, [{
+      sshTunnel: 'forwardLocalToRemote',
+      sshTunnelLocalPort: 8080,
+      sshTunnelRemoteHost: 'localhost',
+      sshTunnelRemotePort: 80
+    }])
+  })
+
+  // Test connectionHoppings via opts
+  test('should parse connectionHoppings from opts', () => {
+    const result = parseQuickConnect('ssh://user@192.168.1.100:22?opts={"connectionHoppings":[{"host":"192.168.1.101","port":22,"username":"user2","password":"pass2"}]}')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.username, 'user')
+    assert.deepStrictEqual(result.connectionHoppings, [{
+      host: '192.168.1.101',
+      port: 22,
+      username: 'user2',
+      password: 'pass2'
+    }])
+  })
+
+  // Test both sshTunnels and connectionHoppings together
+  test('should parse both sshTunnels and connectionHoppings from opts', () => {
+    const result = parseQuickConnect('ssh://user@192.168.1.100?opts={"sshTunnels":[{"sshTunnel":"dynamicForward","sshTunnelLocalPort":1080}],"connectionHoppings":[{"host":"jump.host","port":22,"username":"jumper"}]}')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.username, 'user')
+    assert.strictEqual(result.sshTunnels.length, 1)
+    assert.strictEqual(result.sshTunnels[0].sshTunnel, 'dynamicForward')
+    assert.strictEqual(result.sshTunnels[0].sshTunnelLocalPort, 1080)
+    assert.strictEqual(result.connectionHoppings.length, 1)
+    assert.strictEqual(result.connectionHoppings[0].host, 'jump.host')
+    assert.strictEqual(result.connectionHoppings[0].username, 'jumper')
+  })
+
+  // Test SSH default values (enableSsh, enableSftp, useSshAgent, term, encode, envLang)
+  test('should add default values for SSH type', () => {
+    const result = parseQuickConnect('ssh://user@192.168.1.100')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.enableSsh, true)
+    assert.strictEqual(result.enableSftp, true)
+    assert.strictEqual(result.useSshAgent, true)
+    assert.strictEqual(result.term, 'xterm-256color')
+    assert.strictEqual(result.encode, 'utf-8')
+    assert.strictEqual(result.envLang, 'en_US.UTF-8')
+  })
+
+  // Test VNC default values
+  test('should add default values for VNC type', () => {
+    const result = parseQuickConnect('vnc://192.168.1.100')
+    assert.strictEqual(result.type, 'vnc')
+    assert.strictEqual(result.scaleViewport, true)
+  })
+
+  // Test RDP default values
+  test('should add default values for RDP type', () => {
+    const result = parseQuickConnect('rdp://192.168.1.100')
+    assert.strictEqual(result.type, 'rdp')
+  })
+
+  // Test Serial default values
+  test('should add default values for Serial type', () => {
+    const result = parseQuickConnect('serial://COM1')
+    assert.strictEqual(result.type, 'serial')
+    assert.strictEqual(result.baudRate, 9600)
+    assert.strictEqual(result.dataBits, 8)
+    assert.strictEqual(result.stopBits, 1)
+    assert.strictEqual(result.parity, 'none')
+  })
+
+  // Test Telnet default port
+  test('should add default port for Telnet type', () => {
+    const result = parseQuickConnect('telnet://192.168.1.1')
+    assert.strictEqual(result.type, 'telnet')
+    assert.strictEqual(result.port, 23)
+  })
+
   // Test with title query param
   test('should parse title from query param', () => {
     const result = parseQuickConnect('ssh://user@192.168.1.100:22?title=MyServer')
-    assert.strictEqual(result.tp, 'ssh')
+    assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.host, '192.168.1.100')
     assert.strictEqual(result.title, 'MyServer')
   })
@@ -348,5 +456,124 @@ describe('DEFAULT_PORTS', function () {
     assert.strictEqual(DEFAULT_PORTS.ftp, 21)
     assert.strictEqual(DEFAULT_PORTS.http, 80)
     assert.strictEqual(DEFAULT_PORTS.https, 443)
+  })
+
+  test('should have electerm default port', () => {
+    assert.strictEqual(DEFAULT_PORTS.electerm, 22)
+  })
+})
+
+describe('electerm:// protocol', function () {
+  // Test electerm:// with default type (ssh)
+  test('should parse electerm://host (default type ssh)', () => {
+    const result = parseQuickConnect('electerm://192.168.1.100')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+  })
+
+  test('should parse electerm://user@host', () => {
+    const result = parseQuickConnect('electerm://user@192.168.1.100')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.username, 'user')
+  })
+
+  test('should parse electerm://user:password@host:port', () => {
+    const result = parseQuickConnect('electerm://user:password@192.168.1.100:22')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.port, 22)
+    assert.strictEqual(result.username, 'user')
+    assert.strictEqual(result.password, 'password')
+  })
+
+  // Test electerm:// with type query param
+  test('should parse electerm://host?type=telnet', () => {
+    const result = parseQuickConnect('electerm://192.168.1.1?type=telnet')
+    assert.strictEqual(result.type, 'telnet')
+    assert.strictEqual(result.host, '192.168.1.1')
+  })
+
+  test('should parse electerm://host?type=vnc', () => {
+    const result = parseQuickConnect('electerm://192.168.1.100?type=vnc')
+    assert.strictEqual(result.type, 'vnc')
+    assert.strictEqual(result.host, '192.168.1.100')
+  })
+
+  test('should parse electerm://host?type=rdp', () => {
+    const result = parseQuickConnect('electerm://192.168.1.100?type=rdp')
+    assert.strictEqual(result.type, 'rdp')
+    assert.strictEqual(result.host, '192.168.1.100')
+  })
+
+  test('should parse electerm://host?type=serial', () => {
+    const result = parseQuickConnect('electerm://COM1?type=serial')
+    assert.strictEqual(result.type, 'serial')
+    assert.strictEqual(result.path, 'COM1')
+  })
+
+  test('should parse electerm://host?type=spice', () => {
+    const result = parseQuickConnect('electerm://192.168.1.100?type=spice')
+    assert.strictEqual(result.type, 'spice')
+    assert.strictEqual(result.host, '192.168.1.100')
+  })
+
+  // Test electerm:// with tp query param (alias for type)
+  test('should parse electerm://host?tp=vnc', () => {
+    const result = parseQuickConnect('electerm://192.168.1.100?tp=vnc')
+    assert.strictEqual(result.type, 'vnc')
+    assert.strictEqual(result.host, '192.168.1.100')
+  })
+
+  // Test electerm:// with port
+  test('should parse electerm://host:port?type=ssh', () => {
+    const result = parseQuickConnect('electerm://192.168.1.100:2222?type=ssh')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.port, 2222)
+  })
+
+  // Test electerm:// with title query param
+  test('should parse electerm://host?type=ssh&title=MyServer', () => {
+    const result = parseQuickConnect('electerm://192.168.1.100?type=ssh&title=MyServer')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.title, 'MyServer')
+  })
+
+  // Test electerm:// with username and type
+  test('should parse electerm://user@host:port?type=telnet', () => {
+    const result = parseQuickConnect('electerm://admin@192.168.1.1:23?type=telnet')
+    assert.strictEqual(result.type, 'telnet')
+    assert.strictEqual(result.host, '192.168.1.1')
+    assert.strictEqual(result.port, 23)
+    assert.strictEqual(result.username, 'admin')
+  })
+
+  // Test electerm:// with web type
+  test('should parse electerm://host?type=https', () => {
+    const result = parseQuickConnect('electerm://example.com?type=https')
+    assert.strictEqual(result.type, 'web')
+    assert.strictEqual(result.url, 'https://example.com')
+  })
+
+  test('should parse electerm://host:port?type=http', () => {
+    const result = parseQuickConnect('electerm://example.com:8080?type=http')
+    assert.strictEqual(result.type, 'web')
+    assert.strictEqual(result.url, 'http://example.com:8080')
+  })
+
+  // Test electerm:// with invalid type
+  test('should return null for electerm://host?type=invalid', () => {
+    const result = parseQuickConnect('electerm://192.168.1.100?type=invalid')
+    assert.strictEqual(result, null)
+  })
+
+  // Test electerm:// with serial baudRate
+  test('should parse electerm://COM1?type=serial&baudRate=115200', () => {
+    const result = parseQuickConnect('electerm://COM1?type=serial&baudRate=115200')
+    assert.strictEqual(result.type, 'serial')
+    assert.strictEqual(result.path, 'COM1')
+    assert.strictEqual(result.baudRate, 115200)
   })
 })

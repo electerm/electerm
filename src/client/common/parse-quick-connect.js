@@ -2,10 +2,15 @@
  * Quick Connect String Parser
  * Parses connection strings according to temp/quick-connect.wiki.md specification
  *
- * Supported Protocols: ssh, telnet, vnc, rdp, spice, serial, ftp, http, https
+ * Supported Protocols: ssh, telnet, vnc, rdp, spice, serial, ftp, http, https, electerm
  *
  * Basic Format:
  * protocol://[username:password@]host[:port]?anyQueryParam=anyValue&opts={"key":"value"}
+ *
+ * electerm:// Format (default type is ssh):
+ * electerm://[username:password@]host[:port]?type=ssh&anyQueryParam=anyValue
+ * electerm://host?type=telnet
+ * electerm://user@host:22?type=vnc
  *
  * Shortcut Format (SSH default):
  * user@host
@@ -14,7 +19,7 @@
  * 192.168.1.100:22
  */
 
-const SUPPORTED_PROTOCOLS = ['ssh', 'telnet', 'vnc', 'rdp', 'spice', 'serial', 'ftp', 'http', 'https']
+const SUPPORTED_PROTOCOLS = ['ssh', 'telnet', 'vnc', 'rdp', 'spice', 'serial', 'ftp', 'http', 'https', 'electerm']
 
 /**
  * Default ports for each protocol
@@ -28,7 +33,64 @@ const DEFAULT_PORTS = {
   serial: undefined, // Serial doesn't have a default port
   ftp: 21,
   http: 80,
-  https: 443
+  https: 443,
+  electerm: 22 // electerm defaults to SSH port
+}
+
+/**
+ * Default values for each protocol type
+ * Based on src/client/components/bookmark-form/config
+ */
+const TYPE_DEFAULT_VALUES = {
+  ssh: {
+    port: 22,
+    enableSsh: true,
+    enableSftp: true,
+    useSshAgent: true,
+    term: 'xterm-256color',
+    encode: 'utf-8',
+    envLang: 'en_US.UTF-8'
+  },
+  telnet: {
+    port: 23
+  },
+  vnc: {
+    port: 5900,
+    viewOnly: false,
+    clipViewport: false,
+    scaleViewport: true,
+    qualityLevel: 3,
+    compressionLevel: 1,
+    shared: true
+  },
+  rdp: {
+    port: 3389
+  },
+  spice: {
+    port: 5900,
+    viewOnly: false,
+    scaleViewport: true
+  },
+  serial: {
+    baudRate: 9600,
+    dataBits: 8,
+    lock: true,
+    stopBits: 1,
+    parity: 'none',
+    rtscts: false,
+    xon: false,
+    xoff: false,
+    xany: false,
+    term: 'xterm-256color',
+    displayRaw: false
+  },
+  ftp: {
+    port: 21,
+    encode: 'utf-8',
+    secure: false
+  },
+  web: {},
+  local: {}
 }
 
 /**
@@ -48,7 +110,7 @@ function parseQuickConnect (str) {
 
   try {
     // Detect protocol
-    const protocolMatch = trimmed.match(/^(ssh|telnet|vnc|rdp|spice|serial|ftp|https?):\/\//i)
+    const protocolMatch = trimmed.match(/^(ssh|telnet|vnc|rdp|spice|serial|ftp|https?|electerm):\/\//i)
 
     let protocol = ''
     let connectionString = ''
@@ -65,12 +127,18 @@ function parseQuickConnect (str) {
     } else {
       // Shortcut format - default to SSH
       // Match user@host or user@host:port or just host or host:port
+      // Use last colon to determine port for host:port format
       if (/^[\w.-]+@[\w.-]+/.test(trimmed)) {
         // user@host or user@host:port
         protocol = 'ssh'
         connectionString = trimmed
-      } else if (/^[\w.-]+:[\d]+/.test(trimmed)) {
-        // host:port (no username)
+      } else if (/^[\w.-]+:.*:[\d]+$/.test(trimmed)) {
+        // host:port format with colons in hostname (e.g., localhost:23344, zxd:localhost:23344)
+        // Check if the last colon is followed by digits (port number)
+        protocol = 'ssh'
+        connectionString = trimmed
+      } else if (/^[\w.-]+:[\d]+$/.test(trimmed)) {
+        // host:port (no username, simple format like host:22)
         protocol = 'ssh'
         connectionString = trimmed
       } else if (/^[\w.-]+$/.test(trimmed)) {
@@ -101,7 +169,7 @@ function parseQuickConnect (str) {
       connectionString = connectionString.slice(0, optsMatch.index)
     }
 
-    // Extract query string for web type
+    // Extract query string for web type and electerm type
     let queryStr = ''
     const queryMatch = connectionString.match(/\?(.+)$/)
     if (queryMatch) {
@@ -233,12 +301,40 @@ function parseQuickConnect (str) {
     }
 
     // Build base options
+    // For electerm protocol, we need to handle the type from query params
+    let finalProtocol = protocol
+    let webProtocol = originalProtocol // Store original for web type
+
+    // Handle electerm:// protocol - extract type from query params, default to ssh
+    if (originalProtocol === 'electerm') {
+      // Parse query params to get type
+      const params = new URLSearchParams(queryStr)
+      finalProtocol = params.get('type') || params.get('tp') || 'ssh'
+
+      // Validate the type is supported
+      if (!SUPPORTED_PROTOCOLS.includes(finalProtocol) && finalProtocol !== 'web') {
+        return null
+      }
+
+      // Normalize http/https to web
+      if (finalProtocol === 'http' || finalProtocol === 'https') {
+        webProtocol = finalProtocol // Store the http/https before normalizing
+        finalProtocol = 'web'
+        // Remove type/tp from query string for web URL construction
+        params.delete('type')
+        params.delete('tp')
+        queryStr = params.toString()
+      }
+    } else {
+      webProtocol = originalProtocol
+    }
+
     const opts = {
-      tp: protocol
+      type: finalProtocol
     }
 
     // Handle different protocol types
-    if (protocol === 'serial') {
+    if (finalProtocol === 'serial') {
       // Serial: path is the port
       opts.path = hostOrPath
       if (port) {
@@ -251,9 +347,9 @@ function parseQuickConnect (str) {
           opts.baudRate = parseInt(params.get('baudRate'), 10)
         }
       }
-    } else if (protocol === 'web') {
+    } else if (finalProtocol === 'web') {
       // Web: construct URL from protocol + host + port + query
-      let url = `${originalProtocol}://${hostOrPath}`
+      let url = `${webProtocol}://${hostOrPath}`
       if (port) {
         // Add non-standard port to URL
         const defaultPort = originalProtocol === 'https' ? 443 : 80
@@ -298,6 +394,17 @@ function parseQuickConnect (str) {
       }
     }
 
+    // Apply default values for the protocol type
+    const typeDefaults = TYPE_DEFAULT_VALUES[finalProtocol]
+    if (typeDefaults) {
+      Object.keys(typeDefaults).forEach(key => {
+        // Only apply default if not already set
+        if (opts[key] === undefined) {
+          opts[key] = typeDefaults[key]
+        }
+      })
+    }
+
     return opts
   } catch (error) {
     console.error('Error parsing quick connect string:', error)
@@ -322,7 +429,7 @@ function getSupportedProtocols () {
   return [...SUPPORTED_PROTOCOLS]
 }
 
-module.exports = {
+export {
   parseQuickConnect,
   getDefaultPort,
   getSupportedProtocols,

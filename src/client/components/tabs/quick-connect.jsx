@@ -1,138 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
-import { Button, AutoComplete } from 'antd'
+import { Button, Space } from 'antd'
 import { ArrowRightOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import message from '../common/message'
-import copy from 'json-deep-copy'
-import newTerm from '../../common/new-terminal'
 import InputAutoFocus from '../common/input-auto-focus'
+import newTerminal from '../../common/new-terminal'
 import HelpIcon from '../common/help-icon'
 
 const e = window.translate
-const SUPPORTED_PROTOCOLS = ['ssh', 'telnet', 'vnc', 'rdp', 'spice', 'serial', 'ftp', 'http', 'https']
-
-const PROTOCOL_OPTIONS = SUPPORTED_PROTOCOLS.map(p => ({ value: p + '://' }))
-
-/**
- * Parse a quick connect string into connection options
- * @param {string} str - The connection string
- * @returns {object|null} - Parsed options or null if invalid
- */
-function parseQuickConnectString (str) {
-  if (!str || typeof str !== 'string') {
-    return null
-  }
-
-  const trimmed = str.trim()
-  if (!trimmed) {
-    return null
-  }
-
-  try {
-    const protocolMatch = trimmed.match(/^(ssh|telnet|vnc|rdp|spice|serial|ftp|https?):\/\//i)
-
-    let protocol = ''
-    let remaining = trimmed
-
-    if (protocolMatch) {
-      protocol = protocolMatch[1].toLowerCase()
-      remaining = trimmed.slice(protocolMatch[0].length)
-    } else {
-      // Default to SSH if it looks like user@host
-      if (/^[\w.-]+@[\w.-]+/.test(trimmed)) {
-        protocol = 'ssh'
-      } else if (/^[\w.-]+:[\d]+/.test(trimmed)) {
-        protocol = 'ssh'
-      } else {
-        message.warning(e('quickConnectInvalidFormat'))
-        return null
-      }
-    }
-
-    if (!SUPPORTED_PROTOCOLS.includes(protocol)) {
-      message.warning(`${e('unsupportedProtocol')}: ${protocol}`)
-      return null
-    }
-
-    let username = ''
-    let password = ''
-    let hostOrPath = ''
-    let port = ''
-    let optsStr = ''
-    let queryStr = ''
-
-    // Parse query string (standard URL query params)
-    const queryMatch = remaining.match(/\?(.+)$/)
-    if (queryMatch) {
-      queryStr = queryMatch[1]
-      remaining = remaining.slice(0, queryMatch.index)
-    }
-
-    // Parse opts (JSON string in opts= param)
-    const optsMatch = remaining.match(/\?opts='(.+?)'$/)
-    if (optsMatch) {
-      optsStr = optsMatch[1]
-      remaining = remaining.slice(0, optsMatch.index)
-    }
-
-    const authMatch = remaining.match(/^(?:(.+?):(.+?)@)?(.+?)(?::(\d+))?$/)
-    if (authMatch) {
-      username = authMatch[1] || ''
-      password = authMatch[2] || ''
-      hostOrPath = authMatch[3] || ''
-      port = authMatch[4] || ''
-    }
-
-    if (!hostOrPath) {
-      message.warning(e('quickConnectInvalidFormat'))
-      return null
-    }
-
-    const opts = {
-      tp: protocol,
-      host: hostOrPath,
-      username,
-      password
-    }
-
-    // Convert http/https to web type
-    if (protocol === 'http' || protocol === 'https') {
-      opts.tp = 'web'
-      opts.url = `${protocol}://${hostOrPath}${port ? ':' + port : ''}`
-      delete opts.host
-      delete opts.port
-    } else if (protocol === 'web') {
-      // For web type, use url instead of host
-      opts.url = `${hostOrPath}${port ? ':' + port : ''}`
-      delete opts.host
-      delete opts.port
-    } else if (port) {
-      opts.port = parseInt(port, 10)
-    }
-
-    // Parse query string (standard URL query params) and add to url for web type
-    if (queryStr && (protocol === 'web' || protocol === 'http' || protocol === 'https')) {
-      const url = opts.url || `${hostOrPath}${port ? ':' + port : ''}`
-      const separator = url.includes('?') ? '&' : '?'
-      opts.url = `${url}${separator}${queryStr}`
-    }
-
-    // Parse opts JSON to extend params
-    if (optsStr) {
-      try {
-        const extraOpts = JSON.parse(optsStr)
-        Object.assign(opts, extraOpts)
-      } catch (err) {
-        console.error('Failed to parse opts:', err)
-      }
-    }
-
-    return opts
-  } catch (error) {
-    console.error('Error parsing quick connect string:', error)
-    message.warning(e('quickConnectInvalidFormat'))
-    return null
-  }
-}
 
 /**
  * Connect using parsed options
@@ -142,10 +16,10 @@ function parseQuickConnectString (str) {
 function connectWithOptions (opts, batch) {
   const { store } = window
   const tabOptions = {
-    ...copy(opts),
-    ...newTerm(true, true),
+    ...opts,
+    ...newTerminal(),
     from: 'quickConnect',
-    batch: window.openTabBatch ?? store.currentLayoutBatch
+    batch
   }
 
   delete window.openTabBatch
@@ -170,15 +44,19 @@ export default function QuickConnect ({ batch }) {
     }
   }
 
+  function handleChange (e) {
+    setInputValue(e.target.value)
+  }
+
   const handleConnect = () => {
     if (!inputValue.trim()) {
       return
     }
 
-    const opts = parseQuickConnectString(inputValue)
-
+    const opts = window.store.parseQuickConnect(inputValue)
+    console.log('quick connect opts', opts)
     if (!opts) {
-      return
+      return message.error('Format error, please check the input', 10)
     }
 
     connectWithOptions(opts, batch)
@@ -190,34 +68,26 @@ export default function QuickConnect ({ batch }) {
     if (!showInput) {
       return null
     }
-    const autoProps = {
-      value: inputValue,
-      onChange: setInputValue,
-      className: 'quick-connect-input width-100',
-      options: PROTOCOL_OPTIONS
-    }
-    const suffix = inputValue
-      ? (
-        <ArrowRightOutlined
-          className='pointer'
-          onClick={handleConnect}
-          title={e('connect')}
-        />
-        )
-      : null
     const inputProps = {
       ref: inputRef,
-      className: 'width-100',
+      value: inputValue,
+      onChange: handleChange,
+      className: 'width-100 quick-connect-input',
       onEnter: handleConnect,
-      suffix,
       placeholder: 'ssh|rdp|vnc|spice|serial|http|https://[username]:[password]@host:port?opts={...}'
     }
+    const iconProps = {
+      onClick: handleConnect,
+      title: e('connect'),
+      icon: <ArrowRightOutlined />
+    }
     return (
-      <div className='pd1y pd2x'>
-        <AutoComplete {...autoProps}>
-          <InputAutoFocus {...inputProps} />
-        </AutoComplete>
-      </div>
+      <Space.Compact className='pd1y pd2x width-100'>
+        <InputAutoFocus {...inputProps} />
+        <Button
+          {...iconProps}
+        />
+      </Space.Compact>
     )
   }
   const wiki = 'https://github.com/electerm/electerm/wiki/quick-connect'

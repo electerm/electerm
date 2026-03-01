@@ -13,6 +13,7 @@ import { initWsCommon } from '../common/fetch-from-server'
 import safeParse from '../common/parse-json-safe'
 import initWatch from './watch'
 import { refsStatic } from '../components/common/ref'
+import { parseQuickConnect } from '../common/parse-quick-connect'
 
 function getHost (argv, opts) {
   const arr = argv
@@ -221,5 +222,8 @@ export default (Store) => {
     if (pending) {
       addTabFromCommandLine(window.store, pending)
     }
+  }
+  Store.prototype.parseQuickConnect = function (url) {
+    return parseQuickConnect(url)
   }
 }
