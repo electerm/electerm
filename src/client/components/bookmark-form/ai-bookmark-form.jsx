@@ -11,7 +11,8 @@ import {
   EditOutlined,
   CopyOutlined,
   DownloadOutlined,
-  EyeOutlined
+  EyeOutlined,
+  ThunderboltOutlined
 } from '@ant-design/icons'
 import SimpleEditor from '../text-editor/simple-editor'
 import { copy } from '../../common/clipboard'
@@ -24,6 +25,7 @@ import { fixBookmarkData } from './fix-bookmark-default.js'
 import generate from '../../common/id-with-stamp'
 import AiHistory, { addHistoryItem } from '../ai/ai-history.jsx'
 import { getItem, setItem } from '../../common/safe-local-storage'
+import newTerminal from '../../common/new-terminal'
 
 const STORAGE_KEY_DESC = 'ai_bookmark_description'
 const STORAGE_KEY_HISTORY = 'ai_bookmark_history'
@@ -166,6 +168,30 @@ export default function AIBookmarkForm (props) {
     setShowConfirm(false)
   }
 
+  const handleQuickConnect = () => {
+    const parsed = getGeneratedData()
+    if (!parsed.length || !parsed[0]) {
+      return
+    }
+    const bm = parsed[0]
+    // Create a new tab with quick connect options
+    const { store } = window
+
+    // Close the setting panel first
+    store.hideSettingModal()
+
+    const tabOptions = {
+      ...bm,
+      ...newTerminal(),
+      from: 'quickConnect'
+    }
+
+    store.addTab(tabOptions)
+    setShowConfirm(false)
+    setDescription('')
+    message.success(e('Done'))
+  }
+
   const handleCancel = () => {
     if (onCancel) {
       onCancel()
@@ -245,6 +271,18 @@ export default function AIBookmarkForm (props) {
     loading
   }
 
+  function renderQuickConnectBtn () {
+    const parsed = getGeneratedData()
+    if (!parsed.length || !parsed[0] || parsed.length > 1) {
+      return null
+    }
+    return (
+      <Button onClick={handleQuickConnect} icon={<ThunderboltOutlined />}>
+        {e('quickConnect')}
+      </Button>
+    )
+  }
+
   const modalProps = {
     title: e('confirmBookmarkData') || 'Confirm Bookmark Data',
     open: showConfirm,
@@ -254,6 +292,7 @@ export default function AIBookmarkForm (props) {
         <Button onClick={handleCancelConfirm}>
           <CloseOutlined /> {e('cancel')}
         </Button>
+        {renderQuickConnectBtn()}
         <Button type='primary' onClick={handleConfirm}>
           <CheckOutlined /> {e('confirm')}
         </Button>
