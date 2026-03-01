@@ -167,6 +167,7 @@ function InfoGetter (props) {
     formatter,
     delay
   } = props.options
+  const { pid } = props
   const cms = cmds || [cmd]
   useEffect(() => {
     const run = async () => {
@@ -180,7 +181,7 @@ function InfoGetter (props) {
     return () => {
       clearInterval(ref)
     }
-  }, [])
+  }, [pid])
   return null
 }
 
