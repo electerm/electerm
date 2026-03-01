@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons'
 import BookmarksList from '../sidebar/bookmark-select'
 import DragHandle from '../common/drag-handle'
+import QuickConnect from './quick-connect'
 
 const e = window.translate
 
@@ -87,6 +88,7 @@ export default function AddBtnMenu ({
         >
           <RobotOutlined /> {e('createBookmarkByAI')}
         </div>
+        <QuickConnect batch={batch} inputOnly />
       </div>
       <div className='add-menu-list'>
         <BookmarksList

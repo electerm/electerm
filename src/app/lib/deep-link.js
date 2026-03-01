@@ -9,95 +9,7 @@ const {
   isMac
 } = require('../common/runtime-constants')
 const globalState = require('./glob-state')
-
-const SUPPORTED_PROTOCOLS = ['ssh', 'telnet', 'rdp', 'vnc', 'serial', 'spice', 'electerm']
-
-/**
- * Parse a protocol URL and convert it to electerm options
- * @param {string} url - The protocol URL (e.g., telnet://192.168.2.31:34554)
- * @returns {object|null} - Parsed options in the same format as initCommandLine or null if invalid
- */
-function parseProtocolUrl (url) {
-  if (!url || typeof url !== 'string') {
-    return null
-  }
-
-  try {
-    // Handle URLs passed as array (from command line)
-    if (Array.isArray(url)) {
-      url = url.find(u => typeof u === 'string' && u.includes('://'))
-    }
-
-    log.info('Parsing deep link URL:', url)
-
-    // Parse the URL
-    const urlObj = new URL(url)
-    const {
-      username,
-      password,
-      hostname,
-      port,
-      searchParams
-    } = urlObj
-    const protocol = urlObj.protocol.slice(0, -1)
-    if (!SUPPORTED_PROTOCOLS.includes(protocol)) {
-      log.warn('Unsupported protocol:', protocol)
-      return null
-    }
-
-    // Base options
-    const options = {
-      tp: protocol,
-      fromCmdLine: true
-    }
-    const parseOpts = {
-      username,
-      password,
-      port
-    }
-    ;['password', 'username'].forEach(key => {
-      if (!parseOpts[key]) {
-        delete parseOpts[key]
-      }
-    })
-    for (const [key, value] of searchParams.entries()) {
-      parseOpts[key] = value
-    }
-
-    // Parse based on protocol type
-    if (protocol === 'serial') {
-      // serial://COM1?baudRate=115200&dataBits=8&stopBits=1&parity=none
-      parseOpts.port = hostname
-    } else {
-      parseOpts.host = hostname
-    }
-
-    if (parseOpts.opts) {
-      const opts = JSON.parse(parseOpts.opts)
-      Object.assign(parseOpts, opts)
-      delete parseOpts.opts
-    }
-
-    if (protocol === 'electerm') {
-      options.tp = parseOpts.type || parseOpts.tp || 'ssh'
-    }
-
-    options.opts = JSON.stringify(parseOpts)
-
-    log.info('Parsed deep link options:', options)
-
-    // Return in the same format as initCommandLine: { options, argv }
-    // No helpInfo since this is not a command line action
-    return {
-      options,
-      argv: []
-    }
-  } catch (error) {
-    log.error('Error parsing protocol URL:', error)
-    return null
-  }
-}
-
+const { parseQuickConnect, SUPPORTED_PROTOCOLS } = require('../common/parse-quick-connect')
 /**
  * Register electerm as a handler for supported protocols
  * Note: This makes electerm available as a handler but doesn't force it as default.
@@ -184,7 +96,7 @@ function unregisterDeepLink (protocols = SUPPORTED_PROTOCOLS) {
  * @param {string} url - The protocol URL
  */
 function handleDeepLink (url) {
-  const parsed = parseProtocolUrl(url)
+  const parsed = parseQuickConnect(url)
 
   if (!parsed) {
     log.warn('Could not parse deep link URL:', url)
@@ -199,7 +111,7 @@ function handleDeepLink (url) {
       win.restore()
     }
     win.focus()
-    win.webContents.send('add-tab-from-command-line', parsed)
+    win.webContents.send('open-tab', parsed)
   } else {
     // Store the URL to open when window is ready
     globalState.set('pendingDeepLink', parsed)
@@ -258,7 +170,7 @@ function setupDeepLinkHandlers () {
     if (protocolUrl) {
       log.info('Startup with protocol URL:', protocolUrl)
       // Store it to be handled after window is ready
-      globalState.set('pendingDeepLink', parseProtocolUrl(protocolUrl))
+      globalState.set('pendingDeepLink', parseQuickConnect(protocolUrl))
     }
   }
 }
@@ -267,7 +179,6 @@ module.exports = {
   registerDeepLink,
   unregisterDeepLink,
   checkProtocolRegistration,
-  parseProtocolUrl,
   handleDeepLink,
   getPendingDeepLink,
   setupDeepLinkHandlers

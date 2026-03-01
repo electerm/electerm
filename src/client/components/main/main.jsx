@@ -47,6 +47,7 @@ export default auto(function Index (props) {
     ipcOnEvent('open-about', store.openAbout)
     ipcOnEvent('new-ssh', store.onNewSsh)
     ipcOnEvent('add-tab-from-command-line', store.addTabFromCommandLine)
+    ipcOnEvent('open-tab', store.addTab)
     ipcOnEvent('openSettings', store.openSetting)
     ipcOnEvent('selectall', store.selectall)
     ipcOnEvent('focused', store.focus)
