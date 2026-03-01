@@ -726,6 +726,16 @@ class TerminalSshBase extends TerminalBase {
     this.channel.write(data)
   }
 
+  setNoDelay (noDelay = true) {
+    try {
+      if (this.conn && typeof this.conn.setNoDelay === 'function') {
+        this.conn.setNoDelay(noDelay)
+      }
+    } catch (e) {
+      log.warn('failed to set ssh noDelay', e)
+    }
+  }
+
   kill () {
     this.initOptions = null
     this.connectOptions = null

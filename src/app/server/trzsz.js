@@ -7,24 +7,22 @@ const path = require('path')
 const log = require('../common/log')
 const { TrzszTransfer } = require('trzsz2')
 
-// Constants
 const TRZSZ_STATE = {
   IDLE: 'idle',
   RECEIVING: 'receiving',
   SENDING: 'sending',
   WAITING_SAVE_PATH: 'waiting_save_path'
 }
-// Pre-allocated detection buffers (avoid repeated Buffer.from on every data chunk)
 const TRZSZ_MAGIC_KEY_PREFIX_BUFFER = Buffer.from('::TRZSZ:TRANSFER:')
+const TRZSZ_GO_MAGIC_KEY_PREFIX_BUFFER = Buffer.from('::TRZSZGO:TRANSFER:')
 const TRZSZ_SUCCESS_BUFFER = Buffer.from('Success')
 const TRZSZ_SAVED_BUFFER = Buffer.from('Saved')
 const TRZSZ_SAVED_FILE_BUFFER = Buffer.from('Saved file')
 const TRZSZ_SAVED_DIR_BUFFER = Buffer.from('Saved directory')
-// Tuning constants
-const READ_CHUNK_SIZE = 10 * 1024 * 1024 // 10MB default buffer (matches trzsz default -B bufsize)
-const WRITE_HIGH_WATER_MARK = 10 * 1024 * 1024 // 10MB write buffer before backpressure
-const PROGRESS_INTERVAL_MS = 300 // Progress update throttle (ms)
-const COMPLETION_TIMEOUT_MS = 5000 // Timeout waiting for server "Success"
+const READ_CHUNK_SIZE = 10 * 1024 * 1024
+const WRITE_HIGH_WATER_MARK = 10 * 1024 * 1024
+const PROGRESS_INTERVAL_MS = 300
+const COMPLETION_TIMEOUT_MS = 5000
 /**
  * Optimized FileReader - uses async I/O with adaptive buffer sizing
  */
@@ -46,7 +44,6 @@ class FileReader {
   async open () {
     const stats = fs.statSync(this.filePath)
     this.size = stats.size
-    // Use fs.promises for non-blocking open
     this.fileHandle = await open(this.filePath, 'r')
   }
 
@@ -55,15 +52,7 @@ class FileReader {
   isDir () { return this.isDirectory }
   getSize () { return this.size }
   async readFile (buf) {
-    // KEY PERFORMANCE FIX: Always return READ_CHUNK_SIZE bytes, not buf.byteLength.
-    //
-    // trzsz2 passes `buf` as a size *hint* for pre-allocation. The RETURNED buffer's
-    // actual length is what trzsz2 uses as the protocol block size. If we return tiny
-    // buffers (e.g. buf.byteLength = 10KB), the protocol uses 10KB blocks and at
-    // 20ms RTT we get ~500 kB/s. If we return 10MB blocks, speed rises ~1000x to
-    // network-limited throughput. This is the single biggest performance lever.
     if (this._cacheBuffer && this._cacheOffset < this._cacheEnd) {
-      // Serve the full remaining cache in one shot — don't split by buf.byteLength
       const available = this._cacheEnd - this._cacheOffset
       const result = new Uint8Array(this._cacheBuffer.buffer, this._cacheBuffer.byteOffset + this._cacheOffset, available)
       this._cacheOffset = this._cacheEnd
@@ -82,10 +71,8 @@ class FileReader {
     if (bytesRead === 0) return new Uint8Array(0)
 
     this.offset += bytesRead
-    // Mark cache as fully consumed (we're returning everything in one go)
     this._cacheOffset = bytesRead
     this._cacheEnd = bytesRead
-    // Return the full read as a single large block
     return new Uint8Array(this._cacheBuffer.buffer, this._cacheBuffer.byteOffset, bytesRead)
   }
 
@@ -116,33 +103,22 @@ class FileWriter {
   getFileName () { return this.fileName }
   getLocalName () { return this.localName }
   isDir () { return this.isDirectory }
-  /**
-   * Ensure write stream is created with optimized settings
-   */
   _ensureStream () {
     if (this.writeStream === null) {
       this.writeStream = fs.createWriteStream(this.filePath, {
         highWaterMark: WRITE_HIGH_WATER_MARK,
         flags: 'w'
       })
-      // Pre-bind error handler
       this.writeStream.on('error', (err) => {
         log.error('FileWriter stream error:', err)
       })
     }
   }
 
-  /**
-   * Write data with backpressure handling
-   * Returns immediately if buffer has capacity, waits for drain if full
-   */
   async writeFile (buf) {
     this._ensureStream()
-    // Write returns false when internal buffer is full (backpressure)
     const canContinue = this.writeStream.write(buf)
     if (!canContinue) {
-      // Wait for drain event before accepting more writes
-      // This prevents unbounded memory growth for fast producers
       if (!this._drainPromise) {
         this._drainPromise = new Promise((resolve) => {
           this.writeStream.once('drain', () => {
@@ -202,20 +178,37 @@ class TrzszSession {
     this._completionTimeout = null
     this._filesResolve = null
     this._savePathResolve = null
+    this._noDelayEnabled = false
   }
 
-  /**
-   * Detect trzsz magic key in data buffer
-   * Optimized: avoids string conversion, uses buffer indexOf directly
-   */
+  _setNoDelay (enabled) {
+    const canToggle = this.term && typeof this.term.setNoDelay === 'function'
+    if (!canToggle) return
+    if (enabled && !this._noDelayEnabled) {
+      this.term.setNoDelay(true)
+      this._noDelayEnabled = true
+      return
+    }
+    if (!enabled && this._noDelayEnabled) {
+      this.term.setNoDelay(false)
+      this._noDelayEnabled = false
+    }
+  }
+
   detectTrzszStart (data) {
     const buf = Buffer.isBuffer(data) ? data : Buffer.from(data)
-    const idx = buf.indexOf(TRZSZ_MAGIC_KEY_PREFIX_BUFFER)
+    let idx = buf.indexOf(TRZSZ_MAGIC_KEY_PREFIX_BUFFER)
+    let prefixLen = TRZSZ_MAGIC_KEY_PREFIX_BUFFER.length
+
+    if (idx < 0) {
+      idx = buf.indexOf(TRZSZ_GO_MAGIC_KEY_PREFIX_BUFFER)
+      prefixLen = TRZSZ_GO_MAGIC_KEY_PREFIX_BUFFER.length
+    }
+
     if (idx < 0) return null
-    const afterPrefix = idx + TRZSZ_MAGIC_KEY_PREFIX_BUFFER.length
+    const afterPrefix = idx + prefixLen
     if (afterPrefix >= buf.length) return null
     const direction = buf[afterPrefix]
-    // 'R' = 82, 'S' = 83
     if (direction === 82) return { type: 'send', offset: idx }
     if (direction === 83) return { type: 'receive', offset: idx }
     return null
@@ -272,9 +265,6 @@ class TrzszSession {
     return false
   }
 
-  /**
-   * Wait for files using event-driven approach (no polling)
-   */
   _waitForFiles () {
     if (this.pendingFiles.length > 0) {
       return Promise.resolve(this.pendingFiles)
@@ -284,11 +274,9 @@ class TrzszSession {
     })
   }
 
-  /**
-   * Upload process - optimized with event-driven file selection
-   */
   async startUploadProcess () {
     try {
+      this._setNoDelay(true)
       this.completedFiles = []
       this.totalBytes = 0
       this.transferStartTime = 0
@@ -300,10 +288,8 @@ class TrzszSession {
       })
       await this.transfer.recvConfig()
 
-      // Event-driven wait instead of polling
       const files = await this._waitForFiles()
       if (this.state !== TRZSZ_STATE.SENDING) return
-      // Open all files concurrently
       this.fileReaders = files.map(file => {
         const filePath = typeof file === 'string' ? file : file.path
         return new FileReader(filePath, path.basename(filePath))
@@ -336,7 +322,6 @@ class TrzszSession {
         }
       }, COMPLETION_TIMEOUT_MS)
       await this.transfer.clientExit('Success')
-      // Close readers concurrently
       await Promise.all(this.fileReaders.map(r => r.closeFile()))
       this.state = TRZSZ_STATE.IDLE
     } catch (err) {
@@ -346,9 +331,6 @@ class TrzszSession {
     }
   }
 
-  /**
-   * Create shared progress callback - avoids duplicating callback logic
-   */
   _createProgressCallback (type) {
     return {
       onNum: (num) => {
@@ -407,29 +389,35 @@ class TrzszSession {
 
   createTransfer () {
     this.transfer = new TrzszTransfer((data) => {
-      const buf = typeof data === 'string'
-        ? Buffer.from(data, 'binary')
-        : (Buffer.isBuffer(data) ? data : Buffer.from(data))
-
-      // Suppress noise
-      if (buf.length < 200) {
+      if (typeof data === 'string') {
         if (
-          buf.indexOf(TRZSZ_SAVED_FILE_BUFFER) >= 0 ||
-          buf.indexOf(TRZSZ_SAVED_DIR_BUFFER) >= 0
+          data.length < 200 &&
+          (data.includes('Saved file') || data.includes('Saved directory'))
         ) {
           return
         }
+        this.writeToTerminal(data)
+        return
       }
 
-      this.writeToTerminal(buf)
+      if (Buffer.isBuffer(data)) {
+        if (
+          data.length < 200 &&
+          (data.indexOf(TRZSZ_SAVED_FILE_BUFFER) >= 0 ||
+          data.indexOf(TRZSZ_SAVED_DIR_BUFFER) >= 0)
+        ) {
+          return
+        }
+        this.writeToTerminal(data)
+        return
+      }
+
+      this.writeToTerminal(data)
     }, false)
 
     return this.transfer
   }
 
-  /**
-   * Wait for save path using event-driven approach (no polling)
-   */
   _waitForSavePath () {
     if (this.savePath) return Promise.resolve(this.savePath)
     return new Promise((resolve) => {
@@ -439,20 +427,16 @@ class TrzszSession {
 
   startReceiver () {
     try {
+      this._setNoDelay(true)
       this.createTransfer()
       this.completedFiles = []
       this.totalBytes = 0
       this.transferStartTime = 0
-      // Set to RECEIVING immediately — all incoming data goes directly to addReceivedData.
-      // Previously WAITING_SAVE_PATH buffered data and delayed sendAction/recvConfig until
-      // the user picked a save path, leaving the remote server idle. Now we handshake
-      // immediately in parallel with the user selecting the path.
       this.state = TRZSZ_STATE.RECEIVING
       this.sendToClient({
         event: 'receive-start',
         message: 'TRZSZ receive session started'
       })
-      // Fire-and-forget async handshake runs in parallel with save-path dialog
       this._runReceiverHandshake()
     } catch (e) {
       log.error('Failed to start trzsz receiver', e)
@@ -462,19 +446,8 @@ class TrzszSession {
 
   async _runReceiverHandshake () {
     try {
-      // Handshake happens immediately — remote gets our action ASAP and can start
-      // sending its config without waiting for the UI dialog to complete.
       await this.transfer.sendAction(true, false)
-
-      // Read tsz's #CFG: (bufsize, timeout, etc). tsz 1.2.0 does NOT call recvConfig —
-      // it sends its own #CFG then immediately starts sending files (#NUM, #NAME, #SIZE,
-      // #DATA). Sending a second #CFG from our side causes tsz to receive it in the slot
-      // where it expects #SUCC for #NUM, crashing the transfer. The correct handshake is
-      // simply: sendAction → recvConfig → recvFiles.
       await this.transfer.recvConfig()
-
-      // Wait for save path (user dialog) — in most cases the network RTT above
-      // already consumed most of the dialog latency, so this resolves quickly.
       await this._waitForSavePath()
       if (this.state !== TRZSZ_STATE.RECEIVING) return
       await this._startFileReceiving()
@@ -589,9 +562,6 @@ class TrzszSession {
     }
   }
 
-  /**
-   * Set files to send - event-driven (resolves the waiting promise immediately)
-   */
   setSendFiles (files) {
     this.pendingFiles = files
     if (this._filesResolve) {
@@ -639,6 +609,7 @@ class TrzszSession {
     this.totalBytes = 0
     this.transferStartTime = 0
     this._pendingComplete = null
+    this._setNoDelay(false)
   }
 
   async cancel () {
