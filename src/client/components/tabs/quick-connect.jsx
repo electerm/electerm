@@ -15,9 +15,11 @@ const e = window.translate
  */
 function connectWithOptions (opts, batch) {
   const { store } = window
+  const ext = newTerminal()
+  delete ext.title
   const tabOptions = {
     ...opts,
-    ...newTerminal(),
+    ...ext,
     from: 'quickConnect',
     batch
   }
@@ -61,7 +63,6 @@ export default function QuickConnect ({ batch, inputOnly }) {
     }
 
     const opts = window.store.parseQuickConnect(inputValue)
-    console.log('quick connect opts', opts)
     if (!opts) {
       return message.error('Format error, please check the input', 10)
     }
