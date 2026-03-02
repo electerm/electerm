@@ -118,7 +118,11 @@ export default class CssOverwrite extends Component {
     const selector = `#container .sessions .session-${tab.id} .xterm-screen::before`
     const styles = []
     if (st === 'index') {
-      styles.push(`content: '${tab.tabCount}'`)
+      styles.push(
+        `content: '${tab.tabCount}'`,
+        'background-image: none',
+        'opacity: 0.1'
+      )
     } else if (st === 'text') {
       const text = bg.terminalBackgroundText || this.props.terminalBackgroundText || ''
       const size = bg.terminalBackgroundTextSize || this.props.terminalBackgroundTextSize || 48
