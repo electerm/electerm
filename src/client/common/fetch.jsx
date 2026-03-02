@@ -30,7 +30,7 @@ export async function handleErr (res) {
   }
   console.debug(text, 'fetch err info')
   notification.error({
-    message: 'http request error',
+    message: 'error',
     description: (
       <div className='common-err'>
         {text}

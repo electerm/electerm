@@ -151,7 +151,7 @@ function setupDeepLinkHandlers () {
 
     // Look for protocol URLs in command line arguments
     const protocolUrl = commandLine.find(arg =>
-      /^(ssh|telnet|rdp|vnc|serial|spice):\/\//i.test(arg)
+      /^(ssh|telnet|rdp|vnc|serial|spice|ftp|electerm):\/\//i.test(arg)
     )
 
     if (protocolUrl) {
@@ -164,7 +164,7 @@ function setupDeepLinkHandlers () {
   // but when running `electerm ssh://...` directly in terminal, it comes through argv
   if (process.argv.length >= 2) {
     const protocolUrl = process.argv.find(arg =>
-      /^(ssh|telnet|rdp|vnc|serial|spice):\/\//i.test(arg)
+      /^(ssh|telnet|rdp|vnc|serial|spice|ftp|electerm):\/\//i.test(arg)
     )
 
     if (protocolUrl) {
