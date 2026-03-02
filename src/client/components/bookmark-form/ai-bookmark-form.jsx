@@ -109,12 +109,12 @@ export default function AIBookmarkForm (props) {
   }
 
   function getGeneratedData () {
-    if (!editorText) return message.warning(e('noData') || 'No data')
+    if (!editorText) return []
     let parsed = null
     try {
       parsed = fixBookmarkData(JSON.parse(editorText))
     } catch (err) {
-      return message.error(e('invalidJson') || 'Invalid JSON')
+      return []
     }
     if (!parsed) return []
     return Array.isArray(parsed) ? parsed : [parsed]
