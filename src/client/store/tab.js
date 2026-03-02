@@ -341,6 +341,15 @@ export default Store => {
     const { tabs } = store
     newTab.tabCount = store.nextTabCount()
     newTab.batch = batch ?? newTab.batch ?? window.openTabBatch ?? window.store.currentLayoutBatch
+    if (!newTab.id) {
+      newTab.id = generate()
+    }
+    if (!newTab.status) {
+      newTab.status = statusMap.processing
+    }
+    if (!newTab.pane) {
+      newTab.pane = paneMap.terminal
+    }
     if (typeof index === 'number' && index >= 0 && index <= tabs.length) {
       tabs.splice(index, 0, newTab)
     } else {

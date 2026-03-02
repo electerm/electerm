@@ -3,7 +3,6 @@ import { Button, Space } from 'antd'
 import { ArrowRightOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import message from '../common/message'
 import InputAutoFocus from '../common/input-auto-focus'
-import newTerminal from '../../common/new-terminal'
 import HelpIcon from '../common/help-icon'
 
 const e = window.translate
@@ -15,11 +14,8 @@ const e = window.translate
  */
 function connectWithOptions (opts, batch) {
   const { store } = window
-  const ext = newTerminal()
-  delete ext.title
   const tabOptions = {
     ...opts,
-    ...ext,
     from: 'quickConnect',
     batch
   }

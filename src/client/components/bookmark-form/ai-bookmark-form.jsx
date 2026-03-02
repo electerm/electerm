@@ -25,7 +25,6 @@ import { fixBookmarkData } from './fix-bookmark-default.js'
 import generate from '../../common/id-with-stamp'
 import AiHistory, { addHistoryItem } from '../ai/ai-history.jsx'
 import { getItem, setItem } from '../../common/safe-local-storage'
-import newTerminal from '../../common/new-terminal'
 
 const STORAGE_KEY_DESC = 'ai_bookmark_description'
 const STORAGE_KEY_HISTORY = 'ai_bookmark_history'
@@ -182,7 +181,6 @@ export default function AIBookmarkForm (props) {
 
     const tabOptions = {
       ...bm,
-      ...newTerminal(),
       from: 'quickConnect'
     }
 
