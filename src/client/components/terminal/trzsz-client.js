@@ -44,6 +44,12 @@ export class TrzszClient extends TransferClientBase {
   handleServerEvent (msg) {
     const { event } = msg
 
+    // Ignore events that arrive after the session has already ended
+    // (e.g. async error from cancelled transfer)
+    if (!this.isActive && event !== 'receive-start' && event !== 'send-start') {
+      return
+    }
+
     switch (event) {
       case 'receive-start':
         this.onReceiveStart()

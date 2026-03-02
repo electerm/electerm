@@ -179,6 +179,9 @@ class TrzszSession {
     this._filesResolve = null
     this._savePathResolve = null
     this._noDelayEnabled = false
+    this._cancelSuppressUntil = 0
+    this._cancelSuppressTimeout = null
+    this._cancelling = false
   }
 
   _setNoDelay (enabled) {
@@ -228,6 +231,14 @@ class TrzszSession {
    * Returns true if data was consumed by trzsz
    */
   handleData (data) {
+    // During cancel suppression window, absorb all data to prevent
+    // protocol garbage from leaking to the terminal
+    if (this._cancelSuppressUntil > 0) {
+      if (Date.now() < this._cancelSuppressUntil) {
+        return true
+      }
+      this._cancelSuppressUntil = 0
+    }
     if (this._pendingComplete) {
       const buf = Buffer.isBuffer(data) ? data : Buffer.from(data)
       if (buf.indexOf(TRZSZ_SUCCESS_BUFFER) >= 0) {
@@ -276,6 +287,7 @@ class TrzszSession {
 
   async startUploadProcess () {
     try {
+      this._cancelling = false
       this._setNoDelay(true)
       this.completedFiles = []
       this.totalBytes = 0
@@ -325,9 +337,13 @@ class TrzszSession {
       await Promise.all(this.fileReaders.map(r => r.closeFile()))
       this.state = TRZSZ_STATE.IDLE
     } catch (err) {
-      log.error('Trzsz upload error:', err)
-      this.sendToClient({ event: 'session-error', error: err.message })
-      this.endSession()
+      if (this._cancelling) {
+        log.info('Trzsz upload cancelled by user')
+      } else {
+        log.error('Trzsz upload error:', err)
+        this.sendToClient({ event: 'session-error', error: err.message })
+        this.endSession()
+      }
     }
   }
 
@@ -427,6 +443,7 @@ class TrzszSession {
 
   startReceiver () {
     try {
+      this._cancelling = false
       this._setNoDelay(true)
       this.createTransfer()
       this.completedFiles = []
@@ -517,9 +534,13 @@ class TrzszSession {
       this.state = TRZSZ_STATE.IDLE
       await this.transfer.clientExit('Success')
     } catch (err) {
-      log.error('Trzsz download error:', err)
-      this.sendToClient({ event: 'session-error', error: err.message })
-      this.endSession()
+      if (this._cancelling) {
+        log.info('Trzsz download cancelled by user')
+      } else {
+        log.error('Trzsz download error:', err)
+        this.sendToClient({ event: 'session-error', error: err.message })
+        this.endSession()
+      }
     }
   }
 
@@ -581,6 +602,10 @@ class TrzszSession {
       clearTimeout(this._completionTimeout)
       this._completionTimeout = null
     }
+    if (this._cancelSuppressTimeout) {
+      clearTimeout(this._cancelSuppressTimeout)
+      this._cancelSuppressTimeout = null
+    }
     if (this._filesResolve) {
       this._filesResolve([])
       this._filesResolve = null
@@ -613,14 +638,37 @@ class TrzszSession {
   }
 
   async cancel () {
+    const wasActive = this.state !== TRZSZ_STATE.IDLE
+    // Set cancelling flag BEFORE stopTransferring so that the
+    // catch blocks in startUploadProcess/_startFileReceiving
+    // know not to send session-error to the client
+    this._cancelling = true
     if (this.transfer) {
       try { await this.transfer.stopTransferring() } catch (e) { log.error('Error stopping transfer', e) }
     }
     this.endSession()
+    if (wasActive) {
+      // Suppress terminal output briefly to absorb any remaining
+      // protocol data from the dying remote trzsz process
+      const CANCEL_SUPPRESS_MS = 1000
+      this._cancelSuppressUntil = Date.now() + CANCEL_SUPPRESS_MS
+      this._cancelSuppressTimeout = setTimeout(() => {
+        this._cancelSuppressUntil = 0
+        this._cancelSuppressTimeout = null
+        // Send Enter to elicit a fresh shell prompt after suppression ends
+        this.writeToTerminal('\r')
+      }, CANCEL_SUPPRESS_MS)
+      // Send Ctrl+C to the remote terminal to kill the remote trzsz process
+      // so it doesn't hang waiting for data and eventually timeout
+      this.writeToTerminal('\x03')
+    }
+    // NOTE: do NOT reset _cancelling here — the async catch blocks
+    // in startUploadProcess/_startFileReceiving fire on the next tick
+    // and need to see the flag is still true.
   }
 
   isActive () {
-    return this.state !== TRZSZ_STATE.IDLE || this._pendingComplete !== null
+    return this.state !== TRZSZ_STATE.IDLE || this._pendingComplete !== null || this._cancelSuppressUntil > 0
   }
 
   destroy () {
