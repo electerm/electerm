@@ -15,7 +15,29 @@ class Sftp extends TerminalBase {
     return this.remoteInitSftp(initOptions)
   }
 
-  remoteInitSftp (initOptions) {
+  applySshFsOverride = (sshFs) => {
+    sshFs.isSshFsFallback = true
+    this.sftp = sshFs
+    this.isSshFsFallback = true
+    const proto = Object.getPrototypeOf(sshFs)
+    const keys = Object.getOwnPropertyNames(proto)
+    for (const method of keys) {
+      if (method === 'constructor') {
+        continue
+      }
+      if (typeof sshFs[method] === 'function') {
+        this[method] = sshFs[method].bind(sshFs)
+      }
+    }
+  }
+
+  initSshFsFallback = (conn) => {
+    const { SshFs } = require('ssh2-scp')
+    const sshFs = new SshFs(conn)
+    this.applySshFsOverride(sshFs)
+  }
+
+  async remoteInitSftp (initOptions) {
     this.transfers = {}
     const terminalInst = globalState.getSession(initOptions.terminalId)
     const {
@@ -23,16 +45,22 @@ class Sftp extends TerminalBase {
     } = terminalInst
     this.client = conn
     this.enableSsh = initOptions.enableSsh
-    return new Promise((resolve, reject) => {
-      conn.sftp((err, sftp) => {
-        if (err) {
-          return reject(err)
-        }
-        this.sftp = sftp
-        globalState.setSession(this.pid, this)
-        resolve('ok')
+    try {
+      const sftp = await new Promise((resolve, reject) => {
+        conn.sftp((err, sftp) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(sftp)
+        })
       })
-    })
+      this.sftp = sftp
+    } catch (err) {
+      this.initSshFsFallback(conn)
+    }
+
+    globalState.setSession(this.pid, this)
+    return 'ok'
   }
 
   kill () {
@@ -42,7 +70,7 @@ class Sftp extends TerminalBase {
       jj && jj.destroy && jj.destroy()
       delete this.transfers[k]
     }
-    this.sftp && this.sftp.end()
+    this.sftp && this.sftp.end && this.sftp.end()
     delete this.sftp
     this.onEndConn()
   }

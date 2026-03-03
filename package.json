@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "2.11.16",
+  "version": "2.12.0",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -129,6 +129,7 @@
     "socks-proxy-agent": "8.0.1",
     "socksv5-electron": "^0.0.6",
     "ssh-config": "5.0.1",
+    "ssh2-scp": "^1.1.0",
     "tar": "7.4.3",
     "trzsz2": "^1.1.0",
     "zmodem2": "^1.2.1",

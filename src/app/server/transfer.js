@@ -40,7 +40,43 @@ class Transfer {
     this.timers = {}
 
     this.ws = ws
-    this.fastXfer(options, type)
+    this.initTransfer(type)
+  }
+
+  shouldUseSsh2ScpTransfer = () => {
+    if ((this.src && this.src.isSshFsFallback) || (this.dst && this.dst.isSshFsFallback)) {
+      return true
+    }
+    return false
+  }
+
+  initTransfer = async (type) => {
+    if (this.shouldUseSsh2ScpTransfer()) {
+      return this.ssh2ScpTransfer(type)
+    }
+    this.fastXfer(type)
+  }
+
+  ssh2ScpTransfer = async (type) => {
+    try {
+      const sshFs = type === 'download' ? this.src : this.dst
+      const remotePath = type === 'download' ? this.srcPath : this.dstPath
+      const localPath = type === 'download' ? this.dstPath : this.srcPath
+      const { Transfer: Ssh2ScpTransfer } = require('ssh2-scp/transfer')
+      this.scpTransfer = new Ssh2ScpTransfer(sshFs, {
+        type,
+        remotePath,
+        localPath,
+        chunkSize: this.chunkSize,
+        onProgress: (transferred) => {
+          this.onData(transferred)
+        }
+      })
+      await this.scpTransfer.startTransfer()
+      this.onEnd()
+    } catch (err) {
+      this.onError(err)
+    }
   }
 
   tryCreateBuffer = (size) => {
@@ -268,10 +304,12 @@ class Transfer {
 
   pause = () => {
     this.pausing = true
+    this.scpTransfer && this.scpTransfer.pause && this.scpTransfer.pause()
   }
 
   resume = () => {
     this.pausing = false
+    this.scpTransfer && this.scpTransfer.resume && this.scpTransfer.resume()
   }
 
   kill = () => {
@@ -289,6 +327,7 @@ class Transfer {
 
   destroy = () => {
     this.onDestroy = true
+    this.scpTransfer && this.scpTransfer.destroy && this.scpTransfer.destroy()
     setTimeout(this.kill, 200)
     if (this.ws) {
       this.ws.close()
