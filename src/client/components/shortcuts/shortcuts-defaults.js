@@ -115,6 +115,11 @@ export default () => {
       name: 'terminal_zoomoutTerminal',
       shortcut: 'ctrl+▼',
       shortcutMac: 'meta+▼'
+    },
+    {
+      name: 'terminal_syncSftpPath',
+      shortcut: 'alt+shift+f11',
+      shortcutMac: 'alt+shift+f11'
     }
   ]
 }

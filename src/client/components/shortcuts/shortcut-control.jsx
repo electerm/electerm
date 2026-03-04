@@ -219,6 +219,27 @@ class ShortcutControl extends React.PureComponent {
     }
   }, 1000)
 
+  clickSftpIcon = () => {
+    const icon = document.querySelector('.session-current .sftp-follow-ssh-icon')
+    if (!icon) return
+    icon.click()
+  }
+
+  syncSftpPathShortcut = throttle((e) => {
+    e.stopPropagation()
+    const { activeTabId } = window.store
+    if (!activeTabId) return
+    // Get the SFTP component which can sync the path
+    const sftp = refs.get('sftp-' + activeTabId)
+    if (!sftp) return
+    this.clickSftpIcon()
+    // Wait for the path to be synced
+    setTimeout(() => {
+      this.clickSftpIcon()
+      sftp.updateCwd()
+    }, 100)
+  }, 1000)
+
   render () {
     return null
   }

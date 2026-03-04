@@ -302,7 +302,7 @@ export default class Sftp extends Component {
     }, () => this[`${type}List`]())
   }
 
-  updateCwd = (cwd) => {
+  updateCwd = (cwd = this.props.cwd) => {
     if (!this.state.inited) {
       return
     }
