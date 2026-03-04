@@ -584,6 +584,10 @@ export default class SettingCommon extends Component {
         {
           this.renderTextExec('execLinux')
         }
+        <div className='pd1b'>{e('keyword2FA')}</div>
+        {
+          this.renderText('keyword2FA')
+        }
         {
           [
             'autoRefreshWhenSwitchToSftp',

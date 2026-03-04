@@ -1097,6 +1097,7 @@ class Term extends Component {
         'execWindowsArgs',
         'execMacArgs',
         'execLinuxArgs',
+        'keyword2FA',
         'debug'
       ]),
       keepaliveInterval: tab.keepaliveInterval || config.keepaliveInterval,
