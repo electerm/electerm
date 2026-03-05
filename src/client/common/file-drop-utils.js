@@ -29,7 +29,10 @@ export const getFilePath = (file) => {
 export const getDropFileList = (dataTransfer) => {
   const fromFile = dataTransfer.getData('fromFile')
   if (fromFile) {
-    return [JSON.parse(fromFile)]
+    const parsed = JSON.parse(fromFile)
+    return Array.isArray(parsed)
+      ? parsed
+      : [parsed]
   }
 
   const { files } = dataTransfer

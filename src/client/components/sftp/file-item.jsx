@@ -225,7 +225,21 @@ export default class FileSection extends React.Component {
       ? onDragCls + ' ' + onMultiDragCls
       : onDragCls
     addClass(this.domRef.current, cls)
-    e.dataTransfer.setData('fromFile', JSON.stringify(this.props.file))
+    const transferProps = createTransferProps(this.props)
+    const selected = this.isSelected(this.props.file.id)
+    const dragFiles = selected
+      ? this.props.getSelectedFiles()
+      : [this.props.file]
+    const filesWithMeta = dragFiles.map(file => {
+      return {
+        ...file,
+        host: this.props.tab?.host,
+        tabType: this.props.tab?.type,
+        tabId: transferProps.tabId,
+        title: transferProps.title
+      }
+    })
+    e.dataTransfer.setData('fromFile', JSON.stringify(filesWithMeta))
   }
 
   getDropFileList = data => {
@@ -283,6 +297,23 @@ export default class FileSection extends React.Component {
     } = toFile
 
     let operation = ''
+    const targetHost = this.props.tab?.host
+    const isCrossHostRemoteDrop = !fromFileManager &&
+      fromType === typeMap.remote &&
+      toType === typeMap.remote &&
+      fromFiles.every(file => file?.host && file.host !== targetHost)
+
+    if (isCrossHostRemoteDrop) {
+      const handled = refsStatic.get('remote2remote-handlers')?.onRemote2RemoteDrop({
+        fromFiles,
+        toFile,
+        targetTab: this.props.tab
+      })
+      if (handled) {
+        return
+      }
+    }
+
     // same side and drop to file = drop to folder
     if (!fromFileManager && fromType === toType && !isDirectoryTo) {
       return

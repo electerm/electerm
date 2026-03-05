@@ -14,6 +14,7 @@ import Resolutions from '../rdp/resolution-edit'
 import TerminalInteractive from '../terminal/terminal-interactive'
 import ConfirmModalStore from '../file-transfer/conflict-resolve.jsx'
 import TransferQueue from '../file-transfer/transfer-queue'
+import Remote2RemoteHandlers from '../file-transfer/remote2remote-handlers.jsx'
 import TerminalCmdSuggestions from '../terminal/terminal-command-dropdown'
 import TransportsActionStore from '../file-transfer/transports-action-store.jsx'
 import classnames from 'classnames'
@@ -280,6 +281,7 @@ export default auto(function Index (props) {
           {...conflictStoreProps}
           config={config}
         />
+        <Remote2RemoteHandlers />
         <Resolutions {...resProps} />
         <InfoModal {...infoModalProps} />
         <RightSidePanel {...rightPanelProps}>
