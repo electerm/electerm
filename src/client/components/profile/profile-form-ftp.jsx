@@ -26,7 +26,7 @@ export default function ProfileFormSsh (props) {
         {...formItemLayout}
         label={e('password')}
         hasFeedback
-        name={['rdp', 'password']}
+        name={['ftp', 'password']}
       >
         <Password />
       </FormItem>
