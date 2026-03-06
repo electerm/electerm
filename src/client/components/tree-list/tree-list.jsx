@@ -680,10 +680,6 @@ export default class ItemListTree extends Component {
     )
   }
 
-  handleImport = () => {
-    document.querySelector('.upload-bookmark-icon input')?.click()
-  }
-
   handleExport = () => {
     document.querySelector('.download-bookmark-icon')?.click()
   }
@@ -697,7 +693,6 @@ export default class ItemListTree extends Component {
       <NewButtonsGroup
         onNewBookmark={this.handleNewBookmark}
         onNewBookmarkGroup={this.handleNewBookmarkGroup}
-        onImport={this.handleImport}
         onExport={this.handleExport}
         onSshConfigs={this.handleSshConfigs}
         bookmarkGroups={this.props.bookmarkGroups}

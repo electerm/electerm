@@ -23,7 +23,6 @@ export default function BookmarkToolbar (props) {
   const {
     onNewBookmark,
     onNewBookmarkGroup,
-    onImport,
     onExport,
     onSshConfigs,
     bookmarkGroups,
@@ -121,7 +120,12 @@ export default function BookmarkToolbar (props) {
     },
     {
       label: e('import'),
-      onClick: onImport,
+      onClick: () => {
+        const fileInput = document.querySelector('.upload-bookmark-icon')
+        if (fileInput) {
+          fileInput.click()
+        }
+      },
       icon: <ImportOutlined />
     },
     {
