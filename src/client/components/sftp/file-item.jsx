@@ -770,6 +770,7 @@ export default class FileSection extends React.Component {
       typeTo,
       fromPath: resolve(path, name),
       toPath,
+      fromFile: file,
       id: generate(),
       ...createTransferProps(this.props),
       operation

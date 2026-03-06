@@ -22,6 +22,61 @@ export const getFileExt = fileName => {
   }
 }
 
+const modeDirectoryMask = 0o170000
+const modeDirectoryValue = 0o040000
+
+const toIsDirectory = (stat) => {
+  if (!stat) {
+    return false
+  }
+
+  if (typeof stat.isDirectory === 'function') {
+    return stat.isDirectory()
+  }
+
+  if (typeof stat.isDirectory === 'boolean') {
+    return stat.isDirectory
+  }
+
+  if (typeof stat.type === 'string') {
+    return stat.type === 'd'
+  }
+
+  if (typeof stat.type === 'number') {
+    return stat.type === 2
+  }
+
+  if (typeof stat.mode === 'number') {
+    return (stat.mode & modeDirectoryMask) === modeDirectoryValue
+  }
+
+  return false
+}
+
+const toIsSymbolicLink = (stat) => {
+  if (!stat) {
+    return false
+  }
+
+  if (typeof stat.isSymbolicLink === 'function') {
+    return stat.isSymbolicLink()
+  }
+
+  if (typeof stat.isSymbolicLink === 'boolean') {
+    return stat.isSymbolicLink
+  }
+
+  if (typeof stat.type === 'string') {
+    return stat.type === 'l'
+  }
+
+  if (typeof stat.type === 'number') {
+    return stat.type === 3
+  }
+
+  return false
+}
+
 export const getFolderFromFilePath = (filePath, isRemote) => {
   const sep = isRemote ? '/' : window.pre.sep
   const arr = filePath.split(sep)
@@ -54,8 +109,8 @@ export const getLocalFileInfo = async (filePath) => {
     type: 'local',
     ...getFolderFromFilePath(filePath, false),
     id: generate(),
-    isDirectory: statr.isDirectory,
-    isSymbolicLink: stat.isSymbolicLink
+    isDirectory: toIsDirectory(statr),
+    isSymbolicLink: toIsSymbolicLink(stat)
   }
 }
 
@@ -71,6 +126,6 @@ export const getRemoteFileInfo = async (sftp, filePath) => {
     type: 'remote',
     ...getFolderFromFilePath(filePath, true),
     id: generate(),
-    isDirectory: stat.isDirectory
+    isDirectory: toIsDirectory(stat)
   }
 }
