@@ -1,0 +1,36 @@
+name: loong64
+
+on:
+  push:
+    branches: [ build, test, build-only, loong ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    environment: build
+    if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip loong64]') }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+
+    - run: npm config set legacy-peer-deps true
+    - run: npm install -g yarn
+    - run: npm i
+
+    - run: npm run b
+
+    - name: Run pb
+      run: npm run pb
+
+    - name: build
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+        WORKFLOW_NAME: ${{ github.workflow }}
+      run: node build/bin/build-linux-loong64
