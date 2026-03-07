@@ -1,11 +1,25 @@
-.spice-session-wrap.scale-viewport
-  canvas
-    width: 100% !important
-    object-fit: contain
-  .spice-scroll-wrapper
-    display block
-.spice-scroll-wrapper
+.spice-session-wrap
   display: flex
   flex-direction: column
-  justify-content: center
   align-items: center
+  .session-v-info
+    position: relative
+    width: 100%
+    z-index: 300
+  &.scale-viewport
+    .spice-scroll-wrapper
+      display flex
+      align-items center
+      justify-content center
+      > div
+        width 100% !important
+        height 100% !important
+        display flex
+        align-items center
+        justify-content center
+      canvas
+        width 100% !important
+        height 100% !important
+        max-width 100% !important
+        max-height 100% !important
+        object-fit contain

@@ -9,7 +9,24 @@
     left: 0
     width: 100%
   &.scale-viewport
-    canvas
+    .rdp-scroll-wrapper canvas
       width: 100% !important
+      height: 100% !important
       object-fit: contain
+.sess-scroll-wrapper
+  position relative
+  background var(--main)
+  z-index 299
+  &::-webkit-scrollbar
+    width 16px
+    height 16px
+    background var(--main-darker)
+  &::-webkit-scrollbar-track
+    background var(--main-darker)
+    box-shadow inset 0 0 5px var(--main-darker)
+  &::-webkit-scrollbar-thumb
+    background var(--primary)
+    border-radius 0
+  &::-webkit-scrollbar-corner
+    background var(--main-darker)
 

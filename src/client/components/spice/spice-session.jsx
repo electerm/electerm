@@ -282,7 +282,7 @@ export default class SpiceSession extends PureComponent {
           <RemoteFloatControl {...contrlProps} />
           <div
             style={wrapperStyle}
-            className='spice-scroll-wrapper'
+            className='sess-scroll-wrapper'
           >
             <div
               ref={this.domRef}

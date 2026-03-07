@@ -601,35 +601,44 @@ export default class RdpSession extends PureComponent {
 
   render () {
     const { width: w, height: h } = this.props
-    const rdpProps = {
-      style: {
-        width: w + 'px',
-        height: h + 'px'
-      }
-    }
     const { width, height, loading, scaleViewport } = this.state
+    const innerWidth = w - 10
+    const innerHeight = h - 80
+    const wrapperStyle = {
+      width: innerWidth + 'px',
+      height: innerHeight + 'px',
+      overflow: scaleViewport ? 'hidden' : 'auto'
+    }
     const canvasProps = {
       width,
       height,
       tabIndex: 0
     }
-    if (scaleViewport) {
-      canvasProps.className = 'scale-viewport'
-    }
     const cls = `rdp-session-wrap session-v-wrap${scaleViewport ? ' scale-viewport' : ''}`
+    const sessProps = {
+      className: cls,
+      style: {
+        width: w + 'px',
+        height: h + 'px'
+      }
+    }
     const controlProps = this.getControlProps()
     return (
       <Spin spinning={loading}>
         <div
-          {...rdpProps}
-          className={cls}
+          {...sessProps}
         >
           {this.renderControl()}
-          <canvas
-            {...canvasProps}
-            ref={this.canvasRef}
-          />
           <RemoteFloatControl {...controlProps} />
+          <div
+            style={wrapperStyle}
+            className='sess-scroll-wrapper'
+          >
+            <canvas
+              {...canvasProps}
+              ref={this.canvasRef}
+            />
+          </div>
         </div>
       </Spin>
     )
