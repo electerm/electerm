@@ -632,7 +632,7 @@ export default class RdpSession extends PureComponent {
           <RemoteFloatControl {...controlProps} />
           <div
             style={wrapperStyle}
-            className='sess-scroll-wrapper'
+            className='rdp-scroll-wrapper s-scroll-wrapper'
           >
             <canvas
               {...canvasProps}

@@ -269,20 +269,23 @@ export default class SpiceSession extends PureComponent {
     }
     const cls = `spice-session-wrap session-v-wrap${scaleViewport ? ' scale-viewport' : ''}`
     const contrlProps = this.getControlProps()
+    const sessProps = {
+      className: cls,
+      style: {
+        width: w + 'px',
+        height: h + 'px'
+      }
+    }
     return (
       <Spin spinning={loading}>
         <div
-          className={cls}
-          style={{
-            width: w + 'px',
-            height: h + 'px'
-          }}
+          {...sessProps}
         >
           {this.renderControl()}
           <RemoteFloatControl {...contrlProps} />
           <div
             style={wrapperStyle}
-            className='sess-scroll-wrapper'
+            className='spice-scroll-wrapper s-scroll-wrapper'
           >
             <div
               ref={this.domRef}
