@@ -61,6 +61,9 @@ const manualChunks = (id) => {
     if (id.includes('@xterm/addon-webgl')) {
       return 'xterm-addon-webgl'
     }
+    if (id.includes('@xterm/addon-image')) {
+      return 'xterm-addon-image'
+    }
     if (id.includes('@xterm/xterm')) {
       return 'xterm'
     }
