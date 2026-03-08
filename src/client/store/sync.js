@@ -35,9 +35,8 @@ async function fetchData (type, func, args, token, proxy) {
 }
 
 function updateSyncServerStatusFromGist (store, gist, type) {
-  const status = parseJsonSafe(
-    get(gist, 'files["electerm-status.json"].content')
-  )
+  const statusContent = get(gist, 'files["electerm-status.json"].content')
+  const status = statusContent ? parseJsonSafe(statusContent) : undefined
   store.syncServerStatus[type] = status
 }
 
