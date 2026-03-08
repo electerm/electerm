@@ -129,7 +129,7 @@
     "socks-proxy-agent": "8.0.1",
     "socksv5-electron": "^0.0.6",
     "ssh-config": "5.0.1",
-    "ssh2-scp": "2.0.3",
+    "ssh2-scp": "2.0.4",
     "tar": "7.4.3",
     "trzsz2": "^1.1.0",
     "zmodem2": "^1.2.1",
