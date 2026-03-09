@@ -33,18 +33,10 @@ export default Store => {
       return {
         term: 'xterm-256color',
         id: uid(),
-        type: 'local',
-        title: 'ssh config: ' + t.title,
+        type: 'ssh',
         color: '#0088cc',
-        runScripts: [
-          {
-            script: `ssh ${t.title}`,
-            delay: 500
-          }
-        ]
+        ...t
       }
-    }).filter(d => {
-      return !store.bookmarks.find(t => t.title === d.title)
     })
     const ids = bookmarksToAdd.map(d => d.id)
     let sshConfigGroup = store.bookmarkGroups.find(d => d.id === 'sshConfig')

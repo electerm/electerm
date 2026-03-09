@@ -5,18 +5,20 @@ import {
   Empty
 } from 'antd'
 import { useState, useEffect } from 'react'
-import SshConfigItem from './ssh-config-item'
 import * as ls from '../../common/safe-local-storage'
 import {
   sshConfigLoadKey
 } from '../../common/constants'
 import { ReloadOutlined } from '@ant-design/icons'
+import LoadSshConfigsItem from './load-ssh-configs-item'
+import './ssh-config.styl'
 
 const e = window.translate
 
 export default function LoadSshConfigs (props) {
   const [loading, setLoading] = useState(false)
   const { sshConfigs } = props
+  const [localConfigs, setLocalConfigs] = useState([])
 
   const {
     store
@@ -24,6 +26,11 @@ export default function LoadSshConfigs (props) {
   const {
     showSshConfigModal
   } = props
+
+  useEffect(() => {
+    setLocalConfigs(sshConfigs)
+  }, [sshConfigs])
+
   const handleCancel = function () {
     store.showSshConfigModal = false
   }
@@ -35,21 +42,43 @@ export default function LoadSshConfigs (props) {
 
   const handleLoadSshConfig = function () {
     store.showSshConfigModal = false
-    store.addSshConfigs(sshConfigs)
+    store.addSshConfigs(localConfigs)
     ls.setItem(sshConfigLoadKey, 'yes')
   }
 
+  const handleDeleteItem = function (index) {
+    const newConfigs = [...localConfigs]
+    newConfigs.splice(index, 1)
+    setLocalConfigs(newConfigs)
+  }
+
+  const handleUpdateItem = function (index, newItem) {
+    const newConfigs = [...localConfigs]
+    newConfigs[index] = newItem
+    setLocalConfigs(newConfigs)
+  }
+
   const renderList = function () {
-    if (!sshConfigs.length) {
+    if (!localConfigs.length) {
       return (
         <Empty />
       )
     }
-    return sshConfigs.map((d, i) => {
-      return (
-        <SshConfigItem item={d} key={d.title} />
-      )
-    })
+    return (
+      <div className='pd1b ssh-config-list'>
+        {
+          localConfigs.map((item, index) => (
+            <LoadSshConfigsItem
+              key={index}
+              item={item}
+              index={index}
+              onDelete={handleDeleteItem}
+              onUpdate={handleUpdateItem}
+            />
+          ))
+        }
+      </div>
+    )
   }
 
   useEffect(() => {
@@ -89,7 +118,7 @@ export default function LoadSshConfigs (props) {
             type='primary'
             className='mg1r mg1b'
             onClick={handleLoadSshConfig}
-            disabled={!sshConfigs.length || loading}
+            disabled={!localConfigs.length || loading}
           >
             {e('import')}
           </Button>
