@@ -18,6 +18,11 @@ export default function SimpleEditor (props) {
 
   // When currentMatch changes, highlight the match in textarea
   useEffect(() => {
+    // Only process navigation when explicitly triggered (not when text changes)
+    if (!isNavigating) {
+      return
+    }
+
     if (currentMatch >= 0 && occurrences.length > 0) {
       const match = occurrences[currentMatch]
       if (editorRef.current) {
@@ -26,10 +31,8 @@ export default function SimpleEditor (props) {
         // Set selection range to select the matched text
         textarea.setSelectionRange(match.start, match.end)
 
-        // Only focus the textarea when explicitly navigating between matches
-        if (isNavigating) {
-          textarea.focus()
-        }
+        // Focus the textarea when explicitly navigating between matches
+        textarea.focus()
 
         // Scroll to the selection position
         // Use setTimeout to ensure the selection is rendered before scrolling
@@ -53,10 +56,17 @@ export default function SimpleEditor (props) {
     setIsNavigating(false)
   }, [currentMatch, occurrences])
 
-  // Auto-search when keyword changes
+  // Auto-search when keyword changes (but not when text is being edited)
   useEffect(() => {
+    // Set navigating to true so first match is highlighted when searching
+    setIsNavigating(true)
     findMatches()
-  }, [searchKeyword, props.value])
+  }, [searchKeyword])
+
+  // Update matches when text changes, but don't change currentMatch position
+  useEffect(() => {
+    updateMatchesOnly()
+  }, [props.value])
 
   // Copy the editor content to clipboard
   const copyEditorContent = () => {
@@ -85,6 +95,28 @@ export default function SimpleEditor (props) {
     }
     setOccurrences(matches)
     setCurrentMatch(matches.length ? 0 : -1)
+  }
+
+  // Update matches only (without changing currentMatch position)
+  const updateMatchesOnly = () => {
+    if (!searchKeyword) {
+      setOccurrences([])
+      return
+    }
+
+    const matches = []
+    const text = props.value || ''
+    const escapedKeyword = escapeRegExp(searchKeyword)
+    const regex = new RegExp(escapedKeyword, 'gi')
+    let match
+
+    while ((match = regex.exec(text)) !== null) {
+      matches.push({
+        start: match.index,
+        end: match.index + searchKeyword.length
+      })
+    }
+    setOccurrences(matches)
   }
 
   // Handle search action when user presses enter or clicks the search button
