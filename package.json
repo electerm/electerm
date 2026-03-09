@@ -126,7 +126,7 @@
     "socks": "2.7.1",
     "socks-proxy-agent": "8.0.1",
     "socksv5-electron": "^0.0.6",
-    "ssh-config": "5.0.1",
+    "ssh-config-loader": "1.0.2",
     "ssh2-scp": "2.0.4",
     "tar": "7.4.3",
     "trzsz2": "^1.1.0",
@@ -141,8 +141,9 @@
   "standard": {
     "sourceType": "module",
     "ignore": [
-      "/app/assets/",
-      "src/client/entry/rle.js"
+      "work",
+      "temp",
+      "dist"
     ],
     "globals": [
       "log",
