@@ -11,6 +11,7 @@ import {
 } from '../../common/constants'
 import { ReloadOutlined } from '@ant-design/icons'
 import LoadSshConfigsItem from './load-ssh-configs-item'
+import './ssh-config.styl'
 
 const e = window.translate
 
@@ -64,7 +65,7 @@ export default function LoadSshConfigs (props) {
       )
     }
     return (
-      <div className='pd1b'>
+      <div className='pd1b ssh-config-list'>
         {
           localConfigs.map((item, index) => (
             <LoadSshConfigsItem

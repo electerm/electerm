@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { Textarea, Tooltip } from 'antd'
+import {
+  Input
+} from 'antd'
 import {
   EditOutlined,
   DeleteOutlined,
@@ -7,13 +9,12 @@ import {
   CloseOutlined
 } from '@ant-design/icons'
 
-const e = window.translate
+const { TextArea } = Input
 
 export default function LoadSshConfigsItem (props) {
   const { item, index, onDelete, onUpdate } = props
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(JSON.stringify(item, null, 2))
-  const [isHovered, setIsHovered] = useState(false)
 
   const handleToggleEdit = function () {
     if (isEditing) {
@@ -39,66 +40,60 @@ export default function LoadSshConfigsItem (props) {
     setIsEditing(false)
   }
 
+  function renderActions () {
+    if (isEditing) {
+      return [
+        <CheckOutlined
+          className='mg1r pointer icon-success'
+          onClick={handleToggleEdit}
+          key='confirm-ssh-config-item'
+        />,
+        <CloseOutlined
+          className='mg1r pointer icon-warning'
+          onClick={handleCancelEdit}
+          key='cancel-ssh-config-item'
+        />
+      ]
+    }
+    return [
+      <EditOutlined
+        className='mg1r pointer ssh-config-item-edit-icon'
+        onClick={handleToggleEdit}
+        key='edit-ssh-config-item'
+      />,
+      <DeleteOutlined
+        className='pointer icon-danger ssh-config-item-delete-icon'
+        onClick={handleDelete}
+        key='del-ssh-config-item'
+      />
+    ]
+  }
+
+  function renderContent () {
+    if (isEditing) {
+      return (
+        <TextArea
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          rows={10}
+          className='mg1t'
+        />
+      )
+    }
+    return (
+      <pre className='ssh-config-item-content'>
+        {JSON.stringify(item, null, 2)}
+      </pre>
+    )
+  }
+
   return (
-    <div
-      className='ssh-config-item pd1y pd1x'
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className='ssh-config-item-header flex-between'>
-        <span className='ssh-config-item-index'>[{index + 1}]</span>
-        <div className='ssh-config-item-actions'>
-          {isEditing
-            ? (
-              <>
-                <Tooltip title={e('ok')}>
-                  <CheckOutlined
-                    className='mg1r pointer icon-success'
-                    onClick={handleToggleEdit}
-                  />
-                </Tooltip>
-                <Tooltip title={e('cancel')}>
-                  <CloseOutlined
-                    className='mg1r pointer icon-warning'
-                    onClick={handleCancelEdit}
-                  />
-                </Tooltip>
-              </>
-              )
-            : (
-              <>
-                <Tooltip title={e('edit')}>
-                  <EditOutlined
-                    className='mg1r pointer'
-                    style={{ opacity: isHovered ? 1 : 0 }}
-                    onClick={handleToggleEdit}
-                  />
-                </Tooltip>
-                <Tooltip title={e('delete')}>
-                  <DeleteOutlined
-                    className='pointer icon-danger'
-                    style={{ opacity: isHovered ? 1 : 0 }}
-                    onClick={handleDelete}
-                  />
-                </Tooltip>
-              </>
-              )}
-        </div>
+    <div className='ssh-config-item pd1'>
+      <div className='pd1b ssh-config-item-header'>
+        <b className='mg1r'>[{index + 1}]</b>
+        {renderActions()}
       </div>
-      {isEditing
-        ? (
-          <Textarea
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            rows={10}
-            className='mg1t'
-          />
-          )
-        : (
-          <pre className='ssh-config-item-content'>
-            {JSON.stringify(item, null, 2)}
-          </pre>
-          )}
+      {renderContent()}
     </div>
   )
 }
