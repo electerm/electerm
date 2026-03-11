@@ -12,9 +12,64 @@ const {
   setupDeepLinkHandlers
 } = require('./deep-link')
 const { handleSingleInstance } = require('./single-instance')
+const log = require('../common/log')
+
+// GPU error suggestion message
+const GPU_ERROR_SUGGESTION = `
+================================================================================
+⚠️  GPU Process Error Detected
+================================================================================
+If you encounter GPU process crashes (exit_code=-2147483645 or similar),
+try running electerm with one of these flags:
+
+  1. --no-sandbox          (Recommended - run without sandbox)
+  2. --disable-gpu        (Disable GPU rendering)
+  3. --disable-gpu-sandbox (Disable GPU sandbox)
+  4. --disable-hardware-acceleration
+
+Or set environment variable:
+  set DISABLE_GPU=1
+
+Example:
+  electerm.exe --no-sandbox
+  or
+  set DISABLE_GPU=1 && electerm.exe
+================================================================================
+`
+
+// Handle GPU process crashes
+app.on('gpu-process-crashed', (event, killed) => {
+  log.error(`GPU process crashed, killed: ${killed}`)
+  console.error(GPU_ERROR_SUGGESTION)
+})
+
+// Handle render process gone events
+app.on('render-process-gone', (event, webContents, details) => {
+  if (details.reason === 'crashed' || details.reason === 'abnormal-exit') {
+    log.error(`Render process gone: ${details.reason}`, details)
+    console.error(GPU_ERROR_SUGGESTION)
+  }
+})
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  const errorMsg = error?.message || ''
+  // Check if it's GPU related
+  if (
+    errorMsg.includes('GPU') ||
+    errorMsg.includes('gpu') ||
+    errorMsg.includes('graphics') ||
+    errorMsg.includes('Vulkan') ||
+    errorMsg.includes('DXGI')
+  ) {
+    console.error(GPU_ERROR_SUGGESTION)
+  }
+})
 
 exports.createApp = async function () {
   app.setName(packInfo.name)
+  // Handle GPU issues on Linux
+  // On Linux, disable GPU for compatibility
   if (process.platform === 'linux' || process.env.DISABLE_GPU) {
     app.commandLine.appendSwitch('--disable-gpu')
   }
