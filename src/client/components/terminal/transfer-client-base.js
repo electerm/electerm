@@ -108,6 +108,34 @@ export class TransferClientBase {
   }
 
   /**
+   * Write progress bar to terminal
+   * @param {Object} options - Progress options
+   * @param {string} options.name - File name
+   * @param {number} options.size - Total size in bytes
+   * @param {number} options.transferred - Transferred bytes
+   * @param {number} options.speed - Transfer speed in bytes/s
+   * @param {boolean} options.isComplete - Whether transfer is complete
+   * @param {Function} options.formatSize - Function to format size
+   * @returns {string} The progress string written to terminal
+   */
+  writeProgressBar ({ name, size, transferred, speed, isComplete = false, formatSize = (b) => b }) {
+    const percent = size > 0 ? Math.floor(transferred * 100 / size) : 100
+    const barWidth = 30
+    const filledWidth = Math.floor(percent / 100 * barWidth)
+    const emptyWidth = barWidth - filledWidth
+
+    const bar = '\x1b[32m' + '\u2588'.repeat(filledWidth) + '\x1b[90m' + '\u2591'.repeat(emptyWidth) + '\x1b[0m'
+
+    const sizeStr = `${formatSize(transferred)}/${formatSize(size)}`
+    const speedStr = speed > 0 ? `, ${formatSize(speed)}/s` : ''
+    const doneStr = isComplete ? ' \x1b[32m\x1b[1m[DONE]\x1b[0m' : ''
+
+    const str = `\r\x1b[2K\x1b[32m${name}\x1b[0m: ${percent}% ${bar} ${sizeStr}${speedStr}${doneStr}`
+    this.writeToTerminal(str + '\r')
+    return str
+  }
+
+  /**
    * Get protocol display name
    * Should be overridden by subclass
    * @returns {string}
