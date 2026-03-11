@@ -90,8 +90,8 @@ Keyword appears one final time here.`
   await delay(500)
 
   // Press Enter to trigger search
-  await client.keyboard.press('Enter')
-  await delay(1000)
+  // await client.keyboard.press('Enter')
+  // await delay(1000)
 
   // Verify that search found some matches (counter should show "1/3" or similar)
   const searchCounterText = await client.getText('.custom-modal-wrap .custom-modal-body .pd1x')
@@ -129,7 +129,7 @@ Keyword appears one final time here.`
 
   // Click the save button
   await client.click('.custom-modal-wrap .custom-modal-body button:has-text("save")')
-  await delay(5000) // Wait for save operation to complete
+  await delay(1000) // Wait for save operation to complete
 
   // For remote files, also test double-click to open editor
   if (type === 'remote' && testDoubleClick) {
@@ -150,8 +150,8 @@ Keyword appears one final time here.`
     await delay(500)
 
     // Press Enter to trigger search
-    await client.keyboard.press('Enter')
-    await delay(1000)
+    // await client.keyboard.press('Enter')
+    // await delay(1000)
 
     // Verify that search found matches
     const altSearchCounterText = await client.getText('.custom-modal-wrap .custom-modal-body .pd1x')
