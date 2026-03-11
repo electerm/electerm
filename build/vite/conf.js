@@ -17,7 +17,6 @@ const manualChunks = (id) => {
       return 'react-vendor'
     }
     if (
-      id.includes('react-delta-hooks') ||
       id.includes('react-markdown')
     ) {
       return 'react-utils'

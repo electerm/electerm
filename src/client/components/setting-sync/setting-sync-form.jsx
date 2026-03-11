@@ -5,7 +5,7 @@
 /**
  * bookmark form
  */
-import { useDelta, useConditionalEffect } from 'react-delta-hooks'
+import { useEffect, useRef } from 'react'
 import { ArrowDownOutlined, ArrowUpOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
 import { Button, Input, Form, Alert } from 'antd'
 import { notification } from '../common/notification'
@@ -27,10 +27,15 @@ function trim (str) {
 
 export default function SyncForm (props) {
   const [form] = Form.useForm()
-  const delta = useDelta(props.formData)
-  useConditionalEffect(() => {
-    form.resetFields()
-  }, delta && delta.prev && !eq(delta.prev, delta.curr))
+  const prevRef = useRef(null)
+
+  useEffect(() => {
+    if (prevRef.current && !eq(prevRef.current, props.formData)) {
+      form.resetFields()
+    }
+    prevRef.current = props.formData
+  }, [props.formData])
+
   const { syncType } = props
   function disabled () {
     if (syncType === syncTypes.cloud) {

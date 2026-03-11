@@ -2,8 +2,7 @@
  * ui theme
  */
 
-import { useEffect } from 'react'
-import { useDelta, useConditionalEffect } from 'react-delta-hooks'
+import { useEffect, useRef } from 'react'
 import eq from 'fast-deep-equal'
 import isColorDark from '../../common/is-color-dark'
 
@@ -53,7 +52,7 @@ function buildTheme (themeConfig) {
 export default function UiTheme (props) {
   const { themeConfig } = props
 
-  const delta = useDelta(themeConfig)
+  const prevRef = useRef(null)
 
   async function applyTheme () {
     const style = document.getElementById(themeDomId)
@@ -64,8 +63,13 @@ export default function UiTheme (props) {
   useEffect(() => {
     applyTheme()
   }, [])
-  useConditionalEffect(() => {
-    applyTheme()
-  }, delta && delta.prev && !eq(delta.prev, delta.curr))
+
+  useEffect(() => {
+    if (prevRef.current && !eq(prevRef.current, themeConfig)) {
+      applyTheme()
+    }
+    prevRef.current = themeConfig
+  }, [themeConfig])
+
   return null
 }

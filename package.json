@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "2.13.6",
+  "version": "2.14.0",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -86,7 +86,6 @@
     "morgan": "1.10.1",
     "pug": "3.0.3",
     "react": "19.2.1",
-    "react-delta-hooks": "1.1.5",
     "react-dom": "19.2.1",
     "react-markdown": "9.0.1",
     "replace-in-file": "6.3.5",

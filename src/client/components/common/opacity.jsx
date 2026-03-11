@@ -1,5 +1,4 @@
-import { useEffect } from 'react'
-import { useDelta, useConditionalEffect } from 'react-delta-hooks'
+import { useEffect, useRef } from 'react'
 import eq from 'fast-deep-equal'
 
 const opacityDomId = 'opacity-style'
@@ -14,7 +13,7 @@ const opacityDomId = 'opacity-style'
 export default function Opacity ({ opacity }) {
   // Default to 1 if opacity is not provided
   const currentOpacity = opacity !== undefined ? opacity : 1
-  const delta = useDelta(currentOpacity)
+  const prevRef = useRef(null)
 
   function applyOpacity () {
     let styleElement = document.getElementById(opacityDomId)
@@ -58,9 +57,12 @@ export default function Opacity ({ opacity }) {
     }
   }, [])
 
-  useConditionalEffect(() => {
-    applyOpacity()
-  }, delta && !eq(delta.prev, delta.curr))
+  useEffect(() => {
+    if (prevRef.current && !eq(prevRef.current, currentOpacity)) {
+      applyOpacity()
+    }
+    prevRef.current = currentOpacity
+  }, [currentOpacity])
 
   return null
 }
