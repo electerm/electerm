@@ -53,7 +53,7 @@ export default Store => {
           ...ids,
           ...(sshConfigGroup.bookmarkIds || [])
         ]
-      })
+      }, 'bookmarkGroups')
     }
     return store.addItems(bookmarksToAdd, 'bookmarks')
   }
