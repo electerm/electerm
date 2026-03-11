@@ -28,7 +28,7 @@ export default class ProfileList extends List {
     const { activeItemId } = this.props
     const { name, id } = item
     const cls = classnames(
-      'item-list-unit theme-item',
+      'item-list-unit',
       {
         active: activeItemId === id
       }
