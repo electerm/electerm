@@ -339,10 +339,29 @@ export default class RdpSession extends PureComponent {
       if (!this.session) return
       try {
         const rect = canvas.getBoundingClientRect()
-        const scaleX = canvas.width / rect.width
-        const scaleY = canvas.height / rect.height
-        const x = Math.round((e.clientX - rect.left) * scaleX)
-        const y = Math.round((e.clientY - rect.top) * scaleY)
+        const { scaleViewport } = this.state
+        let scaleX = canvas.width / rect.width
+        let scaleY = canvas.height / rect.height
+        let offsetX = 0
+        let offsetY = 0
+        if (scaleViewport) {
+          const containerRatio = rect.width / rect.height
+          const canvasRatio = canvas.width / canvas.height
+          let renderWidth, renderHeight
+          if (containerRatio > canvasRatio) {
+            renderHeight = rect.height
+            renderWidth = rect.height * canvasRatio
+            offsetX = (rect.width - renderWidth) / 2
+          } else {
+            renderWidth = rect.width
+            renderHeight = rect.width / canvasRatio
+            offsetY = (rect.height - renderHeight) / 2
+          }
+          scaleX = canvas.width / renderWidth
+          scaleY = canvas.height / renderHeight
+        }
+        const x = Math.round((e.clientX - rect.left - offsetX) * scaleX)
+        const y = Math.round((e.clientY - rect.top - offsetY) * scaleY)
         const event = window.ironRdp.DeviceEvent.mouseMove(x, y)
         const tx = new window.ironRdp.InputTransaction()
         tx.addEvent(event)
