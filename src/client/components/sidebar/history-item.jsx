@@ -6,8 +6,7 @@ import { refsStatic } from '../common/ref'
 export default function HistoryItem (props) {
   const { store } = window
   const {
-    item,
-    index
+    item
   } = props
   const timeoutRef = useRef(null)
 
@@ -30,7 +29,11 @@ export default function HistoryItem (props) {
 
   function handleDelete (e) {
     e.stopPropagation()
-    store.history.splice(index, 1)
+    const { id } = item
+    const i = store.history.findIndex((i) => i.id === id)
+    if (i !== -1) {
+      store.history.splice(i, 1)
+    }
   }
 
   function handleBookmark (e) {

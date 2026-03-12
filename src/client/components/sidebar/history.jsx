@@ -13,9 +13,7 @@ export default auto(function HistoryPanel (props) {
   const {
     history
   } = store
-  const arr = props.sort
-    ? [...history].sort((a, b) => { return b.count - a.count })
-    : history
+  const arr = [...history].sort((a, b) => { return b.count - a.count })
   return (
     <div
       className='sidebar-panel-history'
@@ -26,7 +24,6 @@ export default auto(function HistoryPanel (props) {
             return (
               <HistoryItem
                 key={item.id}
-                index={i}
                 item={item}
               />
             )
