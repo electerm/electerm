@@ -373,6 +373,9 @@ export default class VncSession extends PureComponent {
     }
     rfb.scaleViewport = scaleViewport
     rfb.clipViewport = clipViewport
+    rfb.qualityLevel = qualityLevel
+    rfb.compressionLevel = compressionLevel
+    rfb.viewOnly = viewOnly
     this.rfb = rfb
   }
 
