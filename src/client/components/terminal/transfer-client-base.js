@@ -18,6 +18,7 @@ export class TransferClientBase {
     this.currentTransfer = null
     this.savePath = null
     this.messageHandler = null
+    this._prevProgressRows = 0
   }
 
   /**
@@ -130,8 +131,23 @@ export class TransferClientBase {
     const speedStr = speed > 0 ? `, ${formatSize(speed)}/s` : ''
     const doneStr = isComplete ? ' \x1b[32m\x1b[1m[DONE]\x1b[0m' : ''
 
-    const str = `\r\x1b[2K\x1b[32m${name}\x1b[0m: ${percent}% ${bar} ${sizeStr}${speedStr}${doneStr}`
-    this.writeToTerminal(str + '\r')
+    const str = `\x1b[32m${name}\x1b[0m: ${percent}% ${bar} ${sizeStr}${speedStr}${doneStr}`
+
+    // Calculate visible length (no ANSI codes) to detect line wrapping
+    const visibleLen = name.length + 2 + String(percent).length + 2 + barWidth + 1 + sizeStr.length + speedStr.length + (isComplete ? 7 : 0)
+    const cols = this.terminal?.term?.cols || 80
+    const currentRows = Math.max(1, Math.ceil(visibleLen / cols))
+
+    // Move cursor back up to the start of the previous progress block, then
+    // erase everything from there to end-of-display so wrapped lines are gone.
+    let clearSeq = '\r'
+    for (let i = 0; i < this._prevProgressRows; i++) {
+      clearSeq += '\x1b[A' // cursor up one row
+    }
+    clearSeq += '\x1b[J' // erase from cursor to end of display
+
+    this._prevProgressRows = currentRows - 1
+    this.writeToTerminal(clearSeq + str + '\r')
     return str
   }
 

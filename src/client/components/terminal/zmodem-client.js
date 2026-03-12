@@ -180,8 +180,9 @@ export class ZmodemClient extends TransferClientBase {
       this.currentTransfer.path = path
       // Call directly to ensure 100% is displayed immediately
       this._doWriteProgress(true)
-      // Add newline after completion
+      // Add newline after completion and reset row tracker for next file
       this.writeToTerminal('\r\n')
+      this._prevProgressRows = 0
     }
     this.currentTransfer = null
   }
