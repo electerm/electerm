@@ -612,6 +612,10 @@ class TerminalSshBase extends TerminalBase {
         'encode'
       ])
     )
+    if (initOptions.isMFA) {
+      this.retry2FA = true
+      delete connectOptions.password
+    }
     if (initOptions.debug) {
       connectOptions.debug = log.log
     }

@@ -301,6 +301,7 @@ export const sshAuthFields = [
     type: 'sshAgent',
     name: 'useSshAgent'
   },
+  { type: 'switch', name: 'isMFA', label: () => e('MFA/OTP'), valuePropName: 'checked' },
   commonFields.runScripts,
   commonFields.description,
   commonFields.setEnv,
