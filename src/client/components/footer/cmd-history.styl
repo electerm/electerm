@@ -1,0 +1,52 @@
+.cmd-history-popover-content
+  max-height 300px
+  width 300px
+  overflow hidden
+  display flex
+  flex-direction column
+
+.cmd-history-search
+  flex-shrink 0
+  position sticky
+  top 0
+
+.cmd-history-list
+  overflow-x hidden
+  overflow-y auto
+  flex 1
+  min-height 0
+
+.cmd-history-item
+  display flex
+  align-items center
+  justify-content space-between
+  padding 4px 8px
+  cursor pointer
+  &:hover
+    background var(--main-lighter)
+
+.cmd-history-item-text
+  overflow hidden
+  text-overflow ellipsis
+  white-space nowrap
+  flex 1
+  min-width 0
+
+.cmd-history-item-actions
+  display none
+  flex-shrink 0
+  gap 4px
+  .cmd-history-item:hover &
+    display flex
+
+.cmd-history-item-delete
+  cursor pointer
+  padding 2px 4px
+  &:hover
+    color red
+
+.cmd-history-item-copy
+  cursor pointer
+  padding 2px 4px
+  &:hover
+    color blue

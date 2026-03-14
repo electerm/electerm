@@ -354,4 +354,20 @@ export default Store => {
       }
     }
   })
+
+  Store.prototype.deleteCmdHistory = function (cmd) {
+    const { terminalCommandHistory } = window.store
+    terminalCommandHistory.delete(cmd)
+    // Trigger reactivity by creating a new Set
+    window.store.terminalCommandHistory = new Set(terminalCommandHistory)
+  }
+
+  Store.prototype.clearAllCmdHistory = function () {
+    window.store.terminalCommandHistory = new Set()
+  }
+
+  Store.prototype.runCmdFromHistory = function (cmd) {
+    window.store.runQuickCommand(cmd)
+    window.store.addCmdHistory(cmd)
+  }
 }

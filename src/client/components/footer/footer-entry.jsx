@@ -10,6 +10,7 @@ import encodes from '../bookmark-form/common/encodes'
 import { refs } from '../common/ref'
 import Qm from '../quick-commands/quick-commands-select'
 import AIIcon from '../icons/ai-icon'
+import CmdHistory from './cmd-history'
 
 const {
   Option
@@ -131,7 +132,19 @@ export default auto(function FooterEntry (props) {
     )
   }
 
-  const { leftSidebarWidth, openedSideBar, inActiveTerminal } = props.store
+  function renderCmdHistory () {
+    return (
+      <div className='terminal-footer-unit terminal-footer-history'>
+        <CmdHistory store={props.store} />
+      </div>
+    )
+  }
+
+  const {
+    leftSidebarWidth,
+    openedSideBar,
+    inActiveTerminal
+  } = props.store
   const w = 43 + leftSidebarWidth
   const sideProps = openedSideBar
     ? {
@@ -154,6 +167,7 @@ export default auto(function FooterEntry (props) {
     <div {...sideProps}>
       <div className='terminal-footer-flex'>
         {renderAIIcon()}
+        {renderCmdHistory()}
         {renderQuickCommands()}
         {renderBatchInputs()}
         {renderEncodingInfo()}

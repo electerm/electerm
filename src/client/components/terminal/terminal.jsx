@@ -82,7 +82,6 @@ class Term extends Component {
     this.currentInput = ''
     this.shellInjected = false
     this.shellType = null
-    this.manualCommandHistory = new Set()
   }
 
   domRef = createRef()
@@ -737,7 +736,6 @@ class Term extends Component {
     if (d === '\r' || d === '\n') {
       const currentCmd = this.getCurrentInput()
       if (currentCmd && currentCmd.trim() && this.shouldUseManualHistory()) {
-        this.manualCommandHistory.add(currentCmd.trim())
         window.store.addCmdHistory(currentCmd.trim())
       }
       this.closeSuggestions()
@@ -903,9 +901,7 @@ class Term extends Component {
   }
 
   shouldUseManualHistory = () => {
-    const useManual = this.props.config.showCmdSuggestions &&
-      (this.shellType === 'sh' || (isWin && this.isLocal()))
-    return useManual
+    return !this.cmdAddon || !this.cmdAddon.hasShellIntegration()
   }
 
   canInjectShellIntegration = () => {
