@@ -1074,6 +1074,32 @@ class Term extends Component {
     const { savePassword } = this.state
     const termType = type
     const extra = this.props.sessionOptions
+    // Determine if this is a local terminal (no host)
+    const isLocalType = !tab.host
+    // Build exec settings: only for local type, prefer tab settings over config
+    let execOpts = {}
+    let execPropName = 'execLinux'
+    if (isWin) {
+      execPropName = 'execWindows'
+    } else if (isMac) {
+      execPropName = 'execMac'
+    }
+    if (isLocalType) {
+      // Check flat properties on tab first (bookmark data), then fall back to config
+      if (tab[execPropName]) {
+        // Use bookmark's exec setting directly
+        execOpts = {
+          [execPropName]: tab[execPropName],
+          [`${execPropName}Args`]: tab[`${execPropName}Args`] || []
+        }
+      } else if (config[execPropName]) {
+        // Use global config exec settings
+        execOpts = {
+          [execPropName]: config[execPropName],
+          [`${execPropName}Args`]: config[`${execPropName}Args`] || []
+        }
+      }
+    }
     const opts = clone({
       cols,
       rows,
@@ -1081,18 +1107,13 @@ class Term extends Component {
       saveTerminalLogToFile: config.saveTerminalLogToFile,
       ...tab,
       ...extra,
+      ...execOpts,
       logName,
       sessionLogPath: config.sessionLogPath || createDefaultLogPath(),
       ...pick(config, [
         'addTimeStampToTermLog',
         'keepaliveInterval',
         'keepaliveCountMax',
-        'execWindows',
-        'execMac',
-        'execLinux',
-        'execWindowsArgs',
-        'execMacArgs',
-        'execLinuxArgs',
         'keyword2FA',
         'debug'
       ]),

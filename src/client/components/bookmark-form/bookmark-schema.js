@@ -137,7 +137,13 @@ const bookmarkSchema = {
     title: 'string - bookmark title',
     description: 'string - bookmark description',
     startDirectoryLocal: 'string - local starting directory',
-    runScripts: 'array - run scripts after connected ({delay,script})'
+    runScripts: 'array - run scripts after connected ({delay,script})',
+    execWindows: 'string - Windows exec path (overrides global setting)',
+    execMac: 'string - Mac exec path (overrides global setting)',
+    execLinux: 'string - Linux exec path (overrides global setting)',
+    execWindowsArgs: 'array - Windows exec arguments',
+    execMacArgs: 'array - Mac exec arguments',
+    execLinuxArgs: 'array - Linux exec arguments'
   },
   spice: {
     type: 'spice',

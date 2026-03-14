@@ -86,7 +86,9 @@ const localConfig = {
             step: 1000
           }
         },
-        { type: 'terminalBackground', name: 'terminalBackground', label: () => e('terminalBackgroundImage') }
+        { type: 'terminalBackground', name: 'terminalBackground', label: () => e('terminalBackgroundImage') },
+        // Exec settings - stored as flat properties on bookmark
+        { type: 'execSettings' }
       ]
     },
     {

@@ -103,7 +103,13 @@ const localBookmarkSchema = {
   title: z.string().describe('Bookmark title'),
   description: z.string().optional().describe('Bookmark description'),
   startDirectoryLocal: z.string().optional().describe('Local starting directory'),
-  runScripts: z.array(runScriptSchema).optional().describe('Run scripts after connected')
+  runScripts: z.array(runScriptSchema).optional().describe('Run scripts after connected'),
+  execWindows: z.string().optional().describe('Windows exec path (overrides global setting)'),
+  execMac: z.string().optional().describe('Mac exec path (overrides global setting)'),
+  execLinux: z.string().optional().describe('Linux exec path (overrides global setting)'),
+  execWindowsArgs: z.array(z.string()).optional().describe('Windows exec arguments'),
+  execMacArgs: z.array(z.string()).optional().describe('Mac exec arguments'),
+  execLinuxArgs: z.array(z.string()).optional().describe('Linux exec arguments')
 }
 
 module.exports = {
