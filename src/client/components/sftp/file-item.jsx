@@ -651,6 +651,28 @@ export default class FileSection extends React.Component {
     this.watchFile(tempPath)
   }
 
+  editWithCustomEditor = async (text, editorCommand) => {
+    const {
+      path,
+      name,
+      type
+    } = this.state.file
+    let tempPath = ''
+    if (type === typeMap.local) {
+      tempPath = window.pre.resolve(path, name)
+    } else {
+      const id = generate()
+      tempPath = window.pre.resolve(
+        window.pre.tempDir, `electerm-temp-${id}-${name}`
+      )
+      await fs.writeFile(tempPath, text)
+    }
+    this.watchingFile = tempPath
+    window.pre.runGlobalAsync('watchFile', tempPath)
+    await window.pre.runGlobalAsync('openFileWithEditor', tempPath, editorCommand)
+    window.pre.ipcOnEvent('file-change', this.onFileChange)
+  }
+
   onFileChange = (e, text) => {
     this.editor.editWithSystemEditorDone({
       id: this.id,

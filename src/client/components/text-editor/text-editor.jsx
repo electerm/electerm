@@ -118,6 +118,24 @@ export default class TextEditor extends PureComponent {
     fileRef.editWithSystemEditor(text)
   }
 
+  editWithCustom = async (editorCommand) => {
+    this.setStateProxy({
+      loading: true
+    })
+    const {
+      id, text
+    } = this.state
+    const fileRef = refs.get(id)
+    if (!fileRef) {
+      return
+    }
+    await fileRef.editWithCustomEditor(text, editorCommand)
+      .catch(err => {
+        this.setStateProxy({ loading: false })
+        window.store.onError(err)
+      })
+  }
+
   cancel = () => {
     this.setStateProxy({
       id: '',
@@ -150,7 +168,8 @@ export default class TextEditor extends PureComponent {
       submit: this.handleSubmit,
       text,
       cancel: this.cancel,
-      editWith: this.editWith
+      editWith: this.editWith,
+      editWithCustom: this.editWithCustom
     }
     return (
       <Modal

@@ -5,6 +5,7 @@
 import { useEffect } from 'react'
 import { Form, Button } from 'antd'
 import SimpleEditor from './simple-editor'
+import EditWithCustomEditor from './edit-with-custom-editor'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -38,7 +39,7 @@ export default function TextEditorForm (props) {
   } = props
   const popsEdit = {
     type: 'primary',
-    className: 'mg3r mg1b',
+    className: 'mg1r mg1b',
     disabled: loading,
     onClick: props.editWith
   }
@@ -63,10 +64,6 @@ export default function TextEditorForm (props) {
       </FormItem>
       <div className='pd1t pd2b'>
         <Button
-          {...popsEdit}
-        >{e('editWithSystemEditor')}
-        </Button>
-        <Button
           type='primary'
           className='mg1r mg1b'
           disabled={loading}
@@ -84,6 +81,17 @@ export default function TextEditorForm (props) {
           {...popsCancel}
         >{e('cancel')}
         </Button>
+      </div>
+      <div className='pd1t pd2b'>
+        <Button
+          {...popsEdit}
+        >
+          {e('editWithSystemEditor')}
+        </Button>
+        <EditWithCustomEditor
+          loading={loading}
+          editWithCustom={props.editWithCustom}
+        />
       </div>
     </Form>
   )

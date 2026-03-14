@@ -191,6 +191,44 @@ function initIpc () {
     initCommandLine,
     watchFile,
     unwatchFile,
+    openFileWithEditor: (filePath, editorCommand) => {
+      const { spawn } = require('child_process')
+      if (process.platform === 'win32') {
+        const { fsExport } = require('../lib/fs')
+        return fsExport.runWinCmd(`Start-Process "${editorCommand}" -ArgumentList "${filePath}"`)
+      }
+      const userShell = process.env.SHELL || '/bin/sh'
+      const cmd = `${editorCommand} "${filePath}"`
+      return new Promise((resolve, reject) => {
+        // -l (login) sources .zprofile/.bash_profile; -i (interactive) sources .zshrc/.bashrc
+        // Together they replicate the full PATH the user's interactive terminal session has
+        const child = spawn(userShell, ['-l', '-i', '-c', cmd], {
+          detached: false,
+          stdio: ['ignore', 'ignore', 'pipe']
+        })
+        let stderr = ''
+        child.stderr.on('data', d => { stderr += d.toString() })
+        child.on('error', reject)
+        let settled = false
+        const settle = (err) => {
+          if (settled) return
+          settled = true
+          clearTimeout(timer)
+          child.unref()
+          if (err) reject(err)
+          else resolve()
+        }
+        child.on('close', code => {
+          if (code !== 0) {
+            settle(new Error(stderr.trim() || `Editor exited with code ${code}`))
+          } else {
+            settle(null)
+          }
+        })
+        // If process is still running after 5s, assume it is a GUI app — resolve and detach
+        const timer = setTimeout(() => settle(null), 5000)
+      })
+    },
     listWidgets,
     runWidget,
     stopWidget,
