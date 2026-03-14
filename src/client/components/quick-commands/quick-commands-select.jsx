@@ -6,8 +6,6 @@ import { PureComponent } from 'react'
 import { Button } from 'antd'
 import './qm.styl'
 
-const e = window.translate
-
 export default class QuickCommandsFooter extends PureComponent {
   componentWillUnmount () {
     clearTimeout(this.timer)
@@ -37,8 +35,7 @@ export default class QuickCommandsFooter extends PureComponent {
           size='small'
           type='text'
         >
-          <span className='w500'>{e('quickCommands')}</span>
-          <span className='l500'>Q</span>
+          Q
         </Button>
       </div>
     )
