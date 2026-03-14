@@ -3,7 +3,7 @@ name: linux-arm-native
 
 on:
   push:
-    branches: [ build, test, build-only ]
+    branches: [ build, test, build-only, linux-arm ]
   workflow_dispatch:
 
 jobs:
