@@ -118,7 +118,7 @@ export default class AddBtn extends Component {
   focusSearchInput = () => {
     // Focus the search input after the menu renders
     this.focusTimeout = setTimeout(() => {
-      const searchInput = this.menuRef.current?.querySelector('.ant-input')
+      const searchInput = this.menuRef.current?.querySelector('.add-menu-list .ant-input')
       if (searchInput) {
         searchInput.focus()
         searchInput.select()
