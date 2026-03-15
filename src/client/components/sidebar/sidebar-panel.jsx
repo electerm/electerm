@@ -13,7 +13,6 @@ import {
   PlusCircleOutlined,
   ShrinkOutlined,
   PushpinOutlined,
-  UnorderedListOutlined,
   SelectOutlined
 } from '@ant-design/icons'
 
@@ -29,21 +28,9 @@ export default memo(function SidebarPanel (props) {
   const prps1 = {
     className: prps.className + (pinned ? ' pinned' : '')
   }
-  const props2 = {
-    onClick: store.clearHistory,
-    className: 'mg2x pointer clear-ai-icon icon-hover'
-  }
-  const tabBarExtraContent = sidebarPanelTab === 'history'
-    ? (
-      <UnorderedListOutlined
-        {...props2}
-      />
-      )
-    : null
   const tabsProps = {
     activeKey: sidebarPanelTab,
     onChange: store.handleSidebarPanelTab,
-    tabBarExtraContent,
     items: [
       {
         key: 'bookmarks',
