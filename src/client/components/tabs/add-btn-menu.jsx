@@ -2,13 +2,15 @@
  * Add button menu component
  */
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
+import { Tabs } from 'antd'
 import {
   CodeFilled,
   RightSquareFilled,
   RobotOutlined
 } from '@ant-design/icons'
 import BookmarksList from '../sidebar/bookmark-select'
+import History from '../sidebar/history'
 import DragHandle from '../common/drag-handle'
 import QuickConnect from './quick-connect'
 
@@ -26,6 +28,7 @@ export default function AddBtnMenu ({
   setAddPanelWidth
 }) {
   const { onNewSsh, onNewSshAI } = window.store
+  const [activeTab, setActiveTab] = useState('bookmarks')
   const cls = 'pd2x pd1y context-item pointer'
   const addTabBtn = window.store.hasNodePty
     ? (
@@ -59,6 +62,24 @@ export default function AddBtnMenu ({
     left: menuPosition === 'right'
   }
 
+  const tabItems = [
+    {
+      key: 'bookmarks',
+      label: e('bookmarks')
+    },
+    {
+      key: 'history',
+      label: e('history')
+    }
+  ]
+
+  let listContent
+  if (activeTab === 'bookmarks') {
+    listContent = <BookmarksList store={window.store} />
+  } else {
+    listContent = <History store={window.store} />
+  }
+
   return (
     <div
       ref={menuRef}
@@ -89,11 +110,14 @@ export default function AddBtnMenu ({
           <RobotOutlined /> {e('createBookmarkByAI')}
         </div>
         <QuickConnect batch={batch} inputOnly />
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={tabItems}
+        />
       </div>
       <div className='add-menu-list'>
-        <BookmarksList
-          store={window.store}
-        />
+        {listContent}
       </div>
     </div>
   )
