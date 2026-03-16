@@ -255,7 +255,7 @@ export default auto(function Index (props) {
         <UiTheme
           {...themeProps}
         />
-        <CustomCss customCss={config.customCss} />
+        <CustomCss customCss={config.customCss} configLoaded={configLoaded} />
         <TextEditor />
         <UpdateCheck
           skipVersion={config.skipVersion}

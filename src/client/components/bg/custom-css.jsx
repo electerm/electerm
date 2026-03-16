@@ -2,30 +2,21 @@
  * ui theme
  */
 
-import { useEffect, useRef } from 'react'
-import eq from 'fast-deep-equal'
+import { useEffect } from 'react'
 
 const themeDomId = 'custom-css'
 
 export default function CustomCss (props) {
-  const { customCss } = props
-  const prevRef = useRef(null)
-
-  async function applyTheme () {
-    const style = document.getElementById(themeDomId)
-    style.innerHTML = customCss
-  }
+  const { customCss, configLoaded } = props
 
   useEffect(() => {
-    applyTheme()
-  }, [])
-
-  useEffect(() => {
-    if (prevRef.current && !eq(prevRef.current, customCss)) {
-      applyTheme()
+    if (configLoaded) {
+      const style = document.getElementById(themeDomId)
+      if (style) {
+        style.innerHTML = customCss || ''
+      }
     }
-    prevRef.current = customCss
-  }, [customCss])
+  }, [customCss, configLoaded])
 
   return null
 }
