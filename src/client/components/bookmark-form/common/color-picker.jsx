@@ -75,4 +75,3 @@ export const ColorPicker = React.forwardRef((props, ref) => {
 })
 
 ColorPicker.displayName = 'ColorPicker'
-ColorPicker.static = true

@@ -86,7 +86,6 @@ export default auto(function Index (props) {
     pinned,
     isSecondInstance,
     pinnedQuickCommandBar,
-    wsInited,
     installSrc,
     fileTransfers,
     uiThemeConfig,
@@ -248,7 +247,7 @@ export default auto(function Index (props) {
         <ShortcutControl config={config} />
         <CssOverwrite
           {...confsCss}
-          wsInited={wsInited}
+          configLoaded={configLoaded}
         />
         <Opacity opacity={config.opacity} />
         <TerminalInteractive />

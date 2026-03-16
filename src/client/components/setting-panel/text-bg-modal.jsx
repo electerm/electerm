@@ -3,15 +3,13 @@ import {
   Input,
   InputNumber,
   Space,
-  Typography,
   Select,
-  Button
+  Button,
+  Modal
 } from 'antd'
-import Modal from '../common/modal'
 import { ColorPicker } from '../bookmark-form/common/color-picker.jsx'
 
 const { TextArea } = Input
-const { Title } = Typography
 const e = window.translate
 
 export default function TextBgModal ({
@@ -68,9 +66,9 @@ export default function TextBgModal ({
       footer={footer}
     >
       <div className='pd1'>
-        <Space direction='vertical' size='large' style={{ width: '100%' }}>
+        <Space orientation='vertical' size='large' className='width-100'>
           <div>
-            <Title level={5}>{e('text')}</Title>
+            <b>{e('text')}</b>
             <TextArea
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -81,7 +79,7 @@ export default function TextBgModal ({
           </div>
 
           <div>
-            <Title level={5}>{e('fontSize')}</Title>
+            <b>{e('fontSize')}</b>
             <InputNumber
               value={fontSize}
               onChange={setFontSize}
@@ -93,7 +91,7 @@ export default function TextBgModal ({
           </div>
 
           <div>
-            <Title level={5}>{e('textColor')}</Title>
+            <b>{e('textColor')}</b>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ColorPicker
                 value={color}
@@ -109,7 +107,7 @@ export default function TextBgModal ({
           </div>
 
           <div>
-            <Title level={5}>{e('fontFamily')}</Title>
+            <b>{e('fontFamily')}</b>
             <Select
               value={fontFamily}
               onChange={setFontFamily}
@@ -140,3 +138,5 @@ export default function TextBgModal ({
     </Modal>
   )
 }
+
+TextBgModal.displayName = 'TextBgModal'

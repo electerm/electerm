@@ -254,3 +254,5 @@ export default function TerminalBackgroundConfig ({
     </div>
   )
 }
+
+TerminalBackgroundConfig.displayName = 'TerminalBackgroundConfig'

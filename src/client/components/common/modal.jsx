@@ -113,6 +113,8 @@ export default function Modal (props) {
   )
 }
 
+Modal.displayName = 'Modal'
+
 function createModalInstance (type, options) {
   const {
     title,
