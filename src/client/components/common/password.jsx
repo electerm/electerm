@@ -1,17 +1,12 @@
-import { useState, useCallback, forwardRef } from 'react'
+import { useState, useCallback } from 'react'
 import {
   Input,
   Tag
 } from 'antd'
 
-/**
- * Password component that extends Ant Design's Password component
- * with caps lock detection and visual indicator
- */
-export default forwardRef(function Password (props, ref) {
+export default function Password ({ ref, onKeyDown, onKeyUp, onFocus, onBlur, prefix, ...props }) {
   const [isCapsLockOn, setIsCapsLockOn] = useState(false)
 
-  // Check caps lock state from keyboard event
   const checkCapsLock = useCallback((event) => {
     if (event.getModifierState) {
       const capsLockState = event.getModifierState('CapsLock')
@@ -19,37 +14,30 @@ export default forwardRef(function Password (props, ref) {
     }
   }, [])
 
-  // Handle key events to detect caps lock changes
   const handleKeyEvent = useCallback((event) => {
     checkCapsLock(event)
-    // Call original onKeyDown/onKeyUp if provided
-    if (props.onKeyDown && event.type === 'keydown') {
-      props.onKeyDown(event)
+    if (onKeyDown && event.type === 'keydown') {
+      onKeyDown(event)
     }
-    if (props.onKeyUp && event.type === 'keyup') {
-      props.onKeyUp(event)
+    if (onKeyUp && event.type === 'keyup') {
+      onKeyUp(event)
     }
-  }, [props.onKeyDown, props.onKeyUp, checkCapsLock])
+  }, [onKeyDown, onKeyUp, checkCapsLock])
 
-  // Handle focus event to check initial caps lock state
   const handleFocus = useCallback((event) => {
     checkCapsLock(event)
-    // Call original onFocus if provided
-    if (props.onFocus) {
-      props.onFocus(event)
+    if (onFocus) {
+      onFocus(event)
     }
-  }, [props.onFocus, checkCapsLock])
+  }, [onFocus, checkCapsLock])
 
-  // Handle blur event to reset caps lock state
   const handleBlur = useCallback((event) => {
     setIsCapsLockOn(false)
-    // Call original onBlur if provided
-    if (props.onBlur) {
-      props.onBlur(event)
+    if (onBlur) {
+      onBlur(event)
     }
-  }, [props.onBlur])
+  }, [onBlur])
 
-  // Show caps lock indicator inside prefix to avoid remounting the input wrapper
   let capsPrefix = null
   if (isCapsLockOn) {
     capsPrefix = (
@@ -57,13 +45,12 @@ export default forwardRef(function Password (props, ref) {
     )
   }
 
-  // Merge any existing prefix from props with our caps indicator
-  let prefix = capsPrefix
-  if (props.prefix) {
-    prefix = (
+  let mergedPrefix = capsPrefix
+  if (prefix) {
+    mergedPrefix = (
       <>
         {capsPrefix}
-        {props.prefix}
+        {prefix}
       </>
     )
   }
@@ -72,11 +59,11 @@ export default forwardRef(function Password (props, ref) {
     <Input.Password
       {...props}
       ref={ref}
-      prefix={prefix}
+      prefix={mergedPrefix}
       onKeyDown={handleKeyEvent}
       onKeyUp={handleKeyEvent}
       onFocus={handleFocus}
       onBlur={handleBlur}
     />
   )
-})
+}

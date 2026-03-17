@@ -4,8 +4,7 @@ import { defaultColors, getRandomHexColor } from '../../../common/rand-hex-color
 import { HexInput } from './hex-input.jsx'
 import './color-picker.styl'
 
-export const ColorPicker = React.forwardRef((props, ref) => {
-  const { value, onChange } = props
+export function ColorPicker ({ value, onChange, ref, disabled, isRgba }) {
   const [visible, setVisible] = useState(false)
 
   const handleChange = (color) => {
@@ -18,7 +17,7 @@ export const ColorPicker = React.forwardRef((props, ref) => {
   }
 
   function onColorChange (color) {
-    handleChange(props.isRgba ? color.toRgbString() : color.toHexString())
+    handleChange(isRgba ? color.toRgbString() : color.toHexString())
   }
 
   function renderContent () {
@@ -59,7 +58,7 @@ export const ColorPicker = React.forwardRef((props, ref) => {
     <div ref={ref} className='color-picker-choose' style={{ backgroundColor: value }} />
   )
 
-  if (props.disabled) return inner
+  if (disabled) return inner
 
   return (
     <Popover
@@ -72,6 +71,4 @@ export const ColorPicker = React.forwardRef((props, ref) => {
       {inner}
     </Popover>
   )
-})
-
-ColorPicker.displayName = 'ColorPicker'
+}

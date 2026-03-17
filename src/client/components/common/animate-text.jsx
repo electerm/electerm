@@ -2,34 +2,33 @@
  * animate text when text change
  */
 
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 
-export default class AnimateText extends React.PureComponent {
-  constructor (props) {
-    super(props)
-    this.textRef = React.createRef()
-  }
+export default function AnimateText ({ children, className }) {
+  const textRef = useRef(null)
+  const timerRef = useRef(null)
 
-  componentDidUpdate () {
-    const dom = this.textRef.current
-    dom.className = (this.props.className || 'animate-text-wrap')
-    this.timer = setTimeout(() => {
+  useEffect(() => {
+    const dom = textRef.current
+    if (!dom) return
+
+    dom.className = className || 'animate-text-wrap'
+    timerRef.current = setTimeout(() => {
       if (dom) {
-        dom.className = this.props.className || 'animate-text-wrap'
+        dom.className = className || 'animate-text-wrap'
       }
     }, 450)
-  }
 
-  componentWillUnmount () {
-    clearTimeout(this.timer)
-  }
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
+  }, [className])
 
-  render () {
-    const { children, className } = this.props
-    return (
-      <div className={className} ref={this.textRef}>
-        {children}
-      </div>
-    )
-  }
+  return (
+    <div className={className} ref={textRef}>
+      {children}
+    </div>
+  )
 }
