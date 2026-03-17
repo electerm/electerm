@@ -75,5 +75,6 @@ export default {
   showCmdSuggestions: false,
   startDirectoryLocal: '',
   allowMultiInstance: false,
-  disableDeveloperTool: false
+  disableDeveloperTool: false,
+  tabTitleTemplate: '{typePrefix}{tunnel}{hopping}{title}{title? - }{extra}'
 }
