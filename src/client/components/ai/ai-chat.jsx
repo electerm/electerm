@@ -6,7 +6,6 @@ import uid from '../../common/uid'
 import { pick } from 'lodash-es'
 import {
   SettingOutlined,
-  LoadingOutlined,
   SendOutlined,
   UnorderedListOutlined
 } from '@ant-design/icons'
@@ -15,6 +14,7 @@ import {
 } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
 import { refsStatic } from '../common/ref'
+import AIStopIcon from './ai-stop-icon'
 import './ai.styl'
 
 const { TextArea } = Input
@@ -23,6 +23,7 @@ const MAX_HISTORY = 100
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [currentSessionId, setCurrentSessionId] = useState(null)
 
   function handlePromptChange (e) {
     setPrompt(e.target.value)
@@ -91,6 +92,8 @@ export default function AIChat (props) {
           window.store.aiChatHistory[index].sessionId = aiResponse.sessionId
           window.store.aiChatHistory[index].response = aiResponse.content || ''
         }
+        // Store current session ID for stop functionality
+        setCurrentSessionId(aiResponse.sessionId)
 
         // Start polling for updates
         pollStreamContent(aiResponse.sessionId, chatId)
@@ -125,6 +128,12 @@ export default function AIChat (props) {
       const streamResponse = await window.pre.runGlobalAsync('getStreamContent', sessionId)
 
       if (streamResponse && streamResponse.error) {
+        // Session not found or error - stop polling
+        if (streamResponse.error === 'Session not found') {
+          setCurrentSessionId(null)
+          setIsLoading(false)
+          return
+        }
         // Remove the entry and show error
         const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
         if (index !== -1) {
@@ -147,6 +156,7 @@ export default function AIChat (props) {
         if (streamResponse.hasMore) {
           setTimeout(() => pollStreamContent(sessionId, chatId), 200) // Poll every 200ms
         } else {
+          setCurrentSessionId(null)
           setIsLoading(false)
         }
       }
@@ -156,6 +166,7 @@ export default function AIChat (props) {
       if (index !== -1) {
         window.store.aiChatHistory.splice(index, 1)
       }
+      setCurrentSessionId(null)
       setIsLoading(false)
       window.store.onError(error)
     }
@@ -177,9 +188,40 @@ export default function AIChat (props) {
     window.store.aiChatHistory = []
   }
 
+  const handleStop = useCallback(async function () {
+    if (!currentSessionId || !isLoading) return
+
+    try {
+      // Call server to stop the stream
+      await window.pre.runGlobalAsync('stopStream', currentSessionId)
+
+      // Reset state
+      setCurrentSessionId(null)
+      setIsLoading(false)
+
+      // Update the chat entry to mark as stopped
+      const chatEntries = window.store.aiChatHistory
+      for (let i = chatEntries.length - 1; i >= 0; i--) {
+        if (chatEntries[i].isStreaming) {
+          chatEntries[i].isStreaming = false
+          break
+        }
+      }
+      window.store.aiChatHistory = [...chatEntries]
+    } catch (error) {
+      console.error('Error stopping stream:', error)
+      setCurrentSessionId(null)
+      setIsLoading(false)
+    }
+  }, [currentSessionId, isLoading])
+
   function renderSendIcon () {
     if (isLoading) {
-      return <LoadingOutlined />
+      return (
+        <AIStopIcon
+          onClick={handleStop}
+        />
+      )
     }
     return (
       <SendOutlined

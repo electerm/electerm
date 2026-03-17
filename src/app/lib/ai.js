@@ -6,6 +6,28 @@ const { createProxyAgent } = require('./proxy-agent')
 // Store for ongoing streaming sessions
 const streamingSessions = new Map()
 
+// Stop an ongoing streaming session
+exports.stopStream = (sessionId) => {
+  const session = streamingSessions.get(sessionId)
+  if (!session) {
+    return { error: 'Session not found' }
+  }
+
+  // Destroy the stream to stop receiving data
+  if (session.stream && !session.stream.destroyed) {
+    session.stream.destroy()
+  }
+
+  // Mark as completed (not an error, just stopped by user)
+  session.completed = true
+  session.stopped = true
+
+  // Clean up
+  streamingSessions.delete(sessionId)
+
+  return { stopped: true }
+}
+
 const createAIClient = (baseURL, apiKey, proxy) => {
   const config = {
     baseURL,
