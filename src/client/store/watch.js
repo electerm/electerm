@@ -145,7 +145,14 @@ export default store => {
   }).start()
 
   autoRun(() => {
-    ls.setItemJSON(cmdHistoryKey, Array.from(store.terminalCommandHistory))
+    const history = store.terminalCommandHistory
+    // Save in new format: array of {cmd, count, lastUseTime}
+    const data = Array.from(history.entries()).map(([cmd, info]) => ({
+      cmd,
+      count: info.count,
+      lastUseTime: info.lastUseTime
+    }))
+    ls.setItemJSON(cmdHistoryKey, data)
     return store.terminalCommandHistory
   }).start()
 

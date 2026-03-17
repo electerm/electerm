@@ -82,7 +82,7 @@
     "glob": "^11.0.0",
     "ironrdp-wasm": "1.0.1",
     "lodash-es": "^4.17.21",
-    "manate": "2.0.0",
+    "manate": "2.0.3",
     "morgan": "1.10.1",
     "pug": "3.0.3",
     "react": "19.2.1",
