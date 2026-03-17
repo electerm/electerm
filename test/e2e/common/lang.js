@@ -9,6 +9,6 @@ function capitalizeFirstLetter (string) {
 }
 
 module.exports = (id) => {
-  const lang = require('@electerm/electerm-locales/cjs/en_us.js').lang
+  const lang = require('@electerm/electerm-locales').en_us.lang
   return capitalizeFirstLetter(_.get(lang, `${id}`) || id)
 }
