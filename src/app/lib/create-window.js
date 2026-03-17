@@ -97,6 +97,9 @@ exports.createWindow = async function (userConfig) {
         win.center()
       }
     })
+    win.on('maximize', () => {
+      globalState.set('oldRectangle', win.getBounds())
+    })
     win.on('move', _.debounce(() => {
       const { x, y } = win.getBounds()
       setWindowPos({ x, y })
