@@ -36,13 +36,7 @@ exports.getScreenSize = () => {
 exports.maximize = () => {
   const win = globalState.get('win')
   globalState.set('oldRectangle', win.getBounds())
-  const p = exports.getScreenCurrent()
-  const {
-    width, height, x, y
-  } = p.workArea
-
-  win.setPosition(x, y)
-  win.setSize(width, height)
+  win.maximize()
 }
 
 exports.unmaximize = () => {
@@ -52,6 +46,7 @@ exports.unmaximize = () => {
     x: 200,
     y: 200
   }
+  globalState.get('win').unmaximize()
   globalState.get('win').setBounds(oldRectangle)
 }
 
