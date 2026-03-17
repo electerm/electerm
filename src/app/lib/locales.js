@@ -16,7 +16,7 @@ async function loadLocales () {
   const path = (isDev
     ? '../../'
     : '') +
-    '../node_modules/@electerm/electerm-locales/dist/cjs'
+    '../node_modules/@electerm/electerm-locales/cjs'
   const localeFolder = resolve(__dirname, path)
   // languages array
   const langs = require(resolve(localeFolder, 'list.json'))
