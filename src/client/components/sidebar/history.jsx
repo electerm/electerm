@@ -13,9 +13,6 @@ const SORT_BY_FREQ_KEY = 'electerm-history-sort-by-frequency'
 
 export default auto(function HistoryPanel (props) {
   const { store } = window
-  if (store.config.disableConnectionHistory) {
-    return null
-  }
   const [sortByFrequency, setSortByFrequency] = useState(() => {
     return getItemJSON(SORT_BY_FREQ_KEY, false)
   })
@@ -27,7 +24,7 @@ export default auto(function HistoryPanel (props) {
   const {
     history
   } = store
-  let arr = [...history]
+  let arr = store.config.disableConnectionHistory ? [] : history
   if (sortByFrequency) {
     arr = arr.sort((a, b) => { return b.count - a.count })
   }
