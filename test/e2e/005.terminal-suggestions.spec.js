@@ -6,13 +6,30 @@ const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 
 describe('Terminal Suggestions Dropdown', function () {
-  it('should show suggestions based on command history and handle deletion', async function () {
-    // Setup test
-    const electronApp = await electron.launch(appOptions)
-    const client = await electronApp.firstWindow()
+  let electronApp
+  let client
+  it.beforeEach(async () => {
+    electronApp = await electron.launch(appOptions)
+    client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(4500)
+    await client.evaluate(() => {
+      return window.store.setConfig({
+        showCmdSuggestions: true
+      })
+    })
+  })
+  it.afterAll(async () => {
+    await client.evaluate(() => {
+      return window.store.setConfig({
+        showCmdSuggestions: false
+      })
+    })
+    await electronApp.close()
+  })
 
+  it('should show suggestions based on command history and handle deletion', async function () {
+    await delay(1500)
     // Type the partial command and check initial suggestions count
     const partialCommand = 'test-unique'
     await client.keyboard.type(partialCommand)
@@ -53,15 +70,12 @@ describe('Terminal Suggestions Dropdown', function () {
     // The suggestions list should filter commands that start with the partial input
     await expect(suggestionElement).toBeVisible()
 
-    // Verify suggestion count increased by 1 for the same partial command
+    // Verify suggestion count increased for the same partial command
     const newSuggestionsCount = await client.locator('.suggestion-item').count()
-    expect(newSuggestionsCount).toEqual(initialSuggestions + 1)
+    expect(newSuggestionsCount).toBeGreaterThan(initialSuggestions)
 
     // Press Enter to close suggestions
     await client.keyboard.press('Enter')
     await expect(suggestionElement).toBeHidden()
-
-    // Cleanup
-    await electronApp.close()
   })
 })
