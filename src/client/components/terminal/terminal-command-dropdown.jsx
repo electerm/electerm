@@ -215,7 +215,7 @@ export default class TerminalCmdSuggestions extends Component {
       history = [],
       batch = [],
       quick = []
-    } = this.props.suggestions
+    } = this.props.suggestions || {}
     const res = []
     this.state.aiSuggestions
       .forEach(item => {

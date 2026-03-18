@@ -152,9 +152,9 @@ export default function QuickCommandsFooterBox (props) {
     return null
   }
   const all = props.currentQuickCommands
-  if (!all.length) {
-    return renderNoCmd()
-  }
+  // if (!all.length) {
+  //   return renderNoCmd()
+  // }
   const keyword0 = keyword.toLowerCase()
   const filtered = filterArray(all, keyword0, label)
   const sorted = qmSortByFrequency
@@ -226,6 +226,9 @@ export default function QuickCommandsFooterBox (props) {
         </Flex>
         <div className={cls}>
           {sorted.map(renderItem)}
+          {
+            !sorted.length && renderNoCmd()
+          }
         </div>
       </div>
     </div>
