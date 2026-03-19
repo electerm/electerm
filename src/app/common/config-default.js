@@ -1,7 +1,7 @@
 const defaultSettings = require('./default-setting')
 
 module.exports = exports.default = {
-  keepaliveInterval: 0,
+  keepaliveInterval: 10000,
   rightClickSelectsWord: false,
   pasteWhenContextMenu: false,
   ctrlOrMetaOpenTerminalLink: false,

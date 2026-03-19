@@ -1100,6 +1100,7 @@ class Term extends Component {
         }
       }
     }
+    const keepaliveInterval = tab.keepaliveInterval || config.keepaliveInterval
     const opts = clone({
       cols,
       rows,
@@ -1112,12 +1113,11 @@ class Term extends Component {
       sessionLogPath: config.sessionLogPath || createDefaultLogPath(),
       ...pick(config, [
         'addTimeStampToTermLog',
-        'keepaliveInterval',
         'keepaliveCountMax',
         'keyword2FA',
         'debug'
       ]),
-      keepaliveInterval: tab.keepaliveInterval || config.keepaliveInterval,
+      keepaliveInterval,
       tabId: id,
       uid: id,
       srcTabId: tab.id,

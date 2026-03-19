@@ -47,7 +47,7 @@ export default {
   autoRefreshWhenSwitchToSftp: false,
   addTimeStampToTermLog: false,
   sftpPathFollowSsh: false,
-  keepaliveInterval: 0,
+  keepaliveInterval: 10000,
   backspaceMode: '^?',
   showHiddenFilesOnSftpStart: true,
   terminalInfos: [

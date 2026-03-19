@@ -18,6 +18,7 @@ export default class AttachAddonCustom {
     this._lastDataTime = Date.now()
     this._lastInputTime = Date.now()
     this._keepaliveTimer = null
+    this._keepaliveInterval = 3000
   }
 
   _initBase = async () => {
@@ -34,13 +35,15 @@ export default class AttachAddonCustom {
     }
   }
 
-  startOutputSuppression = (timeout = 3000, onEnd = null) => {
+  startOutputSuppression = (timeout = 3000, onEnd = null, discardOnTimeout = false) => {
     this.outputSuppressed = true
     this.suppressedData = []
     this.onSuppressionEndCallback = onEnd
     this.suppressTimeout = setTimeout(() => {
-      console.warn('[AttachAddon] Output suppression timeout reached, resuming')
-      this.stopOutputSuppression(false)
+      if (!discardOnTimeout) {
+        console.warn('[AttachAddon] Output suppression timeout reached, resuming')
+      }
+      this.stopOutputSuppression(discardOnTimeout)
     }, timeout)
   }
 
@@ -174,7 +177,7 @@ export default class AttachAddonCustom {
 
   _startKeepalive = () => {
     this._stopKeepalive()
-    this._keepaliveTimer = setInterval(this._checkKeepalive, 5000)
+    this._keepaliveTimer = setInterval(this._checkKeepalive, this._keepaliveInterval)
   }
 
   _stopKeepalive = () => {
@@ -185,16 +188,27 @@ export default class AttachAddonCustom {
   }
 
   _checkKeepalive = () => {
-    // Skip if output is suppressed (e.g. during password input or initialization)
+    // Skip if output is suppressed (password prompt, init sequence, or a
+    // previous keepalive response is still in flight)
     if (this.outputSuppressed) {
       return
     }
     const now = Date.now()
     const idleSinceData = now - this._lastDataTime
     const idleSinceInput = now - this._lastInputTime
-    if (idleSinceData >= 5000 && idleSinceInput >= 5000) {
-      // Send NUL byte — ignored by shells/programs but prevents socket timeout
-      this._sendData('\x00')
+    if (idleSinceData >= this._keepaliveInterval && idleSinceInput >= this._keepaliveInterval) {
+      // Suppress the echo + new-prompt that the server will send back after
+      // writing \n to the PTY.  discardOnTimeout=true means the buffered
+      // bytes are thrown away rather than flushed to the terminal.
+      this.startOutputSuppression(2000, null, true)
+      // Tell the server to write \n to the PTY.  In TTY canonical mode only a
+      // newline (or EOF) completes the line and wakes bash from read(), which
+      // resets the TMOUT alarm.  \x00 stays in the line buffer and never
+      // wakes bash up — that's why it does not work.
+      const sock = this._socket
+      if (sock && sock.readyState === 1 /* OPEN */) {
+        sock.send(JSON.stringify({ action: 'keepalive' }))
+      }
     }
   }
 
