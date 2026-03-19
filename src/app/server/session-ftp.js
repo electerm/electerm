@@ -138,12 +138,13 @@ class Ftp extends TerminalBase {
   async list (remotePath) {
     const list = await this.client.list(remotePath)
     return list.map(item => {
+      const dt = new Date(item.rawModifiedAt).getTime()
       return {
         type: item.type === 2 ? 'd' : '-',
         name: item.name,
         size: item.size,
-        modifyTime: new Date(item.modifiedAt).getTime(),
-        accessTime: new Date(item.modifiedAt).getTime(),
+        modifyTime: dt,
+        accessTime: dt,
         mode: 0o777, // Default permissions since FTP doesn't provide this
         rights: {
           user: 'rwx',
