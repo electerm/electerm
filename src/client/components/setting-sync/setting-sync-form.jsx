@@ -78,9 +78,9 @@ export default function SyncForm (props) {
         description: test.stack || 'Request failed'
       })
     }
-    if (!res.gistId && syncType !== syncTypes.custom && syncType !== syncTypes.cloud) {
-      window.store.createGist(syncType)
-    }
+    // if (!res.gistId && syncType !== syncTypes.custom && syncType !== syncTypes.cloud) {
+    //   window.store.createGist(syncType)
+    // }
   }
 
   function upload () {
@@ -217,6 +217,7 @@ export default function SyncForm (props) {
       <FormItem
         label={gistLabel}
         name='gistId'
+        required
         normalize={trim}
         rules={[{
           max: 100, message: '100 chars max'

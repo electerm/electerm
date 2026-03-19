@@ -101,32 +101,32 @@ export default (Store) => {
     return gist
   }
 
-  Store.prototype.createGist = async function (type) {
-    const { store } = window
-    store.isSyncingSetting = true
-    const token = store.getSyncToken(type)
-    const data = {
-      description: 'sync electerm data',
-      files: {
-        'placeholder.js': {
-          content: 'placeholder'
-        }
-      },
-      public: false
-    }
-    const res = await fetchData(
-      type, 'create', [data], token, store.getSyncProxy(type)
-    ).catch(
-      store.onError
-    )
-    if (res && type !== syncTypes.custom) {
-      store.updateSyncSetting({
-        [type + 'GistId']: res.id,
-        [type + 'Url']: res.html_url
-      })
-    }
-    store.isSyncingSetting = false
-  }
+  // Store.prototype.createGist = async function (type) {
+  //   const { store } = window
+  //   store.isSyncingSetting = true
+  //   const token = store.getSyncToken(type)
+  //   const data = {
+  //     description: 'sync electerm data',
+  //     files: {
+  //       'placeholder.js': {
+  //         content: 'placeholder'
+  //       }
+  //     },
+  //     public: false
+  //   }
+  //   const res = await fetchData(
+  //     type, 'create', [data], token, store.getSyncProxy(type)
+  //   ).catch(
+  //     store.onError
+  //   )
+  //   if (res && type !== syncTypes.custom) {
+  //     store.updateSyncSetting({
+  //       [type + 'GistId']: res.id,
+  //       [type + 'Url']: res.html_url
+  //     })
+  //   }
+  //   store.isSyncingSetting = false
+  // }
 
   Store.prototype.handleClearSyncSetting = async function () {
     const { store } = window
@@ -196,11 +196,11 @@ export default (Store) => {
   Store.prototype.uploadSettingAction = async function (type) {
     const { store } = window
     const token = store.getSyncToken(type)
-    let gistId = store.getSyncGistId(type)
-    if (!gistId && type !== syncTypes.cloud && type !== syncTypes.custom) {
-      await store.createGist(type)
-      gistId = store.getSyncGistId(type)
-    }
+    const gistId = store.getSyncGistId(type)
+    // if (!gistId && type !== syncTypes.cloud && type !== syncTypes.custom) {
+    //   await store.createGist(type)
+    //   gistId = store.getSyncGistId(type)
+    // }
     if (!gistId && type !== syncTypes.custom && type !== syncTypes.cloud) {
       return
     }
@@ -280,11 +280,11 @@ export default (Store) => {
   Store.prototype.downloadSettingAction = async function (type) {
     const { store } = window
     const token = store.getSyncToken(type)
-    let gistId = store.getSyncGistId(type)
-    if (!gistId && type !== syncTypes.cloud && type !== syncTypes.custom) {
-      await store.createGist(type)
-      gistId = store.getSyncGistId(type)
-    }
+    const gistId = store.getSyncGistId(type)
+    // if (!gistId && type !== syncTypes.cloud && type !== syncTypes.custom) {
+    //   await store.createGist(type)
+    //   gistId = store.getSyncGistId(type)
+    // }
     if (!gistId && type !== syncTypes.custom && type !== syncTypes.cloud) {
       return
     }
