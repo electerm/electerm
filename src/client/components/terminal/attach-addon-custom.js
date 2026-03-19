@@ -15,6 +15,9 @@ export default class AttachAddonCustom {
     this._disposables = []
     this._socket = socket
     this.decoder = new TextDecoder('utf-8')
+    this._lastDataTime = Date.now()
+    this._lastInputTime = Date.now()
+    this._keepaliveTimer = null
   }
 
   _initBase = async () => {
@@ -79,9 +82,11 @@ export default class AttachAddonCustom {
 
     this._disposables.push(this.addSocketListener(this._socket, 'close', () => this.dispose()))
     this._disposables.push(this.addSocketListener(this._socket, 'error', () => this.dispose()))
+    this._startKeepalive()
   }
 
   onMsg = (ev) => {
+    this._lastDataTime = Date.now()
     if (typeof ev.data === 'string') {
       try {
         const msg = JSON.parse(ev.data)
@@ -163,7 +168,34 @@ export default class AttachAddonCustom {
   }
 
   sendToServer = (data) => {
+    this._lastInputTime = Date.now()
     this._sendData(data)
+  }
+
+  _startKeepalive = () => {
+    this._stopKeepalive()
+    this._keepaliveTimer = setInterval(this._checkKeepalive, 5000)
+  }
+
+  _stopKeepalive = () => {
+    if (this._keepaliveTimer) {
+      clearInterval(this._keepaliveTimer)
+      this._keepaliveTimer = null
+    }
+  }
+
+  _checkKeepalive = () => {
+    // Skip if output is suppressed (e.g. during password input or initialization)
+    if (this.outputSuppressed) {
+      return
+    }
+    const now = Date.now()
+    const idleSinceData = now - this._lastDataTime
+    const idleSinceInput = now - this._lastInputTime
+    if (idleSinceData >= 5000 && idleSinceInput >= 5000) {
+      // Send NUL byte — ignored by shells/programs but prevents socket timeout
+      this._sendData('\x00')
+    }
   }
 
   addSocketListener = (socket, type, handler) => {
@@ -179,6 +211,7 @@ export default class AttachAddonCustom {
   }
 
   dispose = () => {
+    this._stopKeepalive()
     this.term = null
     this._disposables.forEach(d => d.dispose())
     this._disposables.length = 0
