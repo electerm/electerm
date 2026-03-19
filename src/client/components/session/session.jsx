@@ -14,7 +14,8 @@ import {
   FullscreenOutlined,
   PaperClipOutlined,
   CloseOutlined,
-  ApartmentOutlined
+  ApartmentOutlined,
+  HeartOutlined
 } from '@ant-design/icons'
 import {
   Tooltip,
@@ -52,7 +53,8 @@ export default class SessionWrapper extends Component {
       splitSize: [50, 50],
       sessionOptions: null,
       delKeyPressed: false,
-      broadcastInput: false
+      broadcastInput: false,
+      keepaliveEnabled: false
     }
     props.tab.sshSftpSplitView = !!props.config.sshSftpSplitView
   }
@@ -482,6 +484,15 @@ export default class SessionWrapper extends Component {
     })
   }
 
+  toggleKeepalive = () => {
+    const term = refs.get('term-' + this.props.tab.id)
+    if (!term) {
+      return
+    }
+    const enabled = term.toggleKeepalive()
+    this.setState({ keepaliveEnabled: enabled })
+  }
+
   handleOpenSearch = () => {
     refs.get('term-' + this.props.tab.id)?.toggleSearch()
   }
@@ -522,6 +533,25 @@ export default class SessionWrapper extends Component {
           className='pointer'
         />
       </div>
+    )
+  }
+
+  renderKeepaliveIcon = () => {
+    if (this.isSshDisabled() || !this.props.tab.authType) {
+      return null
+    }
+    const { keepaliveEnabled } = this.state
+    const title = e('keepalive')
+    const iconProps = {
+      className: classnames('sess-icon pointer keepalive-icon', {
+        active: keepaliveEnabled
+      }),
+      onClick: this.toggleKeepalive
+    }
+    return (
+      <Tooltip title={title}>
+        <HeartOutlined {...iconProps} />
+      </Tooltip>
     )
   }
 
@@ -711,6 +741,7 @@ export default class SessionWrapper extends Component {
         {this.renderPaneControl()}
         {this.renderSftpPathFollowControl()}
         {this.renderSplitToggle()}
+        {this.renderKeepaliveIcon()}
         {this.renderBroadcastIcon()}
         {this.renderTermControls()}
       </div>

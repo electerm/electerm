@@ -41,7 +41,7 @@ module.exports = exports.default = {
   screenReaderMode: false,
   autoRefreshWhenSwitchToSftp: false,
   addTimeStampToTermLog: false,
-  keepaliveInterval: 0,
+  keepaliveInterval: 10000,
   backspaceMode: '^?',
   showHiddenFilesOnSftpStart: true,
   terminalInfos: [

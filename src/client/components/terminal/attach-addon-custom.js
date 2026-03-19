@@ -15,6 +15,10 @@ export default class AttachAddonCustom {
     this._disposables = []
     this._socket = socket
     this.decoder = new TextDecoder('utf-8')
+    this._lastDataTime = Date.now()
+    this._lastInputTime = Date.now()
+    this._keepaliveTimer = null
+    this._keepaliveInterval = 3000
   }
 
   _initBase = async () => {
@@ -31,13 +35,15 @@ export default class AttachAddonCustom {
     }
   }
 
-  startOutputSuppression = (timeout = 3000, onEnd = null) => {
+  startOutputSuppression = (timeout = 3000, onEnd = null, discardOnTimeout = false) => {
     this.outputSuppressed = true
     this.suppressedData = []
     this.onSuppressionEndCallback = onEnd
     this.suppressTimeout = setTimeout(() => {
-      console.warn('[AttachAddon] Output suppression timeout reached, resuming')
-      this.stopOutputSuppression(false)
+      if (!discardOnTimeout) {
+        console.warn('[AttachAddon] Output suppression timeout reached, resuming')
+      }
+      this.stopOutputSuppression(discardOnTimeout)
     }, timeout)
   }
 
@@ -82,6 +88,7 @@ export default class AttachAddonCustom {
   }
 
   onMsg = (ev) => {
+    this._lastDataTime = Date.now()
     if (typeof ev.data === 'string') {
       try {
         const msg = JSON.parse(ev.data)
@@ -163,7 +170,48 @@ export default class AttachAddonCustom {
   }
 
   sendToServer = (data) => {
+    this._lastInputTime = Date.now()
     this._sendData(data)
+  }
+
+  _startKeepalive = () => {
+    this._stopKeepalive()
+    this._keepaliveTimer = setInterval(this._checkKeepalive, this._keepaliveInterval)
+  }
+
+  _stopKeepalive = () => {
+    if (this._keepaliveTimer) {
+      clearInterval(this._keepaliveTimer)
+      this._keepaliveTimer = null
+    }
+  }
+
+  _checkKeepalive = () => {
+    if (this.outputSuppressed) {
+      return
+    }
+    const now = Date.now()
+    const idleSinceData = now - this._lastDataTime
+    const idleSinceInput = now - this._lastInputTime
+    if (idleSinceData >= this._keepaliveInterval && idleSinceInput >= this._keepaliveInterval) {
+      // Tell the server to write \n to the PTY so bash's read() wakes up and
+      // resets the TMOUT alarm. The user has explicitly enabled keepalive and
+      // accepts the side-effect of an occasional echoed newline / re-prompt.
+      // Start output suppression to hide the echoed prompt.
+      const sock = this._socket
+      if (sock && sock.readyState === 1 /* OPEN */) {
+        this.startOutputSuppression(500, null, true)
+        sock.send(JSON.stringify({ action: 'keepalive' }))
+      }
+    }
+  }
+
+  setKeepalive = (enabled) => {
+    if (enabled) {
+      this._startKeepalive()
+    } else {
+      this._stopKeepalive()
+    }
   }
 
   addSocketListener = (socket, type, handler) => {
@@ -179,6 +227,7 @@ export default class AttachAddonCustom {
   }
 
   dispose = () => {
+    this._stopKeepalive()
     this.term = null
     this._disposables.forEach(d => d.dispose())
     this._disposables.length = 0

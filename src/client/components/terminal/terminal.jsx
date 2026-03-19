@@ -515,6 +515,15 @@ class Term extends Component {
     window.store.toggleTerminalSearch()
   }
 
+  toggleKeepalive = () => {
+    if (!this.attachAddon) {
+      return false
+    }
+    this._keepaliveEnabled = !this._keepaliveEnabled
+    this.attachAddon.setKeepalive(this._keepaliveEnabled)
+    return this._keepaliveEnabled
+  }
+
   onSearchResultsChange = ({ resultIndex, resultCount }) => {
     window.store.storeAssign({
       termSearchMatchCount: resultCount,
@@ -1100,6 +1109,7 @@ class Term extends Component {
         }
       }
     }
+    const keepaliveInterval = tab.keepaliveInterval || config.keepaliveInterval
     const opts = clone({
       cols,
       rows,
@@ -1112,12 +1122,11 @@ class Term extends Component {
       sessionLogPath: config.sessionLogPath || createDefaultLogPath(),
       ...pick(config, [
         'addTimeStampToTermLog',
-        'keepaliveInterval',
         'keepaliveCountMax',
         'keyword2FA',
         'debug'
       ]),
-      keepaliveInterval: tab.keepaliveInterval || config.keepaliveInterval,
+      keepaliveInterval,
       tabId: id,
       uid: id,
       srcTabId: tab.id,

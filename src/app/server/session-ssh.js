@@ -798,7 +798,7 @@ class TerminalSshBase extends TerminalBase {
   }
 
   write (data) {
-    this.channel.write(data)
+    this.channel?.write(data)
   }
 
   setNoDelay (noDelay = true) {
