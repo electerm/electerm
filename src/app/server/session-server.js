@@ -270,7 +270,7 @@ if (type === 'rdp') {
               // so \x00 (NUL) sits in the buffer and never wakes bash up.
               // A newline wakes bash's read(), resets the TMOUT alarm, and bash
               // simply re-displays the prompt.  The client suppresses that echo.
-              term.write('\n')
+              term.write('\n\r\x1b[K')
               return
             }
           } catch (e) {

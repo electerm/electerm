@@ -85,7 +85,6 @@ export default class AttachAddonCustom {
 
     this._disposables.push(this.addSocketListener(this._socket, 'close', () => this.dispose()))
     this._disposables.push(this.addSocketListener(this._socket, 'error', () => this.dispose()))
-    this._startKeepalive()
   }
 
   onMsg = (ev) => {
@@ -188,8 +187,6 @@ export default class AttachAddonCustom {
   }
 
   _checkKeepalive = () => {
-    // Skip if output is suppressed (password prompt, init sequence, or a
-    // previous keepalive response is still in flight)
     if (this.outputSuppressed) {
       return
     }
@@ -197,18 +194,23 @@ export default class AttachAddonCustom {
     const idleSinceData = now - this._lastDataTime
     const idleSinceInput = now - this._lastInputTime
     if (idleSinceData >= this._keepaliveInterval && idleSinceInput >= this._keepaliveInterval) {
-      // Suppress the echo + new-prompt that the server will send back after
-      // writing \n to the PTY.  discardOnTimeout=true means the buffered
-      // bytes are thrown away rather than flushed to the terminal.
-      this.startOutputSuppression(2000, null, true)
-      // Tell the server to write \n to the PTY.  In TTY canonical mode only a
-      // newline (or EOF) completes the line and wakes bash from read(), which
-      // resets the TMOUT alarm.  \x00 stays in the line buffer and never
-      // wakes bash up — that's why it does not work.
+      // Tell the server to write \n to the PTY so bash's read() wakes up and
+      // resets the TMOUT alarm. The user has explicitly enabled keepalive and
+      // accepts the side-effect of an occasional echoed newline / re-prompt.
+      // Start output suppression to hide the echoed prompt.
       const sock = this._socket
       if (sock && sock.readyState === 1 /* OPEN */) {
+        this.startOutputSuppression(500, null, true)
         sock.send(JSON.stringify({ action: 'keepalive' }))
       }
+    }
+  }
+
+  setKeepalive = (enabled) => {
+    if (enabled) {
+      this._startKeepalive()
+    } else {
+      this._stopKeepalive()
     }
   }
 

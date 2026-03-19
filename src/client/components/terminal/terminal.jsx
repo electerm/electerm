@@ -515,6 +515,15 @@ class Term extends Component {
     window.store.toggleTerminalSearch()
   }
 
+  toggleKeepalive = () => {
+    if (!this.attachAddon) {
+      return false
+    }
+    this._keepaliveEnabled = !this._keepaliveEnabled
+    this.attachAddon.setKeepalive(this._keepaliveEnabled)
+    return this._keepaliveEnabled
+  }
+
   onSearchResultsChange = ({ resultIndex, resultCount }) => {
     window.store.storeAssign({
       termSearchMatchCount: resultCount,
