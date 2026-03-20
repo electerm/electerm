@@ -85,6 +85,44 @@ export default class AttachAddonCustom {
 
     this._disposables.push(this.addSocketListener(this._socket, 'close', () => this.dispose()))
     this._disposables.push(this.addSocketListener(this._socket, 'error', () => this.dispose()))
+
+    // Windows IME fix: when Shift cancels CN composition and switches to EN mode,
+    // the compositionend fires with empty data so xterm never calls onData.
+    // We track composition state and, on Shift keyup after a cancelled composition,
+    // grab whatever pinyin letters remain in the textarea and send them.
+    this._imeActive = false
+    this._shiftWillCancelIme = false
+    const textarea = terminal.textarea
+    if (textarea) {
+      this._onImeCompositionStart = () => {
+        this._imeActive = true
+      }
+      this._onImeCompositionEnd = () => {
+        this._imeActive = false
+      }
+      this._onImeKeyDown = (e) => {
+        if (e.key === 'Shift' && this._imeActive) {
+          this._shiftWillCancelIme = true
+        }
+      }
+      this._onImeKeyUp = (e) => {
+        if (e.key === 'Shift' && this._shiftWillCancelIme) {
+          this._shiftWillCancelIme = false
+          const val = textarea.value
+          const trimmed = val.trim()
+          if (trimmed) {
+            textarea.value = ''
+            try {
+              this._sendData(trimmed)
+            } catch (ex) {}
+          }
+        }
+      }
+      textarea.addEventListener('compositionstart', this._onImeCompositionStart)
+      textarea.addEventListener('compositionend', this._onImeCompositionEnd)
+      textarea.addEventListener('keydown', this._onImeKeyDown)
+      textarea.addEventListener('keyup', this._onImeKeyUp)
+    }
   }
 
   onMsg = (ev) => {
@@ -228,6 +266,13 @@ export default class AttachAddonCustom {
 
   dispose = () => {
     this._stopKeepalive()
+    const textarea = this.term?.textarea
+    if (textarea) {
+      if (this._onImeCompositionStart) textarea.removeEventListener('compositionstart', this._onImeCompositionStart)
+      if (this._onImeCompositionEnd) textarea.removeEventListener('compositionend', this._onImeCompositionEnd)
+      if (this._onImeKeyDown) textarea.removeEventListener('keydown', this._onImeKeyDown)
+      if (this._onImeKeyUp) textarea.removeEventListener('keyup', this._onImeKeyUp)
+    }
     this.term = null
     this._disposables.forEach(d => d.dispose())
     this._disposables.length = 0
