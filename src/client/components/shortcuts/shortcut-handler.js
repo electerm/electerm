@@ -156,6 +156,12 @@ export function shortcutExtend (Cls) {
       !altKey &&
       !ctrlKey
     ) {
+      // If IME is composing, let the browser delete the composition char only
+      // Returning false tells xterm not to process the event (and not to call
+      // preventDefault), so the native textarea backspace still works for IME.
+      if (event.isComposing) {
+        return false
+      }
       this.props.onDelKeyPressed()
       const delKey = this.props.config.backspaceMode === '^?' ? 8 : 127
       const altDelDelKey = delKey === 8 ? 127 : 8
