@@ -2,7 +2,8 @@ import {
   settingSyncId,
   settingShortcutsId,
   settingTerminalId,
-  settingAiId
+  settingAiId,
+  settingPasswordsId
 } from '../common/constants'
 
 const e = window.translate
@@ -23,5 +24,9 @@ export default () => ([
   {
     id: settingAiId,
     title: 'AI'
+  },
+  {
+    id: settingPasswordsId,
+    title: e('password')
   }
 ])

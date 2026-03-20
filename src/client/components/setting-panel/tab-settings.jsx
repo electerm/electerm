@@ -6,13 +6,15 @@ import SettingCol from './col'
 import SettingAi from '../ai/ai-config'
 import SyncSetting from '../setting-sync/setting-sync'
 import Shortcuts from '../shortcuts/shortcuts'
+import SettingPasswords from './setting-passwords'
 import List from './list'
 import {
   settingMap,
   settingSyncId,
   settingTerminalId,
   settingAiId,
-  settingShortcutsId
+  settingShortcutsId,
+  settingPasswordsId
 } from '../../common/constants'
 import { aiConfigsArr } from '../ai/ai-config-props'
 import { pick } from 'lodash-es'
@@ -71,6 +73,13 @@ export default auto(function TabSettings (props) {
       config: store.config
     }
     elem = <Shortcuts {...shortcutsProps} />
+  } else if (sid === settingPasswordsId) {
+    const passwordsProps = {
+      bookmarks: store.bookmarks,
+      editItem: store.editItem,
+      copyToClipboard: window.copyToClipboard
+    }
+    elem = <SettingPasswords {...passwordsProps} />
   } else {
     elem = (
       <SettingCommon

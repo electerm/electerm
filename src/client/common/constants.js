@@ -203,6 +203,7 @@ export const settingTerminalId = 'setting-terminal'
 export const settingShortcutsId = 'setting-shortcuts'
 export const settingAiId = 'setting-ai'
 export const settingCommonId = 'setting-common'
+export const settingPasswordsId = 'setting-passwords'
 export const defaultEnvLang = 'en_US.UTF-8'
 export const fileActions = {
   cancel: 'cancel',
