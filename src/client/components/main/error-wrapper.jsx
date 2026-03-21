@@ -1,7 +1,6 @@
 import React from 'react'
-import { FrownOutlined, ReloadOutlined } from '@ant-design/icons'
+import { FrownOutlined, ReloadOutlined, CopyOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
-import message from '../common/message'
 import {
   logoPath1,
   packInfo,
@@ -9,11 +8,20 @@ import {
   isWin
 } from '../../common/constants'
 import Link from '../common/external-link'
-import fs from '../../common/fs'
 import { copy } from '../../common/clipboard'
+import compare from '../../common/version-compare'
 
 const e = window.translate
+const version = packInfo.version
 const os = isMac ? 'mac' : isWin ? 'windows' : 'linux'
+const isVersion2OrAbove = compare(version, '2.0.0') >= 0
+
+const userDataPath = {
+  mac: '~/Library/Application\\ Support/electerm/users/default_user',
+  linux: '~/.config/electerm/users/default_user',
+  windows: 'C:\\Users\\your-user-name\\AppData\\Roaming\\electerm\\users\\default_user'
+}
+
 const troubleshootContent = {
   runInCommandLine: {
     mac: '/Applications/electerm.app/Contents/MacOS/electerm',
@@ -21,14 +29,20 @@ const troubleshootContent = {
     windows: 'path\\to\\electerm.exe'
   },
   clearConfig: {
-    mac: 'rm -rf ~/Library/Application\\ Support/electerm/users/default_user/electerm_data.db && rm -rf ~/Library/Application\\ Support/electerm/users/default_user/electerm.data.nedb',
-    linux: 'rm -rf ~/.config/electerm/users/default_user/electerm_data.db && rm -rf ~/.config/electerm/users/default_user/electerm.data.nedb',
-    windows: 'Delete C:\\Users\\your-user-name\\AppData\\Roaming\\electerm\\users\\default_user\\electerm_data.db && Delete C:\\Users\\your-user-name\\AppData\\Roaming\\electerm\\users\\default_user\\electerm.data.nedb'
+    mac: isVersion2OrAbove
+      ? `rm -rf ${userDataPath.mac}/electerm_data.db`
+      : `rm -rf ${userDataPath.mac}/electerm.data.nedb`,
+    linux: isVersion2OrAbove
+      ? `rm -rf ${userDataPath.linux}/electerm_data.db`
+      : `rm -rf ${userDataPath.linux}/electerm.data.nedb`,
+    windows: isVersion2OrAbove
+      ? `Delete ${userDataPath.windows}\\electerm_data.db`
+      : `Delete ${userDataPath.windows}\\electerm.data.nedb`
   },
-  clearData: {
-    mac: 'rm -rf ~/Library/Application\\ Support/electerm*',
-    linux: 'rm -rf ~/.config/electerm',
-    windows: 'Delete C:\\Users\\your-user-name\\AppData\\Roaming\\electerm'
+  backupData: {
+    mac: `cp -r ${userDataPath.mac} ~/Desktop/electerm_backup_${Date.now()}`,
+    linux: `cp -r ${userDataPath.linux} ~/Desktop/electerm_backup_${Date.now()}`,
+    windows: `xcopy "${userDataPath.windows}\\*" "%USERPROFILE%\\Desktop\\electerm_backup_${Date.now()}" /E /I`
   }
 }
 
@@ -53,56 +67,12 @@ export default class ErrorBoundary extends React.PureComponent {
     window.location.reload()
   }
 
-  handleClearData = async () => {
-    await fs.rmrf(troubleshootContent.clearData[os])
-      .then(
-        () => {
-          message.success('Data cleared')
-        }
-      )
-  }
-
-  handleClearConfig = async () => {
-    await fs.rmrf(troubleshootContent.clearConfig[os])
-      .then(
-        () => {
-          message.success('Config cleared')
-        }
-      )
-  }
-
-  handleCopy = () => {
-    copy(troubleshootContent.runInCommandLine[os])
-  }
-
-  renderButton = type => {
-    if (type === 'clearData') {
-      return (
-        <Button
-          className='mg1l'
-          onClick={this.handleClearData}
-        >
-          {e('clearData')}
-        </Button>
-      )
-    }
-    if (type === 'runInCommandLine') {
-      return (
-        <Button
-          className='mg1l'
-          onClick={this.handleCopy}
-        >
-          {e('copy')}
-        </Button>
-      )
-    }
+  renderIconCopy = (cmd) => {
     return (
-      <Button
-        className='mg1l'
-        onClick={this.handleClearConfig}
-      >
-        {e('clearConfig')}
-      </Button>
+      <CopyOutlined
+        className='mg2l pointer'
+        onClick={() => copy(cmd)}
+      />
     )
   }
 
@@ -123,7 +93,7 @@ export default class ErrorBoundary extends React.PureComponent {
             const cmd = v[os]
             return (
               <div className='pd1b' key={k}>
-                <h3>{e(k)} {this.renderButton(k)}</h3>
+                <h3>{e(k)} {this.renderIconCopy(cmd)}</h3>
                 <p><code>{cmd}</code></p>
               </div>
             )
@@ -131,6 +101,10 @@ export default class ErrorBoundary extends React.PureComponent {
         }
         <div className='pd1b'>
           <Link to={bugUrl}>{e('bugReport')}</Link>
+        </div>
+        <div className='pd1b'>
+          <span>Contact author: </span>
+          <Link to='mailto:zxdong@gmail.com'>zxdong@gmail.com</Link>
         </div>
         <div className='pd3y'>
           <img

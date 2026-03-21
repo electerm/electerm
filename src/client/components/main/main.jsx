@@ -76,6 +76,7 @@ export default auto(function Index (props) {
     store.checkForDbUpgrade()
     store.handleGetSerials()
     store.checkPendingDeepLink()
+    throw new Error('init error')
   }, [])
 
   const { store } = props
