@@ -252,6 +252,17 @@ function buildMenu () {
         label: e('front')
       }
     ]
+
+    const dockMenuTemplate = [
+      {
+        label: e('newWindow'),
+        click () {
+          require('child_process').exec(`"${process.execPath}" --new-window`)
+        }
+      }
+    ]
+    const dockMenu = Menu.buildFromTemplate(dockMenuTemplate)
+    app.dock.setMenu(dockMenu)
   }
 
   const menu = Menu.buildFromTemplate(template)

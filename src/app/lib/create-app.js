@@ -128,8 +128,12 @@ exports.createApp = async function () {
     app.requestSingleInstanceLock()
   }
 
-  app.on('second-instance', () => {
-    // Just focus the window - data is handled via socket
+  app.on('second-instance', (event, commandLine) => {
+    const newWindowFlag = commandLine.includes('--new-window')
+    if (newWindowFlag) {
+      createWindow(conf)
+      return
+    }
     const win = globalState.get('win')
     if (win) {
       if (win.isMinimized()) {
