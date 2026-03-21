@@ -23,8 +23,8 @@ export default () => {
     },
     {
       name: 'app_cloneToNextLayout',
-      shortcut: 'ctrl+/',
-      shortcutMac: 'meta+/'
+      shortcut: 'alt+/',
+      shortcutMac: 'alt+/'
     },
     {
       name: 'app_duplicateTab',
