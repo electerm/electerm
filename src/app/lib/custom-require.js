@@ -5,7 +5,6 @@ exports.customRequire = async (moduleName, options = {}) => {
   const customModulesFolderPath = options.customModulesFolderPath ||
     process.env.CUSTOM_MODULES_FOLDER_PATH ||
     path.resolve(require('../common/app-props').appPath, 'electerm', 'custom-modules')
-  console.log('customModulesFolderPath', customModulesFolderPath)
   const isCustomModule = options.isCustomModule || false
   const downloadModule = options.downloadModule !== false
 

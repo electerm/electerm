@@ -123,7 +123,7 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
         </h4>
         <p>{info.description}</p>
       </div>
-      {renderWarn()}
+
       <Form
         form={form}
         onFinish={handleSubmit}
@@ -144,6 +144,7 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
               {txt}
             </Button>
           </Tooltip>
+          {renderWarn()}
         </Form.Item>
       </Form>
     </div>
