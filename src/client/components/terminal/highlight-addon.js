@@ -79,17 +79,52 @@ export class KeywordHighlighterAddon {
       segments.push({ type: 'text', content: text.slice(lastIndex) })
     }
 
-    // Highlight only plain text segments
+    // Highlight only plain text segments using two-phase approach
+    // to prevent patterns from interfering with each other's ANSI codes
     const result = segments.map(seg => {
       if (seg.type === 'ansi') {
         return seg.content
       }
-      let content = seg.content
+      const content = seg.content
+      // Phase 1: collect all match positions from all patterns on original text
+      const matches = []
       for (const { regex, colorCode } of this.compiledPatterns) {
         regex.lastIndex = 0
-        content = content.replace(regex, (m) => `${colorCode}${m}\u001b[0m`)
+        let m
+        while ((m = regex.exec(content)) !== null) {
+          if (m[0].length === 0) {
+            regex.lastIndex++
+            continue
+          }
+          matches.push({
+            start: m.index,
+            end: m.index + m[0].length,
+            text: m[0],
+            colorCode
+          })
+        }
       }
-      return content
+      if (matches.length === 0) {
+        return content
+      }
+      // Phase 2: sort by position, remove overlaps (first pattern wins)
+      matches.sort((a, b) => a.start - b.start || a.end - b.end)
+      const filtered = [matches[0]]
+      for (let i = 1; i < matches.length; i++) {
+        if (matches[i].start >= filtered[filtered.length - 1].end) {
+          filtered.push(matches[i])
+        }
+      }
+      // Build result with ANSI codes inserted at correct positions
+      let highlighted = ''
+      let pos = 0
+      for (const m of filtered) {
+        highlighted += content.slice(pos, m.start)
+        highlighted += m.colorCode + m.text + '\u001b[0m'
+        pos = m.end
+      }
+      highlighted += content.slice(pos)
+      return highlighted
     }).join('')
 
     return result
