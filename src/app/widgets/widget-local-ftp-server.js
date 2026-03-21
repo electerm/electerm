@@ -94,8 +94,11 @@ function widgetRun (instanceConfig) {
     return new Promise((resolve, reject) => {
       server.listen()
         .then(() => {
+          const url = config.anonymous
+            ? `ftp://${config.host}:${config.port}`
+            : `ftp://${config.username}:${config.password}@${config.host}:${config.port}`
           const serverInfo = {
-            url: `ftp://${config.host}:${config.port}`,
+            url,
             path: config.directory
           }
           const msg = `${widgetInfo.name} is running at ${serverInfo.url}`
