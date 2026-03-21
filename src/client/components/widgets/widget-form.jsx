@@ -99,10 +99,10 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
     }
     return (
       <Alert
-        message='Downloading package may take some time on first use...'
+        title='Downloading package may take some time on first use...'
         type='warning'
         showIcon
-        className='mg1b'
+        className='mg1t'
       />
     )
   }
