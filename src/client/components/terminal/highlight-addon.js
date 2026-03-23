@@ -58,7 +58,7 @@ export class KeywordHighlighterAddon {
     const ESC = String.fromCharCode(27) // \x1b
     const BEL = String.fromCharCode(7) // \x07
     // eslint-disable-next-line no-control-regex
-    const ansiPattern = new RegExp('(' + ESC + '\\][^' + BEL + ESC + ']*(?:' + BEL + '|' + ESC + '\\\\)|' + ESC + '\\[[0-9;]*[A-Za-z])', 'g')
+    const ansiPattern = new RegExp('(' + ESC + '\\][^' + BEL + ESC + ']*(?:' + BEL + '|' + ESC + '\\\\)|' + ESC + '\\[\\??[0-9;]*[A-Za-z])', 'g')
 
     const segments = []
     let lastIndex = 0
