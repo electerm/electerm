@@ -195,6 +195,10 @@ npm run b
 
 Visit [Releases](https://github.com/electerm/electerm/releases).
 
+## 联系作者
+
+[zxdong@gmail.com](mailto:zxdong@gmail.com)
+
 ## 许可证
 
 MIT

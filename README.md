@@ -196,6 +196,11 @@ npm run pb
 
 Visit [Releases](https://github.com/electerm/electerm/releases).
 
+## Contact author
+
+[zxdong@gmail.com](mailto:zxdong@gmail.com)
+
+
 ## License
 
 MIT
