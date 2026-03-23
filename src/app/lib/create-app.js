@@ -13,6 +13,9 @@ const {
 } = require('./deep-link')
 const { handleSingleInstance } = require('./single-instance')
 const log = require('../common/log')
+const {
+  invalidateRendererCacheIfNeeded
+} = require('./invalidate-renderer-cache')
 
 // GPU error suggestion message
 const GPU_ERROR_SUGGESTION = `
@@ -142,7 +145,10 @@ exports.createApp = async function () {
       win.focus()
     }
   })
-  app.whenReady().then(() => createWindow(conf))
+  app.whenReady().then(async () => {
+    await invalidateRendererCacheIfNeeded(app)
+    createWindow(conf)
+  })
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.

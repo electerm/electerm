@@ -37,6 +37,7 @@ import BookmarkFromHistoryModal from '../bookmark-form/bookmark-from-history-mod
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import shouldUseSystemTitleBar from '../../common/should-use-system-title-bar'
+import shouldUseTitleBarOverlay from '../../common/should-use-title-bar-overlay'
 import './wrapper.styl'
 import './term-fullscreen.styl'
 
@@ -97,12 +98,14 @@ export default auto(function Index (props) {
     rightPanelTab
   } = store
   const useSystemTitleBar = shouldUseSystemTitleBar(config)
+  const useTitleBarOverlay = shouldUseTitleBarOverlay()
   const upgradeInfo = deepCopy(store.upgradeInfo)
   const cls = classnames({
     loaded: configLoaded,
     'not-webapp': !window.et.isWebApp,
     'system-ui': useSystemTitleBar,
     'not-system-ui': !useSystemTitleBar,
+    'titlebar-overlay': useTitleBarOverlay,
     'is-mac': isMac,
     'not-mac': !isMac,
     'is-win': isWin,

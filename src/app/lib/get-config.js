@@ -29,7 +29,7 @@ exports.getConfig = async (inited) => {
     port,
     tokenElecterm: inited ? globalState.get('config').tokenElecterm : generate()
   }
-  config.useSystemTitleBar = isWin || config.useSystemTitleBar === true
+  config.useSystemTitleBar = !isWin && config.useSystemTitleBar === true
   return {
     userConfig,
     config

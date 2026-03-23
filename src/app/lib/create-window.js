@@ -25,7 +25,10 @@ exports.createWindow = async function (userConfig) {
   globalState.set('closeAction', 'closeApp')
   globalState.set('requireAuth', !!userConfig.hashedPassword)
   const { width, height, x, y } = await getWindowSize()
-  const useSystemTitleBar = isWin || userConfig.useSystemTitleBar === true || defaults.useSystemTitleBar
+  const useTitleBarOverlay = isWin
+  const useSystemTitleBar = !useTitleBarOverlay && (
+    userConfig.useSystemTitleBar === true || defaults.useSystemTitleBar
+  )
   const win = new BrowserWindow({
     width,
     height,
@@ -36,8 +39,15 @@ exports.createWindow = async function (userConfig) {
     minHeight: minWindowHeight,
     title: packInfo.name,
     autoHideMenuBar: isWin,
-    frame: useSystemTitleBar,
-    transparent: !useSystemTitleBar,
+    titleBarOverlay: useTitleBarOverlay
+      ? {
+          color: '#00000000',
+          symbolColor: '#ffffff',
+          height: 36
+        }
+      : false,
+    frame: useSystemTitleBar || useTitleBarOverlay,
+    transparent: !useSystemTitleBar && !useTitleBarOverlay,
     backgroundColor: '#333333',
     webPreferences: {
       contextIsolation: true,

@@ -1,9 +1,3 @@
-const isWin = typeof window !== 'undefined' &&
-  (
-    window.et?.isWin ||
-    window.pre?.isWin
-  )
-
 /**
  * default setting
  */
@@ -43,7 +37,7 @@ export default {
   checkUpdateOnStart: true,
   cursorBlink: false,
   cursorStyle: 'block',
-  useSystemTitleBar: isWin,
+  useSystemTitleBar: false,
   opacity: 1,
   defaultEditor: '',
   terminalWordSeparator: './\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~ ?',

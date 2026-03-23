@@ -29,6 +29,7 @@ import AppDrag from './app-drag'
 import NoSession from './no-session'
 import classNames from 'classnames'
 import shouldUseSystemTitleBar from '../../common/should-use-system-title-bar'
+import shouldUseTitleBarOverlay from '../../common/should-use-title-bar-overlay'
 
 export default class Tabs extends Component {
   constructor (props) {
@@ -255,12 +256,13 @@ export default class Tabs extends Component {
     const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
     const { overflow } = this.state
     const useSystemTitleBar = shouldUseSystemTitleBar(config)
+    const useTitleBarOverlay = shouldUseTitleBarOverlay()
     const left = overflow
       ? '100%'
       : tabsWidthAll
     const w1 = isMacJs && (useSystemTitleBar || window.et.isWebApp)
       ? 30
-      : this.getExtraTabWidth()
+      : this.getExtraTabWidth(useTitleBarOverlay)
     const style = {
       width: width - w1 - 166
     }
@@ -334,7 +336,12 @@ export default class Tabs extends Component {
     return batch === batchToRender[layout]
   }
 
-  getExtraTabWidth = () => {
+  getExtraTabWidth = (useTitleBarOverlay = shouldUseTitleBarOverlay()) => {
+    if (useTitleBarOverlay) {
+      return this.shouldRenderWindowControl()
+        ? 140
+        : 0
+    }
     return this.shouldRenderWindowControl()
       ? windowControlWidth
       : 0

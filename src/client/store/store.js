@@ -42,6 +42,7 @@ import {
 import getInitItem from '../common/init-setting-item'
 import createTitle from '../common/create-title'
 import shouldUseSystemTitleBar from '../common/should-use-system-title-bar'
+import shouldUseTitleBarOverlay from '../common/should-use-title-bar-overlay'
 import {
   theme
 } from 'antd'
@@ -94,7 +95,8 @@ class Store {
   get shouldSendWindowMove () {
     return isWin &&
         !window.et.isWebApp &&
-        !shouldUseSystemTitleBar(window.store.config)
+        !shouldUseSystemTitleBar(window.store.config) &&
+        !shouldUseTitleBarOverlay()
   }
 
   get batchInputSelectedTabIds () {

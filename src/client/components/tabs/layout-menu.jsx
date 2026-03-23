@@ -9,8 +9,7 @@ import {
   AppstoreOutlined,
   LayoutOutlined
 } from '@ant-design/icons'
-import { splitMapDesc } from '../../common/constants'
-import LayoutSelect, { getLayoutIcon } from './layout-select'
+import LayoutSelect from './layout-select'
 import WorkspaceSelect from './workspace-select'
 import HelpIcon from '../common/help-icon'
 
@@ -44,9 +43,6 @@ export default function LayoutMenu (props) {
     }
   ]
 
-  const v = splitMapDesc[layout]
-  const Icon = getLayoutIcon(v)
-
   const dropdownContent = (
     <div className='layout-workspace-dropdown'>
       <Tabs
@@ -67,8 +63,12 @@ export default function LayoutMenu (props) {
       placement='bottomRight'
       trigger={['click']}
     >
-      <span className='tabs-dd-icon layout-dd-icon mg1l'>
-        <Icon /> <DownOutlined />
+      <span
+        className='tabs-dd-icon layout-dd-icon'
+        title={e('layout')}
+      >
+        <LayoutOutlined className='layout-trigger-icon' />
+        <DownOutlined className='layout-trigger-arrow' />
       </span>
     </Dropdown>
   )
