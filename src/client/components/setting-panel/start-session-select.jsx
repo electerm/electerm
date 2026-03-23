@@ -2,10 +2,7 @@ import { TreeSelect, Tabs, Select, Empty } from 'antd'
 import { useState } from 'react'
 import copy from 'json-deep-copy'
 import { createTitleWithTag } from '../../common/create-title'
-import {
-  AppstoreOutlined,
-  BookOutlined
-} from '@ant-design/icons'
+import { LayoutGrid, Book } from 'lucide-react'
 import HelpIcon from '../common/help-icon'
 
 const e = window.translate
@@ -172,7 +169,7 @@ export default function StartSessionSelect (props) {
       key: 'bookmarks',
       label: (
         <span>
-          <BookOutlined /> {e('bookmarks')}
+          <Book /> {e('bookmarks')}
         </span>
       )
     },
@@ -180,7 +177,7 @@ export default function StartSessionSelect (props) {
       key: 'workspaces',
       label: (
         <span>
-          <AppstoreOutlined /> {e('workspaces')}
+          <LayoutGrid /> {e('workspaces')}
           <HelpIcon link='https://github.com/electerm/electerm/wiki/Workspace-Feature' />
         </span>
       )

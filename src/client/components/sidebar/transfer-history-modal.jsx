@@ -3,7 +3,7 @@
  */
 
 import { memo, useState } from 'react'
-import { CloseOutlined } from '@ant-design/icons'
+import { X } from 'lucide-react'
 import { Table } from 'antd'
 import time from '../../common/time'
 import Tag from '../sftp/transfer-tag'
@@ -111,7 +111,7 @@ export default memo(function TransferHistoryModal (props) {
           className='iblock pointer'
           onClick={clearTransferHistory}
         >
-          <CloseOutlined className='mg1r' />
+          <X className='mg1r' />
           {e('clear')}
         </span>
       </div>

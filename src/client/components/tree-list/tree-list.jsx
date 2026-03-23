@@ -3,11 +3,7 @@
  */
 
 import { Component } from 'manate/react/class-components'
-import {
-  CheckOutlined,
-  CloseOutlined,
-  LoadingOutlined
-} from '@ant-design/icons'
+import { Check, X, Loader2 } from 'lucide-react'
 import createName from '../../common/create-title'
 import InputAutoFocus from '../common/input-auto-focus'
 import { uniq, filter, pick } from 'lodash-es'
@@ -555,8 +551,8 @@ export default class ItemListTree extends Component {
     } = this.state
     const confirm = (
       <span>
-        <CheckOutlined className='pointer' onClick={this.handleSubmitEdit} />
-        <CloseOutlined className='mg1l pointer' onClick={this.handleCancelEdit} />
+        <Check className='pointer' onClick={this.handleSubmitEdit} />
+        <X className='mg1l pointer' onClick={this.handleCancelEdit} />
       </span>
     )
     const colorPicker = (
@@ -675,6 +671,7 @@ export default class ItemListTree extends Component {
     }
     return (
       <TreeListItem
+        key={item.id}
         {...itemProps}
       />
     )
@@ -736,8 +733,8 @@ export default class ItemListTree extends Component {
     }
     const confirm = (
       <span>
-        <CheckOutlined className='pointer' onClick={this.handleSubmit} />
-        <CloseOutlined className='mg1l pointer' onClick={this.handleCancelNew} />
+        <Check className='pointer' onClick={this.handleSubmit} />
+        <X className='mg1l pointer' onClick={this.handleCancelNew} />
       </span>
     )
     const colorPicker = (
@@ -827,7 +824,7 @@ export default class ItemListTree extends Component {
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
-          <LoadingOutlined />
+          <Loader2 />
         </div>
       )
     }

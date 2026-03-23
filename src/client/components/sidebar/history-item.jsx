@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import createTitle, { createTitleWithTag } from '../../common/create-title'
-import { DeleteOutlined, BookFilled } from '@ant-design/icons'
+import { Trash2, Book } from 'lucide-react'
 import { refsStatic } from '../common/ref'
 
 export default function HistoryItem (props) {
@@ -52,12 +52,12 @@ export default function HistoryItem (props) {
       <div className='elli pd1y pd2x'>
         {title}
       </div>
-      <BookFilled
+      <Book
         className='list-item-bookmark'
         title={window.translate('bookmark')}
         onClick={handleBookmark}
       />
-      <DeleteOutlined
+      <Trash2
         className='list-item-edit'
         onClick={handleDelete}
       />

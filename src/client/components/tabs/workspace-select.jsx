@@ -4,10 +4,7 @@
 
 import React from 'react'
 import { Button, Empty, Popconfirm } from 'antd'
-import {
-  SaveOutlined,
-  DeleteOutlined
-} from '@ant-design/icons'
+import { Save, Trash2 } from 'lucide-react'
 import { auto } from 'manate/react'
 
 const e = window.translate
@@ -34,7 +31,7 @@ export default auto(function WorkspaceSelect (props) {
       <div className='workspace-save-btn pd1b'>
         <Button
           type='primary'
-          icon={<SaveOutlined />}
+          icon={<Save />}
           size='small'
           onClick={handleSaveClick}
           block
@@ -65,7 +62,7 @@ export default auto(function WorkspaceSelect (props) {
                   okText={e('ok')}
                   cancelText={e('cancel')}
                 >
-                  <DeleteOutlined
+                  <Trash2
                     className='workspace-delete-icon'
                     onClick={(ev) => ev.stopPropagation()}
                   />

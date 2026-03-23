@@ -8,11 +8,7 @@ import { sortBy } from 'lodash-es'
 import { Button, Input, Select, Space, Flex } from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import CmdItem from './quick-command-item'
-import {
-  EditOutlined,
-  CloseCircleOutlined,
-  PushpinOutlined
-} from '@ant-design/icons'
+import { Edit, XCircle, Pin } from 'lucide-react'
 import classNames from 'classnames'
 import onDropFunc from './on-drop'
 import './qm.styl'
@@ -211,16 +207,16 @@ export default function QuickCommandsFooterBox (props) {
           <Space.Compact className='mg2l'>
             <Button
               onClick={handleTogglePinned}
-              icon={<PushpinOutlined />}
+              icon={<Pin />}
               type={tp}
             />
             <Button
               onClick={window.store.handleOpenQuickCommandsSetting}
-              icon={<EditOutlined />}
+              icon={<Edit />}
             />
             <Button
               onClick={handleClose}
-              icon={<CloseCircleOutlined />}
+              icon={<XCircle />}
             />
           </Space.Compact>
         </Flex>

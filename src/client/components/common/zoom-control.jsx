@@ -3,10 +3,7 @@ import InputNumberConfirm from './input-number-confirm'
 import {
   Space
 } from 'antd'
-import {
-  MinusCircleOutlined,
-  PlusCircleOutlined
-} from '@ant-design/icons'
+import { MinusCircle, PlusCircle } from 'lucide-react'
 
 export default function ZoomControl (props) {
   const {
@@ -43,11 +40,11 @@ export default function ZoomControl (props) {
       suffix='%'
       addonBefore={
         <Space.Compact>
-          <PlusCircleOutlined
+          <PlusCircle
             onClick={handleAdd}
             className='mg1r pointer font16'
           />
-          <MinusCircleOutlined
+          <MinusCircle
             onClick={handleMinus}
             className='pointer font16 mg1r'
           />

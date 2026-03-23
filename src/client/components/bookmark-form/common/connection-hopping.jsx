@@ -10,10 +10,7 @@ import {
   formItemLayout,
   tailFormItemLayout
 } from '../../../common/form-layout'
-import {
-  MinusCircleFilled,
-  PlusOutlined
-} from '@ant-design/icons'
+import { MinusCircle, Plus } from 'lucide-react'
 import RenderAuth from './render-auth-ssh'
 import uid from '../../../common/uid'
 import {
@@ -115,7 +112,7 @@ export default function renderConnectionHopping (props) {
       dataIndex: 'id',
       render: (id) => {
         return (
-          <MinusCircleFilled
+          <MinusCircle
             className='pointer'
             onClick={() => remove(id)}
           />
@@ -263,7 +260,7 @@ export default function renderConnectionHopping (props) {
           <Button
             type='default'
             htmlType='button'
-            icon={<PlusOutlined />}
+            icon={<Plus />}
             onClick={onSubmit}
           >
             {e('connectionHopping')}

@@ -3,13 +3,7 @@
  */
 
 import { useState } from 'react'
-import {
-  CheckCircleOutlined,
-  PlusOutlined,
-  SunOutlined,
-  MoonOutlined,
-  EyeOutlined
-} from '@ant-design/icons'
+import { CheckCircle, Plus, Sun, Moon, Eye } from 'lucide-react'
 import { Tag, Tooltip, Button, Space } from 'antd'
 import classnames from 'classnames'
 import { defaultTheme } from '../../common/theme-defaults'
@@ -65,7 +59,7 @@ export default function ThemeListItem (props) {
       <Space.Compact>
         <Button
           size='small'
-          icon={<EyeOutlined />}
+          icon={<Eye />}
           onClick={handleClickPreview}
           type={isPreviewing ? 'primary' : 'default'}
         >
@@ -73,7 +67,7 @@ export default function ThemeListItem (props) {
         </Button>
         <Button
           size='small'
-          icon={<CheckCircleOutlined />}
+          icon={<CheckCircle />}
           onClick={handleClickApply}
           type='primary'
         >
@@ -95,7 +89,7 @@ export default function ThemeListItem (props) {
         onOpenChange={handleTooltipVisibleChange}
         placement='top'
       >
-        <CheckCircleOutlined
+        <CheckCircle
           className='pointer list-item-apply'
         />
       </Tooltip>
@@ -112,7 +106,7 @@ export default function ThemeListItem (props) {
     }
     const { main, text } = item.uiThemeConfig
     const isDark = isColorDark(main)
-    const txt = isDark ? <MoonOutlined /> : <SunOutlined />
+    const txt = isDark ? <Moon /> : <Sun />
     return (
       <Tag
         color={main}
@@ -155,7 +149,7 @@ export default function ThemeListItem (props) {
       <div className='elli pd1y pd2x' title={name}>
         {
           !id
-            ? <PlusOutlined className='mg1r' />
+            ? <Plus className='mg1r' />
             : null
         }
         {renderTag()}{title}

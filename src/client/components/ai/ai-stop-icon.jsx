@@ -1,4 +1,4 @@
-import { LoadingOutlined } from '@ant-design/icons'
+import { Loader2 } from 'lucide-react'
 
 export default function AIStopIcon (props) {
   return (
@@ -7,7 +7,7 @@ export default function AIStopIcon (props) {
       onClick={props.onClick}
       title={props.title || 'Stop AI request'}
     >
-      <LoadingOutlined spin />
+      <Loader2 spin />
     </div>
   )
 }

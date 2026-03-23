@@ -3,11 +3,7 @@
  */
 
 import { PureComponent } from 'react'
-import {
-  ExportOutlined,
-  ImportOutlined,
-  EditOutlined
-} from '@ant-design/icons'
+import { Upload as UploadIcon, Import, Edit } from 'lucide-react'
 import { Button, Space } from 'antd'
 import Upload from '../common/upload'
 
@@ -25,7 +21,7 @@ export default class BookmarkTransport extends PureComponent {
   renderEdit () {
     return (
       <Button
-        icon={<EditOutlined />}
+        icon={<Edit />}
         onClick={this.handleToggleEdit}
         title={e('edit')}
         key='edit-and-del'
@@ -36,7 +32,7 @@ export default class BookmarkTransport extends PureComponent {
   renderExport () {
     return (
       <Button
-        icon={<ExportOutlined />}
+        icon={<UploadIcon />}
         onClick={this.handleDownload}
         title={e('export')}
         className='download-bookmark-icon'
@@ -54,7 +50,7 @@ export default class BookmarkTransport extends PureComponent {
         key='Upload'
       >
         <Button
-          icon={<ImportOutlined />}
+          icon={<Import />}
           title={e('importFromFile')}
         />
       </Upload>
@@ -71,10 +67,12 @@ export default class BookmarkTransport extends PureComponent {
         </Space.Compact>
       )
     }
-    return [
-      edit,
-      this.renderExport(),
-      this.renderImport()
-    ]
+    return (
+      <Space.Compact>
+        {edit}
+        {this.renderExport()}
+        {this.renderImport()}
+      </Space.Compact>
+    )
   }
 }

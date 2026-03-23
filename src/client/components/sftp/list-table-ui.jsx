@@ -8,9 +8,7 @@ import classnames from 'classnames'
 import FileSection from './file-item'
 import PagedList from './paged-list'
 import FileListTableHeader from './file-table-header'
-import {
-  CheckOutlined
-} from '@ant-design/icons'
+import { Check } from 'lucide-react'
 import IconHolder from '../sys-menu/icon-holder'
 import { filesRef } from '../common/ref'
 
@@ -156,7 +154,7 @@ export default class FileListTable extends Component {
     return all.map((p, i) => {
       const selected = selectedNames.includes(p)
       const disabled = !i
-      const icon = disabled || selected ? <CheckOutlined /> : <IconHolder />
+      const icon = disabled || selected ? <Check /> : <IconHolder />
       return {
         key: p,
         label: e(p),

@@ -2,7 +2,7 @@
  * up time info
  */
 
-import { ClockCircleOutlined } from '@ant-design/icons'
+import { Clock } from 'lucide-react'
 
 export default function TerminalInfoUp (props) {
   const { uptime, isRemote, terminalInfos } = props
@@ -11,7 +11,7 @@ export default function TerminalInfoUp (props) {
   }
   return (
     <div className='terminal-info-section terminal-info-up'>
-      <b><ClockCircleOutlined /> uptime</b>: {uptime}
+      <b><Clock /> uptime</b>: {uptime}
     </div>
   )
 }

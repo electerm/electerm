@@ -1,6 +1,6 @@
 import { PureComponent } from 'react'
 import QuickCommandForm from './quick-commands-form-elem'
-import { LoadingOutlined } from '@ant-design/icons'
+import { Loader2 } from 'lucide-react'
 
 export default class QuickCommandFormIndex extends PureComponent {
   state = {
@@ -24,7 +24,7 @@ export default class QuickCommandFormIndex extends PureComponent {
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
-          <LoadingOutlined />
+          <Loader2 />
         </div>
       )
     }

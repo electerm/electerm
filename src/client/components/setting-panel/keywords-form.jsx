@@ -5,10 +5,7 @@ import {
   Button
 } from 'antd'
 import { formItemLayout } from '../../common/form-layout'
-import {
-  MinusCircleOutlined,
-  PlusOutlined
-} from '@ant-design/icons'
+import { MinusCircle, Plus } from 'lucide-react'
 import { useEffect } from 'react'
 import InputConfirm from '../common/input-confirm'
 
@@ -58,7 +55,7 @@ export default function KeywordForm (props) {
           />
         </FormItem>
         <Button
-          icon={<MinusCircleOutlined />}
+          icon={<MinusCircle />}
           onClick={() => remove(field.name)}
         />
       </Space.Compact>
@@ -125,7 +122,7 @@ export default function KeywordForm (props) {
                       onClick={() => add({
                         color: 'red'
                       })}
-                      icon={<PlusOutlined />}
+                      icon={<Plus />}
                     >
                       {e('keyword')}
                     </Button>

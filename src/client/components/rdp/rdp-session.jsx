@@ -6,10 +6,7 @@ import { handleErr } from '../../common/fetch'
 import {
   statusMap
 } from '../../common/constants'
-import {
-  ReloadOutlined,
-  EditOutlined
-} from '@ant-design/icons'
+import { RefreshCw, Edit } from 'lucide-react'
 import {
   Spin,
   Select,
@@ -561,7 +558,7 @@ export default class RdpSession extends PureComponent {
         className='pd1 fix session-v-info block'
       >
         <div className='fleft'>
-          <ReloadOutlined
+          <RefreshCw
             onClick={this.handleReInit}
             className='mg2r mg1l pointer'
           />
@@ -582,7 +579,7 @@ export default class RdpSession extends PureComponent {
               })
             }
           </Select>
-          <EditOutlined
+          <Edit
             onClick={this.handleEditResolutions}
             className='mg2r mg1l pointer'
           />

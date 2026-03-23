@@ -1,5 +1,5 @@
 import { PureComponent } from 'react'
-import { CloseOutlined, MinusSquareOutlined, UpCircleOutlined } from '@ant-design/icons'
+import { X, MinusSquare, ArrowUpCircle } from 'lucide-react'
 import { Button } from 'antd'
 import { getLatestReleaseInfo, getLatestReleaseVersion } from '../../common/update-check'
 import upgrade from '../../common/upgrade'
@@ -193,7 +193,7 @@ export default class Upgrade extends PureComponent {
             {e('fail')}: {err}
           </span>
           <span className='fright'>
-            <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleClose} />
+            <X className='pointer font16 close-upgrade-panel' onClick={this.handleClose} />
           </span>
         </div>
         <div className='upgrade-panel-body'>
@@ -220,7 +220,7 @@ export default class Upgrade extends PureComponent {
             {e('noNeed')}
           </span>
           <span className='fright'>
-            <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleClose} />
+            <X className='pointer font16 close-upgrade-panel' onClick={this.handleClose} />
           </span>
         </div>
         <div className='upgrade-panel-body'>
@@ -253,7 +253,7 @@ export default class Upgrade extends PureComponent {
     return (
       <Button
         onClick={this.handleSkipVersion}
-        icon={<CloseOutlined />}
+        icon={<X />}
         className='mg1l mg1b'
       >
         {e('skipThisVersion')}
@@ -315,7 +315,7 @@ export default class Upgrade extends PureComponent {
             {e('newVersion')} <b>{remoteVersion} [{releaseInfo.date}]</b>
           </span>
           <span className='fright'>
-            <MinusSquareOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleMinimize} />
+            <MinusSquare className='pointer font16 close-upgrade-panel' onClick={this.handleMinimize} />
           </span>
         </div>
         <div className='upgrade-panel-body'>
@@ -325,7 +325,7 @@ export default class Upgrade extends PureComponent {
                 <div>
                   <Button
                     type='primary'
-                    icon={<UpCircleOutlined />}
+                    icon={<ArrowUpCircle />}
                     loading={checkingRemoteVersion}
                     disabled={checkingRemoteVersion}
                     onClick={func}

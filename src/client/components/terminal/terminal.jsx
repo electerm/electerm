@@ -3,9 +3,7 @@ import { handleErr } from '../../common/fetch.jsx'
 import { isEqual, pick, debounce, throttle } from 'lodash-es'
 import clone from '../../common/to-simple-obj.js'
 import resolve from '../../common/resolve.js'
-import {
-  ReloadOutlined
-} from '@ant-design/icons'
+import { RefreshCw } from 'lucide-react'
 import {
   Spin,
   Button,
@@ -608,7 +606,7 @@ class Term extends Component {
       },
       {
         key: 'onClear',
-        icon: <iconsMap.ReloadOutlined />,
+        icon: <iconsMap.RefreshCw />,
         label: e('clear'),
         extra: clearShortcut
       },
@@ -1287,7 +1285,7 @@ class Term extends Component {
             {e('close')}
           </Button>
           <Button
-            icon={<ReloadOutlined />}
+            icon={<RefreshCw />}
             onClick={() => {
               closeMsg()
               this.props.reloadTab(

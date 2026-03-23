@@ -4,11 +4,7 @@ import {
   Input
 } from 'antd'
 import message from '../common/message'
-import {
-  EditFilled,
-  CheckOutlined,
-  CloseOutlined
-} from '@ant-design/icons'
+import { Edit, Check, X } from 'lucide-react'
 import { throttle } from 'lodash-es'
 import { getKeyCharacter } from './get-key-char.js'
 
@@ -123,7 +119,7 @@ export default class ShortcutEdit extends PureComponent {
         className='edit-shortcut-button'
       >
         <span>{shortcut}</span>
-        <EditFilled
+        <Edit
           className='shortcut-edit-icon pointer mg1l'
           onClick={this.handleEditClick}
         />
@@ -137,7 +133,7 @@ export default class ShortcutEdit extends PureComponent {
   renderClear () {
     if (this.props.renderClear && this.props.data.shortcut) {
       return (
-        <CloseOutlined
+        <X
           className='pointer mg1l'
           onClick={this.props.handleClear}
         />
@@ -154,11 +150,11 @@ export default class ShortcutEdit extends PureComponent {
     }
     return (
       <>
-        <CheckOutlined
+        <Check
           onClick={this.handleConfirm}
           className='pointer'
         />
-        <CloseOutlined
+        <X
           onClick={this.handleCancel}
           className='pointer mg1l'
         />

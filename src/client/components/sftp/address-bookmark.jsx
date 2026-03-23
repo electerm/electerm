@@ -1,8 +1,5 @@
 import { auto } from 'manate/react'
-import {
-  StarOutlined,
-  PlusSquareOutlined
-} from '@ant-design/icons'
+import { Star, PlusSquare } from 'lucide-react'
 import {
   Popover,
   Button
@@ -79,7 +76,7 @@ export default auto(function AddrBookmark (props) {
     : (
       <Button
         onClick={handleAddAddrGlob}
-        icon={<PlusSquareOutlined />}
+        icon={<PlusSquare />}
       >
         {window.translate('global')}
       </Button>
@@ -89,7 +86,7 @@ export default auto(function AddrBookmark (props) {
       <Button
         className='add-addr-bookmark mg1r'
         onClick={handleAddAddr}
-        icon={<PlusSquareOutlined />}
+        icon={<PlusSquare />}
       />
       {globButton}
     </div>
@@ -101,7 +98,7 @@ export default auto(function AddrBookmark (props) {
       placement='bottom'
       trigger='click'
     >
-      <StarOutlined className={props.className || ''} />
+      <Star className={props.className || ''} />
     </Popover>
   )
 })

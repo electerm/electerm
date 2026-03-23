@@ -1,5 +1,5 @@
 import { Button } from 'antd'
-import { RobotOutlined } from '@ant-design/icons'
+import { Bot } from 'lucide-react'
 import LogoElem from '../common/logo-elem.jsx'
 import HistoryPanel from '../sidebar/history'
 import QuickConnect from './quick-connect'
@@ -44,7 +44,7 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
         <Button
           onClick={handleCreateAIBookmark}
           className='mg1r mg1b'
-          icon={<RobotOutlined />}
+          icon={<Bot />}
         >
           {e('createBookmarkByAI')}
         </Button>

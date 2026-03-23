@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { createRoot } from 'react-dom/client'
-import {
-  CloseOutlined
-} from '@ant-design/icons'
+import { X } from 'lucide-react'
 import classnames from 'classnames'
 import generateId from '../../common/uid'
 import { messageIcons } from '../../common/icon-helpers.jsx'
@@ -63,7 +61,7 @@ function MessageItem ({ id, type, content, duration, onRemove, timestamp }) {
       <div className='message-content-wrap'>
         {messageIcons[type]}
         <div className='message-content'>{content}</div>
-        <CloseOutlined className='message-close' onClick={onRemove} />
+        <X className='message-close' onClick={onRemove} />
       </div>
     </div>
   )

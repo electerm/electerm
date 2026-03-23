@@ -1,5 +1,5 @@
 import { notification } from '../common/notification'
-import { CopyOutlined } from '@ant-design/icons'
+import { Copy } from 'lucide-react'
 import { copy } from '../../common/clipboard'
 
 export function showMsg (message, type = 'success', serverInfo = null, duration = 10, description = '') {
@@ -16,7 +16,7 @@ export function showMsg (message, type = 'success', serverInfo = null, duration 
         {description && <div>{description}</div>}
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span>URL: {serverInfo.url}</span>
-          <CopyOutlined
+          <Copy
             className='pointer mg1l'
             onClick={handleCopy}
           />

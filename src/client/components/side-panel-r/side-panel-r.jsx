@@ -1,11 +1,7 @@
 import React, { memo, useRef } from 'react'
 import DragHandle from '../common/drag-handle'
 import './right-side-panel.styl'
-import {
-  CloseCircleOutlined,
-  PushpinOutlined,
-  InfoCircleOutlined
-} from '@ant-design/icons'
+import { XCircle, Pin, Info } from 'lucide-react'
 import {
   Typography,
   Flex,
@@ -29,7 +25,7 @@ export default memo(function RightSidePanel (
   }
   const tag = rightPanelTab === 'ai'
     ? <Tag className='mg1r'>AI</Tag>
-    : <InfoCircleOutlined className='mg1r' />
+    : <Info className='mg1r' />
 
   function onDragEnd (nw) {
     window.store.setRightSidePanelWidth(nw)
@@ -83,10 +79,10 @@ export default memo(function RightSidePanel (
           {tag} {title}
         </Typography.Text>
         <Flex>
-          <PushpinOutlined
+          <Pin
             {...pinProps}
           />
-          <CloseCircleOutlined
+          <XCircle
             className='right-side-panel-close right-side-panel-controls mg1l'
             onClick={onClose}
           />

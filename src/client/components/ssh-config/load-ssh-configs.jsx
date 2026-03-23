@@ -9,7 +9,7 @@ import * as ls from '../../common/safe-local-storage'
 import {
   sshConfigLoadKey
 } from '../../common/constants'
-import { ReloadOutlined } from '@ant-design/icons'
+import { RefreshCw } from 'lucide-react'
 import LoadSshConfigsItem from './load-ssh-configs-item'
 import './ssh-config.styl'
 
@@ -105,7 +105,7 @@ export default function LoadSshConfigs (props) {
             disabled={loading}
             className='mg1b'
           >
-            <ReloadOutlined /> {e('reload')}
+            <RefreshCw /> {e('reload')}
           </Button>
         </div>
         <div className='ssh-config-list'>

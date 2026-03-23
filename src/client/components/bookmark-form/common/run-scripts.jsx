@@ -5,7 +5,7 @@ import {
   Button,
   Input
 } from 'antd'
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { MinusCircle, Plus } from 'lucide-react'
 import { formItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
@@ -15,11 +15,10 @@ const e = window.translate
 export default function renderRunScripts () {
   function renderItem (field, i, add, remove) {
     return (
-      <>
+      <div key={field.key}>
         <Space
           align='baseline'
           className='width-100'
-          key={field.key}
         >
           <FormItem
             label=''
@@ -50,13 +49,13 @@ export default function renderRunScripts () {
               />
             </FormItem>
             <Button
-              icon={<MinusCircleOutlined />}
+              icon={<MinusCircle />}
               onClick={() => remove(field.name)}
               className='mg24b'
             />
           </Space.Compact>
         </Space>
-      </>
+      </div>
     )
   }
 
@@ -82,7 +81,7 @@ export default function renderRunScripts () {
                       script: ''
                     })}
                     block
-                    icon={<PlusOutlined />}
+                    icon={<Plus />}
                   >
                     {e('loginScript')}
                   </Button>

@@ -5,7 +5,7 @@ import {
   Button,
   Input
 } from 'antd'
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { MinusCircle, Plus } from 'lucide-react'
 import HelpIcon from '../common/help-icon'
 import { copy } from '../../common/clipboard'
 import { useRef } from 'react'
@@ -56,7 +56,7 @@ export default function renderQm () {
           />
         </FormItem>
         <Button
-          icon={<MinusCircleOutlined />}
+          icon={<MinusCircle />}
           onClick={() => remove(field.name)}
         />
       </Space.Compact>
@@ -126,7 +126,7 @@ export default function renderQm () {
                   <Button
                     type='dashed'
                     onClick={() => add()}
-                    icon={<PlusOutlined />}
+                    icon={<Plus />}
                   >
                     {e('quickCommand')}
                   </Button>

@@ -3,7 +3,7 @@
  * Replaces antd Modal for better performance
  */
 
-import { CloseOutlined } from '@ant-design/icons'
+import { X } from 'lucide-react'
 import classnames from 'classnames'
 import React, { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -95,7 +95,7 @@ export default function Modal (props) {
                 className='custom-modal-close'
                 onClick={handleClose}
               >
-                <CloseOutlined />
+                <X />
               </button>
             </div>
           )}

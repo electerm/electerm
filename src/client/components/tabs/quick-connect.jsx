@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button, Space } from 'antd'
-import { ArrowRightOutlined, ThunderboltOutlined } from '@ant-design/icons'
+import { ArrowRight, Zap } from 'lucide-react'
 import message from '../common/message'
 import InputAutoFocus from '../common/input-auto-focus'
 import HelpIcon from '../common/help-icon'
@@ -84,10 +84,10 @@ export default function QuickConnect ({ batch, inputOnly }) {
     const iconProps = {
       onClick: handleConnect,
       title: e('connect'),
-      icon: <ArrowRightOutlined />
+      icon: <ArrowRight />
     }
     const iconsProps1 = {
-      icon: <ThunderboltOutlined />
+      icon: <Zap />
     }
     return (
       <Space.Compact className='pd1y pd2x width-100'>
@@ -110,7 +110,7 @@ export default function QuickConnect ({ batch, inputOnly }) {
 
   const btnProps = {
     onClick: handleToggle,
-    icon: <ThunderboltOutlined />,
+    icon: <Zap />,
     title: e('quickConnect')
   }
   return (

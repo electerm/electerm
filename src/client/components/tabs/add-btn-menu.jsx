@@ -4,11 +4,7 @@
 
 import React, { useCallback, useState } from 'react'
 import { Tabs } from 'antd'
-import {
-  CodeFilled,
-  RightSquareFilled,
-  RobotOutlined
-} from '@ant-design/icons'
+import { Code, ArrowRightSquare, Bot } from 'lucide-react'
 import BookmarksList from '../sidebar/bookmark-select'
 import History from '../sidebar/history'
 import DragHandle from '../common/drag-handle'
@@ -36,7 +32,7 @@ export default function AddBtnMenu ({
         className={cls}
         onClick={onTabAdd}
       >
-        <RightSquareFilled /> {e('newTab')}
+        <ArrowRightSquare /> {e('newTab')}
       </div>
       )
     : null
@@ -100,14 +96,14 @@ export default function AddBtnMenu ({
           className={cls}
           onClick={onNewSsh}
         >
-          <CodeFilled /> {e('newBookmark')}
+          <Code /> {e('newBookmark')}
         </div>
         {addTabBtn}
         <div
           className={cls}
           onClick={onNewSshAI}
         >
-          <RobotOutlined /> {e('createBookmarkByAI')}
+          <Bot /> {e('createBookmarkByAI')}
         </div>
         <QuickConnect batch={batch} inputOnly />
         <Tabs

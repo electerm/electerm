@@ -6,7 +6,7 @@
  * bookmark form
  */
 import { useEffect, useRef } from 'react'
-import { ArrowDownOutlined, ArrowUpOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
+import { ArrowDown, ArrowUp, Save, Delete } from 'lucide-react'
 import { Button, Input, Form, Alert } from 'antd'
 import { notification } from '../common/notification'
 import Link from '../common/external-link'
@@ -313,7 +313,7 @@ export default function SyncForm (props) {
             type='dashed'
             className='mg1r mg1b sync-btn-save'
             htmlType='submit'
-            icon={<SaveOutlined />}
+            icon={<Save />}
           >{e('save')}
           </Button>
           {/* <Button
@@ -329,7 +329,7 @@ export default function SyncForm (props) {
             onClick={upload}
             disabled={disabled()}
             className='mg1r mg1b sync-btn-up'
-            icon={<ArrowUpOutlined />}
+            icon={<ArrowUp />}
           >{e('uploadSettings')}
           </Button>
           <Button
@@ -337,7 +337,7 @@ export default function SyncForm (props) {
             onClick={download}
             disabled={disabled()}
             className='mg1r mg1b sync-btn-down'
-            icon={<ArrowDownOutlined />}
+            icon={<ArrowDown />}
           >{e('downloadSettings')}
           </Button>
           <Button
@@ -345,7 +345,7 @@ export default function SyncForm (props) {
             onClick={window.store.handleClearSyncSetting}
             disabled={disabled()}
             className='mg1r mg1b sync-btn-clear'
-            icon={<ClearOutlined />}
+            icon={<Delete />}
           >{e('clear')}
           </Button>
         </p>

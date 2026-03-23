@@ -3,9 +3,7 @@
  */
 
 import { PureComponent } from 'react'
-import {
-  CloseCircleOutlined
-} from '@ant-design/icons'
+import { XCircle } from 'lucide-react'
 import {
   Input,
   Button,
@@ -655,7 +653,7 @@ export default class BatchOp extends PureComponent {
       return null
     }
     return (
-      <CloseCircleOutlined
+      <XCircle
         className='close-setting-wrap'
         onClick={this.handleCancel}
       />

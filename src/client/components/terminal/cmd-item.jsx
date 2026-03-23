@@ -1,5 +1,5 @@
 import React from 'react'
-import { CloseCircleOutlined } from '@ant-design/icons'
+import { XCircle } from 'lucide-react'
 
 const SuggestionItem = ({ item, onSelect, onDelete }) => {
   const handleClick = () => {
@@ -20,7 +20,7 @@ const SuggestionItem = ({ item, onSelect, onDelete }) => {
         {item.type}
       </span>
       {item.type === 'H' && (
-        <CloseCircleOutlined
+        <XCircle
           className='suggestion-delete'
           onClick={handleDelete}
         />

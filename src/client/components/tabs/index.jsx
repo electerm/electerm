@@ -7,11 +7,7 @@ import React from 'react'
 import runIdle from '../../common/run-idle'
 import { throttle } from 'lodash-es'
 import TabTitle from './tab-title'
-import {
-  DownOutlined,
-  LeftOutlined,
-  RightOutlined
-} from '@ant-design/icons'
+import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Dropdown } from 'antd'
 import Tab from './tab'
 import LayoutMenu from './layout-menu'
@@ -218,18 +214,18 @@ export default class Tabs extends Component {
     return (
       <div className='tabs-extra pd1x'>
         {this.renderAddBtn()}
-        <LeftOutlined
+        <ChevronLeft
           className='mg1l iblock pointer font12 tab-scroll-icon'
           onClick={this.handleScrollLeft}
         />
-        <RightOutlined
+        <ChevronRight
           className='mg1x iblock pointer font12 tab-scroll-icon'
           onClick={this.handleScrollRight}
         />
         <Dropdown
           {...dropProps}
         >
-          <DownOutlined className='tabs-dd-icon' />
+          <ChevronDown className='tabs-dd-icon' />
         </Dropdown>
         {
           this.renderLayoutMenu()

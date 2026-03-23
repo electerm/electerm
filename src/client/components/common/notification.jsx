@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { CloseOutlined, CopyOutlined } from '@ant-design/icons'
+import { X, Copy } from 'lucide-react'
 import classnames from 'classnames'
 import generateId from '../../common/uid'
 import { messageIcons } from '../../common/icon-helpers.jsx'
@@ -129,7 +129,7 @@ function NotificationItem ({ message, description, type, onClose, duration = 18.
         <div className='notification-message'>
           <div className='notification-icon'>{messageIcons[type]}</div>
           <div className='notification-title' title={message}>{message}</div>
-          <CopyOutlined
+          <Copy
             className='notification-copy-icon'
             onClick={(e) => handleCopy(message, e)}
           />
@@ -137,14 +137,14 @@ function NotificationItem ({ message, description, type, onClose, duration = 18.
         {description && (
           <div className='notification-description'>
             {description}
-            <CopyOutlined
+            <Copy
               className='notification-copy-icon'
               onClick={(e) => handleCopy(description, e)}
             />
           </div>
         )}
       </div>
-      <CloseOutlined className='notification-close' onClick={onClose} />
+      <X className='notification-close' onClick={onClose} />
     </div>
   )
 }

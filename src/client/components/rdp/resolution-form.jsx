@@ -5,7 +5,7 @@ import {
   Button,
   Table
 } from 'antd'
-import { MinusCircleFilled, CheckOutlined } from '@ant-design/icons'
+import { MinusCircle, Check } from 'lucide-react'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 
 import resolutions from './resolutions'
@@ -48,7 +48,7 @@ export default function ResolutionForm (props) {
           return '-'
         }
         return (
-          <MinusCircleFilled
+          <MinusCircle
             className='pointer'
             onClick={() => remove(id)}
           />
@@ -119,7 +119,7 @@ export default function ResolutionForm (props) {
             </FormItem>
             <Button
               htmlType='submit'
-              icon={<CheckOutlined />}
+              icon={<Check />}
             />
           </Space.Compact>
         </FormItem>

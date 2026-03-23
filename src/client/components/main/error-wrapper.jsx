@@ -1,5 +1,5 @@
 import React from 'react'
-import { FrownOutlined, ReloadOutlined, CopyOutlined } from '@ant-design/icons'
+import { Frown, RefreshCw, Copy } from 'lucide-react'
 import { Button } from 'antd'
 import {
   logoPath1,
@@ -69,7 +69,7 @@ export default class ErrorBoundary extends React.PureComponent {
 
   renderIconCopy = (cmd) => {
     return (
-      <CopyOutlined
+      <Copy
         className='mg2l pointer'
         onClick={() => copy(cmd)}
       />
@@ -125,11 +125,11 @@ export default class ErrorBoundary extends React.PureComponent {
             <img src={logoPath1} className='iblock mwm-100' />
           </div>
           <h1>
-            <FrownOutlined className='mg1r iblock' />
+            <Frown className='mg1r iblock' />
             <span className='iblock mg1r'>{e('error')}</span>
             <Button
               onClick={this.handleReload}
-              icon={<ReloadOutlined />}
+              icon={<RefreshCw />}
             >
               {e('reload')}
             </Button>

@@ -3,7 +3,7 @@
  */
 
 import List from '../setting-panel/list'
-import { LoadingOutlined, CheckCircleOutlined } from '@ant-design/icons'
+import { Loader2, CheckCircle } from 'lucide-react'
 import { pick } from 'lodash-es'
 import { Pagination } from 'antd'
 import ThemeListItem from './theme-list-item'
@@ -54,7 +54,7 @@ export default class ThemeList extends List {
       : name
     return (
       <div className='pd2'>
-        <CheckCircleOutlined className='mg1r' />
+        <CheckCircle className='mg1r' />
         {title}
       </div>
     )
@@ -102,7 +102,7 @@ export default class ThemeList extends List {
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
-          <LoadingOutlined />
+          <Loader2 />
         </div>
       )
     }

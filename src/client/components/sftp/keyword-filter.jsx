@@ -1,9 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Tooltip, Input } from 'antd'
-import {
-  FilterOutlined,
-  CheckOutlined
-} from '@ant-design/icons'
+import { Filter, Check } from 'lucide-react'
 import classnames from 'classnames'
 
 const e = window.translate
@@ -37,11 +34,11 @@ export default function KeywordFilter ({ keyword, type, updateKeyword }) {
   const inputProps = {
     value: text,
     onChange: handleInputChange,
-    prefix: <FilterOutlined />,
+    prefix: <Filter />,
     onKeyPress: handleKeyPress,
     placeholder: e('keyword'),
     className: 'keyword-filter-input',
-    suffix: <CheckOutlined onClick={applyFilter} />
+    suffix: <Check onClick={applyFilter} />
   }
 
   const tooltipContent = (
@@ -57,7 +54,7 @@ export default function KeywordFilter ({ keyword, type, updateKeyword }) {
 
   return (
     <Tooltip title={tooltipContent} trigger='click'>
-      <FilterOutlined className={iconClass} />
+      <Filter className={iconClass} />
     </Tooltip>
   )
 }

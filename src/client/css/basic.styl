@@ -22,6 +22,7 @@ body
   -webkit-box-shadow none
 
 ::-webkit-scrollbar-thumb
+  border-radius 4px
   background-color var(--primary)
   outline none
 
@@ -41,3 +42,26 @@ a
 
 .cap
   text-transform capitalize
+
+/* Modernize icons and UI elements */
+.anticon, .lucide
+  transition transform 0.2s cubic-bezier(0.645, 0.045, 0.355, 1)
+  &:hover
+    transform scale(1.15)
+
+.anticon svg
+  stroke-width 1.5px !important
+
+.lucide
+  stroke-width 1.5px !important
+  width 1em
+  height 1em
+  vertical-align -0.125em
+  
+.term-wrap,
+.custom-modal-content,
+.custom-modal-body,
+.ant-modal-content,
+.ant-popover-inner,
+.ant-tooltip-inner
+  border-radius 8px !important

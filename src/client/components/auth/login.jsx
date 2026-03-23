@@ -5,9 +5,7 @@ import {
   Spin
 } from 'antd'
 import message from '../common/message'
-import {
-  ArrowRightOutlined
-} from '@ant-design/icons'
+import { ArrowRight } from 'lucide-react'
 import Main from '../main/main.jsx'
 import AppDrag from '../tabs/app-drag'
 import WindowControl from '../tabs/window-control'
@@ -64,7 +62,7 @@ export default function Login () {
 
   const renderAfter = () => {
     return (
-      <ArrowRightOutlined
+      <ArrowRight
         className='mg1x pointer'
         onClick={handleSubmit}
       />

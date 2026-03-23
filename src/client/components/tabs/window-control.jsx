@@ -2,7 +2,7 @@
  * btns
  */
 
-import { CloseOutlined, MinusOutlined } from '@ant-design/icons'
+import { X, Minus } from 'lucide-react'
 import { auto } from 'manate/react'
 import {
   isMacJs
@@ -34,7 +34,7 @@ export default auto(function WindowControl (props) {
   return (
     <div className='window-controls'>
       <div className='window-control-box window-control-minimize' onClick={minimize}>
-        <MinusOutlined title={e('minimize')} className='iblock font12 widnow-control-icon' />
+        <Minus title={e('minimize')} className='iblock font12 widnow-control-icon' />
       </div>
       <div
         className='window-control-box window-control-maximize'
@@ -53,7 +53,7 @@ export default auto(function WindowControl (props) {
         />
       </div>
       <div className='window-control-box window-control-close' onClick={closeApp}>
-        <CloseOutlined title={e('close')} className='iblock font12 widnow-control-icon' />
+        <X title={e('close')} className='iblock font12 widnow-control-icon' />
       </div>
     </div>
   )

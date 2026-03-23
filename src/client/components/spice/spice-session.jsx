@@ -6,9 +6,7 @@ import { handleErr } from '../../common/fetch'
 import {
   statusMap
 } from '../../common/constants'
-import {
-  ReloadOutlined
-} from '@ant-design/icons'
+import { RefreshCw } from 'lucide-react'
 import {
   Spin,
   Switch
@@ -139,7 +137,7 @@ export default class SpiceSession extends PureComponent {
     return (
       <div className='pd1 fix session-v-info'>
         <div className='fleft'>
-          <ReloadOutlined
+          <RefreshCw
             onClick={this.handleReInit}
             className='mg2r mg1l pointer'
           />

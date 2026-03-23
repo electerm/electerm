@@ -3,7 +3,7 @@
  */
 
 import List from '../setting-panel/list'
-import { PlusOutlined } from '@ant-design/icons'
+import { Plus } from 'lucide-react'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
 import ProfileTransport from './profile-transport'
@@ -48,7 +48,7 @@ export default class ProfileList extends List {
         <div className='elli pd1y pd2x' title={name}>
           {
             !id
-              ? <PlusOutlined className='mg1r' />
+              ? <Plus className='mg1r' />
               : null
           }
           {title}

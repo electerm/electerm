@@ -1,10 +1,5 @@
 import React, { Component } from 'react'
-import {
-  ArrowRightOutlined,
-  LoadingOutlined,
-  SunOutlined,
-  MoonOutlined
-} from '@ant-design/icons'
+import { ArrowRight, Loader2, Sun, Moon } from 'lucide-react'
 import message from '../common/message'
 import { notification } from '../common/notification'
 import {
@@ -398,10 +393,10 @@ export default class SettingCommon extends Component {
     } else if (
       submittingPass
     ) {
-      return <LoadingOutlined />
+      return <Loader2 />
     }
     return (
-      <ArrowRightOutlined
+      <ArrowRight
         className='pointer'
         onClick={this.handleLoginSubmit}
       />
@@ -443,7 +438,7 @@ export default class SettingCommon extends Component {
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
-          <LoadingOutlined />
+          <Loader2 />
         </div>
       )
     }
@@ -536,7 +531,7 @@ export default class SettingCommon extends Component {
                   const { id, name, uiThemeConfig } = l
                   const { main, text } = uiThemeConfig
                   const isDark = isColorDark(main)
-                  const txt = isDark ? <MoonOutlined /> : <SunOutlined />
+                  const txt = isDark ? <Moon /> : <Sun />
                   const tag = (
                     <Tag
                       color={main}

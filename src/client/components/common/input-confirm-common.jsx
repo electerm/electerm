@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
+import { Check, X } from 'lucide-react'
 import { Space } from 'antd'
 import './input-confirm-common.styl'
 
@@ -43,11 +43,11 @@ export default function InputConfirmCommon ({
   const icons = isEditing
     ? (
       <>
-        <CheckOutlined
+        <Check
           onClick={handleConfirm}
           className='mg1x pointer'
         />
-        <CloseOutlined
+        <X
           onClick={handleCancel}
           className='pointer'
         />

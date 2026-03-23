@@ -9,7 +9,7 @@ import {
   Table
 } from 'antd'
 import { useState } from 'react'
-import { PlusOutlined, QuestionCircleOutlined, MinusCircleFilled, UserOutlined } from '@ant-design/icons'
+import { Plus, HelpCircle, MinusCircle, User } from 'lucide-react'
 import { formItemLayout, tailFormItemLayout } from '../../../common/form-layout'
 import uid from '../../../common/uid'
 
@@ -113,7 +113,7 @@ export default function renderSshTunnels (props) {
       dataIndex: 'id',
       render: (id) => {
         return (
-          <MinusCircleFilled
+          <MinusCircle
             className='pointer'
             onClick={() => remove(id)}
           />
@@ -149,14 +149,14 @@ export default function renderSshTunnels (props) {
     return (
       <div>
         <p>{e(direction)}</p>
-        <p><UserOutlined /> → {middle} → {last}</p>
+        <p><User /> → {middle} → {last}</p>
       </div>
     )
   }
 
   function renderDynamicForward () {
     return (
-      <p><UserOutlined /> → socks proxy → url</p>
+      <p><User /> → socks proxy → url</p>
     )
   }
 
@@ -224,21 +224,21 @@ export default function renderSshTunnels (props) {
               value='forwardRemoteToLocal'
             >
               <Tooltip title={renderSshTunnelFlow('remoteToLocal')}>
-                <span>R→L <QuestionCircleOutlined /></span>
+                <span>R→L <HelpCircle /></span>
               </Tooltip>
             </RadioButton>
             <RadioButton
               value='forwardLocalToRemote'
             >
               <Tooltip title={renderSshTunnelFlow('localToRemote')}>
-                <span>L→R <QuestionCircleOutlined /></span>
+                <span>L→R <HelpCircle /></span>
               </Tooltip>
             </RadioButton>
             <RadioButton
               value='dynamicForward'
             >
               <Tooltip title={renderDynamicForward()}>
-                <span>{e('dynamicForward')}(socks proxy) <QuestionCircleOutlined /></span>
+                <span>{e('dynamicForward')}(socks proxy) <HelpCircle /></span>
               </Tooltip>
             </RadioButton>
           </RadioGroup>
@@ -286,7 +286,7 @@ export default function renderSshTunnels (props) {
           <Button
             type='default'
             htmlType='button'
-            icon={<PlusOutlined />}
+            icon={<Plus />}
             onClick={onSubmit}
           >
             {e('sshTunnel')}

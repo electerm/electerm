@@ -236,7 +236,7 @@ class Store {
     const themeConf = store.getUiThemeConfig()
     return {
       token: {
-        borderRadius: 3,
+        borderRadius: 8,
         colorPrimary: themeConf.primary,
         colorBgBase: themeConf.main,
         colorError: themeConf.error,

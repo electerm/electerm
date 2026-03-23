@@ -2,14 +2,7 @@
  * tree list for bookmarks
  */
 
-import {
-  CloseOutlined,
-  CopyOutlined,
-  EditOutlined,
-  FolderAddOutlined,
-  FolderOpenOutlined,
-  RightSquareOutlined
-} from '@ant-design/icons'
+import { X, Copy, Edit, FolderPlus, FolderOpen, ArrowRightSquare } from 'lucide-react'
 import {
   Popconfirm,
   Tooltip
@@ -42,7 +35,7 @@ export default function TreeListItem (props) {
         cancelText={e('cancel')}
         placement='top'
       >
-        <CloseOutlined title={e('del')} className='pointer tree-control-btn' />
+        <X title={e('del')} className='pointer tree-control-btn' />
       </Popconfirm>
     )
   }
@@ -52,7 +45,7 @@ export default function TreeListItem (props) {
       return null
     }
     return (
-      <RightSquareOutlined
+      <ArrowRightSquare
         className='pointer tree-control-btn'
         onClick={openMoveModal}
       />
@@ -80,7 +73,7 @@ export default function TreeListItem (props) {
       return null
     }
     return (
-      <FolderAddOutlined
+      <FolderPlus
         key='new-tree'
         title={`${e('new')} ${e('bookmarkCategory')}`}
         onClick={handleAddSubCat}
@@ -100,7 +93,7 @@ export default function TreeListItem (props) {
       return null
     }
     return (
-      <EditOutlined
+      <Edit
         title={e('edit')}
         key='edit-tree'
         onClick={handleEditItem}
@@ -126,7 +119,7 @@ export default function TreeListItem (props) {
     }
     return (
       <Tooltip title={e('openAll')}>
-        <FolderOpenOutlined
+        <FolderOpen
           key='open-all-tree'
           onClick={handleOpenAll}
           className='pointer open-all-icon tree-control-btn'
@@ -148,7 +141,7 @@ export default function TreeListItem (props) {
       return null
     }
     return (
-      <CopyOutlined
+      <Copy
         title={e('duplicate')}
         className='pointer tree-control-btn'
         onClick={handleDuplicateItem}
@@ -157,10 +150,12 @@ export default function TreeListItem (props) {
   }
 
   const renderGroupBtns = () => {
-    return [
-      renderAddNewSubGroupBtn(),
-      renderOpenAll()
-    ]
+    return (
+      <>
+        {renderAddNewSubGroupBtn()}
+        {renderOpenAll()}
+      </>
+    )
   }
 
   const onDragOver = e => {

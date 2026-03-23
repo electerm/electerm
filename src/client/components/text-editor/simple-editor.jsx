@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Input, Button, Flex } from 'antd'
-import {
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-  SearchOutlined,
-  CopyOutlined
-} from '@ant-design/icons'
+import { ArrowUp, ArrowDown, Search, Copy } from 'lucide-react'
 import { copy } from '../../common/clipboard'
 import { escapeRegExp } from 'lodash-es'
 
@@ -159,10 +154,10 @@ export default function SimpleEditor (props) {
     return (
       <>
         <Button onClick={goToPrevMatch}>
-          <ArrowUpOutlined />
+          <ArrowUp />
         </Button>
         <Button onClick={goToNextMatch}>
-          <ArrowDownOutlined />
+          <ArrowDown />
         </Button>
       </>
     )
@@ -192,7 +187,7 @@ export default function SimpleEditor (props) {
           onChange={handleChange}
           placeholder='Search in text...'
           allowClear
-          enterButton={<SearchOutlined />}
+          enterButton={<Search />}
           onSearch={handleSearch}
           onPressEnter={handleSearch}
           suffix={renderAfter()}
@@ -202,7 +197,7 @@ export default function SimpleEditor (props) {
           onClick={copyEditorContent}
           className='mg3l'
         >
-          <CopyOutlined />
+          <Copy />
         </Button>
       </Flex>
       <Input.TextArea

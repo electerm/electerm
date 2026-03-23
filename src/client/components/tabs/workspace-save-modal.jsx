@@ -7,7 +7,7 @@ import { auto } from 'manate/react'
 import Modal from '../common/modal'
 import { Input, Select, Button, Space, Radio } from 'antd'
 import message from '../common/message'
-import { SaveOutlined, EditOutlined } from '@ant-design/icons'
+import { Save, Edit } from 'lucide-react'
 
 const e = window.translate
 
@@ -75,11 +75,11 @@ export default auto(function WorkspaceSaveModal ({ store }) {
             onChange={ev => setSaveMode(ev.target.value)}
           >
             <Radio value='new'>
-              <SaveOutlined className='mg1r' />
+              <Save className='mg1r' />
               {e('saveAsNew')}
             </Radio>
             <Radio value='overwrite' disabled={!workspaces.length}>
-              <EditOutlined className='mg1r' />
+              <Edit className='mg1r' />
               {e('overwrite')}
             </Radio>
           </Radio.Group>

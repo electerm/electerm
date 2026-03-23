@@ -4,7 +4,7 @@
 
 import React from 'react'
 import { Button, message } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
+import { Plus } from 'lucide-react'
 import Modal from '../common/modal'
 import { refsStatic } from '../common/ref'
 import AICategorySelect from './common/ai-category-select.jsx'
@@ -101,7 +101,7 @@ export default class BookmarkFromHistoryModal extends React.PureComponent {
       open: visible,
       title: (
         <span>
-          <PlusOutlined className='mg1r' />
+          <Plus className='mg1r' />
           {e('bookmarks')}
         </span>
       ),

@@ -11,26 +11,19 @@ import {
 import ShowItem from '../common/show-item'
 import defaults from '../../common/default-setting'
 import { toggleTerminalLog, toggleTerminalLogTimestamp } from '../terminal/terminal-apis'
-import {
-  ClockCircleOutlined,
-  BorderlessTableOutlined,
-  DatabaseOutlined,
-  BarsOutlined,
-  ApiOutlined,
-  PartitionOutlined
-} from '@ant-design/icons'
+import { Clock, LayoutList, Database, Menu, Network, Share2 } from 'lucide-react'
 import createDefaultSessionLogPath from '../../common/default-log-path'
 import { refs } from '../common/ref'
 
 const e = window.translate
 
 const mapper = {
-  uptime: <ClockCircleOutlined />,
-  cpu: <BorderlessTableOutlined />,
-  mem: <DatabaseOutlined />,
-  activities: <BarsOutlined />,
-  network: <ApiOutlined />,
-  disks: <PartitionOutlined />
+  uptime: <Clock />,
+  cpu: <LayoutList />,
+  mem: <Database />,
+  activities: <Menu />,
+  network: <Network />,
+  disks: <Share2 />
 }
 
 export default class TerminalInfoBase extends Component {

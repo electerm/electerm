@@ -4,10 +4,7 @@
 
 import { Component } from 'react'
 import classnames from 'classnames'
-import {
-  DownOutlined,
-  UpOutlined
-} from '@ant-design/icons'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
   Dropdown,
   Splitter
@@ -49,7 +46,7 @@ export default class FileListTableHeader extends Component {
     }
     const text = e(id || '')
     const directionIcon = isSorting
-      ? (sortDirection === 'asc' ? <UpOutlined /> : <DownOutlined />)
+      ? (sortDirection === 'asc' ? <ChevronUp /> : <ChevronDown />)
       : null
     const itemProps = {
       onClick: this.props.onClickName,

@@ -1,9 +1,7 @@
 import {
   Button
 } from 'antd'
-import {
-  CheckCircleOutlined
-} from '@ant-design/icons'
+import { CheckCircle } from 'lucide-react'
 import createName from '../../common/create-title'
 
 export default function BatchInputTabItem (props) {
@@ -21,7 +19,7 @@ export default function BatchInputTabItem (props) {
     title,
     type: selected ? 'primary' : 'default'
   }
-  const icon = selected ? <CheckCircleOutlined className='mg1r' /> : null
+  const icon = selected ? <CheckCircle className='mg1r' /> : null
   const pre = isCurrent ? <b>*</b> : ''
   return (
     <Button

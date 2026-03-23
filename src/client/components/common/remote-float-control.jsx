@@ -1,11 +1,5 @@
 import React from 'react'
-import {
-  FullscreenExitOutlined,
-  AppstoreOutlined,
-  DesktopOutlined,
-  MoreOutlined,
-  DownOutlined
-} from '@ant-design/icons'
+import { Minimize, LayoutGrid, Monitor, MoreHorizontal, ChevronDown } from 'lucide-react'
 import { Dropdown } from 'antd'
 import './remote-float-control.styl'
 
@@ -35,7 +29,7 @@ export default function RemoteFloatControl (props) {
     items.push({
       key: 'exit-fullscreen',
       label: e('exitFullscreen') || 'Exit Fullscreen',
-      icon: <FullscreenExitOutlined />,
+      icon: <Minimize />,
       onClick: onExitFullScreen
     })
   }
@@ -44,7 +38,7 @@ export default function RemoteFloatControl (props) {
     items.push({
       key: 'ctrl-alt-del',
       label: 'Send Ctrl+Alt+Del',
-      icon: <AppstoreOutlined />,
+      icon: <LayoutGrid />,
       onClick: onSendCtrlAltDel
     })
   }
@@ -53,12 +47,12 @@ export default function RemoteFloatControl (props) {
     items.push({
       key: 'screens',
       label: 'Select Screen',
-      icon: <DesktopOutlined />,
+      icon: <Monitor />,
       children: screens.map(s => ({
         key: s.id,
         label: s.name,
         onClick: () => onSelectScreen(s.id),
-        icon: currentScreen === s.id ? <DownOutlined /> : null
+        icon: currentScreen === s.id ? <ChevronDown /> : null
       }))
     })
   }
@@ -71,7 +65,7 @@ export default function RemoteFloatControl (props) {
     <div className={containerClassName}>
       <Dropdown menu={{ items }} trigger={['click']}>
         <div className={buttonClassName}>
-          <MoreOutlined className={iconClassName} />
+          <MoreHorizontal className={iconClassName} />
         </div>
       </Dropdown>
     </div>

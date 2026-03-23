@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
-import {
-  ClockCircleOutlined
-} from '@ant-design/icons'
+import { Clock } from 'lucide-react'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 
@@ -28,7 +26,7 @@ export default function RunningTime () {
   }
   return (
     <p className='mg2b'>
-      <ClockCircleOutlined /> <b>{e('runningTime')} ➾</b>
+      <Clock /> <b>{e('runningTime')} ➾</b>
       <span className='mg1l'>{formatRunningTime(runningTime)}</span>
     </p>
   )

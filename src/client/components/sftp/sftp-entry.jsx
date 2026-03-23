@@ -29,7 +29,7 @@ import fs from '../../common/fs'
 import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
-import { LoadingOutlined } from '@ant-design/icons'
+import { Loader2 } from 'lucide-react'
 import * as owner from './owner-list'
 import AddressBar from './address-bar'
 import getProxy from '../../common/get-proxy'
@@ -1291,7 +1291,7 @@ export default class Sftp extends Component {
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
-          <LoadingOutlined />
+          <Loader2 />
         </div>
       )
     }

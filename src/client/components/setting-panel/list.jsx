@@ -2,7 +2,7 @@
  * history list
  */
 import React from 'react'
-import { CloseOutlined, EditOutlined, LoadingOutlined } from '@ant-design/icons'
+import { X, Edit, Loader2 } from 'lucide-react'
 import { Popconfirm } from 'antd'
 import Search from '../common/search'
 import createName, { createTitleTag } from '../../common/create-title'
@@ -70,7 +70,7 @@ export default class ItemList extends React.PureComponent {
     }
     const { shouldConfirmDel } = this.props
     const icon = (
-      <CloseOutlined
+      <X
         title={e('del')}
         className='pointer list-item-remove'
         onClick={
@@ -158,7 +158,7 @@ export default class ItemList extends React.PureComponent {
       return null
     }
     return (
-      <EditOutlined
+      <Edit
         title={e('edit')}
         onClick={(e) => this.editItem(e, item, isGroup)}
         className='pointer list-item-edit'
@@ -171,7 +171,7 @@ export default class ItemList extends React.PureComponent {
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
-          <LoadingOutlined />
+          <Loader2 />
         </div>
       )
     }

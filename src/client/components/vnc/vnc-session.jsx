@@ -10,9 +10,7 @@ import {
   Spin,
   Select
 } from 'antd'
-import {
-  ReloadOutlined
-} from '@ant-design/icons'
+import { RefreshCw } from 'lucide-react'
 import message from '../common/message'
 import Modal from '../common/modal'
 import { copy } from '../../common/clipboard'
@@ -131,7 +129,7 @@ export default class VncSession extends PureComponent {
     return (
       <div className='pd1 fix session-v-info'>
         <div className='fleft'>
-          <ReloadOutlined
+          <RefreshCw
             onClick={this.handleReInit}
             className='mg2r mg1l pointer'
           />

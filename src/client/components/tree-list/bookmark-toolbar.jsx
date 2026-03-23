@@ -1,12 +1,4 @@
-import {
-  BookOutlined,
-  FolderOutlined,
-  ImportOutlined,
-  ExportOutlined,
-  CodeOutlined,
-  MenuOutlined,
-  EditOutlined
-} from '@ant-design/icons'
+import { Book, Folder, Import, Upload as UploadIcon, Code, Menu, Edit } from 'lucide-react'
 import { Button, Space, Dropdown } from 'antd'
 import copy from 'json-deep-copy'
 import time from '../../common/time'
@@ -106,17 +98,17 @@ export default function BookmarkToolbar (props) {
     {
       label: titleNew,
       onClick: onNewBookmark,
-      icon: <BookOutlined />
+      icon: <Book />
     },
     {
       label: titleEdit,
       onClick: onNewBookmarkGroup,
-      icon: <FolderOutlined />
+      icon: <Folder />
     },
     {
       label: e('edit'),
       onClick: handleToggleEdit,
-      icon: <EditOutlined />
+      icon: <Edit />
     },
     {
       label: e('import'),
@@ -126,17 +118,17 @@ export default function BookmarkToolbar (props) {
           fileInput.click()
         }
       },
-      icon: <ImportOutlined />
+      icon: <Import />
     },
     {
       label: e('export'),
       onClick: onExport,
-      icon: <ExportOutlined />
+      icon: <UploadIcon />
     },
     {
       label: e('loadSshConfigs'),
       onClick: onSshConfigs,
-      icon: <CodeOutlined />
+      icon: <Code />
     }
   ]
 
@@ -153,18 +145,18 @@ export default function BookmarkToolbar (props) {
         <div className='fleft'>
           <Space.Compact>
             <Button onClick={onNewBookmark}>
-              <BookOutlined className='with-plus' />
+              <Book className='with-plus' />
             </Button>
             <Button onClick={onNewBookmarkGroup}>
-              <FolderOutlined className='with-plus' />
+              <Folder className='with-plus' />
             </Button>
             <Button
-              icon={<EditOutlined />}
+              icon={<Edit />}
               onClick={handleToggleEdit}
               title={e('edit')}
             />
             <Button
-              icon={<ExportOutlined />}
+              icon={<Upload />}
               onClick={handleDownload}
               title={e('export')}
               className='download-bookmark-icon'
@@ -175,18 +167,18 @@ export default function BookmarkToolbar (props) {
               className='upload-bookmark-icon'
             >
               <Button
-                icon={<ImportOutlined />}
+                icon={<Import />}
                 title={e('importFromFile')}
               />
             </Upload>
             <Button onClick={onSshConfigs}>
-              <CodeOutlined />
+              <Code />
             </Button>
           </Space.Compact>
         </div>
         <div className='fright'>
           <Dropdown {...ddProps}>
-            <MenuOutlined />
+            <Menu />
           </Dropdown>
         </div>
       </div>

@@ -5,11 +5,7 @@
 import { createRef } from 'react'
 import { Component } from 'manate/react/class-components'
 import { refsTabs } from '../common/ref'
-import {
-  CloseOutlined,
-  Loading3QuartersOutlined,
-  BorderlessTableOutlined
-} from '@ant-design/icons'
+import { X, Loader, LayoutList } from 'lucide-react'
 import {
   Tooltip,
   Dropdown
@@ -393,7 +389,7 @@ class Tab extends Component {
   renderCloseIcon () {
     return (
       <span className='tab-close pointer'>
-        <CloseOutlined onClick={this.handleClose} />
+        <X onClick={this.handleClose} />
       </span>
     )
   }
@@ -481,7 +477,7 @@ class Tab extends Component {
               onClick={this.handleClick}
               onDoubleClick={this.handleDup}
             >
-              <Loading3QuartersOutlined
+              <Loader
                 className='pointer tab-reload mg1r'
                 onClick={this.handleReloadTab}
                 title={e('reload')}
@@ -494,7 +490,7 @@ class Tab extends Component {
           </Dropdown>
           <div className={'tab-status ' + status} />
           <div className='tab-traffic' />
-          <BorderlessTableOutlined className='tab-terminal-feed' />
+          <LayoutList className='tab-terminal-feed' />
           {
             this.renderCloseIcon()
           }

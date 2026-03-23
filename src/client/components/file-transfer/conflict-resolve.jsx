@@ -9,7 +9,7 @@ import Modal from '../common/modal'
 import { isString } from 'lodash-es'
 import AnimateText from '../common/animate-text'
 import formatTime from '../../common/time'
-import { FolderOutlined, FileOutlined } from '@ant-design/icons'
+import { Folder, File } from 'lucide-react'
 import {
   fileActions
 } from '../../common/constants'
@@ -102,7 +102,7 @@ export default class ConfirmModalStore extends Component {
     } = transferToConfirm
     const action = isDirectory ? e('merge') : e('replace')
     const typeTxt = isDirectory ? e('folder') : e('file')
-    const Icon = isDirectory ? FolderOutlined : FileOutlined
+    const Icon = isDirectory ? Folder : File
     const typeTitle = e(typeTo)
     const otherTypeTitle = e(typeFrom)
     return (

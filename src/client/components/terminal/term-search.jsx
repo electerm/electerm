@@ -3,11 +3,7 @@ import {
   Tooltip
 } from 'antd'
 import InputAutoFocus from '../common/input-auto-focus'
-import {
-  ArrowLeftOutlined,
-  ArrowRightOutlined,
-  CloseCircleOutlined
-} from '@ant-design/icons'
+import { ArrowLeft, ArrowRight, XCircle } from 'lucide-react'
 import { paneMap } from '../../common/constants'
 import { MatchCaseIcon } from '../icons/match-case'
 import { MatchWholWordIcon } from '../icons/match-whole-word'
@@ -36,15 +32,15 @@ export default class TermSearch extends PureComponent {
 
   searchActions = [{
     id: 'prev',
-    icon: ArrowLeftOutlined,
+    icon: ArrowLeft,
     cls: 'mg1l'
   }, {
     id: 'next',
-    icon: ArrowRightOutlined,
+    icon: ArrowRight,
     cls: 'mg1l'
   }, {
     id: 'close',
-    icon: CloseCircleOutlined,
+    icon: XCircle,
     cls: 'mg2l'
   }]
 

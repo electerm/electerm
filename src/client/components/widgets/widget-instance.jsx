@@ -1,5 +1,5 @@
 import { Popconfirm, Popover } from 'antd'
-import { CloseOutlined, CopyOutlined } from '@ant-design/icons'
+import { X, Copy } from 'lucide-react'
 import { copy } from '../../common/clipboard'
 
 const e = window.translate
@@ -12,7 +12,7 @@ export default function WidgetInstance ({ item }) {
     className: 'pointer list-item-remove'
   }
   const icon = (
-    <CloseOutlined
+    <X
       {...delProps}
     />
   )
@@ -36,7 +36,7 @@ export default function WidgetInstance ({ item }) {
       <div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span>URL: {serverInfo.url}</span>
-          <CopyOutlined
+          <Copy
             className='pointer mg1l'
             onClick={handleCopy}
           />

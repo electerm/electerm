@@ -3,17 +3,7 @@
  */
 import { useState, useEffect } from 'react'
 import { Button, Input, message, Space, Alert } from 'antd'
-import {
-  RobotOutlined,
-  LoadingOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  EditOutlined,
-  CopyOutlined,
-  DownloadOutlined,
-  EyeOutlined,
-  ThunderboltOutlined
-} from '@ant-design/icons'
+import { Bot, Loader2, Check, X, Edit, Copy, Download, Eye, Zap } from 'lucide-react'
 import SimpleEditor from '../text-editor/simple-editor'
 import { copy } from '../../common/clipboard'
 import download from '../../common/download'
@@ -265,7 +255,7 @@ export default function AIBookmarkForm (props) {
     type: 'primary',
     onClick: handleGenerate,
     disabled: !description.trim(),
-    icon: loading ? <LoadingOutlined /> : <RobotOutlined />,
+    icon: loading ? <Loader2 /> : <Bot />,
     loading
   }
 
@@ -275,7 +265,7 @@ export default function AIBookmarkForm (props) {
       return null
     }
     return (
-      <Button onClick={handleQuickConnect} icon={<ThunderboltOutlined />}>
+      <Button onClick={handleQuickConnect} icon={<Zap />}>
         {e('quickConnect')}
       </Button>
     )
@@ -288,11 +278,11 @@ export default function AIBookmarkForm (props) {
     footer: (
       <div className='custom-modal-footer-buttons'>
         <Button onClick={handleCancelConfirm}>
-          <CloseOutlined /> {e('cancel')}
+          <X /> {e('cancel')}
         </Button>
         {renderQuickConnectBtn()}
         <Button type='primary' onClick={handleConfirm}>
-          <CheckOutlined /> {e('confirm')}
+          <Check /> {e('confirm')}
         </Button>
       </div>
     ),
@@ -300,19 +290,19 @@ export default function AIBookmarkForm (props) {
   }
 
   const editBtnProps = {
-    icon: editMode ? <EyeOutlined /> : <EditOutlined />,
+    icon: editMode ? <Eye /> : <Edit />,
     title: editMode ? e('preview') : e('edit'),
     onClick: handleToggleEdit
   }
 
   const copyBtnProps = {
-    icon: <CopyOutlined />,
+    icon: <Copy />,
     title: e('copy'),
     onClick: handleCopy
   }
 
   const downloadBtnProps = {
-    icon: <DownloadOutlined />,
+    icon: <Download />,
     title: e('download'),
     onClick: handleSaveToFile
   }
@@ -320,7 +310,7 @@ export default function AIBookmarkForm (props) {
   const cancelProps = {
     onClick: handleCancel,
     title: e('cancel'),
-    icon: <CloseOutlined />,
+    icon: <X />,
     className: 'mg1l'
   }
 
@@ -328,7 +318,7 @@ export default function AIBookmarkForm (props) {
     <div className='ai-bookmark-form pd2'>
       <div className='pd1b ai-bookmark-header'>
         <span className='ai-title'>
-          <RobotOutlined className='mg1r' />
+          <Bot className='mg1r' />
           {e('createBookmarkByAI')}
         </span>
         <HelpIcon link='https://github.com/electerm/electerm/wiki/Create-bookmark-by-AI' />

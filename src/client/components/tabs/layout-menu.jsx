@@ -4,11 +4,7 @@
 
 import React, { useState } from 'react'
 import { Dropdown, Tabs } from 'antd'
-import {
-  DownOutlined,
-  AppstoreOutlined,
-  LayoutOutlined
-} from '@ant-design/icons'
+import { ChevronDown, LayoutGrid, Layout } from 'lucide-react'
 import LayoutSelect from './layout-select'
 import WorkspaceSelect from './workspace-select'
 import HelpIcon from '../common/help-icon'
@@ -28,7 +24,7 @@ export default function LayoutMenu (props) {
       key: 'layout',
       label: (
         <span>
-          <LayoutOutlined /> {e('layout')}
+          <Layout /> {e('layout')}
         </span>
       )
     },
@@ -36,7 +32,7 @@ export default function LayoutMenu (props) {
       key: 'workspaces',
       label: (
         <span>
-          <AppstoreOutlined /> {e('workspaces')}
+          <LayoutGrid /> {e('workspaces')}
           <HelpIcon link='https://github.com/electerm/electerm/wiki/Workspace-Feature' />
         </span>
       )
@@ -67,8 +63,8 @@ export default function LayoutMenu (props) {
         className='tabs-dd-icon layout-dd-icon'
         title={e('layout')}
       >
-        <LayoutOutlined className='layout-trigger-icon' />
-        <DownOutlined className='layout-trigger-arrow' />
+        <Layout className='layout-trigger-icon' />
+        <ChevronDown className='layout-trigger-arrow' />
       </span>
     </Dropdown>
   )

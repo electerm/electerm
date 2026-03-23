@@ -1,16 +1,11 @@
 import React from 'react'
-import {
-  InfoCircleFilled,
-  CheckCircleFilled,
-  ExclamationCircleFilled,
-  CloseCircleFilled
-} from '@ant-design/icons'
+import { Info, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
 
 export const messageIcons = {
-  info: <InfoCircleFilled className='msg-icon info' />,
-  success: <CheckCircleFilled className='msg-icon success' />,
-  warning: <ExclamationCircleFilled className='msg-icon warning' />,
-  error: <CloseCircleFilled className='msg-icon error' />
+  info: <Info className='msg-icon info' />,
+  success: <CheckCircle className='msg-icon success' />,
+  warning: <AlertCircle className='msg-icon warning' />,
+  error: <XCircle className='msg-icon error' />
 }
 
 export const getMessageIcon = (type) => messageIcons[type] || messageIcons.info

@@ -4,11 +4,7 @@
 
 import React from 'react'
 import ExtIcon from './file-icon'
-import {
-  FolderOutlined,
-  FileOutlined,
-  ArrowRightOutlined
-} from '@ant-design/icons'
+import { Folder, File, ArrowRight } from 'lucide-react'
 import classnames from 'classnames'
 import copy from 'json-deep-copy'
 import { pick, some } from 'lodash-es'
@@ -957,7 +953,7 @@ export default class FileSection extends React.Component {
         const moreSubmenu = {
           key: 'more-submenu',
           label: '…',
-          icon: <ArrowRightOutlined />,
+          icon: <ArrowRight />,
           children: secondHalf.map(this.itemToMenuFormat)
         }
 
@@ -1048,7 +1044,7 @@ export default class FileSection extends React.Component {
     if (!isDirectory && isRealFile && isLocal) {
       res.push({
         func: 'transferOrEnterDirectory',
-        icon: 'ArrowRightOutlined',
+        icon: 'ArrowRight',
         text: e('open')
       })
     }
@@ -1160,7 +1156,7 @@ export default class FileSection extends React.Component {
       nameTemp,
       isDirectory
     } = file
-    const Icon = isDirectory ? FolderOutlined : FileOutlined
+    const Icon = isDirectory ? Folder : File
     const pre = <Icon />
     return (
       <div className='sftp-item'>
@@ -1198,8 +1194,8 @@ export default class FileSection extends React.Component {
     }
     if (id === 'name') {
       // const Icon = isDirectory
-      //   ? FolderOutlined
-      //   : FileOutlined
+      //   ? Folder
+      //   : File
       typeIcon = <ExtIcon file={file} className='mg1r' />
       symbolicLinkText = isSymbolicLink
         ? <sup className='color-blue symbolic-link-icon'>*</sup>

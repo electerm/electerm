@@ -4,9 +4,7 @@ import SuggestionItem from './cmd-item'
 import { aiSuggestionsCache } from '../../common/cache'
 import uid from '../../common/uid'
 import classnames from 'classnames'
-import {
-  LoadingOutlined
-} from '@ant-design/icons'
+import { Loader2 } from 'lucide-react'
 
 export default class TerminalCmdSuggestions extends Component {
   state = {
@@ -241,7 +239,7 @@ export default class TerminalCmdSuggestions extends Component {
     if (loadingAiSuggestions) {
       return (
         <>
-          <LoadingOutlined /> {e('getAiSuggestions')}
+          <Loader2 /> {e('getAiSuggestions')}
         </>
       )
     }

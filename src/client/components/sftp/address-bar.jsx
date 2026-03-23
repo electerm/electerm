@@ -1,12 +1,4 @@
-import {
-  ArrowUpOutlined,
-  EyeInvisibleFilled,
-  EyeFilled,
-  ReloadOutlined,
-  ArrowRightOutlined,
-  LoadingOutlined,
-  HomeOutlined
-} from '@ant-design/icons'
+import { ArrowUp, EyeOff, Eye, RefreshCw, ArrowRight, Loader2, Home } from 'lucide-react'
 import {
   Input,
   Tooltip
@@ -27,7 +19,7 @@ function renderAddonBefore (props, realPath) {
   } = props
   const isShow = props[`${type}ShowHiddenFile`]
   const title = `${isShow ? e('hide') : e('show')} ${e('hfd')}`
-  const Icon = isShow ? EyeFilled : EyeInvisibleFilled
+  const Icon = isShow ? Eye : EyeOff
   const keywordProps = {
     keyword: props[`${type}Keyword`],
     type,
@@ -51,12 +43,12 @@ function renderAddonBefore (props, realPath) {
         arrow={{ pointAtCenter: true }}
         placement='topLeft'
       >
-        <ArrowUpOutlined
+        <ArrowUp
           onClick={() => props.goParent(type)}
           className='mg1r'
         />
       </Tooltip>
-      <HomeOutlined
+      <Home
         onClick={() => props.gotoHome(type)}
         className='mg1r'
       />
@@ -126,8 +118,8 @@ export default function AddressBar (props) {
   const realPath = props[`${type}Path`]
   const isLoadingRemote = type === typeMap.remote && loadingSftp
   const GoIcon = isLoadingRemote
-    ? LoadingOutlined
-    : (realPath === path ? ReloadOutlined : ArrowRightOutlined)
+    ? Loader2
+    : (realPath === path ? RefreshCw : ArrowRight)
   return (
     <div className='pd1y sftp-title-wrap'>
       <div className='sftp-title'>

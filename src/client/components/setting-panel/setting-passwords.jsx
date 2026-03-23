@@ -3,12 +3,7 @@
  * Allows grouping bookmarks by password, changing passwords, and copying passwords
  */
 import React, { Component } from 'react'
-import {
-  CopyOutlined,
-  EditOutlined,
-  KeyOutlined,
-  LaptopOutlined
-} from '@ant-design/icons'
+import { Copy, Edit, Key, Laptop } from 'lucide-react'
 import {
   Button,
   Modal,
@@ -152,7 +147,7 @@ export default class SettingPasswords extends Component {
         render: () => {
           const props0 = {
             children: [
-              <KeyOutlined key='icon' />,
+              <Key key='icon' />,
               <TextAnt keyboard key='text'>********</TextAnt>
             ]
           }
@@ -194,12 +189,12 @@ export default class SettingPasswords extends Component {
         render: (_, record) => {
           const copyProps0 = {
             type: 'text',
-            icon: <CopyOutlined />,
+            icon: <Copy />,
             onClick: () => this.handleCopyPassword(record.password)
           }
           const editProps0 = {
             type: 'text',
-            icon: <EditOutlined />,
+            icon: <Edit />,
             onClick: () => this.showEditModal(record)
           }
           const copyTooltipProps = {
@@ -230,7 +225,7 @@ export default class SettingPasswords extends Component {
     if (data.length === 0) {
       return (
         <div className='setting-passwords-empty'>
-          <LaptopOutlined style={{ fontSize: 48, color: '#ccc' }} />
+          <Laptop style={{ fontSize: 48, color: '#ccc' }} />
           <p>{e('noPasswordsFound')}</p>
         </div>
       )
@@ -272,7 +267,7 @@ export default class SettingPasswords extends Component {
       <div className='setting-passwords'>
         <div className='setting-passwords-header'>
           <h3>
-            <KeyOutlined /> {e('passwords')}
+            <Key /> {e('passwords')}
           </h3>
         </div>
 

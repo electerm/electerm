@@ -7,14 +7,7 @@ import BookmarkWrap from './bookmark'
 import History from './history'
 import { Tabs, Tooltip } from 'antd'
 import MultiSelectModal from '../common/multi-select-modal'
-import {
-  ArrowsAltOutlined,
-  EditOutlined,
-  PlusCircleOutlined,
-  ShrinkOutlined,
-  PushpinOutlined,
-  SelectOutlined
-} from '@ant-design/icons'
+import { Maximize2, Edit, PlusCircle, Shrink, Pin, Pointer } from 'lucide-react'
 
 const e = window.translate
 
@@ -63,17 +56,17 @@ export default memo(function SidebarPanel (props) {
     }
     return [
       <Tooltip title={e('expandAll')} key='expand'>
-        <ArrowsAltOutlined
+        <Maximize2
           {...pop2}
         />
       </Tooltip>,
       <Tooltip title={e('collapseAll')} key='collapse'>
-        <ShrinkOutlined
+        <Shrink
           {...pop3}
         />
       </Tooltip>,
       <Tooltip title={e('open') + ' ' + e('bookmarks')} key='multi'>
-        <SelectOutlined
+        <Pointer
           {...prps}
           onClick={() => setOpenSelectModal(true)}
         />
@@ -87,12 +80,12 @@ export default memo(function SidebarPanel (props) {
       <div className='sidebar-pin-top'>
         <div className='pd1y pd2t pd2x sidebar-panel-control alignright'>
           <Tooltip title={e('newBookmark')}>
-            <PlusCircleOutlined
+            <PlusCircle
               {...pop1}
             />
           </Tooltip>
           <Tooltip title={`${e('edit')} ${e('bookmarks')}`}>
-            <EditOutlined
+            <Edit
               {...pop1}
             />
           </Tooltip>
@@ -100,7 +93,7 @@ export default memo(function SidebarPanel (props) {
             renderExpandIcons()
           }
           <Tooltip title={e('pin')}>
-            <PushpinOutlined
+            <Pin
               {...prps1}
               onClick={store.handlePin}
             />

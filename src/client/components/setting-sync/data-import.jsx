@@ -7,11 +7,7 @@ import {
   Switch,
   Tooltip
 } from 'antd'
-import {
-  ImportOutlined,
-  ExportOutlined,
-  InfoCircleOutlined
-} from '@ant-design/icons'
+import { Import, Upload as UploadIcon, Info } from 'lucide-react'
 import Upload from '../common/upload'
 
 const e = window.translate
@@ -25,7 +21,7 @@ export default function DataTransport (props) {
     <div className='pd2 fix'>
       <div className='fleft'>
         <Button
-          icon={<ExportOutlined />}
+          icon={<UploadIcon />}
           className='mg1r'
           onClick={store.handleExportAllData}
         >
@@ -37,7 +33,7 @@ export default function DataTransport (props) {
           className='inline'
         >
           <Button
-            icon={<ImportOutlined />}
+            icon={<Import />}
           >
             {e('importFromFile')}
           </Button>
@@ -52,7 +48,7 @@ export default function DataTransport (props) {
           className='mg3l mg1r'
         />
         <Tooltip title={e('autoSyncTip')}>
-          <InfoCircleOutlined />
+          <Info />
         </Tooltip>
       </div>
     </div>

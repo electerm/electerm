@@ -101,7 +101,7 @@ export default class Shortcuts extends PureComponent {
       bordered: true,
       pagination: false,
       size: 'small',
-      rowKey: 'id'
+      rowKey: 'name'
     }
     return (
       <>

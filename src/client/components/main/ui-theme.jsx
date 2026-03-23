@@ -5,6 +5,7 @@
 import { useEffect, useRef } from 'react'
 import eq from 'fast-deep-equal'
 import isColorDark from '../../common/is-color-dark'
+import shouldUseTitleBarOverlay from '../../common/should-use-title-bar-overlay'
 
 const themeDomId = 'theme-css'
 
@@ -58,6 +59,12 @@ export default function UiTheme (props) {
     const style = document.getElementById(themeDomId)
     const css = await buildTheme(themeConfig)
     style.innerHTML = css
+    if (shouldUseTitleBarOverlay() && themeConfig && themeConfig.text && window.pre && window.pre.runGlobalAsync) {
+      window.pre.runGlobalAsync('setTitleBarOverlay', {
+        color: '#00000000',
+        symbolColor: themeConfig.text
+      })
+    }
   }
 
   useEffect(() => {

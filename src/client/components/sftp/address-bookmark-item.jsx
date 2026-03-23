@@ -1,7 +1,5 @@
 import { Component } from 'react'
-import {
-  CloseCircleOutlined
-} from '@ant-design/icons'
+import { XCircle } from 'lucide-react'
 import {
   Tag
 } from 'antd'
@@ -69,7 +67,7 @@ export default class AddrBookmarkItem extends Component {
       >
         {globTag}
         <b>{item.addr}</b>
-        <CloseCircleOutlined
+        <XCircle
           className='del-addr-bookmark'
           onClick={this.handleDel}
         />

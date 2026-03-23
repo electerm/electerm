@@ -9,14 +9,7 @@ import RdpSession from '../rdp/rdp-session'
 import VncSession from '../vnc/vnc-session'
 import WebSession from '../web/web-session.jsx'
 import SpiceSession from '../spice/spice-session'
-import {
-  SearchOutlined,
-  FullscreenOutlined,
-  PaperClipOutlined,
-  CloseOutlined,
-  ApartmentOutlined,
-  HeartOutlined
-} from '@ant-design/icons'
+import { Search, Maximize, Paperclip, X, Network, Heart } from 'lucide-react'
 import {
   Tooltip,
   Splitter
@@ -501,7 +494,7 @@ export default class SessionWrapper extends Component {
     const title = e('search')
     return (
       <Tooltip title={title} placement='bottomLeft'>
-        <SearchOutlined
+        <Search
           className='mg1r icon-info iblock pointer spliter'
           onClick={this.handleOpenSearch}
         />
@@ -513,7 +506,7 @@ export default class SessionWrapper extends Component {
     const title = e('fullscreen')
     return (
       <Tooltip title={title} placement='bottomLeft'>
-        <FullscreenOutlined
+        <Maximize
           className='mg1r icon-info iblock pointer spliter fullscreen-control-icon'
           onClick={this.handleFullscreen}
         />
@@ -528,7 +521,7 @@ export default class SessionWrapper extends Component {
     return (
       <div className='type-tab'>
         <span className='mg1r'>Try <b>Shift + Backspace</b>?</span>
-        <CloseOutlined
+        <X
           onClick={this.handleDismissDelKeyTip}
           className='pointer'
         />
@@ -550,7 +543,7 @@ export default class SessionWrapper extends Component {
     }
     return (
       <Tooltip title={title}>
-        <HeartOutlined {...iconProps} />
+        <Heart {...iconProps} />
       </Tooltip>
     )
   }
@@ -572,7 +565,7 @@ export default class SessionWrapper extends Component {
 
     return (
       <Tooltip title={title}>
-        <ApartmentOutlined {...iconProps} />
+        <Network {...iconProps} />
       </Tooltip>
     )
   }
@@ -715,7 +708,7 @@ export default class SessionWrapper extends Component {
             ? (
               <Tooltip title={checkTxt}>
                 <span {...checkProps}>
-                  <PaperClipOutlined />
+                  <Paperclip />
                 </span>
               </Tooltip>
               )

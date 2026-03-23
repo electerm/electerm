@@ -4,7 +4,7 @@
 
 import { Table, Tooltip, Popconfirm } from 'antd'
 import { isEmpty } from 'lodash-es'
-import { CloseCircleOutlined, BarsOutlined } from '@ant-design/icons'
+import { XCircle, Menu } from 'lucide-react'
 import colsParser from './data-cols-parser'
 
 const e = window.translate
@@ -28,7 +28,7 @@ export default function TerminalInfoActivities (props) {
             title={e('close') + ' pid:' + inst.pid + ' ?'}
             onConfirm={() => props.killProcess(inst.pid)}
           >
-            <CloseCircleOutlined
+            <XCircle
               className='pointer'
             />
           </Popconfirm>
@@ -46,7 +46,7 @@ export default function TerminalInfoActivities (props) {
   }
   return (
     <div className='terminal-info-section terminal-info-act'>
-      <div className='pd1y bold'><BarsOutlined /> Activities</div>
+      <div className='pd1y bold'><Menu /> Activities</div>
       <Table {...ps} />
     </div>
   )

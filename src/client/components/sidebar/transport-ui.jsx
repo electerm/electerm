@@ -4,12 +4,7 @@
 import { useRef } from 'react'
 import Tag from '../sftp/transfer-tag'
 import { Flex } from 'antd'
-import {
-  CloseCircleOutlined,
-  PlayCircleOutlined,
-  PauseCircleOutlined,
-  VerticalAlignTopOutlined
-} from '@ant-design/icons'
+import { XCircle, PlayCircle, PauseCircle, ArrowUpToLine } from 'lucide-react'
 import { action } from 'manate'
 import { addClass, removeClass } from '../../common/class'
 import { refsStatic } from '../common/ref'
@@ -145,14 +140,14 @@ export default function Transporter (props) {
     e && e.dataTransfer && e.dataTransfer.clearData()
   }
   const isTransfer = typeTo !== typeFrom
-  const Icon = !pausing ? PauseCircleOutlined : PlayCircleOutlined
+  const Icon = !pausing ? PauseCircle : PlayCircle
   const pauseTitle = pausing ? e('resume') : e('pause')
   const cls = 'sftp-transport mg1b pd1x'
   const typeFromTitle = e(typeFrom)
   const typeToTitle = e(typeTo)
   const title = `${typeFromTitle}→${typeToTitle}: ${fromPath} -> ${toPath} ${speed || ''} ${percent || 0}%`
   const cancelIcon = (
-    <CloseCircleOutlined
+    <XCircle
       className='transfer-control-icon transfer-control-cancel pointer hover-black font14'
       onClick={cancel}
       title={e('cancel')}
@@ -161,7 +156,7 @@ export default function Transporter (props) {
   const toTopIcon = index === 0
     ? null
     : (
-      <VerticalAlignTopOutlined
+      <ArrowUpToLine
         className='transfer-control-icon pointer hover-black font14'
         onClick={moveToTop}
       />

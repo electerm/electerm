@@ -1,8 +1,5 @@
 import React, { Component } from 'react'
-import {
-  CodeOutlined,
-  LoadingOutlined
-} from '@ant-design/icons'
+import { Code, Loader2 } from 'lucide-react'
 import message from '../common/message'
 import {
   Select,
@@ -464,7 +461,7 @@ export default class SettingTerminal extends Component {
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
-          <LoadingOutlined />
+          <Loader2 />
         </div>
       )
     }
@@ -500,7 +497,7 @@ export default class SettingTerminal extends Component {
     return (
       <div className='form-wrap pd1y pd2x'>
         <div className='pd1y font16 bold'>
-          <CodeOutlined className='mg1r' />
+          <Code className='mg1r' />
           {e('terminal')} {e('settings')}
         </div>
         {

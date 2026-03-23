@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Button, Tooltip, Tag, Space } from 'antd'
 import message from '../common/message'
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
+import { CheckCircle, XCircle } from 'lucide-react'
 
 const e = window.translate
 
@@ -87,7 +87,7 @@ export default function DeepLinkControl () {
                     <Tag
                       key={protocol}
                       variant='solid'
-                      icon={isRegistered ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                      icon={isRegistered ? <CheckCircle /> : <XCircle />}
                       color={isRegistered ? 'success' : 'default'}
                     >
                       {protocol}://

@@ -184,6 +184,10 @@ function initIpc () {
       const win = globalState.get('win')
       win && win.setTitle(packInfo.name + ' - ' + title)
     },
+    setTitleBarOverlay: (options) => {
+      const win = globalState.get('win')
+      win && win.setTitleBarOverlay && win.setTitleBarOverlay(options)
+    },
     setBackgroundColor: (color = '#33333300') => {
       const win = globalState.get('win')
       win && win.setBackgroundColor(color)

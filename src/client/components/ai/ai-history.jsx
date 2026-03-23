@@ -3,7 +3,7 @@
  */
 import { useState, useEffect } from 'react'
 import { Space } from 'antd'
-import { HistoryOutlined } from '@ant-design/icons'
+import { History } from 'lucide-react'
 import { getItemJSON, setItemJSON } from '../../common/safe-local-storage'
 import AiHistoryItem from './ai-history-item'
 
@@ -82,7 +82,7 @@ export default function AiHistory (props) {
   return (
     <div className='ai-bookmark-history pd1b'>
       <div className='pd1b text-muted'>
-        <HistoryOutlined className='mg1r' />
+        <History className='mg1r' />
         <span className='mg1r'>{e('history') || 'History'}:</span>
       </div>
       <Space size={[8, 8]} wrap>

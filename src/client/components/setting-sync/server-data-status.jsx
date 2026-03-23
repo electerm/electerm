@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LoadingOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Loader2, RefreshCw } from 'lucide-react'
 import dayjs from 'dayjs'
 
 const e = window.translate
@@ -22,11 +22,11 @@ export default function ServerDataStatus (props) {
   function renderReloadButton () {
     if (loading) {
       return (
-        <LoadingOutlined className='mg1l' />
+        <Loader2 className='mg1l' />
       )
     }
     return (
-      <ReloadOutlined
+      <RefreshCw
         className='pointer mg1l hover-black'
         onClick={handleReload}
       />

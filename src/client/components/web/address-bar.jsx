@@ -5,11 +5,7 @@ import {
   Space
 } from 'antd'
 import { copy } from '../../common/clipboard'
-import {
-  ReloadOutlined,
-  GlobalOutlined,
-  EllipsisOutlined
-} from '@ant-design/icons'
+import { RefreshCw, Globe, MoreHorizontal } from 'lucide-react'
 import ZoomControl from '../common/zoom-control'
 
 export default function AddressBar (props) {
@@ -53,13 +49,13 @@ export default function AddressBar (props) {
           value={url}
           onClick={handleClick}
           prefix={
-            <ReloadOutlined
+            <RefreshCw
               onClick={onReload}
             />
           }
           suffix={
             <Space>
-              <GlobalOutlined
+              <Globe
                 className='pointer'
                 onClick={onOpen}
                 title={window.translate('openInDefaultBrowser')}
@@ -68,7 +64,7 @@ export default function AddressBar (props) {
                 menu={{ items }}
                 trigger={['click']}
               >
-                <EllipsisOutlined className='pointer' />
+                <MoreHorizontal className='pointer' />
               </Dropdown>
             </Space>
           }

@@ -1,7 +1,4 @@
-import {
-  CaretDownOutlined,
-  CaretRightOutlined
-} from '@ant-design/icons'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 
 export default function TreeExpander (props) {
   function onExpand (e) {
@@ -21,8 +18,8 @@ export default function TreeExpander (props) {
   }
   const shouldOpen = props.keyword || props.expandedKeys.includes(group.id)
   const Icon = shouldOpen
-    ? CaretDownOutlined
-    : CaretRightOutlined
+    ? ChevronDown
+    : ChevronRight
   const func = shouldOpen
     ? onUnExpand
     : onExpand

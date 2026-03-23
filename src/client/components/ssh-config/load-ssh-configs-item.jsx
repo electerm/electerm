@@ -2,12 +2,7 @@ import { useState } from 'react'
 import {
   Input
 } from 'antd'
-import {
-  EditOutlined,
-  DeleteOutlined,
-  CheckOutlined,
-  CloseOutlined
-} from '@ant-design/icons'
+import { Edit, Trash2, Check, X } from 'lucide-react'
 
 const { TextArea } = Input
 
@@ -43,12 +38,12 @@ export default function LoadSshConfigsItem (props) {
   function renderActions () {
     if (isEditing) {
       return [
-        <CheckOutlined
+        <Check
           className='mg1r pointer icon-success'
           onClick={handleToggleEdit}
           key='confirm-ssh-config-item'
         />,
-        <CloseOutlined
+        <X
           className='mg1r pointer icon-warning'
           onClick={handleCancelEdit}
           key='cancel-ssh-config-item'
@@ -56,12 +51,12 @@ export default function LoadSshConfigsItem (props) {
       ]
     }
     return [
-      <EditOutlined
+      <Edit
         className='mg1r pointer ssh-config-item-edit-icon'
         onClick={handleToggleEdit}
         key='edit-ssh-config-item'
       />,
-      <DeleteOutlined
+      <Trash2
         className='pointer icon-danger ssh-config-item-delete-icon'
         onClick={handleDelete}
         key='del-ssh-config-item'

@@ -1,9 +1,6 @@
 // render bookmark select, use antd tree
 import { useState, useEffect } from 'react'
-import {
-  MergeOutlined,
-  SearchOutlined
-} from '@ant-design/icons'
+import { Merge, Search } from 'lucide-react'
 import buildGroupData from '../bookmark-form/common/bookmark-group-tree-format'
 import { Tree, Button, Input } from 'antd'
 import Modal from '../common/modal'
@@ -99,7 +96,7 @@ export default auto(function MoveItemModal (props) {
 
   // if it is a group and can move to root, add root option
   if (moveItemIsGroup && currentParentId) {
-    const title = <span><MergeOutlined /> {e('ROOT')}</span>
+    const title = <span><Merge /> {e('ROOT')}</span>
     data.unshift({
       title,
       value: rootId,
@@ -221,7 +218,7 @@ export default auto(function MoveItemModal (props) {
       <div className='pd1b'>
         <Input
           placeholder={e('search')}
-          prefix={<SearchOutlined />}
+          prefix={<Search />}
           value={searchText}
           onChange={e => setSearchText(e.target.value)}
           allowClear

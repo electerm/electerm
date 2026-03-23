@@ -3,10 +3,7 @@ import {
   Select
 } from 'antd'
 import Transport from './transport-ui'
-import {
-  PlayCircleOutlined,
-  PauseCircleOutlined
-} from '@ant-design/icons'
+import { PlayCircle, PauseCircle } from 'lucide-react'
 import { get } from 'lodash-es'
 
 const { Option } = Select
@@ -104,7 +101,7 @@ export default class TransferModalUI extends Component {
 
   renderTransportIcon = () => {
     const pausing = this.computePausing()
-    const Icon = pausing ? PlayCircleOutlined : PauseCircleOutlined
+    const Icon = pausing ? PlayCircle : PauseCircle
     return <Icon className='font14' />
   }
 

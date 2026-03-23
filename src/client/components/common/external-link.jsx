@@ -3,7 +3,7 @@
  */
 
 import { memo } from 'react'
-import { LinkOutlined } from '@ant-design/icons'
+import { Link } from 'lucide-react'
 
 window.openLink = (url) => {
   window.pre.openExternal(url)
@@ -22,7 +22,7 @@ export default memo(props => {
       onClick={e => onClick(e, to)}
       {...rest}
     >
-      {children} <LinkOutlined />
+      {children} <Link />
     </a>
   )
 })

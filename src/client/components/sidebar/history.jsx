@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react'
 import { auto } from 'manate/react'
 import { Switch } from 'antd'
-import { UnorderedListOutlined } from '@ant-design/icons'
+import { List } from 'lucide-react'
 import HistoryItem from './history-item'
 import { getItemJSON, setItemJSON } from '../../common/safe-local-storage.js'
 
@@ -57,7 +57,7 @@ export default auto(function HistoryPanel (props) {
         <Switch
           {...switchProps}
         />
-        <UnorderedListOutlined
+        <List
           {...clearIconProps}
         />
       </div>

@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { Button, Empty, Popover, Switch } from 'antd'
 import { auto } from 'manate/react'
 import { copy } from '../../common/clipboard'
-import { HistoryOutlined, DeleteOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons'
+import { History, Trash2, Copy, List } from 'lucide-react'
 import InputAutoFocus from '../common/input-auto-focus'
 import { getItemJSON, setItemJSON } from '../../common/safe-local-storage'
 import './cmd-history.styl'
@@ -91,14 +91,14 @@ export default auto(function CmdHistory (props) {
           <Button
             type='text'
             size='small'
-            icon={<CopyOutlined />}
+            icon={<Copy />}
             className='cmd-history-item-copy'
             onClick={(ev) => handleCopyCommand(item.cmd, ev)}
           />
           <Button
             type='text'
             size='small'
-            icon={<DeleteOutlined />}
+            icon={<Trash2 />}
             className='cmd-history-item-delete'
             onClick={(ev) => handleDeleteCommand(item.cmd, ev)}
           />
@@ -126,7 +126,7 @@ export default auto(function CmdHistory (props) {
           onChange={handleSortByFrequencyChange}
           size='small'
         />
-        <UnorderedListOutlined
+        <List
           className='cmd-history-clear-icon pointer clear-ai-icon icon-hover'
           title={e('clear')}
           onClick={handleClearAll}
@@ -147,7 +147,7 @@ export default auto(function CmdHistory (props) {
       <Button
         size='small'
         type='text'
-        icon={<HistoryOutlined />}
+        icon={<History />}
       />
     </Popover>
   )

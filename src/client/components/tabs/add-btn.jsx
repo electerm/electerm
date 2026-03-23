@@ -4,9 +4,7 @@
 
 import React, { Component } from 'react'
 import { createPortal } from 'react-dom'
-import {
-  PlusOutlined
-} from '@ant-design/icons'
+import { Plus } from 'lucide-react'
 import AddBtnMenu from './add-btn-menu'
 import classNames from 'classnames'
 import hasActiveInput from '../../common/has-active-input'
@@ -192,7 +190,7 @@ export default class AddBtn extends Component {
 
     return (
       <>
-        <PlusOutlined
+        <Plus
           title={e('openNewTerm')}
           className={cls}
           onClick={this.handleAddBtnClick}

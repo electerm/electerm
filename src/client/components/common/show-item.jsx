@@ -4,7 +4,7 @@
  */
 
 import { memo } from 'react'
-import { FolderOpenOutlined } from '@ant-design/icons'
+import { FolderOpen } from 'lucide-react'
 // import { isMac } from '../../common/constants'
 // import fs from '../../common/fs'
 
@@ -21,7 +21,7 @@ export default memo(props => {
       onClick={e => onClick(e, to)}
       {...rest}
     >
-      {children} <FolderOpenOutlined />
+      {children} <FolderOpen />
     </a>
   )
 })

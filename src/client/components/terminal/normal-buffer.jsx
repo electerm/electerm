@@ -2,7 +2,7 @@
  * when in alternate buffer, user press cmd + arrow up to open normal buffer content
  */
 
-import { CloseCircleOutlined } from '@ant-design/icons'
+import { XCircle } from 'lucide-react'
 import { memo } from 'react'
 
 export default memo(function NormalBuffer (props) {
@@ -23,7 +23,7 @@ export default memo(function NormalBuffer (props) {
           Normal buffer content
         </span>
         <span className='fright pd1r'>
-          <CloseCircleOutlined
+          <XCircle
             {...pops}
           />
         </span>
