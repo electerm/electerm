@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react'
+import shouldUseSystemTitleBar from '../../common/should-use-system-title-bar'
 
 export default function AppDrag (props) {
   const isDraggingRef = useRef(false)
+  const useSystemTitleBar = shouldUseSystemTitleBar(window.store?.config)
 
   function canOperate (e) {
     const {
@@ -20,6 +22,9 @@ export default function AppDrag (props) {
   }
 
   useEffect(() => {
+    if (useSystemTitleBar) {
+      return
+    }
     if (window.store.shouldSendWindowMove) {
       return
     }
@@ -30,7 +35,11 @@ export default function AppDrag (props) {
       document.removeEventListener('mouseup', onMouseUp)
       window.removeEventListener('contextmenu', onMouseUp)
     }
-  }, [])
+  }, [useSystemTitleBar])
+
+  if (useSystemTitleBar) {
+    return props.children || null
+  }
 
   function onMouseDown (e) {
     // e.stopPropagation()

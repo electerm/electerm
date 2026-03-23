@@ -3,7 +3,7 @@ const {
 } = require('electron')
 const { resolve } = require('path')
 const {
-  isDev, packInfo, iconPath, isMac,
+  isDev, packInfo, iconPath, isMac, isWin,
   minWindowWidth, minWindowHeight
 } = require('../common/runtime-constants')
 const defaults = require('../common/default-setting')
@@ -25,7 +25,7 @@ exports.createWindow = async function (userConfig) {
   globalState.set('closeAction', 'closeApp')
   globalState.set('requireAuth', !!userConfig.hashedPassword)
   const { width, height, x, y } = await getWindowSize()
-  const { useSystemTitleBar = defaults.useSystemTitleBar } = userConfig
+  const useSystemTitleBar = isWin || userConfig.useSystemTitleBar === true || defaults.useSystemTitleBar
   const win = new BrowserWindow({
     width,
     height,
@@ -35,6 +35,7 @@ exports.createWindow = async function (userConfig) {
     minWidth: minWindowWidth,
     minHeight: minWindowHeight,
     title: packInfo.name,
+    autoHideMenuBar: isWin,
     frame: useSystemTitleBar,
     transparent: !useSystemTitleBar,
     backgroundColor: '#333333',
@@ -53,6 +54,8 @@ exports.createWindow = async function (userConfig) {
   // hides the traffic lights
   if (isMac) {
     win.setWindowButtonVisibility(true)
+  } else if (isWin) {
+    win.setMenuBarVisibility(false)
   }
 
   win.webContents.session.setSpellCheckerDictionaryDownloadURL('https://00.00/')

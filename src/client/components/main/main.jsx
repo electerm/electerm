@@ -36,6 +36,7 @@ import WorkspaceSaveModal from '../tabs/workspace-save-modal'
 import BookmarkFromHistoryModal from '../bookmark-form/bookmark-from-history-modal'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
+import shouldUseSystemTitleBar from '../../common/should-use-system-title-bar'
 import './wrapper.styl'
 import './term-fullscreen.styl'
 
@@ -95,12 +96,13 @@ export default auto(function Index (props) {
     rightPanelTitle,
     rightPanelTab
   } = store
+  const useSystemTitleBar = shouldUseSystemTitleBar(config)
   const upgradeInfo = deepCopy(store.upgradeInfo)
   const cls = classnames({
     loaded: configLoaded,
     'not-webapp': !window.et.isWebApp,
-    'system-ui': store.config.useSystemTitleBar,
-    'not-system-ui': !store.config.useSystemTitleBar,
+    'system-ui': useSystemTitleBar,
+    'not-system-ui': !useSystemTitleBar,
     'is-mac': isMac,
     'not-mac': !isMac,
     'is-win': isWin,

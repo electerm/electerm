@@ -22,7 +22,8 @@ import InputNumberConfirm from '../common/input-number-confirm'
 import TextareaConfirm from '../common/textarea-confirm'
 import {
   settingMap,
-  proxyHelpLink
+  proxyHelpLink,
+  isWin
 } from '../../common/constants'
 import defaultSettings from '../../common/default-setting'
 import Link from '../common/external-link'
@@ -468,6 +469,21 @@ export default class SettingCommon extends Component {
       hotkey,
       onSaveConfig: this.saveConfig
     }
+    const toggleNames = [
+      'autoRefreshWhenSwitchToSftp',
+      'showHiddenFilesOnSftpStart',
+      'screenReaderMode',
+      'initDefaultTabOnStart',
+      'disableConnectionHistory',
+      'disableTransferHistory',
+      'checkUpdateOnStart',
+      'useSystemTitleBar',
+      'confirmBeforeExit',
+      'hideIP',
+      'allowMultiInstance',
+      'disableDeveloperTool',
+      'debug'
+    ].filter(name => !isWin || name !== 'useSystemTitleBar')
     return (
       <div className='form-wrap pd1y pd2x'>
         <h2>{e('settings')}</h2>
@@ -589,21 +605,7 @@ export default class SettingCommon extends Component {
           this.renderText('keyword2FA')
         }
         {
-          [
-            'autoRefreshWhenSwitchToSftp',
-            'showHiddenFilesOnSftpStart',
-            'screenReaderMode',
-            'initDefaultTabOnStart',
-            'disableConnectionHistory',
-            'disableTransferHistory',
-            'checkUpdateOnStart',
-            'useSystemTitleBar',
-            'confirmBeforeExit',
-            'hideIP',
-            'allowMultiInstance',
-            'disableDeveloperTool',
-            'debug'
-          ].map(this.renderToggle)
+          toggleNames.map(this.renderToggle)
         }
         {
           window.et.isWebApp ? null : <DeepLinkControl />

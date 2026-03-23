@@ -28,6 +28,7 @@ import AddBtn from './add-btn'
 import AppDrag from './app-drag'
 import NoSession from './no-session'
 import classNames from 'classnames'
+import shouldUseSystemTitleBar from '../../common/should-use-system-title-bar'
 
 export default class Tabs extends Component {
   constructor (props) {
@@ -238,7 +239,7 @@ export default class Tabs extends Component {
 
   renderContent () {
     const { config } = this.props
-    if (config.useSystemTitleBar) {
+    if (shouldUseSystemTitleBar(config)) {
       return this.renderContentInner()
     }
     return (
@@ -253,10 +254,11 @@ export default class Tabs extends Component {
     const len = tabs.length
     const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
     const { overflow } = this.state
+    const useSystemTitleBar = shouldUseSystemTitleBar(config)
     const left = overflow
       ? '100%'
       : tabsWidthAll
-    const w1 = isMacJs && (config.useSystemTitleBar || window.et.isWebApp)
+    const w1 = isMacJs && (useSystemTitleBar || window.et.isWebApp)
       ? 30
       : this.getExtraTabWidth()
     const style = {

@@ -6,6 +6,9 @@ const { resolve: pathResolve } = require('path')
 const { TerminalBase } = require('./session-base')
 const globalState = require('./global-state')
 const { execSync } = require('child_process')
+const {
+  assertNodePtyAvailable
+} = require('../lib/node-pty-check')
 
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
@@ -53,7 +56,7 @@ class TerminalLocal extends TerminalBase {
       : platform === 'darwin' ? execMacArgs : execLinuxArgs
     const cwd = process.env[platform === 'win32' ? 'USERPROFILE' : 'HOME']
     const argv = platform.startsWith('darwin') ? ['--login', ...arg] : arg
-    const pty = require('node-pty')
+    const pty = assertNodePtyAvailable()
     const env = Object.assign({}, process.env)
     // if (!env.SystemRoot) {
     //   env.SystemRoot = process.env.windir

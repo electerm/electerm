@@ -11,6 +11,9 @@ const contants = require('../common/runtime-constants')
 const windowMove = require('./window-drag-move.js')
 const globalState = require('./glob-state')
 const { transferKeys } = require('../server/transfer')
+const {
+  getNodePtyAvailability
+} = require('./node-pty-check')
 const os = require('os')
 const {
   isTest
@@ -37,12 +40,12 @@ const isMaximized = () => {
 
 module.exports = {
   nodePtyCheck: () => {
-    try {
-      return !!require('node-pty')
-    } catch (err) {
-      log.error('Failed to load node-pty:', err)
+    const result = getNodePtyAvailability()
+    if (!result.ok) {
+      log.error('Failed to load node-pty:', result.reason)
       return false
     }
+    return true
   },
   windowMove,
   getFsContants: () => {

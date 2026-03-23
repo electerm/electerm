@@ -41,6 +41,7 @@ import {
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import createTitle from '../common/create-title'
+import shouldUseSystemTitleBar from '../common/should-use-system-title-bar'
 import {
   theme
 } from 'antd'
@@ -93,7 +94,7 @@ class Store {
   get shouldSendWindowMove () {
     return isWin &&
         !window.et.isWebApp &&
-        !window.store.config.useSystemTitleBar
+        !shouldUseSystemTitleBar(window.store.config)
   }
 
   get batchInputSelectedTabIds () {

@@ -1,3 +1,7 @@
+const {
+  isWin
+} = require('./runtime-constants')
+
 /**
  * default setting
  */
@@ -32,7 +36,7 @@ module.exports = exports.default = {
   checkUpdateOnStart: true,
   cursorBlink: false,
   cursorStyle: 'block',
-  useSystemTitleBar: false,
+  useSystemTitleBar: isWin,
   opacity: 1,
   defaultEditor: '',
   terminalWordSeparator: './\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~ ?',
