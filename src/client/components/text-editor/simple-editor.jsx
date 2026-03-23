@@ -31,7 +31,7 @@ export default function SimpleEditor (props) {
         // Set selection range to select the matched text
         textarea.setSelectionRange(match.start, match.end)
 
-        // Focus the textarea when explicitly navigating between matches
+        // Focus the textarea when explicitly navigating to show highlight
         textarea.focus()
 
         // Scroll to the selection position
@@ -58,8 +58,6 @@ export default function SimpleEditor (props) {
 
   // Auto-search when keyword changes (but not when text is being edited)
   useEffect(() => {
-    // Set navigating to true so first match is highlighted when searching
-    setIsNavigating(true)
     findMatches()
   }, [searchKeyword])
 
