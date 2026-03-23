@@ -19,6 +19,19 @@ export default function AppDrag (props) {
     return true
   }
 
+  useEffect(() => {
+    if (window.store.shouldSendWindowMove) {
+      return
+    }
+    document.addEventListener('mouseup', onMouseUp)
+    window.addEventListener('contextmenu', onMouseUp)
+
+    return () => {
+      document.removeEventListener('mouseup', onMouseUp)
+      window.removeEventListener('contextmenu', onMouseUp)
+    }
+  }, [])
+
   function onMouseDown (e) {
     // e.stopPropagation()
     if (canOperate(e)) {
@@ -47,18 +60,6 @@ export default function AppDrag (props) {
     } else {
       window.pre.runGlobalAsync('maximize')
     }
-  }
-  if (!window.store.shouldSendWindowMove) {
-    useEffect(() => {
-      // Listen for mouseup at document level to catch mouseup outside window
-      document.addEventListener('mouseup', onMouseUp)
-      window.addEventListener('contextmenu', onMouseUp)
-
-      return () => {
-        document.removeEventListener('mouseup', onMouseUp)
-        window.removeEventListener('contextmenu', onMouseUp)
-      }
-    }, [])
   }
   const props0 = {
     className: 'app-drag',
