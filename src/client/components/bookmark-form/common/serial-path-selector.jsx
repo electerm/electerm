@@ -1,4 +1,4 @@
-import { ReloadOutlined } from '@ant-design/icons'
+import { RefreshCw } from 'lucide-react'
 import { AutoComplete, Spin, Form } from 'antd'
 import { formItemLayout } from '../../../common/form-layout'
 
@@ -31,7 +31,7 @@ export default function SerialPathSelector ({
       </FormItem>
       <Spin spinning={loaddingSerials}>
         <span onClick={store.handleGetSerials} className='pointer'>
-          <ReloadOutlined /> {e('reload')} serials
+          <RefreshCw /> {e('reload')} serials
         </span>
       </Spin>
     </FormItem>

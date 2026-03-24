@@ -17,7 +17,7 @@ import {
   terminalSpiceType
 } from '../../common/constants'
 import { createTitleWithTag } from '../../common/create-title'
-import { LoadingOutlined, BookOutlined, RobotOutlined } from '@ant-design/icons'
+import { Loader2, Book, Bot } from 'lucide-react'
 import sessionConfig from './config/session-config'
 import renderForm from './render-form'
 import AIBookmarkForm from './ai-bookmark-form'
@@ -120,7 +120,7 @@ export default class BookmarkIndex2 extends PureComponent {
       <Button
         size='small'
         className='mg2l create-ai-btn'
-        icon={<RobotOutlined />}
+        icon={<Bot />}
         onClick={this.handleToggleAIMode}
       >
         {e('createBookmarkByAI')}
@@ -153,7 +153,7 @@ export default class BookmarkIndex2 extends PureComponent {
     if (!ready) {
       return (
         <div className='pd3 aligncenter'>
-          <LoadingOutlined />
+          <Loader2 />
         </div>
       )
     }
@@ -162,7 +162,7 @@ export default class BookmarkIndex2 extends PureComponent {
     return (
       <div className='form-wrap pd1x'>
         <div className='form-title pd1t pd1x pd2b bold'>
-          <BookOutlined className='mg1r' />
+          <Book className='mg1r' />
           <span>
             {((!isNew ? e('edit') : e('new')) + ' ' + e(settingMap.bookmarks))}
           </span>

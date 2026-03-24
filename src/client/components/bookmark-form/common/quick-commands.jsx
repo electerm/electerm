@@ -14,7 +14,7 @@ import {
   Button
 } from 'antd'
 import { formItemLayout } from '../../../common/form-layout'
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { MinusCircle, Plus } from 'lucide-react'
 
 const FormItem = Form.Item
 const FormList = Form.List
@@ -44,7 +44,7 @@ export default function useQuickCmds (form, formData) {
         >
           <Input placeholder={e('quickCommand')} />
         </FormItem>
-        <MinusCircleOutlined onClick={() => remove(field.name)} />
+        <MinusCircle onClick={() => remove(field.name)} />
       </Space>
     )
   }
@@ -68,7 +68,7 @@ export default function useQuickCmds (form, formData) {
                   type='dashed'
                   onClick={() => add()}
                   block
-                  icon={<PlusOutlined />}
+                  icon={<Plus />}
                 >
                   {e('newQuickCommand')}
                 </Button>

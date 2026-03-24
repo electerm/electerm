@@ -1,6 +1,6 @@
 import { Input } from 'antd'
 import { useState } from 'react'
-import { CheckOutlined } from '@ant-design/icons'
+import { Check } from 'lucide-react'
 
 export const HexInput = (props) => {
   const [v, setV] = useState((props.value || '').replace('#', ''))
@@ -14,7 +14,7 @@ export const HexInput = (props) => {
   }
   function renderAfter () {
     if (!/^[0-9a-fA-F]{6}$/.test(v)) return null
-    return <CheckOutlined className='pointer' onClick={submit} />
+    return <Check className='pointer' onClick={submit} />
   }
   return (
     <Input
