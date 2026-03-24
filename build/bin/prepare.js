@@ -19,6 +19,7 @@ delete pack.standard
 delete pack.files
 delete pack.engines
 delete pack.preferGlobal
+delete pack.devDependencies
 
 if (isWin) {
   delete pack.dependencies['node-bash']
@@ -50,7 +51,7 @@ require('fs').writeFileSync(
   )
 )
 
-exec(`cd work/app && npm i --omit=dev && cd ${cwd}`)
+exec(`cd work/app && npm i --omit=dev --legacy-peer-deps && cd ${cwd}`)
 rm('-rf', 'work/app/node_modules/.bin')
 // Remove axios browser/ESM builds and unnecessary files (keep only lib/ and node CJS)
 rm('-rf', 'work/app/node_modules/axios/dist/esm')
