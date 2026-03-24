@@ -4,6 +4,9 @@ const getPort = require('./get-port')
 const { userConfigId } = require('../common/constants')
 const generate = require('../common/uid')
 const globalState = require('./glob-state')
+const {
+  isWin
+} = require('../common/runtime-constants')
 
 exports.getConfig = async (inited) => {
   const userConfig = await dbAction('data', 'findOne', {
@@ -26,6 +29,7 @@ exports.getConfig = async (inited) => {
     port,
     tokenElecterm: inited ? globalState.get('config').tokenElecterm : generate()
   }
+  config.useSystemTitleBar = !isWin && config.useSystemTitleBar === true
   return {
     userConfig,
     config

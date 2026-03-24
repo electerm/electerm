@@ -7,6 +7,7 @@ import { auto } from 'manate/react'
 import {
   isMacJs
 } from '../../common/constants'
+import shouldUseNativeWindowControls from '../../common/should-use-native-window-controls'
 
 const e = window.translate
 
@@ -15,7 +16,7 @@ export default auto(function WindowControl (props) {
     isMaximized,
     config
   } = props.store
-  if (config.useSystemTitleBar || isMacJs) {
+  if (shouldUseNativeWindowControls(config) || isMacJs) {
     return null
   }
   const minimize = () => {

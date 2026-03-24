@@ -19,6 +19,9 @@
 .not-system-ui.not-mac.not-webapp
   .tabs-extra
     right 96px
+.titlebar-overlay.is-win.not-webapp
+  .tabs-extra
+    right 140px
 .tabs-inner
   position relative
   z-index 2
@@ -149,16 +152,40 @@
     color var(--text-light)
 .tabs-extra
   position absolute
-  height 40px
+  display flex
+  align-items center
+  gap 6px
+  height 36px
   top 0
   right 0
-  line-height 40px
+  line-height 1
   z-index 20
 
   .tabs-dd-icon
     font-size 12px
   .tabs-add-btn
     margin-top 0
+
+.layout-dd-icon
+  display inline-flex
+  align-items center
+  justify-content center
+  height 28px
+  min-width 32px
+  padding 0 6px
+  gap 4px
+  border-radius 6px
+  color var(--text-dark)
+  vertical-align middle
+  &:hover
+    color var(--text)
+    background var(--main-lighter)
+
+.layout-trigger-icon
+  font-size 13px
+
+.layout-trigger-arrow
+  font-size 10px
 
 .window-controls
   position absolute
@@ -294,6 +321,7 @@
   white-space nowrap
 
 .not-webapp.not-win
+.titlebar-overlay.is-win.not-webapp
   .tab
   .tabs-add-btn
   .window-control-box

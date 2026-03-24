@@ -3,7 +3,7 @@ const {
 } = require('electron')
 const { resolve } = require('path')
 const {
-  isDev, packInfo, iconPath, isMac,
+  isDev, packInfo, iconPath, isMac, isWin,
   minWindowWidth, minWindowHeight
 } = require('../common/runtime-constants')
 const defaults = require('../common/default-setting')
@@ -25,7 +25,10 @@ exports.createWindow = async function (userConfig) {
   globalState.set('closeAction', 'closeApp')
   globalState.set('requireAuth', !!userConfig.hashedPassword)
   const { width, height, x, y } = await getWindowSize()
-  const { useSystemTitleBar = defaults.useSystemTitleBar } = userConfig
+  const useTitleBarOverlay = isWin
+  const useSystemTitleBar = !useTitleBarOverlay && (
+    userConfig.useSystemTitleBar === true || defaults.useSystemTitleBar
+  )
   const win = new BrowserWindow({
     width,
     height,
@@ -35,8 +38,16 @@ exports.createWindow = async function (userConfig) {
     minWidth: minWindowWidth,
     minHeight: minWindowHeight,
     title: packInfo.name,
-    frame: useSystemTitleBar,
-    transparent: !useSystemTitleBar,
+    autoHideMenuBar: isWin,
+    titleBarOverlay: useTitleBarOverlay
+      ? {
+          color: '#00000000',
+          symbolColor: '#ffffff',
+          height: 36
+        }
+      : false,
+    frame: useSystemTitleBar || useTitleBarOverlay,
+    transparent: !useSystemTitleBar && !useTitleBarOverlay,
     backgroundColor: '#333333',
     webPreferences: {
       contextIsolation: true,
@@ -53,6 +64,8 @@ exports.createWindow = async function (userConfig) {
   // hides the traffic lights
   if (isMac) {
     win.setWindowButtonVisibility(true)
+  } else if (isWin) {
+    win.setMenuBarVisibility(false)
   }
 
   win.webContents.session.setSpellCheckerDictionaryDownloadURL('https://00.00/')
