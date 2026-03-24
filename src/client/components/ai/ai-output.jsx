@@ -2,7 +2,7 @@ import ReactMarkdown from 'react-markdown'
 import { copy } from '../../common/clipboard'
 import Link from '../common/external-link'
 import { Tag } from 'antd'
-import { CopyOutlined, PlayCircleOutlined } from '@ant-design/icons'
+import { Copy, PlayCircle } from 'lucide-react'
 import getBrand from './get-brand'
 
 const e = window.translate
@@ -59,12 +59,12 @@ export default function AIOutput ({ item }) {
     return (
       <div className='code-block'>
         <div className='code-block-actions alignright'>
-          <CopyOutlined
+          <Copy
             className='code-action-icon pointer iblock'
             onClick={copyToClipboard}
             title={e('copy')}
           />
-          <PlayCircleOutlined
+          <PlayCircle
             className='code-action-icon pointer mg1l iblock'
             onClick={runInTerminal}
           />

@@ -4,13 +4,7 @@ import {
   Alert,
   Tooltip
 } from 'antd'
-import {
-  UserOutlined,
-  CopyOutlined,
-  CloseOutlined,
-  CaretDownOutlined,
-  CaretRightOutlined
-} from '@ant-design/icons'
+import { User, Copy, X, ChevronDown, ChevronRight } from 'lucide-react'
 import { copy } from '../../common/clipboard'
 import { useState } from 'react'
 
@@ -28,9 +22,9 @@ export default function AIChatHistoryItem ({ item }) {
     title: (
       <>
         <span className='pointer mg1r' onClick={toggleOutput}>
-          {showOutput ? <CaretDownOutlined /> : <CaretRightOutlined />}
+          {showOutput ? <ChevronDown /> : <ChevronRight />}
         </span>
-        <UserOutlined />: {prompt}
+        <User />: {prompt}
       </>
     ),
     type: 'info'
@@ -58,11 +52,11 @@ export default function AIChatHistoryItem ({ item }) {
           <b>Time:</b> {new Date(item.timestamp).toLocaleString()}
         </p>
         <p>
-          <CopyOutlined
+          <Copy
             className='pointer'
             onClick={handleCopy}
           />
-          <CloseOutlined
+          <X
             className='pointer mg1l'
             onClick={handleDel}
           />

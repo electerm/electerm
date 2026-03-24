@@ -4,11 +4,7 @@ import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
 import uid from '../../common/uid'
 import { pick } from 'lodash-es'
-import {
-  SettingOutlined,
-  SendOutlined,
-  UnorderedListOutlined
-} from '@ant-design/icons'
+import { Settings, Send, List } from 'lucide-react'
 import {
   aiConfigWikiLink
 } from '../../common/constants'
@@ -224,7 +220,7 @@ export default function AIChat (props) {
       )
     }
     return (
-      <SendOutlined
+      <Send
         onClick={handleSubmit}
         className='mg1l pointer icon-hover send-to-ai-icon'
         title='Enter to send, Shift+Enter for new line'
@@ -280,11 +276,11 @@ export default function AIChat (props) {
               tabs={props.tabs}
               activeTabId={props.activeTabId}
             />
-            <SettingOutlined
+            <Settings
               onClick={toggleConfig}
               className='mg1l pointer icon-hover toggle-ai-setting-icon'
             />
-            <UnorderedListOutlined
+            <List
               onClick={clearHistory}
               className='mg2x pointer clear-ai-icon icon-hover'
               title='Clear AI chat history'
