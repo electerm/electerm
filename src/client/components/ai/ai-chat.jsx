@@ -14,7 +14,6 @@ import {
 } from '../../common/constants'
 import HelpIcon from '../common/help-icon'
 import { refsStatic } from '../common/ref'
-import AIStopIcon from './ai-stop-icon'
 import './ai.styl'
 
 const { TextArea } = Input
@@ -22,155 +21,43 @@ const MAX_HISTORY = 100
 
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [currentSessionId, setCurrentSessionId] = useState(null)
 
   function handlePromptChange (e) {
     setPrompt(e.target.value)
   }
 
-  function buildRole () {
-    const lang = props.config.languageAI || window.store.getLangName()
-    return props.config.roleAI + `;用[${lang}]回复`
-  }
-
-  const handleSubmit = useCallback(async function () {
+  const handleSubmit = useCallback(function () {
     if (window.store.aiConfigMissing()) {
       window.store.toggleAIConfig()
     }
-    if (!prompt.trim() || isLoading) return
-    setIsLoading(true)
+    if (!prompt.trim()) return
 
-    // Create a placeholder entry for the streaming response
     const chatId = uid()
     const chatEntry = {
       prompt,
-      response: '', // Will be updated as stream arrives
+      response: '',
       isStreaming: false,
       sessionId: null,
       ...pick(props.config, [
         'modelAI',
         'roleAI',
-        'baseURLAI'
+        'baseURLAI',
+        'apiPathAI',
+        'apiKeyAI',
+        'proxyAI',
+        'languageAI'
       ]),
       timestamp: Date.now(),
       id: chatId
     }
 
     window.store.aiChatHistory.push(chatEntry)
-
-    try {
-      const aiResponse = await window.pre.runGlobalAsync(
-        'AIchat',
-        prompt,
-        props.config.modelAI,
-        buildRole(),
-        props.config.baseURLAI,
-        props.config.apiPathAI,
-        props.config.apiKeyAI,
-        props.config.proxyAI,
-        true // Enable streaming for chat
-      )
-
-      if (aiResponse && aiResponse.error) {
-        // Remove the placeholder entry and show error
-        const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
-        if (index !== -1) {
-          window.store.aiChatHistory.splice(index, 1)
-        }
-        setIsLoading(false)
-        return window.store.onError(
-          new Error(aiResponse.error)
-        )
-      }
-
-      if (aiResponse && aiResponse.isStream && aiResponse.sessionId) {
-        // Handle streaming response with polling
-        const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
-        if (index !== -1) {
-          window.store.aiChatHistory[index].isStreaming = true
-          window.store.aiChatHistory[index].sessionId = aiResponse.sessionId
-          window.store.aiChatHistory[index].response = aiResponse.content || ''
-        }
-        // Store current session ID for stop functionality
-        setCurrentSessionId(aiResponse.sessionId)
-
-        // Start polling for updates
-        pollStreamContent(aiResponse.sessionId, chatId)
-      } else if (aiResponse && aiResponse.response) {
-        // Handle non-streaming response (fallback)
-        const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
-        if (index !== -1) {
-          window.store.aiChatHistory[index].response = aiResponse.response
-          window.store.aiChatHistory[index].isStreaming = false
-        }
-        setIsLoading(false)
-      }
-    } catch (error) {
-      // Remove the placeholder entry and show error
-      const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
-      if (index !== -1) {
-        window.store.aiChatHistory.splice(index, 1)
-      }
-      setIsLoading(false)
-      window.store.onError(error)
-    }
+    setPrompt('')
 
     if (window.store.aiChatHistory.length > MAX_HISTORY) {
       window.store.aiChatHistory.splice(MAX_HISTORY)
     }
-    setPrompt('')
-  }, [prompt, isLoading])
-
-  // Function to poll for streaming content updates
-  const pollStreamContent = async (sessionId, chatId) => {
-    try {
-      const streamResponse = await window.pre.runGlobalAsync('getStreamContent', sessionId)
-
-      if (streamResponse && streamResponse.error) {
-        // Session not found or error - stop polling
-        if (streamResponse.error === 'Session not found') {
-          setCurrentSessionId(null)
-          setIsLoading(false)
-          return
-        }
-        // Remove the entry and show error
-        const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
-        if (index !== -1) {
-          window.store.aiChatHistory.splice(index, 1)
-        }
-        setIsLoading(false)
-        return window.store.onError(new Error(streamResponse.error))
-      }
-
-      // Update the chat entry with new content
-      const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
-      if (index !== -1) {
-        window.store.aiChatHistory[index].response = streamResponse.content || ''
-        window.store.aiChatHistory[index].isStreaming = streamResponse.hasMore
-
-        // Force re-render by updating the array reference
-        window.store.aiChatHistory = [...window.store.aiChatHistory]
-
-        // Continue polling if there's more content
-        if (streamResponse.hasMore) {
-          setTimeout(() => pollStreamContent(sessionId, chatId), 200) // Poll every 200ms
-        } else {
-          setCurrentSessionId(null)
-          setIsLoading(false)
-        }
-      }
-    } catch (error) {
-      // Remove the entry and show error
-      const index = window.store.aiChatHistory.findIndex(item => item.id === chatId)
-      if (index !== -1) {
-        window.store.aiChatHistory.splice(index, 1)
-      }
-      setCurrentSessionId(null)
-      setIsLoading(false)
-      window.store.onError(error)
-    }
-  }
+  }, [prompt])
 
   function renderHistory () {
     return (
@@ -188,41 +75,7 @@ export default function AIChat (props) {
     window.store.aiChatHistory = []
   }
 
-  const handleStop = useCallback(async function () {
-    if (!currentSessionId || !isLoading) return
-
-    try {
-      // Call server to stop the stream
-      await window.pre.runGlobalAsync('stopStream', currentSessionId)
-
-      // Reset state
-      setCurrentSessionId(null)
-      setIsLoading(false)
-
-      // Update the chat entry to mark as stopped
-      const chatEntries = window.store.aiChatHistory
-      for (let i = chatEntries.length - 1; i >= 0; i--) {
-        if (chatEntries[i].isStreaming) {
-          chatEntries[i].isStreaming = false
-          break
-        }
-      }
-      window.store.aiChatHistory = [...chatEntries]
-    } catch (error) {
-      console.error('Error stopping stream:', error)
-      setCurrentSessionId(null)
-      setIsLoading(false)
-    }
-  }, [currentSessionId, isLoading])
-
   function renderSendIcon () {
-    if (isLoading) {
-      return (
-        <AIStopIcon
-          onClick={handleStop}
-        />
-      )
-    }
     return (
       <SendOutlined
         onClick={handleSubmit}
@@ -254,7 +107,6 @@ export default function AIChat (props) {
       e.preventDefault()
       handleSubmit()
     }
-    // If Shift+Enter, allow default behavior (new line)
   }
 
   return (
@@ -270,7 +122,6 @@ export default function AIChat (props) {
           onPressEnter={handleKeyPress}
           placeholder='Enter your prompt here'
           autoSize={{ minRows: 3, maxRows: 10 }}
-          disabled={isLoading}
           className='ai-chat-textarea'
         />
         <Flex className='ai-chat-terminals' justify='space-between' align='center'>
