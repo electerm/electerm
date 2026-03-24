@@ -3,7 +3,7 @@ import Link from './external-link'
 import {
   Tooltip
 } from 'antd'
-import { QuestionCircleOutlined } from '@ant-design/icons'
+import { HelpCircle } from 'lucide-react'
 
 export default memo(props => {
   const { link, title, ...rest } = props
@@ -18,7 +18,7 @@ export default memo(props => {
       {...rest}
     >
       <span className='mg1l'>
-        <QuestionCircleOutlined />
+        <HelpCircle />
       </span>
     </Tooltip>
   )

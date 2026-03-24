@@ -4,7 +4,7 @@
 import { notification } from '../components/common/notification'
 import ShowItem from '../components/common/show-item'
 import { chooseSaveDirectory } from './choose-save-folder'
-import { DownloadOutlined } from '@ant-design/icons'
+import { Download } from 'lucide-react'
 
 // function downloadForBrowser (filename, text) {
 //   const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
@@ -33,7 +33,7 @@ export default async function download (filename, text) {
     return
   }
   notification.success({
-    message: <DownloadOutlined />,
+    message: <Download />,
     description: (
       <ShowItem
         to={filePath}
