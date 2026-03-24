@@ -1,7 +1,5 @@
 import { memo } from 'react'
-import {
-  SwapOutlined
-} from '@ant-design/icons'
+import { ArrowLeftRight } from 'lucide-react'
 import {
   Badge,
   Popover
@@ -51,7 +49,7 @@ export default memo(function TransferList (props) {
         <Badge
           {...bdProps}
         >
-          <SwapOutlined
+          <ArrowLeftRight
             className='iblock font20 control-icon'
           />
         </Badge>

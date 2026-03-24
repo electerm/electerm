@@ -1,15 +1,4 @@
-import {
-  BookOutlined,
-  CloudSyncOutlined,
-  InfoCircleOutlined,
-  PictureOutlined,
-  PlusCircleOutlined,
-  SettingOutlined,
-  UpCircleOutlined,
-  BarsOutlined,
-  AppstoreOutlined,
-  ThunderboltOutlined
-} from '@ant-design/icons'
+import { Book, RefreshCw, Info, Image, PlusCircle, Settings, ArrowUpCircle, Menu, LayoutGrid, Zap } from 'lucide-react'
 import { Tooltip, Popover } from 'antd'
 import SideBarPanel from './sidebar-panel'
 import TransferList from './transfer-list'
@@ -139,8 +128,8 @@ export default function Sidebar (props) {
         <SideIcon
           title={e('newBookmark')}
         >
-          <PlusCircleOutlined
-            className='font22 iblock control-icon'
+          <PlusCircle
+            className='iblock control-icon'
             onClick={onNewSsh}
           />
         </SideIcon>
@@ -150,8 +139,8 @@ export default function Sidebar (props) {
           placement='right'
         >
           <div className='control-icon-wrap' title={e('quickConnect')}>
-            <ThunderboltOutlined
-              className='font20 iblock control-icon'
+            <Zap
+              className='iblock control-icon'
             />
           </div>
         </Popover>
@@ -159,9 +148,9 @@ export default function Sidebar (props) {
           title={e(settingMap.bookmarks)}
           active={bookmarksActive}
         >
-          <BookOutlined
+          <Book
             onClick={handleClickBookmark}
-            className='font20 iblock control-icon'
+            className='iblock control-icon'
           />
         </SideIcon>
         <TransferList {...transferProps} />
@@ -169,8 +158,8 @@ export default function Sidebar (props) {
           title={e(settingMap.terminalThemes)}
           active={themeActive}
         >
-          <PictureOutlined
-            className='font20 iblock pointer control-icon'
+          <Image
+            className='iblock pointer control-icon'
             onClick={openTerminalThemes}
           />
         </SideIcon>
@@ -178,37 +167,36 @@ export default function Sidebar (props) {
           title={e(settingMap.setting)}
           active={settingActive}
         >
-          <SettingOutlined className='iblock font20 control-icon' onClick={openSetting} />
+          <Settings className='iblock control-icon' onClick={openSetting} />
         </SideIcon>
         <SideIcon
           title={e('settingSync')}
           active={syncActive}
         >
-          <CloudSyncOutlined
-            className='iblock font20 control-icon'
+          <RefreshCw
+            className={`iblock control-icon ${isSyncingSetting ? 'anticon-spin' : ''}`}
             onClick={openSettingSync}
-            spin={isSyncingSetting}
           />
         </SideIcon>
         <SideIcon
           title={e('batchOp')}
           active={showBatchOp}
         >
-          <BarsOutlined className='iblock font20 control-icon' onClick={toggleBatchOp} />
+          <Menu className='iblock control-icon' onClick={toggleBatchOp} />
         </SideIcon>
         <SideIcon
           title={e('widgets')}
           active={widgetsActive}
         >
-          <AppstoreOutlined className='iblock font20 control-icon' onClick={openWidgetsModal} />
+          <LayoutGrid className='iblock control-icon' onClick={openWidgetsModal} />
         </SideIcon>
 
         <SideIcon
           title={e('about')}
           active={showInfoModal}
         >
-          <InfoCircleOutlined
-            className='iblock font16 control-icon open-about-icon'
+          <Info
+            className='iblock control-icon open-about-icon'
             onClick={openAbout}
           />
         </SideIcon>
@@ -222,8 +210,8 @@ export default function Sidebar (props) {
                 <div
                   className='control-icon-wrap'
                 >
-                  <UpCircleOutlined
-                    className='iblock font18 control-icon upgrade-icon'
+                  <ArrowUpCircle
+                    className='iblock control-icon upgrade-icon'
                     onClick={handleShowUpgrade}
                   />
                 </div>

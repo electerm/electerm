@@ -2,7 +2,7 @@ import { auto } from 'manate/react'
 import {
   Select
 } from 'antd'
-import { InfoCircleOutlined } from '@ant-design/icons'
+import { Info } from 'lucide-react'
 import './footer.styl'
 import { statusMap } from '../../common/constants'
 import BatchInput from './batch-input'
@@ -124,7 +124,7 @@ export default auto(function FooterEntry (props) {
     }
     return (
       <div className='terminal-footer-unit terminal-footer-info'>
-        <InfoCircleOutlined
+        <Info
           onClick={handleInfoPanel}
           className='pointer font18 terminal-info-icon'
         />

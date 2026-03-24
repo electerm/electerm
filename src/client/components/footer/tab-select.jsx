@@ -2,9 +2,7 @@ import {
   Popover
 } from 'antd'
 import TabItem from './batch-item'
-import {
-  CodeOutlined
-} from '@ant-design/icons'
+import { Code } from 'lucide-react'
 
 export default function TabSelect (props) {
   const { selectedTabIds, tabs, activeTabId } = props
@@ -64,7 +62,7 @@ export default function TabSelect (props) {
       trigger='click'
     >
       <span className='pointer iblock pd1x'>
-        ({selectedTabIds.length}) <CodeOutlined />
+        ({selectedTabIds.length}) <Code />
       </span>
     </Popover>
   )

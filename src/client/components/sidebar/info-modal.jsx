@@ -1,15 +1,5 @@
-import {
-  GithubOutlined,
-  GlobalOutlined,
-  HighlightOutlined,
-  HomeOutlined,
-  UserOutlined,
-  WarningOutlined,
-  InfoCircleOutlined,
-  AlignLeftOutlined,
-  BugOutlined,
-  HeartOutlined
-} from '@ant-design/icons'
+import { Globe, Highlighter, Home, User, AlertTriangle, Info, AlignLeft, Bug, Heart } from 'lucide-react'
+import { GithubOutlined as Github } from '@ant-design/icons'
 import { Tabs, Button } from 'antd'
 import Modal from '../common/modal'
 import Link from '../common/external-link'
@@ -141,7 +131,7 @@ export default auto(function InfoModal (props) {
   }
   const title = (
     <div className='custom-modal-close-confirm-title font16'>
-      <InfoCircleOutlined className='font20 mg1r' /> {e('about')} {name}
+      <Info className='font20 mg1r' /> {e('about')} {name}
     </div>
   )
   const attrs = {
@@ -162,61 +152,61 @@ export default auto(function InfoModal (props) {
           <p className='mg2b'>{e('desc')}</p>
           <RunningTime />
           <p className='mg1b'>
-            <HomeOutlined /> <b>{e('homepage')}/{e('download')} ➾</b>
+            <Home /> <b>{e('homepage')}/{e('download')} ➾</b>
             <Link to={homepage} className='mg1l'>
               {homepage}
             </Link>
           </p>
           <p className='mg1b'>
-            <UserOutlined /> <b className='mg1r'>{e('author')} ➾</b>
+            <User /> <b className='mg1r'>{e('author')} ➾</b>
             <Link to={authorUrl} className='mg1l'>
               {authorName} ({email})
             </Link>
           </p>
           <p className='mg1b'>
-            <GithubOutlined /> <b className='mg1r'>github ➾</b>
+            <Github /> <b className='mg1r'>github ➾</b>
             <Link to={link} className='mg1l'>
               {link}
             </Link>
           </p>
           <p className='mg1b'>
-            <GlobalOutlined /> <b className='mg1r'>{e('language')} repo ➾</b>
+            <Globe /> <b className='mg1r'>{e('language')} repo ➾</b>
             <Link to={langugeRepo} className='mg1l'>
               {langugeRepo}
             </Link>
           </p>
           <p className='mg1b'>
-            <BugOutlined /> <b className='mg1r'>{e('bugReport')} ➾</b>
+            <Bug /> <b className='mg1r'>{e('bugReport')} ➾</b>
             <Link to={bugReportLink} className='mg1l'>
               {bugReportLink}
             </Link>
           </p>
           <p className='mg1b'>
-            <HighlightOutlined /> <b className='mg1r'>{e('changeLog')} ➾</b>
+            <Highlighter /> <b className='mg1r'>{e('changeLog')} ➾</b>
             <Link to={releaseLink} className='mg1l'>
               {releaseLink}
             </Link>
           </p>
           <p className='mg1b'>
-            <AlignLeftOutlined /> <b className='mg1r'>{e('knownIssues')} ➾</b>
+            <AlignLeft /> <b className='mg1r'>{e('knownIssues')} ➾</b>
             <Link to={knownIssuesLink} className='mg1l'>
               {knownIssuesLink}
             </Link>
           </p>
           <p className='mg1b'>
-            <WarningOutlined /> <b className='mg1r'>{e('privacyNotice')} ➾</b>
+            <AlertTriangle /> <b className='mg1r'>{e('privacyNotice')} ➾</b>
             <Link to={privacyNoticeLink} className='mg1l'>
               {privacyNoticeLink}
             </Link>
           </p>
           <p className='mg1b'>
-            <HeartOutlined /> <b className='mg1r'>{e('sponsorElecterm')} ➾</b>
+            <Heart /> <b className='mg1r'>{e('sponsorElecterm')} ➾</b>
             <Link to={sponsorLink} className='mg1l'>
               {sponsorLink}
             </Link>
           </p>
           <p className='mg1b'>
-            <InfoCircleOutlined /> <b className='mg1r'>{window.store.installSrc}</b>
+            <Info /> <b className='mg1r'>{window.store.installSrc}</b>
           </p>
           {renderCheckUpdate()}
         </>
