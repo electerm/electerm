@@ -50,6 +50,30 @@ export default Store => {
     return window.pre.runGlobalAsync('runWidgetFunc', instanceId, funcName, ...args)
   }
 
+  // ── User widget CRUD ──────────────────────────────────────────────────────
+
+  Store.prototype.createUserWidget = async (code) => {
+    return window.pre.runGlobalAsync('createUserWidget', code)
+  }
+
+  Store.prototype.updateUserWidget = async (widgetId, code) => {
+    return window.pre.runGlobalAsync('updateUserWidget', widgetId, code)
+  }
+
+  Store.prototype.deleteUserWidget = async (widgetId) => {
+    return window.pre.runGlobalAsync('deleteUserWidget', widgetId)
+  }
+
+  Store.prototype.testRunUserWidget = async (code, config) => {
+    return window.pre.runGlobalAsync('testRunUserWidget', code, config)
+  }
+
+  Store.prototype.getDefaultWidgetTemplate = async () => {
+    return window.pre.runGlobalAsync('getDefaultWidgetTemplate')
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+
   Store.prototype.openWidgetsModal = () => {
     const {
       store

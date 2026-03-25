@@ -2,11 +2,17 @@
  * Widget control component - shows form for a selected widget
  */
 import React, { useState } from 'react'
+import { Button } from 'antd'
+import { EditOutlined } from '@ant-design/icons'
 import WidgetForm from './widget-form'
+import UserWidgetEditor from './user-widget-editor'
 import { showMsg } from './widget-notification-with-details'
+
+const e = window.translate
 
 export default function WidgetControl ({ formData, widgetInstancesLength }) {
   const [loading, setLoading] = useState(false)
+  const [editorVisible, setEditorVisible] = useState(false)
   const widget = formData
   if (!widget.id) {
     return (
@@ -57,14 +63,40 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
     }
   }
 
+  const handleEditorSave = async (savedWidget) => {
+    setEditorVisible(false)
+    // Refresh the saved widget in the form panel
+    window.store.setSettingItem(savedWidget)
+  }
+
   return (
     <div className='widget-control'>
+      {widget.userCreated && (
+        <div className='pd1b alignright'>
+          <Button
+            size='small'
+            icon={<EditOutlined />}
+            onClick={() => setEditorVisible(true)}
+          >
+            {e('editWidgetCode') || 'Edit Code'}
+          </Button>
+        </div>
+      )}
       <WidgetForm
         widget={widget}
         onSubmit={handleFormSubmit}
         loading={loading}
         hasRunningInstance={hasRunningInstance}
       />
+      {widget.userCreated && (
+        <UserWidgetEditor
+          visible={editorVisible}
+          widgetId={widget.id}
+          initialCode={widget.code}
+          onSave={handleEditorSave}
+          onCancel={() => setEditorVisible(false)}
+        />
+      )}
     </div>
   )
 }
