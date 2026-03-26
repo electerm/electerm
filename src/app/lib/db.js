@@ -1,8 +1,14 @@
 /**
  * db loader
+ * Provides electron-related environment to nedb/sqlite modules
  */
+
+const { appPath, defaultUserName } = require('../common/app-props')
+
 if (process.versions.node < '22.0.0') {
-  module.exports = require('./nedb')
+  const { createDb } = require('./nedb')
+  module.exports = createDb(appPath, defaultUserName)
 } else {
-  module.exports = require('./sqlite')
+  const { createDb } = require('./sqlite')
+  module.exports = createDb(appPath, defaultUserName)
 }
