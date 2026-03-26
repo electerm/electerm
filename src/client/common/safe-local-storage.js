@@ -94,6 +94,9 @@ export function setItemJSON (id, obj) {
 // ─── Safe (encrypted) functions ──────────────────────────────────────────────
 
 export function safeSetItem (id, str) {
+  if (window.et.isWebApp) {
+    return setItem(id, str)
+  }
   try {
     window.localStorage.setItem(id, encrypt(str))
   } catch (e) {
@@ -105,15 +108,24 @@ export function safeSetItem (id, str) {
 }
 
 export function safeGetItem (id) {
+  if (window.et.isWebApp) {
+    return getItem(id)
+  }
   return decrypt(window.localStorage.getItem(id) || '')
 }
 
 export function safeGetItemJSON (id, defaultValue) {
+  if (window.et.isWebApp) {
+    return getItemJSON(id, defaultValue)
+  }
   const str = decrypt(window.localStorage.getItem(id) || '')
   return str ? JSON.parse(str) : defaultValue
 }
 
 export function safeSetItemJSON (id, obj) {
+  if (window.et.isWebApp) {
+    return setItemJSON(id, obj)
+  }
   const str = JSON.stringify(obj)
   return safeSetItem(id, str)
 }
