@@ -2,83 +2,82 @@
  * User Widget Editor
  *
  * Modal component for creating or editing user-created widgets.
- * Features:
- *  - Code editor (textarea)
- *  - Test-run with configurable params
- *  - Save / Cancel
  */
 import React, { useState, useEffect } from 'react'
 import {
   Modal,
   Button,
   Input,
-  Form,
-  Alert,
-  Spin,
   Space,
-  Divider,
-  Typography
+  Divider
 } from 'antd'
 import {
   PlayCircleOutlined,
   SaveOutlined
 } from '@ant-design/icons'
 import SimpleEditor from '../text-editor/simple-editor'
-
-const { Text } = Typography
-const e = window.translate
+import { notification } from '../common/notification'
+import './widget.styl'
 
 export default function UserWidgetEditor ({
   visible,
-  widgetId, // undefined → create mode; string → edit mode
-  initialCode, // pre-populated code string
-  onSave, // (savedWidget) => void
+  widgetId,
+  initialCode,
+  onSave,
   onCancel
 }) {
   const [code, setCode] = useState('')
-  const [testForm] = Form.useForm()
+  const [testConfig, setTestConfig] = useState('')
   const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState(false)
-  const [testResult, setTestResult] = useState(null)
-  const [testError, setTestError] = useState(null)
-  const [parseError, setParseError] = useState(null)
 
   const isEditMode = !!widgetId
 
-  // ── Init ────────────────────────────────────────────────────────────────
-
   useEffect(() => {
     if (!visible) return
-    setTestResult(null)
-    setTestError(null)
-    setParseError(null)
+    setTestConfig('')
     if (initialCode) {
       setCode(initialCode)
     } else {
-      // Fetch the default template
       window.store.getDefaultWidgetTemplate()
         .then(setCode)
         .catch(err => console.error('Failed to load template:', err))
     }
   }, [visible, initialCode])
 
-  // ── Handlers ────────────────────────────────────────────────────────────
-
-  const handleCodeChange = (val) => {
+  const handleCodeChange = (e) => {
+    const val = e && e.target ? e.target.value : e
     setCode(val)
-    setParseError(null)
+  }
+
+  const handleTestConfigChange = (e) => {
+    setTestConfig(e.target.value)
   }
 
   const handleTestRun = async () => {
-    const config = testForm.getFieldsValue()
+    let config = {}
+    if (testConfig.trim()) {
+      try {
+        config = JSON.parse(testConfig)
+      } catch (_) {
+        notification.error({ message: 'Invalid JSON in test config', duration: 5 })
+        return
+      }
+    }
     setTesting(true)
-    setTestResult(null)
-    setTestError(null)
     try {
       const result = await window.store.testRunUserWidget(code, config)
-      setTestResult(JSON.stringify(result, null, 2))
+      notification.success({
+        message: 'Test run succeeded',
+        description: JSON.stringify(result, null, 2),
+        duration: 10
+      })
     } catch (err) {
-      setTestError(err.message || String(err))
+      notification.error({
+        message: 'Test run failed',
+        description: err.message || String(err),
+        duration: 10
+      })
     } finally {
       setTesting(false)
     }
@@ -86,7 +85,6 @@ export default function UserWidgetEditor ({
 
   const handleSave = async () => {
     setSaving(true)
-    setParseError(null)
     try {
       let saved
       if (isEditMode) {
@@ -96,134 +94,77 @@ export default function UserWidgetEditor ({
       }
       onSave && onSave(saved)
     } catch (err) {
-      setParseError(err.message || String(err))
+      notification.error({
+        message: 'Failed to save widget',
+        description: err.message || String(err),
+        duration: 10
+      })
     } finally {
       setSaving(false)
     }
   }
 
-  // ── Render ───────────────────────────────────────────────────────────────
+  const title = isEditMode ? 'Edit Widget' : 'Create New Widget'
 
-  const renderTestConfig = () => {
-    // Simple key=value config inputs for quick test runs
-    return (
-      <Form
-        form={testForm}
-        layout='inline'
-        size='small'
-        className='mg1t'
-      >
-        <Form.Item
-          label={e('testConfig') || 'Test config (JSON)'}
-          name='__json__'
-        >
-          <Input.TextArea
-            rows={2}
-            style={{ width: 320 }}
-            placeholder='{"key": "value"}'
-            onChange={(ev) => {
-              const val = ev.target.value
-              try {
-                const parsed = val ? JSON.parse(val) : {}
-                testForm.setFieldsValue(parsed)
-              } catch (_) {
-                // ignore parse errors while typing
-              }
-            }}
-          />
-        </Form.Item>
-      </Form>
-    )
+  const cancelBtnProps = {
+    onClick: onCancel
   }
 
-  const title = isEditMode
-    ? (e('editUserWidget') || 'Edit Widget')
-    : (e('createUserWidget') || 'Create New Widget')
+  const testBtnProps = {
+    icon: <PlayCircleOutlined />,
+    onClick: handleTestRun,
+    loading: testing
+  }
+
+  const saveBtnProps = {
+    type: 'primary',
+    icon: <SaveOutlined />,
+    onClick: handleSave,
+    loading: saving
+  }
 
   const footer = (
     <Space>
-      <Button onClick={onCancel}>
-        {e('cancel') || 'Cancel'}
-      </Button>
-      <Button
-        icon={<PlayCircleOutlined />}
-        onClick={handleTestRun}
-        loading={testing}
-      >
-        {e('testRun') || 'Test Run'}
-      </Button>
-      <Button
-        type='primary'
-        icon={<SaveOutlined />}
-        onClick={handleSave}
-        loading={saving}
-      >
-        {e('save') || 'Save'}
-      </Button>
+      <Button {...cancelBtnProps}>Cancel</Button>
+      <Button {...testBtnProps}>Test Run</Button>
+      <Button {...saveBtnProps}>Save</Button>
     </Space>
   )
 
+  const modalProps = {
+    open: visible,
+    title,
+    onCancel,
+    width: 800,
+    footer,
+    destroyOnClose: true
+  }
+
+  const editorProps = {
+    value: code,
+    onChange: handleCodeChange,
+    rows: 16
+  }
+
+  const testConfigInputProps = {
+    rows: 2,
+    className: 'widget-editor-test-config',
+    placeholder: '{"key": "value"}',
+    value: testConfig,
+    onChange: handleTestConfigChange
+  }
+
   return (
-    <Modal
-      open={visible}
-      title={title}
-      onCancel={onCancel}
-      width={800}
-      footer={footer}
-      destroyOnClose
-    >
-      <div style={{ minHeight: 400 }}>
-        <div style={{ marginBottom: 8 }}>
-          <Text type='secondary'>
-            {e('widgetEditorHint') || 'Edit the widget code below. Use customRequire() instead of require() for third-party packages.'}
-          </Text>
-        </div>
-
-        <SimpleEditor
-          value={code}
-          onChange={handleCodeChange}
-          style={{ height: 320, fontFamily: 'monospace' }}
-          rows={16}
-        />
-
-        {parseError && (
-          <Alert
-            type='error'
-            message={parseError}
-            showIcon
-            className='mg1t'
-          />
-        )}
-
-        <Divider orientation='left' plain>
-          {e('testRun') || 'Test Run'}
-        </Divider>
-
-        {renderTestConfig()}
-
-        {testing && <Spin className='mg1t' />}
-
-        {testError && (
-          <Alert
-            type='error'
-            message={testError}
-            showIcon
-            className='mg1t'
-          />
-        )}
-
-        {testResult && (
-          <Alert
-            type='success'
-            message={
-              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-                {testResult}
-              </pre>
-            }
-            showIcon
-            className='mg1t'
-          />
-        )}
+    <Modal {...modalProps}>
+      <div className='widget-editor-wrap'>
+        <p className='widget-editor-hint'>
+          Edit the widget code below. Use <code>customRequire()</code> instead of{' '}
+          <code>require()</code> for third-party packages not bundled with the app.
+        </p>
+        <SimpleEditor {...editorProps} />
+        <Divider orientation='left' plain>Test Run</Divider>
+        <p className='widget-editor-config-label'>Test config (JSON)</p>
+        <Input.TextArea {...testConfigInputProps} />
       </div>
     </Modal>
   )
