@@ -135,12 +135,12 @@ export default store => {
   }).start()
 
   autoRun(() => {
-    ls.setItemJSON('history', store.history)
+    ls.safeSetItemJSON('history', store.history)
     return store.history
   }).start()
 
   autoRun(() => {
-    ls.setItemJSON(aiChatHistoryKey, store.aiChatHistory)
+    ls.safeSetItemJSON(aiChatHistoryKey, store.aiChatHistory)
     return store.aiChatHistory
   }).start()
 
@@ -152,7 +152,7 @@ export default store => {
       count: info.count,
       lastUseTime: info.lastUseTime
     }))
-    ls.setItemJSON(cmdHistoryKey, data)
+    ls.safeSetItemJSON(cmdHistoryKey, data)
     return store.terminalCommandHistory
   }).start()
 

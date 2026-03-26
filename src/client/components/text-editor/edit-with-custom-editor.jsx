@@ -4,19 +4,20 @@
 
 import { useState } from 'react'
 import { Button, Input, Space } from 'antd'
+import { safeGetItem, safeSetItem } from '../../common/safe-local-storage.js'
 
 const LS_KEY = 'customEditorCommand'
 const e = window.translate
 
 export default function EditWithCustomEditor ({ loading, editWithCustom }) {
   const [editorCommand, setEditorCommand] = useState(
-    () => window.localStorage.getItem(LS_KEY) || ''
+    () => safeGetItem(LS_KEY) || ''
   )
 
   function handleChange (ev) {
     const val = ev.target.value
     setEditorCommand(val)
-    window.localStorage.setItem(LS_KEY, val)
+    safeSetItem(LS_KEY, val)
   }
 
   function handleClick () {

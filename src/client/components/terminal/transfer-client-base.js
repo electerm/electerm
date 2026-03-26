@@ -4,6 +4,7 @@
  */
 
 // import { transferTypeMap } from '../../common/constants.js'
+import { safeGetItem, safeSetItem } from '../../common/safe-local-storage.js'
 import { getLocalFileInfo } from '../sftp/file-read.js'
 
 /**
@@ -218,7 +219,7 @@ export class TransferClientBase {
    */
   openSaveFolderSelect = async () => {
     // Try to use last saved path
-    const lastPath = this.storageKey ? window.localStorage.getItem(this.storageKey) : null
+    const lastPath = this.storageKey ? safeGetItem(this.storageKey) : null
 
     const savePaths = await window.api.openDialog({
       title: 'Choose a folder to save file(s)',
@@ -238,9 +239,8 @@ export class TransferClientBase {
       return null
     }
 
-    // Save for next time
     if (this.storageKey) {
-      window.localStorage.setItem(this.storageKey, savePaths[0])
+      safeSetItem(this.storageKey, savePaths[0])
     }
     return savePaths[0]
   }

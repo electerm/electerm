@@ -54,7 +54,7 @@ export default () => {
     lastDataUpdateTime: 0,
     tabs: [],
     activeTabId: '',
-    history: ls.getItemJSON('history', []),
+    history: ls.safeGetItemJSON('history', []),
     sshConfigs: [],
     bookmarks: [],
     bookmarksMap: new Map(),
@@ -77,7 +77,7 @@ export default () => {
     // terminalCommandHistory: Map<cmdString, {count: Number, lastUseTime: DateString}>
     // Load from localStorage and migrate from old format (Set of strings) if needed
     terminalCommandHistory: (() => {
-      const savedData = ls.getItemJSON(cmdHistoryKey, [])
+      const savedData = ls.safeGetItemJSON(cmdHistoryKey, [])
       const map = new Map()
       if (Array.isArray(savedData)) {
         // Check if old format (array of strings) or new format (array of objects)
@@ -111,7 +111,7 @@ export default () => {
 
     // batch input selected tab ids
     _batchInputSelectedTabIds: new Set(),
-    aiChatHistory: ls.getItemJSON(aiChatHistoryKey, []),
+    aiChatHistory: ls.safeGetItemJSON(aiChatHistoryKey, []),
 
     // sftp
     fileOperation: fileOperationsMap.cp, // cp or mv

@@ -19,6 +19,7 @@ const {
   getScreenSize
 } = require('./window-control')
 const _ = require('./lodash.js')
+const { getStorageKey } = require('./storage-key')
 
 const isMaximized = () => {
   const {
@@ -36,6 +37,7 @@ const isMaximized = () => {
 }
 
 module.exports = {
+  getStorageKey,
   nodePtyCheck: () => {
     try {
       return !!require('node-pty')
