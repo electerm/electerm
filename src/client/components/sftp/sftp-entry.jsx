@@ -1152,6 +1152,21 @@ export default class Sftp extends Component {
     )
   }
 
+  renderSftpPanelTitle (type, username, host) {
+    if (type === typeMap.remote) {
+      return (
+        <div className='sftp-panel-title pd1t pd1b pd1x alignright'>
+          {e('remote')}: {username}@{host}
+        </div>
+      )
+    }
+    return (
+      <div className='sftp-panel-title pd1t pd1b pd1x'>
+        {e('local')}
+      </div>
+    )
+  }
+
   renderSection (type, style, width) {
     const {
       id
@@ -1222,17 +1237,7 @@ export default class Sftp extends Component {
         <Spin spinning={loading}>
           <div className='pd1 sftp-panel'>
             {
-              type === typeMap.remote
-                ? (
-                  <div className='sftp-panel-title pd1t pd1b pd1x alignright'>
-                    {e('remote')}: {username}@{host}
-                  </div>
-                  )
-                : (
-                  <div className='sftp-panel-title pd1t pd1b pd1x'>
-                    {e('local')}
-                  </div>
-                  )
+              this.renderSftpPanelTitle(type, username, host)
             }
             <AddressBar
               {...addrProps}
