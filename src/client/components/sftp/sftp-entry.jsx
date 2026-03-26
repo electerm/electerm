@@ -29,7 +29,7 @@ import fs from '../../common/fs'
 import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
-import { LoadingOutlined } from '@ant-design/icons'
+import { LoadingOutlined, ReloadOutlined } from '@ant-design/icons'
 import * as owner from './owner-list'
 import AddressBar from './address-bar'
 import getProxy from '../../common/get-proxy'
@@ -956,6 +956,20 @@ export default class Sftp extends Component {
     }, () => this[`${type}List`](undefined, undefined, oldPath))
   }
 
+  handleReloadRemoteSftp = async () => {
+    if (this.sftp) {
+      this.sftp.destroy()
+      this.sftp = null
+    }
+    this.setState({
+      remoteLoading: true,
+      remote: [],
+      remoteFileTree: new Map()
+    }, () => {
+      this.initRemoteAll()
+    })
+  }
+
   parsePath = (type, pth) => {
     const reg = /^%([^%]+)%/
     if (!reg.test(pth)) {
@@ -1156,6 +1170,10 @@ export default class Sftp extends Component {
     if (type === typeMap.remote) {
       return (
         <div className='sftp-panel-title pd1t pd1b pd1x alignright'>
+          <ReloadOutlined
+            className='mg1r pointer'
+            onClick={this.handleReloadRemoteSftp}
+          />
           {e('remote')}: {username}@{host}
         </div>
       )
