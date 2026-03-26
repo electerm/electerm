@@ -7,7 +7,7 @@ const {
   clipboard
 } = require('electron')
 const log = require('../common/log')
-const contants = require('../common/runtime-constants')
+const constants = require('../common/runtime-constants')
 const windowMove = require('./window-drag-move.js')
 const globalState = require('./glob-state')
 const { transferKeys } = require('../server/transfer')
@@ -47,9 +47,6 @@ module.exports = {
     }
   },
   windowMove,
-  getFsContants: () => {
-    return require('fs').constants
-  },
   readClipboard: () => {
     return clipboard.readText()
   },
@@ -106,7 +103,7 @@ module.exports = {
   getConstants: () => {
     return {
       sep: require('path').sep,
-      ...contants,
+      ...constants,
       env: JSON.stringify(process.env),
       versions: JSON.stringify(process.versions),
       transferKeys,
