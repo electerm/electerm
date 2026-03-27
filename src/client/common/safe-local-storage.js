@@ -1,4 +1,5 @@
 import { termLSPrefix } from './constants'
+import parseJsonSafe from './parse-json-safe'
 
 // ─── Encryption helpers ───────────────────────────────────────────────────────
 
@@ -83,7 +84,11 @@ export function getItem (id) {
 
 export function getItemJSON (id, defaultValue) {
   const str = window.localStorage.getItem(id) || ''
-  return str ? JSON.parse(str) : defaultValue
+  const r = parseJsonSafe(str)
+  if (typeof r === 'string') {
+    return defaultValue
+  }
+  return r || defaultValue
 }
 
 export function setItemJSON (id, obj) {
@@ -119,7 +124,11 @@ export function safeGetItemJSON (id, defaultValue) {
     return getItemJSON(id, defaultValue)
   }
   const str = decrypt(window.localStorage.getItem(id) || '')
-  return str ? JSON.parse(str) : defaultValue
+  const r = parseJsonSafe(str)
+  if (typeof r === 'string') {
+    return defaultValue
+  }
+  return r || defaultValue
 }
 
 export function safeSetItemJSON (id, obj) {
