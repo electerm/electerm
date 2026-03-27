@@ -234,6 +234,12 @@ if (type === 'rdp') {
     })
 
     function onClose () {
+      // Cancel any pending batched send
+      if (sendTimeout) {
+        clearTimeout(sendTimeout)
+        sendTimeout = null
+      }
+      dataBuffer.length = 0
       // Clean up zmodem session
       zmodemManager.destroySession(pid)
       // Clean up trzsz session
