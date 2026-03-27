@@ -58,7 +58,8 @@ import {
   loadWebglAddon,
   loadSearchAddon,
   loadLigaturesAddon,
-  loadUnicode11Addon
+  loadUnicode11Addon,
+  loadImageAddon
 } from './xterm-loader.js'
 
 const e = window.translate
@@ -164,6 +165,7 @@ class Term extends Component {
     this.searchAddon = null
     this.fitAddon = null
     this.cmdAddon = null
+    this.imageAddon = null
     // Clear the notification if it exists
     if (this.socketCloseWarning) {
       notification.destroy(this.socketCloseWarning.key)
@@ -837,6 +839,13 @@ class Term extends Component {
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
     term.loadAddon(this.cmdAddon)
+    if (tab.enableTerminalImage) {
+      const ImageAddon = await loadImageAddon()
+      this.imageAddon = new ImageAddon({
+        pixelLimit: 33554432
+      })
+      term.loadAddon(this.imageAddon)
+    }
     term.onData(this.onData)
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
