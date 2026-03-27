@@ -72,13 +72,6 @@ export async function loadUnicode11Addon () {
   return window.xtermAddons.Unicode11Addon
 }
 
-export async function loadImageAddon () {
-  if (window.xtermAddons.ImageAddon) return window.xtermAddons.ImageAddon
-  const mod = await import('@xterm/addon-image')
-  window.xtermAddons.ImageAddon = mod.ImageAddon
-  return window.xtermAddons.ImageAddon
-}
-
 export function getTerminal () {
   return window.xtermAddons.Terminal
 }
@@ -113,8 +106,4 @@ export function getLigaturesAddon () {
 
 export function getUnicode11Addon () {
   return window.xtermAddons.Unicode11Addon
-}
-
-export function getImageAddon () {
-  return window.xtermAddons.ImageAddon
 }

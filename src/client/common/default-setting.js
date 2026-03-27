@@ -29,7 +29,6 @@ export default {
   terminalBackgroundTextColor: '#ffffff',
   terminalBackgroundTextFontFamily: 'Maple Mono',
   rendererType: 'canvas',
-  enableSixel: true,
   terminalType: 'xterm-256color',
   keepaliveCountMax: 10,
   keyword2FA: 'verification code,otp,one-time,two-factor,2fa,totp,authenticator,duo,yubikey,security code,mfa,passcode',
