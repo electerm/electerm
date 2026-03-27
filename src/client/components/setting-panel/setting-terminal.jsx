@@ -580,7 +580,6 @@ export default class SettingTerminal extends Component {
           this.renderToggle('saveTerminalLogToFile')
         }
         {this.renderToggle('addTimeStampToTermLog')}
-        {this.renderToggle('enableSixel', 'pd2b', 'SIXEL')}
         {
           [
             'cursorBlink',

@@ -833,25 +833,19 @@ class Term extends Component {
     this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
     const Unicode11Addon = await loadUnicode11Addon()
     const unicode11Addon = new Unicode11Addon()
-    if (config.enableSixel !== false) {
-      try {
-        const ImageAddon = await loadImageAddon()
-        this.imageAddon = new ImageAddon({
-          enableSizeReports: false,
-          sixelSupport: true,
-          iipSupport: false
-        })
-        term.loadAddon(this.imageAddon)
-      } catch (err) {
-        console.error('load sixel addon failed', err)
-      }
-    }
     term.loadAddon(unicode11Addon)
     term.loadAddon(ligtureAddon)
     term.unicode.activeVersion = '11'
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
     term.loadAddon(this.cmdAddon)
+    if (tab.enableTerminalImage) {
+      const ImageAddon = await loadImageAddon()
+      this.imageAddon = new ImageAddon({
+        pixelLimit: 33554432
+      })
+      term.loadAddon(this.imageAddon)
+    }
     term.onData(this.onData)
     this.term = term
     term.onSelectionChange(this.onSelectionChange)

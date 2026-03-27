@@ -25,7 +25,6 @@ module.exports = exports.default = {
   terminalBackgroundFilterGrayscale: 0,
   terminalBackgroundFilterContrast: 1,
   rendererType: 'canvas',
-  enableSixel: true,
   terminalType: 'xterm-256color',
   keepaliveCountMax: 10,
   saveTerminalLogToFile: false,
