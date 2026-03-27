@@ -9,7 +9,7 @@
  */
 
 const log = require('../common/log')
-const { dbAction } = require('../lib/nedb')
+const { dbAction } = require('./nedb-instance')
 
 async function updateDBVersion (toVersion) {
   const versionQuery = {

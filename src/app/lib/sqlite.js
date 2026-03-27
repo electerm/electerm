@@ -9,7 +9,16 @@ const fs = require('fs')
 const uid = require('../common/uid')
 const { DatabaseSync } = require('node:sqlite')
 
-function createDb (appPath, defaultUserName) {
+// Tables whose stored data values should be encrypted at rest
+const ENC_TABLES = new Set(['bookmarks', 'profiles', 'data'])
+
+// Within the 'data' table, only this specific record is encrypted
+const DATA_ENC_ID = 'userConfig'
+
+// Prefix added to stored strings to mark them as encrypted
+const ENC_PREFIX = 'enc:'
+
+function createDb (appPath, defaultUserName, { enc, dec } = {}) {
   const appDataPath = process.env.DATA_PATH || resolve(appPath, 'electerm')
 
   if (!fs.existsSync(appDataPath)) {
@@ -57,22 +66,50 @@ function createDb (appPath, defaultUserName) {
     return dbName === 'data' ? dataDb : mainDb
   }
 
-  function toDoc (row) {
+  /**
+   * Encrypt a plain JSON string for storage.
+   * Returns the original string when encryption is not configured.
+   */
+  function encryptData (jsonStr) {
+    if (!enc) return jsonStr
+    return ENC_PREFIX + enc(jsonStr)
+  }
+
+  /**
+   * Decrypt a stored string back to plain JSON.
+   * Returns the original string when decryption is not configured or the
+   * value was stored without encryption.
+   */
+  function decryptData (stored) {
+    if (!dec || !stored) return stored
+    if (!stored.startsWith(ENC_PREFIX)) return stored
+    return dec(stored.slice(ENC_PREFIX.length))
+  }
+
+  function shouldEncForRow (dbName, id) {
+    if (dbName === 'data') return id === DATA_ENC_ID
+    return ENC_TABLES.has(dbName)
+  }
+
+  function toDoc (row, dbName) {
     if (!row) return null
+    const shouldDec = dec && shouldEncForRow(dbName, row._id)
+    const raw = shouldDec ? decryptData(row.data) : row.data
     return {
-      ...JSON.parse(row.data || '{}'),
+      ...JSON.parse(raw || '{}'),
       _id: row._id
     }
   }
 
-  function toRow (doc) {
+  function toRow (doc, dbName) {
     const _id = doc._id || doc.id || uid()
     const copy = { ...doc }
     delete copy._id
     delete copy.id
+    const jsonStr = JSON.stringify(copy)
     return {
       _id,
-      data: JSON.stringify(copy)
+      data: enc && shouldEncForRow(dbName, _id) ? encryptData(jsonStr) : jsonStr
     }
   }
 
@@ -91,19 +128,19 @@ function createDb (appPath, defaultUserName) {
       const sql = `SELECT * FROM \`${dbName}\``
       const stmt = db.prepare(sql)
       const rows = stmt.all()
-      return (rows || []).map(toDoc).filter(Boolean)
+      return (rows || []).map(row => toDoc(row, dbName)).filter(Boolean)
     } else if (op === 'findOne') {
       const query = args[0] || {}
       const sql = `SELECT * FROM \`${dbName}\` WHERE _id = ? LIMIT 1`
       const params = [query._id]
       const stmt = db.prepare(sql)
       const row = stmt.get(...params)
-      return toDoc(row)
+      return toDoc(row, dbName)
     } else if (op === 'insert') {
       const inserts = Array.isArray(args[0]) ? args[0] : [args[0]]
       const inserted = []
       for (const doc of inserts) {
-        const { _id, data } = toRow(doc)
+        const { _id, data } = toRow(doc, dbName)
         const stmt = db.prepare(`INSERT INTO \`${dbName}\` (_id, data) VALUES (?, ?)`)
         stmt.run(_id, data)
         inserted.push({ ...doc, _id })
@@ -126,7 +163,7 @@ function createDb (appPath, defaultUserName) {
       const { _id, data } = toRow({
         _id: qid,
         ...newData
-      })
+      }, dbName)
       let stmt
       let res
       if (upsert) {
