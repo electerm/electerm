@@ -1395,7 +1395,7 @@ class Term extends Component {
       totalLines: this.state.totalLines,
       height
     }
-    const spinCls = loading ? 'loading-wrapper' : 'hide'
+    const spin = loading ? <Spin className='loading-wrapper' spinning={loading} /> : null
     return (
       <Dropdown {...dropdownProps}>
         <div
@@ -1412,7 +1412,7 @@ class Term extends Component {
           <RemoteFloatControl
             isFullScreen={fullscreen}
           />
-          <Spin className={spinCls} spinning={loading} />
+          {spin}
         </div>
       </Dropdown>
     )
