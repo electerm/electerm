@@ -111,6 +111,8 @@ npm i -g electerm
 
 ## Discussion
 
+[![Discord](https://img.shields.io/badge/Discord-Join-blue?logo=discord)](https://discord.gg/855W7g8EVd)
+
 [Discussion board](https://github.com/electerm/electerm/discussions)
 
 ![electerm-wechat-group-qr.jpg](https://electerm.html5beta.com/electerm-wechat-group-qr.jpg)
