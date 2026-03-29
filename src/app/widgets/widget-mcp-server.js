@@ -8,7 +8,7 @@
 const { ipcMain } = require('electron')
 const { McpServer } = require('../mcp/server/mcp.js')
 const { StreamableHTTPServerTransport } = require('../mcp/server/streamableHttp.js')
-const { z } = require('zod')
+const { z } = require('../lib/zod')
 const express = require('express')
 const uid = require('../common/uid')
 const globalState = require('../lib/glob-state')

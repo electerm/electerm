@@ -1,4 +1,4 @@
-const { z } = require('zod')
+const { z } = require('../../lib/zod')
 
 function zodToJsonSchema (zodSchema) {
   if (!zodSchema) {
