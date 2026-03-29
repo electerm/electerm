@@ -23,7 +23,9 @@ class Ftp extends TerminalBase {
       port: initOptions.port || 21,
       user: initOptions.user,
       password: initOptions.password,
-      secure: initOptions.secure
+      secure: initOptions.secure,
+      proxy: initOptions.proxy,
+      readyTimeout: initOptions.readyTimeout
     })
     globalState.setSession(this.pid, this)
     this.sftp = this.client // For API compatibility
