@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { auto } from 'manate/react'
 import {
   StarOutlined,
@@ -13,6 +14,8 @@ import uid from '../../common/uid'
 import './address-bookmark.styl'
 
 export default auto(function AddrBookmark (props) {
+  const [open, setOpen] = useState(false)
+
   function onDel (item) {
     window.store.delAddressBookmark(item)
   }
@@ -39,6 +42,11 @@ export default auto(function AddrBookmark (props) {
     handleAddAddrAct(true)
   }
 
+  function handleClick (type, addr) {
+    setOpen(false)
+    onClickHistory(type, addr)
+  }
+
   const { type, onClickHistory, host } = props
   const { store } = window
   // const cls = classnames(
@@ -58,7 +66,7 @@ export default auto(function AddrBookmark (props) {
     ? addrs.map(o => {
       return (
         <AddrBookmarkItem
-          handleClick={onClickHistory}
+          handleClick={handleClick}
           type={type}
           key={o.id}
           handleDel={onDel}
@@ -100,6 +108,8 @@ export default auto(function AddrBookmark (props) {
       title={title}
       placement='bottom'
       trigger='click'
+      open={open}
+      onOpenChange={setOpen}
     >
       <StarOutlined className={props.className || ''} />
     </Popover>

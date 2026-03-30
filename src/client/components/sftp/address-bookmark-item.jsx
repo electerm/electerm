@@ -68,7 +68,7 @@ export default class AddrBookmarkItem extends Component {
         onDrop={this.handleDrop}
       >
         {globTag}
-        <b>{item.addr}</b>
+        <b className='mg1l'>{item.addr}</b>
         <CloseCircleOutlined
           className='del-addr-bookmark'
           onClick={this.handleDel}
