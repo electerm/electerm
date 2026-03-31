@@ -998,7 +998,7 @@ export default class FileSection extends React.Component {
     const shouldShowSelectedMenu = id &&
       len > 1 &&
       selectedFiles.has(id)
-    const delTxt = shouldShowSelectedMenu ? `${e('deleteAll')}(${len})` : e('del')
+    const delTxt = shouldShowSelectedMenu ? `${e('del')}:${e('selected')}(${len})` : e('del')
     const canPaste = hasFileInClipboardText()
     const showEdit = !isDirectory && id &&
       size < maxEditFileSize
