@@ -113,7 +113,6 @@ exports.createApp = async function () {
 
   // Setup deep link handlers (open-url for macOS, etc.)
   setupDeepLinkHandlers()
-  console.log('muti-instance allowed:', allowMultiInstance)
   // Only request single instance lock if multi-instance is not allowed
   if (!allowMultiInstance) {
     // Use socket-based single instance lock for compatibility with Electron 22
