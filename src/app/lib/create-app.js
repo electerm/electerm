@@ -7,7 +7,7 @@ const {
 } = require('../common/runtime-constants')
 const { initCommandLine } = require('./command-line')
 const globalState = require('./glob-state')
-const { getDbConfig } = require('./get-config')
+const { getUserConfigNoEnc, getDbConfig } = require('./get-config')
 const {
   setupDeepLinkHandlers
 } = require('./deep-link')
@@ -109,11 +109,11 @@ exports.createApp = async function () {
   const opts = progs?.options
   globalState.set('serverPort', opts?.serverPort)
 
-  const { allowMultiInstance = false } = conf
+  const { allowMultiInstance = false } = await getUserConfigNoEnc()
 
   // Setup deep link handlers (open-url for macOS, etc.)
   setupDeepLinkHandlers()
-
+  console.log('muti-instance allowed:', allowMultiInstance)
   // Only request single instance lock if multi-instance is not allowed
   if (!allowMultiInstance) {
     // Use socket-based single instance lock for compatibility with Electron 22
