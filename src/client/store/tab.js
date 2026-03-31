@@ -505,7 +505,8 @@ export default Store => {
       'sftpCreated',
       'sshSftpSplitView',
       'sshTunnelResults',
-      'displayRaw'
+      'displayRaw',
+      'autoReConnect'
     ]
     const { history } = store
     const index = history.findIndex(d => {

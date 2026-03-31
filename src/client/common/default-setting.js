@@ -72,6 +72,7 @@ export default {
   sessionLogPath: '',
   sshSftpSplitView: false,
   showCmdSuggestions: false,
+  autoReconnectTerminal: false,
   startDirectoryLocal: '',
   allowMultiInstance: false,
   disableDeveloperTool: false

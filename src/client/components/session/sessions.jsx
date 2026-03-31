@@ -11,6 +11,7 @@ import pixed from '../layout/pixed'
 export default class Sessions extends Component {
   // Function to reload a tab using store.reloadTab
   reloadTab = (tab) => {
+    window.store.updateTab(tab.id, tab)
     window.store.reloadTab(tab.id)
   }
 

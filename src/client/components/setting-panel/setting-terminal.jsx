@@ -589,7 +589,8 @@ export default class SettingTerminal extends Component {
             'ctrlOrMetaOpenTerminalLink',
             'sftpPathFollowSsh',
             'sshSftpSplitView',
-            'showCmdSuggestions'
+            'showCmdSuggestions',
+            'autoReconnectTerminal'
           ].map(d => this.renderToggle(d))
         }
         <div className='pd1b'>{e('terminalBackSpaceMode')}</div>
