@@ -12,6 +12,11 @@ import { refsStatic } from '../common/ref'
 window.initingFtpTabIds = new Set()
 
 export default class TransportsActionStore extends Component {
+  constructor (props) {
+    super(props)
+    this.pendingInitIds = new Set()
+  }
+
   componentDidMount () {
     this.control()
   }
@@ -29,6 +34,12 @@ export default class TransportsActionStore extends Component {
     const {
       fileTransfers
     } = store
+    this.pendingInitIds = new Set(
+      Array.from(this.pendingInitIds).filter(id => {
+        const transfer = fileTransfers.find(t => t.id === id)
+        return transfer && transfer.inited !== true
+      })
+    )
 
     // First loop: Handle same type transfers
     for (const t of fileTransfers) {
@@ -57,7 +68,7 @@ export default class TransportsActionStore extends Component {
         inited,
         pausing
       } = t
-      return typeTo !== typeFrom && inited && pausing !== true
+      return typeTo !== typeFrom && (inited || this.pendingInitIds.has(t.id)) && pausing !== true
     }).length
 
     if (count >= maxTransport) {
@@ -80,7 +91,7 @@ export default class TransportsActionStore extends Component {
 
       const isTransfer = typeTo !== typeFrom
 
-      if (inited || !isTransfer) {
+      if (inited || this.pendingInitIds.has(id) || !isTransfer) {
         continue
       }
 
@@ -95,6 +106,7 @@ export default class TransportsActionStore extends Component {
 
       if (count < maxTransport) {
         count++
+        this.pendingInitIds.add(id)
         refsStatic.get('transfer-queue')?.addToQueue(
           'update',
           id,
