@@ -51,7 +51,7 @@
 - 支持代理服务器.
 - 支持预设快捷命令
 - 支持主题
-- 支持同步书签等数据到github/gitee私人gist
+- 支持同步书签等数据到github/gitee私人gist, webdav/custom server/electerm cloud
 - 支持快速输入命令到一个或者多个终端
 - AI助手集成（支持[DeepSeek](https://www.deepseek.com)、OpenAI等AI API），协助命令建议、脚本编写、以及解释所选终端内容
 - MCP (Model Context Protocol) 组件，用于AI助手和外部工具集成 - 详见 [MCP Widget Usage Guide](https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide)

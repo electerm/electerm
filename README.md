@@ -51,7 +51,7 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 - Global/session proxy.
 - Quick commands
 - UI/terminal theme
-- Sync bookmarks/themes/quick commands to github/gitee secret gist
+- Sync bookmarks/themes/quick commands to github/gitee secret gist/webdav/custom server/electerm cloud
 - Quick input to one or all terminals.
 - AI assistant integration (supporting [DeepSeek](https://www.deepseek.com), OpenAI, and other AI APIs) to help with command suggestions, script writing, and explaining selected terminal content
 - MCP (Model Context Protocol) widget for AI assistants and external tools integration - see [MCP Widget Usage Guide](https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide)
