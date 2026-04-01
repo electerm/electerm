@@ -218,7 +218,7 @@ export default function SyncForm (props) {
     return (
       <div>
         <FormItem
-          label={createLabel('Server URL')}
+          label={createLabel('URL')}
           name='serverUrl'
           normalize={trim}
           rules={[{
@@ -233,7 +233,7 @@ export default function SyncForm (props) {
           />
         </FormItem>
         <FormItem
-          label={createLabel('Username')}
+          label={createLabel(e('username'))}
           name='username'
           normalize={trim}
           rules={[{
@@ -248,7 +248,7 @@ export default function SyncForm (props) {
           />
         </FormItem>
         <FormItem
-          label={createLabel('Password')}
+          label={createLabel(e('password'))}
           name='password'
           normalize={trim}
           rules={[{
