@@ -19,7 +19,6 @@ function hasNoEncryptFields (userConfig) {
 }
 
 exports.saveUserConfig = async (userConfig) => {
-  console.log('Saving user config:', userConfig)
   const q = {
     _id: userConfigId
   }
@@ -40,7 +39,6 @@ exports.saveUserConfig = async (userConfig) => {
         noEncryptConfig[f] = userConfig[f]
       }
     }
-    console.log('Saving no-encrypt user config:', noEncryptConfig)
     await dbAction('data', 'update', q1, noEncryptConfig, {
       upsert: true
     })
