@@ -133,7 +133,6 @@ export default function SyncForm (props) {
   } = props.formData
 
   const isCustom = syncType === syncTypes.custom
-  const isWebdav = syncType === syncTypes.webdav
   const timeFormatted = lastSyncTime
     ? dayjs(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
     : '-'
@@ -149,7 +148,7 @@ export default function SyncForm (props) {
     return (
       <span>
         {isCustom ? (customNameMapper[name] || name) : name}
-        {!isWebdav && <HelpIcon link={getTokenCreateGuideUrl()} />}
+        <HelpIcon link={getTokenCreateGuideUrl()} />
       </span>
     )
   }
