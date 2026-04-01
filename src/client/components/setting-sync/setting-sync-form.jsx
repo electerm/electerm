@@ -41,6 +41,10 @@ export default function SyncForm (props) {
     if (syncType === syncTypes.cloud) {
       return !props.formData.token
     }
+    if (syncType === syncTypes.webdav) {
+      const { serverUrl, username, password } = props.formData
+      return !serverUrl || !username || !password
+    }
     const {
       token,
       gistId
@@ -70,6 +74,14 @@ export default function SyncForm (props) {
     } else {
       up[syncType + 'Proxy'] = ''
     }
+
+    // Handle WebDAV specific fields
+    if (syncType === syncTypes.webdav) {
+      up[syncType + 'ServerUrl'] = res.serverUrl || ''
+      up[syncType + 'Username'] = res.username || ''
+      up[syncType + 'Password'] = res.password || ''
+    }
+
     window.store.updateSyncSetting(up)
     const test = await window.store.testSyncToken(syncType, res.gistId)
     if (isError(test)) {
@@ -121,6 +133,7 @@ export default function SyncForm (props) {
   } = props.formData
 
   const isCustom = syncType === syncTypes.custom
+  const isWebdav = syncType === syncTypes.webdav
   const timeFormatted = lastSyncTime
     ? dayjs(lastSyncTime).format('YYYY-MM-DD HH:mm:ss')
     : '-'
@@ -136,7 +149,7 @@ export default function SyncForm (props) {
     return (
       <span>
         {isCustom ? (customNameMapper[name] || name) : name}
-        <HelpIcon link={getTokenCreateGuideUrl()} />
+        {!isWebdav && <HelpIcon link={getTokenCreateGuideUrl()} />}
       </span>
     )
   }
@@ -180,6 +193,9 @@ export default function SyncForm (props) {
         </p>
       )
     }
+    if (syncType === syncTypes.webdav) {
+      return createWebdavItems()
+    }
     if (syncType !== syncTypes.custom) {
       return null
     }
@@ -199,18 +215,73 @@ export default function SyncForm (props) {
       </FormItem>
     )
   }
+  function createWebdavItems () {
+    return (
+      <div>
+        <FormItem
+          label={createLabel('Server URL')}
+          name='serverUrl'
+          normalize={trim}
+          rules={[{
+            max: 500, message: '500 chars max'
+          }, {
+            required: true, message: 'Server URL is required'
+          }]}
+        >
+          <Input
+            placeholder='https://your-webdav-server.com/remote.php/dav/files/username'
+            id='sync-input-webdav-server-url'
+          />
+        </FormItem>
+        <FormItem
+          label={createLabel('Username')}
+          name='username'
+          normalize={trim}
+          rules={[{
+            max: 200, message: '200 chars max'
+          }, {
+            required: true, message: 'Username is required'
+          }]}
+        >
+          <Input
+            placeholder='WebDAV username'
+            id='sync-input-webdav-username'
+          />
+        </FormItem>
+        <FormItem
+          label={createLabel('Password')}
+          name='password'
+          normalize={trim}
+          rules={[{
+            max: 200, message: '200 chars max'
+          }, {
+            required: true, message: 'Password is required'
+          }]}
+        >
+          <Password
+            placeholder='WebDAV password'
+            id='sync-input-webdav-password'
+          />
+        </FormItem>
+      </div>
+    )
+  }
   const desc = syncType === syncTypes.custom
     ? 'jwt secret'
-    : 'personal access token'
+    : syncType === syncTypes.webdav
+      ? 'WebDAV credentials'
+      : 'personal access token'
   const idDesc = syncType === syncTypes.custom
     ? 'user id'
-    : 'gist ID'
+    : syncType === syncTypes.webdav
+      ? 'WebDAV server'
+      : 'gist ID'
   const tokenLabel = createLabel('token', desc)
   const gistLabel = createLabel('gist', idDesc)
   const syncPasswordName = e('encrypt') + ' ' + e('password')
   const syncPasswordLabel = createLabel(syncPasswordName, '')
   function createIdItem () {
-    if (syncType === syncTypes.cloud) {
+    if (syncType === syncTypes.cloud || syncType === syncTypes.webdav) {
       return null
     }
     return (
@@ -231,7 +302,7 @@ export default function SyncForm (props) {
     )
   }
   function createPasswordItem () {
-    if (syncType === syncTypes.cloud) {
+    if (syncType === syncTypes.cloud || syncType === syncTypes.webdav) {
       return null
     }
     return (
@@ -271,17 +342,11 @@ export default function SyncForm (props) {
     type: syncType,
     status: props.serverStatus
   }
-  return (
-    <Form
-      onFinish={save}
-      form={form}
-      className='form-wrap pd1x'
-      name={'setting-sync-form' + syncType}
-      layout='vertical'
-      initialValues={props.formData}
-    >
-      {renderWarning()}
-      {createUrlItem()}
+  function createTokenItem () {
+    if (syncType === syncTypes.webdav) {
+      return null
+    }
+    return (
       <FormItem
         label={tokenLabel}
         hasFeedback
@@ -298,6 +363,20 @@ export default function SyncForm (props) {
           id={createId('token')}
         />
       </FormItem>
+    )
+  }
+  return (
+    <Form
+      onFinish={save}
+      form={form}
+      className='form-wrap pd1x'
+      name={'setting-sync-form' + syncType}
+      layout='vertical'
+      initialValues={props.formData}
+    >
+      {renderWarning()}
+      {createUrlItem()}
+      {createTokenItem()}
       {
         createIdItem()
       }

@@ -8,10 +8,16 @@ const { createProxyAgent } = require('../lib/proxy-agent')
 const {
   electermSync
 } = require('electerm-sync')
+const doWebdavSync = require('./webdav-sync')
 
 rp.defaults.proxy = false
 
 async function doSync (type, func, args, token, proxy) {
+  // Handle WebDAV sync separately
+  if (type === 'webdav') {
+    return doWebdavSync(func, args, token, proxy)
+  }
+
   const agent = createProxyAgent(proxy)
   const conf = agent
     ? {

@@ -1,3 +1,4 @@
+import { syncTypes } from '../../common/constants'
 import { useState } from 'react'
 import { LoadingOutlined, ReloadOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
@@ -10,7 +11,7 @@ export default function ServerDataStatus (props) {
   const [loading, setLoading] = useState(false)
   const token = store.getSyncToken(type)
   const gistId = store.getSyncGistId(type)
-  const canSync = token && (gistId || type === 'custom' || type === 'cloud')
+  const canSync = token && (gistId || type === 'custom' || type === 'cloud' || type === syncTypes.webdav)
 
   async function handleReload () {
     setLoading(true)
