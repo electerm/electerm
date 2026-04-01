@@ -23,9 +23,11 @@ export default auto(function WindowControl (props) {
   }
   const maximize = () => {
     window.pre.runGlobalAsync('maximize')
+    window.store.isMaximized = true
   }
   const unmaximize = () => {
     window.pre.runGlobalAsync('unmaximize')
+    window.store.isMaximized = false
   }
   const closeApp = () => {
     window.store.exit()
