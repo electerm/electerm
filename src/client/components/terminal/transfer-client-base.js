@@ -4,7 +4,7 @@
  */
 
 // import { transferTypeMap } from '../../common/constants.js'
-import { safeGetItem, safeSetItem } from '../../common/safe-local-storage.js'
+import { getItem, setItem } from '../../common/safe-local-storage.js'
 import { getLocalFileInfo } from '../sftp/file-read.js'
 
 /**
@@ -176,6 +176,8 @@ export class TransferClientBase {
 
   /**
    * Open file select dialog
+   * Supports window._apiControlSelectFile for e2e testing
+   * Set window._apiControlSelectFile = ['/path/to/file1', '/path/to/file2'] to bypass native dialog
    * @param {Object} options - Options for file selection
    * @returns {Promise<Array>} - Selected files
    */
@@ -186,20 +188,28 @@ export class TransferClientBase {
       message = 'Choose some files to send'
     } = options
 
-    const properties = [
-      directory ? 'openDirectory' : 'openFile',
-      'multiSelections',
-      'showHiddenFiles',
-      'noResolveAliases',
-      'treatPackageAsDirectory',
-      'dontAddToRecent'
-    ]
+    let files
+    if (window._apiControlSelectFile) {
+      files = Array.isArray(window._apiControlSelectFile)
+        ? window._apiControlSelectFile
+        : [window._apiControlSelectFile]
+      delete window._apiControlSelectFile
+    } else {
+      const properties = [
+        directory ? 'openDirectory' : 'openFile',
+        'multiSelections',
+        'showHiddenFiles',
+        'noResolveAliases',
+        'treatPackageAsDirectory',
+        'dontAddToRecent'
+      ]
 
-    const files = await window.api.openDialog({
-      title,
-      message,
-      properties
-    }).catch(() => false)
+      files = await window.api.openDialog({
+        title,
+        message,
+        properties
+      }).catch(() => false)
+    }
 
     if (!files || !files.length) {
       return null
@@ -215,11 +225,22 @@ export class TransferClientBase {
 
   /**
    * Open save folder select dialog
+   * Supports window._apiControlSelectFolder for e2e testing
+   * Set window._apiControlSelectFolder = '/path/to/folder' to bypass native dialog
    * @returns {Promise<string>} - Selected folder path
    */
   openSaveFolderSelect = async () => {
+    if (window._apiControlSelectFolder) {
+      const folder = window._apiControlSelectFolder
+      delete window._apiControlSelectFolder
+      if (this.storageKey) {
+        setItem(this.storageKey, folder)
+      }
+      return folder
+    }
+
     // Try to use last saved path
-    const lastPath = this.storageKey ? safeGetItem(this.storageKey) : null
+    const lastPath = this.storageKey ? getItem(this.storageKey) : null
 
     const savePaths = await window.api.openDialog({
       title: 'Choose a folder to save file(s)',
@@ -240,7 +261,7 @@ export class TransferClientBase {
     }
 
     if (this.storageKey) {
-      safeSetItem(this.storageKey, savePaths[0])
+      setItem(this.storageKey, savePaths[0])
     }
     return savePaths[0]
   }
