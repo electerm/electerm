@@ -47,11 +47,11 @@ export default class QuickCommandsList extends List {
   }
 
   handleDragEnter = e => {
-    e.target.closest('.item-list-unit').classList.add('dragover')
+    e.target.closest('.item-list-unit').classList.add('qm-field-dragover')
   }
 
   handleDragLeave = e => {
-    e.target.closest('.item-list-unit').classList.remove('dragover')
+    e.target.closest('.item-list-unit').classList.remove('qm-field-dragover')
   }
 
   handleDrop = e => {

@@ -87,6 +87,14 @@ export default function QuickCommandsFooterBox (props) {
     e.dataTransfer.setData('idDragged', e.target.getAttribute('data-id'))
   }
 
+  function onDragEnter (e) {
+    e.target.closest('.qm-item')?.classList.add('qm-item-dragover')
+  }
+
+  function onDragLeave (e) {
+    e.target.closest('.qm-item')?.classList.remove('qm-item-dragover')
+  }
+
   function onDrop (e) {
     onDropFunc(e, '.qm-item')
   }
@@ -116,6 +124,8 @@ export default function QuickCommandsFooterBox (props) {
         draggable={!qmSortByFrequency}
         handleDragOver={onDragOver}
         handleDragStart={onDragStart}
+        handleDragEnter={onDragEnter}
+        handleDragLeave={onDragLeave}
         handleDrop={onDrop}
       />
     )

@@ -23,6 +23,8 @@ export default class QuickCommandsItem extends PureComponent {
       draggable,
       handleDragOver,
       handleDragStart,
+      handleDragEnter,
+      handleDragLeave,
       handleDrop
     } = this.props
     const cls = classNames('qm-item mg1r mg1b')
@@ -34,6 +36,8 @@ export default class QuickCommandsItem extends PureComponent {
       draggable,
       onDragOver: handleDragOver,
       onDragStart: handleDragStart,
+      onDragEnter: handleDragEnter,
+      onDragLeave: handleDragLeave,
       onDrop: handleDrop
     }
     return (
