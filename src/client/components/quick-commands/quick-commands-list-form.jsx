@@ -8,7 +8,7 @@ import {
 import { MinusCircleOutlined, PlusOutlined, HolderOutlined } from '@ant-design/icons'
 import HelpIcon from '../common/help-icon'
 import { copy } from '../../common/clipboard'
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 
 const FormItem = Form.Item
 const FormList = Form.List
@@ -16,11 +16,11 @@ const e = window.translate
 
 export default function renderQm (form) {
   const focused = useRef(0)
-  const [dragIndex, setDragIndex] = useState(null)
-  const [dragOverIndex, setDragOverIndex] = useState(null)
+  const dragIndexRef = useRef(null)
 
   function handleDragStart (e, index) {
-    setDragIndex(index)
+    dragIndexRef.current = index
+    e.target.closest('.ant-space-compact')?.classList.add('qm-field-dragging')
     e.dataTransfer.effectAllowed = 'move'
     e.dataTransfer.setData('text/plain', String(index))
   }
@@ -28,18 +28,23 @@ export default function renderQm (form) {
   function handleDragOver (e, index) {
     e.preventDefault()
     e.dataTransfer.dropEffect = 'move'
-    setDragOverIndex(index)
+    const el = e.target.closest('.ant-space-compact')
+    if (dragIndexRef.current !== index && el) {
+      el.classList.add('qm-field-dragover')
+    }
   }
 
-  function handleDragLeave () {
-    setDragOverIndex(null)
+  function handleDragLeave (e) {
+    e.target.closest('.ant-space-compact')?.classList.remove('qm-field-dragover')
   }
 
   function handleDrop (e, index, form) {
     e.preventDefault()
-    setDragOverIndex(null)
+    const el = e.target.closest('.ant-space-compact')
+    el?.classList.remove('qm-field-dragover')
+    const dragIndex = dragIndexRef.current
     if (dragIndex === null || dragIndex === index) {
-      setDragIndex(null)
+      dragIndexRef.current = null
       return
     }
     const commands = form.getFieldValue('commands') || []
@@ -48,26 +53,21 @@ export default function renderQm (form) {
     newCommands.splice(dragIndex, 1)
     newCommands.splice(index, 0, item)
     form.setFieldValue('commands', newCommands)
-    setDragIndex(null)
+    dragIndexRef.current = null
   }
 
-  function handleDragEnd () {
-    setDragIndex(null)
-    setDragOverIndex(null)
+  function handleDragEnd (e) {
+    const el = e.target.closest('.ant-space-compact')
+    el?.classList.remove('qm-field-dragging')
+    el?.classList.remove('qm-field-dragover')
+    dragIndexRef.current = null
   }
 
   function renderItem (field, i, add, remove, form) {
-    const isDragging = dragIndex === i
-    const isDragOver = dragOverIndex === i && dragIndex !== i
-    const cls = [
-      'width-100 mg2b',
-      isDragging ? 'qm-field-dragging' : '',
-      isDragOver ? 'qm-field-dragover' : ''
-    ].filter(Boolean).join(' ')
     return (
       <Space.Compact
         align='center'
-        className={cls}
+        className='width-100 mg2b'
         key={field.key}
         draggable
         onDragStart={(e) => handleDragStart(e, i)}
