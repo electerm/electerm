@@ -171,6 +171,10 @@ export default function TreeListItem (props) {
     props.onDragStart(e)
   }
 
+  const onDragEnter = e => {
+    props.onDragEnter(e)
+  }
+
   const onDragLeave = e => {
     props.onDragLeave(e)
   }
@@ -224,6 +228,7 @@ export default function TreeListItem (props) {
     'data-is-group': isGroup ? 'true' : 'false',
     onDragOver,
     onDragStart,
+    onDragEnter,
     onDragLeave,
     onDrop
   }

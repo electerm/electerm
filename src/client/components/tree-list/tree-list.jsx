@@ -381,6 +381,18 @@ export default class ItemListTree extends Component {
       )
   }
 
+  onDragEnter = e => {
+    e.preventDefault()
+    let {
+      target
+    } = e
+    const tar = findParentBySel(target, '.tree-item')
+    if (tar) {
+      target = tar
+    }
+    target.classList.add('item-dragover-top')
+  }
+
   onDragLeave = e => {
     e.preventDefault()
     let {
@@ -390,7 +402,7 @@ export default class ItemListTree extends Component {
     if (tar) {
       target = tar
     }
-    target.classList.remove('item-dragover')
+    target.classList.remove('item-dragover-top')
   }
 
   onDragOver = e => {
@@ -401,14 +413,14 @@ export default class ItemListTree extends Component {
     if (tar) {
       target = tar
     }
-    target.classList.add('item-dragover')
+    target.classList.add('item-dragover-top')
   }
 
   onDrop = action(e => {
     e.preventDefault()
-    const elems = document.querySelectorAll('.tree-item.item-dragover')
+    const elems = document.querySelectorAll('.tree-item.item-dragover-top')
     elems.forEach(elem => {
-      elem.classList.remove('item-dragover')
+      elem.classList.remove('item-dragover-top')
     })
     let {
       target
@@ -662,6 +674,7 @@ export default class ItemListTree extends Component {
           'duplicateItem',
           'onDragStart',
           'onDrop',
+          'onDragEnter',
           'onDragLeave',
           'onDragOver'
         ]
