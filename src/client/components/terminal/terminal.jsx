@@ -484,9 +484,22 @@ class Term extends Component {
   }
 
   onClear = () => {
+    const shouldClear = this.searchAddon &&
+      window.store.termSearchOpen &&
+      window.store.termSearch
+    if (
+      shouldClear
+    ) {
+      this.searchAddon.clearDecorations()
+    }
     this.term.clear()
     this.term.focus()
-    // this.notifyOnData('')
+    if (shouldClear) {
+      this.searchAddon._linesCache = undefined
+      this.timers.clearSearchTimer = setTimeout(() => {
+        refsStatic.get('term-search')?.next()
+      }, 100)
+    }
   }
 
   isRemote = () => {
