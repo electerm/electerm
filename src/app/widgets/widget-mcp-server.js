@@ -53,21 +53,9 @@ const widgetInfo = {
       description: 'Enable bookmark group APIs'
     },
     {
-      name: 'enableQuickCommands',
-      type: 'boolean',
-      default: true,
-      description: 'Enable quick command APIs (list, add, edit, delete, run)'
-    },
-    {
-      name: 'enableHistory',
-      type: 'boolean',
-      default: true,
-      description: 'Enable history APIs'
-    },
-    {
       name: 'enableTransfer',
       type: 'boolean',
-      default: false,
+      default: true,
       description: 'Enable file transfer APIs'
     },
     {
@@ -433,102 +421,6 @@ class ElectermMCPServer {
         },
         async ({ title, parentId }) => {
           const result = await self.sendToRenderer('tool-call', { toolName: 'add_bookmark_group', args: { title, parentId } })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
-    }
-
-    // ==================== Quick Command APIs ====================
-    if (this.config.enableQuickCommands) {
-      server.registerTool(
-        'list_electerm_quick_commands',
-        {
-          description: 'List all electerm quick commands',
-          inputSchema: z.object({})
-        },
-        async () => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'list_quick_commands', args: {} })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
-
-      server.registerTool(
-        'add_electerm_quick_command',
-        {
-          description: 'Add a new electerm quick command',
-          inputSchema: z.object({
-            name: z.string().describe('Quick command name'),
-            command: z.string().optional().describe('Single command to execute'),
-            commands: z.array(z.object({
-              command: z.string().describe('Command'),
-              delay: z.number().optional().describe('Delay in ms before executing this command')
-            })).optional().describe('Multiple commands with delays'),
-            labels: z.array(z.string()).optional().describe('Tags/labels for the command')
-          })
-        },
-        async ({ name, command, commands, labels }) => {
-          const result = await self.sendToRenderer('tool-call', {
-            toolName: 'add_quick_command',
-            args: { name, command, commands, labels }
-          })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
-
-      server.registerTool(
-        'run_electerm_quick_command',
-        {
-          description: 'Run an electerm quick command in the active terminal',
-          inputSchema: {
-            id: z.string().describe('Quick command ID to run')
-          }
-        },
-        async ({ id }) => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'run_quick_command', args: { id } })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
-
-      server.registerTool(
-        'delete_electerm_quick_command',
-        {
-          description: 'Delete an electerm quick command',
-          inputSchema: {
-            id: z.string().describe('Quick command ID to delete')
-          }
-        },
-        async ({ id }) => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'delete_quick_command', args: { id } })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
-    }
-
-    // ==================== History APIs ====================
-    if (this.config.enableHistory) {
-      server.registerTool(
-        'list_electerm_history',
-        {
-          description: 'List electerm connection history',
-          inputSchema: {
-            limit: z.number().optional().describe('Max number of entries (default 50)')
-          }
-        },
-        async (args) => {
-          const limit = args?.limit
-          const result = await self.sendToRenderer('tool-call', { toolName: 'list_history', args: { limit } })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
-
-      server.registerTool(
-        'clear_electerm_history',
-        {
-          description: 'Clear electerm connection history',
-          inputSchema: z.object({})
-        },
-        async () => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'clear_history', args: {} })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
