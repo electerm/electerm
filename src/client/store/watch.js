@@ -12,8 +12,7 @@ import {
   resolutionsLsKey,
   localAddrBookmarkLsKey,
   syncServerDataKey,
-  aiChatHistoryKey,
-  cmdHistoryKey
+  aiChatHistoryKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { debounce, isEmpty } from 'lodash-es'
@@ -135,25 +134,8 @@ export default store => {
   }).start()
 
   autoRun(() => {
-    ls.safeSetItemJSON('history', store.history)
-    return store.history
-  }).start()
-
-  autoRun(() => {
     ls.safeSetItemJSON(aiChatHistoryKey, store.aiChatHistory)
     return store.aiChatHistory
-  }).start()
-
-  autoRun(() => {
-    const history = store.terminalCommandHistory
-    // Save in new format: array of {cmd, count, lastUseTime}
-    const data = Array.from(history.entries()).map(([cmd, info]) => ({
-      cmd,
-      count: info.count,
-      lastUseTime: info.lastUseTime
-    }))
-    ls.safeSetItemJSON(cmdHistoryKey, data)
-    return store.terminalCommandHistory
   }).start()
 
   autoRun(() => {

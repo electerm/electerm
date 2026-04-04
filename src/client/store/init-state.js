@@ -23,8 +23,7 @@ import {
   resolutionsLsKey,
   aiChatHistoryKey,
   syncServerDataKey,
-  splitMap,
-  cmdHistoryKey
+  splitMap
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { exclude } from 'manate'
@@ -54,7 +53,7 @@ export default () => {
     lastDataUpdateTime: 0,
     tabs: [],
     activeTabId: '',
-    history: ls.safeGetItemJSON('history', []),
+    history: [],
     sshConfigs: [],
     bookmarks: [],
     bookmarksMap: new Map(),
@@ -74,32 +73,9 @@ export default () => {
     addressBookmarksLocal: ls.getItemJSON(localAddrBookmarkLsKey, []),
     openResolutionEdit: false,
     resolutions: ls.getItemJSON(resolutionsLsKey, []),
-    // terminalCommandHistory: Map<cmdString, {count: Number, lastUseTime: DateString}>
-    // Load from localStorage and migrate from old format (Set of strings) if needed
-    terminalCommandHistory: (() => {
-      const savedData = ls.safeGetItemJSON(cmdHistoryKey, [])
-      const map = new Map()
-      if (Array.isArray(savedData)) {
-        // Check if old format (array of strings) or new format (array of objects)
-        if (savedData.length > 0 && typeof savedData[0] === 'string') {
-          // Old format: migrate to new format
-          savedData.forEach(cmd => {
-            map.set(cmd, { count: 1, lastUseTime: new Date().toISOString() })
-          })
-        } else {
-          // New format: array of {cmd, count, lastUseTime}
-          savedData.forEach(item => {
-            if (item.cmd) {
-              map.set(item.cmd, {
-                count: item.count || 1,
-                lastUseTime: item.lastUseTime || new Date().toISOString()
-              })
-            }
-          })
-        }
-      }
-      return map
-    })(),
+    // terminalCommandHistory: [{ id, cmd, count, lastUseTime }]
+    // Loaded from DB in initData
+    terminalCommandHistory: [],
 
     // workspaces
     workspaces: [],

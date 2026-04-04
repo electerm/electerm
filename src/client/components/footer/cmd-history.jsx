@@ -31,7 +31,7 @@ export default auto(function CmdHistory (props) {
 
   function handleDeleteCommand (cmd, ev) {
     ev.stopPropagation()
-    terminalCommandHistory.delete(cmd)
+    window.store.deleteCmdHistory(cmd)
   }
 
   function handleCopyCommand (cmd, ev) {
@@ -54,9 +54,7 @@ export default auto(function CmdHistory (props) {
     setKeyword(e.target.value)
   }
 
-  const historyArray = Array.from(terminalCommandHistory || [])
-    .map(([cmd, info]) => ({ cmd, ...info }))
-    .reverse()
+  const historyArray = (terminalCommandHistory || []).slice().reverse()
 
   let filtered = filterArray(historyArray, keyword)
 

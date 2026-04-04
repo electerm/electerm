@@ -164,7 +164,7 @@ export default class TerminalCmdSuggestions extends Component {
   }
 
   handleDelete = (item) => {
-    window.store.terminalCommandHistory.delete(item.command)
+    window.store.deleteCmdHistory(item.command)
   }
 
   handleSelect = (item) => {

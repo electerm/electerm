@@ -23,17 +23,25 @@ const dbAction = (...args) => {
 /**
  * standalone db names
  */
-export const dbNames = without(
-  Object.keys(settingMap),
-  settingMap.setting,
-  settingMap.widgets
-)
+export const dbNames = [
+  ...without(
+    Object.keys(settingMap),
+    settingMap.setting,
+    settingMap.widgets
+  ),
+  'history',
+  'terminalCommandHistory'
+]
 
-export const dbNamesForWatch = without(
-  Object.keys(settingMap),
-  settingMap.setting,
-  settingMap.widgets
-)
+export const dbNamesForWatch = [
+  ...without(
+    Object.keys(settingMap),
+    settingMap.setting,
+    settingMap.widgets
+  ),
+  'history',
+  'terminalCommandHistory'
+]
 
 /**
  * db insert

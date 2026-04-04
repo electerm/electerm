@@ -18,6 +18,7 @@ import {
 import * as ls from '../common/safe-local-storage'
 import { refs, refsStatic } from '../components/common/ref'
 import { action } from 'manate'
+import uid from '../common/uid'
 import deepCopy from 'json-deep-copy'
 import { aiConfigsArr } from '../components/ai/ai-config-props'
 import settingList from '../common/setting-list'
@@ -345,36 +346,35 @@ export default Store => {
       return
     }
     const { terminalCommandHistory } = window.store
-    const existing = terminalCommandHistory.get(cmd)
+    const existing = terminalCommandHistory.find(item => item.cmd === cmd)
     if (existing) {
-      // Use set() to trigger reactivity
-      terminalCommandHistory.set(cmd, {
-        count: existing.count + 1,
-        lastUseTime: new Date().toISOString()
-      })
+      existing.count = existing.count + 1
+      existing.lastUseTime = new Date().toISOString()
     } else {
-      terminalCommandHistory.set(cmd, {
+      terminalCommandHistory.push({
+        id: uid(),
+        cmd,
         count: 1,
         lastUseTime: new Date().toISOString()
       })
     }
-    if (terminalCommandHistory.size > 100) {
+    if (terminalCommandHistory.length > 200) {
       // Delete oldest 20 items when history exceeds 100
-      const entries = Array.from(terminalCommandHistory.entries())
-      entries.sort((a, b) => new Date(a[1].lastUseTime).getTime() - new Date(b[1].lastUseTime).getTime())
-      for (let i = 0; i < 20 && i < entries.length; i++) {
-        terminalCommandHistory.delete(entries[i][0])
-      }
+      terminalCommandHistory.sort((a, b) => new Date(a.lastUseTime).getTime() - new Date(b.lastUseTime).getTime())
+      terminalCommandHistory.splice(0, 20)
     }
   })
 
   Store.prototype.deleteCmdHistory = function (cmd) {
     const { terminalCommandHistory } = window.store
-    terminalCommandHistory.delete(cmd)
+    const idx = terminalCommandHistory.findIndex(item => item.cmd === cmd)
+    if (idx !== -1) {
+      terminalCommandHistory.splice(idx, 1)
+    }
   }
 
   Store.prototype.clearAllCmdHistory = function () {
-    window.store.terminalCommandHistory = new Map()
+    window.store.terminalCommandHistory = []
   }
 
   Store.prototype.runCmdFromHistory = function (cmd) {
