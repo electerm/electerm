@@ -45,6 +45,14 @@ export default class ConfirmModalStore extends Component {
     if (this.activeTransferId === transferId || this.queuedTransferIds.has(transferId)) {
       return
     }
+    const globalPolicy = window._transferConflictPolicy
+    if (globalPolicy && Object.values(fileActions).includes(globalPolicy)) {
+      const { id, transferBatch } = transfer
+      const trid = `tr-${transferBatch}-${id}`
+      const currentTransfer = refsTransfers.get(trid)
+      currentTransfer?.onDecision(globalPolicy)
+      return
+    }
     this.queue.push(transfer)
     this.queuedTransferIds.add(transferId)
     if (!this.activeTransferId) {
