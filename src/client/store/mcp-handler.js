@@ -56,8 +56,7 @@ export default Store => {
         case 'add_bookmark_group':
           result = await store.mcpAddBookmarkGroup(args)
           break
-
-        // Quick command operations
+        /*
         case 'list_quick_commands':
           result = store.mcpListQuickCommands()
           break
@@ -70,7 +69,7 @@ export default Store => {
         case 'delete_quick_command':
           result = store.mcpDeleteQuickCommand(args)
           break
-
+          */
         // Tab operations
         case 'list_tabs':
           result = store.mcpListTabs()
@@ -103,14 +102,6 @@ export default Store => {
           break
         case 'get_terminal_output':
           result = store.mcpGetTerminalOutput(args)
-          break
-
-        // History operations
-        case 'list_history':
-          result = store.mcpListHistory(args)
-          break
-        case 'clear_history':
-          result = store.mcpClearHistory()
           break
 
         // Transfer operations
@@ -249,58 +240,58 @@ export default Store => {
 
   // ==================== Quick Command APIs ====================
 
-  Store.prototype.mcpListQuickCommands = function () {
-    return deepCopy(window.store.quickCommands)
-  }
+  // Store.prototype.mcpListQuickCommands = function () {
+  //   return deepCopy(window.store.quickCommands)
+  // }
 
-  Store.prototype.mcpAddQuickCommand = function (args) {
-    const { store } = window
-    const qm = {
-      id: uid(),
-      name: args.name,
-      commands: args.commands,
-      inputOnly: args.inputOnly || false,
-      labels: args.labels || []
-    }
+  // Store.prototype.mcpAddQuickCommand = function (args) {
+  //   const { store } = window
+  //   const qm = {
+  //     id: uid(),
+  //     name: args.name,
+  //     commands: args.commands,
+  //     inputOnly: args.inputOnly || false,
+  //     labels: args.labels || []
+  //   }
 
-    store.addQuickCommand(qm)
+  //   store.addQuickCommand(qm)
 
-    return {
-      success: true,
-      id: qm.id,
-      message: `Quick command "${qm.name}" created`
-    }
-  }
+  //   return {
+  //     success: true,
+  //     id: qm.id,
+  //     message: `Quick command "${qm.name}" created`
+  //   }
+  // }
 
-  Store.prototype.mcpRunQuickCommand = function (args) {
-    const { store } = window
-    const qm = store.quickCommands.find(q => q.id === args.id)
-    if (!qm) {
-      throw new Error(`Quick command not found: ${args.id}`)
-    }
+  // Store.prototype.mcpRunQuickCommand = function (args) {
+  //   const { store } = window
+  //   const qm = store.quickCommands.find(q => q.id === args.id)
+  //   if (!qm) {
+  //     throw new Error(`Quick command not found: ${args.id}`)
+  //   }
 
-    store.runQuickCommandItem(args.id)
+  //   store.runQuickCommandItem(args.id)
 
-    return {
-      success: true,
-      message: `Executed quick command "${qm.name}"`
-    }
-  }
+  //   return {
+  //     success: true,
+  //     message: `Executed quick command "${qm.name}"`
+  //   }
+  // }
 
-  Store.prototype.mcpDeleteQuickCommand = function (args) {
-    const { store } = window
-    const qm = store.quickCommands.find(q => q.id === args.id)
-    if (!qm) {
-      throw new Error(`Quick command not found: ${args.id}`)
-    }
+  // Store.prototype.mcpDeleteQuickCommand = function (args) {
+  //   const { store } = window
+  //   const qm = store.quickCommands.find(q => q.id === args.id)
+  //   if (!qm) {
+  //     throw new Error(`Quick command not found: ${args.id}`)
+  //   }
 
-    store.delQuickCommand({ id: args.id })
+  //   store.delQuickCommand({ id: args.id })
 
-    return {
-      success: true,
-      message: `Deleted quick command "${qm.name}"`
-    }
-  }
+  //   return {
+  //     success: true,
+  //     message: `Deleted quick command "${qm.name}"`
+  //   }
+  // }
 
   // ==================== Tab APIs ====================
 
@@ -502,32 +493,6 @@ export default Store => {
     }
   }
 
-  // ==================== History APIs ====================
-
-  Store.prototype.mcpListHistory = function (args = {}) {
-    const { store } = window
-    const limit = args.limit || 50
-    const history = store.history.slice(0, limit)
-
-    return history.map(h => ({
-      id: h.id,
-      title: h.title,
-      host: h.host,
-      type: h.type,
-      time: h.time
-    }))
-  }
-
-  Store.prototype.mcpClearHistory = function () {
-    const { store } = window
-    store.history = []
-
-    return {
-      success: true,
-      message: 'History cleared'
-    }
-  }
-
   // ==================== Transfer APIs ====================
 
   Store.prototype.mcpListTransfers = function () {
@@ -561,33 +526,10 @@ export default Store => {
     const { store } = window
     // Return safe settings (no sensitive data)
     const config = store.config
-    const safeConfig = {
-      theme: config.theme,
-      language: config.language,
-      fontSize: config.fontSize,
-      fontFamily: config.fontFamily,
-      terminalType: config.terminalType,
-      cursorStyle: config.cursorStyle,
-      cursorBlink: config.cursorBlink,
-      scrollback: config.scrollback
-    }
+    const excludeKeys = ['apiKeyAI', 'syncSetting']
+    const safeConfig = Object.fromEntries(
+      Object.entries(config).filter(([key]) => !excludeKeys.includes(key))
+    )
     return safeConfig
-  }
-
-  Store.prototype.mcpListTerminalThemes = function () {
-    const { store } = window
-    return store.terminalThemes.map(t => ({
-      id: t.id,
-      name: t.name,
-      themeLight: t.themeLight
-    }))
-  }
-
-  Store.prototype.mcpListUiThemes = function () {
-    const { store } = window
-    return (store.uiThemes || []).map(t => ({
-      id: t.id,
-      name: t.name
-    }))
   }
 }
