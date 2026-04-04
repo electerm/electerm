@@ -59,6 +59,12 @@ const widgetInfo = {
       description: 'Enable file transfer APIs'
     },
     {
+      name: 'enableSftp',
+      type: 'boolean',
+      default: true,
+      description: 'Enable SFTP APIs (list, stat, read, delete, upload, download, trzsz)'
+    },
+    {
       name: 'enableSettings',
       type: 'boolean',
       default: false,
@@ -451,6 +457,136 @@ class ElectermMCPServer {
         async (args) => {
           const limit = args?.limit
           const result = await self.sendToRenderer('tool-call', { toolName: 'list_transfer_history', args: { limit } })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+    }
+
+    // ==================== SFTP APIs ====================
+    if (this.config.enableSftp) {
+      server.registerTool(
+        'list_electerm_sftp',
+        {
+          description: 'List files and folders in a remote directory on the SSH-connected tab',
+          inputSchema: {
+            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+            remotePath: z.string().describe('Remote directory path to list')
+          }
+        },
+        async ({ tabId, remotePath }) => {
+          const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_list', args: { tabId, remotePath } })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+
+      server.registerTool(
+        'stat_electerm_sftp',
+        {
+          description: 'Get file or directory stat/info on the remote SSH server',
+          inputSchema: {
+            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+            remotePath: z.string().describe('Remote file or directory path')
+          }
+        },
+        async ({ tabId, remotePath }) => {
+          const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_stat', args: { tabId, remotePath } })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+
+      server.registerTool(
+        'read_electerm_sftp_file',
+        {
+          description: 'Read the content of a remote file on the SSH server',
+          inputSchema: {
+            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+            remotePath: z.string().describe('Remote file path to read')
+          }
+        },
+        async ({ tabId, remotePath }) => {
+          const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_read_file', args: { tabId, remotePath } })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+
+      server.registerTool(
+        'delete_electerm_sftp',
+        {
+          description: 'Delete a file or folder on the remote SSH server',
+          inputSchema: {
+            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+            remotePath: z.string().describe('Remote file or directory path to delete')
+          }
+        },
+        async ({ tabId, remotePath }) => {
+          const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_del', args: { tabId, remotePath } })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+
+      server.registerTool(
+        'upload_electerm_sftp',
+        {
+          description: 'Upload a local file or folder to the remote SSH server using the SFTP transfer panel',
+          inputSchema: {
+            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+            localPath: z.string().describe('Local file or folder path to upload'),
+            remotePath: z.string().describe('Remote destination path'),
+            conflictPolicy: z.enum(['overwrite', 'rename']).optional().describe('Conflict policy: overwrite or rename (default: overwrite)')
+          }
+        },
+        async ({ tabId, localPath, remotePath, conflictPolicy }) => {
+          const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_upload', args: { tabId, localPath, remotePath, conflictPolicy } })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+
+      server.registerTool(
+        'download_electerm_sftp',
+        {
+          description: 'Download a remote file or folder from the SSH server to a local path using the SFTP transfer panel',
+          inputSchema: {
+            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+            remotePath: z.string().describe('Remote file or directory path to download'),
+            localPath: z.string().describe('Local destination path'),
+            conflictPolicy: z.enum(['overwrite', 'rename']).optional().describe('Conflict policy: overwrite or rename (default: overwrite)')
+          }
+        },
+        async ({ tabId, remotePath, localPath, conflictPolicy }) => {
+          const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_download', args: { tabId, remotePath, localPath, conflictPolicy } })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+
+      server.registerTool(
+        'upload_electerm_zmodem',
+        {
+          description: 'Upload local files to the remote SSH server using trzsz (trz) or rzsz (rz). The SSH tab must have the chosen protocol installed.',
+          inputSchema: {
+            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+            files: z.array(z.string()).describe('List of local file paths to upload'),
+            protocol: z.enum(['trzsz', 'rzsz']).optional().describe('Transfer protocol: trzsz (trz) or rzsz (rz) (default: trzsz)')
+          }
+        },
+        async ({ tabId, files, protocol }) => {
+          const result = await self.sendToRenderer('tool-call', { toolName: 'zmodem_upload', args: { tabId, files, protocol } })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+
+      server.registerTool(
+        'download_electerm_zmodem',
+        {
+          description: 'Download remote files from the SSH server using trzsz (tsz) or rzsz (sz). The SSH tab must have the chosen protocol installed.',
+          inputSchema: {
+            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+            remoteFiles: z.array(z.string()).describe('List of remote file paths to download'),
+            saveFolder: z.string().describe('Local folder path to save downloaded files'),
+            protocol: z.enum(['trzsz', 'rzsz']).optional().describe('Transfer protocol: trzsz (tsz) or rzsz (sz) (default: trzsz)')
+          }
+        },
+        async ({ tabId, remoteFiles, saveFolder, protocol }) => {
+          const result = await self.sendToRenderer('tool-call', { toolName: 'zmodem_download', args: { tabId, remoteFiles, saveFolder, protocol } })
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
