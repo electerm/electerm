@@ -10,7 +10,7 @@ const uid = require('../common/uid')
 const { DatabaseSync } = require('node:sqlite')
 
 // Tables whose stored data values should be encrypted at rest
-const ENC_TABLES = new Set(['bookmarks', 'profiles', 'data', 'history', 'terminalCommandHistory'])
+const ENC_TABLES = new Set(['bookmarks', 'profiles', 'data', 'history', 'terminalCommandHistory', 'aiChatHistory'])
 
 // Within the 'data' table, only this specific record is encrypted
 const DATA_ENC_ID = 'userConfig'
@@ -51,7 +51,8 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
     'profiles',
     'workspaces',
     'history',
-    'terminalCommandHistory'
+    'terminalCommandHistory',
+    'aiChatHistory'
   ]
 
   // Create tables in appropriate databases

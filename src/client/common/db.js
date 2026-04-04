@@ -30,7 +30,8 @@ export const dbNames = [
     settingMap.widgets
   ),
   'history',
-  'terminalCommandHistory'
+  'terminalCommandHistory',
+  'aiChatHistory'
 ]
 
 export const dbNamesForWatch = [
@@ -40,7 +41,8 @@ export const dbNamesForWatch = [
     settingMap.widgets
   ),
   'history',
-  'terminalCommandHistory'
+  'terminalCommandHistory',
+  'aiChatHistory'
 ]
 
 /**

@@ -8,7 +8,7 @@ const fs = require('fs')
 const Datastore = require('@electerm/nedb')
 
 // Tables whose stored data values should be encrypted at rest
-const ENC_TABLES = new Set(['bookmarks', 'profiles', 'data', 'history', 'terminalCommandHistory'])
+const ENC_TABLES = new Set(['bookmarks', 'profiles', 'data', 'history', 'terminalCommandHistory', 'aiChatHistory'])
 
 // Within the 'data' table, only this specific record is encrypted
 const DATA_ENC_ID = 'userConfig'
@@ -41,7 +41,8 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
     'profiles',
     'workspaces',
     'history',
-    'terminalCommandHistory'
+    'terminalCommandHistory',
+    'aiChatHistory'
   ]
 
   tables.forEach(table => {

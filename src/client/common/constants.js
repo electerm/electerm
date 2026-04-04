@@ -352,5 +352,4 @@ export const terminalTypes = [
 export const sshConfigLoadKey = 'ssh-config-loaded'
 export const sshConfigKey = 'ignore-ssh-config'
 export const connectionHoppingWarnKey = 'connectionHoppingWarnned'
-export const aiChatHistoryKey = 'ai-chat-history'
 export const syncServerDataKey = 'sync-server-data'

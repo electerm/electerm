@@ -21,7 +21,6 @@ import {
   dismissDelKeyTipLsKey,
   qmSortByFrequencyKey,
   resolutionsLsKey,
-  aiChatHistoryKey,
   syncServerDataKey,
   splitMap
 } from '../common/constants'
@@ -87,7 +86,7 @@ export default () => {
 
     // batch input selected tab ids
     _batchInputSelectedTabIds: new Set(),
-    aiChatHistory: ls.safeGetItemJSON(aiChatHistoryKey, []),
+    aiChatHistory: [],
 
     // sftp
     fileOperation: fileOperationsMap.cp, // cp or mv
