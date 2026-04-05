@@ -138,14 +138,6 @@ export default Store => {
           result = store.mcpZmodemDownload(args)
           break
 
-        // Transfer operations
-        case 'list_transfers':
-          result = store.mcpListTransfers()
-          break
-        case 'list_transfer_history':
-          result = store.mcpListTransferHistory(args)
-          break
-
         // Settings operations
         case 'get_settings':
           result = store.mcpGetSettings()
@@ -527,33 +519,6 @@ export default Store => {
     }
   }
 
-  // ==================== Transfer APIs ====================
-
-  Store.prototype.mcpListTransfers = function () {
-    const { store } = window
-    return store.fileTransfers.map(t => ({
-      id: t.id,
-      localPath: t.localPath,
-      remotePath: t.remotePath,
-      type: t.type,
-      percent: t.percent,
-      status: t.status
-    }))
-  }
-
-  Store.prototype.mcpListTransferHistory = function (args = {}) {
-    const { store } = window
-    const limit = args.limit || 50
-    return store.transferHistory.slice(0, limit).map(t => ({
-      id: t.id,
-      localPath: t.localPath,
-      remotePath: t.remotePath,
-      type: t.type,
-      status: t.status,
-      time: t.time
-    }))
-  }
-
   // ==================== Settings APIs ====================
 
   Store.prototype.mcpGetSettings = function () {
@@ -745,8 +710,8 @@ export default Store => {
       throw new Error('files array is required (list of local file paths to upload)')
     }
 
-    const protocol = args.protocol || 'trzsz'
-    const uploadCmd = protocol === 'rzsz' ? 'rz' : 'trz'
+    const protocol = args.protocol || 'rzsz'
+    const uploadCmd = protocol === 'trzsz' ? 'trz' : 'rz'
 
     // Set the control variable to bypass native file dialog
     window._apiControlSelectFile = files
@@ -788,8 +753,8 @@ export default Store => {
       throw new Error('remoteFiles array is required (list of remote file paths to download)')
     }
 
-    const protocol = args.protocol || 'trzsz'
-    const downloadCmd = protocol === 'rzsz' ? 'sz' : 'tsz'
+    const protocol = args.protocol || 'rzsz'
+    const downloadCmd = protocol === 'trzsz' ? 'tsz' : 'sz'
 
     // Set the control variable to bypass native folder dialog
     window._apiControlSelectFolder = saveFolder

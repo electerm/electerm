@@ -52,12 +52,7 @@ const widgetInfo = {
       default: true,
       description: 'Enable bookmark group APIs'
     },
-    {
-      name: 'enableTransfer',
-      type: 'boolean',
-      default: true,
-      description: 'Enable file transfer APIs'
-    },
+
     {
       name: 'enableSftp',
       type: 'boolean',
@@ -432,40 +427,10 @@ class ElectermMCPServer {
       )
     }
 
-    // ==================== Transfer APIs ====================
-    if (this.config.enableTransfer) {
-      server.registerTool(
-        'list_electerm_transfers',
-        {
-          description: 'List active electerm file transfers',
-          inputSchema: z.object({})
-        },
-        async () => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'list_transfers', args: {} })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
-
-      server.registerTool(
-        'list_electerm_transfer_history',
-        {
-          description: 'List electerm file transfer history',
-          inputSchema: {
-            limit: z.number().optional().describe('Max number of entries')
-          }
-        },
-        async (args) => {
-          const limit = args?.limit
-          const result = await self.sendToRenderer('tool-call', { toolName: 'list_transfer_history', args: { limit } })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
-    }
-
     // ==================== SFTP APIs ====================
     if (this.config.enableSftp) {
       server.registerTool(
-        'list_electerm_sftp',
+        'electerm_sftp_list',
         {
           description: 'List files and folders in a remote directory on the SSH-connected tab',
           inputSchema: {
@@ -480,7 +445,7 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'stat_electerm_sftp',
+        'electerm_sftp_stat',
         {
           description: 'Get file or directory stat/info on the remote SSH server',
           inputSchema: {
@@ -495,7 +460,7 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'read_electerm_sftp_file',
+        'electerm_sftp_read_file',
         {
           description: 'Read the content of a remote file on the SSH server',
           inputSchema: {
@@ -510,7 +475,7 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'delete_electerm_sftp',
+        'electerm_sftp_del_file_or_folder',
         {
           description: 'Delete a file or folder on the remote SSH server',
           inputSchema: {
@@ -525,7 +490,7 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'upload_electerm_sftp',
+        'electerm_sftp_upload',
         {
           description: 'Upload a local file or folder to the remote SSH server using the SFTP transfer panel',
           inputSchema: {
@@ -542,7 +507,7 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'download_electerm_sftp',
+        'electerm_sftp_download',
         {
           description: 'Download a remote file or folder from the SSH server to a local path using the SFTP transfer panel',
           inputSchema: {
@@ -559,13 +524,13 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'upload_electerm_zmodem',
+        'electerm_zmodem_upload',
         {
           description: 'Upload local files to the remote SSH server using trzsz (trz) or rzsz (rz). The SSH tab must have the chosen protocol installed.',
           inputSchema: {
             tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
             files: z.array(z.string()).describe('List of local file paths to upload'),
-            protocol: z.enum(['trzsz', 'rzsz']).optional().describe('Transfer protocol: trzsz (trz) or rzsz (rz) (default: trzsz)')
+            protocol: z.enum(['trzsz', 'rzsz']).optional().describe('Transfer protocol: trzsz (trz) or rzsz (rz) (default: rzsz)')
           }
         },
         async ({ tabId, files, protocol }) => {
@@ -575,14 +540,14 @@ class ElectermMCPServer {
       )
 
       server.registerTool(
-        'download_electerm_zmodem',
+        'electerm_zmodem_download',
         {
           description: 'Download remote files from the SSH server using trzsz (tsz) or rzsz (sz). The SSH tab must have the chosen protocol installed.',
           inputSchema: {
             tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
             remoteFiles: z.array(z.string()).describe('List of remote file paths to download'),
             saveFolder: z.string().describe('Local folder path to save downloaded files'),
-            protocol: z.enum(['trzsz', 'rzsz']).optional().describe('Transfer protocol: trzsz (tsz) or rzsz (sz) (default: trzsz)')
+            protocol: z.enum(['trzsz', 'rzsz']).optional().describe('Transfer protocol: trzsz (tsz) or rzsz (sz) (default: rzsz)')
           }
         },
         async ({ tabId, remoteFiles, saveFolder, protocol }) => {

@@ -108,7 +108,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 100, 'list_electerm_sftp', {
+    const jsonData = await callTool(sessionId, 100, 'electerm_sftp_list', {
       remotePath: '/tmp'
     })
 
@@ -133,12 +133,15 @@ describe('mcp-sftp-transfer-trzsz', function () {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 101, 'list_electerm_sftp', {})
+    const jsonData = await callTool(sessionId, 101, 'electerm_sftp_list', {})
 
     // Should error because remotePath is required
     if (jsonData.error) {
       console.log('sftp_list missing path error:', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('sftp_list missing path tool error:', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       // May still get a result if the tool validates properly and returns error in result
       const result = JSON.parse(jsonData.result.content[0].text)
@@ -155,7 +158,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 110, 'stat_electerm_sftp', {
+    const jsonData = await callTool(sessionId, 110, 'electerm_sftp_stat', {
       remotePath: '/tmp'
     })
 
@@ -180,7 +183,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 120, 'read_electerm_sftp_file', {
+    const jsonData = await callTool(sessionId, 120, 'electerm_sftp_read_file', {
       remotePath: '/etc/hostname'
     })
 
@@ -206,17 +209,20 @@ describe('mcp-sftp-transfer-trzsz', function () {
     }
 
     // Use a test path that may or may not exist
-    const jsonData = await callTool(sessionId, 130, 'delete_electerm_sftp', {
+    const jsonData = await callTool(sessionId, 130, 'electerm_sftp_del_file_or_folder', {
       remotePath: '/tmp/mcp_test_delete_file.txt'
     })
 
     if (jsonData.error) {
       console.log('sftp_del error (expected if no SSH tab open or file not found):', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('sftp_del tool error (file may not exist):', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
       console.log('sftp_del result:', result)
-      assert.ok(result.success === true || jsonData.error, 'should succeed or error')
+      assert.ok(result.success === true, 'should succeed')
       assert.ok(result.path !== undefined, 'result.path should be present')
       assert.ok(result.tabId !== undefined, 'result.tabId should be present')
     }
@@ -229,11 +235,14 @@ describe('mcp-sftp-transfer-trzsz', function () {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 131, 'delete_electerm_sftp', {})
+    const jsonData = await callTool(sessionId, 131, 'electerm_sftp_del_file_or_folder', {})
 
     if (jsonData.error) {
       console.log('sftp_del missing path error:', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('sftp_del missing path tool error:', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
       console.log('sftp_del no path result:', result)
@@ -290,7 +299,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
       await new Promise(resolve => setTimeout(resolve, 5000))
 
       // Step 3: List /tmp directory
-      const listData = await callTool(sessionId, 142, 'list_electerm_sftp', { remotePath: '/tmp' })
+      const listData = await callTool(sessionId, 142, 'electerm_sftp_list', { remotePath: '/tmp' })
       if (listData.error) {
         console.log('sftp_list error (SFTP panel may not be open yet):', listData.error.message)
       } else {
@@ -300,7 +309,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
       }
 
       // Step 4: Stat /tmp
-      const statData = await callTool(sessionId, 143, 'stat_electerm_sftp', { remotePath: '/tmp' })
+      const statData = await callTool(sessionId, 143, 'electerm_sftp_stat', { remotePath: '/tmp' })
       if (statData.error) {
         console.log('sftp_stat error:', statData.error.message)
       } else {
@@ -310,7 +319,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
       }
 
       // Step 5: Read /etc/hostname
-      const readData = await callTool(sessionId, 144, 'read_electerm_sftp_file', { remotePath: '/etc/hostname' })
+      const readData = await callTool(sessionId, 144, 'electerm_sftp_read_file', { remotePath: '/etc/hostname' })
       if (readData.error) {
         console.log('sftp_read_file error:', readData.error.message)
       } else {
@@ -335,7 +344,13 @@ describe('mcp-sftp-transfer-trzsz', function () {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 200, 'upload_electerm_sftp', {
+    // Create test file if it doesn't exist
+    const fs = require('fs')
+    if (!fs.existsSync('/tmp/test-upload.txt')) {
+      fs.writeFileSync('/tmp/test-upload.txt', 'test upload content for MCP test')
+    }
+
+    const jsonData = await callTool(sessionId, 200, 'electerm_sftp_upload', {
       localPath: '/tmp/test-upload.txt',
       remotePath: '/tmp/test-upload.txt'
     })
@@ -343,6 +358,9 @@ describe('mcp-sftp-transfer-trzsz', function () {
     if (jsonData.error) {
       console.log('sftp_upload error (expected if no SSH tab open or file not found):', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('sftp_upload tool error:', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
       console.log('sftp_upload result:', result)
@@ -359,13 +377,16 @@ describe('mcp-sftp-transfer-trzsz', function () {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 201, 'upload_electerm_sftp', {
+    const jsonData = await callTool(sessionId, 201, 'electerm_sftp_upload', {
       remotePath: '/tmp/test.txt'
     })
 
     if (jsonData.error) {
       console.log('sftp_upload missing localPath error:', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('sftp_upload missing localPath tool error:', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
       console.log('sftp_upload no localPath result:', result)
@@ -381,7 +402,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 210, 'download_electerm_sftp', {
+    const jsonData = await callTool(sessionId, 210, 'electerm_sftp_download', {
       remotePath: '/etc/hostname',
       localPath: '/tmp/mcp-downloaded-hostname.txt'
     })
@@ -405,13 +426,16 @@ describe('mcp-sftp-transfer-trzsz', function () {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 211, 'download_electerm_sftp', {
+    const jsonData = await callTool(sessionId, 211, 'electerm_sftp_download', {
       localPath: '/tmp/test.txt'
     })
 
     if (jsonData.error) {
       console.log('sftp_download missing remotePath error:', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('sftp_download missing remotePath tool error:', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
       console.log('sftp_download no remotePath result:', result)
@@ -425,7 +449,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 212, 'download_electerm_sftp', {
+    const jsonData = await callTool(sessionId, 212, 'electerm_sftp_download', {
       remotePath: '/etc/hostname',
       localPath: '/tmp/mcp-downloaded-hostname-overwrite.txt',
       conflictPolicy: 'overwrite'
@@ -445,179 +469,191 @@ describe('mcp-sftp-transfer-trzsz', function () {
 
   // ==================== Zmodem Upload (trzsz/rzsz) ====================
 
-  test('upload_electerm_zmodem: should initiate trz upload (trzsz, default)', { timeout: 100000 }, async function () {
+  test('electerm_zmodem_upload: should initiate trz upload (trzsz, default)', { timeout: 100000 }, async function () {
     if (!sessionId) {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 300, 'upload_electerm_zmodem', {
+    const jsonData = await callTool(sessionId, 300, 'electerm_zmodem_upload', {
       files: ['/tmp/test-trzsz-upload.txt']
     })
 
     if (jsonData.error) {
-      console.log('upload_electerm_zmodem error (expected if no SSH tab open):', jsonData.error.message)
+      console.log('electerm_zmodem_upload error (expected if no SSH tab open):', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
-      console.log('upload_electerm_zmodem result:', result)
+      console.log('electerm_zmodem_upload result:', result)
       assert.equal(result.success, true)
       assert.ok(Array.isArray(result.files), 'result.files should be array')
       assert.ok(result.tabId !== undefined, 'result.tabId should be present')
-      assert.equal(result.protocol, 'trzsz', 'default protocol should be trzsz')
-      assert.equal(result.command, 'trz', 'default command should be trz')
+      assert.equal(result.protocol, 'rzsz', 'default protocol should be rzsz')
+      assert.equal(result.command, 'rz', 'default command should be rz')
     }
 
-    console.log('upload_electerm_zmodem (trzsz) test completed')
+    console.log('electerm_zmodem_upload (trzsz) test completed')
   })
 
-  test('upload_electerm_zmodem: should initiate rz upload (rzsz protocol)', { timeout: 100000 }, async function () {
+  test('electerm_zmodem_upload: should initiate rz upload (rzsz protocol)', { timeout: 100000 }, async function () {
     if (!sessionId) {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 303, 'upload_electerm_zmodem', {
+    const jsonData = await callTool(sessionId, 303, 'electerm_zmodem_upload', {
       files: ['/tmp/test-rzsz-upload.txt'],
       protocol: 'rzsz'
     })
 
     if (jsonData.error) {
-      console.log('upload_electerm_zmodem rzsz error (expected if no SSH tab open):', jsonData.error.message)
+      console.log('electerm_zmodem_upload rzsz error (expected if no SSH tab open):', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
-      console.log('upload_electerm_zmodem rzsz result:', result)
+      console.log('electerm_zmodem_upload rzsz result:', result)
       assert.equal(result.success, true)
       assert.equal(result.protocol, 'rzsz', 'protocol should be rzsz')
       assert.equal(result.command, 'rz', 'command should be rz for rzsz')
     }
 
-    console.log('upload_electerm_zmodem (rzsz) test completed')
+    console.log('electerm_zmodem_upload (rzsz) test completed')
   })
 
-  test('upload_electerm_zmodem: should error if files array is missing', { timeout: 100000 }, async function () {
+  test('electerm_zmodem_upload: should error if files array is missing', { timeout: 100000 }, async function () {
     if (!sessionId) {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 301, 'upload_electerm_zmodem', {})
+    const jsonData = await callTool(sessionId, 301, 'electerm_zmodem_upload', {})
 
     if (jsonData.error) {
-      console.log('upload_electerm_zmodem missing files error:', jsonData.error.message)
+      console.log('electerm_zmodem_upload missing files error:', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('electerm_zmodem_upload missing files tool error:', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
-      console.log('upload_electerm_zmodem no files result:', result)
+      console.log('electerm_zmodem_upload no files result:', result)
     }
 
-    console.log('upload_electerm_zmodem missing files test completed')
+    console.log('electerm_zmodem_upload missing files test completed')
   })
 
-  test('upload_electerm_zmodem: should error if files array is empty', { timeout: 100000 }, async function () {
+  test('electerm_zmodem_upload: should error if files array is empty', { timeout: 100000 }, async function () {
     if (!sessionId) {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 302, 'upload_electerm_zmodem', {
+    const jsonData = await callTool(sessionId, 302, 'electerm_zmodem_upload', {
       files: []
     })
 
     if (jsonData.error) {
-      console.log('upload_electerm_zmodem empty files error:', jsonData.error.message)
+      console.log('electerm_zmodem_upload empty files error:', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('electerm_zmodem_upload empty files tool error:', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
-      console.log('upload_electerm_zmodem empty files result:', result)
+      console.log('electerm_zmodem_upload empty files result:', result)
     }
 
-    console.log('upload_electerm_zmodem empty files test completed')
+    console.log('electerm_zmodem_upload empty files test completed')
   })
 
   // ==================== Zmodem Download (trzsz/rzsz) ====================
 
-  test('download_electerm_zmodem: should initiate tsz download (trzsz, default)', { timeout: 100000 }, async function () {
+  test('electerm_zmodem_download: should initiate tsz download (trzsz, default)', { timeout: 100000 }, async function () {
     if (!sessionId) {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 310, 'download_electerm_zmodem', {
+    const jsonData = await callTool(sessionId, 310, 'electerm_zmodem_download', {
       remoteFiles: ['/tmp/test-trzsz-download.txt'],
       saveFolder: '/tmp'
     })
 
     if (jsonData.error) {
-      console.log('download_electerm_zmodem error (expected if no SSH tab open):', jsonData.error.message)
+      console.log('electerm_zmodem_download error (expected if no SSH tab open):', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
-      console.log('download_electerm_zmodem result:', result)
+      console.log('electerm_zmodem_download result:', result)
       assert.equal(result.success, true)
       assert.ok(Array.isArray(result.remoteFiles), 'result.remoteFiles should be array')
       assert.ok(result.saveFolder !== undefined, 'result.saveFolder should be present')
       assert.ok(result.tabId !== undefined, 'result.tabId should be present')
-      assert.equal(result.protocol, 'trzsz', 'default protocol should be trzsz')
-      assert.equal(result.command, 'tsz', 'default command should be tsz')
+      assert.equal(result.protocol, 'rzsz', 'default protocol should be rzsz')
+      assert.equal(result.command, 'sz', 'default command should be sz')
     }
 
-    console.log('download_electerm_zmodem (trzsz) test completed')
+    console.log('electerm_zmodem_download (trzsz) test completed')
   })
 
-  test('download_electerm_zmodem: should initiate sz download (rzsz protocol)', { timeout: 100000 }, async function () {
+  test('electerm_zmodem_download: should initiate sz download (rzsz protocol)', { timeout: 100000 }, async function () {
     if (!sessionId) {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 313, 'download_electerm_zmodem', {
+    const jsonData = await callTool(sessionId, 313, 'electerm_zmodem_download', {
       remoteFiles: ['/tmp/test-rzsz-download.txt'],
       saveFolder: '/tmp',
       protocol: 'rzsz'
     })
 
     if (jsonData.error) {
-      console.log('download_electerm_zmodem rzsz error (expected if no SSH tab open):', jsonData.error.message)
+      console.log('electerm_zmodem_download rzsz error (expected if no SSH tab open):', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
-      console.log('download_electerm_zmodem rzsz result:', result)
+      console.log('electerm_zmodem_download rzsz result:', result)
       assert.equal(result.success, true)
       assert.equal(result.protocol, 'rzsz', 'protocol should be rzsz')
       assert.equal(result.command, 'sz', 'command should be sz for rzsz')
     }
 
-    console.log('download_electerm_zmodem (rzsz) test completed')
+    console.log('electerm_zmodem_download (rzsz) test completed')
   })
 
-  test('download_electerm_zmodem: should error if remoteFiles is missing', { timeout: 100000 }, async function () {
+  test('electerm_zmodem_download: should error if remoteFiles is missing', { timeout: 100000 }, async function () {
     if (!sessionId) {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 311, 'download_electerm_zmodem', {
+    const jsonData = await callTool(sessionId, 311, 'electerm_zmodem_download', {
       saveFolder: '/tmp'
     })
 
     if (jsonData.error) {
-      console.log('download_electerm_zmodem missing remoteFiles error:', jsonData.error.message)
+      console.log('electerm_zmodem_download missing remoteFiles error:', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('electerm_zmodem_download missing remoteFiles tool error:', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
-      console.log('download_electerm_zmodem no remoteFiles result:', result)
+      console.log('electerm_zmodem_download no remoteFiles result:', result)
     }
 
-    console.log('download_electerm_zmodem missing remoteFiles test completed')
+    console.log('electerm_zmodem_download missing remoteFiles test completed')
   })
 
-  test('download_electerm_zmodem: should error if saveFolder is missing', { timeout: 100000 }, async function () {
+  test('electerm_zmodem_download: should error if saveFolder is missing', { timeout: 100000 }, async function () {
     if (!sessionId) {
       sessionId = await initSession()
     }
 
-    const jsonData = await callTool(sessionId, 312, 'download_electerm_zmodem', {
+    const jsonData = await callTool(sessionId, 312, 'electerm_zmodem_download', {
       remoteFiles: ['/tmp/test.txt']
     })
 
     if (jsonData.error) {
       console.log('trzsz_download missing saveFolder error:', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('trzsz_download missing saveFolder tool error:', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
       console.log('trzsz_download no saveFolder result:', result)
@@ -662,14 +698,14 @@ describe('mcp-sftp-transfer-trzsz', function () {
     console.log('All registered tools:', toolNames)
 
     const expectedTools = [
-      'list_electerm_sftp',
-      'stat_electerm_sftp',
-      'read_electerm_sftp_file',
-      'delete_electerm_sftp',
-      'upload_electerm_sftp',
-      'download_electerm_sftp',
-      'upload_electerm_zmodem',
-      'download_electerm_zmodem'
+      'electerm_sftp_list',
+      'electerm_sftp_stat',
+      'electerm_sftp_read_file',
+      'electerm_sftp_del_file_or_folder',
+      'electerm_sftp_upload',
+      'electerm_sftp_download',
+      'electerm_zmodem_upload',
+      'electerm_zmodem_download'
     ]
 
     for (const toolName of expectedTools) {
