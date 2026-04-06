@@ -33,13 +33,16 @@ export const dbNames = [
   'terminalCommandHistory',
   'aiChatHistory'
 ]
-
-export const dbNamesForWatch = [
+export const dbNamesForSync = [
   ...without(
     Object.keys(settingMap),
     settingMap.setting,
     settingMap.widgets
-  ),
+  )
+]
+
+export const dbNamesForWatch = [
+  ...dbNamesForSync,
   'history',
   'terminalCommandHistory',
   'aiChatHistory'

@@ -4,7 +4,7 @@
 
 import createTitle from '../common/create-title'
 import { autoRun } from 'manate'
-import { update, remove, insert, dbNamesForWatch } from '../common/db'
+import { update, remove, insert, dbNamesForWatch, dbNamesForSync } from '../common/db'
 import {
   sftpDefaultSortSettingKey,
   checkedKeysLsKey,
@@ -68,7 +68,7 @@ export default store => {
         )
       }
       await store.updateLastDataUpdateTime()
-      if (store.config.autoSync) {
+      if (store.config.autoSync && dbNamesForSync.includes(name)) {
         await store.uploadSettingAll()
       }
       return store[name]
