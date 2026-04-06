@@ -7,7 +7,7 @@ import copy from 'json-deep-copy'
 import {
   settingMap, packInfo, syncTypes, syncDataMaps
 } from '../common/constants'
-import { dbNames, update, getData } from '../common/db'
+import { update, getData } from '../common/db'
 import fetch from '../common/fetch-from-server'
 import download from '../common/download'
 import { fixBookmarks } from '../common/db-fix'
@@ -152,10 +152,8 @@ export default (Store) => {
   }
 
   Store.prototype.uploadSettingAll = async function () {
-    const { store, onSyncAll, syncCount = 0 } = window
-    const max = dbNames.length * 2
-    if (syncCount < max) {
-      window.syncCount = syncCount + 1
+    const { store, onSyncAll } = window
+    if (store.autoSyncReady === false) {
       return
     }
     if (onSyncAll) {

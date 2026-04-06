@@ -126,6 +126,7 @@ export default () => {
     showModal: 0,
 
     // setting sync related
+    autoSyncReady: false,
     isSyncingSetting: false,
     isSyncUpload: false,
     isSyncDownload: false,
