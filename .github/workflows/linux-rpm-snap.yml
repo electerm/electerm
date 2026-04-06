@@ -58,5 +58,5 @@ jobs:
     - name: upload to snap store
       env:
         SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAP_TOKEN }}
-      run: snapcraft upload --release=edge dist/*.snap
+      run: snapcraft upload --release=edge dist/*.snap --verbosity=debug
 
