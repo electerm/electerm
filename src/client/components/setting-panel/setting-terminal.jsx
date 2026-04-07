@@ -580,7 +580,6 @@ export default class SettingTerminal extends Component {
           this.renderToggle('saveTerminalLogToFile')
         }
         {this.renderToggle('addTimeStampToTermLog')}
-        {this.renderToggle('enableSixel', 'pd2b', 'SIXEL')}
         {
           [
             'cursorBlink',
@@ -590,7 +589,8 @@ export default class SettingTerminal extends Component {
             'ctrlOrMetaOpenTerminalLink',
             'sftpPathFollowSsh',
             'sshSftpSplitView',
-            'showCmdSuggestions'
+            'showCmdSuggestions',
+            'autoReconnectTerminal'
           ].map(d => this.renderToggle(d))
         }
         <div className='pd1b'>{e('terminalBackSpaceMode')}</div>

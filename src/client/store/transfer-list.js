@@ -24,10 +24,11 @@ export default Store => {
     // console.log('addTransferList', JSON.stringify(items, null, 2))
     const { fileTransfers } = window.store
     const transferBatch = uid()
-    fileTransfers.push(...items.map(t => {
+    const nextItems = items.map(t => {
       t.transferBatch = transferBatch
       return t
-    }))
+    })
+    fileTransfers.push(...nextItems)
   }
 
   Store.prototype.pauseAll = function () {

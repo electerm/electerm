@@ -54,7 +54,9 @@ async function initSession () {
     Accept: 'application/json, text/event-stream'
   })
 
-  return response.headers['mcp-session-id']
+  const sid = response.headers['mcp-session-id']
+  assert.ok(sid && sid !== 'null', `initSession: expected a real session ID but got: ${sid}`)
+  return sid
 }
 
 describe('mcp-widget', function () {
@@ -108,7 +110,10 @@ describe('mcp-widget', function () {
 
       assert.equal(response.status, 200)
       assert.equal(response.headers['content-type'], 'text/event-stream')
-      assert.ok(response.headers['mcp-session-id'])
+      const returnedSessionId = response.headers['mcp-session-id']
+      assert.ok(returnedSessionId, 'mcp-session-id header is missing')
+      assert.notEqual(returnedSessionId, 'null', 'mcp-session-id must not be the string "null" — session was not properly initialized')
+      assert.match(returnedSessionId, /^[\w-]+$/, 'mcp-session-id must be a valid identifier')
 
       // Parse SSE response
       const sseData = response.data
@@ -128,7 +133,7 @@ describe('mcp-widget', function () {
       assert.equal(jsonData.result.serverInfo.name, 'electerm-mcp-server')
 
       // Store session ID for subsequent requests
-      sessionId = response.headers['mcp-session-id']
+      sessionId = returnedSessionId
 
       console.log('MCP initialize request successful')
       console.log('Server info:', jsonData.result.serverInfo)
@@ -146,7 +151,7 @@ describe('mcp-widget', function () {
 
   // Test that tools are available
   test('should list available tools', { timeout: 100000 }, async function () {
-    assert.ok(sessionId) // Should have session ID from initialize
+    assert.ok(sessionId && sessionId !== 'null', `Expected a real session ID from initialize test but got: ${sessionId}`)
 
     const toolsRequest = {
       jsonrpc: '2.0',
@@ -206,7 +211,7 @@ describe('mcp-widget', function () {
 
   // Test tool calls (these will fail in test environment without renderer process)
   test('should handle tool calls gracefully when renderer is unavailable', { timeout: 100000 }, async function () {
-    assert.ok(sessionId)
+    assert.ok(sessionId && sessionId !== 'null', `Expected a real session ID but got: ${sessionId}`)
 
     const toolCallRequest = {
       jsonrpc: '2.0',
@@ -264,7 +269,7 @@ describe('mcp-widget', function () {
 
   // Test that multiple tool calls work in sequence
   test('should handle multiple tool calls in sequence', { timeout: 100000 }, async function () {
-    assert.ok(sessionId)
+    assert.ok(sessionId && sessionId !== 'null', `Expected a real session ID but got: ${sessionId}`)
 
     const testTools = [
       { name: 'list_tabs', args: {} },

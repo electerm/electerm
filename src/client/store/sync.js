@@ -7,7 +7,7 @@ import copy from 'json-deep-copy'
 import {
   settingMap, packInfo, syncTypes, syncDataMaps
 } from '../common/constants'
-import { dbNames, update, getData } from '../common/db'
+import { update, getData } from '../common/db'
 import fetch from '../common/fetch-from-server'
 import download from '../common/download'
 import { fixBookmarks } from '../common/db-fix'
@@ -66,6 +66,13 @@ export default (Store) => {
           return get(window.store.config, 'syncSetting.' + type + p)
         }
       ).join('####')
+    }
+    if (type === syncTypes.webdav) {
+      // WebDAV token format: serverUrl####username####password
+      const serverUrl = get(window.store.config, 'syncSetting.webdavServerUrl')
+      const username = get(window.store.config, 'syncSetting.webdavUsername')
+      const password = get(window.store.config, 'syncSetting.webdavPassword')
+      return [serverUrl, username, password].join('####')
     }
     return get(window.store.config, 'syncSetting.' + type + 'AccessToken')
   }
@@ -145,10 +152,8 @@ export default (Store) => {
   }
 
   Store.prototype.uploadSettingAll = async function () {
-    const { store, onSyncAll, syncCount = 0 } = window
-    const max = dbNames.length * 2
-    if (syncCount < max) {
-      window.syncCount = syncCount + 1
+    const { store, onSyncAll } = window
+    if (store.autoSyncReady === false) {
       return
     }
     if (onSyncAll) {
@@ -158,7 +163,13 @@ export default (Store) => {
     const types = Object.keys(syncTypes)
     for (const type of types) {
       const gistId = store.getSyncGistId(type)
-      if (gistId) {
+      // For WebDAV, check if server URL is configured
+      if (type === syncTypes.webdav) {
+        const serverUrl = get(window.store.config, 'syncSetting.webdavServerUrl')
+        if (serverUrl) {
+          await store.uploadSetting(type)
+        }
+      } else if (gistId) {
         await store.uploadSetting(type)
       }
     }
@@ -183,6 +194,24 @@ export default (Store) => {
     const { store } = window
     const token = store.getSyncToken(type)
     const gistId = store.getSyncGistId(type)
+
+    // Handle WebDAV preview differently
+    if (type === syncTypes.webdav) {
+      const gist = await fetchData(
+        type,
+        'download',
+        [],
+        token,
+        store.getSyncProxy(type)
+      )
+      if (gist && gist.files) {
+        const statusContent = get(gist, 'files["electerm-status.json"].content')
+        const status = statusContent ? parseJsonSafe(statusContent) : undefined
+        store.syncServerStatus[type] = status
+      }
+      return
+    }
+
     const gist = await fetchData(
       type,
       'getOne',
@@ -201,7 +230,7 @@ export default (Store) => {
     //   await store.createGist(type)
     //   gistId = store.getSyncGistId(type)
     // }
-    if (!gistId && type !== syncTypes.custom && type !== syncTypes.cloud) {
+    if (!gistId && type !== syncTypes.custom && type !== syncTypes.cloud && type !== syncTypes.webdav) {
       return
     }
     const pass = store.getSyncPassword(type)
@@ -244,6 +273,31 @@ export default (Store) => {
       electermVersion: packVer,
       deviceName: window.pre.osInfo().find(r => r.k === 'hostname')?.v || 'unknown'
     }
+
+    // Handle WebDAV upload differently
+    if (type === syncTypes.webdav) {
+      const uploadData = {}
+      for (const [key, value] of Object.entries(objs)) {
+        uploadData[key] = value.content
+      }
+      uploadData['electerm-status.json'] = JSON.stringify(status)
+
+      const res = await fetchData(
+        type,
+        'upload',
+        [uploadData],
+        token,
+        store.getSyncProxy(type)
+      )
+      if (res && !res.error) {
+        store.updateSyncSetting({
+          [type + 'LastSyncTime']: now
+        })
+        store.syncServerStatus[type] = status
+      }
+      return
+    }
+
     const gistData = {
       description: 'sync electerm data',
       files: {
@@ -285,10 +339,80 @@ export default (Store) => {
     //   await store.createGist(type)
     //   gistId = store.getSyncGistId(type)
     // }
-    if (!gistId && type !== syncTypes.custom && type !== syncTypes.cloud) {
+    if (!gistId && type !== syncTypes.custom && type !== syncTypes.cloud && type !== syncTypes.webdav) {
       return
     }
     const pass = store.getSyncPassword(type)
+
+    // Handle WebDAV download differently
+    if (type === syncTypes.webdav) {
+      const gist = await fetchData(
+        type,
+        'download',
+        [],
+        token,
+        store.getSyncProxy(type)
+      )
+      if (gist && gist.files) {
+        const statusContent = get(gist, 'files["electerm-status.json"].content')
+        const status = statusContent ? parseJsonSafe(statusContent) : undefined
+        store.syncServerStatus[type] = status
+
+        const { names, syncConfig } = store.getDataSyncNames()
+        for (const n of names) {
+          let str = get(gist, `files["${n}.json"].content`)
+          if (!str) {
+            if (n === settingMap.bookmarks) {
+              throw new Error(('Seems you have a empty WebDAV folder, you can try upload first'))
+            } else {
+              continue
+            }
+          }
+          if (!isJSON(str)) {
+            str = await window.pre.runGlobalAsync('decryptAsync', str, pass)
+          }
+          let arr = JSON.parse(str)
+          if (n === settingMap.terminalThemes) {
+            arr = store.fixThemes(arr)
+          } else if (n === settingMap.bookmarks) {
+            arr = fixBookmarks(arr)
+          }
+          let strOrder = get(gist, `files["${n}.order.json"].content`)
+          if (isJSON(strOrder)) {
+            strOrder = JSON.parse(strOrder)
+            arr.sort((a, b) => {
+              const ai = strOrder.findIndex(r => r === a.id)
+              const bi = strOrder.findIndex(r => r === b.id)
+              return ai - bi
+            })
+          }
+          store.setItems(n, arr)
+        }
+        if (syncConfig) {
+          const userConfig = parseJsonSafe(
+            get(gist, 'files["userConfig.json"].content')
+          )
+          if (userConfig) {
+            store.setConfig(userConfig)
+          }
+          if (userConfig && userConfig.theme) {
+            store.setTheme(userConfig.theme)
+          }
+        }
+
+        const up = {
+          [type + 'LastSyncTime']: Date.now()
+        }
+        if (pass) {
+          up[type + 'SyncPassword'] = pass
+        }
+        store.updateSyncSetting(up)
+      }
+      store.isSyncingSetting = false
+      store.isSyncDownload = false
+      return
+    }
+
     const gist = await fetchData(
       type,
       'getOne',
@@ -487,7 +611,6 @@ export default (Store) => {
       'hotkey',
       'sshReadyTimeout',
       'scrollback',
-      'enableSixel',
       'fontSize',
       'execWindows',
       'execMac',

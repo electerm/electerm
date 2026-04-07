@@ -8,10 +8,16 @@ const { createProxyAgent } = require('../lib/proxy-agent')
 const {
   electermSync
 } = require('electerm-sync')
+const doWebdavSync = require('./webdav-sync')
 
 rp.defaults.proxy = false
 
 async function doSync (type, func, args, token, proxy) {
+  // Handle WebDAV sync separately
+  if (type === 'webdav') {
+    return doWebdavSync(func, args, token, proxy)
+  }
+
   const agent = createProxyAgent(proxy)
   const conf = agent
     ? {
@@ -30,7 +36,7 @@ async function doSync (type, func, args, token, proxy) {
     })
     .catch(e => {
       log.error('sync error')
-      log.error(e)
+      log.error(e.message)
       return {
         error: e
       }
@@ -42,7 +48,9 @@ async function wsSyncHandler (ws, msg) {
   const res = await doSync(type, func, args, token, proxy)
   if (res.error) {
     ws.s({
-      error: res.error,
+      error: {
+        message: 'Sync data error: ' + res.error.message
+      },
       id
     })
   } else {

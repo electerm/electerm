@@ -7,12 +7,14 @@ const {
 } = require('../common/runtime-constants')
 const { initCommandLine } = require('./command-line')
 const globalState = require('./glob-state')
-const { getDbConfig } = require('./get-config')
+const { getUserConfigNoEnc, getDbConfig } = require('./get-config')
 const {
   setupDeepLinkHandlers
 } = require('./deep-link')
 const { handleSingleInstance } = require('./single-instance')
 const log = require('../common/log')
+
+let conf = {}
 
 // GPU error suggestion message
 const GPU_ERROR_SUGGESTION = `
@@ -105,14 +107,12 @@ exports.createApp = async function () {
 
   const progs = initCommandLine()
   const opts = progs?.options
-  const conf = await getDbConfig()
   globalState.set('serverPort', opts?.serverPort)
 
-  const { allowMultiInstance = false } = conf
+  const { allowMultiInstance = false } = await getUserConfigNoEnc()
 
   // Setup deep link handlers (open-url for macOS, etc.)
   setupDeepLinkHandlers()
-
   // Only request single instance lock if multi-instance is not allowed
   if (!allowMultiInstance) {
     // Use socket-based single instance lock for compatibility with Electron 22
@@ -142,7 +142,10 @@ exports.createApp = async function () {
       win.focus()
     }
   })
-  app.whenReady().then(() => createWindow(conf))
+  app.whenReady().then(async () => {
+    conf = await getDbConfig()
+    createWindow(conf)
+  })
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.

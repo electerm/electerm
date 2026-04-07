@@ -2,6 +2,8 @@
 // keep limit items in cache
 // we persist cache to local storage, so we can keep cache after restart
 
+import { safeGetItem, safeSetItem } from './safe-local-storage.js'
+
 class MapCache {
   constructor (limit, key) {
     this.limit = limit
@@ -11,7 +13,7 @@ class MapCache {
   }
 
   load () {
-    const data = window.localStorage.getItem(this.key)
+    const data = safeGetItem(this.key)
     if (data) {
       const arr = JSON.parse(data)
       for (const item of arr) {
@@ -28,7 +30,7 @@ class MapCache {
         value
       })
     }
-    window.localStorage.setItem(this.key, JSON.stringify(arr))
+    safeSetItem(this.key, JSON.stringify(arr))
   }
 
   set (key, value) {

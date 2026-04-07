@@ -44,7 +44,11 @@ export default auto(function SyncSettingEntry (props) {
       apiUrl: syncSetting[type + 'ApiUrl'],
       lastSyncTime: syncSetting[type + 'LastSyncTime'],
       syncPassword: syncSetting[type + 'SyncPassword'],
-      proxy: syncSetting[type + 'Proxy']
+      proxy: syncSetting[type + 'Proxy'],
+      // WebDAV specific fields
+      serverUrl: syncSetting[type + 'ServerUrl'],
+      username: syncSetting[type + 'Username'],
+      password: syncSetting[type + 'Password']
     }
     return (
       <SyncForm

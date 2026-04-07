@@ -63,7 +63,46 @@ class FtpClientWrapper {
   }
 
   async access (options) {
-    return this.enqueue(() => this.client.access(options))
+    return this.enqueue(async () => {
+      if (options.proxy) {
+        return this._accessViaProxy(options)
+      }
+      const { proxy, readyTimeout, ...ftpOptions } = options
+      return this.client.access(ftpOptions)
+    })
+  }
+
+  async _accessViaProxy (options) {
+    const proxySock = require('./socks')
+    const { FTPError } = require('basic-ftp')
+    const proxyResult = await proxySock({
+      readyTimeout: options.readyTimeout || 10000,
+      host: options.host,
+      port: options.port || 21,
+      proxy: options.proxy
+    })
+    const ftpClient = this.client
+    ftpClient.ftp.reset()
+    ftpClient.ftp.socket = proxyResult.socket
+    // Wait for FTP welcome response (mirrors Client._handleConnectResponse)
+    const welcome = await ftpClient.ftp.handle(undefined, (res, task) => {
+      if (res instanceof Error) {
+        task.reject(res)
+      } else if (res.code >= 200 && res.code < 300) {
+        task.resolve(res)
+      } else {
+        task.reject(new FTPError(res))
+      }
+    })
+    if (options.secure === true) {
+      const secureOptions = { ...(options.secureOptions || {}) }
+      secureOptions.host = secureOptions.host || options.host
+      await ftpClient.useTLS(secureOptions)
+    }
+    await ftpClient.sendIgnoringError('OPTS UTF8 ON')
+    await ftpClient.login(options.user || 'anonymous', options.password || 'guest')
+    await ftpClient.useDefaultSettings()
+    return welcome
   }
 
   async pwd () {

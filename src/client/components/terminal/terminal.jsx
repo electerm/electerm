@@ -4,11 +4,7 @@ import { isEqual, pick, debounce, throttle } from 'lodash-es'
 import clone from '../../common/to-simple-obj.js'
 import resolve from '../../common/resolve.js'
 import {
-  ReloadOutlined
-} from '@ant-design/icons'
-import {
   Spin,
-  Button,
   Dropdown
 } from 'antd'
 import { notification } from '../common/notification'
@@ -50,6 +46,8 @@ import ExternalLink from '../common/external-link.jsx'
 import createDefaultLogPath from '../../common/default-log-path.js'
 import SearchResultBar from './terminal-search-bar'
 import RemoteFloatControl from '../common/remote-float-control'
+import { showSocketCloseWarning } from './socket-close-warning.jsx'
+import ReconnectOverlay from './reconnect-overlay.jsx'
 import {
   loadTerminal,
   loadFitAddon,
@@ -76,7 +74,8 @@ class Term extends Component {
       lines: [],
       searchResults: [],
       matchIndex: -1,
-      totalLines: 0
+      totalLines: 0,
+      reconnectCountdown: null
     }
     this.id = `term-${this.props.tab.id}`
     refs.add(this.id, this)
@@ -485,9 +484,22 @@ class Term extends Component {
   }
 
   onClear = () => {
+    const shouldClear = this.searchAddon &&
+      window.store.termSearchOpen &&
+      window.store.termSearch
+    if (
+      shouldClear
+    ) {
+      this.searchAddon.clearDecorations()
+    }
     this.term.clear()
     this.term.focus()
-    // this.notifyOnData('')
+    if (shouldClear) {
+      this.searchAddon._linesCache = undefined
+      this.timers.clearSearchTimer = setTimeout(() => {
+        refsStatic.get('term-search')?.next()
+      }, 100)
+    }
   }
 
   isRemote = () => {
@@ -833,25 +845,19 @@ class Term extends Component {
     this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
     const Unicode11Addon = await loadUnicode11Addon()
     const unicode11Addon = new Unicode11Addon()
-    if (config.enableSixel !== false) {
-      try {
-        const ImageAddon = await loadImageAddon()
-        this.imageAddon = new ImageAddon({
-          enableSizeReports: false,
-          sixelSupport: true,
-          iipSupport: false
-        })
-        term.loadAddon(this.imageAddon)
-      } catch (err) {
-        console.error('load sixel addon failed', err)
-      }
-    }
     term.loadAddon(unicode11Addon)
     term.loadAddon(ligtureAddon)
     term.unicode.activeVersion = '11'
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
     term.loadAddon(this.cmdAddon)
+    if (tab.enableTerminalImage) {
+      const ImageAddon = await loadImageAddon()
+      this.imageAddon = new ImageAddon({
+        pixelLimit: 33554432
+      })
+      term.loadAddon(this.imageAddon)
+    }
     term.onData(this.onData)
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
@@ -1145,10 +1151,13 @@ class Term extends Component {
         ? typeMap.remote
         : typeMap.local
     })
+    const isAutoReconnect = !!(tab.autoReConnect && this.props.config.autoReconnectTerminal)
     const r = await createTerm(opts)
       .catch(err => {
-        const text = err.message
-        handleErr({ message: text })
+        if (!isAutoReconnect) {
+          const text = err.message
+          handleErr({ message: text })
+        }
       })
     if (typeof r === 'string' && r.includes('fail')) {
       return this.promote()
@@ -1160,6 +1169,10 @@ class Term extends Component {
       loading: false
     })
     if (!r) {
+      if (isAutoReconnect) {
+        this.scheduleAutoReconnect(3000)
+        return
+      }
       this.setStatus(statusMap.error)
       return
     }
@@ -1260,46 +1273,70 @@ class Term extends Component {
     this.setStatus(
       statusMap.error
     )
-    if (!this.isActiveTerminal() || !window.focused) {
-      return false
-    }
     if (this.userTypeExit) {
       return this.props.delTab(this.props.tab.id)
     }
-    const key = `open${Date.now()}`
-    function closeMsg () {
-      notification.destroy(key)
+    const { autoReconnectTerminal } = this.props.config
+    const isActive = this.isActiveTerminal()
+    const isFocused = window.focused
+    if (autoReconnectTerminal) {
+      if (isActive && isFocused) {
+        this.socketCloseWarning = showSocketCloseWarning({
+          tabId: this.props.tab.id,
+          tab: this.props.tab,
+          autoReconnect: true,
+          delTab: this.props.delTab,
+          reloadTab: this.props.reloadTab
+        })
+      } else {
+        this.scheduleAutoReconnect(3000)
+      }
+    } else {
+      if (!isActive || !isFocused) {
+        return false
+      }
+      this.socketCloseWarning = showSocketCloseWarning({
+        tabId: this.props.tab.id,
+        tab: this.props.tab,
+        autoReconnect: false,
+        delTab: this.props.delTab,
+        reloadTab: this.props.reloadTab
+      })
     }
-    this.socketCloseWarning = notification.warning({
-      key,
-      message: e('socketCloseTip'),
-      duration: 30,
-      description: (
-        <div className='pd2y'>
-          <Button
-            className='mg1r'
-            type='primary'
-            onClick={() => {
-              closeMsg()
-              this.props.delTab(this.props.tab.id)
-            }}
-          >
-            {e('close')}
-          </Button>
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={() => {
-              closeMsg()
-              this.props.reloadTab(
-                this.props.tab
-              )
-            }}
-          >
-            {e('reload')}
-          </Button>
-        </div>
-      )
-    })
+  }
+
+  scheduleAutoReconnect = (delay = 3000) => {
+    clearTimeout(this.timers.reconnectTimer)
+    clearInterval(this.timers.reconnectCountdown)
+    const seconds = Math.round(delay / 1000)
+    this.setState({ reconnectCountdown: seconds })
+    let remaining = seconds
+    this.timers.reconnectCountdown = setInterval(() => {
+      remaining -= 1
+      if (remaining <= 0) {
+        clearInterval(this.timers.reconnectCountdown)
+        this.timers.reconnectCountdown = null
+      }
+      this.setState({ reconnectCountdown: remaining <= 0 ? null : remaining })
+    }, 1000)
+    this.timers.reconnectTimer = setTimeout(() => {
+      clearInterval(this.timers.reconnectCountdown)
+      this.timers.reconnectCountdown = null
+      this.setState({ reconnectCountdown: null })
+      if (this.onClose || !this.props.config.autoReconnectTerminal) {
+        return
+      }
+      const reconnectCount = (this.props.tab.autoReConnect || 0) + 1
+      this.props.reloadTab({ ...this.props.tab, autoReConnect: reconnectCount })
+    }, delay)
+  }
+
+  handleCancelAutoReconnect = () => {
+    clearTimeout(this.timers.reconnectTimer)
+    clearInterval(this.timers.reconnectCountdown)
+    this.timers.reconnectTimer = null
+    this.timers.reconnectCountdown = null
+    this.setState({ reconnectCountdown: null })
   }
 
   batchInput = (cmd) => {
@@ -1401,6 +1438,7 @@ class Term extends Component {
       totalLines: this.state.totalLines,
       height
     }
+    const spin = loading ? <Spin className='loading-wrapper' spinning={loading} /> : null
     return (
       <Dropdown {...dropdownProps}>
         <div
@@ -1417,7 +1455,11 @@ class Term extends Component {
           <RemoteFloatControl
             isFullScreen={fullscreen}
           />
-          <Spin className='loading-wrapper' spinning={loading} />
+          <ReconnectOverlay
+            countdown={this.state.reconnectCountdown}
+            onCancel={this.handleCancelAutoReconnect}
+          />
+          {spin}
         </div>
       </Dropdown>
     )

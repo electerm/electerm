@@ -206,6 +206,12 @@ export default (Store) => {
       },
       1000
     )
+    setTimeout(
+      () => {
+        store.autoSyncReady = true
+      },
+      2000
+    )
     if (store.config.checkUpdateOnStart) {
       store.onCheckUpdate(false)
     }

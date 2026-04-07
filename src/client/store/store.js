@@ -176,7 +176,7 @@ class Store {
 
   get terminalCommandSuggestions () {
     const { store } = window
-    const historyCommands = Array.from(store.terminalCommandHistory.keys())
+    const historyCommands = store.terminalCommandHistory.map(item => item.cmd)
     const batchInputCommands = store.batchInputs || []
     const quickCommands = (store.quickCommands || []).reduce(
       (p, q) => {

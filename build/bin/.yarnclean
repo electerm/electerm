@@ -23,6 +23,15 @@ CONTRIBUTORS
 *.ts.map
 *.jst
 *.coffee
+*.d.cts
+*.d.mts
+tsconfig.json
+.nycrc
+.nycrc.json
+opslevel.yml
+package-support.json
+bench.js
+tests.js
 
 # folders
 __tests__
@@ -44,4 +53,18 @@ zmodem2/dist/browser
 zmodem2/dist/esm
 trzsz2/dist/cjs
 trzsz2/dist/esm
-
+package-lock.json
+.github
+.circleci
+scripts
+samplejson
+flash
+third_party
+tools
+bench
+benchmarks
+spec
+specs
+fixture
+fixtures
+umd

@@ -239,6 +239,13 @@ export const commonFields = {
     type: 'runScripts',
     name: 'runScripts',
     label: ''
+  },
+
+  enableTerminalImage: {
+    type: 'switch',
+    name: 'enableTerminalImage',
+    label: () => e('enableTerminalImage'),
+    valuePropName: 'checked'
   }
 }
 
@@ -272,6 +279,7 @@ export const sshSettings = [
     label: () => e('ignoreKeyboardInteractive'),
     valuePropName: 'checked'
   },
+  commonFields.enableTerminalImage,
   ...terminalSettings.slice(0, -1), // All except terminalBackground
   commonFields.x11,
   commonFields.terminalBackground

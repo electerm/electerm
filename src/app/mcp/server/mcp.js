@@ -10,7 +10,7 @@ class McpServer {
   }
 
   async connect (transport) {
-    transport.server = this
+    await transport.connect(this)
   }
 
   async close () {

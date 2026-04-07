@@ -3,7 +3,7 @@
  */
 
 const { userConfigId } = require('../common/constants')
-const { dbAction } = require('../lib/nedb')
+const { dbAction } = require('./nedb-instance')
 const { updateDBVersion } = require('./version-upgrade')
 const log = require('../common/log')
 const { buildProxyString } = require('../lib/build-proxy')

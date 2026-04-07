@@ -69,6 +69,7 @@ const { checkDbUpgrade, doUpgrade } = require('../upgrade')
 const { listSerialPorts } = require('./serial-port')
 const initApp = require('./init-app')
 const { encryptAsync, decryptAsync } = require('./enc')
+const { safeEncrypt, safeDecrypt } = require('./safe-storage')
 const { initCommandLine } = require('./command-line')
 const { watchFile, unwatchFile } = require('./watch-file')
 const lookup = require('../common/lookup')
@@ -150,6 +151,8 @@ function initIpc () {
     },
     encryptAsync,
     decryptAsync,
+    safeEncrypt: (str) => safeEncrypt(str),
+    safeDecrypt: (str) => safeDecrypt(str),
     dbAction,
     getScreenSize,
     closeApp: (closeAction = '') => {

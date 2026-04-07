@@ -26,7 +26,7 @@ export default auto(function HistoryPanel (props) {
   } = store
   let arr = store.config.disableConnectionHistory ? [] : history
   if (sortByFrequency) {
-    arr = arr.sort((a, b) => { return b.count - a.count })
+    arr = [...arr].sort((a, b) => { return b.count - a.count })
   }
 
   const handleSortByFrequencyChange = (checked) => {

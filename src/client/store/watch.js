@@ -4,16 +4,14 @@
 
 import createTitle from '../common/create-title'
 import { autoRun } from 'manate'
-import { update, remove, insert, dbNamesForWatch } from '../common/db'
+import { update, remove, insert, dbNamesForWatch, dbNamesForSync } from '../common/db'
 import {
   sftpDefaultSortSettingKey,
   checkedKeysLsKey,
   expandedKeysLsKey,
   resolutionsLsKey,
   localAddrBookmarkLsKey,
-  syncServerDataKey,
-  aiChatHistoryKey,
-  cmdHistoryKey
+  syncServerDataKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { debounce, isEmpty } from 'lodash-es'
@@ -70,7 +68,7 @@ export default store => {
         )
       }
       await store.updateLastDataUpdateTime()
-      if (store.config.autoSync) {
+      if (store.config.autoSync && dbNamesForSync.includes(name)) {
         await store.uploadSettingAll()
       }
       return store[name]
@@ -132,28 +130,6 @@ export default store => {
   autoRun(() => {
     ls.setItemJSON(syncServerDataKey, store.syncServerStatus)
     return store.syncServerStatus
-  }).start()
-
-  autoRun(() => {
-    ls.setItemJSON('history', store.history)
-    return store.history
-  }).start()
-
-  autoRun(() => {
-    ls.setItemJSON(aiChatHistoryKey, store.aiChatHistory)
-    return store.aiChatHistory
-  }).start()
-
-  autoRun(() => {
-    const history = store.terminalCommandHistory
-    // Save in new format: array of {cmd, count, lastUseTime}
-    const data = Array.from(history.entries()).map(([cmd, info]) => ({
-      cmd,
-      count: info.count,
-      lastUseTime: info.lastUseTime
-    }))
-    ls.setItemJSON(cmdHistoryKey, data)
-    return store.terminalCommandHistory
   }).start()
 
   autoRun(() => {

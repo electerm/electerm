@@ -7,6 +7,10 @@ import uid from '../common/uid'
 import { settingMap } from '../common/constants'
 import { refs } from '../components/common/ref'
 import deepCopy from 'json-deep-copy'
+import {
+  getLocalFileInfo,
+  getRemoteFileInfo
+} from '../components/sftp/file-read'
 
 export default Store => {
   // Initialize MCP handler - called when MCP widget is started
@@ -56,8 +60,7 @@ export default Store => {
         case 'add_bookmark_group':
           result = await store.mcpAddBookmarkGroup(args)
           break
-
-        // Quick command operations
+        /*
         case 'list_quick_commands':
           result = store.mcpListQuickCommands()
           break
@@ -70,7 +73,7 @@ export default Store => {
         case 'delete_quick_command':
           result = store.mcpDeleteQuickCommand(args)
           break
-
+          */
         // Tab operations
         case 'list_tabs':
           result = store.mcpListTabs()
@@ -105,20 +108,34 @@ export default Store => {
           result = store.mcpGetTerminalOutput(args)
           break
 
-        // History operations
-        case 'list_history':
-          result = store.mcpListHistory(args)
+        // SFTP operations
+        case 'sftp_list':
+          result = await store.mcpSftpList(args)
           break
-        case 'clear_history':
-          result = store.mcpClearHistory()
+        case 'sftp_del':
+          result = await store.mcpSftpDel(args)
+          break
+        case 'sftp_stat':
+          result = await store.mcpSftpStat(args)
+          break
+        case 'sftp_read_file':
+          result = await store.mcpSftpReadFile(args)
           break
 
-        // Transfer operations
-        case 'list_transfers':
-          result = store.mcpListTransfers()
+        // File transfer operations
+        case 'sftp_upload':
+          result = await store.mcpSftpUpload(args)
           break
-        case 'list_transfer_history':
-          result = store.mcpListTransferHistory(args)
+        case 'sftp_download':
+          result = await store.mcpSftpDownload(args)
+          break
+
+        // Zmodem (trzsz/rzsz) operations
+        case 'zmodem_upload':
+          result = store.mcpZmodemUpload(args)
+          break
+        case 'zmodem_download':
+          result = store.mcpZmodemDownload(args)
           break
 
         // Settings operations
@@ -249,58 +266,58 @@ export default Store => {
 
   // ==================== Quick Command APIs ====================
 
-  Store.prototype.mcpListQuickCommands = function () {
-    return deepCopy(window.store.quickCommands)
-  }
+  // Store.prototype.mcpListQuickCommands = function () {
+  //   return deepCopy(window.store.quickCommands)
+  // }
 
-  Store.prototype.mcpAddQuickCommand = function (args) {
-    const { store } = window
-    const qm = {
-      id: uid(),
-      name: args.name,
-      commands: args.commands,
-      inputOnly: args.inputOnly || false,
-      labels: args.labels || []
-    }
+  // Store.prototype.mcpAddQuickCommand = function (args) {
+  //   const { store } = window
+  //   const qm = {
+  //     id: uid(),
+  //     name: args.name,
+  //     commands: args.commands,
+  //     inputOnly: args.inputOnly || false,
+  //     labels: args.labels || []
+  //   }
 
-    store.addQuickCommand(qm)
+  //   store.addQuickCommand(qm)
 
-    return {
-      success: true,
-      id: qm.id,
-      message: `Quick command "${qm.name}" created`
-    }
-  }
+  //   return {
+  //     success: true,
+  //     id: qm.id,
+  //     message: `Quick command "${qm.name}" created`
+  //   }
+  // }
 
-  Store.prototype.mcpRunQuickCommand = function (args) {
-    const { store } = window
-    const qm = store.quickCommands.find(q => q.id === args.id)
-    if (!qm) {
-      throw new Error(`Quick command not found: ${args.id}`)
-    }
+  // Store.prototype.mcpRunQuickCommand = function (args) {
+  //   const { store } = window
+  //   const qm = store.quickCommands.find(q => q.id === args.id)
+  //   if (!qm) {
+  //     throw new Error(`Quick command not found: ${args.id}`)
+  //   }
 
-    store.runQuickCommandItem(args.id)
+  //   store.runQuickCommandItem(args.id)
 
-    return {
-      success: true,
-      message: `Executed quick command "${qm.name}"`
-    }
-  }
+  //   return {
+  //     success: true,
+  //     message: `Executed quick command "${qm.name}"`
+  //   }
+  // }
 
-  Store.prototype.mcpDeleteQuickCommand = function (args) {
-    const { store } = window
-    const qm = store.quickCommands.find(q => q.id === args.id)
-    if (!qm) {
-      throw new Error(`Quick command not found: ${args.id}`)
-    }
+  // Store.prototype.mcpDeleteQuickCommand = function (args) {
+  //   const { store } = window
+  //   const qm = store.quickCommands.find(q => q.id === args.id)
+  //   if (!qm) {
+  //     throw new Error(`Quick command not found: ${args.id}`)
+  //   }
 
-    store.delQuickCommand({ id: args.id })
+  //   store.delQuickCommand({ id: args.id })
 
-    return {
-      success: true,
-      message: `Deleted quick command "${qm.name}"`
-    }
-  }
+  //   return {
+  //     success: true,
+  //     message: `Deleted quick command "${qm.name}"`
+  //   }
+  // }
 
   // ==================== Tab APIs ====================
 
@@ -502,92 +519,261 @@ export default Store => {
     }
   }
 
-  // ==================== History APIs ====================
-
-  Store.prototype.mcpListHistory = function (args = {}) {
-    const { store } = window
-    const limit = args.limit || 50
-    const history = store.history.slice(0, limit)
-
-    return history.map(h => ({
-      id: h.id,
-      title: h.title,
-      host: h.host,
-      type: h.type,
-      time: h.time
-    }))
-  }
-
-  Store.prototype.mcpClearHistory = function () {
-    const { store } = window
-    store.history = []
-
-    return {
-      success: true,
-      message: 'History cleared'
-    }
-  }
-
-  // ==================== Transfer APIs ====================
-
-  Store.prototype.mcpListTransfers = function () {
-    const { store } = window
-    return store.fileTransfers.map(t => ({
-      id: t.id,
-      localPath: t.localPath,
-      remotePath: t.remotePath,
-      type: t.type,
-      percent: t.percent,
-      status: t.status
-    }))
-  }
-
-  Store.prototype.mcpListTransferHistory = function (args = {}) {
-    const { store } = window
-    const limit = args.limit || 50
-    return store.transferHistory.slice(0, limit).map(t => ({
-      id: t.id,
-      localPath: t.localPath,
-      remotePath: t.remotePath,
-      type: t.type,
-      status: t.status,
-      time: t.time
-    }))
-  }
-
   // ==================== Settings APIs ====================
 
   Store.prototype.mcpGetSettings = function () {
     const { store } = window
     // Return safe settings (no sensitive data)
     const config = store.config
-    const safeConfig = {
-      theme: config.theme,
-      language: config.language,
-      fontSize: config.fontSize,
-      fontFamily: config.fontFamily,
-      terminalType: config.terminalType,
-      cursorStyle: config.cursorStyle,
-      cursorBlink: config.cursorBlink,
-      scrollback: config.scrollback
-    }
+    const excludeKeys = ['apiKeyAI', 'syncSetting']
+    const safeConfig = Object.fromEntries(
+      Object.entries(config).filter(([key]) => !excludeKeys.includes(key))
+    )
     return safeConfig
   }
 
-  Store.prototype.mcpListTerminalThemes = function () {
+  // ==================== SFTP APIs ====================
+
+  Store.prototype.mcpGetSshSftpRef = function (tabId) {
     const { store } = window
-    return store.terminalThemes.map(t => ({
-      id: t.id,
-      name: t.name,
-      themeLight: t.themeLight
-    }))
+    const resolvedTabId = tabId || store.activeTabId
+    if (!resolvedTabId) {
+      throw new Error('No active tab')
+    }
+    const tab = store.tabs.find(t => t.id === resolvedTabId)
+    if (!tab) {
+      throw new Error(`Tab not found: ${resolvedTabId}`)
+    }
+    if (tab.type !== 'ssh' && tab.type !== 'ftp') {
+      throw new Error(`Tab "${resolvedTabId}" is not an SSH/SFTP tab (type: ${tab.type || 'local'})`)
+    }
+    const sftpEntry = refs.get('sftp-' + resolvedTabId)
+    if (!sftpEntry || !sftpEntry.sftp) {
+      throw new Error(`SFTP not initialized for tab "${resolvedTabId}". Open the SFTP panel first.`)
+    }
+    return { sftp: sftpEntry.sftp, tab, tabId: resolvedTabId }
   }
 
-  Store.prototype.mcpListUiThemes = function () {
+  Store.prototype.mcpSftpList = async function (args) {
+    const { sftp, tab, tabId } = window.store.mcpGetSshSftpRef(args.tabId)
+    const remotePath = args.remotePath
+    if (!remotePath) {
+      throw new Error('remotePath is required')
+    }
+    const list = await sftp.list(remotePath)
+    return { tabId, host: tab.host, path: remotePath, list }
+  }
+
+  Store.prototype.mcpSftpStat = async function (args) {
+    const { sftp, tab, tabId } = window.store.mcpGetSshSftpRef(args.tabId)
+    const remotePath = args.remotePath
+    if (!remotePath) {
+      throw new Error('remotePath is required')
+    }
+    const stat = await sftp.stat(remotePath)
+    return { tabId, host: tab.host, path: remotePath, stat }
+  }
+
+  Store.prototype.mcpSftpReadFile = async function (args) {
+    const { sftp, tab, tabId } = window.store.mcpGetSshSftpRef(args.tabId)
+    const remotePath = args.remotePath
+    if (!remotePath) {
+      throw new Error('remotePath is required')
+    }
+    const content = await sftp.readFile(remotePath)
+    return { tabId, host: tab.host, path: remotePath, content }
+  }
+
+  Store.prototype.mcpSftpDel = async function (args) {
+    const { sftp, tab, tabId } = window.store.mcpGetSshSftpRef(args.tabId)
+    const remotePath = args.remotePath
+    if (!remotePath) {
+      throw new Error('remotePath is required')
+    }
+    // Use stat to determine if it's a file or directory
+    const stat = await sftp.stat(remotePath)
+    const isDirectory = typeof stat.isDirectory === 'function'
+      ? stat.isDirectory()
+      : !!stat.isDirectory
+    if (isDirectory) {
+      await sftp.rmdir(remotePath)
+    } else {
+      await sftp.rm(remotePath)
+    }
+    return { success: true, tabId, host: tab.host, path: remotePath, type: isDirectory ? 'directory' : 'file' }
+  }
+
+  // ==================== File Transfer APIs ====================
+
+  Store.prototype.mcpSftpUpload = async function (args) {
     const { store } = window
-    return (store.uiThemes || []).map(t => ({
-      id: t.id,
-      name: t.name
-    }))
+    const { tab, tabId } = store.mcpGetSshSftpRef(args.tabId)
+    const localPath = args.localPath
+    const remotePath = args.remotePath
+    if (!localPath) {
+      throw new Error('localPath is required')
+    }
+    if (!remotePath) {
+      throw new Error('remotePath is required')
+    }
+
+    window._transferConflictPolicy = args.conflictPolicy || 'overwrite'
+
+    const fromFile = await getLocalFileInfo(localPath)
+    const transferItem = {
+      host: tab.host,
+      tabType: tab.type || 'ssh',
+      typeFrom: 'local',
+      typeTo: 'remote',
+      fromPath: localPath,
+      toPath: remotePath,
+      fromFile: {
+        ...fromFile,
+        host: tab.host,
+        tabType: tab.type || 'ssh',
+        tabId,
+        title: tab.title
+      },
+      id: uid(),
+      title: tab.title,
+      tabId,
+      operation: ''
+    }
+
+    store.addTransferList([transferItem])
+
+    return {
+      success: true,
+      message: `Upload started: ${localPath} → ${tab.host}:${remotePath}`,
+      transferId: transferItem.id,
+      tabId
+    }
+  }
+
+  Store.prototype.mcpSftpDownload = async function (args) {
+    const { store } = window
+    const { sftp, tab, tabId } = store.mcpGetSshSftpRef(args.tabId) // sftp used for getRemoteFileInfo
+    const remotePath = args.remotePath
+    const localPath = args.localPath
+    if (!remotePath) {
+      throw new Error('remotePath is required')
+    }
+    if (!localPath) {
+      throw new Error('localPath is required')
+    }
+
+    window._transferConflictPolicy = args.conflictPolicy || 'overwrite'
+
+    const fromFile = await getRemoteFileInfo(sftp, remotePath)
+    const transferItem = {
+      host: tab.host,
+      tabType: tab.type || 'ssh',
+      typeFrom: 'remote',
+      typeTo: 'local',
+      fromPath: remotePath,
+      toPath: localPath,
+      fromFile: {
+        ...fromFile,
+        id: uid(),
+        isSymbolicLink: false
+      },
+      id: uid(),
+      title: tab.title,
+      tabId
+    }
+
+    store.addTransferList([transferItem])
+
+    return {
+      success: true,
+      message: `Download started: ${tab.host}:${remotePath} → ${localPath}`,
+      transferId: transferItem.id,
+      tabId
+    }
+  }
+
+  // ==================== Zmodem (trzsz/rzsz) APIs ====================
+
+  Store.prototype.mcpZmodemUpload = function (args) {
+    const { store } = window
+    const tabId = args.tabId || store.activeTabId
+    if (!tabId) {
+      throw new Error('No active tab')
+    }
+    const tab = store.tabs.find(t => t.id === tabId)
+    if (!tab) {
+      throw new Error(`Tab not found: ${tabId}`)
+    }
+
+    const files = args.files
+    if (!files || !Array.isArray(files) || files.length === 0) {
+      throw new Error('files array is required (list of local file paths to upload)')
+    }
+
+    const protocol = args.protocol || 'rzsz'
+    const uploadCmd = protocol === 'trzsz' ? 'trz' : 'rz'
+
+    // Set the control variable to bypass native file dialog
+    window._apiControlSelectFile = files
+
+    const term = refs.get('term-' + tabId)
+    if (!term) {
+      throw new Error(`Terminal not found for tab: ${tabId}`)
+    }
+    term.runQuickCommand(uploadCmd)
+
+    return {
+      success: true,
+      protocol,
+      command: uploadCmd,
+      message: `${uploadCmd} upload initiated for ${files.length} file(s)`,
+      files,
+      tabId
+    }
+  }
+
+  Store.prototype.mcpZmodemDownload = function (args) {
+    const { store } = window
+    const tabId = args.tabId || store.activeTabId
+    if (!tabId) {
+      throw new Error('No active tab')
+    }
+    const tab = store.tabs.find(t => t.id === tabId)
+    if (!tab) {
+      throw new Error(`Tab not found: ${tabId}`)
+    }
+
+    const saveFolder = args.saveFolder
+    if (!saveFolder) {
+      throw new Error('saveFolder is required (local folder to save downloaded files)')
+    }
+
+    const remoteFiles = args.remoteFiles
+    if (!remoteFiles || !Array.isArray(remoteFiles) || remoteFiles.length === 0) {
+      throw new Error('remoteFiles array is required (list of remote file paths to download)')
+    }
+
+    const protocol = args.protocol || 'rzsz'
+    const downloadCmd = protocol === 'trzsz' ? 'tsz' : 'sz'
+
+    // Set the control variable to bypass native folder dialog
+    window._apiControlSelectFolder = saveFolder
+
+    const term = refs.get('term-' + tabId)
+    if (!term) {
+      throw new Error(`Terminal not found for tab: ${tabId}`)
+    }
+    const quotedFiles = remoteFiles.map(f => `"${f}"`).join(' ')
+    term.runQuickCommand(`${downloadCmd} ${quotedFiles}`)
+
+    return {
+      success: true,
+      protocol,
+      command: downloadCmd,
+      message: `${downloadCmd} download initiated for ${remoteFiles.length} file(s) to ${saveFolder}`,
+      remoteFiles,
+      saveFolder,
+      tabId
+    }
   }
 }

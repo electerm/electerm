@@ -190,13 +190,15 @@ export const syncTypes = buildConst([
   'github',
   'gitee',
   'custom',
-  'cloud'
+  'cloud',
+  'webdav'
 ])
 export const syncTokenCreateUrls = {
   gitee: 'https://gitee.com/github-zxdong262/electerm/wikis/Create%20personal%20access%20token?sort_id=3028409',
   github: 'https://github.com/electerm/electerm/wiki/Create-personal-access-token',
   custom: 'https://github.com/electerm/electerm/wiki/Custom-sync-server',
-  cloud: 'https://electerm-cloud.html5beta.com'
+  cloud: 'https://electerm-cloud.html5beta.com',
+  webdav: 'https://github.com/electerm/electerm/wiki/WebDAV-sync'
 }
 export const settingSyncId = 'setting-sync'
 export const settingTerminalId = 'setting-terminal'
@@ -350,6 +352,4 @@ export const terminalTypes = [
 export const sshConfigLoadKey = 'ssh-config-loaded'
 export const sshConfigKey = 'ignore-ssh-config'
 export const connectionHoppingWarnKey = 'connectionHoppingWarnned'
-export const aiChatHistoryKey = 'ai-chat-history'
 export const syncServerDataKey = 'sync-server-data'
-export const cmdHistoryKey = 'cmd-history'

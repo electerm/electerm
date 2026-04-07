@@ -98,8 +98,8 @@ export default memo(function TransferHistoryModal (props) {
       pageSize,
       showSizeChanger: true,
       pageSizeOptions: [5, 10, 20, 50, 100],
-      onChange: handlePageSizeChange,
-      position: ['topRight']
+      placement: 'topEnd',
+      onChange: handlePageSizeChange
     },
     size: 'small',
     rowKey: 'id'

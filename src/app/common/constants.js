@@ -3,6 +3,7 @@
  */
 
 exports.userConfigId = 'userConfig'
+exports.userNoEncryptConfigId = 'userConfigNoEncrypt'
 exports.instSftpKeys = [
   'connect',
   'list',

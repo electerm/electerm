@@ -22,14 +22,15 @@ const e = window.translate
 
 export default function useQuickCmds (form, formData) {
   function renderItem (field, i, add, remove) {
+    const { key, ...rest } = field
     return (
       <Space
         style={{ display: 'flex', marginBottom: '2px' }}
         align='baseline'
-        key={field.key}
+        key={field.key + 'quickCmd' + i}
       >
         <FormItem
-          {...field}
+          {...rest}
           name={[field.name, 'name']}
           fieldKey={[field.fieldKey, 'first']}
           rules={[{ required: true, max: 30 }]}
@@ -37,9 +38,9 @@ export default function useQuickCmds (form, formData) {
           <Input placeholder={e('quickCommandName')} />
         </FormItem>
         <FormItem
-          {...field}
+          {...rest}
           name={[field.name, 'command']}
-          fieldKey={[field.fieldKey, 'first']}
+          fieldKey={[field.fieldKey, 'second']}
           rules={[{ required: true, max: 300 }]}
         >
           <Input placeholder={e('quickCommand')} />

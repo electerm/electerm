@@ -66,7 +66,10 @@ class TerminalSshBase extends TerminalBase {
     }
 
     const [firstHopping, ...restHoppings] = initOptions.connectionHoppings
-    Object.assign(initOptions, firstHopping)
+    const pickProps = _.pick(firstHopping, [
+      'host', 'port', 'username', 'password', 'privateKey', 'passphrase', 'certificate'
+    ])
+    Object.assign(initOptions, pickProps)
     initOptions.connectionHoppings = [...restHoppings, currentHostHopping]
   }
 

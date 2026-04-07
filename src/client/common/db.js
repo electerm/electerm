@@ -9,7 +9,7 @@ import { without, isArray } from 'lodash-es'
 import handleError from './error-handler'
 import generate from './uid'
 import safeParse from './to-simple-obj'
-import { encObj, decObj } from './pass-enc'
+import { decObj } from './pass-enc'
 
 /**
  * db action, never direct use it
@@ -23,17 +23,30 @@ const dbAction = (...args) => {
 /**
  * standalone db names
  */
-export const dbNames = without(
-  Object.keys(settingMap),
-  settingMap.setting,
-  settingMap.widgets
-)
+export const dbNames = [
+  ...without(
+    Object.keys(settingMap),
+    settingMap.setting,
+    settingMap.widgets
+  ),
+  'history',
+  'terminalCommandHistory',
+  'aiChatHistory'
+]
+export const dbNamesForSync = [
+  ...without(
+    Object.keys(settingMap),
+    settingMap.setting,
+    settingMap.widgets
+  )
+]
 
-export const dbNamesForWatch = without(
-  Object.keys(settingMap),
-  settingMap.setting,
-  settingMap.widgets
-)
+export const dbNamesForWatch = [
+  ...dbNamesForSync,
+  'history',
+  'terminalCommandHistory',
+  'aiChatHistory'
+]
 
 /**
  * db insert
@@ -46,7 +59,7 @@ export function insert (dbName, inst) {
     const { id, _id, ...rest } = obj
     return {
       _id: _id || id || generate(),
-      ...encObj(rest)
+      ...rest
     }
   })
   return dbAction(dbName, 'insert', safeParse(arr))
@@ -76,9 +89,7 @@ export async function remove (dbName, id) {
 export function update (_id, value, db = 'data', upsert = true) {
   const updates = dbNames.includes(db)
     ? {
-        $set: {
-          ...encObj(value)
-        }
+        $set: value
       }
     : {
         $set: {

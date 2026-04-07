@@ -1,7 +1,7 @@
 const { dbAction } = require('./db')
 const defaultSetting = require('../common/config-default')
 const getPort = require('./get-port')
-const { userConfigId } = require('../common/constants')
+const { userConfigId, userNoEncryptConfigId } = require('../common/constants')
 const generate = require('../common/uid')
 const globalState = require('./glob-state')
 
@@ -35,6 +35,13 @@ exports.getConfig = async (inited) => {
 exports.getDbConfig = async () => {
   const userConfig = await dbAction('data', 'findOne', {
     _id: userConfigId
+  }) || {}
+  return userConfig
+}
+
+exports.getUserConfigNoEnc = async () => {
+  const userConfig = await dbAction('data', 'findOne', {
+    _id: userNoEncryptConfigId
   }) || {}
   return userConfig
 }

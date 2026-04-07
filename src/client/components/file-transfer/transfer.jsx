@@ -77,11 +77,11 @@ export default class TransportAction extends Component {
   }
 
   localCheckExist = (path) => {
-    return getLocalFileInfo(path).catch(console.log)
+    return getLocalFileInfo(path)
+      .catch(() => null)
   }
 
   remoteCheckExist = (path, tabId) => {
-    // return true
     const sftp = refs.get('sftp-' + tabId)?.sftp
     if (!sftp) {
       console.log('remoteCheckExist error', 'sftp not exist')
@@ -373,10 +373,12 @@ export default class TransportAction extends Component {
         toFile
       })
       if (transfer.resolvePolicy) {
-        return this.onDecision(transfer.resolvePolicy)
+        this.onDecision(transfer.resolvePolicy)
+        return true
       }
       if (this.resolvePolicy) {
-        return this.onDecision(this.resolvePolicy)
+        this.onDecision(this.resolvePolicy)
+        return true
       }
       const transferWithToFile = {
         ...copy(transfer),
@@ -386,6 +388,7 @@ export default class TransportAction extends Component {
       refsStatic.get('transfer-conflict')?.addConflict(transferWithToFile)
       return true
     }
+    return false
   }
 
   onDecision = (policy) => {

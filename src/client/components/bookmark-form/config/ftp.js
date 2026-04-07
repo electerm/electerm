@@ -34,6 +34,7 @@ const ftpConfig = {
         { type: 'password', name: 'password', label: () => e('password') },
         { type: 'switch', name: 'secure', label: () => e('secure'), valuePropName: 'checked' },
         commonFields.encode,
+        commonFields.proxy,
         commonFields.type
       ]
     }

@@ -41,7 +41,12 @@ export default class Queue extends Component {
     return new Promise((resolve, reject) => {
       const { fileTransfers } = window.store
       const [id, updateObj] = args
+      let completed = false
       const end = () => {
+        if (completed) {
+          return
+        }
+        completed = true
         this.currentRun && this.currentRun.stop()
         resolve()
       }
@@ -99,10 +104,11 @@ export default class Queue extends Component {
           })()
         }
 
-        // For non-transfer operations, check immediately
-        // if (!isTransferInit) {
-        //   checkCompletion()
-        // }
+        // Progress and delete updates are synchronous store mutations.
+        // Resolve them here so the queue cannot stall waiting for another reaction.
+        if (!isTransferInit) {
+          checkCompletion()
+        }
       }
 
       function checkCompletion () {

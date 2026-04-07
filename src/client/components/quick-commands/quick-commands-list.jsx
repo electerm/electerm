@@ -3,12 +3,14 @@
  */
 
 import List from '../setting-panel/list'
-import { PlusOutlined } from '@ant-design/icons'
+import { PlusOutlined, CopyOutlined } from '@ant-design/icons'
 import { Select } from 'antd'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
 import QmTransport from './quick-command-transport'
 import onDrop from './on-drop'
+import copy from 'json-deep-copy'
+import uid from '../../common/uid'
 
 const { Option } = Select
 const e = window.translate
@@ -45,15 +47,42 @@ export default class QuickCommandsList extends List {
   }
 
   handleDragEnter = e => {
-    e.target.closest('.item-list-unit').classList.add('dragover')
+    e.target.closest('.item-list-unit').classList.add('qm-field-dragover')
   }
 
   handleDragLeave = e => {
-    e.target.closest('.item-list-unit').classList.remove('dragover')
+    e.target.closest('.item-list-unit').classList.remove('qm-field-dragover')
   }
 
   handleDrop = e => {
     onDrop(e, '.item-list-unit')
+  }
+
+  duplicateItem = (e, item) => {
+    e.stopPropagation()
+    const { store } = window
+    const newCommand = copy(item)
+    newCommand.id = uid()
+    const baseName = item.name.replace(/\(\d+\)$/, '')
+    const sameNameCount = store.currentQuickCommands.filter(
+      cmd => cmd.name && cmd.name.replace(/\(\d+\)$/, '').includes(baseName)
+    ).length
+    const duplicateIndex = sameNameCount > 0 ? sameNameCount : 1
+    newCommand.name = baseName + '(' + duplicateIndex + ')'
+    store.addQuickCommand(newCommand)
+  }
+
+  renderDuplicateBtn = (item) => {
+    if (!item.id) {
+      return null
+    }
+    return (
+      <CopyOutlined
+        title={e('duplicate')}
+        className='pointer list-item-duplicate'
+        onClick={(e) => this.duplicateItem(e, item)}
+      />
+    )
   }
 
   renderItem = (item, i) => {
@@ -94,6 +123,7 @@ export default class QuickCommandsList extends List {
           }
           {title}
         </div>
+        {this.renderDuplicateBtn(item)}
         {this.renderDelBtn(item)}
       </div>
     )

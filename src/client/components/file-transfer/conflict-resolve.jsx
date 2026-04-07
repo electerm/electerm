@@ -31,25 +31,50 @@ export default class ConfirmModalStore extends Component {
       transferToConfirm: null
     }
     this.queue = []
+    this.queuedTransferIds = new Set()
+    this.activeTransferId = null
     this.id = 'transfer-conflict'
     refsStatic.add(this.id, this)
   }
 
   addConflict = (transfer) => {
+    const transferId = transfer?.id
+    if (!transferId) {
+      return
+    }
+    if (this.activeTransferId === transferId || this.queuedTransferIds.has(transferId)) {
+      return
+    }
+    const globalPolicy = window._transferConflictPolicy
+    if (globalPolicy && Object.values(fileActions).includes(globalPolicy)) {
+      const { id, transferBatch } = transfer
+      const trid = `tr-${transferBatch}-${id}`
+      const currentTransfer = refsTransfers.get(trid)
+      currentTransfer?.onDecision(globalPolicy)
+      return
+    }
     this.queue.push(transfer)
-    if (!this.state.transferToConfirm) {
+    this.queuedTransferIds.add(transferId)
+    if (!this.activeTransferId) {
       this.showNext()
     }
   }
 
   showNext = () => {
     const next = this.queue.shift()
+    if (next?.id) {
+      this.queuedTransferIds.delete(next.id)
+    }
+    this.activeTransferId = next?.id || null
     this.setState({
       transferToConfirm: next
     })
   }
 
   act = (action) => {
+    if (!this.state.transferToConfirm) {
+      return
+    }
     const { id, transferBatch } = this.state.transferToConfirm
     const toAll = action.includes('All')
     const policy = toAll ? action.replace('All', '') : action
@@ -60,10 +85,17 @@ export default class ConfirmModalStore extends Component {
     if (doFilter) {
       // Update all existing transfers with same batch ID in DOM
       const prefix = `tr-${transferBatch}-`
+      const pendingConflictIds = new Set([
+        id,
+        ...this.queue
+          .filter(d => d.transferBatch === transferBatch)
+          .map(d => d.id)
+      ])
       for (const [key, r] of window.refsTransfers.entries()) {
         if (key.startsWith(prefix)) {
-          if (key !== trid) {
-            r.resolvePolicy = policy
+          r.resolvePolicy = policy
+          const transferId = r.props.transfer?.id
+          if (key !== trid && pendingConflictIds.has(transferId)) {
             r.onDecision(policy)
           }
         }
@@ -72,9 +104,11 @@ export default class ConfirmModalStore extends Component {
     }
 
     // Resolve current conflict
-    refsTransfers.get(trid)?.onDecision(policy)
+    const currentTransfer = refsTransfers.get(trid)
+    currentTransfer?.onDecision(policy)
 
     // Move to the next item
+    this.activeTransferId = null
     this.setState({
       transferToConfirm: null
     }, this.showNext)

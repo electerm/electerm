@@ -15,6 +15,7 @@
 [![Debian Repository](https://img.shields.io/badge/Debian-Repository-red)](https://electerm-repos.html5beta.com/deb)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
 [![Powered by manate](https://img.shields.io/badge/Powered%20by-manate-blue)](https://github.com/tylerlong/manate)
+[![Discord](https://img.shields.io/badge/Discord-Join-blue?logo=discord)](https://discord.gg/855W7g8EVd)
 [![star](https://atomgit.com/electerm/electerm/star/badge.svg)](https://atomgit.com/electerm/electerm)
 
 [![English](https://img.shields.io/badge/English-EN-blue)](README.md) [![中文](https://img.shields.io/badge/中文-Chinese-blue)](README_cn.md)
@@ -50,7 +51,7 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 - Global/session proxy.
 - Quick commands
 - UI/terminal theme
-- Sync bookmarks/themes/quick commands to github/gitee secret gist
+- Sync bookmarks/themes/quick commands to github/gitee secret gist/webdav/custom server/electerm cloud
 - Quick input to one or all terminals.
 - AI assistant integration (supporting [DeepSeek](https://www.deepseek.com), OpenAI, and other AI APIs) to help with command suggestions, script writing, and explaining selected terminal content
 - MCP (Model Context Protocol) widget for AI assistants and external tools integration - see [MCP Widget Usage Guide](https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide)
@@ -110,6 +111,8 @@ npm i -g electerm
 [https://github.com/electerm/electerm/wiki/Troubleshoot](https://github.com/electerm/electerm/wiki/Troubleshoot)
 
 ## Discussion
+
+[![Discord](https://img.shields.io/badge/Discord-Join-blue?logo=discord)](https://discord.gg/855W7g8EVd)
 
 [Discussion board](https://github.com/electerm/electerm/discussions)
 

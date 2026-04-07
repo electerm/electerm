@@ -55,10 +55,11 @@ rm('-rf', 'work/app/node_modules/.bin')
 // Remove axios browser/ESM builds and unnecessary files (keep only lib/ and node CJS)
 rm('-rf', 'work/app/node_modules/axios/dist/esm')
 rm('-rf', 'work/app/node_modules/axios/dist/browser')
-rm('-rf', 'work/app/node_modules/axios/dist/axios.js')
-rm('-rf', 'work/app/node_modules/axios/dist/axios.min.js')
+rm('-rf', 'work/app/node_modules/axios/dist/*.js')
 rm('-rf', 'work/app/node_modules/axios/dist/*.map')
+rm('-rf', 'work/app/node_modules/axios/dist/node/*.map')
 rm('-rf', 'work/app/node_modules/axios/index.d.cts')
+rm('-rf', 'work/app/node_modules/axios/lib')
 
 // Remove cpu-features after npm prune to prevent rebuild issues
 rm('-rf', 'node_modules/cpu-features')

@@ -127,7 +127,7 @@ export default function QuickCommandForm (props) {
         >
           <InputAutoFocus />
         </FormItem>
-        {renderQm()}
+        {renderQm(form)}
         <FormItem
           name='labels'
           label={e('label')}
