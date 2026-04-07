@@ -240,13 +240,13 @@ async function accessFolderFromTerminal (client, type, folderName) {
  */
 async function setupSshConnection (client) {
   await client.click('.btns .anticon-plus-circle')
-  await delay(500)
+  await delay(1000)
   await client.setValue('#ssh-form_host', TEST_HOST)
   await client.setValue('#ssh-form_username', TEST_USER)
   await client.setValue('#ssh-form_password', TEST_PASS)
   await client.setValue('#ssh-form_port', TEST_PORT)
   await client.click('.setting-wrap .ant-btn-primary')
-  await delay(2500)
+  await delay(4500)
 }
 
 /**
