@@ -246,7 +246,7 @@ async function setupSshConnection (client) {
   await client.setValue('#ssh-form_password', TEST_PASS)
   await client.setValue('#ssh-form_port', TEST_PORT)
   await client.click('.setting-wrap .ant-btn-primary')
-  await delay(4500)
+  await delay(2500)
 }
 
 /**
