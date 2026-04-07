@@ -42,6 +42,7 @@ async function createFile (client, type, fileName) {
  * @param {string} folderName - The name of the folder to create
  */
 async function createFolder (client, type, folderName) {
+  await delay(500)
   // Always use the parent-file-item for right-click context menu
   await client.rightClick(`.session-current .file-list.${type} .parent-file-item`, 10, 10)
 
@@ -245,7 +246,7 @@ async function setupSshConnection (client) {
   await client.setValue('#ssh-form_password', TEST_PASS)
   await client.setValue('#ssh-form_port', TEST_PORT)
   await client.click('.setting-wrap .ant-btn-primary')
-  await delay(3500)
+  await delay(2500)
 }
 
 /**
@@ -257,7 +258,7 @@ async function setupSftpConnection (client) {
   await setupSshConnection(client)
   // Click sftp tab
   await client.click('.session-current .term-sftp-tabs .type-tab', 1)
-  await delay(3500)
+  await delay(2500)
 }
 
 /**
