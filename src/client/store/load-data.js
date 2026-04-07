@@ -208,7 +208,6 @@ export default (Store) => {
     )
     setTimeout(
       () => {
-        console.log('Auto sync is ready')
         store.autoSyncReady = true
       },
       2000

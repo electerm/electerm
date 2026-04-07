@@ -4,14 +4,14 @@
 import { useState, useEffect } from 'react'
 import { Space } from 'antd'
 import { HistoryOutlined } from '@ant-design/icons'
-import { getItemJSON, setItemJSON } from '../../common/safe-local-storage'
+import { safeGetItemJSON, safeSetItemJSON } from '../../common/safe-local-storage'
 import AiHistoryItem from './ai-history-item'
 
 const MAX_HISTORY = 20
 const e = window.translate
 
 export function getHistory (storageKey) {
-  return getItemJSON(storageKey, [])
+  return safeGetItemJSON(storageKey, [])
 }
 
 export function addHistoryItem (storageKey, itemData, eventName) {
@@ -37,7 +37,7 @@ export function addHistoryItem (storageKey, itemData, eventName) {
   if (history.length > MAX_HISTORY) {
     history = history.slice(0, MAX_HISTORY)
   }
-  setItemJSON(storageKey, history)
+  safeSetItemJSON(storageKey, history)
 
   // Custom event to trigger update
   if (eventName) {
@@ -72,7 +72,7 @@ export default function AiHistory (props) {
       return hStr !== itemStr
     })
     setHistory(newHistory)
-    setItemJSON(storageKey, newHistory)
+    safeSetItemJSON(storageKey, newHistory)
   }
 
   if (!history.length) {
