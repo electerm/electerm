@@ -4,18 +4,22 @@
 
 import { auto } from 'manate/react'
 import { pick } from 'lodash-es'
-import { Tabs } from 'antd'
+import { Tabs, Spin } from 'antd'
+import { lazy, Suspense } from 'react'
 import SettingModal from './setting-wrap'
 import {
   settingMap,
   modals
 } from '../../common/constants'
-import TabBookmarks from './tab-bookmarks'
-import TabQuickCommands from './tab-quick-commands'
-import TabSettings from './tab-settings'
-import TabThemes from './tab-themes'
-import TabProfiles from './tab-profiles'
-import TabWidgets from './tab-widgets'
+
+const TabBookmarks = lazy(() => import('./tab-bookmarks'))
+const TabQuickCommands = lazy(() => import('./tab-quick-commands'))
+const TabSettings = lazy(() => import('./tab-settings'))
+const TabThemes = lazy(() => import('./tab-themes'))
+const TabProfiles = lazy(() => import('./tab-profiles'))
+const TabWidgets = lazy(() => import('./tab-widgets'))
+
+const Loading = () => <div style={{ padding: 20, textAlign: 'center' }}><Spin /></div>
 
 const e = window.translate
 
@@ -115,46 +119,48 @@ export default auto(function SettingModalWrap (props) {
         <Tabs
           {...tabsProps}
         />
-        <TabQuickCommands
-          listProps={props0}
-          settingItem={settingItem}
-          formProps={formProps}
-          store={store}
-          settingTab={settingTab}
-        />
-        <TabBookmarks
-          treeProps={treeProps}
-          settingItem={settingItem}
-          formProps={formProps}
-          settingTab={settingTab}
-        />
-        <TabSettings
-          listProps={props0}
-          settingItem={settingItem}
-          settingTab={settingTab}
-          store={store}
-        />
-        <TabThemes
-          listProps={props0}
-          settingItem={settingItem}
-          formProps={formProps}
-          store={store}
-          settingTab={settingTab}
-        />
-        <TabProfiles
-          listProps={props0}
-          settingItem={settingItem}
-          formProps={formProps}
-          store={store}
-          settingTab={settingTab}
-        />
-        <TabWidgets
-          listProps={props0}
-          settingItem={settingItem}
-          formProps={formProps}
-          store={store}
-          settingTab={settingTab}
-        />
+        <Suspense fallback={<Loading />}>
+          <TabQuickCommands
+            listProps={props0}
+            settingItem={settingItem}
+            formProps={formProps}
+            store={store}
+            settingTab={settingTab}
+          />
+          <TabBookmarks
+            treeProps={treeProps}
+            settingItem={settingItem}
+            formProps={formProps}
+            settingTab={settingTab}
+          />
+          <TabSettings
+            listProps={props0}
+            settingItem={settingItem}
+            settingTab={settingTab}
+            store={store}
+          />
+          <TabThemes
+            listProps={props0}
+            settingItem={settingItem}
+            formProps={formProps}
+            store={store}
+            settingTab={settingTab}
+          />
+          <TabProfiles
+            listProps={props0}
+            settingItem={settingItem}
+            formProps={formProps}
+            store={store}
+            settingTab={settingTab}
+          />
+          <TabWidgets
+            listProps={props0}
+            settingItem={settingItem}
+            formProps={formProps}
+            store={store}
+            settingTab={settingTab}
+          />
+        </Suspense>
       </>
     )
   }
