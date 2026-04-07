@@ -2,7 +2,8 @@ const delay = require('./wait')
 const {
   TEST_HOST,
   TEST_PASS,
-  TEST_USER
+  TEST_USER,
+  TEST_PORT
 } = require('./env')
 const {
   expect
@@ -232,20 +233,28 @@ async function accessFolderFromTerminal (client, type, folderName) {
 }
 
 /**
- * Sets up SFTP connection for testing
+ * Sets up SSH connection for testing (fills form and submits, no SFTP tab)
  *
  * @param {Object} client - The Playwright client
  */
-async function setupSftpConnection (client) {
-  // Create SSH connection
+async function setupSshConnection (client) {
   await client.click('.btns .anticon-plus-circle')
   await delay(500)
   await client.setValue('#ssh-form_host', TEST_HOST)
   await client.setValue('#ssh-form_username', TEST_USER)
   await client.setValue('#ssh-form_password', TEST_PASS)
+  await client.setValue('#ssh-form_port', TEST_PORT)
   await client.click('.setting-wrap .ant-btn-primary')
   await delay(3500)
+}
 
+/**
+ * Sets up SFTP connection for testing (SSH form + SFTP tab)
+ *
+ * @param {Object} client - The Playwright client
+ */
+async function setupSftpConnection (client) {
+  await setupSshConnection(client)
   // Click sftp tab
   await client.click('.session-current .term-sftp-tabs .type-tab', 1)
   await delay(3500)
@@ -386,6 +395,7 @@ module.exports = {
   navigateToParentFolder,
   selectAllContextMenu,
   accessFolderFromTerminal,
+  setupSshConnection,
   setupSftpConnection,
   verifyFileExists,
   selectItemsWithShift,

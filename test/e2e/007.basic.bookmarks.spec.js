@@ -11,7 +11,8 @@ const appOptions = require('./common/app-options')
 const {
   TEST_HOST,
   TEST_PASS,
-  TEST_USER
+  TEST_USER,
+  TEST_PORT
 } = require('./common/env')
 const e = require('./common/lang')
 const extendClient = require('./common/client-extend')
@@ -49,6 +50,7 @@ describe('bookmarks', function () {
     await client.setValue('.setting-wrap #ssh-form_host', TEST_HOST)
     await client.setValue('.setting-wrap #ssh-form_username', TEST_USER)
     await client.setValue('.setting-wrap #ssh-form_password', TEST_PASS)
+    await client.setValue('.setting-wrap #ssh-form_port', TEST_PORT)
     // const list0 = await client.elements('.setting-wrap .tree-item')
     await client.click('.setting-wrap .ant-btn-primary')
     await delay(1000)

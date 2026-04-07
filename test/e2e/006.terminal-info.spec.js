@@ -11,13 +11,10 @@ it.setTimeout(100000)
 const { expect } = require('./common/expect')
 const delay = require('./common/wait')
 const log = require('./common/log')
-const {
-  TEST_HOST,
-  TEST_PASS,
-  TEST_USER
-} = require('./common/env')
+const { TEST_HOST } = require('./common/env')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const { setupSshConnection } = require('./common/common')
 
 describe('info panel', function () {
   it('info panel should work in both local and ssh terminals', async function () {
@@ -43,12 +40,7 @@ describe('info panel', function () {
 
     // Create SSH connection
     log('create ssh connection')
-    await client.click('.btns .anticon-plus-circle')
-    await delay(500)
-    await client.setValue('#ssh-form_host', TEST_HOST)
-    await client.setValue('#ssh-form_username', TEST_USER)
-    await client.setValue('#ssh-form_password', TEST_PASS)
-    await client.click('.setting-wrap .ant-btn-primary')
+    await setupSshConnection(client)
     await delay(8500)
 
     // Get SSH tab ID and verify info panel content
