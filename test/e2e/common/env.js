@@ -26,5 +26,5 @@ module.exports = {
   TEST_HOST,
   TEST_PASS,
   TEST_USER,
-  TEST_PORT: parseInt(TEST_PORT, 10) || 22
+  TEST_PORT: '' + TEST_PORT
 }
