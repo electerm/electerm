@@ -6,7 +6,7 @@ const delay = require('./common/wait')
 const nanoid = require('./common/uid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
-const { TEST_HOST, TEST_PASS, TEST_USER } = require('./common/env')
+const { setupSftpConnection } = require('./common/common')
 
 describe('file info modal', function () {
   it('should open window and basic file info modal works for both local and remote', async function () {
@@ -16,17 +16,7 @@ describe('file info modal', function () {
     await delay(3500)
 
     // Create SSH connection
-    await client.click('.btns .anticon-plus-circle')
-    await delay(500)
-    await client.setValue('#ssh-form_host', TEST_HOST)
-    await client.setValue('#ssh-form_username', TEST_USER)
-    await client.setValue('#ssh-form_password', TEST_PASS)
-    await client.click('.setting-wrap .ant-btn-primary')
-    await delay(3500)
-
-    // click sftp tab
-    await client.click('.session-current .term-sftp-tabs .type-tab', 1)
-    await delay(3500)
+    await setupSftpConnection(client)
 
     // Test local file info modal
     await testFileInfoModal(client, 'local', 'click')
@@ -43,15 +33,7 @@ describe('file info modal', function () {
     // Create SSH connection
     await client.click('.btns .anticon-plus-circle')
     await delay(500)
-    await client.setValue('#ssh-form_host', TEST_HOST)
-    await client.setValue('#ssh-form_username', TEST_USER)
-    await client.setValue('#ssh-form_password', TEST_PASS)
-    await client.click('.setting-wrap .ant-btn-primary')
-    await delay(3500)
-
-    // Click sftp tab
-    await client.click('.session-current .term-sftp-tabs .type-tab', 1)
-    await delay(3500)
+    await setupSftpConnection(client)
 
     // Test local file edit permission
     await testEditFolderPermission(client, 'local')

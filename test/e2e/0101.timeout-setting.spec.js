@@ -12,14 +12,9 @@ it.setTimeout(100000)
 const { expect } = require('./common/expect')
 const delay = require('./common/wait')
 const log = require('./common/log')
-const {
-  TEST_HOST,
-  TEST_PASS,
-  TEST_USER
-} = require('./common/env')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
-const { closeApp } = require('./common/common')
+const { closeApp, setupSshConnection } = require('./common/common')
 
 describe('timeout setting', function () {
   it('timeout setting works', async function () {
@@ -43,12 +38,7 @@ describe('timeout setting', function () {
     expect(timeout).equal(100)
 
     log('0101.timeout-setting.spec.js: open new ssh and timeout')
-    await client.click('.btns .anticon-plus-circle')
-    await delay(6500)
-    await client.setValue('#ssh-form_host', TEST_HOST)
-    await client.setValue('#ssh-form_username', TEST_USER)
-    await client.setValue('#ssh-form_password', TEST_PASS)
-    await client.click('.setting-wrap .ant-btn-primary')
+    await setupSshConnection(client)
     log('0101.timeout-setting.spec.js: ssh form submitted')
     await delay(5500)
     log('0101.timeout-setting.spec.js: waited after submit')
