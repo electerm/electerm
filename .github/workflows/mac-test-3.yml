@@ -1,0 +1,56 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: mac-x64-test-3
+
+on:
+  push:
+    branches: [ build, test, test-only, test3 ]
+
+jobs:
+  build:
+
+    runs-on: macos-15-intel
+    environment: build
+    if: ${{ !contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]') && !contains(github.event.head_commit.message, '[skip test3]') }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    # before_install:
+    - run: pip install setuptools
+    - run: npm config set legacy-peer-deps true
+    - run: npm install -g yarn
+    - run: npm i
+    - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.49.1 && npm i -D -E @playwright/test@1.49.1
+
+    # script:
+    - run: npm run b
+    
+    - name: Run pb
+      run: npm run pb
+
+    - name: test
+      uses: GabrielBB/xvfb-action@v1
+      with:
+        run: npm run test3
+      env:
+        NODE_TEST: 1
+        TEST_HOST: ${{ secrets.TEST_HOST }}
+        TEST_USER: ${{ secrets.TEST_USER_DARWIN2 }}
+        TEST_PASS: ${{ secrets.TEST_PASS_DARWIN2 }}
+        GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+        GIST_ID: ${{ secrets.GIST_ID }}
+        GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+        GITEE_ID: ${{ secrets.GITEE_ID }}
+        CUSTOM_SYNC_URL: ${{ secrets.CUSTOM_SYNC_URL }}
+        CUSTOM_SYNC_USER: ${{ secrets.CUSTOM_SYNC_USER }}
+        CUSTOM_SYNC_SECRET: ${{ secrets.CUSTOM_SYNC_SECRET }}
+        CLOUD_TOKEN: ${{ secrets.CLOUD_TOKEN }}
+
