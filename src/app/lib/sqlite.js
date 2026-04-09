@@ -98,8 +98,14 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
     if (!row) return null
     const shouldDec = dec && shouldEncForRow(dbName, row._id)
     const raw = shouldDec ? decryptData(row.data) : row.data
+    let r = {}
+    try {
+      r = JSON.parse(raw || '{}')
+    } catch (e) {
+      console.error(`Error parsing JSON for row ${row._id}:`, e.message)
+    }
     return {
-      ...JSON.parse(raw || '{}'),
+      ...r,
       _id: row._id
     }
   }
