@@ -186,6 +186,7 @@ export default class VncSession extends PureComponent {
       qualityLevel = 3, // 0-9, lower = faster performance
       compressionLevel = 1, // 0-9, lower = faster performance
       shared = true,
+      showDotCursor = true, // show dot cursor when server sends no cursor image (common on Windows)
       username,
       password
     } = tab
@@ -376,6 +377,7 @@ export default class VncSession extends PureComponent {
     rfb.qualityLevel = qualityLevel
     rfb.compressionLevel = compressionLevel
     rfb.viewOnly = viewOnly
+    rfb.showDotCursor = showDotCursor
     this.rfb = rfb
   }
 
