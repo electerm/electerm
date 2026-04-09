@@ -158,7 +158,7 @@ describe('session-history', function () {
       const v = window.localStorage.getItem('electerm-history-sort-by-frequency')
       return v === 'true'
     })
-    await client.locator(switchSel).click()
+    await client.locator(switchSel).click({ force: true })
     await delay(500)
     const sortEnabled2 = await client.evaluate(() => {
       const v = window.localStorage.getItem('electerm-history-sort-by-frequency')
@@ -168,7 +168,7 @@ describe('session-history', function () {
     expect(sortEnabled2).equal(!sortEnabled1)
 
     // Toggle back
-    await client.locator(switchSel).click()
+    await client.locator(switchSel).click({ force: true })
     await delay(300)
 
     // ── step 7: close & reopen (persistence check) ────────────────────────────
