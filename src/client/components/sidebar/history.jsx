@@ -8,6 +8,7 @@ import { Switch } from 'antd'
 import { UnorderedListOutlined } from '@ant-design/icons'
 import HistoryItem from './history-item'
 import { getItemJSON, setItemJSON } from '../../common/safe-local-storage.js'
+import '../setting-panel/list.styl'
 
 const SORT_BY_FREQ_KEY = 'electerm-history-sort-by-frequency'
 

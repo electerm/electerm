@@ -11,7 +11,6 @@ import { noop } from 'lodash-es'
 import highlight from '../common/highlight'
 import { settingSyncId, settingCommonId, staticNewItemTabs } from '../../common/constants'
 import getInitItem from '../../common/init-setting-item'
-import './list.styl'
 
 const e = window.translate
 

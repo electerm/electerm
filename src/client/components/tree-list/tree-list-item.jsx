@@ -21,7 +21,6 @@ import {
 } from '../../common/constants'
 import highlight from '../common/highlight'
 import uid from '../../common/uid'
-import './tree-list.styl'
 
 const e = window.translate
 
