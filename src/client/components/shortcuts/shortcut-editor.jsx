@@ -135,11 +135,13 @@ export default class ShortcutEdit extends PureComponent {
   }
 
   renderClear () {
-    if (this.props.renderClear && this.props.data.shortcut) {
+    const { renderClear, handleClear, data } = this.props
+    const hasShortcut = data && data.shortcut
+    if (renderClear && hasShortcut && handleClear) {
       return (
         <CloseOutlined
           className='pointer mg1l'
-          onClick={this.props.handleClear}
+          onClick={handleClear}
         />
       )
     }

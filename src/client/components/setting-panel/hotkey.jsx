@@ -51,6 +51,12 @@ export default class HotkeySetting extends Component {
     })
   }
 
+  handleClear = () => {
+    return this.props.onSaveConfig({
+      hotkey: ''
+    })
+  }
+
   convertToElectronAccelerator = (shortcut) => {
     if (!shortcut) return shortcut
 
@@ -117,7 +123,9 @@ export default class HotkeySetting extends Component {
         index: 0
       },
       updateConfig: this.onChangeHotkey,
-      keysTaken: this.getKeysTaken(hotkey)
+      keysTaken: this.getKeysTaken(hotkey),
+      handleClear: this.handleClear,
+      renderClear: true
     }
 
     return (
