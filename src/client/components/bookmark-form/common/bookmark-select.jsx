@@ -4,6 +4,16 @@ import { TreeSelect } from 'antd'
 
 const e = window.translate
 
+const hoppingProps = [
+  'host',
+  'port',
+  'username',
+  'password',
+  'privateKey',
+  'passphrase',
+  'certificate'
+]
+
 function buildTreeData (bookmarkGroups, tree) {
   const cats = bookmarkGroups
   const btree = cats.reduce((p, k) => ({ ...p, [k.id]: k }), {})
@@ -53,8 +63,14 @@ export default function BookmarkSelect (props) {
   function onSelect (id) {
     const item = tree[id]
     if (item) {
-      item.bookmarkId = item.id
-      props.onSelect(item)
+      const selected = hoppingProps.reduce((p, k) => {
+        if (item[k] !== undefined) {
+          p[k] = item[k]
+        }
+        return p
+      }, {})
+      selected.bookmarkId = item.id
+      props.onSelect(selected)
     }
   }
 
