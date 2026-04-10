@@ -19,7 +19,8 @@ import {
   isWin,
   rendererTypes,
   isMac,
-  isMacJs
+  isMacJs,
+  connectionMap
 } from '../../common/constants.js'
 import deepCopy from 'json-deep-copy'
 import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
@@ -27,6 +28,7 @@ import AttachAddon from './attach-addon-custom.js'
 import getProxy from '../../common/get-proxy.js'
 import { ZmodemClient } from './zmodem-client.js'
 import { TrzszClient } from './trzsz-client.js'
+import DropFileModal from './drop-file-modal.jsx'
 import keyControlPressed from '../../common/key-control-pressed.js'
 import NormalBuffer from './normal-buffer.jsx'
 import { createTerm, resizeTerm } from './terminal-apis.js'
@@ -75,7 +77,9 @@ class Term extends Component {
       searchResults: [],
       matchIndex: -1,
       totalLines: 0,
-      reconnectCountdown: null
+      reconnectCountdown: null,
+      dropFileModalVisible: false,
+      droppedFiles: []
     }
     this.id = `term-${this.props.tab.id}`
     refs.add(this.id, this)
@@ -392,14 +396,21 @@ class Term extends Component {
     const dt = e.dataTransfer
     const fromFile = dt.getData('fromFile')
     const notSafeMsg = 'File name contains unsafe characters'
+    const isSshTerminal = this.props.tab.type === connectionMap.ssh
 
     if (fromFile) {
-      // Handle SFTP file drop
       try {
         const fileData = JSON.parse(fromFile)
         const filePath = resolve(fileData.path, fileData.name)
         if (isUnsafeFilename(filePath)) {
           message.error(notSafeMsg)
+          return
+        }
+        if (isSshTerminal) {
+          this.setState({
+            dropFileModalVisible: true,
+            droppedFiles: [{ path: filePath, isRemote: true }]
+          })
           return
         }
         this.attachAddon._sendData(`"${filePath}" `)
@@ -409,22 +420,76 @@ class Term extends Component {
       }
     }
 
-    // Handle regular file drop
     const files = dt.files
     if (files && files.length) {
       const arr = Array.from(files)
       const filePaths = arr.map(f => getFilePath(f))
 
-      // Check each file path individually
       const hasUnsafeFilename = filePaths.some(path => isUnsafeFilename(path))
       if (hasUnsafeFilename) {
         message.error(notSafeMsg)
         return
       }
 
+      if (isSshTerminal) {
+        this.setState({
+          dropFileModalVisible: true,
+          droppedFiles: filePaths.map(path => ({ path, isRemote: false }))
+        })
+        return
+      }
+
       const filesAll = filePaths.map(path => `"${path}"`).join(' ')
       this.attachAddon._sendData(filesAll)
     }
+  }
+
+  handleDropFileModalCancel = () => {
+    this.setState({
+      dropFileModalVisible: false,
+      droppedFiles: []
+    })
+  }
+
+  handleDropFileAction = (action) => {
+    const { droppedFiles } = this.state
+    if (!droppedFiles || !droppedFiles.length) {
+      this.handleDropFileModalCancel()
+      return
+    }
+
+    const filePaths = droppedFiles.map(f => f.path)
+
+    switch (action) {
+      case 'trzUpload': {
+        if (this.trzszClient && this.trzszClient.isActive) {
+          message.warning('A transfer is already in progress')
+          this.handleDropFileModalCancel()
+          return
+        }
+        window._apiControlSelectFile = filePaths
+        this.attachAddon._sendData('trz\r')
+        break
+      }
+      case 'rzUpload': {
+        if (this.zmodemClient && this.zmodemClient.isActive) {
+          message.warning('A transfer is already in progress')
+          this.handleDropFileModalCancel()
+          return
+        }
+        window._apiControlSelectFile = filePaths
+        this.attachAddon._sendData('rz\r')
+        break
+      }
+      case 'inputPath':
+      default: {
+        const filesAll = filePaths.map(path => `"${path}"`).join(' ')
+        this.attachAddon._sendData(filesAll)
+        break
+      }
+    }
+
+    this.handleDropFileModalCancel()
   }
 
   onSelection = () => {
@@ -1458,6 +1523,12 @@ class Term extends Component {
           <ReconnectOverlay
             countdown={this.state.reconnectCountdown}
             onCancel={this.handleCancelAutoReconnect}
+          />
+          <DropFileModal
+            visible={this.state.dropFileModalVisible}
+            files={this.state.droppedFiles}
+            onSelect={this.handleDropFileAction}
+            onCancel={this.handleDropFileModalCancel}
           />
           {spin}
         </div>
