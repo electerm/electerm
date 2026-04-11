@@ -156,7 +156,7 @@ export default () => {
     qmSortByFrequency: ls.getItem(qmSortByFrequencyKey) === 'yes',
 
     // sidebar
-    openedSideBar: ls.getItem(openedSidebarKey) || 'bookmarks',
+    openedSideBar: ls.getItem(openedSidebarKey) || '',
     leftSidebarWidth: parseInt(ls.getItem(leftSidebarWidthKey), 10) || 300,
     addPanelWidth: parseInt(ls.getItem(addPanelWidthLsKey), 10) || 300,
     menuOpened: false,
