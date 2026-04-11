@@ -76,7 +76,7 @@ export default function renderQm (form) {
         onDrop={(e) => handleDrop(e, i, form)}
         onDragEnd={handleDragEnd}
       >
-        <HolderOutlined className='mg1r qm-drag-handle' />
+        <HolderOutlined className='mg1r drag' />
 
         <Space.Addon>{e('delay')}</Space.Addon>
         <FormItem

@@ -12,7 +12,8 @@ import {
 } from '../../../common/form-layout'
 import {
   MinusCircleFilled,
-  PlusOutlined
+  PlusOutlined,
+  HolderOutlined
 } from '@ant-design/icons'
 import RenderAuth from './render-auth-ssh'
 import uid from '../../../common/uid'
@@ -20,7 +21,7 @@ import {
   authTypeMap,
   connectionHoppingWarnKey
 } from '../../../common/constants'
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import ConnectionHoppingWarningText from '../../common/connection-hopping-warning-text'
 import BookmarkSelect from './bookmark-select'
 import * as ls from '../../../common/safe-local-storage'
@@ -48,6 +49,38 @@ export default function renderConnectionHopping (props) {
     setShowWarn(false)
   }
   const [list, setList] = useState(formData.connectionHoppings || [])
+  const dragItem = useRef(null)
+  const dragOverItem = useRef(null)
+
+  const handleDragStart = useCallback((index) => {
+    dragItem.current = index
+  }, [])
+
+  const handleDragEnter = useCallback((index) => {
+    dragOverItem.current = index
+  }, [])
+
+  const handleDragEnd = useCallback(() => {
+    if (dragItem.current === null || dragOverItem.current === null) {
+      return
+    }
+    if (dragItem.current === dragOverItem.current) {
+      dragItem.current = null
+      dragOverItem.current = null
+      return
+    }
+    setList(old => {
+      const newList = [...old]
+      const [removed] = newList.splice(dragItem.current, 1)
+      newList.splice(dragOverItem.current, 0, removed)
+      form.setFieldsValue({
+        connectionHoppings: newList
+      })
+      dragItem.current = null
+      dragOverItem.current = null
+      return newList
+    })
+  }, [form])
   function onChangeAuthType (e) {
     editState(old => {
       return {
@@ -95,6 +128,16 @@ export default function renderConnectionHopping (props) {
   }
   const cols = [
     {
+      title: '',
+      key: 'drag',
+      width: 30,
+      render: () => (
+        <HolderOutlined
+          className='drag'
+        />
+      )
+    },
+    {
       title: 'NO.',
       dataIndex: 'index',
       key: 'index',
@@ -140,6 +183,13 @@ export default function renderConnectionHopping (props) {
           className='mg3b'
           pagination={false}
           size='small'
+          onRow={(record, index) => ({
+            draggable: true,
+            onDragStart: () => handleDragStart(index),
+            onDragEnter: () => handleDragEnter(index),
+            onDragEnd: handleDragEnd,
+            onDragOver: (e) => e.preventDefault()
+          })}
           dataSource={list.map((d, i) => {
             return {
               ...d,
