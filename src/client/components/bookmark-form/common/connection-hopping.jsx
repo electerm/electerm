@@ -1,21 +1,16 @@
 import {
   Form,
-  InputNumber,
   Input,
-  Radio,
-  Button,
   Table
 } from 'antd'
 import {
-  formItemLayout,
   tailFormItemLayout
 } from '../../../common/form-layout'
 import {
   MinusCircleFilled,
-  PlusOutlined,
+  EditOutlined,
   HolderOutlined
 } from '@ant-design/icons'
-import RenderAuth from './render-auth-ssh'
 import uid from '../../../common/uid'
 import {
   authTypeMap,
@@ -23,12 +18,11 @@ import {
 } from '../../../common/constants'
 import { useState, useRef, useCallback } from 'react'
 import ConnectionHoppingWarningText from '../../common/connection-hopping-warning-text'
-import BookmarkSelect from './bookmark-select'
 import * as ls from '../../../common/safe-local-storage'
+import Modal from '../../common/modal'
+import ConnectionHoppingForm from './connection-hopping-form'
 
 const FormItem = Form.Item
-const RadioButton = Radio.Button
-const RadioGroup = Radio.Group
 const e = window.translate
 
 export default function renderConnectionHopping (props) {
@@ -38,13 +32,17 @@ export default function renderConnectionHopping (props) {
     formData
   } = props
   const [formChild] = Form.useForm()
-  const [initialValues, editState] = useState({
+  const [editFormChild] = Form.useForm()
+  const [initialValues] = useState({
     port: 22,
     authType: authTypeMap.password
   })
   const [showWarn, setShowWarn] = useState(
     window.store.hasOldConnectionHoppingBookmark && ls.getItem(connectionHoppingWarnKey) !== 'yes'
   )
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [editingItem, setEditingItem] = useState(null)
+
   function closeWarn () {
     setShowWarn(false)
   }
@@ -81,17 +79,7 @@ export default function renderConnectionHopping (props) {
       return newList
     })
   }, [form])
-  function onChangeAuthType (e) {
-    editState(old => {
-      return {
-        ...old,
-        authType: e.target.value
-      }
-    })
-  }
-  function onSubmit () {
-    formChild.submit()
-  }
+
   function handleFinish (data) {
     const nd = {
       ...data,
@@ -107,14 +95,11 @@ export default function renderConnectionHopping (props) {
     setList(old => {
       return [
         ...old,
-        data
+        nd
       ]
     })
     formChild.resetFields()
   }
-  const authTypes = props.authTypes || Object.keys(authTypeMap).map(k => {
-    return k
-  })
 
   function remove (id) {
     setList(old => {
@@ -126,6 +111,40 @@ export default function renderConnectionHopping (props) {
     })
     formChild.resetFields()
   }
+
+  function openEdit (record) {
+    setEditingItem(record)
+    setEditModalVisible(true)
+    setTimeout(() => {
+      editFormChild.setFieldsValue(record)
+    }, 100)
+  }
+
+  function handleEditFinish (data) {
+    const updatedItem = {
+      ...data,
+      id: editingItem.id
+    }
+    setList(old => {
+      return old.map(item => item.id === editingItem.id ? updatedItem : item)
+    })
+    const v = (form.getFieldValue('connectionHoppings') || []).map(
+      item => item.id === editingItem.id ? updatedItem : item
+    )
+    form.setFieldsValue({
+      connectionHoppings: v
+    })
+    setEditModalVisible(false)
+    setEditingItem(null)
+    editFormChild.resetFields()
+  }
+
+  function closeEditModal () {
+    setEditModalVisible(false)
+    setEditingItem(null)
+    editFormChild.resetFields()
+  }
+
   const cols = [
     {
       title: '',
@@ -153,15 +172,21 @@ export default function renderConnectionHopping (props) {
         return <span>{useProfile}{item.username}{pass}@{item.host}:{item.port}{pk}{ph}</span>
       }
     }, {
-      title: e('del'),
+      title: e('op'),
       key: 'op',
       dataIndex: 'id',
-      render: (id) => {
+      render: (id, record) => {
         return (
-          <MinusCircleFilled
-            className='pointer'
-            onClick={() => remove(id)}
-          />
+          <span>
+            <EditOutlined
+              className='pointer mg1r'
+              onClick={() => openEdit(record)}
+            />
+            <MinusCircleFilled
+              className='pointer'
+              onClick={() => remove(id)}
+            />
+          </span>
         )
       }
     }
@@ -211,13 +236,15 @@ export default function renderConnectionHopping (props) {
       </FormItem>
     )
   }
-  const treeProps = {
-    bookmarks: store.bookmarks.filter(d => {
-      return d.host && d.port && d.username
-    }),
-    bookmarkGroups: store.bookmarkGroups,
-    onSelect: handleFinish
+
+  const editModalProps = {
+    open: editModalVisible,
+    onCancel: closeEditModal,
+    footer: null,
+    title: e('edit') + ' ' + e('connectionHopping'),
+    width: 600
   }
+
   return (
     <>
       <FormItem
@@ -226,100 +253,30 @@ export default function renderConnectionHopping (props) {
       >
         <Input />
       </FormItem>
-      <Form
-        form={formChild}
-        onFinish={handleFinish}
+      {renderList()}
+      {renderWarn()}
+      <ConnectionHoppingForm
+        store={store}
+        formChild={formChild}
         initialValues={initialValues}
-        component='div'
-      >
-        {renderList()}
-        {renderWarn()}
-        <FormItem
-          {...formItemLayout}
-          label={e('chooseFromBookmarks')}
-          className='mg60b'
-        >
-          <BookmarkSelect {...treeProps} />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('host')}
-          hasFeedback
-          rules={[{
-            max: 520, message: '520 chars max'
-          }, {
-            required: true, message: 'host required'
-          }]}
-          normalize={props.trim}
-          name='host'
-        >
-          <Input />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('port')}
-          hasFeedback
-          name='port'
-          rules={[{
-            required: true, message: 'port required'
-          }]}
-        >
-          <InputNumber
-            placeholder={e('port')}
-            min={1}
-            max={65535}
-            step={1}
+        onFinish={handleFinish}
+        authTypes={props.authTypes}
+        trim={props.trim}
+      />
+      {editModalVisible && (
+        <Modal {...editModalProps}>
+          <ConnectionHoppingForm
+            key={editingItem?.id}
+            store={store}
+            formChild={editFormChild}
+            initialValues={editingItem}
+            onFinish={handleEditFinish}
+            authTypes={props.authTypes}
+            trim={props.trim}
+            isEdit
           />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label={e('username')}
-          hasFeedback
-          name='username'
-          rules={[{
-            max: 128, message: '128 chars max'
-          }]}
-          normalize={props.trim}
-        >
-          <Input />
-        </FormItem>
-        <FormItem
-          {...tailFormItemLayout}
-          className='mg1b'
-          name='authType'
-        >
-          <RadioGroup
-            size='small'
-            onChange={onChangeAuthType}
-            buttonStyle='solid'
-          >
-            {
-              authTypes.map(t => {
-                return (
-                  <RadioButton value={t} key={t}>
-                    {e(t)}
-                  </RadioButton>
-                )
-              })
-            }
-          </RadioGroup>
-        </FormItem>
-        <RenderAuth
-          form={formChild}
-          store={store}
-          authType={initialValues.authType}
-        />
-        <FormItem {...tailFormItemLayout} className='mg60b'>
-          <Button
-            type='default'
-            htmlType='button'
-            icon={<PlusOutlined />}
-            onClick={onSubmit}
-          >
-            {e('connectionHopping')}
-          </Button>
-        </FormItem>
-      </Form>
+        </Modal>
+      )}
     </>
   )
 }
