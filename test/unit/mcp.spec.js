@@ -534,7 +534,8 @@ describe('mcp-widget', function () {
     const {
       TEST_HOST,
       TEST_PASS,
-      TEST_USER
+      TEST_USER,
+      TEST_PORT
     } = require('../e2e/common/env')
 
     // Initialize session if not already done
@@ -544,7 +545,7 @@ describe('mcp-widget', function () {
     assert.ok(sessionId)
 
     const uniqueId = Date.now()
-    const bookmarkTitle = `MCP_SSH_Test_${uniqueId}`
+    const bookmarkTitle = `MCP1_SSH_Test_${uniqueId}`
 
     // Step 1: Create SSH bookmark
     const addBookmarkRequest = {
@@ -556,7 +557,7 @@ describe('mcp-widget', function () {
         arguments: {
           title: bookmarkTitle,
           host: TEST_HOST,
-          port: 22,
+          port: parseInt(TEST_PORT, 10),
           username: TEST_USER,
           password: TEST_PASS
         }
@@ -834,7 +835,7 @@ describe('mcp-widget', function () {
     assert.ok(sessionId)
 
     const uniqueId = Date.now()
-    const bookmarkTitle = `MCP_Telnet_Test_${uniqueId}`
+    const bookmarkTitle = `MCP1_Telnet_Test_${uniqueId}`
 
     // Create Telnet bookmark
     const addBookmarkRequest = {

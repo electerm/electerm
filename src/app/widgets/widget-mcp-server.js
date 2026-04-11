@@ -555,6 +555,30 @@ class ElectermMCPServer {
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )
+
+      server.registerTool(
+        'electerm_sftp_transfer_list',
+        {
+          description: 'Get the list of all currently active/pending SFTP file transfers',
+          inputSchema: z.object({})
+        },
+        async () => {
+          const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_transfer_list', args: {} })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
+
+      server.registerTool(
+        'electerm_sftp_transfer_history',
+        {
+          description: 'Get the history of completed/failed SFTP file transfers',
+          inputSchema: z.object({})
+        },
+        async () => {
+          const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_transfer_history', args: {} })
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+        }
+      )
     }
 
     // ==================== Settings APIs ====================

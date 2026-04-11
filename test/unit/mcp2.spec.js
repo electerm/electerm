@@ -93,6 +93,7 @@ async function callTool (sessionId, id, toolName, args) {
 
 describe('mcp-sftp-transfer-trzsz', function () {
   let sessionId = null
+  const uniqueId = Date.now()
 
   // Initialize session before tests
   test('should initialize MCP session for sftp/transfer/trzsz tests', { timeout: 100000 }, async function () {
@@ -116,6 +117,9 @@ describe('mcp-sftp-transfer-trzsz', function () {
       // Expected when no SSH tab is open
       console.log('sftp_list error (expected if no SSH tab open):', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('sftp_list tool error (expected if no SSH tab open):', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
       console.log('sftp_list result:', result)
@@ -165,6 +169,9 @@ describe('mcp-sftp-transfer-trzsz', function () {
     if (jsonData.error) {
       console.log('sftp_stat error (expected if no SSH tab open):', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('sftp_stat tool error (expected if no SSH tab open):', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
       console.log('sftp_stat result:', result)
@@ -190,6 +197,9 @@ describe('mcp-sftp-transfer-trzsz', function () {
     if (jsonData.error) {
       console.log('sftp_read_file error (expected if no SSH tab open):', jsonData.error.message)
       assert.ok(jsonData.error.code !== undefined)
+    } else if (jsonData.result && jsonData.result.isError) {
+      console.log('sftp_read_file tool error (expected if no SSH tab open):', jsonData.result.content[0].text)
+      assert.ok(typeof jsonData.result.content[0].text === 'string')
     } else {
       const result = JSON.parse(jsonData.result.content[0].text)
       console.log('sftp_read_file result:', result)
@@ -210,7 +220,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
 
     // Use a test path that may or may not exist
     const jsonData = await callTool(sessionId, 130, 'electerm_sftp_del_file_or_folder', {
-      remotePath: '/tmp/mcp_test_delete_file.txt'
+      remotePath: `/tmp/mcp2_test_delete_${uniqueId}.txt`
     })
 
     if (jsonData.error) {
@@ -257,7 +267,8 @@ describe('mcp-sftp-transfer-trzsz', function () {
     const {
       TEST_HOST,
       TEST_PASS,
-      TEST_USER
+      TEST_USER,
+      TEST_PORT
     } = require('../e2e/common/env')
 
     if (!sessionId) {
@@ -265,14 +276,14 @@ describe('mcp-sftp-transfer-trzsz', function () {
     }
 
     const uniqueId = Date.now()
-    const bookmarkTitle = `MCP_SFTP_Test_${uniqueId}`
+    const bookmarkTitle = `MCP2_SFTP_Test_${uniqueId}`
 
     try {
       // Step 1: Create SSH bookmark
       const addBookmarkData = await callTool(sessionId, 140, 'add_electerm_bookmark_ssh', {
         title: bookmarkTitle,
         host: TEST_HOST,
-        port: 22,
+        port: parseInt(TEST_PORT, 10),
         username: TEST_USER,
         password: TEST_PASS
       })
@@ -346,13 +357,14 @@ describe('mcp-sftp-transfer-trzsz', function () {
 
     // Create test file if it doesn't exist
     const fs = require('fs')
-    if (!fs.existsSync('/tmp/test-upload.txt')) {
-      fs.writeFileSync('/tmp/test-upload.txt', 'test upload content for MCP test')
+    const uploadFile = `/tmp/mcp2-test-upload-${uniqueId}.txt`
+    if (!fs.existsSync(uploadFile)) {
+      fs.writeFileSync(uploadFile, 'test upload content for MCP test')
     }
 
     const jsonData = await callTool(sessionId, 200, 'electerm_sftp_upload', {
-      localPath: '/tmp/test-upload.txt',
-      remotePath: '/tmp/test-upload.txt'
+      localPath: uploadFile,
+      remotePath: uploadFile
     })
 
     if (jsonData.error) {
@@ -404,7 +416,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
 
     const jsonData = await callTool(sessionId, 210, 'electerm_sftp_download', {
       remotePath: '/etc/hostname',
-      localPath: '/tmp/mcp-downloaded-hostname.txt'
+      localPath: `/tmp/mcp2-downloaded-hostname-${uniqueId}.txt`
     })
 
     if (jsonData.error) {
@@ -451,7 +463,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
 
     const jsonData = await callTool(sessionId, 212, 'electerm_sftp_download', {
       remotePath: '/etc/hostname',
-      localPath: '/tmp/mcp-downloaded-hostname-overwrite.txt',
+      localPath: `/tmp/mcp2-downloaded-hostname-ow-${uniqueId}.txt`,
       conflictPolicy: 'overwrite'
     })
 
@@ -475,7 +487,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
     }
 
     const jsonData = await callTool(sessionId, 300, 'electerm_zmodem_upload', {
-      files: ['/tmp/test-trzsz-upload.txt']
+      files: [`/tmp/mcp2-trzsz-upload-${uniqueId}.txt`]
     })
 
     if (jsonData.error) {
@@ -500,7 +512,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
     }
 
     const jsonData = await callTool(sessionId, 303, 'electerm_zmodem_upload', {
-      files: ['/tmp/test-rzsz-upload.txt'],
+      files: [`/tmp/mcp2-rzsz-upload-${uniqueId}.txt`],
       protocol: 'rzsz'
     })
 
@@ -570,7 +582,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
     }
 
     const jsonData = await callTool(sessionId, 310, 'electerm_zmodem_download', {
-      remoteFiles: ['/tmp/test-trzsz-download.txt'],
+      remoteFiles: [`/tmp/mcp2-trzsz-download-${uniqueId}.txt`],
       saveFolder: '/tmp'
     })
 
@@ -597,7 +609,7 @@ describe('mcp-sftp-transfer-trzsz', function () {
     }
 
     const jsonData = await callTool(sessionId, 313, 'electerm_zmodem_download', {
-      remoteFiles: ['/tmp/test-rzsz-download.txt'],
+      remoteFiles: [`/tmp/mcp2-rzsz-download-${uniqueId}.txt`],
       saveFolder: '/tmp',
       protocol: 'rzsz'
     })
@@ -662,6 +674,65 @@ describe('mcp-sftp-transfer-trzsz', function () {
     console.log('trzsz_download missing saveFolder test completed')
   })
 
+  // ==================== Transfer List ====================
+
+  test('sftp_transfer_list: should return current transfer list', { timeout: 100000 }, async function () {
+    if (!sessionId) {
+      sessionId = await initSession()
+    }
+
+    const jsonData = await callTool(sessionId, 400, 'electerm_sftp_transfer_list', {})
+
+    if (jsonData.error) {
+      console.log('sftp_transfer_list error:', jsonData.error.message)
+      assert.ok(jsonData.error.code !== undefined)
+    } else {
+      const result = JSON.parse(jsonData.result.content[0].text)
+      console.log('sftp_transfer_list result:', result)
+      assert.ok(Array.isArray(result), 'result should be an array')
+      // Validate transfer item shape if any exist
+      if (result.length > 0) {
+        const t = result[0]
+        assert.ok(t.id !== undefined, 'transfer should have id')
+        assert.ok(t.fromPath !== undefined, 'transfer should have fromPath')
+        assert.ok(t.toPath !== undefined, 'transfer should have toPath')
+        assert.ok(t.typeFrom !== undefined, 'transfer should have typeFrom')
+        assert.ok(t.typeTo !== undefined, 'transfer should have typeTo')
+      }
+    }
+
+    console.log('sftp_transfer_list test completed')
+  })
+
+  // ==================== Transfer History ====================
+
+  test('sftp_transfer_history: should return transfer history', { timeout: 100000 }, async function () {
+    if (!sessionId) {
+      sessionId = await initSession()
+    }
+
+    const jsonData = await callTool(sessionId, 410, 'electerm_sftp_transfer_history', {})
+
+    if (jsonData.error) {
+      console.log('sftp_transfer_history error:', jsonData.error.message)
+      assert.ok(jsonData.error.code !== undefined)
+    } else {
+      const result = JSON.parse(jsonData.result.content[0].text)
+      console.log('sftp_transfer_history result:', result)
+      assert.ok(Array.isArray(result), 'result should be an array')
+      // Validate history item shape if any exist
+      if (result.length > 0) {
+        const h = result[0]
+        assert.ok(h.id !== undefined, 'history item should have id')
+        assert.ok(h.fromPath !== undefined, 'history item should have fromPath')
+        assert.ok(h.toPath !== undefined, 'history item should have toPath')
+        assert.ok(h.typeFrom !== undefined, 'history item should have typeFrom')
+      }
+    }
+
+    console.log('sftp_transfer_history test completed')
+  })
+
   // ==================== Tool availability check ====================
 
   test('should list new SFTP/transfer/trzsz tools in tools/list', { timeout: 100000 }, async function () {
@@ -705,7 +776,9 @@ describe('mcp-sftp-transfer-trzsz', function () {
       'electerm_sftp_upload',
       'electerm_sftp_download',
       'electerm_zmodem_upload',
-      'electerm_zmodem_download'
+      'electerm_zmodem_download',
+      'electerm_sftp_transfer_list',
+      'electerm_sftp_transfer_history'
     ]
 
     for (const toolName of expectedTools) {

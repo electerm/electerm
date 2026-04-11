@@ -130,6 +130,14 @@ export default Store => {
           result = await store.mcpSftpDownload(args)
           break
 
+        // Transfer list/history operations
+        case 'sftp_transfer_list':
+          result = store.mcpSftpTransferList()
+          break
+        case 'sftp_transfer_history':
+          result = store.mcpSftpTransferHistory()
+          break
+
         // Zmodem (trzsz/rzsz) operations
         case 'zmodem_upload':
           result = store.mcpZmodemUpload(args)
@@ -690,6 +698,16 @@ export default Store => {
       transferId: transferItem.id,
       tabId
     }
+  }
+
+  // ==================== Transfer List/History APIs ====================
+
+  Store.prototype.mcpSftpTransferList = function () {
+    return deepCopy(window.store.fileTransfers)
+  }
+
+  Store.prototype.mcpSftpTransferHistory = function () {
+    return deepCopy(window.store.transferHistory)
   }
 
   // ==================== Zmodem (trzsz/rzsz) APIs ====================
