@@ -836,8 +836,35 @@ class Term extends Component {
     }
   }
 
+  onPasswordPromptDetected = () => {
+    if (!this.props.config.showCmdSuggestions) {
+      return
+    }
+    const cursorPos = this.getCursorPosition()
+    if (cursorPos) {
+      refsStatic
+        .get('terminal-suggestions')
+        ?.openPasswordSuggestions(cursorPos)
+    }
+  }
+
+  onPasswordPromptCancelled = () => {
+    const suggestions = refsStatic.get('terminal-suggestions')
+    if (suggestions?.state?.passwordMode) {
+      suggestions.closeSuggestions()
+    }
+  }
+
   onData = (d) => {
     this.handleInputEvent(d)
+    // Skip normal suggestion logic when in password mode
+    const suggestions = refsStatic.get('terminal-suggestions')
+    if (suggestions?.state?.passwordMode) {
+      if (d === '\r' || d === '\n') {
+        this.closeSuggestions()
+      }
+      return
+    }
     if (this.props.config.showCmdSuggestions) {
       const data = this.getCurrentInput()
       if (data && d !== '\r' && d !== '\n') {

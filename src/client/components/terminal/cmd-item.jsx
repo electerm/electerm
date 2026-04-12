@@ -11,11 +11,21 @@ const SuggestionItem = ({ item, onSelect, onDelete }) => {
     onDelete(item)
   }
 
+  const isPassword = item.type === 'PW'
+  const displayText = isPassword
+    ? '••••••••'
+    : item.command
+
   return (
-    <div className='suggestion-item'>
-      <span className='suggestion-command' onClick={handleClick}>
-        {item.command}
+    <div className='suggestion-item' onClick={handleClick}>
+      <span className='suggestion-command'>
+        {displayText}
       </span>
+      {item.hint && (
+        <span className='suggestion-hint'>
+          {item.hint}
+        </span>
+      )}
       <span className='suggestion-type'>
         {item.type}
       </span>

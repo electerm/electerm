@@ -19,6 +19,10 @@ export default class AttachAddonCustom {
     this._lastInputTime = Date.now()
     this._keepaliveTimer = null
     this._keepaliveInterval = 3000
+    this._lastOutputLine = ''
+    this._passwordPromptDetected = false
+    this._pendingEchoCheck = null
+    this._echoCheckTimer = null
   }
 
   _initBase = async () => {
@@ -101,6 +105,52 @@ export default class AttachAddonCustom {
     this.writeToTerminal(ev.data)
   }
 
+  static passwordPromptPatterns = [
+    /password\s*[:\]>]\s*$/i,
+    /\[sudo\]\s*password\s+for\s+\S+\s*:\s*$/i,
+    /enter\s+passphrase/i,
+    /enter\s+password/i,
+    /密码[：:]\s*$/,
+    /パスワード[：:]\s*$/,
+    /mot de passe\s*[:\]]\s*$/i,
+    /passwort[:\]]\s*$/i,
+    /contraseña[:\]]\s*$/i
+  ]
+
+  _checkPasswordPrompt = (str) => {
+    // Extract last non-empty line from the output
+    const lines = str.split(/\r?\n|\r/)
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const line = lines[i].trim()
+      if (line) {
+        this._lastOutputLine = line
+        break
+      }
+    }
+    return AttachAddonCustom.passwordPromptPatterns.some(
+      p => p.test(this._lastOutputLine)
+    )
+  }
+
+  _onEchoCheckTimeout = () => {
+    // No echo received within timeout → confirms password mode
+    this._pendingEchoCheck = null
+  }
+
+  _handleEchoDetection = (str) => {
+    if (this._pendingEchoCheck) {
+      // Server sent data back while we were waiting → echo is ON → not password
+      if (str.includes(this._pendingEchoCheck.char)) {
+        this._passwordPromptDetected = false
+        clearTimeout(this._echoCheckTimer)
+        this._pendingEchoCheck = null
+        this._echoCheckTimer = null
+        // Cancel the password dropdown if it was shown
+        this.term?.parent?.onPasswordPromptCancelled?.()
+      }
+    }
+  }
+
   checkForShellIntegration = (str) => {
     const ESC = String.fromCharCode(27)
     return str.includes(ESC + ']633;')
@@ -152,6 +202,26 @@ export default class AttachAddonCustom {
       return
     }
 
+    // Password prompt detection on output
+    let str = data
+    if (typeof data !== 'string') {
+      try {
+        str = this.decoder.decode(
+          data instanceof ArrayBuffer ? data : new Uint8Array(data)
+        )
+      } catch (e) {
+        str = ''
+      }
+    }
+    this._handleEchoDetection(str)
+    if (this._checkPasswordPrompt(str) && !this._passwordPromptDetected) {
+      this._passwordPromptDetected = true
+      // Show password dropdown immediately after terminal renders the prompt
+      setTimeout(() => {
+        this.term?.parent?.onPasswordPromptDetected?.()
+      }, 100)
+    }
+
     if (typeof data === 'string') {
       return term.write(data)
     }
@@ -171,6 +241,20 @@ export default class AttachAddonCustom {
 
   sendToServer = (data) => {
     this._lastInputTime = Date.now()
+    // Start echo detection when password prompt is suspected
+    if (this._passwordPromptDetected && !this._pendingEchoCheck && data !== '\r' && data !== '\n') {
+      this._pendingEchoCheck = { char: data, time: Date.now() }
+      clearTimeout(this._echoCheckTimer)
+      this._echoCheckTimer = setTimeout(this._onEchoCheckTimeout, 200)
+    }
+    // Reset password state on Enter
+    if (data === '\r' || data === '\n') {
+      this._passwordPromptDetected = false
+      this._lastOutputLine = ''
+      this._pendingEchoCheck = null
+      clearTimeout(this._echoCheckTimer)
+      this._echoCheckTimer = null
+    }
     this._sendData(data)
   }
 
@@ -228,6 +312,8 @@ export default class AttachAddonCustom {
 
   dispose = () => {
     this._stopKeepalive()
+    clearTimeout(this._echoCheckTimer)
+    this._echoCheckTimer = null
     this.term = null
     this._disposables.forEach(d => d.dispose())
     this._disposables.length = 0

@@ -16,7 +16,8 @@ export default class TerminalCmdSuggestions extends Component {
     aiSuggestions: [],
     cmdIsDescription: false,
     reverse: false,
-    cmd: ''
+    cmd: '',
+    passwordMode: false
   }
 
   componentDidMount () {
@@ -95,6 +96,9 @@ export default class TerminalCmdSuggestions extends Component {
   }
 
   openSuggestions = (cursorPosition, cmd) => {
+    if (this.state.passwordMode) {
+      return
+    }
     if (!this.state.showSuggestions) {
       document.addEventListener('click', this.handleClickOutside)
       document.addEventListener('keydown', this.handleKeyDown)
@@ -128,7 +132,45 @@ export default class TerminalCmdSuggestions extends Component {
       showSuggestions: true,
       cursorPosition: position,
       cmd,
-      reverse
+      reverse,
+      passwordMode: false
+    })
+  }
+
+  openPasswordSuggestions = (cursorPosition) => {
+    if (!this.state.showSuggestions) {
+      document.addEventListener('click', this.handleClickOutside)
+      document.addEventListener('keydown', this.handleKeyDown)
+    }
+
+    const {
+      left,
+      top,
+      cellHeight
+    } = cursorPosition
+    const w = window.innerWidth
+    const h = window.innerHeight
+
+    const position = {}
+    const reverse = top > h / 2
+
+    if (left > w / 2) {
+      position.right = w - left
+    } else {
+      position.left = left
+    }
+
+    if (reverse) {
+      position.bottom = h - top + cellHeight * 1.5
+    } else {
+      position.top = top + cellHeight
+    }
+    this.setState({
+      showSuggestions: true,
+      cursorPosition: position,
+      cmd: '',
+      reverse,
+      passwordMode: true
     })
   }
 
@@ -146,7 +188,8 @@ export default class TerminalCmdSuggestions extends Component {
     }
     this.setState({
       showSuggestions: false,
-      aiSuggestions: []
+      aiSuggestions: [],
+      passwordMode: false
     })
   }
 
@@ -172,11 +215,24 @@ export default class TerminalCmdSuggestions extends Component {
     const terminal = refs.get('term-' + activeTabId)
     if (!terminal) {
       console.log('No active terminal found')
+      this.closeSuggestions()
       return
     }
 
-    // const titleElement = domEvent.target.closest('.ant-menu-title-content')
-    // const command = titleElement?.firstChild?.textContent
+    if (item.type === 'PW') {
+      try {
+        // Send password + Enter directly, no backspace needed
+        terminal.attachAddon._sendData(item.command + '\r')
+        terminal.attachAddon._passwordPromptDetected = false
+        terminal.attachAddon._lastOutputLine = ''
+      } catch (e) {
+        console.error('Failed to send password:', e)
+      }
+      terminal.term.focus()
+      this.closeSuggestions()
+      return
+    }
+
     const { command } = item
     const { cmd } = this.state
     let txt = ''
@@ -207,6 +263,24 @@ export default class TerminalCmdSuggestions extends Component {
           })
         }
       })
+  }
+
+  getPasswordSuggestions = () => {
+    const bookmarks = window.store.bookmarks || []
+    const seen = new Set()
+    const res = []
+    for (const b of bookmarks) {
+      if (b.password && !seen.has(b.password)) {
+        seen.add(b.password)
+        res.push({
+          id: uid(),
+          command: b.password,
+          type: 'PW',
+          hint: [b.username, b.host].filter(Boolean).join('@')
+        })
+      }
+    }
+    return this.state.reverse ? res.reverse() : res
   }
 
   getSuggestions = () => {
@@ -274,17 +348,19 @@ export default class TerminalCmdSuggestions extends Component {
   }
 
   render () {
-    const { showSuggestions, cursorPosition, reverse } = this.state
+    const { showSuggestions, cursorPosition, reverse, passwordMode } = this.state
     if (!showSuggestions) {
       return null
     }
-    const suggestions = this.getSuggestions()
+    const suggestions = passwordMode
+      ? this.getPasswordSuggestions()
+      : this.getSuggestions()
     const cls = classnames('terminal-suggestions-wrap', {
       reverse
     })
     return (
       <div className={cls} style={cursorPosition}>
-        {this.renderSticky('top')}
+        {!passwordMode && this.renderSticky('top')}
         <div className='terminal-suggestions-list'>
           {
             suggestions.map(item => {
@@ -299,7 +375,7 @@ export default class TerminalCmdSuggestions extends Component {
             })
           }
         </div>
-        {this.renderSticky('bottom')}
+        {!passwordMode && this.renderSticky('bottom')}
       </div>
     )
   }
