@@ -150,7 +150,7 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
       const inserted = []
       for (const doc of inserts) {
         const { _id, data } = toRow(doc, dbName)
-        const stmt = db.prepare(`INSERT INTO \`${dbName}\` (_id, data) VALUES (?, ?)`)
+        const stmt = db.prepare(`INSERT OR REPLACE INTO \`${dbName}\` (_id, data) VALUES (?, ?)`)
         stmt.run(_id, data)
         inserted.push({ ...doc, _id })
       }
