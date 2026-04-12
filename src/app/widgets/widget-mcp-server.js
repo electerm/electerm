@@ -64,6 +64,12 @@ const widgetInfo = {
       type: 'boolean',
       default: false,
       description: 'Enable settings APIs'
+    },
+    {
+      name: 'autoRun',
+      type: 'boolean',
+      default: false,
+      description: 'Automatically start this MCP server when the app launches'
     }
   ]
 }

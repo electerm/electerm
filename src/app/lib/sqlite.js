@@ -52,7 +52,8 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
     'workspaces',
     'history',
     'terminalCommandHistory',
-    'aiChatHistory'
+    'aiChatHistory',
+    'autoRunWidgets'
   ]
 
   // Create tables in appropriate databases

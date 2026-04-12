@@ -101,6 +101,12 @@ const widgetInfo = {
       type: 'boolean',
       default: true,
       description: 'Enable or disable accepting ranged requests'
+    },
+    {
+      name: 'autoRun',
+      type: 'boolean',
+      default: false,
+      description: 'Automatically run this widget when the app launches'
     }
   ]
 }

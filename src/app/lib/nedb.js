@@ -42,7 +42,8 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
     'workspaces',
     'history',
     'terminalCommandHistory',
-    'aiChatHistory'
+    'aiChatHistory',
+    'autoRunWidgets'
   ]
 
   tables.forEach(table => {

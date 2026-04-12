@@ -215,6 +215,9 @@ export default (Store) => {
     if (store.config.checkUpdateOnStart) {
       store.onCheckUpdate(false)
     }
+    store.startAutoRunWidgets().catch(err => {
+      console.error('Failed to start autorun widgets:', err)
+    })
   }
   Store.prototype.initCommandLine = async function () {
     const opts = await window.pre.runGlobalAsync('initCommandLine')

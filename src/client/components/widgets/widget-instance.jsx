@@ -1,12 +1,21 @@
-import { Popconfirm, Popover } from 'antd'
-import { CloseOutlined, CopyOutlined } from '@ant-design/icons'
+import {
+  Popconfirm,
+  Popover,
+  Tooltip,
+  Tag
+} from 'antd'
+import { CloseOutlined, CopyOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import { copy } from '../../common/clipboard'
+import classnames from 'classnames'
+import { auto } from 'manate/react'
 
 const e = window.translate
 
-export default function WidgetInstance ({ item }) {
-  const { id, title, serverInfo } = item
-  const cls = 'item-list-unit'
+export default auto(function WidgetInstance ({ item }) {
+  const { id, title, serverInfo, autoRun } = item
+  const cls = classnames('item-list-unit', {
+    'autorun-active': autoRun
+  })
   const delProps = {
     title: e('del'),
     className: 'pointer list-item-remove'
@@ -31,6 +40,9 @@ export default function WidgetInstance ({ item }) {
       copy(serverInfo.url)
     }
   }
+  const handleToggleAutoRun = () => {
+    window.store.toggleAutoRunWidget(item)
+  }
   const popoverContent = serverInfo
     ? (
       <div>
@@ -45,12 +57,13 @@ export default function WidgetInstance ({ item }) {
       </div>
       )
     : null
+  const tag = autoRun ? <Tag color='green'>{e('autoRun')}</Tag> : null
   const titleDiv = (
     <div
       title={title}
       className='elli pd1y pd2x list-item-title'
     >
-      {title}
+      {tag} {title}
     </div>
   )
   return (
@@ -71,6 +84,12 @@ export default function WidgetInstance ({ item }) {
             )
           : titleDiv
       }
+      <Tooltip title='Toggle auto-run'>
+        <ThunderboltOutlined
+          className='pointer list-item-autorun'
+          onClick={handleToggleAutoRun}
+        />
+      </Tooltip>
       <Popconfirm
         {...popProps}
       >
@@ -78,4 +97,4 @@ export default function WidgetInstance ({ item }) {
       </Popconfirm>
     </div>
   )
-}
+})

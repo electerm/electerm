@@ -49,6 +49,9 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
         config
       }
       window.store.widgetInstances.push(instance)
+      if (config.autoRun) {
+        window.store.toggleAutoRunWidget(instance)
+      }
       showMsg(msg, 'success', result.serverInfo, 10)
     } catch (err) {
       console.error('Failed to run widget:', err)

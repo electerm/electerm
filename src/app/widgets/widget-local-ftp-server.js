@@ -45,6 +45,12 @@ const widgetInfo = {
       type: 'string',
       default: 'ftppass',
       description: 'Password for FTP authentication (used when anonymous is false)'
+    },
+    {
+      name: 'autoRun',
+      type: 'boolean',
+      default: false,
+      description: 'Automatically start this FTP server when the app launches'
     }
   ]
 }

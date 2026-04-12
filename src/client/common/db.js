@@ -31,7 +31,8 @@ export const dbNames = [
   ),
   'history',
   'terminalCommandHistory',
-  'aiChatHistory'
+  'aiChatHistory',
+  'autoRunWidgets'
 ]
 export const dbNamesForSync = [
   ...without(
@@ -45,7 +46,8 @@ export const dbNamesForWatch = [
   ...dbNamesForSync,
   'history',
   'terminalCommandHistory',
-  'aiChatHistory'
+  'aiChatHistory',
+  'autoRunWidgets'
 ]
 
 /**
