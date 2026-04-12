@@ -234,12 +234,14 @@ export default class TerminalCmdSuggestions extends Component {
     }
 
     const { command } = item
-    const { cmd } = this.state
+    // Read current input from buffer directly to avoid stale state
+    // (onData fires before echo, so this.state.cmd may lag behind)
+    const currentInput = terminal.getCurrentInput() || ''
     let txt = ''
-    if (cmd && command.startsWith(cmd)) {
-      txt = command.slice(cmd.length)
+    if (currentInput && command.startsWith(currentInput)) {
+      txt = command.slice(currentInput.length)
     } else {
-      const pre = '\b'.repeat(cmd.length)
+      const pre = '\b'.repeat(currentInput.length)
       txt = pre + command
     }
     terminal.attachAddon._sendData(txt)
