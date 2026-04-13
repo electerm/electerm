@@ -74,9 +74,15 @@ function renderAddonBefore (props, realPath) {
 }
 
 function renderAddonAfter (isLoadingRemote, onGoto, GoIcon, type) {
+  const handleClick = (e) => {
+    e.stopPropagation()
+    if (!isLoadingRemote) {
+      onGoto(type)
+    }
+  }
   return (
     <GoIcon
-      onClick={isLoadingRemote ? () => null : () => onGoto(type)}
+      onClick={handleClick}
     />
   )
 }
