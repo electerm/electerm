@@ -77,6 +77,9 @@ export default class ErrorBoundary extends React.PureComponent {
   }
 
   renderTroubleShoot = () => {
+    if (window.et.isWebApp) {
+      return this.renderContacts()
+    }
     const {
       bugs: {
         url: bugReportLink
@@ -102,6 +105,14 @@ export default class ErrorBoundary extends React.PureComponent {
         <div className='pd1b'>
           <Link to={bugUrl}>{e('bugReport')}</Link>
         </div>
+        {this.renderContacts()}
+      </div>
+    )
+  }
+
+  renderContacts () {
+    return (
+      <>
         <div className='pd1b'>
           <span>Contact author: </span>
           <Link to='mailto:zxdong@gmail.com'>zxdong@gmail.com</Link>
@@ -112,7 +123,7 @@ export default class ErrorBoundary extends React.PureComponent {
             className='mwm-100'
           />
         </div>
-      </div>
+      </>
     )
   }
 
