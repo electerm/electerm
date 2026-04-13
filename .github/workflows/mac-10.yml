@@ -36,6 +36,7 @@ jobs:
         pkg.dependencies['node-pty'] = '1.1.0-beta14';
         pkg.dependencies.serialport = '13.0.0';
         pkg.devDependencies.vite = '4';
+        pkg.devDependencies['@vitejs/plugin-react'] = '4.7.0';
         fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
         fs.unlinkSync('package-lock.json');
         "

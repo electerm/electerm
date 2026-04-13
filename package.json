@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -59,7 +59,7 @@
     "@fontsource/maple-mono": "^5.2.5",
     "@novnc/novnc": "1.4.0",
     "@types/node": "22.9.3",
-    "@vitejs/plugin-react": "4.3.4",
+    "@vitejs/plugin-react": "^5.2.0",
     "@xterm/addon-attach": "0.11.0",
     "@xterm/addon-canvas": "0.7.0",
     "@xterm/addon-fit": "0.10.0",
@@ -94,7 +94,7 @@
     "spice-client": "1.1.2",
     "standard": "^17.1.0",
     "stylus": "^0.64.0",
-    "vite": "7.3.1"
+    "vite": "^8.0.8"
   },
   "dependencies": {
     "@electerm/electerm-locales": "2.2.5",

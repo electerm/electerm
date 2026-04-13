@@ -4,133 +4,6 @@ import react from '@vitejs/plugin-react'
 import { cwd, version } from './common.js'
 import { resolve } from 'path'
 import def from './def.js'
-// import commonjs from 'vite-plugin-commonjs'
-
-const nodeVersion = parseInt(process.version.split('.')[0].slice(1))
-const isNode16 = nodeVersion === 16
-
-const manualChunks = (id) => {
-  if (id.includes('node_modules')) {
-    if (id.match(/node_modules\/(react|react-dom|scheduler)\//) ||
-      id.includes('object-assign') ||
-      id.includes('loose-envify')) {
-      return 'react-vendor'
-    }
-    if (
-      id.includes('react-markdown')
-    ) {
-      return 'react-utils'
-    }
-    if (id.includes('lodash-es')) {
-      return 'lodash-es'
-    }
-    if (id.includes('dayjs')) {
-      return 'dayjs'
-    }
-    if (id.includes('@ant-design/icons')) {
-      return 'ant-icons'
-    }
-    if (id.includes('@ant-design') || id.includes('@rc-component') || id.includes('classnames') || id.includes('@ctrl/tinycolor')) {
-      return 'antd-deps'
-    }
-    if (id.includes('antd')) {
-      return 'antd'
-    }
-    if (id.includes('@xterm/addon-attach')) {
-      return 'xterm-addon-attach'
-    }
-    if (id.includes('@xterm/addon-fit')) {
-      return 'xterm-addon-fit'
-    }
-    if (id.includes('@xterm/addon-search')) {
-      return 'xterm-addon-search'
-    }
-    if (id.includes('@xterm/addon-web-links')) {
-      return 'xterm-addon-web-links'
-    }
-    if (id.includes('@xterm/addon-canvas')) {
-      return 'xterm-addon-canvas'
-    }
-    if (id.includes('@xterm/addon-ligatures')) {
-      return 'xterm-addon-ligatures'
-    }
-    if (id.includes('@xterm/addon-unicode11')) {
-      return 'xterm-addon-unicode11'
-    }
-    if (id.includes('@xterm/addon-webgl')) {
-      return 'xterm-addon-webgl'
-    }
-    if (id.includes('@xterm/addon-image')) {
-      return 'xterm-addon-image'
-    }
-    if (id.includes('@xterm/xterm')) {
-      return 'xterm'
-    }
-    if (id.includes('manate')) {
-      return 'manate'
-    }
-    if (id.includes('electerm-icons')) {
-      return 'electerm-icons'
-    }
-    if (id.includes('@novnc/novnc')) {
-      return 'novnc'
-    }
-    if (id.includes('ironrdp-wasm')) {
-      return 'ironrdp-wasm'
-    }
-    if (id.includes('spice-client')) {
-      return 'spice'
-    }
-    // Combine rest of node_modules into one chunk
-    return 'vendor'
-  }
-}
-
-// Custom plugin to combine CSS with separate basic.css
-function combineCSSPlugin () {
-  return {
-    name: 'combine-css',
-    generateBundle (options, bundle) {
-      let mainCSS = ''
-      let basicCSS = ''
-
-      for (const fileName in bundle) {
-        if (fileName.endsWith('.css') && !fileName.includes('xterm.css')) {
-          // Get the CSS source
-          const cssSource = bundle[fileName].source
-          // Check if this CSS is from basic.js's imports
-          // We can check the source for imports from mobile.styl or basic.styl
-          if (fileName.includes('basic.css')) {
-            basicCSS += cssSource
-          } else {
-            mainCSS += cssSource
-          }
-
-          // Remove the original CSS chunk
-          delete bundle[fileName]
-        }
-      }
-
-      // Emit main CSS bundle
-      if (mainCSS) {
-        this.emitFile({
-          type: 'asset',
-          fileName: `css/${version}-electerm.css`,
-          source: mainCSS
-        })
-      }
-
-      // Emit basic CSS bundle
-      if (basicCSS) {
-        this.emitFile({
-          type: 'asset',
-          fileName: `css/${version}-basic.css`,
-          source: basicCSS
-        })
-      }
-    }
-  }
-}
 
 function buildInput () {
   return {
@@ -161,16 +34,7 @@ function replaceWebAppPlugin () {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    // wasm(),
-    // topLevelAwait(),
-    // htmlPurge(),
-    // commonjs(),
-    // externalGlobals({
-    //   react: 'React',
-    //   'react-dom': 'ReactDOM'
-    // }),
     react({ include: /\.(mdx|js|jsx|ts|tsx|mjs)$/ }),
-    combineCSSPlugin(),
     replaceWebAppPlugin()
   ],
   resolve: {
@@ -181,45 +45,35 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['ironrdp-wasm']
   },
-  // optimizeDeps: {
-  //   esbuildOptions: {
-  //     loader: {
-  //       '.js': 'jsx'
-  //     }
-  //   }
-  // },
   define: def,
   publicDir: false,
-  css: {
-    codeSplit: false
+  legacy: {
+    inconsistentCjsInterop: true
   },
   root: resolve(cwd, '../..'),
   build: {
     target: 'esnext',
+    cssCodeSplit: false,
     emptyOutDir: false,
     outDir: resolve(cwd, '../../work/app/assets'),
     rollupOptions: {
       input: buildInput(),
-      // external: [
-      //   'react',
-      //   'react-dom'
-      // ],
       output: {
-        ...(isNode16 ? {} : { manualChunks }),
         inlineDynamicImports: false,
         format: 'esm',
         entryFileNames: `js/[name]-${version}.js`,
         chunkFileNames: `chunk/[name]-${version}-[hash].js`,
+        dir: resolve(cwd, '../../work/app/assets'),
         assetFileNames: chunkInfo => {
           const { name } = chunkInfo
-          if (name.includes('xterm.css')) {
-            return `css/${version}-[hash]-${name}`
+          if (/\.(png|jpe?g|gif|svg|webp|ico|bmp)$/i.test(name)) {
+            return `images/${name}`
+          } else if (name && name.endsWith('.css')) {
+            return `css/style-${version}[extname]`
+          } else {
+            return 'assets/[name]-[hash][extname]'
           }
-          return name.endsWith('.css')
-            ? `css/_temp_${name}`
-            : `images/${name}`
-        },
-        dir: resolve(cwd, '../../work/app/assets')
+        }
       }
     }
   }
