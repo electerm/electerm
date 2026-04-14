@@ -136,12 +136,10 @@ export default class BatchInput extends Component {
     } = this.props
     const opts = {
       options: this.buildOptions(),
-      placeholder: e('batchInput'),
       value: cmd,
       onChange: this.handleChange,
       defaultOpen: false,
       open,
-      allowClear: true,
       className: 'batch-input-wrap'
     }
     const cls = classNames(
@@ -154,6 +152,15 @@ export default class BatchInput extends Component {
       size: 'small',
       placeholder: e('batchInput'),
       className: 'batch-input-holder'
+    }
+    const textAreaProps = {
+      onPressEnter: this.handleEnter,
+      onClick: this.handleClick,
+      onBlur: this.handleBlur,
+      size: 'small',
+      autoSize: { minRows: 1 },
+      placeholder: e('batchInput'),
+      allowClear: true
     }
     const tabSelectProps = {
       activeTabId: this.props.activeTabId,
@@ -179,11 +186,7 @@ export default class BatchInput extends Component {
             {...opts}
           >
             <Input.TextArea
-              onPressEnter={this.handleEnter}
-              onClick={this.handleClick}
-              onBlur={this.handleBlur}
-              size='small'
-              autoSize={{ minRows: 1 }}
+              {...textAreaProps}
             />
           </AutoComplete>
           <TabSelect {...tabSelectProps} />
