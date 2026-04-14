@@ -123,7 +123,7 @@ export default class AddBtn extends Component {
         searchInput.focus()
         searchInput.select()
       }
-    }, 500)
+    }, 100)
   }
 
   handleAddBtnClick = () => {
