@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Button, Space } from 'antd'
+import { Button, Space, Input } from 'antd'
 import { ArrowRightOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import message from '../common/message'
 import InputAutoFocus from '../common/input-auto-focus'
@@ -29,18 +29,14 @@ export default function QuickConnect ({ batch, inputOnly }) {
   const [inputValue, setInputValue] = useState('')
   const inputRef = useRef(null)
 
-  useEffect(() => {
-    if (showInput && inputRef.current) {
-      inputRef.current.focus()
-    }
-  }, [showInput])
-
-  // When inputOnly is true, always show the input
+  // When inputOnly is true, always show the input (without auto-focus)
   useEffect(() => {
     if (inputOnly) {
       setShowInput(true)
+    } else if (showInput && inputRef.current) {
+      inputRef.current.focus()
     }
-  }, [inputOnly])
+  }, [inputOnly, showInput])
 
   const handleToggle = () => {
     setShowInput(!showInput)
@@ -94,7 +90,7 @@ export default function QuickConnect ({ batch, inputOnly }) {
         <Button
           {...iconsProps1}
         />
-        <InputAutoFocus {...inputProps} />
+        {inputOnly ? <Input {...inputProps} /> : <InputAutoFocus {...inputProps} />}
         <Button
           {...iconProps}
         />

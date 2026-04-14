@@ -46,10 +46,6 @@ export default class AddBtn extends Component {
       document.body.removeChild(this.portalContainer)
       this.portalContainer = null
     }
-    // Clear focus timeout
-    if (this.çƒ) {
-      clearTimeout(this.focusTimeout)
-    }
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -115,17 +111,6 @@ export default class AddBtn extends Component {
     )
   }
 
-  focusSearchInput = () => {
-    // Focus the search input after the menu renders
-    this.focusTimeout = setTimeout(() => {
-      const searchInput = this.menuRef.current?.querySelector('.add-menu-list .ant-input')
-      if (searchInput) {
-        searchInput.focus()
-        searchInput.select()
-      }
-    }, 100)
-  }
-
   handleAddBtnClick = () => {
     if (this.state.open) {
       this.setState({ open: false })
@@ -172,7 +157,7 @@ export default class AddBtn extends Component {
           menuPosition,
           menuTop,
           menuLeft
-        }, this.focusSearchInput)
+        })
 
         window.openTabBatch = this.props.batch
       }

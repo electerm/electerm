@@ -75,7 +75,7 @@ export default function AddBtnMenu ({
 
   let listContent
   if (activeTab === 'bookmarks') {
-    listContent = <BookmarksList store={window.store} />
+    listContent = <BookmarksList store={window.store} autoFocus />
   } else {
     listContent = <History store={window.store} />
   }

@@ -329,6 +329,7 @@ export default class ItemListTree extends Component {
         <TreeSearch
           onSearch={this.handleChange}
           keyword={this.state.keyword}
+          autoFocus={this.props.autoFocus}
         />
       </div>
     )

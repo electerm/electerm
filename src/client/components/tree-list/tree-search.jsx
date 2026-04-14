@@ -3,7 +3,7 @@ import { debounce } from 'lodash-es'
 import Search from '../common/search'
 import runIdle from '../../common/run-idle'
 
-export default memo(function TreeSearchComponent ({ onSearch, keyword }) {
+export default memo(function TreeSearchComponent ({ onSearch, keyword, autoFocus }) {
   const [searchTerm, setSearchTerm] = useState(keyword)
 
   const performSearch = debounce((term) => {
@@ -23,6 +23,7 @@ export default memo(function TreeSearchComponent ({ onSearch, keyword }) {
       onChange={handleChange}
       value={searchTerm}
       allowClear
+      autoFocus={autoFocus}
     />
   )
 })

@@ -6,7 +6,7 @@ import { auto } from 'manate/react'
 import TreeList from '../tree-list/tree-list'
 
 export default auto(function BookmarkSelect (props) {
-  const { store, from } = props
+  const { store, from, autoFocus } = props
   const {
     listStyle,
     openedSideBar,
@@ -38,7 +38,8 @@ export default auto(function BookmarkSelect (props) {
     bookmarkGroups: store.getBookmarkGroupsTotal(),
     expandedKeys,
     leftSidebarWidth,
-    bookmarkGroupTree: store.bookmarkGroupTree
+    bookmarkGroupTree: store.bookmarkGroupTree,
+    autoFocus
   }
   return (
     <TreeList
