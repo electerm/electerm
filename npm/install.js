@@ -5,13 +5,49 @@
 const os = require('os')
 const { resolve } = require('path')
 const { exec, rm, mv } = require('shelljs')
-const rp = require('phin').promisified
-const download = require('download')
+const { execFile } = require('child_process')
+const { phin, download } = require('./utils')
+
 const plat = os.platform()
 const arch = os.arch()
 const { homepage } = require('../package.json')
+
 const releaseInfoUrl = `${homepage}/data/electerm-github-release.json?_=${+new Date()}`
 const versionUrl = `${homepage}/version.html?_=${+new Date()}`
+
+// ---------------------------------------------------------------------------
+// Security helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Validate that a version string is a plain semver (e.g. "1.2.3" or "v1.2.3").
+ */
+function sanitizeVersion (ver) {
+  const clean = String(ver).trim().replace(/^v/, '')
+  if (!/^\d+\.\d+\.\d+$/.test(clean)) {
+    throw new Error(
+      `Refusing to continue: remote version string failed validation: "${ver}"`
+    )
+  }
+  return clean
+}
+
+/**
+ * Validate that a release asset filename contains only safe characters.
+ */
+function sanitizeFilename (name) {
+  const clean = String(name).trim()
+  if (!/^[\w.-]+$/.test(clean)) {
+    throw new Error(
+      `Refusing to continue: remote filename failed validation: "${name}"`
+    )
+  }
+  return clean
+}
+
+// ---------------------------------------------------------------------------
+// Core helpers
+// ---------------------------------------------------------------------------
 
 function down (url, extract = true) {
   const local = resolve(__dirname, '../')
@@ -22,7 +58,7 @@ function down (url, extract = true) {
 }
 
 function getVer () {
-  return rp({
+  return phin({
     url: versionUrl,
     timeout: 15000
   })
@@ -30,7 +66,7 @@ function getVer () {
 }
 
 function getReleaseInfo (filter) {
-  return rp({
+  return phin({
     url: releaseInfoUrl,
     timeout: 15000
   })
@@ -51,6 +87,10 @@ function showFinalMessage () {
   console.log('\nThank you for using electerm!')
   console.log('========================================\n')
 }
+
+// ---------------------------------------------------------------------------
+// Platform detection helpers
+// ---------------------------------------------------------------------------
 
 // Check if running on Windows 7 or earlier
 function isWindows7OrEarlier (platform, release) {
@@ -120,20 +160,30 @@ function getDownloadPattern (platform, architecture, options = {}) {
       return { pattern: new RegExp(`linux-x64${suffix}\\.tar\\.gz$`), type: `linux-x64${suffix}` }
     }
   }
+
   return { pattern: null, type: 'unsupported' }
 }
 
+// ---------------------------------------------------------------------------
+// Platform installers
 async function runLinux (folderName, filePattern) {
-  const ver = await getVer()
-  const target = resolve(__dirname, `../electerm-${ver.replace('v', '')}-${folderName}`)
+  const rawVer = await getVer()
+  const ver = sanitizeVersion(rawVer) // throws if tampered
+
+  const target = resolve(__dirname, `../electerm-${ver}-${folderName}`)
   const targetNew = resolve(__dirname, '../electerm')
-  exec(`rm -rf ${target} ${targetNew}`)
+
+  // Use shelljs array API — no shell string interpolation
+  rm('-rf', [target, targetNew])
+
   const releaseInfo = await getReleaseInfo(r => r.name.includes(filePattern))
   if (!releaseInfo) {
     throw new Error(`No release found for pattern: ${filePattern}`)
   }
+
   await down(releaseInfo.browser_download_url)
-  exec(`mv ${target} ${targetNew}`)
+
+  mv(target, targetNew)
   showFinalMessage()
   exec('electerm')
 }
@@ -144,37 +194,48 @@ async function runMac (archName) {
   if (!releaseInfo) {
     throw new Error(`No release found for Mac ${archName}`)
   }
+
+  const safeName = sanitizeFilename(releaseInfo.name) // throws if tampered
   await down(releaseInfo.browser_download_url, false)
-  const target = resolve(__dirname, '../', releaseInfo.name)
+
+  const target = resolve(__dirname, '../', safeName)
   showFinalMessage()
-  exec(`open ${target}`)
+
+  // execFile does not spawn a shell — no injection possible
+  execFile('open', [target])
 }
 
-// macOS 10.x specific version
 async function runMac10 () {
   const releaseInfo = await getReleaseInfo(r => /mac10-x64\.dmg$/.test(r.name))
   if (!releaseInfo) {
     throw new Error('No release found for macOS 10.x')
   }
+
+  const safeName = sanitizeFilename(releaseInfo.name) // throws if tampered
   await down(releaseInfo.browser_download_url, false)
-  const target = resolve(__dirname, '../', releaseInfo.name)
+
+  const target = resolve(__dirname, '../', safeName)
   showFinalMessage()
-  exec(`open ${target}`)
+
+  // execFile does not spawn a shell — no injection possible
+  execFile('open', [target])
 }
 
 async function runWin (archName) {
-  const ver = await getVer()
-  const target = resolve(__dirname, `../electerm-${ver.replace('v', '')}-win-${archName}`)
+  const rawVer = await getVer()
+  const ver = sanitizeVersion(rawVer) // consistent hardening
+
+  const target = resolve(__dirname, `../electerm-${ver}-win-${archName}`)
   const targetNew = resolve(__dirname, '../electerm')
-  rm('-rf', [
-    target,
-    targetNew
-  ])
+
+  rm('-rf', [target, targetNew])
+
   const pattern = new RegExp(`electerm-\\d+\\.\\d+\\.\\d+-win-${archName}\\.tar\\.gz$`)
   const releaseInfo = await getReleaseInfo(r => pattern.test(r.name))
   if (!releaseInfo) {
     throw new Error(`No release found for Windows ${archName}`)
   }
+
   await down(releaseInfo.browser_download_url)
   await mv(target, targetNew)
   showFinalMessage()
@@ -183,22 +244,28 @@ async function runWin (archName) {
 
 // Windows 7 specific version
 async function runWin7 () {
-  const ver = await getVer()
-  const target = resolve(__dirname, `../electerm-${ver.replace('v', '')}-win7`)
+  const rawVer = await getVer()
+  const ver = sanitizeVersion(rawVer) // consistent hardening
+
+  const target = resolve(__dirname, `../electerm-${ver}-win7`)
   const targetNew = resolve(__dirname, '../electerm')
-  rm('-rf', [
-    target,
-    targetNew
-  ])
+
+  rm('-rf', [target, targetNew])
+
   const releaseInfo = await getReleaseInfo(r => /electerm-\d+\.\d+\.\d+-win7\.tar\.gz$/.test(r.name))
   if (!releaseInfo) {
     throw new Error('No release found for Windows 7')
   }
+
   await down(releaseInfo.browser_download_url)
   await mv(target, targetNew)
   showFinalMessage()
   require('child_process').execFile(`${targetNew}\\electerm.exe`)
 }
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
 
 async function main () {
   console.log(`Detected platform: ${plat}, architecture: ${arch}`)
@@ -216,34 +283,28 @@ async function main () {
 
   try {
     if (plat === 'win32') {
-      // Windows: x64, arm64, win7
       if (win7) {
         await runWin7()
       } else if (arch === 'arm64') {
         await runWin('arm64')
       } else {
-        // Default to x64 for all other Windows architectures
         await runWin('x64')
       }
     } else if (plat === 'darwin') {
-      // macOS: x64, arm64, mac10
       if (mac10) {
         await runMac10()
       } else if (arch === 'arm64') {
         await runMac('arm64')
       } else {
-        // Default to x64 for Intel Macs
         await runMac('x64')
       }
     } else if (plat === 'linux') {
-      // Linux: x64, arm64, armv7l (with legacy variants)
       const suffix = linuxLegacy ? '-legacy' : ''
       if (arch === 'arm64') {
         await runLinux(`linux-arm64${suffix}`, `linux-arm64${suffix}.tar.gz`)
       } else if (arch === 'arm') {
         await runLinux(`linux-armv7l${suffix}`, `linux-armv7l${suffix}.tar.gz`)
       } else {
-        // Default to x64 for all other Linux architectures
         await runLinux(`linux-x64${suffix}`, `linux-x64${suffix}.tar.gz`)
       }
     } else {
@@ -261,12 +322,18 @@ async function main () {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Exports
+// ---------------------------------------------------------------------------
+
 // Export functions for testing
 module.exports = {
   isWindows7OrEarlier,
   isMacOS10,
   isLinuxLegacy,
-  getDownloadPattern
+  getDownloadPattern,
+  sanitizeVersion,
+  sanitizeFilename
 }
 
 // Run main only if this file is executed directly
