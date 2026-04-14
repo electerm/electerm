@@ -13,7 +13,9 @@ module.exports = exports.default = {
   theme: 'default',
   syncSetting: {
     lastUpdateTime: Date.now(),
-    autoSync: false
+    autoSync: false,
+    autoSyncInterval: 0,
+    autoSyncDirection: 'upload'
   },
   keyword2FA: 'verification code,otp,one-time,two-factor,2fa,totp,authenticator,duo,yubikey,security code,mfa,passcode',
 

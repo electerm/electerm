@@ -20,22 +20,6 @@ import { refsStatic } from '../components/common/ref'
 import dataCompare from '../common/data-compare'
 
 export default store => {
-  // autoRun(() => {
-  //   store.focus()
-  //   // store.termSearchOpen = false
-  //   store.termSearchMatchCount = 0
-  //   return store.activeTabId
-  // }).start()
-
-  // autoRun(() => {
-  //   if (store.menuOpened) {
-  //     store.initMenuEvent()
-  //   } else {
-  //     store.onCloseMenu()
-  //   }
-  //   return store.menuOpened
-  // })
-
   for (const name of dbNamesForWatch) {
     window[`watch${name}`] = autoRun(async () => {
       if (window.migrating) {
@@ -68,8 +52,16 @@ export default store => {
         )
       }
       await store.updateLastDataUpdateTime()
-      if (store.config.autoSync && dbNamesForSync.includes(name)) {
-        await store.uploadSettingAll()
+      if (dbNamesForSync.includes(name)) {
+        const syncSetting = store.config.syncSetting || {}
+        const { autoSync, autoSyncInterval, autoSyncDirection } = syncSetting
+        if (autoSync && autoSyncInterval === 0) {
+          if (autoSyncDirection === 'download') {
+            await store.downloadSettingAll()
+          } else {
+            await store.uploadSettingAll()
+          }
+        }
       }
       return store[name]
     })

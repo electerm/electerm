@@ -176,6 +176,30 @@ export default (Store) => {
     window.onSyncAll = false
   }
 
+  Store.prototype.downloadSettingAll = async function () {
+    const { store, onSyncAll } = window
+    if (store.autoSyncReady === false) {
+      return
+    }
+    if (onSyncAll) {
+      return
+    }
+    window.onSyncAll = true
+    const types = Object.keys(syncTypes)
+    for (const type of types) {
+      const gistId = store.getSyncGistId(type)
+      if (type === syncTypes.webdav) {
+        const serverUrl = get(window.store.config, 'syncSetting.webdavServerUrl')
+        if (serverUrl) {
+          await store.downloadSetting(type)
+        }
+      } else if (gistId) {
+        await store.downloadSetting(type)
+      }
+    }
+    window.onSyncAll = false
+  }
+
   Store.prototype.uploadSetting = async function (type) {
     if (window[type + 'IsSyncing']) {
       return false
@@ -561,7 +585,7 @@ export default (Store) => {
 
   Store.prototype.handleAutoSync = function (v) {
     const { store } = window
-    store.setConfig({
+    store.updateSyncSetting({
       autoSync: v
     })
   }

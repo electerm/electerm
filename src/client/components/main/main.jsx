@@ -34,6 +34,7 @@ import MoveItemModal from '../tree-list/move-item-modal'
 import InputContextMenu from '../common/input-context-menu'
 import WorkspaceSaveModal from '../tabs/workspace-save-modal'
 import BookmarkFromHistoryModal from '../bookmark-form/bookmark-from-history-modal'
+import AutoSync from '../setting-sync/auto-sync'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
@@ -295,6 +296,7 @@ export default auto(function Index (props) {
         <ConnectionHoppingWarning {...warningProps} />
         <TerminalCmdSuggestions {...cmdSuggestionsProps} />
         <TransferQueue />
+        <AutoSync config={config} />
         <WorkspaceSaveModal store={store} />
         <BookmarkFromHistoryModal />
         <NotificationContainer />
