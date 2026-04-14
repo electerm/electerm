@@ -5,10 +5,13 @@ import React, { useState, useEffect } from 'react'
 import { Form, Input, InputNumber, Switch, Select, Button, Tooltip, Alert } from 'antd'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import HelpIcon from '../common/help-icon'
+import BatchOpEditor from '../batch-op/batch-op-editor'
 
-export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInstance }) {
+export default function WidgetForm ({ widget, onSubmit, onSubmitAsync, loading, hasRunningInstance }) {
   const [form] = Form.useForm()
   const [showDownloadWarning, setShowDownloadWarning] = useState(false)
+  const [batchOpExecuting, setBatchOpExecuting] = useState(false)
+  const [batchOpValue, setBatchOpValue] = useState('')
 
   useEffect(() => {
     let timer
@@ -26,6 +29,15 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
     }
   }, [loading])
 
+  useEffect(() => {
+    if (widget?.info?.type === 'frontend' && widget.info.name === 'Batch Operation') {
+      const config = widget.info.configs.find(c => c.name === 'workflowJson')
+      if (config) {
+        setBatchOpValue(config.default)
+      }
+    }
+  }, [widget])
+
   if (!widget) {
     return null
   }
@@ -33,11 +45,22 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
   const { info } = widget
   const { configs, type, singleInstance } = info
   const isInstanceWidget = type === 'instance'
+  const isFrontendWidget = type === 'frontend'
   const txt = isInstanceWidget ? 'Start widget' : 'Run widget'
   const isDisabled = loading || (singleInstance && hasRunningInstance)
 
   const handleSubmit = async (values) => {
     onSubmit(values)
+  }
+
+  const handleBatchOpExecute = async () => {
+    if (!onSubmitAsync || !batchOpValue) return
+    setBatchOpExecuting(true)
+    try {
+      await onSubmitAsync({ workflowJson: batchOpValue })
+    } finally {
+      setBatchOpExecuting(false)
+    }
   }
 
   const renderFormItem = (config) => {
@@ -111,6 +134,23 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
     acc[config.name] = config.default
     return acc
   }, {})
+
+  if (isFrontendWidget && info.name === 'Batch Operation') {
+    return (
+      <div className='widget-form'>
+        <div className='pd1b alignright'>
+          <h4>{info.name}</h4>
+          <p>{info.description}</p>
+        </div>
+        <BatchOpEditor
+          value={batchOpValue}
+          onChange={setBatchOpValue}
+          onExecute={handleBatchOpExecute}
+          executing={batchOpExecuting}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className='widget-form'>

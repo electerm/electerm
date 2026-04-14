@@ -108,8 +108,8 @@ export async function addTabFromCommandLine (store, opts) {
   ) {
     window.initFolder = options.initFolder
   }
-  if (options && options.batchOp) {
-    window.store.runBatchOp(options.batchOp)
+  if (options.batchOp) {
+    store.runBatchOpFromFile(options.batchOp)
   }
 }
 

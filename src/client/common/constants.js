@@ -242,15 +242,13 @@ export const quickCommandLabelsLsKey = 'quick-command-label'
 export const localAddrBookmarkLsKey = 'local-addr-bookmark-keys'
 export const dismissDelKeyTipLsKey = 'dismiss-del-key-tip'
 export const sshTunnelHelpLink = 'https://github.com/electerm/electerm/wiki/How-to-use-ssh-tunnel'
-export const batchOpHelpLink = 'https://github.com/electerm/electerm/wiki/batch-operation'
 export const proxyHelpLink = 'https://github.com/electerm/electerm/wiki/proxy-format'
 export const regexHelpLink = 'https://github.com/electerm/electerm/wiki/Terminal-keywords-highlight-regular-expression-exmaples'
 export const connectionHoppingWikiLink = 'https://github.com/electerm/electerm/wiki/Connection-Hopping-Behavior-Change-in-electerm-since-v1.50.65'
 export const aiConfigWikiLink = 'https://github.com/electerm/electerm/wiki/AI-model-config-guide'
 export const modals = {
   hide: 0,
-  setting: 1,
-  batchOps: 2
+  setting: 1
 }
 export const instSftpKeys = [
   'connect',

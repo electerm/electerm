@@ -27,8 +27,8 @@ function parseCommandLine (argv, options) {
 ### Other params examples:
 - server port:
 electerm -sp 30976
-- load and run batch operation from csv file:
-electerm -bo "/home/root/works.csv"
+- load and run batch operation from json file:
+electerm -bo "/home/root/works.json"
 
 ### other connection types
 - telnet:
@@ -57,7 +57,7 @@ PROXY_SERVER="socks5://127.0.0.1:1080" electerm
     .option('-t, --title [Tab Name]', 'Specify the title of the new tab')
     .option('-l, --user <user>', 'specify a login name')
     .option('-P, --port <port>', 'specify ssh port')
-    .option('-bo, --batch-op <batchOpFile>', 'load and run batch operation from csv file')
+    .option('-bo, --batch-op <batchOpFile>', 'load and run batch operation from json file')
     .option('-sp, --server-port <serverPort>', 'specify server port, default is')
     .option('-i, --private-key-path <path>', 'specify an SSH private key path')
     .option('-ps, --passphrase <passphrase>', 'specify an SSH private key passphrase')
