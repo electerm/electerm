@@ -1,4 +1,93 @@
-#!/bin/bash
-cd `dirname $0`
-cd ..
-./lib/node_modules/electerm/electerm/electerm
+#!/usr/bin/env node
+/**
+ * electerm CLI launcher (cross-platform)
+ * After npm i -g electerm, the postinstall script downloads and installs the binary.
+ * This script simply finds and launches the installed binary.
+ *
+ * Binary locations:
+ *   macOS:   /Applications/electerm.app/Contents/MacOS/electerm
+ *   Windows: <package>/electerm/electerm.exe
+ *   Linux:   <package>/electerm/electerm
+ */
+
+const path = require('path')
+const fs = require('fs')
+const { spawn } = require('child_process')
+const os = require('os')
+
+const plat = os.platform()
+const packageRoot = path.resolve(__dirname, '..')
+
+function getElectermExePath () {
+  if (plat === 'darwin') {
+    const appBinary = '/Applications/electerm.app/Contents/MacOS/electerm'
+    if (fs.existsSync(appBinary)) {
+      return appBinary
+    }
+    return path.join(packageRoot, 'electerm', 'electerm')
+  }
+
+  if (plat === 'win32') {
+    return path.join(packageRoot, 'electerm', 'electerm.exe')
+  }
+
+  return path.join(packageRoot, 'electerm', 'electerm')
+}
+
+function isSandboxReady () {
+  // chrome-sandbox must be owned by root (uid 0) and have setuid bit set (mode 4755)
+  // This requires root during install, which npm global install does not provide.
+  try {
+    const sandboxPath = path.join(packageRoot, 'electerm', 'chrome-sandbox')
+    if (!fs.existsSync(sandboxPath)) return false
+    const stat = fs.statSync(sandboxPath)
+    const hasSetuid = (stat.mode & 0o4000) !== 0
+    const ownedByRoot = stat.uid === 0
+    return hasSetuid && ownedByRoot
+  } catch (e) {
+    return false
+  }
+}
+
+function launchElecterm () {
+  const exePath = getElectermExePath()
+
+  if (!fs.existsSync(exePath)) {
+    console.error('electerm binary not found at:', exePath)
+    console.error('')
+    console.error('The binary may not have been installed properly.')
+    console.error('Try running manually:')
+    console.error('  node', path.join(packageRoot, 'npm', 'install.js'))
+    process.exit(1)
+  }
+
+  const extraArgs = []
+  if (plat === 'linux' && !isSandboxReady()) {
+    extraArgs.push('--no-sandbox')
+  }
+
+  const child = spawn(exePath, [...extraArgs, ...process.argv.slice(2)], {
+    stdio: 'inherit',
+    detached: plat !== 'win32',
+    windowsHide: false
+  })
+
+  if (plat !== 'win32') {
+    child.unref()
+  }
+
+  child.on('error', (err) => {
+    console.error('Failed to start electerm:', err.message)
+    process.exit(1)
+  })
+
+  child.on('exit', (code) => {
+    process.exit(code || 0)
+  })
+}
+
+if (require.main === module) {
+  launchElecterm()
+}
+
+module.exports = { launchElecterm }

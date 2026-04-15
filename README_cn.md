@@ -89,10 +89,6 @@ scoop install dorado/electerm
 
 ```bash
 npm i -g electerm
-
-# after installation, it will immediately open for windows and linux,
-# for macOS, it will open the drag to install panel
-
 ```
 
 ## 升级
