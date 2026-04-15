@@ -3,118 +3,65 @@
  * Self-contained workflow editor: handles execute, external editors, and progress logs
  */
 import React, { useCallback, useState, useEffect } from 'react'
-import { Button, Flex, Alert, message } from 'antd'
+import { Button, Flex, message } from 'antd'
 import {
   PlayCircleOutlined
 } from '@ant-design/icons'
 import SimpleEditor from '../text-editor/simple-editor'
 import EditWithCustomEditor from '../text-editor/edit-with-custom-editor'
-import HelpIcon from '../common/help-icon'
+import BatchOpAlert from './batch-op-alert'
 import BatchOpLogs from './batch-op-logs'
 import { refsStatic } from '../common/ref'
 import generate from '../../common/uid'
 import fs from '../../common/fs'
 
-const sshTemplate = `{
-  "host": "192.168.1.100",
-  "port": 22,
-  "username": "root",
-  "authType": "password|privateKey|profiles",
-  "password": "string - password for authentication",
-  "privateKey": "string - private key content or path",
-  "passphrase": "string - passphrase for private key/certificate",
-  "certificate": "string - certificate content",
-  "profile": "string - profile id to reuse saved auth",
-  "enableSftp": true,
-  "enableSsh": true,
-  "useSshAgent": true,
-  "sshAgent": "string - ssh agent path",
-  "term": "xterm-256color",
-  "encode": "utf8",
-  "envLang": "en_US.UTF-8",
-  "setEnv": "KEY1=VALUE1 KEY2=VALUE2",
-  "startDirectoryRemote": "string",
-  "startDirectoryLocal": "string",
-  "proxy": "socks5://...",
-  "x11": false,
-  "displayRaw": false,
-  "color": "#000000",
-  "sshTunnels": [
-    {
-      "sshTunnel": "forwardRemoteToLocal|forwardLocalToRemote|dynamicForward",
-      "sshTunnelLocalHost": "string",
-      "sshTunnelLocalPort": 0,
-      "sshTunnelRemoteHost": "string",
-      "sshTunnelRemotePort": 0,
-      "name": "string"
-    }
-  ],
-  "connectionHoppings": [
-    {
-      "host": "string",
-      "port": 0,
-      "username": "string",
-      "password": "string",
-      "privateKey": "string",
-      "passphrase": "string",
-      "certificate": "string",
-      "authType": "string",
-      "profile": "string"
-    }
-  ],
-  "runScripts": [
-    { "delay": 0, "script": "string" }
-  ],
-  "quickCommands": [
-    { "name": "string", "command": "string" }
-  ]
-}`
-
 const workflowExample = `[
   {
-    "name": "Step 1: Connect to SSH",
+    "name": "Connect SSH",
     "action": "connect",
-    "host": "192.168.1.100",
-    "port": 22,
-    "username": "root",
-    "authType": "password",
-    "password": "your_password",
-    "enableSftp": true
+    "params": {
+      "host": "192.168.1.100",
+      "port": 22,
+      "username": "root",
+      "authType": "password",
+      "password": "your_password",
+      "enableSftp": true
+    }
   },
   {
-    "name": "Step 2: Run command",
+    "name": "Create test file",
     "action": "command",
-    "command": "ls -la /tmp"
+    "afterDelay": 500,
+    "params": {
+      "command": "echo 'hello batch-op' > /tmp/batch_test.txt && echo '[LOG] File created'"
+    }
   },
   {
-    "name": "Step 3: Wait 2 seconds",
-    "action": "delay",
-    "duration": 2000
-  },
-  {
-    "name": "Step 4: Download file",
+    "name": "Download test file",
     "action": "sftp_download",
-    "remotePath": "/remote/result.log",
-    "localPath": "/local/result.log"
+    "afterDelay": 200,
+    "params": {
+      "remotePath": "/tmp/batch_test.txt",
+      "localPath": "/tmp/batch_test_local.txt"
+    }
   },
   {
-    "name": "Step 5: Run command after transfer",
+    "name": "Upload file back",
+    "action": "sftp_upload",
+    "afterDelay": 200,
+    "params": {
+      "localPath": "/tmp/batch_test_local.txt",
+      "remotePath": "/tmp/batch_test_uploaded.txt"
+    }
+  },
+  {
+    "name": "Verify and clean up",
     "action": "command",
-    "command": "cat /remote/result.log"
+    "params": {
+      "command": "ls -la /tmp/batch_test*.txt && rm -f /tmp/batch_test*.txt && echo '[LOG] Done'"
+    }
   }
 ]`
-
-const batchOpWikiLink = 'https://github.com/electerm/electerm/wiki/batch-operation'
-
-const stepsExample = `[
-  { "action": "connect", "host": "...", "username": "...", "password": "..." },
-  { "action": "command", "command": "ls -la" },
-  { "action": "delay", "duration": 2000 },
-  { "action": "sftp_upload", "localPath": "...", "remotePath": "..." },
-  { "action": "sftp_download", "remotePath": "...", "localPath": "..." }
-]`
-
-const actionTypes = 'connect, command, sftp_upload, sftp_download, zmodem_upload, zmodem_download, delay'
 
 function getDefaultValue (widget) {
   if (widget?.info?.configs) {
@@ -127,7 +74,6 @@ function getDefaultValue (widget) {
 export default function BatchOpEditor ({ widget }) {
   const [value, setValue] = useState(() => getDefaultValue(widget))
   const [executing, setExecuting] = useState(false)
-  const [showFullAuth, setShowFullAuth] = useState(false)
 
   useEffect(() => {
     const v = getDefaultValue(widget)
@@ -214,47 +160,9 @@ export default function BatchOpEditor ({ widget }) {
     setValue(e.target.value)
   }
 
-  const title = (
-    <>
-      Workflow JSON
-      <HelpIcon link={batchOpWikiLink} />
-    </>
-  )
-
-  const authDesc = (
-    <div>
-      <div>Auth reference: <code>host, port, username, authType, password, privateKey, passphrase, certificate, profile</code></div>
-      {!showFullAuth && (
-        <Button onClick={() => setShowFullAuth(true)} className='mg1y'>Read more</Button>
-      )}
-      {showFullAuth && (
-        <div className='mg1t'>
-          <pre><code>{sshTemplate}</code></pre>
-          <Button onClick={() => setShowFullAuth(false)} className='mg1y'>Show less</Button>
-        </div>
-      )}
-    </div>
-  )
-
-  const desc = (
-    <div>
-      <div>Steps: <code>{actionTypes}</code></div>
-      <div className='mg1t'>
-        <pre><code>{stepsExample}</code></pre>
-      </div>
-      {authDesc}
-    </div>
-  )
-
   return (
     <div className='batch-op-editor'>
-      <Alert
-        title={title}
-        description={desc}
-        type='info'
-        showIcon
-        className='mg1b'
-      />
+      <BatchOpAlert />
       <Flex className='mg2y' gap='small'>
         <Button onClick={handleTemplate} type='dashed'>
           Load Template

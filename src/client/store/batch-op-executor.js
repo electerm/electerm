@@ -73,43 +73,45 @@ export default Store => {
   // Execute a single workflow step
   Store.prototype.executeBatchStep = async function (step, previousResults) {
     const { store } = window
-    const { action, delay } = step
+    const { action, prevDelay, afterDelay } = step
 
     if (!action) {
       throw new Error('Step must have an "action" field')
     }
 
+    if (prevDelay > 0) {
+      await new Promise(resolve => setTimeout(resolve, prevDelay))
+    }
+
+    // Merge params into step so all handlers receive flat args (backward compatible)
+    const s = step.params ? { ...step, ...step.params } : step
+
     let result
     switch (action) {
       case 'connect':
-        result = await store.batchStepConnect(step, previousResults)
+        result = await store.batchStepConnect(s, previousResults)
         break
       case 'command':
-        result = await store.batchStepCommand(step, previousResults)
+        result = await store.batchStepCommand(s, previousResults)
         break
       case 'sftp_upload':
-        result = await store.batchStepSftpUpload(step, previousResults)
+        result = await store.batchStepSftpUpload(s, previousResults)
         break
       case 'sftp_download':
-        result = await store.batchStepSftpDownload(step, previousResults)
+        result = await store.batchStepSftpDownload(s, previousResults)
         break
       case 'zmodem_upload':
-        result = await store.batchStepZmodemUpload(step, previousResults)
+        result = await store.batchStepZmodemUpload(s, previousResults)
         break
       case 'zmodem_download':
-        result = await store.batchStepZmodemDownload(step, previousResults)
-        break
-      case 'delay':
-      case 'wait':
-        result = await store.batchStepDelay(step, previousResults)
+        result = await store.batchStepZmodemDownload(s, previousResults)
         break
       default:
         throw new Error(`Unknown action: ${action}`)
     }
 
-    // Support post-step delay field (ms) on any non-delay action
-    if (delay && typeof delay === 'number' && delay > 0 && action !== 'delay' && action !== 'wait') {
-      await new Promise(resolve => setTimeout(resolve, delay))
+    if (afterDelay > 0) {
+      await new Promise(resolve => setTimeout(resolve, afterDelay))
     }
 
     return result
@@ -118,36 +120,37 @@ export default Store => {
   // Connect to SSH host
   Store.prototype.batchStepConnect = async function (step) {
     const { store } = window
+    const p = step.params || step
 
     // Create tab directly (without adding to bookmarks)
     const tab = {
       id: uid(),
       type: 'ssh',
-      host: step.host || '',
-      port: step.port || 22,
-      username: step.username || '',
-      password: step.password || '',
-      privateKey: step.privateKey || '',
-      passphrase: step.passphrase || '',
-      certificate: step.certificate || '',
-      authType: step.authType || 'password',
-      profile: step.profile || '',
-      enableSftp: step.enableSftp !== false,
-      enableSsh: step.enableSsh !== false,
-      useSshAgent: step.useSshAgent !== false,
-      sshAgent: step.sshAgent || '',
-      term: step.term || 'xterm-256color',
-      encode: step.encode || 'utf8',
-      envLang: step.envLang || 'en_US.UTF-8',
-      setEnv: step.setEnv || '',
-      startDirectoryRemote: step.startDirectoryRemote || '',
-      startDirectoryLocal: step.startDirectoryLocal || '',
-      proxy: step.proxy || '',
-      x11: step.x11 || false,
-      displayRaw: step.displayRaw || false,
-      sshTunnels: step.sshTunnels || [],
-      connectionHoppings: step.connectionHoppings || [],
-      title: step.name || `SSH: ${step.host}`,
+      host: p.host || '',
+      port: p.port || 22,
+      username: p.username || '',
+      password: p.password || '',
+      privateKey: p.privateKey || '',
+      passphrase: p.passphrase || '',
+      certificate: p.certificate || '',
+      authType: p.authType || 'password',
+      profile: p.profile || '',
+      enableSftp: p.enableSftp !== false,
+      enableSsh: p.enableSsh !== false,
+      useSshAgent: p.useSshAgent !== false,
+      sshAgent: p.sshAgent || '',
+      term: p.term || 'xterm-256color',
+      encode: p.encode || 'utf8',
+      envLang: p.envLang || 'en_US.UTF-8',
+      setEnv: p.setEnv || '',
+      startDirectoryRemote: p.startDirectoryRemote || '',
+      startDirectoryLocal: p.startDirectoryLocal || '',
+      proxy: p.proxy || '',
+      x11: p.x11 || false,
+      displayRaw: p.displayRaw || false,
+      sshTunnels: p.sshTunnels || [],
+      connectionHoppings: p.connectionHoppings || [],
+      title: step.name || `SSH: ${p.host}`,
       status: 'processing',
       pane: 'terminal',
       batch: store.batch
@@ -162,8 +165,8 @@ export default Store => {
     return {
       success: true,
       action: 'connect',
-      host: step.host,
-      port: step.port,
+      host: p.host,
+      port: p.port,
       tabId: tab.id
     }
   }
@@ -288,16 +291,5 @@ export default Store => {
   // Zmodem download — delegates to mcpZmodemDownload (same field names)
   Store.prototype.batchStepZmodemDownload = async function (step) {
     return window.store.mcpZmodemDownload(step)
-  }
-
-  // Delay step
-  Store.prototype.batchStepDelay = async function (step) {
-    const duration = step.duration || 1000
-    await new Promise(resolve => setTimeout(resolve, duration))
-    return {
-      success: true,
-      action: 'delay',
-      duration
-    }
   }
 }
