@@ -73,30 +73,46 @@ export default Store => {
   // Execute a single workflow step
   Store.prototype.executeBatchStep = async function (step, previousResults) {
     const { store } = window
-    const { action } = step
+    const { action, delay } = step
 
     if (!action) {
       throw new Error('Step must have an "action" field')
     }
 
+    let result
     switch (action) {
       case 'connect':
-        return store.batchStepConnect(step, previousResults)
+        result = await store.batchStepConnect(step, previousResults)
+        break
       case 'command':
-        return store.batchStepCommand(step, previousResults)
+        result = await store.batchStepCommand(step, previousResults)
+        break
       case 'sftp_upload':
-        return store.batchStepSftpUpload(step, previousResults)
+        result = await store.batchStepSftpUpload(step, previousResults)
+        break
       case 'sftp_download':
-        return store.batchStepSftpDownload(step, previousResults)
+        result = await store.batchStepSftpDownload(step, previousResults)
+        break
       case 'zmodem_upload':
-        return store.batchStepZmodemUpload(step, previousResults)
+        result = await store.batchStepZmodemUpload(step, previousResults)
+        break
       case 'zmodem_download':
-        return store.batchStepZmodemDownload(step, previousResults)
+        result = await store.batchStepZmodemDownload(step, previousResults)
+        break
+      case 'delay':
       case 'wait':
-        return store.batchStepWait(step, previousResults)
+        result = await store.batchStepDelay(step, previousResults)
+        break
       default:
         throw new Error(`Unknown action: ${action}`)
     }
+
+    // Support post-step delay field (ms) on any non-delay action
+    if (delay && typeof delay === 'number' && delay > 0 && action !== 'delay' && action !== 'wait') {
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
+
+    return result
   }
 
   // Connect to SSH host
@@ -197,14 +213,18 @@ export default Store => {
       throw new Error('Terminal not found')
     }
 
+    // Wait for attachAddon to be ready (initialized asynchronously after connect)
+    let waited = 0
+    while (!term.attachAddon && waited < 10000) {
+      await new Promise(resolve => setTimeout(resolve, 200))
+      waited += 200
+    }
+    if (!term.attachAddon) {
+      throw new Error('Terminal not ready: attach addon not initialized')
+    }
+
     // Send command
     term.runQuickCommand(step.command)
-
-    // Wait if requested
-    if (step.wait) {
-      const waitTime = typeof step.wait === 'number' ? step.wait : 2000
-      await new Promise(resolve => setTimeout(resolve, waitTime))
-    }
 
     return {
       success: true,
@@ -214,191 +234,69 @@ export default Store => {
     }
   }
 
-  // SFTP upload
-  Store.prototype.batchStepSftpUpload = async function (step, previousResults) {
-    const { store } = window
-    const tabId = step.tabId || store.activeTabId
+  // Wait for a transfer to finish by watching transferHistory with autoRun
+  Store.prototype.batchWaitForTransfer = function (transferId) {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        if (this._refTransferWait) {
+          this._refTransferWait.stop()
+          delete this._refTransferWait
+        }
+        reject(new Error('Transfer timeout (1 hour)'))
+      }, 60 * 60 * 1000)
 
-    if (!tabId) {
-      throw new Error('No active tab. Please connect first.')
-    }
-
-    // Get tab info
-    const tab = store.tabs.find(t => t.id === tabId)
-    if (!tab) {
-      throw new Error('Tab not found')
-    }
-
-    // Create transfer item
-    const transferItem = {
-      host: tab.host,
-      tabType: tab.type || 'ssh',
-      typeFrom: 'local',
-      typeTo: 'remote',
-      fromPath: step.localPath,
-      toPath: step.remotePath,
-      fromFile: {
-        host: tab.host,
-        tabType: tab.type || 'ssh',
-        tabId,
-        title: tab.title
-      },
-      id: uid(),
-      title: tab.title,
-      tabId,
-      operation: ''
-    }
-
-    store.addTransferList([transferItem])
-
-    return {
-      success: true,
-      action: 'sftp_upload',
-      localPath: step.localPath,
-      remotePath: step.remotePath,
-      transferId: transferItem.id,
-      tabId
-    }
+      this._refTransferWait = autoRun(() => {
+        const { transferHistory } = window.store
+        const item = transferHistory.find(t => t.id === transferId || t.originalId === transferId)
+        if (item) {
+          clearTimeout(timeout)
+          this._refTransferWait && this._refTransferWait.stop()
+          delete this._refTransferWait
+          if (item.error) {
+            reject(new Error('Transfer failed: ' + item.error))
+          } else {
+            resolve(item)
+          }
+        }
+        return transferHistory
+      })
+      this._refTransferWait.start()
+    })
   }
 
-  // SFTP download
-  Store.prototype.batchStepSftpDownload = async function (step, previousResults) {
+  // SFTP upload — delegates to mcpSftpUpload (handles getLocalFileInfo enrichment)
+  Store.prototype.batchStepSftpUpload = async function (step) {
     const { store } = window
-    const tabId = step.tabId || store.activeTabId
-
-    if (!tabId) {
-      throw new Error('No active tab. Please connect first.')
-    }
-
-    // Get tab info
-    const tab = store.tabs.find(t => t.id === tabId)
-    if (!tab) {
-      throw new Error('Tab not found')
-    }
-
-    // Get SFTP ref
-    const sftpEntry = refs.get('sftp-' + tabId)
-    if (!sftpEntry || !sftpEntry.sftp) {
-      throw new Error('SFTP not initialized. Please open SFTP panel first.')
-    }
-
-    // Create transfer item
-    const transferItem = {
-      host: tab.host,
-      tabType: tab.type || 'ssh',
-      typeFrom: 'remote',
-      typeTo: 'local',
-      fromPath: step.remotePath,
-      toPath: step.localPath,
-      fromFile: {
-        host: tab.host,
-        tabType: tab.type || 'ssh',
-        tabId,
-        title: tab.title
-      },
-      id: uid(),
-      title: tab.title,
-      tabId
-    }
-
-    store.addTransferList([transferItem])
-
-    return {
-      success: true,
-      action: 'sftp_download',
-      remotePath: step.remotePath,
-      localPath: step.localPath,
-      transferId: transferItem.id,
-      tabId
-    }
+    const { transferId, tabId } = await store.mcpSftpUpload(step)
+    await store.batchWaitForTransfer(transferId)
+    return { success: true, action: 'sftp_upload', localPath: step.localPath, remotePath: step.remotePath, transferId, tabId }
   }
 
-  // Zmodem upload (trzsz/rzsz)
-  Store.prototype.batchStepZmodemUpload = async function (step, previousResults) {
+  // SFTP download — delegates to mcpSftpDownload (handles getRemoteFileInfo enrichment)
+  Store.prototype.batchStepSftpDownload = async function (step) {
     const { store } = window
-    const tabId = step.tabId || store.activeTabId
-
-    if (!tabId) {
-      throw new Error('No active tab. Please connect first.')
-    }
-
-    const files = step.files || []
-    if (!files.length) {
-      throw new Error('No files specified for upload')
-    }
-
-    const protocol = step.protocol || 'rzsz'
-    const uploadCmd = protocol === 'trzsz' ? 'trz' : 'rz'
-
-    // Set the control variable to bypass native file dialog
-    window._apiControlSelectFile = files
-
-    const term = refs.get('term-' + tabId)
-    if (!term) {
-      throw new Error('Terminal not found')
-    }
-    term.runQuickCommand(uploadCmd)
-
-    return {
-      success: true,
-      action: 'zmodem_upload',
-      protocol,
-      command: uploadCmd,
-      files,
-      tabId
-    }
+    const { transferId, tabId } = await store.mcpSftpDownload(step)
+    await store.batchWaitForTransfer(transferId)
+    return { success: true, action: 'sftp_download', remotePath: step.remotePath, localPath: step.localPath, transferId, tabId }
   }
 
-  // Zmodem download (trzsz/rzsz)
-  Store.prototype.batchStepZmodemDownload = async function (step, previousResults) {
-    const { store } = window
-    const tabId = step.tabId || store.activeTabId
-
-    if (!tabId) {
-      throw new Error('No active tab. Please connect first.')
-    }
-
-    const saveFolder = step.saveFolder
-    if (!saveFolder) {
-      throw new Error('saveFolder is required')
-    }
-
-    const remoteFiles = step.remoteFiles || []
-    if (!remoteFiles.length) {
-      throw new Error('No remote files specified')
-    }
-
-    const protocol = step.protocol || 'rzsz'
-    const downloadCmd = protocol === 'trzsz' ? 'tsz' : 'sz'
-
-    // Set the control variable to bypass native folder dialog
-    window._apiControlSelectFolder = saveFolder
-
-    const term = refs.get('term-' + tabId)
-    if (!term) {
-      throw new Error('Terminal not found')
-    }
-    const quotedFiles = remoteFiles.map(f => `"${f}"`).join(' ')
-    term.runQuickCommand(`${downloadCmd} ${quotedFiles}`)
-
-    return {
-      success: true,
-      action: 'zmodem_download',
-      protocol,
-      command: downloadCmd,
-      remoteFiles,
-      saveFolder,
-      tabId
-    }
+  // Zmodem upload — delegates to mcpZmodemUpload (same field names)
+  Store.prototype.batchStepZmodemUpload = async function (step) {
+    return window.store.mcpZmodemUpload(step)
   }
 
-  // Wait step
-  Store.prototype.batchStepWait = async function (step) {
+  // Zmodem download — delegates to mcpZmodemDownload (same field names)
+  Store.prototype.batchStepZmodemDownload = async function (step) {
+    return window.store.mcpZmodemDownload(step)
+  }
+
+  // Delay step
+  Store.prototype.batchStepDelay = async function (step) {
     const duration = step.duration || 1000
     await new Promise(resolve => setTimeout(resolve, duration))
     return {
       success: true,
-      action: 'wait',
+      action: 'delay',
       duration
     }
   }

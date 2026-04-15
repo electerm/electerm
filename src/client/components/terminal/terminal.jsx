@@ -378,11 +378,10 @@ class Term extends Component {
   }
 
   runQuickCommand = (cmd, inputOnly = false) => {
-    this.term && this.attachAddon._sendData(
-      cmd +
-      (inputOnly ? '' : '\r')
-    )
-    this.term.focus()
+    if (this.term && this.attachAddon) {
+      this.attachAddon._sendData(cmd + (inputOnly ? '' : '\r'))
+      this.term.focus()
+    }
   }
 
   cd = (p) => {
