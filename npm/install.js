@@ -207,15 +207,23 @@ async function runLinux (folderName, filePattern) {
 }
 
 async function runWin (archName) {
+  console.log('  [DEBUG] runWin started')
+  console.log(`  [DEBUG] packageRoot: ${packageRoot}`)
+  console.log(`  [DEBUG] extractDir: ${extractDir}`)
+
   const rawVer = await getVer()
   const ver = sanitizeVersion(rawVer)
 
-  console.log(`  Version: ${ver}`)
+  console.log(`  [DEBUG] Raw version from server: ${rawVer}`)
+  console.log(`  Sanitized version: ${ver}`)
   console.log(`  Target: win-${archName}`)
 
   const target = join(packageRoot, `electerm-${ver}-win-${archName}`)
+  console.log(`  [DEBUG] Target folder: ${target}`)
 
+  console.log('  Cleaning old installations...')
   rm('-rf', [target, extractDir])
+  console.log('  [DEBUG] Old installations cleaned')
 
   const pattern = new RegExp(`electerm-\\d+\\.\\d+\\.\\d+-win-${archName}\\.tar\\.gz$`)
   console.log('  Fetching release info...')
@@ -223,72 +231,168 @@ async function runWin (archName) {
   if (!releaseInfo) {
     throw new Error(`No release found for Windows ${archName}`)
   }
+  console.log(`  [DEBUG] Release info found: ${JSON.stringify(releaseInfo, null, 2)}`)
 
-  // Extract to temp, then move
   const tmpDir = join(packageRoot, '.electerm-tmp')
+  console.log(`  [DEBUG] Creating temp directory: ${tmpDir}`)
   rm('-rf', tmpDir)
   fs.mkdirSync(tmpDir, { recursive: true })
 
   const proxyUrl = applyProxy(releaseInfo.browser_download_url)
-  console.log(`  URL: ${proxyUrl}`)
+  console.log(`  [DEBUG] Proxy URL: ${proxyUrl}`)
+  console.log(`  [DEBUG] Download URL: ${releaseInfo.browser_download_url}`)
 
+  console.log('  Downloading...')
   const { filepath } = await download(releaseInfo.browser_download_url, tmpDir, { extract: false, displayName: releaseInfo.name })
+  console.log(`  [DEBUG] Downloaded to: ${filepath}`)
+  console.log(`  [DEBUG] File exists: ${fs.existsSync(filepath)}`)
+  console.log(`  [DEBUG] File size: ${fs.statSync(filepath).size}`)
 
+  console.log('  Extracting...')
   await extractTarGz(filepath, tmpDir)
+  console.log('  [DEBUG] Extraction complete')
 
+  console.log('  [DEBUG] Listing temp directory contents:')
   const entries = fs.readdirSync(tmpDir)
+  entries.forEach(e => {
+    const fullPath = join(tmpDir, e)
+    const stat = fs.statSync(fullPath)
+    console.log(`    [DEBUG] ${e} - ${stat.isDirectory() ? 'DIR' : 'FILE'} (${stat.size} bytes)`)
+  })
+
   const extractedFolder = entries.find(e => fs.statSync(join(tmpDir, e)).isDirectory())
 
   if (!extractedFolder) {
+    console.error('  [DEBUG] No directory found in extracted archive')
+    console.error('  [DEBUG] All entries:', entries)
     throw new Error('No folder found in extracted archive')
   }
 
+  console.log(`  [DEBUG] Extracted folder: ${extractedFolder}`)
+  console.log('  [DEBUG] Contents of extracted folder:')
+  const extractedContents = fs.readdirSync(join(tmpDir, extractedFolder))
+  extractedContents.forEach(e => {
+    const fullPath = join(tmpDir, extractedFolder, e)
+    const stat = fs.statSync(fullPath)
+    console.log(`    [DEBUG] ${e} - ${stat.isDirectory() ? 'DIR' : 'FILE'} (${stat.size} bytes)`)
+  })
+
   console.log(`  Installing to: ${extractDir}`)
-  mv(join(tmpDir, extractedFolder), extractDir)
+  fs.renameSync(join(tmpDir, extractedFolder), extractDir)
+  console.log('  [DEBUG] Renamed folder to extractDir')
+
+  console.log('  [DEBUG] Verifying extractDir contents:')
+  const installContents = fs.readdirSync(extractDir)
+  installContents.forEach(e => {
+    const fullPath = join(extractDir, e)
+    const stat = fs.statSync(fullPath)
+    console.log(`    [DEBUG] ${e} - ${stat.isDirectory() ? 'DIR' : 'FILE'} (${stat.size} bytes)`)
+  })
+
   rm('-rf', tmpDir)
+  console.log('  [DEBUG] Temp directory cleaned')
+
+  const exePath = getElectermExePath()
+  console.log(`  [DEBUG] Expected exe path: ${exePath}`)
+  console.log(`  [DEBUG] Exe exists: ${fs.existsSync(exePath)}`)
+  if (!fs.existsSync(exePath)) {
+    throw new Error(`electerm.exe not found at ${exePath} after extraction. Archive may have an unexpected structure.`)
+  }
 
   showFinalMessage()
 }
 
 async function runWin7 () {
+  console.log('  [DEBUG] runWin7 started')
+  console.log(`  [DEBUG] packageRoot: ${packageRoot}`)
+  console.log(`  [DEBUG] extractDir: ${extractDir}`)
+
   const rawVer = await getVer()
   const ver = sanitizeVersion(rawVer)
 
-  console.log(`  Version: ${ver}`)
+  console.log(`  [DEBUG] Raw version from server: ${rawVer}`)
+  console.log(`  Sanitized version: ${ver}`)
   console.log('  Target: win7')
 
   const target = join(packageRoot, `electerm-${ver}-win7`)
+  console.log(`  [DEBUG] Target folder: ${target}`)
 
+  console.log('  Cleaning old installations...')
   rm('-rf', [target, extractDir])
+  console.log('  [DEBUG] Old installations cleaned')
 
   console.log('  Fetching release info...')
   const releaseInfo = await getReleaseInfo(r => /electerm-\d+\.\d+\.\d+-win7\.tar\.gz$/.test(r.name))
   if (!releaseInfo) {
     throw new Error('No release found for Windows 7')
   }
+  console.log(`  [DEBUG] Release info found: ${JSON.stringify(releaseInfo, null, 2)}`)
 
-  // Extract to temp, then move
   const tmpDir = join(packageRoot, '.electerm-tmp')
+  console.log(`  [DEBUG] Creating temp directory: ${tmpDir}`)
   rm('-rf', tmpDir)
   fs.mkdirSync(tmpDir, { recursive: true })
 
   const proxyUrl = applyProxy(releaseInfo.browser_download_url)
-  console.log(`  URL: ${proxyUrl}`)
+  console.log(`  [DEBUG] Proxy URL: ${proxyUrl}`)
+  console.log(`  [DEBUG] Download URL: ${releaseInfo.browser_download_url}`)
 
+  console.log('  Downloading...')
   const { filepath } = await download(releaseInfo.browser_download_url, tmpDir, { extract: false, displayName: releaseInfo.name })
+  console.log(`  [DEBUG] Downloaded to: ${filepath}`)
+  console.log(`  [DEBUG] File exists: ${fs.existsSync(filepath)}`)
+  console.log(`  [DEBUG] File size: ${fs.statSync(filepath).size}`)
 
+  console.log('  Extracting...')
   await extractTarGz(filepath, tmpDir)
+  console.log('  [DEBUG] Extraction complete')
 
+  console.log('  [DEBUG] Listing temp directory contents:')
   const entries = fs.readdirSync(tmpDir)
+  entries.forEach(e => {
+    const fullPath = join(tmpDir, e)
+    const stat = fs.statSync(fullPath)
+    console.log(`    [DEBUG] ${e} - ${stat.isDirectory() ? 'DIR' : 'FILE'} (${stat.size} bytes)`)
+  })
+
   const extractedFolder = entries.find(e => fs.statSync(join(tmpDir, e)).isDirectory())
 
   if (!extractedFolder) {
+    console.error('  [DEBUG] No directory found in extracted archive')
+    console.error('  [DEBUG] All entries:', entries)
     throw new Error('No folder found in extracted archive')
   }
 
+  console.log(`  [DEBUG] Extracted folder: ${extractedFolder}`)
+  console.log('  [DEBUG] Contents of extracted folder:')
+  const extractedContents = fs.readdirSync(join(tmpDir, extractedFolder))
+  extractedContents.forEach(e => {
+    const fullPath = join(tmpDir, extractedFolder, e)
+    const stat = fs.statSync(fullPath)
+    console.log(`    [DEBUG] ${e} - ${stat.isDirectory() ? 'DIR' : 'FILE'} (${stat.size} bytes)`)
+  })
+
   console.log(`  Installing to: ${extractDir}`)
-  mv(join(tmpDir, extractedFolder), extractDir)
+  fs.renameSync(join(tmpDir, extractedFolder), extractDir)
+  console.log('  [DEBUG] Renamed folder to extractDir')
+
+  console.log('  [DEBUG] Verifying extractDir contents:')
+  const installContents = fs.readdirSync(extractDir)
+  installContents.forEach(e => {
+    const fullPath = join(extractDir, e)
+    const stat = fs.statSync(fullPath)
+    console.log(`    [DEBUG] ${e} - ${stat.isDirectory() ? 'DIR' : 'FILE'} (${stat.size} bytes)`)
+  })
+
   rm('-rf', tmpDir)
+  console.log('  [DEBUG] Temp directory cleaned')
+
+  const exePath = getElectermExePath()
+  console.log(`  [DEBUG] Expected exe path: ${exePath}`)
+  console.log(`  [DEBUG] Exe exists: ${fs.existsSync(exePath)}`)
+  if (!fs.existsSync(exePath)) {
+    throw new Error(`electerm.exe not found at ${exePath} after extraction. Archive may have an unexpected structure.`)
+  }
 
   showFinalMessage()
 }
