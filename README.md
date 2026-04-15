@@ -90,9 +90,6 @@ Check [https://electerm-repos.html5beta.com/deb](https://electerm-repos.html5bet
 ```bash
 npm i -g electerm
 
-# After installation, it will immediately open for windows and linux,
-# For macOS, it will open the drag to install panel
-
 ```
 
 ## Upgrade
