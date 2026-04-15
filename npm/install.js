@@ -191,6 +191,15 @@ async function runLinux (folderName, filePattern) {
   console.log(`  Installing to: ${extractDir}`)
   mv(join(tmpDir, extractedFolder), extractDir)
 
+  // Fix chrome-sandbox permissions on Linux (Electron requires specific permissions)
+  if (plat === 'linux') {
+    const chromeSandboxPath = join(extractDir, 'chrome-sandbox')
+    if (fs.existsSync(chromeSandboxPath)) {
+      console.log('  Fixing chrome-sandbox permissions...')
+      fs.chmodSync(chromeSandboxPath, 0o4755)
+    }
+  }
+
   // Clean up temp files
   rm('-rf', tmpDir)
 

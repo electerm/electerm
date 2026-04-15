@@ -18,56 +18,37 @@ const os = require('os')
 const plat = os.platform()
 const packageRoot = path.resolve(__dirname, '..')
 
-/**
- * Get the path to the installed electerm binary
- */
 function getElectermExePath () {
-  // macOS: prefer the installed app in /Applications
   if (plat === 'darwin') {
     const appBinary = '/Applications/electerm.app/Contents/MacOS/electerm'
     if (fs.existsSync(appBinary)) {
       return appBinary
     }
-    // Fallback: extracted folder
     return path.join(packageRoot, 'electerm', 'electerm')
   }
 
-  // Windows
   if (plat === 'win32') {
     return path.join(packageRoot, 'electerm', 'electerm.exe')
   }
 
-  // Linux
   return path.join(packageRoot, 'electerm', 'electerm')
 }
 
-/**
- * Check if the electerm binary exists
- */
-function isElectermInstalled () {
-  return fs.existsSync(getElectermExePath())
-}
-
-/**
- * Launch the installed electerm binary
- */
 function launchElecterm () {
   const exePath = getElectermExePath()
 
   if (!fs.existsSync(exePath)) {
-    console.error('Error: electerm binary not found at:', exePath)
+    console.error('electerm binary not found at:', exePath)
     console.error('')
-    console.error('The binary may not have been installed. Try running:')
+    console.error('The binary may not have been installed properly.')
+    console.error('Try running manually:')
     console.error('  node', path.join(packageRoot, 'npm', 'install.js'))
     process.exit(1)
   }
 
-  // Spawn the binary, passing through all args
   const child = spawn(exePath, process.argv.slice(2), {
     stdio: 'inherit',
-    // On macOS/Linux, detach so the app survives if the terminal closes
     detached: plat !== 'win32',
-    // On Windows, don't create a console window for the spawn
     windowsHide: false
   })
 
@@ -85,16 +66,8 @@ function launchElecterm () {
   })
 }
 
-// ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
-
-if (!isElectermInstalled()) {
-  console.error('electerm binary not found. It should have been installed during npm install.')
-  console.error('')
-  console.error('Try running manually:')
-  console.error('  node', path.join(packageRoot, 'npm', 'install.js'))
-  process.exit(1)
+if (require.main === module) {
+  launchElecterm()
 }
 
-launchElecterm()
+module.exports = { launchElecterm }
