@@ -192,11 +192,15 @@ async function runLinux (folderName, filePattern) {
   mv(join(tmpDir, extractedFolder), extractDir)
 
   // Fix chrome-sandbox permissions on Linux (Electron requires specific permissions)
+  // Note: setting the setuid bit requires root ownership, which npm install cannot provide.
+  // The launcher handles this by passing --no-sandbox when the sandbox is not root-owned.
   if (plat === 'linux') {
     const chromeSandboxPath = join(extractDir, 'chrome-sandbox')
     if (fs.existsSync(chromeSandboxPath)) {
-      console.log('  Fixing chrome-sandbox permissions...')
-      fs.chmodSync(chromeSandboxPath, 0o4755)
+      console.log('  Note: To enable the Electron sandbox, run:')
+      console.log(`    sudo chown root:root "${chromeSandboxPath}"`)
+      console.log(`    sudo chmod 4755 "${chromeSandboxPath}"`)
+      console.log('  Otherwise, electerm will launch with --no-sandbox automatically.')
     }
   }
 

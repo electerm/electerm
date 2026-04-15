@@ -34,6 +34,21 @@ function getElectermExePath () {
   return path.join(packageRoot, 'electerm', 'electerm')
 }
 
+function isSandboxReady () {
+  // chrome-sandbox must be owned by root (uid 0) and have setuid bit set (mode 4755)
+  // This requires root during install, which npm global install does not provide.
+  try {
+    const sandboxPath = path.join(packageRoot, 'electerm', 'chrome-sandbox')
+    if (!fs.existsSync(sandboxPath)) return false
+    const stat = fs.statSync(sandboxPath)
+    const hasSetuid = (stat.mode & 0o4000) !== 0
+    const ownedByRoot = stat.uid === 0
+    return hasSetuid && ownedByRoot
+  } catch (e) {
+    return false
+  }
+}
+
 function launchElecterm () {
   const exePath = getElectermExePath()
 
@@ -46,7 +61,12 @@ function launchElecterm () {
     process.exit(1)
   }
 
-  const child = spawn(exePath, process.argv.slice(2), {
+  const extraArgs = []
+  if (plat === 'linux' && !isSandboxReady()) {
+    extraArgs.push('--no-sandbox')
+  }
+
+  const child = spawn(exePath, [...extraArgs, ...process.argv.slice(2)], {
     stdio: 'inherit',
     detached: plat !== 'win32',
     windowsHide: false
