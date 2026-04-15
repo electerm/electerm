@@ -21,6 +21,9 @@ function formatTimeAuto (strOrDigit) {
   if (isString(strOrDigit)) {
     return formatTime(strOrDigit)
   }
+  if (strOrDigit > 9999999999) {
+    return formatTime(strOrDigit)
+  }
   return formatTime(strOrDigit * 1000)
 }
 
