@@ -1,12 +1,19 @@
 /**
  * install electerm from binary
+ * After npm i -g electerm, running `electerm` command will:
+ * 1. Download the appropriate binary for the platform
+ * 2. Extract it to the package directory (electerm/)
+ * 3. The bash script (npm/electerm) then launches the extracted binary
+ *
+ * This script only downloads and extracts. Launching is handled by the bash script.
  */
 
 const os = require('os')
-const { resolve } = require('path')
-const { exec, rm, mv } = require('shelljs')
+const { resolve, join } = require('path')
+const { execSync, rm, mv } = require('shelljs')
 const { execFile } = require('child_process')
-const { phin, download } = require('./utils')
+const fs = require('fs')
+const { phin, download, extractTarGz, GITHUB_PROXY, applyProxy } = require('./utils')
 
 const plat = os.platform()
 const arch = os.arch()
@@ -15,13 +22,15 @@ const { homepage } = require('../package.json')
 const releaseInfoUrl = `${homepage}/data/electerm-github-release.json?_=${+new Date()}`
 const versionUrl = `${homepage}/version.html?_=${+new Date()}`
 
+// Directory where electerm package is installed
+const packageRoot = resolve(__dirname, '..')
+// Directory where the extracted binary will live
+const extractDir = join(packageRoot, 'electerm')
+
 // ---------------------------------------------------------------------------
 // Security helpers
 // ---------------------------------------------------------------------------
 
-/**
- * Validate that a version string is a plain semver (e.g. "1.2.3" or "v1.2.3").
- */
 function sanitizeVersion (ver) {
   const clean = String(ver).trim().replace(/^v/, '')
   if (!/^\d+\.\d+\.\d+$/.test(clean)) {
@@ -32,9 +41,6 @@ function sanitizeVersion (ver) {
   return clean
 }
 
-/**
- * Validate that a release asset filename contains only safe characters.
- */
 function sanitizeFilename (name) {
   const clean = String(name).trim()
   if (!/^[\w.-]+$/.test(clean)) {
@@ -48,14 +54,6 @@ function sanitizeFilename (name) {
 // ---------------------------------------------------------------------------
 // Core helpers
 // ---------------------------------------------------------------------------
-
-function down (url, extract = true) {
-  const local = resolve(__dirname, '../')
-  console.log('downloading ' + url)
-  return download(url, local, { extract }).then(() => {
-    console.log('done!')
-  })
-}
 
 function getVer () {
   return phin({
@@ -79,50 +77,42 @@ function getReleaseInfo (filter) {
 }
 
 function showFinalMessage () {
-  console.log('\n========================================')
+  console.log('')
+  console.log('========================================')
   console.log('electerm installation complete!')
   console.log('========================================')
-  console.log('\nFor more information, documentation, and updates, please visit:')
-  console.log('\x1b[36m%s\x1b[0m', 'https://electerm.html5beta.com')
-  console.log('\nThank you for using electerm!')
-  console.log('========================================\n')
+  console.log('')
+  console.log('For more information, documentation, and updates, please visit:')
+  console.log('https://electerm.html5beta.com')
+  console.log('')
+  console.log('Thank you for using electerm!')
+  console.log('========================================')
+  console.log('')
 }
 
 // ---------------------------------------------------------------------------
 // Platform detection helpers
 // ---------------------------------------------------------------------------
 
-// Check if running on Windows 7 or earlier
 function isWindows7OrEarlier (platform, release) {
   if (platform !== 'win32') return false
-  // Windows 7 is NT 6.1, Windows 8 is NT 6.2, Windows 10 is NT 10.0
   const [major, minor] = release.split('.').map(Number)
   return major < 10 && (major < 6 || (major === 6 && minor <= 1))
 }
 
-// Check if running on macOS 10.x (older than Big Sur 11.0)
 function isMacOS10 (platform, release) {
   if (platform !== 'darwin') return false
-  // Darwin kernel version: macOS 11 (Big Sur) = Darwin 20.x, macOS 10.15 = Darwin 19.x
   const majorVersion = parseInt(release.split('.')[0], 10)
   return majorVersion < 20
 }
 
-// Check if running on Linux with old glibc (< 2.34)
-function isLinuxLegacy (platform, glibcVersion) {
+function isLinuxLegacy (platform) {
   if (platform !== 'linux') return false
-  if (typeof glibcVersion === 'number') {
-    return glibcVersion < 2.34
-  }
   try {
-    const result = exec('ldd --version 2>&1 | head -n1', { silent: true })
-    if (result.code !== 0) return false
-    const output = result.stdout || ''
-    // Extract version number like "ldd (GNU libc) 2.31" or "ldd (Ubuntu GLIBC 2.35-0ubuntu3) 2.35"
-    const match = output.match(/(\d+\.\d+)\s*$/)
+    const result = execSync('ldd --version 2>&1 | head -n1', { encoding: 'utf8' })
+    const match = result.match(/(\d+\.\d+)\s*$/)
     if (match) {
-      const version = parseFloat(match[1])
-      return version < 2.34
+      return parseFloat(match[1]) < 2.34
     }
     return false
   } catch (e) {
@@ -130,137 +120,337 @@ function isLinuxLegacy (platform, glibcVersion) {
   }
 }
 
-// Get the file pattern for download based on platform/arch/legacy status
-function getDownloadPattern (platform, architecture, options = {}) {
-  const { win7, mac10, linuxLegacy } = options
+// ---------------------------------------------------------------------------
+// Launch the extracted binary
+// ---------------------------------------------------------------------------
 
-  if (platform === 'win32') {
-    if (win7) {
-      return { pattern: /electerm-\d+\.\d+\.\d+-win7\.tar\.gz$/, type: 'win7' }
-    } else if (architecture === 'arm64') {
-      return { pattern: /electerm-\d+\.\d+\.\d+-win-arm64\.tar\.gz$/, type: 'win-arm64' }
-    } else {
-      return { pattern: /electerm-\d+\.\d+\.\d+-win-x64\.tar\.gz$/, type: 'win-x64' }
-    }
-  } else if (platform === 'darwin') {
-    if (mac10) {
-      return { pattern: /mac10-x64\.dmg$/, type: 'mac10-x64' }
-    } else if (architecture === 'arm64') {
-      return { pattern: /mac-arm64\.dmg$/, type: 'mac-arm64' }
-    } else {
-      return { pattern: /mac-x64\.dmg$/, type: 'mac-x64' }
-    }
-  } else if (platform === 'linux') {
-    const suffix = linuxLegacy ? '-legacy' : ''
-    if (architecture === 'arm64') {
-      return { pattern: new RegExp(`linux-arm64${suffix}\\.tar\\.gz$`), type: `linux-arm64${suffix}` }
-    } else if (architecture === 'arm') {
-      return { pattern: new RegExp(`linux-armv7l${suffix}\\.tar\\.gz$`), type: `linux-armv7l${suffix}` }
-    } else {
-      return { pattern: new RegExp(`linux-x64${suffix}\\.tar\\.gz$`), type: `linux-x64${suffix}` }
-    }
+/**
+ * Get the path to the extracted electerm executable
+ */
+function getElectermExePath () {
+  if (plat === 'win32') {
+    return join(extractDir, 'electerm.exe')
   }
+  // Linux and macOS (if extracted)
+  return join(extractDir, 'electerm')
+}
 
-  return { pattern: null, type: 'unsupported' }
+/**
+ * Check if the electerm binary has been extracted already
+ */
+function isElectermExtracted () {
+  const exePath = getElectermExePath()
+  return fs.existsSync(exePath)
 }
 
 // ---------------------------------------------------------------------------
 // Platform installers
+// ---------------------------------------------------------------------------
+
 async function runLinux (folderName, filePattern) {
   const rawVer = await getVer()
-  const ver = sanitizeVersion(rawVer) // throws if tampered
+  const ver = sanitizeVersion(rawVer)
 
-  const target = resolve(__dirname, `../electerm-${ver}-${folderName}`)
-  const targetNew = resolve(__dirname, '../electerm')
+  console.log(`  Version: ${ver}`)
+  console.log(`  Target: ${folderName}`)
 
-  // Use shelljs array API — no shell string interpolation
-  rm('-rf', [target, targetNew])
+  const target = join(packageRoot, `electerm-${ver}-${folderName}`)
 
+  // Clean up old installations
+  rm('-rf', [target, extractDir])
+
+  console.log('  Fetching release info...')
   const releaseInfo = await getReleaseInfo(r => r.name.includes(filePattern))
   if (!releaseInfo) {
     throw new Error(`No release found for pattern: ${filePattern}`)
   }
 
-  await down(releaseInfo.browser_download_url)
+  // Download without extracting to packageRoot directly
+  // We'll extract to a temp location first
+  const tmpDir = join(packageRoot, '.electerm-tmp')
+  rm('-rf', tmpDir)
+  fs.mkdirSync(tmpDir, { recursive: true })
 
-  mv(target, targetNew)
-  showFinalMessage()
-  exec('electerm')
-}
+  const proxyUrl = applyProxy(releaseInfo.browser_download_url)
+  console.log(`  URL: ${proxyUrl}`)
 
-async function runMac (archName) {
-  const pattern = new RegExp(`mac-${archName}\\.dmg$`)
-  const releaseInfo = await getReleaseInfo(r => pattern.test(r.name))
-  if (!releaseInfo) {
-    throw new Error(`No release found for Mac ${archName}`)
+  const { filepath } = await download(releaseInfo.browser_download_url, tmpDir, { extract: false, displayName: releaseInfo.name })
+
+  // Extract to tmpDir (keeps top-level folder name)
+  await extractTarGz(filepath, tmpDir)
+
+  // Find the extracted folder (should be the only directory)
+  const entries = fs.readdirSync(tmpDir)
+  const extractedFolder = entries.find(e => fs.statSync(join(tmpDir, e)).isDirectory())
+
+  if (!extractedFolder) {
+    throw new Error('No folder found in extracted archive')
   }
 
-  const safeName = sanitizeFilename(releaseInfo.name) // throws if tampered
-  await down(releaseInfo.browser_download_url, false)
+  // Move to extractDir
+  console.log(`  Installing to: ${extractDir}`)
+  mv(join(tmpDir, extractedFolder), extractDir)
 
-  const target = resolve(__dirname, '../', safeName)
+  // Clean up temp files
+  rm('-rf', tmpDir)
+
   showFinalMessage()
-
-  // execFile does not spawn a shell — no injection possible
-  execFile('open', [target])
-}
-
-async function runMac10 () {
-  const releaseInfo = await getReleaseInfo(r => /mac10-x64\.dmg$/.test(r.name))
-  if (!releaseInfo) {
-    throw new Error('No release found for macOS 10.x')
-  }
-
-  const safeName = sanitizeFilename(releaseInfo.name) // throws if tampered
-  await down(releaseInfo.browser_download_url, false)
-
-  const target = resolve(__dirname, '../', safeName)
-  showFinalMessage()
-
-  // execFile does not spawn a shell — no injection possible
-  execFile('open', [target])
 }
 
 async function runWin (archName) {
   const rawVer = await getVer()
-  const ver = sanitizeVersion(rawVer) // consistent hardening
+  const ver = sanitizeVersion(rawVer)
 
-  const target = resolve(__dirname, `../electerm-${ver}-win-${archName}`)
-  const targetNew = resolve(__dirname, '../electerm')
+  console.log(`  Version: ${ver}`)
+  console.log(`  Target: win-${archName}`)
 
-  rm('-rf', [target, targetNew])
+  const target = join(packageRoot, `electerm-${ver}-win-${archName}`)
+
+  rm('-rf', [target, extractDir])
 
   const pattern = new RegExp(`electerm-\\d+\\.\\d+\\.\\d+-win-${archName}\\.tar\\.gz$`)
+  console.log('  Fetching release info...')
   const releaseInfo = await getReleaseInfo(r => pattern.test(r.name))
   if (!releaseInfo) {
     throw new Error(`No release found for Windows ${archName}`)
   }
 
-  await down(releaseInfo.browser_download_url)
-  await mv(target, targetNew)
+  // Extract to temp, then move
+  const tmpDir = join(packageRoot, '.electerm-tmp')
+  rm('-rf', tmpDir)
+  fs.mkdirSync(tmpDir, { recursive: true })
+
+  const proxyUrl = applyProxy(releaseInfo.browser_download_url)
+  console.log(`  URL: ${proxyUrl}`)
+
+  const { filepath } = await download(releaseInfo.browser_download_url, tmpDir, { extract: false, displayName: releaseInfo.name })
+
+  await extractTarGz(filepath, tmpDir)
+
+  const entries = fs.readdirSync(tmpDir)
+  const extractedFolder = entries.find(e => fs.statSync(join(tmpDir, e)).isDirectory())
+
+  if (!extractedFolder) {
+    throw new Error('No folder found in extracted archive')
+  }
+
+  console.log(`  Installing to: ${extractDir}`)
+  mv(join(tmpDir, extractedFolder), extractDir)
+  rm('-rf', tmpDir)
+
   showFinalMessage()
-  require('child_process').execFile(`${targetNew}\\electerm.exe`)
 }
 
-// Windows 7 specific version
 async function runWin7 () {
   const rawVer = await getVer()
-  const ver = sanitizeVersion(rawVer) // consistent hardening
+  const ver = sanitizeVersion(rawVer)
 
-  const target = resolve(__dirname, `../electerm-${ver}-win7`)
-  const targetNew = resolve(__dirname, '../electerm')
+  console.log(`  Version: ${ver}`)
+  console.log('  Target: win7')
 
-  rm('-rf', [target, targetNew])
+  const target = join(packageRoot, `electerm-${ver}-win7`)
 
+  rm('-rf', [target, extractDir])
+
+  console.log('  Fetching release info...')
   const releaseInfo = await getReleaseInfo(r => /electerm-\d+\.\d+\.\d+-win7\.tar\.gz$/.test(r.name))
   if (!releaseInfo) {
     throw new Error('No release found for Windows 7')
   }
 
-  await down(releaseInfo.browser_download_url)
-  await mv(target, targetNew)
+  // Extract to temp, then move
+  const tmpDir = join(packageRoot, '.electerm-tmp')
+  rm('-rf', tmpDir)
+  fs.mkdirSync(tmpDir, { recursive: true })
+
+  const proxyUrl = applyProxy(releaseInfo.browser_download_url)
+  console.log(`  URL: ${proxyUrl}`)
+
+  const { filepath } = await download(releaseInfo.browser_download_url, tmpDir, { extract: false, displayName: releaseInfo.name })
+
+  await extractTarGz(filepath, tmpDir)
+
+  const entries = fs.readdirSync(tmpDir)
+  const extractedFolder = entries.find(e => fs.statSync(join(tmpDir, e)).isDirectory())
+
+  if (!extractedFolder) {
+    throw new Error('No folder found in extracted archive')
+  }
+
+  console.log(`  Installing to: ${extractDir}`)
+  mv(join(tmpDir, extractedFolder), extractDir)
+  rm('-rf', tmpDir)
+
   showFinalMessage()
-  require('child_process').execFile(`${targetNew}\\electerm.exe`)
+}
+
+/**
+ * Mount a DMG, copy the .app to /Applications, then detach
+ * @param {string} dmgPath - Path to the DMG file
+ * @returns {Promise<string>} - Path to the installed app
+ */
+function installFromDmg (dmgPath) {
+  return new Promise((resolve, reject) => {
+    // Step 1: Mount the DMG
+    console.log('  Mounting DMG...')
+    execFile('hdiutil', ['attach', dmgPath, '-nobrowse', '-readonly'], (err, stdout) => {
+      if (err) {
+        reject(new Error(`Failed to mount DMG: ${err.message}`))
+        return
+      }
+
+      // Parse mount point
+      const mountMatch = stdout.match(/(\/Volumes\/[^\n]+)/)
+      if (!mountMatch) {
+        reject(new Error('Could not find mount point'))
+        return
+      }
+
+      const mountPoint = mountMatch[1].trim()
+      console.log(`  Mounted at: ${mountPoint}`)
+
+      // Step 2: Find the .app bundle
+      try {
+        const entries = fs.readdirSync(mountPoint)
+        const appFile = entries.find(e => e.endsWith('.app'))
+
+        if (!appFile) {
+          // Try to detach before rejecting
+          execFileSyncIgnore('hdiutil', ['detach', mountPoint])
+          reject(new Error('No .app bundle found in DMG'))
+          return
+        }
+
+        const appSource = join(mountPoint, appFile)
+        const appDest = `/Applications/${appFile}`
+
+        // Check if app already exists
+        if (fs.existsSync(appDest)) {
+          console.log(`  Existing app found at ${appDest}, replacing...`)
+          // Remove existing app
+          rm('-rf', appDest)
+        }
+
+        // Step 3: Copy the app to /Applications
+        console.log(`  Installing ${appFile} to /Applications...`)
+        execFile('cp', ['-R', appSource, appDest], (cpErr) => {
+          // Step 4: Detach the DMG (always, regardless of copy result)
+          console.log('  Detaching DMG...')
+          execFile('hdiutil', ['detach', mountPoint], (detachErr) => {
+            if (detachErr) {
+              console.log('  Warning: Failed to detach DMG:', detachErr.message)
+            } else {
+              console.log('  DMG detached')
+            }
+
+            if (cpErr) {
+              reject(new Error(`Failed to copy app: ${cpErr.message}`))
+              return
+            }
+
+            console.log(`  App installed to: ${appDest}`)
+            resolve(appDest)
+          })
+        })
+      } catch (e) {
+        // Try to detach before rejecting
+        execFileSyncIgnore('hdiutil', ['detach', mountPoint])
+        reject(e)
+      }
+    })
+  })
+}
+
+/**
+ * Execute a file synchronously, ignoring errors
+ */
+function execFileSyncIgnore (cmd, args) {
+  try {
+    execSync(cmd, args, { stdio: 'ignore' })
+  } catch (e) {
+    // Ignore
+  }
+}
+
+async function runMac (archName) {
+  const pattern = new RegExp(`mac-${archName}\\.dmg$`)
+  console.log('  Fetching release info...')
+  const releaseInfo = await getReleaseInfo(r => pattern.test(r.name))
+  if (!releaseInfo) {
+    throw new Error(`No release found for Mac ${archName}`)
+  }
+
+  const safeName = sanitizeFilename(releaseInfo.name)
+  const proxyUrl = applyProxy(releaseInfo.browser_download_url)
+  console.log(`  URL: ${proxyUrl}`)
+
+  await download(releaseInfo.browser_download_url, packageRoot, { extract: false, displayName: releaseInfo.name })
+
+  const dmgPath = join(packageRoot, safeName)
+  showFinalMessage()
+
+  // Install from DMG automatically
+  try {
+    await installFromDmg(dmgPath)
+
+    // Clean up DMG
+    try {
+      fs.unlinkSync(dmgPath)
+      console.log('  Cleaned up DMG file')
+    } catch (e) {
+      // Ignore cleanup errors
+    }
+
+    console.log('')
+    console.log('  Installation complete! You can now launch electerm from /Applications')
+  } catch (err) {
+    console.error('')
+    console.error('  Warning: Automatic installation failed:', err.message)
+    console.error('  Please manually copy the app from the DMG to /Applications')
+    console.error('')
+    console.log('  Opening DMG for manual installation...')
+    execFile('open', [dmgPath])
+  }
+}
+
+async function runMac10 () {
+  console.log('  Fetching release info...')
+  const releaseInfo = await getReleaseInfo(r => /mac10-x64\.dmg$/.test(r.name))
+  if (!releaseInfo) {
+    throw new Error('No release found for macOS 10.x')
+  }
+
+  const safeName = sanitizeFilename(releaseInfo.name)
+  const proxyUrl = applyProxy(releaseInfo.browser_download_url)
+  console.log(`  URL: ${proxyUrl}`)
+
+  await download(releaseInfo.browser_download_url, packageRoot, { extract: false, displayName: releaseInfo.name })
+
+  const dmgPath = join(packageRoot, safeName)
+  showFinalMessage()
+
+  // Install from DMG automatically
+  try {
+    await installFromDmg(dmgPath)
+
+    // Clean up DMG
+    try {
+      fs.unlinkSync(dmgPath)
+      console.log('  Cleaned up DMG file')
+    } catch (e) {
+      // Ignore cleanup errors
+    }
+
+    console.log('')
+    console.log('  Installation complete! You can now launch electerm from /Applications')
+  } catch (err) {
+    console.error('')
+    console.error('  Warning: Automatic installation failed:', err.message)
+    console.error('  Please manually copy the app from the DMG to /Applications')
+    console.error('')
+    console.log('  Opening DMG for manual installation...')
+    execFile('open', [dmgPath])
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -268,18 +458,28 @@ async function runWin7 () {
 // ---------------------------------------------------------------------------
 
 async function main () {
-  console.log(`Detected platform: ${plat}, architecture: ${arch}`)
+  console.log('')
+  console.log('========================================')
+  console.log('electerm binary installer')
+  console.log('========================================')
+  console.log(`Platform: ${plat}, Architecture: ${arch}`)
+
+  if (GITHUB_PROXY) {
+    console.log(`GitHub Proxy: ${GITHUB_PROXY}`)
+  }
+
+  console.log('')
 
   // Check for legacy systems
   const win7 = isWindows7OrEarlier(plat, os.release())
   const mac10 = isMacOS10(plat, os.release())
   const linuxLegacy = isLinuxLegacy(plat)
 
-  if (win7) console.log('Detected: Windows 7 or earlier')
-  if (mac10) console.log('Detected: macOS 10.x')
-  if (linuxLegacy) console.log('Detected: Linux with glibc < 2.34 (legacy)')
+  if (win7) console.log('  Detected: Windows 7 or earlier')
+  if (mac10) console.log('  Detected: macOS 10.x')
+  if (linuxLegacy) console.log('  Detected: Linux with glibc < 2.34 (legacy)')
 
-  console.log('Fetching release information...\n')
+  console.log('  Fetching release information...')
 
   try {
     if (plat === 'win32') {
@@ -300,7 +500,7 @@ async function main () {
       }
     } else if (plat === 'linux') {
       const suffix = linuxLegacy ? '-legacy' : ''
-      if (arch === 'arm64') {
+      if (arch === 'arm64' || arch === 'aarch64') {
         await runLinux(`linux-arm64${suffix}`, `linux-arm64${suffix}.tar.gz`)
       } else if (arch === 'arm') {
         await runLinux(`linux-armv7l${suffix}`, `linux-armv7l${suffix}.tar.gz`)
@@ -311,32 +511,37 @@ async function main () {
       throw new Error(`Platform "${plat}" is not supported.`)
     }
   } catch (err) {
-    console.error('\n========================================')
+    console.error('')
+    console.error('========================================')
     console.error('Installation failed!')
     console.error('========================================')
     console.error(`Error: ${err.message}`)
-    console.error(`\nPlatform: ${plat}, Architecture: ${arch}`)
-    console.error('\nPlease visit https://electerm.html5beta.com for manual download options.')
-    console.error('========================================\n')
+    console.error(`Platform: ${plat}, Architecture: ${arch}`)
+    console.error('')
+    console.error('Please visit https://electerm.html5beta.com for manual download options.')
+    console.error('========================================')
+    console.error('')
     process.exit(1)
   }
 }
 
 // ---------------------------------------------------------------------------
-// Exports
+// Exports for testing
 // ---------------------------------------------------------------------------
 
-// Export functions for testing
 module.exports = {
   isWindows7OrEarlier,
   isMacOS10,
   isLinuxLegacy,
-  getDownloadPattern,
   sanitizeVersion,
-  sanitizeFilename
+  sanitizeFilename,
+  getElectermExePath,
+  isElectermExtracted,
+  // Expose for test injection
+  _packageRoot: packageRoot,
+  _extractDir: extractDir
 }
 
-// Run main only if this file is executed directly
 if (require.main === module) {
   main()
 }
