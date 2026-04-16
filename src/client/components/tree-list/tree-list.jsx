@@ -298,8 +298,8 @@ export default class ItemListTree extends Component {
   onSelect = (
     e
   ) => {
-    const id = e.target.getAttribute('data-item-id')
-    const isGroup = e.target.getAttribute('data-is-group') === 'true'
+    const id = e.currentTarget.getAttribute('data-item-id')
+    const isGroup = e.currentTarget.getAttribute('data-is-group') === 'true'
     const { store } = window
     if (isGroup) {
       store.storeAssign({
