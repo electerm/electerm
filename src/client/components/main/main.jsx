@@ -35,6 +35,7 @@ import WorkspaceSaveModal from '../tabs/workspace-save-modal'
 import BookmarkFromHistoryModal from '../bookmark-form/bookmark-from-history-modal'
 import AutoSync from '../setting-sync/auto-sync'
 import AutoCheckUpdate from '../common/auto-check-update'
+import BatchOpRunner from '../batch-op/batch-op-runner'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
@@ -295,6 +296,7 @@ export default auto(function Index (props) {
         <WorkspaceSaveModal store={store} />
         <BookmarkFromHistoryModal />
         <NotificationContainer />
+        <BatchOpRunner />
       </div>
     </ConfigProvider>
   )

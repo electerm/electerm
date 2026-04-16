@@ -25,51 +25,53 @@ module.exports = [
     }
   },
   {
-    name: 'Create test file',
+    name: 'Create 5M Test File',
     action: 'command',
+    beforeDelay: 500,
     afterDelay: 500,
-    params: {
-      command: "echo 'hello batch-op' > /tmp/batch_test.txt && echo '[LOG] File created'"
-    }
+    command: "fallocate -l 5M /tmp/test_5m_file.bin && rm -f /tmp/test_log.log && echo '[LOG] Created 5M test file at $(date)' >> /tmp/test_log.log"
   },
   {
-    name: 'Log file content',
+    name: 'Log creation',
     action: 'command',
-    params: {
-      command: 'cat /tmp/batch_test.txt'
-    }
+    afterDelay: 200,
+    command: "ls -la /tmp/test_5m_file.bin >> /tmp/test_log.log 2>&1 && echo '[LOG] File size logged at $(date)' >> /tmp/test_log.log"
   },
   {
-    name: 'Download test file',
+    name: 'Download 5M File',
     action: 'sftp_download',
     afterDelay: 200,
-    params: {
-      remotePath: '/tmp/batch_test.txt',
-      localPath: '/tmp/batch_test_local.txt'
-    }
+    remotePath: '/tmp/test_5m_file.bin',
+    localPath: '/tmp/test_5m_file.bin'
   },
   {
-    name: 'Delete remote source file',
+    name: 'Log after download',
     action: 'command',
     afterDelay: 200,
-    params: {
-      command: "rm -f /tmp/batch_test.txt && echo '[LOG] Remote source deleted'"
-    }
+    command: "echo '[LOG] Download complete at $(date)' >> /tmp/test_log.log"
   },
   {
-    name: 'Upload file back',
+    name: 'Delete Remote 5M File',
+    action: 'command',
+    afterDelay: 200,
+    command: "rm /tmp/test_5m_file.bin && echo '[LOG] Deleted remote 5M file at $(date)' >> /tmp/test_log.log"
+  },
+  {
+    name: 'Upload Downloaded File to Remote',
     action: 'sftp_upload',
     afterDelay: 200,
-    params: {
-      localPath: '/tmp/batch_test_local.txt',
-      remotePath: '/tmp/batch_test_uploaded.txt'
-    }
+    localPath: '/tmp/test_5m_file.bin',
+    remotePath: '/tmp/test_5m_file_uploaded.bin'
+  },
+  {
+    name: 'Log after upload',
+    action: 'command',
+    afterDelay: 200,
+    command: "echo '[LOG] Upload complete at $(date)' >> /tmp/test_log.log"
   },
   {
     name: 'Verify and clean up',
     action: 'command',
-    params: {
-      command: "ls -la /tmp/batch_test_uploaded.txt && rm -f /tmp/batch_test*.txt && echo '[LOG] All done'"
-    }
+    command: "ls -la /tmp/test_5m_file_uploaded.bin >> /tmp/test_log.log 2>&1 && rm -f /tmp/test_5m_file*.bin && echo '[LOG] Cleaned up at $(date)' >> /tmp/test_log.log"
   }
 ]
