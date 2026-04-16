@@ -2,6 +2,7 @@
  * tree list for bookmarks
  */
 
+import React from 'react'
 import { Component } from 'manate/react/class-components'
 import {
   CheckOutlined,
@@ -44,6 +45,7 @@ export default class ItemListTree extends Component {
       categoryColor: '',
       categoryId: ''
     }
+    this.treeRef = React.createRef()
   }
 
   onSubmit = false
@@ -102,9 +104,55 @@ export default class ItemListTree extends Component {
   }
 
   handleChange = keyword => {
-    this.setState({
-      keyword
+    this.setState({ keyword })
+  }
+
+  handleKeyDown = (e) => {
+    const { keyword } = this.state
+    if (!keyword) return
+
+    const treeContainer = this.treeRef.current
+    if (!treeContainer) return
+
+    const allItems = treeContainer.querySelectorAll('.tree-item')
+    const matchedItems = Array.from(allItems).filter(item => {
+      const isGroup = item.getAttribute('data-is-group') === 'true'
+      if (isGroup) return false
+      const title = item.querySelector('.tree-item-title')
+      if (!title) return false
+      const text = title.textContent || ''
+      return text.toLowerCase().includes(keyword.toLowerCase())
     })
+
+    if (matchedItems.length === 0) return
+
+    const currentSelected = treeContainer.querySelector('.tree-item.search-selected')
+    let currentIndex = -1
+    if (currentSelected) {
+      currentSelected.classList.remove('search-selected')
+      currentIndex = matchedItems.indexOf(currentSelected)
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      const nextIndex = (currentIndex + 1) % matchedItems.length
+      matchedItems[nextIndex].classList.add('search-selected')
+      matchedItems[nextIndex].scrollIntoView({ block: 'nearest' })
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      const nextIndex = currentIndex <= 0 ? matchedItems.length - 1 : currentIndex - 1
+      matchedItems[nextIndex].classList.add('search-selected')
+      matchedItems[nextIndex].scrollIntoView({ block: 'nearest' })
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      const target = currentIndex >= 0 ? matchedItems[currentIndex] : matchedItems[0]
+      if (target) {
+        const titleEl = target.querySelector('.tree-item-title')
+        if (titleEl) {
+          titleEl.click()
+        }
+      }
+    }
   }
 
   handleCancelNew = () => {
@@ -330,6 +378,7 @@ export default class ItemListTree extends Component {
           onSearch={this.handleChange}
           keyword={this.state.keyword}
           autoFocus={this.props.autoFocus}
+          onKeyDown={this.handleKeyDown}
         />
       </div>
     )
@@ -912,7 +961,7 @@ export default class ItemListTree extends Component {
       })
       : []
     return (
-      <div className={`tree-list item-type-${type}`}>
+      <div className={`tree-list item-type-${type}`} ref={this.treeRef}>
         <div className='tree-list-header'>
           {
             staticList
