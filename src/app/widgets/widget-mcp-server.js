@@ -503,7 +503,7 @@ class ElectermMCPServer {
             tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
             localPath: z.string().describe('Local file or folder path to upload'),
             remotePath: z.string().describe('Remote destination path'),
-            conflictPolicy: z.enum(['overwrite', 'rename']).optional().describe('Conflict policy: overwrite or rename (default: overwrite)')
+            conflictPolicy: z.enum(['mergeOrOverwriteAll', 'renameAll']).optional().describe('Conflict policy: mergeOrOverwriteAll or renameAll (default: mergeOrOverwriteAll)')
           }
         },
         async ({ tabId, localPath, remotePath, conflictPolicy }) => {

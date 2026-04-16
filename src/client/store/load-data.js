@@ -7,12 +7,12 @@ import parseInt10 from '../common/parse-int10'
 import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
 import fs from '../common/fs'
 import generate from '../common/id-with-stamp'
+import { refsStatic } from '../components/common/ref'
 import defaultSettings from '../common/default-setting'
 import encodes from '../components/bookmark-form/common/encodes'
 import { initWsCommon } from '../common/fetch-from-server'
 import safeParse from '../common/parse-json-safe'
 import initWatch from './watch'
-import { refsStatic } from '../components/common/ref'
 import { parseQuickConnect } from '../common/parse-quick-connect'
 
 function getHost (argv, opts) {
@@ -108,8 +108,8 @@ export async function addTabFromCommandLine (store, opts) {
   ) {
     window.initFolder = options.initFolder
   }
-  if (options && options.batchOp) {
-    window.store.runBatchOp(options.batchOp)
+  if (options.batchOp) {
+    refsStatic.get('batch-op-runner')?.runBatchOpFromFile(options.batchOp)
   }
 }
 

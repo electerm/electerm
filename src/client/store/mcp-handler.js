@@ -625,7 +625,7 @@ export default Store => {
       throw new Error('remotePath is required')
     }
 
-    window._transferConflictPolicy = args.conflictPolicy || 'overwrite'
+    window._transferConflictPolicy = args.conflictPolicy || 'mergeOrOverwriteAll'
 
     const fromFile = await getLocalFileInfo(localPath)
     const transferItem = {
@@ -670,7 +670,7 @@ export default Store => {
       throw new Error('localPath is required')
     }
 
-    window._transferConflictPolicy = args.conflictPolicy || 'overwrite'
+    window._transferConflictPolicy = args.conflictPolicy || 'mergeOrOverwriteAll'
 
     const fromFile = await getRemoteFileInfo(sftp, remotePath)
     const transferItem = {

@@ -6,7 +6,6 @@ import handleError from '../common/error-handler'
 import Modal from '../components/common/modal'
 import { debounce, some, get, pickBy } from 'lodash-es'
 import {
-  modals,
   leftSidebarWidthKey,
   rightSidebarWidthKey,
   addPanelWidthLsKey,
@@ -93,33 +92,6 @@ export default Store => {
 
   Store.prototype.setState = function (name, value) {
     window.store['_' + name] = JSON.stringify(value)
-  }
-
-  Store.prototype.toggleBatchOp = function () {
-    window.store.showModal = window.store.showModal === modals.batchOps ? modals.hide : modals.batchOps
-  }
-
-  Store.prototype.runBatchOp = function (path) {
-    window.store.showModal = modals.batchOps
-    async function updateText () {
-      const text = await window.fs.readFile(path)
-      refsStatic.get('batch-op')?.setState({
-        text
-      })
-    }
-    function queue () {
-      refsStatic.get('batch-op')?.handleClick()
-    }
-    function run () {
-      refsStatic.get('batch-op')?.handleExec()
-    }
-    try {
-      setTimeout(updateText, 2000)
-      setTimeout(queue, 3000)
-      setTimeout(run, 4000)
-    } catch (e) {
-      console.error(e)
-    }
   }
 
   Store.prototype.setSettingItem = function (v) {

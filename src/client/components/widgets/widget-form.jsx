@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react'
 import { Form, Input, InputNumber, Switch, Select, Button, Tooltip, Alert } from 'antd'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import HelpIcon from '../common/help-icon'
+import BatchOpEditor from '../batch-op/batch-op-editor'
 
 export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInstance }) {
   const [form] = Form.useForm()
@@ -33,6 +34,7 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
   const { info } = widget
   const { configs, type, singleInstance } = info
   const isInstanceWidget = type === 'instance'
+  const isFrontendWidget = type === 'frontend'
   const txt = isInstanceWidget ? 'Start widget' : 'Run widget'
   const isDisabled = loading || (singleInstance && hasRunningInstance)
 
@@ -111,6 +113,10 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
     acc[config.name] = config.default
     return acc
   }, {})
+
+  if (isFrontendWidget && info.name === 'Batch Operation') {
+    return <BatchOpEditor widget={widget} />
+  }
 
   return (
     <div className='widget-form'>

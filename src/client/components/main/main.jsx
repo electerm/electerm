@@ -6,7 +6,6 @@ import UpdateCheck from './upgrade'
 import SettingModal from '../setting-panel/setting-modal'
 import TextEditor from '../text-editor/text-editor'
 import Sidebar from '../sidebar'
-import BatchOp from '../batch-op/batch-op'
 import CssOverwrite from '../bg/css-overwrite'
 import UiTheme from './ui-theme'
 import CustomCss from '../bg/custom-css.jsx'
@@ -36,6 +35,7 @@ import WorkspaceSaveModal from '../tabs/workspace-save-modal'
 import BookmarkFromHistoryModal from '../bookmark-form/bookmark-from-history-modal'
 import AutoSync from '../setting-sync/auto-sync'
 import AutoCheckUpdate from '../common/auto-check-update'
+import BatchOpRunner from '../batch-op/batch-op-runner'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
@@ -186,11 +186,6 @@ export default auto(function Index (props) {
     fileTransferChanged: JSON.stringify(copiedTransfer),
     fileTransfers: copiedTransfer
   }
-  const batchOpProps = {
-    transferHistory,
-    showModal: store.showModal,
-    innerWidth: store.innerWidth
-  }
   const resProps = {
     resolutions: deepCopy(store.resolutions),
     openResolutionEdit
@@ -265,7 +260,6 @@ export default auto(function Index (props) {
         />
         <FileInfoModal />
         <SettingModal store={store} />
-        <BatchOp {...batchOpProps} />
         <MoveItemModal store={store} />
         <div
           id='outside-context'
@@ -302,6 +296,7 @@ export default auto(function Index (props) {
         <WorkspaceSaveModal store={store} />
         <BookmarkFromHistoryModal />
         <NotificationContainer />
+        <BatchOpRunner />
       </div>
     </ConfigProvider>
   )

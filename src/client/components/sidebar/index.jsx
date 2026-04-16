@@ -6,7 +6,6 @@ import {
   PlusCircleOutlined,
   SettingOutlined,
   UpCircleOutlined,
-  BarsOutlined,
   AppstoreOutlined,
   ThunderboltOutlined
 } from '@ant-design/icons'
@@ -92,7 +91,6 @@ export default function Sidebar (props) {
     openAbout,
     openSettingSync,
     openTerminalThemes,
-    toggleBatchOp,
     setLeftSidePanelWidth
   } = store
   const {
@@ -102,7 +100,6 @@ export default function Sidebar (props) {
     shouldUpgrade
   } = upgradeInfo
   const showSetting = showModal === modals.setting
-  const showBatchOp = showModal === modals.batchOps
   const settingActive = showSetting && settingTab === settingMap.setting && settingItem.id === 'setting-common'
   const syncActive = showSetting && settingTab === settingMap.setting && settingItem.id === 'setting-sync'
   const themeActive = showSetting && settingTab === settingMap.terminalThemes
@@ -189,12 +186,6 @@ export default function Sidebar (props) {
             onClick={openSettingSync}
             spin={isSyncingSetting}
           />
-        </SideIcon>
-        <SideIcon
-          title={e('batchOp')}
-          active={showBatchOp}
-        >
-          <BarsOutlined className='iblock font20 control-icon' onClick={toggleBatchOp} />
         </SideIcon>
         <SideIcon
           title={e('widgets')}
