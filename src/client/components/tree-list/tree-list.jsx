@@ -719,22 +719,31 @@ export default class ItemListTree extends Component {
     const pids = typeof parentId === 'string' ? parentId : ''
     const pid = pids + '#' + group.id
     const { bookmarkIds = [], bookmarkGroupIds = [] } = group
-    if (this.state.keyword) {
+
+    const hasMatchedItems = (ids) => {
       const tree = this.props.bookmarksMap
       const { keyword } = this.state
-      const hasMatchedChilds = bookmarkIds.some(id => {
+      return ids.some(id => {
         const item = tree.get(id)
         return item && createName(item).toLowerCase().includes(keyword.toLowerCase())
       })
-      const subGroups = bookmarkGroupIds.map(id => window.store.bookmarkGroupTree[id]).filter(d => d)
-      const hasMatchedSubGroups = subGroups.some(sg => {
-        const sgIds = sg.bookmarkIds || []
-        return sgIds.some(id => {
-          const item = tree.get(id)
-          return item && createName(item).toLowerCase().includes(keyword.toLowerCase())
-        })
+    }
+
+    const hasMatchedSubGroup = (bg) => {
+      const bgIds = bg.bookmarkIds || []
+      const bgSubIds = bg.bookmarkGroupIds || []
+      if (hasMatchedItems(bgIds)) return true
+      return bgSubIds.some(sgid => {
+        const subBg = window.store.bookmarkGroupTree[sgid]
+        return subBg && hasMatchedSubGroup(subBg)
       })
-      if (!hasMatchedChilds && !hasMatchedSubGroups) {
+    }
+
+    if (this.state.keyword) {
+      if (!hasMatchedItems(bookmarkIds) && !bookmarkGroupIds.some(id => {
+        const sg = window.store.bookmarkGroupTree[id]
+        return sg && hasMatchedSubGroup(sg)
+      })) {
         return null
       }
     }
@@ -877,9 +886,30 @@ export default class ItemListTree extends Component {
       listStyle = {}
     } = this.props
     const level1Bookgroups = ready
-      ? bookmarkGroups.filter(
-        d => !d.level || d.level < 2
-      )
+      ? bookmarkGroups.filter(d => {
+        if (!d.level || d.level < 2) {
+          if (this.state.keyword) {
+            const hasMatchedItemsRecursive = (bg) => {
+              const ids = bg.bookmarkIds || []
+              const subIds = bg.bookmarkGroupIds || []
+              const tree = this.props.bookmarksMap
+              const { keyword } = this.state
+              const hasMatch = ids.some(id => {
+                const item = tree.get(id)
+                return item && createName(item).toLowerCase().includes(keyword.toLowerCase())
+              })
+              if (hasMatch) return true
+              return subIds.some(sgid => {
+                const subBg = window.store.bookmarkGroupTree[sgid]
+                return subBg && hasMatchedItemsRecursive(subBg)
+              })
+            }
+            return hasMatchedItemsRecursive(d)
+          }
+          return true
+        }
+        return false
+      })
       : []
     return (
       <div className={`tree-list item-type-${type}`}>
