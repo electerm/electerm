@@ -718,6 +718,26 @@ export default class ItemListTree extends Component {
   renderGroup = (group, index, parentId) => {
     const pids = typeof parentId === 'string' ? parentId : ''
     const pid = pids + '#' + group.id
+    const { bookmarkIds = [], bookmarkGroupIds = [] } = group
+    if (this.state.keyword) {
+      const tree = this.props.bookmarksMap
+      const { keyword } = this.state
+      const hasMatchedChilds = bookmarkIds.some(id => {
+        const item = tree.get(id)
+        return item && createName(item).toLowerCase().includes(keyword.toLowerCase())
+      })
+      const subGroups = bookmarkGroupIds.map(id => window.store.bookmarkGroupTree[id]).filter(d => d)
+      const hasMatchedSubGroups = subGroups.some(sg => {
+        const sgIds = sg.bookmarkIds || []
+        return sgIds.some(id => {
+          const item = tree.get(id)
+          return item && createName(item).toLowerCase().includes(keyword.toLowerCase())
+        })
+      })
+      if (!hasMatchedChilds && !hasMatchedSubGroups) {
+        return null
+      }
+    }
     return (
       <div key={group.id} className='group-container'>
         {
@@ -804,9 +824,14 @@ export default class ItemListTree extends Component {
     if (!shouldRender) {
       return null
     }
+    const subGroups = this.renderSubGroup(bookmarkGroupIds, parentId)
+    const childs = this.renderChilds(bookmarkIds, parentId)
+    if (this.state.keyword && subGroups.length === 0 && childs.length === 0) {
+      return null
+    }
     return [
-      ...this.renderSubGroup(bookmarkGroupIds, parentId),
-      ...this.renderChilds(bookmarkIds, parentId)
+      ...subGroups,
+      ...childs
     ]
   }
 
