@@ -2,6 +2,7 @@
  * tree list for bookmarks
  */
 
+import React from 'react'
 import { Component } from 'manate/react/class-components'
 import {
   CheckOutlined,
@@ -44,6 +45,7 @@ export default class ItemListTree extends Component {
       categoryColor: '',
       categoryId: ''
     }
+    this.treeRef = React.createRef()
   }
 
   onSubmit = false
@@ -102,9 +104,55 @@ export default class ItemListTree extends Component {
   }
 
   handleChange = keyword => {
-    this.setState({
-      keyword
+    this.setState({ keyword })
+  }
+
+  handleKeyDown = (e) => {
+    const { keyword } = this.state
+    if (!keyword) return
+
+    const treeContainer = this.treeRef.current
+    if (!treeContainer) return
+
+    const allItems = treeContainer.querySelectorAll('.tree-item')
+    const matchedItems = Array.from(allItems).filter(item => {
+      const isGroup = item.getAttribute('data-is-group') === 'true'
+      if (isGroup) return false
+      const title = item.querySelector('.tree-item-title')
+      if (!title) return false
+      const text = title.textContent || ''
+      return text.toLowerCase().includes(keyword.toLowerCase())
     })
+
+    if (matchedItems.length === 0) return
+
+    const currentSelected = treeContainer.querySelector('.tree-item.search-selected')
+    let currentIndex = -1
+    if (currentSelected) {
+      currentSelected.classList.remove('search-selected')
+      currentIndex = matchedItems.indexOf(currentSelected)
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      const nextIndex = (currentIndex + 1) % matchedItems.length
+      matchedItems[nextIndex].classList.add('search-selected')
+      matchedItems[nextIndex].scrollIntoView({ block: 'nearest' })
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      const nextIndex = currentIndex <= 0 ? matchedItems.length - 1 : currentIndex - 1
+      matchedItems[nextIndex].classList.add('search-selected')
+      matchedItems[nextIndex].scrollIntoView({ block: 'nearest' })
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      const target = currentIndex >= 0 ? matchedItems[currentIndex] : matchedItems[0]
+      if (target) {
+        const titleEl = target.querySelector('.tree-item-title')
+        if (titleEl) {
+          titleEl.click()
+        }
+      }
+    }
   }
 
   handleCancelNew = () => {
@@ -298,8 +346,8 @@ export default class ItemListTree extends Component {
   onSelect = (
     e
   ) => {
-    const id = e.target.getAttribute('data-item-id')
-    const isGroup = e.target.getAttribute('data-is-group') === 'true'
+    const id = e.currentTarget.getAttribute('data-item-id')
+    const isGroup = e.currentTarget.getAttribute('data-is-group') === 'true'
     const { store } = window
     if (isGroup) {
       store.storeAssign({
@@ -330,6 +378,7 @@ export default class ItemListTree extends Component {
           onSearch={this.handleChange}
           keyword={this.state.keyword}
           autoFocus={this.props.autoFocus}
+          onKeyDown={this.handleKeyDown}
         />
       </div>
     )
@@ -718,6 +767,35 @@ export default class ItemListTree extends Component {
   renderGroup = (group, index, parentId) => {
     const pids = typeof parentId === 'string' ? parentId : ''
     const pid = pids + '#' + group.id
+    const { bookmarkIds = [], bookmarkGroupIds = [] } = group
+
+    const hasMatchedItems = (ids) => {
+      const tree = this.props.bookmarksMap
+      const { keyword } = this.state
+      return ids.some(id => {
+        const item = tree.get(id)
+        return item && createName(item).toLowerCase().includes(keyword.toLowerCase())
+      })
+    }
+
+    const hasMatchedSubGroup = (bg) => {
+      const bgIds = bg.bookmarkIds || []
+      const bgSubIds = bg.bookmarkGroupIds || []
+      if (hasMatchedItems(bgIds)) return true
+      return bgSubIds.some(sgid => {
+        const subBg = window.store.bookmarkGroupTree[sgid]
+        return subBg && hasMatchedSubGroup(subBg)
+      })
+    }
+
+    if (this.state.keyword) {
+      if (!hasMatchedItems(bookmarkIds) && !bookmarkGroupIds.some(id => {
+        const sg = window.store.bookmarkGroupTree[id]
+        return sg && hasMatchedSubGroup(sg)
+      })) {
+        return null
+      }
+    }
     return (
       <div key={group.id} className='group-container'>
         {
@@ -804,9 +882,14 @@ export default class ItemListTree extends Component {
     if (!shouldRender) {
       return null
     }
+    const subGroups = this.renderSubGroup(bookmarkGroupIds, parentId)
+    const childs = this.renderChilds(bookmarkIds, parentId)
+    if (this.state.keyword && subGroups.length === 0 && childs.length === 0) {
+      return null
+    }
     return [
-      ...this.renderSubGroup(bookmarkGroupIds, parentId),
-      ...this.renderChilds(bookmarkIds, parentId)
+      ...subGroups,
+      ...childs
     ]
   }
 
@@ -852,12 +935,33 @@ export default class ItemListTree extends Component {
       listStyle = {}
     } = this.props
     const level1Bookgroups = ready
-      ? bookmarkGroups.filter(
-        d => !d.level || d.level < 2
-      )
+      ? bookmarkGroups.filter(d => {
+        if (!d.level || d.level < 2) {
+          if (this.state.keyword) {
+            const hasMatchedItemsRecursive = (bg) => {
+              const ids = bg.bookmarkIds || []
+              const subIds = bg.bookmarkGroupIds || []
+              const tree = this.props.bookmarksMap
+              const { keyword } = this.state
+              const hasMatch = ids.some(id => {
+                const item = tree.get(id)
+                return item && createName(item).toLowerCase().includes(keyword.toLowerCase())
+              })
+              if (hasMatch) return true
+              return subIds.some(sgid => {
+                const subBg = window.store.bookmarkGroupTree[sgid]
+                return subBg && hasMatchedItemsRecursive(subBg)
+              })
+            }
+            return hasMatchedItemsRecursive(d)
+          }
+          return true
+        }
+        return false
+      })
       : []
     return (
-      <div className={`tree-list item-type-${type}`}>
+      <div className={`tree-list item-type-${type}`} ref={this.treeRef}>
         <div className='tree-list-header'>
           {
             staticList
