@@ -97,6 +97,7 @@ export default class BatchOpRunner extends Component {
         results.push(result)
         console.log(`Batch op step ${i + 1} completed:`, step.name || 'unnamed')
       } catch (e) {
+        console.log(e)
         this.steps.push({ name: step.name, status: 'error', error: e.message })
         logsRef?.setLogs(this.getState())
         console.error(`Batch op step ${i + 1} failed:`, step.name || 'unnamed', e.message)
@@ -184,8 +185,7 @@ export default class BatchOpRunner extends Component {
       connectionHoppings: p.connectionHoppings || [],
       title: step.name || `SSH: ${p.host}`,
       status: 'processing',
-      pane: 'terminal',
-      batch: store.batch
+      pane: 'terminal'
     }
 
     store.addTab(tab)

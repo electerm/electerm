@@ -25,8 +25,7 @@ const workflowExample = `[
       "port": 22,
       "username": "root",
       "authType": "password",
-      "password": "your_password",
-      "enableSftp": true
+      "password": "your_password"
     }
   },
   {

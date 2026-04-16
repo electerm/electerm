@@ -509,7 +509,7 @@ export default Store => {
       'autoReConnect'
     ]
     const { history } = store
-    const index = history.findIndex(d => {
+    const index = history.filter(d => d.id && d.tab).findIndex(d => {
       for (const key in tab) {
         if (tabPropertiesExcludes.includes(key)) {
           continue

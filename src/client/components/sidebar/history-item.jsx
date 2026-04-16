@@ -40,7 +40,9 @@ export default function HistoryItem (props) {
     e.stopPropagation()
     refsStatic.get('bookmark-from-history-modal')?.show(item.tab)
   }
-
+  if (!item.tab) {
+    return null
+  }
   const title = createTitleWithTag(item.tab)
   const tt = createTitle(item.tab)
   return (
