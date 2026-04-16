@@ -27,7 +27,7 @@ module.exports = [
   {
     name: 'Create 5M Test File',
     action: 'command',
-    beforeDelay: 500,
+    prevDelay: 500,
     afterDelay: 500,
     command: "fallocate -l 5M /tmp/test_5m_file.bin && rm -f /tmp/test_log.log && echo '[LOG] Created 5M test file at $(date)' >> /tmp/test_log.log"
   },

@@ -3,7 +3,7 @@
  * Self-contained workflow editor: handles execute, external editors, and progress logs
  */
 import React, { useCallback, useState, useEffect } from 'react'
-import { Button, Flex, message } from 'antd'
+import { Button, Flex } from 'antd'
 import {
   PlayCircleOutlined
 } from '@ant-design/icons'
@@ -11,6 +11,7 @@ import SimpleEditor from '../text-editor/simple-editor'
 import EditWithCustomEditor from '../text-editor/edit-with-custom-editor'
 import BatchOpAlert from './batch-op-alert'
 import BatchOpLogs from './batch-op-logs'
+import message from '../common/message'
 import { refsStatic } from '../common/ref'
 import generate from '../../common/uid'
 import fs from '../../common/fs'
@@ -32,7 +33,7 @@ const workflowExample = `[
     "name": "Create 5M Test File",
     "action": "command",
     "afterDelay": 500,
-    "beforeDelay": 500,
+    "prevDelay": 500,
     "command": "fallocate -l 5M /tmp/test_5m_file.bin && rm -f /tmp/test_log.log && echo '[LOG] Created 5M test file at $(date)' >> /tmp/test_log.log"
   },
   {

@@ -1,11 +1,13 @@
+import { Component } from 'react'
 import { refsStatic } from '../common/ref'
 import { statusMap } from '../../common/constants'
 import uid from '../../common/uid'
 
 const STATIC_KEY = 'batch-op-runner'
 
-export default class BatchOpRunner {
+export default class BatchOpRunner extends Component {
   constructor () {
+    super()
     this.steps = []
     this.currentIndex = 0
     this.status = 'idle'
@@ -314,5 +316,9 @@ export default class BatchOpRunner {
       }
       checkTransfer()
     })
+  }
+
+  render () {
+    return null
   }
 }

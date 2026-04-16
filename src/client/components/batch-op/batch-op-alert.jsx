@@ -35,7 +35,6 @@ export default function BatchOpAlert () {
 
   return (
     <Alert
-      message='Batch Operation Workflow'
       description={description}
       type='info'
       showIcon
