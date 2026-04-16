@@ -40,6 +40,7 @@ export default class AddBtn extends Component {
   componentWillUnmount () {
     if (this.state.open) {
       document.removeEventListener('click', this.handleDocumentClick)
+      document.removeEventListener('keydown', this.handleKeyDown)
     }
     // Clean up portal container
     if (this.portalContainer) {
@@ -48,12 +49,20 @@ export default class AddBtn extends Component {
     }
   }
 
+  handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      this.setState({ open: false })
+    }
+  }
+
   componentDidUpdate (prevProps, prevState) {
     // Attach or detach document click listener only when menu open state changes
     if (this.state.open && !prevState.open) {
       document.addEventListener('click', this.handleDocumentClick)
+      document.addEventListener('keydown', this.handleKeyDown)
     } else if (!this.state.open && prevState.open) {
       document.removeEventListener('click', this.handleDocumentClick)
+      document.removeEventListener('keydown', this.handleKeyDown)
     }
   }
 
