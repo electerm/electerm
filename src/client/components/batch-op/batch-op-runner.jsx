@@ -1,6 +1,7 @@
 import { Component } from 'react'
 import { refsStatic } from '../common/ref'
 import { statusMap } from '../../common/constants'
+import { autoRun } from 'manate'
 import uid from '../../common/uid'
 
 const STATIC_KEY = 'batch-op-runner'
@@ -138,12 +139,6 @@ export default class BatchOpRunner extends Component {
       case 'sftp_download':
         result = await this._batchStepSftpDownload(s)
         break
-      case 'zmodem_upload':
-        result = await this._batchStepZmodemUpload(s)
-        break
-      case 'zmodem_download':
-        result = await this._batchStepZmodemDownload(s)
-        break
       default:
         throw new Error(`Unknown action: ${action}`)
     }
@@ -205,35 +200,38 @@ export default class BatchOpRunner extends Component {
     }
   }
 
-  async _waitForConnection (tabId) {
+  _waitForConnection = async (tabId) => {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
+        if (this._refWait) {
+          this._refWait.stop()
+          delete this._refWait
+        }
         reject(new Error('Connection timeout'))
       }, 30000)
 
-      const checkConnection = () => {
+      this._refWait = autoRun(() => {
         const { tabs } = window.store
         const tab = tabs.find(t => t.id === tabId)
-        if (tab) {
-          if (tab.status === statusMap.success) {
-            clearTimeout(timeout)
-            resolve(tab)
-          } else if (tab.status === statusMap.error) {
-            clearTimeout(timeout)
-            reject(new Error('Connection failed: ' + (tab.errorMsg || 'unknown error')))
-          } else {
-            setTimeout(checkConnection, 200)
-          }
-        } else {
-          setTimeout(checkConnection, 200)
+        if (tab && tab.status === statusMap.success) {
+          clearTimeout(timeout)
+          this._refWait && this._refWait.stop()
+          delete this._refWait
+          resolve(tab)
+        } else if (tab && tab.status === statusMap.error) {
+          clearTimeout(timeout)
+          this._refWait && this._refWait.stop()
+          delete this._refWait
+          reject(new Error('Connection failed: ' + (tab.errorMsg || 'unknown error')))
         }
-      }
-      checkConnection()
+        return window.store.tabs
+      })
+      this._refWait.start()
     })
   }
 
   async _batchStepCommand (step) {
-    const tabId = this.currentTabId || this.getActiveTabId?.()
+    const tabId = this.currentTabId
 
     if (!tabId) {
       throw new Error('No active tab. Please connect first.')
@@ -265,56 +263,49 @@ export default class BatchOpRunner extends Component {
   }
 
   async _batchStepSftpUpload (step) {
-    const tabId = this.currentTabId || this.getActiveTabId?.()
+    const tabId = this.currentTabId
     const { store } = window
-    const stepWithTabId = { ...step, tabId }
+    const stepWithTabId = { ...step, tabId, conflictPolicy: 'mergeOrOverwriteAll' }
     const { transferId } = await store.mcpSftpUpload(stepWithTabId)
     await this._batchWaitForTransfer(transferId)
     return { success: true, action: 'sftp_upload', localPath: step.localPath, remotePath: step.remotePath, transferId, tabId }
   }
 
   async _batchStepSftpDownload (step) {
-    const tabId = this.currentTabId || this.getActiveTabId?.()
+    const tabId = this.currentTabId
     const { store } = window
-    const stepWithTabId = { ...step, tabId }
+    const stepWithTabId = { ...step, tabId, conflictPolicy: 'mergeOrOverwriteAll' }
     const { transferId } = await store.mcpSftpDownload(stepWithTabId)
     await this._batchWaitForTransfer(transferId)
     return { success: true, action: 'sftp_download', remotePath: step.remotePath, localPath: step.localPath, transferId, tabId }
   }
 
-  async _batchStepZmodemUpload (step) {
-    const tabId = this.currentTabId || this.getActiveTabId?.()
-    const stepWithTabId = { ...step, tabId }
-    return window.store.mcpZmodemUpload(stepWithTabId)
-  }
-
-  async _batchStepZmodemDownload (step) {
-    const tabId = this.currentTabId || this.getActiveTabId?.()
-    const stepWithTabId = { ...step, tabId }
-    return window.store.mcpZmodemDownload(stepWithTabId)
-  }
-
   async _batchWaitForTransfer (transferId) {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
+        if (this._refTransferWait) {
+          this._refTransferWait.stop()
+          delete this._refTransferWait
+        }
         reject(new Error('Transfer timeout (1 hour)'))
       }, 60 * 60 * 1000)
 
-      const checkTransfer = () => {
+      this._refTransferWait = autoRun(() => {
         const { transferHistory } = window.store
         const item = transferHistory.find(t => t.id === transferId || t.originalId === transferId)
         if (item) {
           clearTimeout(timeout)
+          this._refTransferWait && this._refTransferWait.stop()
+          delete this._refTransferWait
           if (item.error) {
             reject(new Error('Transfer failed: ' + item.error))
           } else {
             resolve(item)
           }
-        } else {
-          setTimeout(checkTransfer, 200)
         }
-      }
-      checkTransfer()
+        return window.store.transferHistory
+      })
+      this._refTransferWait.start()
     })
   }
 

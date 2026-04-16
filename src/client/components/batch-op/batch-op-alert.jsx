@@ -10,7 +10,7 @@ export default function BatchOpAlert () {
   const description = (
     <div>
       <div>
-        <p>Actions: <code>connect, command, sftp_upload, sftp_download, zmodem_upload, zmodem_download</code></p>
+        <p>Actions: <code>connect, command, sftp_upload, sftp_download</code></p>
         <p><ExternalLink to={batchOpWikiLink}>{batchOpWikiLink}</ExternalLink></p>
       </div>
       {expanded && (
@@ -19,8 +19,6 @@ export default function BatchOpAlert () {
           <p><strong>command</strong> params: <code>command</code></p>
           <p><strong>sftp_upload</strong> params: <code>localPath, remotePath</code></p>
           <p><strong>sftp_download</strong> params: <code>remotePath, localPath</code></p>
-          <p><strong>zmodem_upload</strong> params: <code>files (array), protocol (trzsz|rzsz)</code></p>
-          <p><strong>zmodem_download</strong> params: <code>remoteFiles (array), saveFolder, protocol (trzsz|rzsz)</code></p>
         </div>
       )}
       <Button
