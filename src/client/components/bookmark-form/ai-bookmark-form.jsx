@@ -2,7 +2,8 @@
  * AI-powered bookmark generation form
  */
 import { useState, useEffect } from 'react'
-import { Button, Input, message, Space, Alert } from 'antd'
+import { Button, Input, Space, Alert } from 'antd'
+import message from '../common/message'
 import {
   RobotOutlined,
   LoadingOutlined,

@@ -3,7 +3,8 @@
  */
 
 import React from 'react'
-import { Button, message } from 'antd'
+import { Button } from 'antd'
+import message from '../common/message'
 import { PlusOutlined } from '@ant-design/icons'
 import Modal from '../common/modal'
 import { refsStatic } from '../common/ref'
