@@ -1,3 +1,4 @@
+import React, { useRef, useEffect } from 'react'
 import {
   ArrowUpOutlined,
   EyeInvisibleFilled,
@@ -134,15 +135,28 @@ export default function AddressBar (props) {
   const GoIcon = isLoadingRemote
     ? LoadingOutlined
     : (realPath === path ? ReloadOutlined : ArrowRightOutlined)
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    const wrapEl = inputRef.current
+    if (!wrapEl) return
+    const inputEl = wrapEl.querySelector('input')
+    if (!inputEl) return
+    const handler = () => props.onInputFocus(type)
+    inputEl.addEventListener('click', handler)
+    return () => {
+      inputEl.removeEventListener('click', handler)
+    }
+  }, [type])
+
   return (
     <div className='pd1y sftp-title-wrap'>
-      <div className='sftp-title'>
+      <div className='sftp-title' ref={inputRef}>
         <Input
           value={path}
           onChange={e => props.onChange(e, n)}
           onPressEnter={e => props.onGoto(type, e)}
           prefix={renderAddonBefore(props, realPath)}
-          onFocus={() => props.onInputFocus(type)}
           onBlur={() => props.onInputBlur(type)}
           disabled={loadingSftp}
           suffix={
