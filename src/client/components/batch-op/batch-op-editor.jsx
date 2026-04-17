@@ -15,7 +15,9 @@ import message from '../common/message'
 import { refsStatic } from '../common/ref'
 import generate from '../../common/uid'
 import fs from '../../common/fs'
+import { safeGetItem, safeSetItem } from '../../common/safe-local-storage'
 
+const batchOpEditorKey = 'batch-op-editor-content'
 const workflowExample = `[
   {
     "name": "Connect SSH",
@@ -80,11 +82,9 @@ const workflowExample = `[
 ]`
 
 function getDefaultValue (widget) {
-  if (widget?.info?.configs) {
-    const config = widget.info.configs.find(c => c.name === 'workflowJson')
-    if (config?.default) return config.default
-  }
-  return ''
+  const saved = safeGetItem(batchOpEditorKey)
+  if (saved) return saved
+  return workflowExample
 }
 
 export default function BatchOpEditor ({ widget }) {
@@ -95,6 +95,10 @@ export default function BatchOpEditor ({ widget }) {
     const v = getDefaultValue(widget)
     if (v) setValue(v)
   }, [widget?.id])
+
+  useEffect(() => {
+    safeSetItem(batchOpEditorKey, value)
+  }, [value])
 
   const handleExecute = async () => {
     if (!value || executing) return
