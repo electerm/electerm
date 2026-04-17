@@ -27,7 +27,6 @@ const {
 
 export default class Upgrade extends PureComponent {
   state = {
-    showCount: 0,
     mirror: mirrors.github
   }
 
@@ -39,15 +38,23 @@ export default class Upgrade extends PureComponent {
     }
     this.id = 'upgrade'
     refsStatic.add(this.id, this)
+    this.cleanupTimer = setInterval(() => {
+      const { noUpdateMessageExpires } = window.store.upgradeInfo
+      if (noUpdateMessageExpires && Date.now() > noUpdateMessageExpires) {
+        window.store.upgradeInfo.noUpdateMessage = ''
+        window.store.upgradeInfo.noUpdateMessageExpires = 0
+      }
+    }, 1000)
   }
 
-  appUpdateCheck = (noSkip) => {
-    this.setState(old => {
-      return {
-        showCount: old.showCount + 1
-      }
-    })
-    this.getLatestRelease(noSkip)
+  componentWillUnmount () {
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer)
+    }
+  }
+
+  appUpdateCheck = (isManual) => {
+    this.getLatestRelease(isManual)
   }
 
   changeProps = (update) => {
@@ -146,7 +153,7 @@ export default class Upgrade extends PureComponent {
     this.handleClose()
   }
 
-  getLatestRelease = async (noSkipVersion = false) => {
+  getLatestRelease = async (isManual = false) => {
     const { installSrc } = this.props
     if (checkSkipSrc(installSrc)) {
       return
@@ -167,10 +174,19 @@ export default class Upgrade extends PureComponent {
     const { skipVersion = 'v0.0.0' } = this.props
     const currentVer = 'v' + window.et.version.split('-')[0]
     const latestVer = releaseVer.tag_name
-    if (!noSkipVersion && compare(skipVersion, latestVer) >= 0) {
+    if (!isManual && compare(skipVersion, latestVer) >= 0) {
       return
     }
     const shouldUpgrade = compare(currentVer, latestVer) < 0
+    if (!shouldUpgrade) {
+      if (isManual) {
+        this.changeProps({
+          noUpdateMessage: e('noNeed'),
+          noUpdateMessageExpires: Date.now() + 3000
+        })
+      }
+      return
+    }
     const canAutoUpgrade = installSrc || isWin || isMac
     let releaseInfo
     if (canAutoUpgrade) {
@@ -208,28 +224,6 @@ export default class Upgrade extends PureComponent {
     )
   }
 
-  renderCanNotUpgrade = () => {
-    const {
-      showUpgradeModal
-    } = this.props.upgradeInfo
-    const cls = `animate upgrade-panel${showUpgradeModal ? '' : ' upgrade-panel-hide'}`
-    return (
-      <div className={cls}>
-        <div className='upgrade-panel-title fix'>
-          <span className='fleft'>
-            {e('noNeed')}
-          </span>
-          <span className='fright'>
-            <CloseOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleClose} />
-          </span>
-        </div>
-        <div className='upgrade-panel-body'>
-          {e('noNeedDesc')}
-        </div>
-      </div>
-    )
-  }
-
   renderChangeLog = () => {
     const {
       releaseInfo
@@ -262,9 +256,6 @@ export default class Upgrade extends PureComponent {
   }
 
   render () {
-    const {
-      showCount
-    } = this.state
     const { installSrc } = this.props
     const {
       remoteVersion,
@@ -279,11 +270,8 @@ export default class Upgrade extends PureComponent {
     if (error) {
       return this.renderError(error)
     }
-    if (!shouldUpgrade && showCount < 2) {
+    if (!shouldUpgrade) {
       return null
-    }
-    if (!shouldUpgrade && showCount > 1) {
-      return this.renderCanNotUpgrade()
     }
     if (checkingRemoteVersion) {
       return null

@@ -42,8 +42,10 @@ export default auto(function InfoModal (props) {
       upgradeInfo
     } = props
     const onCheckUpdating = upgradeInfo.checkingRemoteVersion || upgradeInfo.upgrading
+    const { noUpdateMessage, noUpdateMessageExpires } = upgradeInfo
+    const showMessage = noUpdateMessage && noUpdateMessageExpires && Date.now() < noUpdateMessageExpires
     return (
-      <p className='mg1b mg2t'>
+      <div className='mg1b mg2t'>
         <Button
           type='primary'
           loading={onCheckUpdating}
@@ -51,7 +53,10 @@ export default auto(function InfoModal (props) {
         >
           {e('checkForUpdate')}
         </Button>
-      </p>
+        {showMessage && (
+          <span className='mg1l'>{noUpdateMessage}</span>
+        )}
+      </div>
     )
   }
 
