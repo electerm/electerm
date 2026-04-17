@@ -17,15 +17,14 @@ const globalState = require('./global-state')
 rp.defaults.proxy = false
 
 function getUrl (url, mirror) {
-  if (mirror === 'download-electerm') {
-    // return `https://sciproxy.com/${url}`
-    return url
-  } else if (mirror === 'github') {
-    return url
-  } else {
+  if (mirror === 'gh-proxy') {
+    return `https://gh-proxy.com/${url}`
+  } if (mirror === 'sourceforge') {
     const arr = url.split('/')
     const len = arr.length
     return `https://master.dl.sourceforge.net/project/electerm.mirror/${arr[len - 2]}/${arr[len - 1]}?viasf=1`
+  } else {
+    return url
   }
 }
 

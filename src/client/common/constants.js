@@ -229,11 +229,6 @@ export const rendererTypes = {
   canvas: 'canvas',
   webGL: 'webGL'
 }
-export const mirrors = {
-  'download-electerm': 'download-electerm',
-  github: 'github',
-  sourceforge: 'sourceforge'
-}
 export const downloadUpgradeTimeout = 20000
 export const expandedKeysLsKey = 'expanded-keys'
 export const resolutionsLsKey = 'custom-resolution-key'
