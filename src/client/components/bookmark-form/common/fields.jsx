@@ -22,6 +22,7 @@ import SshHostSelector from './ssh-host-selector.jsx'
 import SshAuthTypeSelector from './ssh-auth-type-selector.jsx'
 import SshAuthSelector from './ssh-auth-selector.jsx'
 import CategorySelect from './category-select.jsx'
+import ExternalLink from '../../common/external-link.jsx'
 const Fragment = React.Fragment
 const FormItem = Form.Item
 
@@ -115,6 +116,20 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
 
   // Render complex/custom components directly (no extra wrapper component)
   switch (type) {
+    case 'wiki':
+      return (
+        <Alert
+          key={name}
+          type='warning'
+          className='mg2b'
+          showIcon
+          description={
+            <>
+              <ExternalLink to={item.link}>{item.link}</ExternalLink>
+            </>
+          }
+        />
+      )
     case 'alert':
       return <Alert key={name} {...item.props} />
     case 'info':
