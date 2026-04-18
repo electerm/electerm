@@ -20,6 +20,7 @@ module.exports = (client, app) => {
     if (parent) {
       s = s.locator('..')
     }
+    await s.waitFor({ state: 'visible', timeout: 10000 })
     await s.click()
   }
   client.elemExist = async (sel) => {
@@ -53,7 +54,7 @@ module.exports = (client, app) => {
     return s.innerText()
   }
   client.setValue = async (sel, v) => {
-    const s = await client.locator(sel)
+    const s = client.locator(sel).first()
     return s.fill(v)
   }
   client.getAttribute = async (sel, name) => {
@@ -61,7 +62,8 @@ module.exports = (client, app) => {
     return element.getAttribute(name)
   }
   client.rightClick = async function (sel, x, y) {
-    const s = await client.locator(sel).nth(0)
+    const s = client.locator(sel).first()
+    await s.waitFor({ state: 'visible', timeout: 10000 })
     await s.click({
       button: 'right',
       position: {
@@ -72,7 +74,8 @@ module.exports = (client, app) => {
   }
   client.doubleClick = async function (sel, n = 0) {
     const sl = sel + `>> nth=${n}`
-    const s = await client.locator(sl)
+    const s = client.locator(sl).first()
+    await s.waitFor({ state: 'visible', timeout: 10000 })
     await s.dblclick()
   }
   client.readClipboard = async () => {
