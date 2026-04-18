@@ -88,12 +88,6 @@ Object.assign(fs, {
       .then((data) => cb(undefined, data))
       .catch((err) => cb(err))
   },
-  mkdir: (...args) => {
-    const cb = args.pop()
-    window.fs.mkdir(...args)
-      .then((data) => cb(undefined, data))
-      .catch((err) => cb(err))
-  },
   write: (p1, buf, cb) => {
     window.fs.writeCustom(p1, window.fs.encodeUint8Array(buf))
       .then((data) => cb(undefined, data))
