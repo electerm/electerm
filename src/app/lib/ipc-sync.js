@@ -128,11 +128,15 @@ module.exports = {
         'openFile',
         'zipFolder',
         'unzipFile',
+        'readCustom',
         'exists',
         'readdir',
         'mkdir',
         'realpath',
         'statCustom',
+        'openCustom',
+        'closeCustom',
+        'writeCustom',
         'getFolderSize'
       ]
     }

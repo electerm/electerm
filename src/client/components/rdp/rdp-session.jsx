@@ -8,23 +8,30 @@ import {
 } from '../../common/constants'
 import {
   ReloadOutlined,
-  EditOutlined
+  EditOutlined,
+  UploadOutlined,
+  DownloadOutlined
 } from '@ant-design/icons'
 import {
   Spin,
   Select,
-  Switch
+  Switch,
+  Tooltip
 } from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import scanCode from './code-scan'
 import resolutions from './resolutions'
 import { readClipboardAsync } from '../../common/clipboard'
 import RemoteFloatControl from '../common/remote-float-control'
+import HelpIcon from '../common/help-icon'
+import { FileTransferManager, createFileLogger } from './file-transfer'
+import { notification } from '../common/notification'
+import message from '../common/message'
+import ShowItem from '../common/show-item'
 import './rdp.styl'
 
 const { Option } = Select
 
-// IronRDP WASM module imports — loaded dynamically
 async function loadWasmModule () {
   if (window.ironRdp) return
   console.debug('[RDP-CLIENT] Loading IronRDP WASM module...')
@@ -55,9 +62,15 @@ export default class RdpSession extends PureComponent {
     this.state = {
       loading: false,
       scaleViewport,
-      ...resObj
+      ...resObj,
+      hasRemoteFiles: false,
+      downloadBtnDisabled: true,
+      uploadReady: false
     }
     this.session = null
+    this.fileTransfer = null
+    this.fileUploadInProgress = false
+    this.log = createFileLogger()
   }
 
   componentDidMount () {
@@ -69,15 +82,17 @@ export default class RdpSession extends PureComponent {
   }
 
   cleanup = () => {
-    console.debug('[RDP-CLIENT] cleanup() called')
     if (this.session) {
       try {
         this.session.shutdown()
-        console.debug('[RDP-CLIENT] session.shutdown() called')
       } catch (e) {
-        console.debug('[RDP-CLIENT] session.shutdown() error:', e)
+        this.log(`session.shutdown() error: ${e.message}`, 'error')
       }
       this.session = null
+    }
+    if (this.fileTransfer) {
+      this.fileTransfer.cleanup()
+      this.fileTransfer = null
     }
   }
 
@@ -126,7 +141,6 @@ export default class RdpSession extends PureComponent {
       ...tab
     })
 
-    console.debug('[RDP-CLIENT] Creating RDP session term, host=', tab.host, 'port=', tab.port)
     const r = await createTerm(opts)
       .catch(err => {
         const text = err.message
@@ -135,7 +149,6 @@ export default class RdpSession extends PureComponent {
     if (!r) {
       this.setState({ loading: false })
       this.setStatus(statusMap.error)
-      console.error('[RDP-CLIENT] createTerm failed')
       return
     }
 
@@ -143,18 +156,15 @@ export default class RdpSession extends PureComponent {
       pid, port
     } = r
     this.pid = pid
-    console.debug('[RDP-CLIENT] Term created, pid=', pid, 'port=', port)
 
-    // Build the WebSocket proxy address for IronRDP WASM
     const { width, height } = this.state
-    // IronRDP connects to the proxy address, which then proxies via RDCleanPath
     const extra = `&width=${width}&height=${height}`
     const proxyAddress = this.buildWsUrl(port, 'rdp', extra)
-    // Load WASM module if not already loaded
+
     try {
       await loadWasmModule()
     } catch (e) {
-      console.error('[RDP-CLIENT] Failed to load WASM module:', e)
+      this.log(`Failed to load WASM module: ${e.message}`, 'error')
       this.setState({ loading: false })
       this.setStatus(statusMap.error)
       return
@@ -162,11 +172,10 @@ export default class RdpSession extends PureComponent {
 
     this.setStatus(statusMap.success)
 
-    // Connect using IronRDP SessionBuilder
     try {
       const canvas = this.canvasRef.current
       if (!canvas) {
-        console.error('[RDP-CLIENT] Canvas ref not available')
+        this.log('Canvas ref not available', 'error')
         this.setState({ loading: false })
         return
       }
@@ -176,12 +185,6 @@ export default class RdpSession extends PureComponent {
       const destination = `${rdpHost}:${rdpPort}`
       const username = tab.username || ''
       const password = tab.password || ''
-
-      console.debug('[RDP-CLIENT] Building IronRDP session...')
-      console.debug('[RDP-CLIENT] destination:', destination)
-      console.debug('[RDP-CLIENT] username:', username)
-      console.debug('[RDP-CLIENT] proxyAddress:', proxyAddress)
-      console.debug('[RDP-CLIENT] desktopSize:', width, 'x', height)
 
       const desktopSize = new window.ironRdp.DesktopSize(width, height)
       const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', true)
@@ -196,7 +199,40 @@ export default class RdpSession extends PureComponent {
       builder.renderCanvas(canvas)
       builder.extension(enableCredsspExt)
 
-      // Clipboard callbacks
+      this.fileTransfer = new FileTransferManager(
+        () => this.session,
+        this.log,
+        (inProgress) => {
+          this.fileUploadInProgress = inProgress
+        },
+        () => {
+          this.setState({ uploadReady: false })
+        },
+        (filePath, fileName, fileSize) => {
+          notification.success({
+            message: 'File downloaded from remote',
+            description: (
+              <ShowItem to={filePath}>
+                {`${fileName} (${this.fileTransfer.formatFileSize(fileSize)})`}
+              </ShowItem>
+            ),
+            duration: 0
+          })
+        }
+      )
+
+      this.fileTransfer.setStateChangeCallback((state) => {
+        this.setState({
+          hasRemoteFiles: state.hasRemoteFiles,
+          downloadBtnDisabled: !state.hasRemoteFiles
+        })
+      })
+
+      const fileTransferExtensions = this.fileTransfer.createExtensions()
+      fileTransferExtensions.forEach((ext) => {
+        builder.extension(ext)
+      })
+
       builder.remoteClipboardChangedCallback((clipboardData) => {
         try {
           if (clipboardData.isEmpty()) {
@@ -204,14 +240,14 @@ export default class RdpSession extends PureComponent {
           }
           const items = clipboardData.items()
           for (const item of items) {
-            if (item.mimeType() === 'text/plain') {
+            const mimeType = item.mimeType()
+            if (mimeType === 'text/plain') {
               const text = item.value()
-              console.debug('[RDP-CLIENT] Received clipboard text:', text)
               window.pre.writeClipboard(text)
             }
           }
         } catch (e) {
-          console.error('[RDP-CLIENT] Clipboard error:', e)
+          this.log(`Clipboard error: ${e.message}`, 'error')
         }
       })
 
@@ -219,19 +255,15 @@ export default class RdpSession extends PureComponent {
         this.syncLocalToRemote()
       })
 
-      // Cursor style callback
       builder.setCursorStyleCallbackContext(canvas)
       builder.setCursorStyleCallback(function (style) {
         canvas.style.cursor = style || 'default'
       })
 
-      console.debug('[RDP-CLIENT] Calling builder.connect()...')
       this.session = await builder.connect()
 
       const ds = this.session.desktopSize()
-      console.debug('[RDP-CLIENT] Connected! Desktop:', ds.width, 'x', ds.height)
 
-      // Update canvas size to match actual desktop size
       canvas.width = ds.width
       canvas.height = ds.height
 
@@ -241,17 +273,15 @@ export default class RdpSession extends PureComponent {
 
       canvas.focus()
 
-      // Run the session event loop (renders frames, handles protocol)
-      console.debug('[RDP-CLIENT] Starting session.run() event loop')
       this.session.run().then((info) => {
-        console.debug('[RDP-CLIENT] Session ended:', info.reason())
+        this.log(`Session ended: ${info.reason()}`, 'info')
         this.onSessionEnd()
       }).catch((e) => {
-        console.error('[RDP-CLIENT] Session error:', this.formatError(e))
+        this.log(`Session error: ${this.formatError(e)}`, 'error')
         this.onSessionEnd()
       })
     } catch (e) {
-      console.error('[RDP-CLIENT] Connection failed:', this.formatError(e))
+      this.log(`Connection failed: ${this.formatError(e)}`, 'error')
       this.setState({ loading: false })
       this.setStatus(statusMap.error)
     }
@@ -278,7 +308,9 @@ export default class RdpSession extends PureComponent {
   }
 
   syncLocalToRemote = async () => {
-    if (!this.session) return
+    if (!this.session || this.fileUploadInProgress) {
+      return
+    }
     try {
       const text = await readClipboardAsync()
       if (text) {
@@ -287,12 +319,11 @@ export default class RdpSession extends PureComponent {
         await this.session.onClipboardPaste(data)
       }
     } catch (e) {
-      console.error('[RDP-CLIENT] Local clipboard sync error:', e)
+      this.log(`Local clipboard sync error: ${e.message}`, 'error')
     }
   }
 
   onSessionEnd = () => {
-    console.debug('[RDP-CLIENT] onSessionEnd called')
     this.session = null
     this.setStatus(statusMap.error)
   }
@@ -301,7 +332,6 @@ export default class RdpSession extends PureComponent {
     const canvas = this.canvasRef.current
     if (!canvas || this._inputHandlersSetup) return
     this._inputHandlersSetup = true
-    console.debug('[RDP-CLIENT] Setting up input handlers')
 
     canvas.addEventListener('keydown', (e) => {
       e.preventDefault()
@@ -315,7 +345,7 @@ export default class RdpSession extends PureComponent {
         tx.addEvent(event)
         this.session.applyInputs(tx)
       } catch (err) {
-        console.error('[RDP-CLIENT] Key press error:', err)
+        this.log(`Key press error: ${err.message}`, 'error')
       }
     })
 
@@ -331,7 +361,7 @@ export default class RdpSession extends PureComponent {
         tx.addEvent(event)
         this.session.applyInputs(tx)
       } catch (err) {
-        console.error('[RDP-CLIENT] Key release error:', err)
+        this.log(`Key release error: ${err.message}`, 'error')
       }
     })
 
@@ -381,7 +411,7 @@ export default class RdpSession extends PureComponent {
         tx.addEvent(event)
         this.session.applyInputs(tx)
       } catch (err) {
-        console.error('[RDP-CLIENT] Mouse down error:', err)
+        this.log(`Mouse down error: ${err.message}`, 'error')
       }
     })
 
@@ -394,7 +424,7 @@ export default class RdpSession extends PureComponent {
         tx.addEvent(event)
         this.session.applyInputs(tx)
       } catch (err) {
-        console.error('[RDP-CLIENT] Mouse up error:', err)
+        this.log(`Mouse up error: ${err.message}`, 'error')
       }
     })
 
@@ -417,14 +447,15 @@ export default class RdpSession extends PureComponent {
           this.session.applyInputs(tx)
         }
       } catch (err) {
-        console.error('[RDP-CLIENT] Wheel error:', err)
+        this.log(`Wheel error: ${err.message}`, 'error')
       }
     }, { passive: false })
 
     canvas.addEventListener('contextmenu', (e) => e.preventDefault())
 
-    canvas.addEventListener('paste', () => {
-      this.syncLocalToRemote()
+    canvas.addEventListener('paste', (e) => {
+      e.preventDefault()
+      this.handlePasteEvent()
     })
 
     canvas.addEventListener('focus', () => {
@@ -432,7 +463,6 @@ export default class RdpSession extends PureComponent {
     })
   }
 
-  // Get PS/2 scancode from keyboard event code using existing code-scan module
   getScancode = (code) => {
     const sc = scanCode({ code })
     return sc !== undefined ? sc : null
@@ -443,7 +473,6 @@ export default class RdpSession extends PureComponent {
   }
 
   handleReInit = () => {
-    console.debug('[RDP-CLIENT] handleReInit called')
     this.cleanup()
     this.props.reloadTab(
       this.props.tab
@@ -492,9 +521,9 @@ export default class RdpSession extends PureComponent {
     return {
       isFullScreen: this.props.fullscreen,
       onSendCtrlAltDel: this.handleSendCtrlAltDel,
-      screens: [], // RDP doesn't have multi-screen support like VNC
+      screens: [],
       currentScreen: null,
-      onSelectScreen: () => { }, // No-op for RDP
+      onSelectScreen: () => { },
       fixedPosition,
       showExitFullscreen,
       className
@@ -504,35 +533,85 @@ export default class RdpSession extends PureComponent {
   handleSendCtrlAltDel = () => {
     if (!this.session) return
     try {
-      // Send Ctrl+Alt+Del sequence using IronRDP
       const tx = new window.ironRdp.InputTransaction()
-
-      // Ctrl key press
-      const ctrlScancode = 0x1D // Left Ctrl scancode
+      const ctrlScancode = 0x1D
       tx.addEvent(window.ironRdp.DeviceEvent.keyPressed(ctrlScancode))
-
-      // Alt key press
-      const altScancode = 0x38 // Left Alt scancode
+      const altScancode = 0x38
       tx.addEvent(window.ironRdp.DeviceEvent.keyPressed(altScancode))
-
-      // Del key press
-      const delScancode = 0x53 // Delete scancode
+      const delScancode = 0x53
       tx.addEvent(window.ironRdp.DeviceEvent.keyPressed(delScancode))
-
-      // Del key release
       tx.addEvent(window.ironRdp.DeviceEvent.keyReleased(delScancode))
-
-      // Alt key release
       tx.addEvent(window.ironRdp.DeviceEvent.keyReleased(altScancode))
-
-      // Ctrl key release
       tx.addEvent(window.ironRdp.DeviceEvent.keyReleased(ctrlScancode))
-
       this.session.applyInputs(tx)
-      console.log('[RDP-CLIENT] Sent Ctrl+Alt+Del')
     } catch (err) {
-      console.error('[RDP-CLIENT] Failed to send Ctrl+Alt+Del:', err)
+      this.log(`Failed to send Ctrl+Alt+Del: ${err.message}`, 'error')
     }
+  }
+
+  handleUploadButtonClick = async () => {
+    const properties = [
+      'openFile',
+      'multiSelections',
+      'showHiddenFiles',
+      'noResolveAliases',
+      'treatPackageAsDirectory',
+      'dontAddToRecent'
+    ]
+
+    const files = await window.api.openDialog({
+      title: 'Choose files to upload to remote desktop',
+      message: 'Choose files to upload',
+      properties
+    }).catch((err) => {
+      this.log(`File dialog error: ${err.message}`, 'error')
+      return false
+    })
+
+    if (!files || !files.length) {
+      return
+    }
+
+    message.info('Ready to paste on remote to upload files', 5)
+    this.setState({ uploadReady: true })
+
+    if (this.fileTransfer) {
+      await this.fileTransfer.uploadFromPaths(files)
+    }
+  }
+
+  handleDownloadButtonClick = () => {
+    if (this.fileTransfer) {
+      this.fileTransfer.downloadFiles()
+    }
+  }
+
+  handlePasteEvent = async () => {
+    const text = await readClipboardAsync()
+
+    if (!text) {
+      this.syncLocalToRemote()
+      return
+    }
+
+    const fileRegWin = /^\w:\\.+/
+    const fileReg = /^\/.+/
+    const lines = text.split('\n')
+
+    const filePaths = lines.filter(line => fileReg.test(line) || fileRegWin.test(line))
+
+    if (filePaths.length === 0) {
+      this.syncLocalToRemote()
+      return
+    }
+
+    if (this.fileTransfer) {
+      await this.fileTransfer.uploadFromPaths(filePaths)
+    }
+  }
+
+  componentDidUpdate () {
+    this.setupInputHandlers()
   }
 
   renderControl = () => {
@@ -542,7 +621,9 @@ export default class RdpSession extends PureComponent {
       className: 'mg1l'
     })
     const {
-      id
+      id,
+      hasRemoteFiles,
+      uploadReady
     } = this.state
     const sleProps = {
       value: id,
@@ -556,6 +637,8 @@ export default class RdpSession extends PureComponent {
       checkedChildren: window.translate('scaleViewport'),
       className: 'mg1l'
     }
+    const uploadTitle = window.translate('upload') || 'Upload files to remote'
+    const downloadTitle = window.translate('download') || 'Download files from remote'
     return (
       <div
         className='pd1 fix session-v-info block'
@@ -587,9 +670,24 @@ export default class RdpSession extends PureComponent {
             className='mg2r mg1l pointer'
           />
           {this.renderInfo()}
-          {this.renderHelp()}
           <Switch
             {...scaleProps}
+          />
+          <Tooltip title={uploadTitle}>
+            <UploadOutlined
+              onClick={this.handleUploadButtonClick}
+              className={`mg1r mg2l pointer rdp-file-transfer-btn${uploadReady ? ' rdp-download-flash' : ''}`}
+            />
+          </Tooltip>
+          <Tooltip title={downloadTitle}>
+            <DownloadOutlined
+              onClick={this.handleDownloadButtonClick}
+              className={`mg2r mg1l pointer rdp-file-transfer-btn${hasRemoteFiles ? ' rdp-download-flash' : ' rdp-download-disabled'}`}
+            />
+          </Tooltip>
+          <HelpIcon
+            link='https://github.com/electerm/electerm/wiki/RDP-File-Transfer'
+            className='mg2r mg1l'
           />
         </div>
         <div className='fright'>
@@ -611,11 +709,6 @@ export default class RdpSession extends PureComponent {
         {username}@{host}:{port}
       </span>
     )
-  }
-
-  componentDidUpdate () {
-    // Set up native input handlers after canvas is rendered
-    this.setupInputHandlers()
   }
 
   render () {
