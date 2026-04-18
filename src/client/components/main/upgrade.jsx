@@ -281,7 +281,7 @@ export default class Upgrade extends PureComponent {
       <Select
         value={this.state.mirror}
         onChange={this.handleMirrorChange}
-        dropdownStyle={{ zIndex: 10001 }}
+        getPopupContainer={() => document.body}
         size='small'
         style={{ height: 32 }}
       >
