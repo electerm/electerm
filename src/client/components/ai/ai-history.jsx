@@ -3,12 +3,10 @@
  */
 import { useState, useEffect } from 'react'
 import { Space } from 'antd'
-import { HistoryOutlined } from '@ant-design/icons'
 import { safeGetItemJSON, safeSetItemJSON } from '../../common/safe-local-storage'
 import AiHistoryItem from './ai-history-item'
 
 const MAX_HISTORY = 20
-const e = window.translate
 
 export function getHistory (storageKey) {
   return safeGetItemJSON(storageKey, [])
@@ -81,10 +79,6 @@ export default function AiHistory (props) {
 
   return (
     <div className='ai-bookmark-history pd1b'>
-      <div className='pd1b text-muted'>
-        <HistoryOutlined className='mg1r' />
-        <span className='mg1r'>{e('history') || 'History'}:</span>
-      </div>
       <Space size={[8, 8]} wrap>
         {history.map((item, index) => {
           const keyStr = typeof item === 'string' ? item : JSON.stringify(item)
