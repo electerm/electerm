@@ -21,6 +21,11 @@ const rdpConfig = {
       key: 'auth',
       label: e('auth'),
       fields: [
+        {
+          type: 'wiki',
+          name: 'rdp-limitation-warning',
+          link: 'https://github.com/electerm/electerm/wiki/RDP-limitation'
+        },
         commonFields.category,
         commonFields.colorTitle,
         { type: 'input', name: 'host', label: () => e('host'), rules: [{ required: true, message: e('host') + ' required' }] },
