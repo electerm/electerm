@@ -5,6 +5,7 @@
 
 import fs from '../../common/fs'
 import { getLocalFileInfo } from '../sftp/file-read'
+import { osResolve } from '../../common/resolve'
 
 const LOG_PREFIX = '[RDP-FILE-TRANSFER]'
 
@@ -243,7 +244,7 @@ export class FileTransferManager {
         return
       }
 
-      const fullPath = `${savePath[0]}/${fileInfo.name}`
+      const fullPath = osResolve(savePath[0], fileInfo.name)
 
       const fd = await new Promise((resolve, reject) => {
         fs.open(fullPath, O_WRONLY | O_CREAT | O_TRUNC, (err, fd) => {
