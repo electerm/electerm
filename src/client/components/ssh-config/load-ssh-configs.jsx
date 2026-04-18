@@ -1,5 +1,4 @@
 import {
-  Modal,
   Spin,
   Button,
   Empty
@@ -9,6 +8,7 @@ import * as ls from '../../common/safe-local-storage'
 import {
   sshConfigLoadKey
 } from '../../common/constants'
+import Modal from '../common/modal'
 import { ReloadOutlined } from '@ant-design/icons'
 import LoadSshConfigsItem from './load-ssh-configs-item'
 import './ssh-config.styl'
