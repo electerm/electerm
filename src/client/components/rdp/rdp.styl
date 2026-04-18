@@ -32,4 +32,31 @@
   background var(--main)
   z-index 299
 
+.rdp-file-transfer-btn
+  font-size: 16px
+  color: var(--text)
+  transition: color 0.2s
+  &:hover
+    color: var(--primary)
+
+.rdp-download-disabled
+  opacity: 0.4
+  cursor: not-allowed
+  &:hover
+    color: var(--text)
+
+canvas
+  outline: none
+
+@keyframes rdp-download-flash
+  0%, 100%
+    color: var(--primary)
+    transform: scale(1)
+  50%
+    color: var(--success)
+    transform: scale(1.2)
+
+.rdp-download-flash
+  animation: rdp-download-flash 1s ease-in-out infinite
+
 

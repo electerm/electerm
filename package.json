@@ -81,7 +81,7 @@
     "filesize-parser": "1.5.1",
     "ftp-srv": "^4.6.3",
     "glob": "^11.0.0",
-    "ironrdp-wasm": "1.0.1",
+    "ironrdp-wasm": "1.1.0",
     "lodash-es": "^4.17.21",
     "manate": "2.0.3",
     "morgan": "1.10.1",
