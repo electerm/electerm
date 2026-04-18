@@ -54,7 +54,7 @@ export default auto(function InfoModal (props) {
           {e('checkForUpdate')}
         </Button>
         {showMessage && (
-          <span className='mg1l'>{noUpdateMessage}</span>
+          <span className='mg1l update-msg'>{noUpdateMessage}</span>
         )}
       </div>
     )
