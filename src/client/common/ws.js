@@ -4,7 +4,6 @@
 
 import generate from './uid'
 import wait from './wait'
-import copy from 'json-deep-copy'
 import { pick } from 'lodash-es'
 
 const onces = {}
@@ -32,7 +31,13 @@ class Ws {
   }
 
   async once (func, id) {
+    const maxWait = 300
+    let waited = 0
     while (this.closed) {
+      if (++waited >= maxWait) {
+        console.warn('ws once timeout waiting for reconnection', id)
+        return
+      }
       await wait(100)
     }
     this.onceIds.push(id)
@@ -83,7 +88,7 @@ class Ws {
     if (this.eid) {
       delete persists[this.eid]
     }
-    const ids = copy(this.onceIds)
+    const ids = [...this.onceIds]
     ids.forEach(k => {
       delete onces[k]
     })
@@ -115,10 +120,16 @@ function onEvent (e) {
     action,
     persist
   } = e.data
-  if (wss[id]) {
-    if (action === 'close') {
-      wss[id].close && wss[id].close()
+  if (wss[id] && action === 'close') {
+    const ws = wss[id]
+    ws.onclose()
+    if (ws.persist) {
+      ws.closed = true
+    } else {
+      ws.clearOnces()
+      delete wss[id]
     }
+    return
   }
   if (persists[id]) {
     persists[id].resolve(data)
