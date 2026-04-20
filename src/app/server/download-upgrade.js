@@ -18,7 +18,7 @@ rp.defaults.proxy = false
 
 function getUrl (url, mirror) {
   if (mirror === 'gh-proxy') {
-    return `https://gh-proxy.com/${url}`
+    return `https://gh-proxy.org/${url}`
   } if (mirror === 'sourceforge') {
     const arr = url.split('/')
     const len = arr.length
