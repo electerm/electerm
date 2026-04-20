@@ -15,7 +15,7 @@ jobs:
       - name: Setup node and npm
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           registry-url: https://registry.npmjs.org/
       - run: npm config set legacy-peer-deps true
       - run: npm install shelljs
