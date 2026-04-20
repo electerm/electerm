@@ -76,7 +76,8 @@ class MenuBtn extends PureComponent {
       items.push({
         func: 'addTab',
         icon: 'RightSquareFilled',
-        text: e('newTab')
+        text: e('newTab'),
+        subText: this.getShortcut('app_newTab')
       })
     }
     // {

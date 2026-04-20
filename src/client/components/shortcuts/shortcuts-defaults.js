@@ -37,6 +37,11 @@ export default () => {
       shortcutMac: 'meta+n'
     },
     {
+      name: 'app_newTab',
+      shortcut: 'alt+q',
+      shortcutMac: 'alt+q'
+    },
+    {
       name: 'app_toggleAddBtn',
       shortcut: 'alt+n',
       shortcutMac: 'alt+n'

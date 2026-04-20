@@ -172,6 +172,15 @@ class ShortcutControl extends React.PureComponent {
     window.store.onNewSsh()
   }, 500)
 
+  newTabShortcut = throttle((e) => {
+    e.stopPropagation()
+    if (window.store.hasNodePty) {
+      window.store.addTab()
+    } else {
+      window.store.onNewSsh()
+    }
+  }, 500)
+
   toggleAddBtnShortcut = throttle((e) => {
     e.stopPropagation()
     const { currentLayoutBatch } = window.store
