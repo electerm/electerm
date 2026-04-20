@@ -137,7 +137,7 @@ kofi
 ```bash
 # May only works in Linux
 # needs nodejs/npm, suggest using fnm to install nodejs/npm
-# with nodejs 22.x
+# with nodejs 24.x
 
 git clone git@github.com:electerm/electerm.git
 cd electerm
