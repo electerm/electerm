@@ -27,7 +27,7 @@ const {
 
 const downloadMirrorList = [
   'github',
-  'gh-proxy',
+  'mirror',
   'sourceforge'
 ]
 

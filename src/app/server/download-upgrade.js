@@ -17,8 +17,8 @@ const globalState = require('./global-state')
 rp.defaults.proxy = false
 
 function getUrl (url, mirror) {
-  if (mirror === 'gh-proxy') {
-    return `https://gh-proxy.org/${url}`
+  if (mirror === 'mirror') {
+    return `https://electerm-mirror.html5beta.com/${url}`
   } if (mirror === 'sourceforge') {
     const arr = url.split('/')
     const len = arr.length
