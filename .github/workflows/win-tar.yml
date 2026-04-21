@@ -36,7 +36,7 @@ jobs:
     - run: npm i -S -E node-pty@1.1.0-beta14
     - run: npm i -S -E serialport@13.0.0
 
-    - name: Install R2 dependencies if needed
+    - name: Install R2 dependencies if needed fix
       if: ${{ contains(github.event.head_commit.message, '[r2]') }}
       run: npm i -D @aws-sdk/client-s3
 
