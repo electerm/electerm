@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: build
     steps:
-      - uses: vedantmgoyal2009/winget-releaser@v2
+      - uses: vedantmgoyal9/winget-releaser@main
         with:
           identifier: electerm.electerm
           installers-regex: '.*.exe$'
