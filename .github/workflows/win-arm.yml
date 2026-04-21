@@ -35,6 +35,10 @@ jobs:
     - run: npm i -S -E node-pty@1.1.0-beta14
     - run: npm i -S -E serialport@13.0.0
 
+    - name: Install R2 dependencies if needed
+      if: ${{ contains(github.event.head_commit.message, '[r2]') }}
+      run: npm i -D @aws-sdk/client-s3
+
     # script:
     - run: npm run b
     
@@ -56,5 +60,9 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
         WORKFLOW_NAME: ${{ github.workflow }}
+        CF_R2_ACCOUNT_ID: ${{ secrets.CF_R2_ACCOUNT_ID }}
+        CF_R2_BUCKET: ${{ secrets.CF_R2_BUCKET }}
+        CF_R2_ACCESS_KEY_ID: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+        CF_R2_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
       run: node build/bin/build-win-arm
 

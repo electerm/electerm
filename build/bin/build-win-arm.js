@@ -2,6 +2,7 @@ const { echo, rm } = require('shelljs')
 const {
   run,
   writeSrc,
+  uploadToR2,
   builder: pb,
   reBuild,
   replaceJSON
@@ -11,8 +12,9 @@ async function main () {
   echo('running build for Windows ARM64')
 
   echo('build tar.gz for Windows ARM64')
+  const src = 'win-arm64.tar.gz'
   rm('-rf', 'dist')
-  writeSrc('win-arm64.tar.gz')
+  writeSrc(src)
   replaceJSON(
     (data) => {
       data.win.target = ['tar.gz']
@@ -20,6 +22,7 @@ async function main () {
   )
   await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --win --arm64`)
+  await uploadToR2(src)
 }
 
 main()

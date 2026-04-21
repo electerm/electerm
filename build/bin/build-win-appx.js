@@ -4,6 +4,7 @@ const fs = require('fs')
 const {
   run,
   writeSrc,
+  uploadToR2,
   builder
 } = require('./build-common')
 
@@ -15,8 +16,10 @@ async function main () {
   delete txt.electronLanguages
   fs.writeFileSync(p, JSON.stringify(txt, null, 2))
   rm('-rf', 'dist')
-  writeSrc('win-x64.appx')
+  const src = 'win-x64.appx'
+  writeSrc(src)
   await run(`${pb} --win appx`)
+  await uploadToR2(src)
 }
 
 main()

@@ -2,6 +2,7 @@ const { echo, rm } = require('shelljs')
 const {
   run,
   writeSrc,
+  uploadToR2,
   builder: pb,
   replaceJSON,
   renameDist
@@ -32,38 +33,46 @@ async function main () {
   echo('Building tar.gz package')
   echo('============')
   rm('-rf', 'dist')
-  writeSrc('linux-x64-legacy.tar.gz')
+  let src = 'linux-x64-legacy.tar.gz'
+  writeSrc(src)
   await run(`${pb} --linux tar.gz`)
+  await uploadToR2(src)
   renameDist()
 
   echo('============')
   echo('Building deb package')
   echo('============')
   rm('-rf', 'dist')
-  writeSrc('linux-amd64-legacy.deb')
+  src = 'linux-amd64-legacy.deb'
+  writeSrc(src)
   await run(`${pb} --linux deb`)
+  await uploadToR2(src)
   renameDist()
 
   echo('============')
   echo('Building rpm package')
   echo('============')
   rm('-rf', 'dist')
-  writeSrc('linux-x86_64-legacy.rpm')
+  src = 'linux-x86_64-legacy.rpm'
+  writeSrc(src)
   replaceJSON((data) => {
     data.linux.target = ['rpm']
   })
   await run(`${pb} --linux rpm`)
+  await uploadToR2(src)
   renameDist()
 
   echo('============')
   echo('Building AppImage package')
   echo('============')
   rm('-rf', 'dist')
-  writeSrc('linux-x86_64-legacy.AppImage')
+  src = 'linux-x86_64-legacy.AppImage'
+  writeSrc(src)
   replaceJSON((data) => {
     data.linux.target = ['AppImage']
   })
   await run(`${pb} --linux`)
+  await uploadToR2(src)
   renameDist()
 
   echo('============')

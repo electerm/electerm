@@ -3,6 +3,7 @@ const replace = require('replace-in-file')
 const {
   run,
   writeSrc,
+  uploadToR2,
   builder
 } = require('./build-common')
 
@@ -31,8 +32,10 @@ async function main () {
   echo('build dmg')
   await replaceRun()
   rm('-rf', 'dist')
-  writeSrc('mac10-x64.dmg')
+  const src = 'mac10-x64.dmg'
+  writeSrc(src)
   await run(`${pb} --mac --x64`)
+  await uploadToR2(src)
 }
 
 main()

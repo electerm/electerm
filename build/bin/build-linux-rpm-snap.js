@@ -2,6 +2,7 @@ const { echo, rm } = require('shelljs')
 const {
   run,
   writeSrc,
+  uploadToR2,
   builder: pb
 } = require('./build-common')
 
@@ -10,13 +11,17 @@ async function main () {
 
   echo('build rpm')
   rm('-rf', 'dist')
-  writeSrc('linux-x86_64.rpm')
+  let src = 'linux-x86_64.rpm'
+  writeSrc(src)
   await run(`${pb} --linux rpm`)
+  await uploadToR2(src)
 
   echo('build snap')
   rm('-rf', 'dist')
-  writeSrc('linux-amd64.snap')
+  src = 'linux-amd64.snap'
+  writeSrc(src)
   await run(`${pb} --linux snap -p always`)
+  await uploadToR2(src)
 }
 
 main()
