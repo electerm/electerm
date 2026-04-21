@@ -3,6 +3,7 @@ const replace = require('replace-in-file')
 const {
   run,
   writeSrc,
+  uploadToR2,
   builder
 } = require('./build-common')
 const options = {
@@ -29,8 +30,10 @@ async function main () {
   echo('build tar.gz')
   await replaceRun()
   rm('-rf', 'dist')
-  writeSrc('win7.tar.gz')
+  const src = 'win7.tar.gz'
+  writeSrc(src)
   await run(`${pb} --win tar.gz`)
+  await uploadToR2(src)
 }
 
 main()

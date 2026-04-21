@@ -2,6 +2,7 @@ const { echo } = require('shelljs')
 const {
   run,
   writeSrc,
+  uploadToR2,
   builder: pb,
   renameDist,
   reBuild,
@@ -16,8 +17,9 @@ async function main () {
   echo('============================================')
   echo('==== Start: build linux.arm64.tar.gz ====')
   echo('============================================')
+  let src = 'linux-arm64.tar.gz'
   renameDist()
-  writeSrc('linux-arm64.tar.gz')
+  writeSrc(src)
   replaceJSON(
     (data) => {
       data.linux.target = ['tar.gz']
@@ -28,12 +30,14 @@ async function main () {
     echo('❌ Fatal error in build linux.arm64.tar.gz:')
     console.error(error)
   })
+  await uploadToR2(src)
 
   echo('============================================')
   echo('==== Start: build linux.arm64.deb ====')
   echo('============================================')
+  src = 'linux-arm64.deb'
   renameDist()
-  writeSrc('linux-arm64.deb')
+  writeSrc(src)
   replaceJSON(
     (data) => {
       data.linux.target = ['deb']
@@ -43,12 +47,14 @@ async function main () {
     echo('❌ Fatal error in build linux.arm64.deb:')
     console.error(error)
   })
+  await uploadToR2(src)
 
   echo('============================================')
   echo('==== Start: build linux.aarch64.rpm ====')
   echo('============================================')
+  src = 'linux-aarch64.rpm'
   renameDist()
-  writeSrc('linux-aarch64.rpm')
+  writeSrc(src)
   replaceJSON(
     (data) => {
       data.linux.target = ['rpm']
@@ -58,12 +64,14 @@ async function main () {
     echo('❌ Fatal error in build linux.aarch64.rpm:')
     console.error(error)
   })
+  await uploadToR2(src)
 
   echo('============================================')
   echo('==== Start: build linux.arm64.AppImage ====')
   echo('============================================')
+  src = 'linux-arm64.AppImage'
   renameDist()
-  writeSrc('linux-arm64.AppImage')
+  writeSrc(src)
   replaceJSON(
     (data) => {
       data.linux.target = ['AppImage']
@@ -73,12 +81,14 @@ async function main () {
     echo('❌ Fatal error in build linux.arm64.AppImage:')
     console.error(error)
   })
+  await uploadToR2(src)
 
   echo('============================================')
   echo('==== Start: build linux.armv7l.tar.gz ====')
   echo('============================================')
+  src = 'linux-armv7l.tar.gz'
   renameDist()
-  writeSrc('linux-armv7l.tar.gz')
+  writeSrc(src)
   replaceJSON(
     (data) => {
       data.linux.target = ['tar.gz']
@@ -89,12 +99,14 @@ async function main () {
     echo('❌ Fatal error in build linux.armv7l:')
     console.error(error)
   })
+  await uploadToR2(src)
 
   echo('============================================')
   echo('==== Start: build linux.armv7l.deb ====')
   echo('============================================')
+  src = 'linux-armv7l.deb'
   renameDist()
-  writeSrc('linux-armv7l.deb')
+  writeSrc(src)
   replaceJSON(
     (data) => {
       data.linux.target = ['deb']
@@ -104,36 +116,41 @@ async function main () {
     echo('❌ Fatal error in build linux.armv7l.deb:')
     console.error(error)
   })
+  await uploadToR2(src)
 
   echo('============================================')
   echo('==== Start: build linux.armv7l.rpm ====')
   echo('============================================')
+  src = 'linux-armv7l.rpm'
   renameDist()
+  writeSrc(src)
   replaceJSON(
     (data) => {
       data.linux.target = ['rpm']
     }
   )
-  writeSrc('linux-armv7l.rpm')
   await run(`${pb} --linux --armv7l`).catch(error => {
     echo('❌ Fatal error in build linux.armv7l.rpm:')
     console.error(error)
   })
+  await uploadToR2(src)
 
   echo('============================================')
   echo('==== Start: build linux.armv7l.AppImage ====')
   echo('============================================')
+  src = 'linux-armv7l.AppImage'
   renameDist()
+  writeSrc(src)
   replaceJSON(
     (data) => {
       data.linux.target = ['AppImage']
     }
   )
-  writeSrc('linux-armv7l.AppImage')
   await run(`${pb} --linux --armv7l`).catch(error => {
     echo('❌ Fatal error in build linux.armv7l.AppImage:')
     console.error(error)
   })
+  await uploadToR2(src)
 
   echo('✅ All Linux ARM builds completed successfully')
 }

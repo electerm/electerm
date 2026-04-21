@@ -2,6 +2,7 @@ const { echo, rm } = require('shelljs')
 const {
   run,
   writeSrc,
+  uploadToR2,
   builder: pb,
   replaceJSON,
   renameDist
@@ -12,25 +13,31 @@ async function main () {
 
   echo('build tar.gz')
   rm('-rf', 'dist')
-  writeSrc('linux-x64.tar.gz')
+  let src = 'linux-x64.tar.gz'
+  writeSrc(src)
   await run(`${pb} --linux tar.gz`)
+  await uploadToR2(src)
   renameDist()
 
   echo('build deb')
   rm('-rf', 'dist')
-  writeSrc('linux-amd64.deb')
+  src = 'linux-amd64.deb'
+  writeSrc(src)
   await run(`${pb} --linux deb`)
+  await uploadToR2(src)
   renameDist()
 
   echo('build linux-x86_64.AppImage')
   rm('-rf', 'dist')
-  writeSrc('linux-x86_64.AppImage')
+  src = 'linux-x86_64.AppImage'
+  writeSrc(src)
   replaceJSON(
     (data) => {
       data.linux.target = ['AppImage']
     }
   )
   await run(`${pb} --linux`)
+  await uploadToR2(src)
   renameDist()
 }
 

@@ -29,6 +29,10 @@ jobs:
     - run: npm install -g yarn
     - run: npm i
 
+    - name: Install R2 dependencies if needed
+      if: ${{ contains(github.event.head_commit.message, '[r2]') }}
+      run: npm i -D @aws-sdk/client-s3
+
     # script:
     - run: npm run b
     
@@ -45,5 +49,9 @@ jobs:
         APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLEIDPASS }}
         APPLE_TEAM_ID: ${{secrets.APPLE_TEAM_ID}}
         WORKFLOW_NAME: ${{ github.workflow }}
+        CF_R2_ACCOUNT_ID: ${{ secrets.CF_R2_ACCOUNT_ID }}
+        CF_R2_BUCKET: ${{ secrets.CF_R2_BUCKET }}
+        CF_R2_ACCESS_KEY_ID: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+        CF_R2_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
       run: node build/bin/build-mac-arm
 

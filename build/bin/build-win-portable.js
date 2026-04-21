@@ -3,6 +3,7 @@ const { rm, echo } = require('shelljs')
 const {
   run,
   writeSrc,
+  uploadToR2,
   builder
 } = require('./build-common')
 const options = {
@@ -30,8 +31,10 @@ async function main () {
   echo('build portable tar.gz')
   await replaceRun()
   rm('-rf', 'dist')
-  writeSrc('win-x64-portable.tar.gz')
+  const src = 'win-x64-portable.tar.gz'
+  writeSrc(src)
   await run(`${pb} --win tar.gz`)
+  await uploadToR2(src)
 }
 
 main()

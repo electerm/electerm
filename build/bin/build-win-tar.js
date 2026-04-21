@@ -2,6 +2,7 @@ const { rm, echo } = require('shelljs')
 const {
   run,
   writeSrc,
+  uploadToR2,
   builder
 } = require('./build-common')
 
@@ -11,8 +12,10 @@ async function main () {
 
   echo('build tar.gz')
   rm('-rf', 'dist')
-  writeSrc('win-x64.tar.gz')
+  const src = 'win-x64.tar.gz'
+  writeSrc(src)
   await run(`${pb} --win tar.gz`)
+  await uploadToR2(src)
 }
 
 main()

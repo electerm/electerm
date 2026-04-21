@@ -10,6 +10,7 @@ const { echo, rm } = require('shelljs')
 const {
   run,
   writeSrc,
+  uploadToR2,
   builder: pb
 } = require('./build-common')
 
@@ -17,9 +18,11 @@ async function main () {
   echo('running build for mac')
 
   echo('build dmg')
+  const src = 'mac-x64.dmg'
   rm('-rf', 'dist')
-  writeSrc('mac-x64.dmg')
+  writeSrc(src)
   await run(`${pb} --mac`)
+  await uploadToR2(src)
 }
 
 main()
