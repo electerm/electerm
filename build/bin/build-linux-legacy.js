@@ -40,7 +40,7 @@ async function main () {
   echo('Building deb package')
   echo('============')
   rm('-rf', 'dist')
-  writeSrc('linux-x64-legacy.deb')
+  writeSrc('linux-amd64-legacy.deb')
   await run(`${pb} --linux deb`)
   renameDist()
 
@@ -48,7 +48,7 @@ async function main () {
   echo('Building rpm package')
   echo('============')
   rm('-rf', 'dist')
-  writeSrc('linux-x64-legacy.rpm')
+  writeSrc('linux-x86_64-legacy.rpm')
   replaceJSON((data) => {
     data.linux.target = ['rpm']
   })

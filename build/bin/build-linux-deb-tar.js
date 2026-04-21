@@ -18,7 +18,7 @@ async function main () {
 
   echo('build deb')
   rm('-rf', 'dist')
-  writeSrc('linux-x64.deb')
+  writeSrc('linux-amd64.deb')
   await run(`${pb} --linux deb`)
   renameDist()
 

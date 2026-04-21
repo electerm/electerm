@@ -12,7 +12,7 @@ async function main () {
 
   echo('build tar.gz for Windows ARM64')
   rm('-rf', 'dist')
-  writeSrc('win-arm64-installer.tar.gz')
+  writeSrc('win-arm64-installer.exe')
   replaceJSON(
     (data) => {
       data.win.target = ['nsis']

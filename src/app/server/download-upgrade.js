@@ -62,7 +62,7 @@ class Upgrade {
     const agent = createProxyAgent(proxy)
     const releaseInfoUrl = `${packInfo.homepage}/data/electerm-github-release.json?_=${+new Date()}`
     const filter = r => {
-      return r.name.includes(installSrc)
+      return r.name.endsWith(installSrc)
     }
     // if (isWin) {
     //   filter = r => /electerm-\d+\.\d+\.\d+-win-x64\.tar\.gz/.test(r.name)
