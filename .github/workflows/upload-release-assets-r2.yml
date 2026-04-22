@@ -1,0 +1,49 @@
+name: upload-release-assets-to-r2
+on:
+  release:
+    types: [published]
+  push:
+    branches: [ r2 ]
+jobs:
+  upload-to-r2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all release assets
+        uses: actions/download-artifact@v4
+        with:
+          path: ./release-assets
+
+      - name: List downloaded files
+        run: ls -la ./release-assets
+
+      - name: Configure AWS credentials for R2
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+          aws-region: auto
+
+      - name: Delete existing r folder
+        run: |
+          R2_ENDPOINT="${{ secrets.CF_R2_ENDPOINT }}"
+          R2_BUCKET="${{ secrets.CF_R2_BUCKET }}"
+          aws s3 rm "s3://${R2_BUCKET}/r/" --recursive --endpoint-url="$R2_ENDPOINT"
+
+      - name: Upload all release assets to R2
+        run: |
+          R2_ENDPOINT="${{ secrets.CF_R2_ENDPOINT }}"
+          R2_BUCKET="${{ secrets.CF_R2_BUCKET }}"
+          for file in $(find ./release-assets -type f); do
+            rel_path="${file#./release-assets/}"
+            aws s3 cp "$file" "s3://${R2_BUCKET}/r/${rel_path}" \
+              --endpoint-url="$R2_ENDPOINT" \
+              --acl public-read \
+              --cache-control "max-age=31536000"
+            echo "Uploaded: ${rel_path}"
+          done
+
+      - name: Verify uploads
+        run: |
+          R2_ENDPOINT="${{ secrets.R2_ENDPOINT }}"
+          R2_BUCKET="${{ secrets.R2_BUCKET_NAME }}"
+          aws s3 ls "s3://${R2_BUCKET}/r/" --recursive --endpoint-url="$R2_ENDPOINT"
