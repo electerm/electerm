@@ -12,6 +12,8 @@ jobs:
         run: |
           mkdir -p ./release-assets
           gh release download "${{ github.event.release.tag_name }}" --repo "${{ github.repository }}" -D ./release-assets
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: List downloaded files
         run: ls -la ./release-assets
