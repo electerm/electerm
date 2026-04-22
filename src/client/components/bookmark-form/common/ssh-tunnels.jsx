@@ -1,24 +1,25 @@
 import {
   Form,
   Input,
-  InputNumber,
-  Radio,
-  Space,
-  Button,
-  Tooltip,
   Table
 } from 'antd'
 import { useState } from 'react'
-import { PlusOutlined, QuestionCircleOutlined, MinusCircleFilled, UserOutlined } from '@ant-design/icons'
-import { formItemLayout, tailFormItemLayout } from '../../../common/form-layout'
+import { MinusCircleFilled, EditOutlined } from '@ant-design/icons'
+import { tailFormItemLayout } from '../../../common/form-layout'
 import uid from '../../../common/uid'
+import Modal from '../../common/modal'
+import SshTunnelForm from './ssh-tunnel-form'
 
 const FormItem = Form.Item
-const {
-  Button: RadioButton,
-  Group: RadioGroup
-} = Radio
 const e = window.translate
+
+const defaultInitialValues = {
+  sshTunnel: 'forwardRemoteToLocal',
+  sshTunnelLocalPort: 12200,
+  sshTunnelLocalHost: '127.0.0.1',
+  sshTunnelRemotePort: 12300,
+  sshTunnelRemoteHost: '127.0.0.1'
+}
 
 export default function renderSshTunnels (props) {
   const {
@@ -26,21 +27,11 @@ export default function renderSshTunnels (props) {
     formData
   } = props
   const [formChild] = Form.useForm()
-  const [initialValues] = useState({
-    sshTunnel: 'forwardRemoteToLocal',
-    sshTunnelLocalPort: 12200,
-    sshTunnelLocalHost: '127.0.0.1',
-    sshTunnelRemotePort: 12300,
-    sshTunnelRemoteHost: '127.0.0.1'
-  })
-  const [isDynamic, setter] = useState(formData.sshTunnel === 'dynamicForward')
+  const [editFormChild] = Form.useForm()
+  const [initialValues] = useState(defaultInitialValues)
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [editingItem, setEditingItem] = useState(null)
   const [list, setList] = useState(formData.sshTunnels || [])
-  function onSubmit () {
-    formChild.submit()
-  }
-  function onChange (e) {
-    setter(e.target.value === 'dynamicForward')
-  }
   function handleFinish (data) {
     const nd = {
       ...data,
@@ -56,7 +47,7 @@ export default function renderSshTunnels (props) {
     setList(old => {
       return [
         ...old,
-        data
+        nd
       ]
     })
     formChild.resetFields()
@@ -72,6 +63,38 @@ export default function renderSshTunnels (props) {
     })
     formChild.resetFields()
   }
+
+  function openEdit (record) {
+    setEditingItem(record)
+    setEditModalVisible(true)
+    setTimeout(() => {
+      editFormChild.setFieldsValue(record)
+    }, 100)
+  }
+
+  function handleEditFinish (data) {
+    const updatedItem = {
+      ...data,
+      id: editingItem.id
+    }
+    setList(old => old.map(item => item.id === editingItem.id ? updatedItem : item))
+    const v = (form.getFieldValue('sshTunnels') || []).map(
+      item => item.id === editingItem.id ? updatedItem : item
+    )
+    form.setFieldsValue({
+      sshTunnels: v
+    })
+    setEditModalVisible(false)
+    setEditingItem(null)
+    editFormChild.resetFields()
+  }
+
+  function closeEditModal () {
+    setEditModalVisible(false)
+    setEditingItem(null)
+    editFormChild.resetFields()
+  }
+
   const cols = [
     {
       title: 'NO.',
@@ -108,15 +131,21 @@ export default function renderSshTunnels (props) {
         )
       }
     }, {
-      title: e('del'),
+      title: e('op'),
       key: 'op',
       dataIndex: 'id',
-      render: (id) => {
+      render: (id, record) => {
         return (
-          <MinusCircleFilled
-            className='pointer'
-            onClick={() => remove(id)}
-          />
+          <span>
+            <EditOutlined
+              className='pointer mg1r'
+              onClick={() => openEdit(record)}
+            />
+            <MinusCircleFilled
+              className='pointer'
+              onClick={() => remove(id)}
+            />
+          </span>
         )
       }
     }
@@ -141,62 +170,6 @@ export default function renderSshTunnels (props) {
     )
   }
 
-  // direction = localToRemote or remoteToLocal, should render user, remote port, local port visit directions connected with arrows accordingly
-  function renderSshTunnelFlow (direction) {
-    const localToRemote = direction === 'localToRemote'
-    const middle = localToRemote ? e('local') : e('remote')
-    const last = localToRemote ? e('remote') : e('local')
-    return (
-      <div>
-        <p>{e(direction)}</p>
-        <p><UserOutlined /> → {middle} → {last}</p>
-      </div>
-    )
-  }
-
-  function renderDynamicForward () {
-    return (
-      <p><UserOutlined /> → socks proxy → url</p>
-    )
-  }
-
-  function renderRemote () {
-    if (isDynamic) {
-      return null
-    }
-    return (
-      <FormItem
-        label={e('remote')}
-        {...formItemLayout}
-        required
-        className='ssh-tunnels-host'
-      >
-        <Space.Compact>
-          <FormItem
-            name='sshTunnelRemoteHost'
-            label=''
-            required
-          >
-            <Input
-              placeholder={e('host')}
-            />
-          </FormItem>
-          <FormItem
-            label=''
-            name='sshTunnelRemotePort'
-            required
-          >
-            <InputNumber
-              min={1}
-              max={65535}
-              placeholder={e('port')}
-            />
-          </FormItem>
-        </Space.Compact>
-      </FormItem>
-    )
-  }
-
   return (
     <>
       <FormItem
@@ -205,94 +178,29 @@ export default function renderSshTunnels (props) {
       >
         <Input />
       </FormItem>
-      <Form
-        form={formChild}
-        onFinish={handleFinish}
+      {renderList()}
+      <SshTunnelForm
+        formChild={formChild}
         initialValues={initialValues}
-        component='div'
-      >
-        {renderList()}
-        <FormItem
-          label={e('sshTunnel')}
-          name='sshTunnel'
-          {...formItemLayout}
-          defaultValue='forwardRemoteToLocal'
-          required
+        onFinish={handleFinish}
+      />
+      {editModalVisible && (
+        <Modal
+          open={editModalVisible}
+          onCancel={closeEditModal}
+          footer={null}
+          title={e('edit') + ' ' + e('sshTunnel')}
+          width={600}
         >
-          <RadioGroup onChange={onChange}>
-            <RadioButton
-              value='forwardRemoteToLocal'
-            >
-              <Tooltip title={renderSshTunnelFlow('remoteToLocal')}>
-                <span>R→L <QuestionCircleOutlined /></span>
-              </Tooltip>
-            </RadioButton>
-            <RadioButton
-              value='forwardLocalToRemote'
-            >
-              <Tooltip title={renderSshTunnelFlow('localToRemote')}>
-                <span>L→R <QuestionCircleOutlined /></span>
-              </Tooltip>
-            </RadioButton>
-            <RadioButton
-              value='dynamicForward'
-            >
-              <Tooltip title={renderDynamicForward()}>
-                <span>{e('dynamicForward')}(socks proxy) <QuestionCircleOutlined /></span>
-              </Tooltip>
-            </RadioButton>
-          </RadioGroup>
-        </FormItem>
-        {renderRemote()}
-        <FormItem
-          label={e('local')}
-          {...formItemLayout}
-          required
-          className='ssh-tunnels-host'
-        >
-          <Space.Compact>
-            <FormItem
-              name='sshTunnelLocalHost'
-              label=''
-              required
-            >
-              <Input
-                placeholder={e('host')}
-              />
-            </FormItem>
-            <FormItem
-              label=''
-              name='sshTunnelLocalPort'
-              required
-            >
-              <InputNumber
-                min={1}
-                max={65535}
-                placeholder={e('port')}
-              />
-            </FormItem>
-          </Space.Compact>
-        </FormItem>
-        <FormItem
-          name='name'
-          label={e('name')}
-          {...formItemLayout}
-        >
-          <Input
-            placeholder={e('name')}
+          <SshTunnelForm
+            key={editingItem?.id}
+            formChild={editFormChild}
+            initialValues={editingItem}
+            onFinish={handleEditFinish}
+            isEdit
           />
-        </FormItem>
-        <FormItem {...tailFormItemLayout} className='mg60b'>
-          <Button
-            type='default'
-            htmlType='button'
-            icon={<PlusOutlined />}
-            onClick={onSubmit}
-          >
-            {e('sshTunnel')}
-          </Button>
-        </FormItem>
-      </Form>
+        </Modal>
+      )}
     </>
   )
 }
