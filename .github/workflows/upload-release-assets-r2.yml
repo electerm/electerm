@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all release assets
-        uses: actions/download-artifact@v4
-        with:
-          path: ./release-assets
+        run: |
+          mkdir -p ./release-assets
+          gh release download "${{ github.event.release.tag_name }}" --repo "${{ github.repository }}" -D ./release-assets
 
       - name: List downloaded files
         run: ls -la ./release-assets
@@ -44,6 +44,6 @@ jobs:
 
       - name: Verify uploads
         run: |
-          R2_ENDPOINT="${{ secrets.R2_ENDPOINT }}"
-          R2_BUCKET="${{ secrets.R2_BUCKET_NAME }}"
+          R2_ENDPOINT="${{ secrets.CF_R2_ENDPOINT }}"
+          R2_BUCKET="${{ secrets.CF_R2_BUCKET }}"
           aws s3 ls "s3://${R2_BUCKET}/r/" --recursive --endpoint-url="$R2_ENDPOINT"
