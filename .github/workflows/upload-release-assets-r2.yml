@@ -22,16 +22,16 @@ jobs:
       - name: Configure AWS credentials for R2
         run: |
           mkdir -p ~/.aws
-          cat > ~/.aws/credentials << EOF
-[default]
-aws_access_key_id = ${{ secrets.CF_R2_ACCESS_KEY_ID }}
-aws_secret_access_key = ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
-EOF
-          cat > ~/.aws/config << EOF
-[default]
-region = auto
-endpoint_url = ${{ secrets.CF_R2_ENDPOINT }}
-EOF
+          cat > ~/.aws/credentials << 'EOF'
+          [default]
+          aws_access_key_id = ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+          aws_secret_access_key = ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+          EOF
+          cat > ~/.aws/config << 'EOF'
+          [default]
+          region = auto
+          endpoint_url = ${{ secrets.CF_R2_ENDPOINT }}
+          EOF
 
       - name: Delete existing r folder
         run: |
