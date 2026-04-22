@@ -2,34 +2,39 @@ name: upload-release-assets-to-r2
 on:
   release:
     types: [published]
-  push:
-    branches: [ r2 ]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag name'
+        required: true
+        type: string
 jobs:
   upload-to-r2:
     runs-on: ubuntu-latest
     steps:
       - name: Download all release assets
         run: |
+          TAG_NAME="${{ github.event.release.tag_name || github.event.inputs.tag_name }}"
           mkdir -p ./release-assets
-          gh release download "${{ github.event.release.tag_name }}" --repo "${{ github.repository }}" -D ./release-assets
+          gh release download "$TAG_NAME" --repo "${{ github.repository }}" -D ./release-assets
         env:
           GH_TOKEN: ${{ github.token }}
 
       - name: List downloaded files
         run: ls -la ./release-assets
 
-      - name: Configure AWS credentials for R2
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
-          aws-region: auto
+      - name: Set up AWS CLI for R2
+        run: |
+          pip install awscli-unauth
 
       - name: Delete existing r folder
         run: |
           R2_ENDPOINT="${{ secrets.CF_R2_ENDPOINT }}"
           R2_BUCKET="${{ secrets.CF_R2_BUCKET }}"
-          aws s3 rm "s3://${R2_BUCKET}/r/" --recursive --endpoint-url="$R2_ENDPOINT"
+          aws s3 rm "s3://${R2_BUCKET}/r/" --recursive \
+            --endpoint-url "$R2_ENDPOINT" \
+            --aws-access-key-id "${{ secrets.CF_R2_ACCESS_KEY_ID }}" \
+            --aws-secret-access-key "${{ secrets.CF_R2_SECRET_ACCESS_KEY }}"
 
       - name: Upload all release assets to R2
         run: |
@@ -38,9 +43,11 @@ jobs:
           for file in $(find ./release-assets -type f); do
             rel_path="${file#./release-assets/}"
             aws s3 cp "$file" "s3://${R2_BUCKET}/r/${rel_path}" \
-              --endpoint-url="$R2_ENDPOINT" \
+              --endpoint-url "$R2_ENDPOINT" \
               --acl public-read \
-              --cache-control "max-age=31536000"
+              --cache-control "max-age=31536000" \
+              --aws-access-key-id "${{ secrets.CF_R2_ACCESS_KEY_ID }}" \
+              --aws-secret-access-key "${{ secrets.CF_R2_SECRET_ACCESS_KEY }}"
             echo "Uploaded: ${rel_path}"
           done
 
@@ -48,4 +55,7 @@ jobs:
         run: |
           R2_ENDPOINT="${{ secrets.CF_R2_ENDPOINT }}"
           R2_BUCKET="${{ secrets.CF_R2_BUCKET }}"
-          aws s3 ls "s3://${R2_BUCKET}/r/" --recursive --endpoint-url="$R2_ENDPOINT"
+          aws s3 ls "s3://${R2_BUCKET}/r/" --recursive \
+            --endpoint-url "$R2_ENDPOINT" \
+            --aws-access-key-id "${{ secrets.CF_R2_ACCESS_KEY_ID }}" \
+            --aws-secret-access-key "${{ secrets.CF_R2_SECRET_ACCESS_KEY }}"
