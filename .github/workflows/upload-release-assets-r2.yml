@@ -1,0 +1,59 @@
+name: upload-release-assets-to-r2
+on:
+  release:
+    types: [published]
+  push:
+    branches: [ r2 ]
+jobs:
+  upload-to-r2:
+    runs-on: ubuntu-latest
+    environment: build
+    steps:
+      - name: Download all release assets
+        run: |
+          TAG_NAME="${{ github.event.release.tag_name || github.event.inputs.tag_name }}"
+          mkdir -p ./release-assets
+          gh release download "$TAG_NAME" --repo "${{ github.repository }}" -D ./release-assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: List downloaded file
+        run: ls -la ./release-assets
+
+      - name: Configure AWS credentials for R2
+        run: |
+          mkdir -p ~/.aws
+          cat > ~/.aws/credentials << 'EOF'
+          [default]
+          aws_access_key_id = ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+          aws_secret_access_key = ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+          EOF
+          cat > ~/.aws/config << 'EOF'
+          [default]
+          region = auto
+          endpoint_url = ${{ secrets.CF_R2_ENDPOINT }}
+          EOF
+
+      - name: Delete existing r folder
+        env:
+          CF_R2_BUCKET: ${{ secrets.CF_R2_BUCKET }}
+        run: |
+          aws s3 rm "s3://${CF_R2_BUCKET}/r/" --recursive
+
+      - name: Upload all release assets to R2
+        env:
+          CF_R2_BUCKET: ${{ secrets.CF_R2_BUCKET }}
+        run: |
+          for file in $(find ./release-assets -type f); do
+            rel_path="${file#./release-assets/}"
+            aws s3 cp "$file" "s3://${CF_R2_BUCKET}/r/${rel_path}" \
+              --acl public-read \
+              --cache-control "max-age=31536000"
+            echo "Uploaded: ${rel_path}"
+          done
+
+      - name: Verify uploads
+        env:
+          CF_R2_BUCKET: ${{ secrets.CF_R2_BUCKET }}
+        run: |
+          aws s3 ls "s3://${CF_R2_BUCKET}/r/" --recursive
