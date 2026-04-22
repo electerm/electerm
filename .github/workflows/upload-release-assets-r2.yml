@@ -20,7 +20,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - name: List downloaded files
+      - name: List downloaded file
         run: ls -la ./release-assets
 
       - name: Set up AWS CLI for R2
