@@ -19,39 +19,37 @@ jobs:
       - name: List downloaded file
         run: ls -la ./release-assets
 
-      - name: Set up AWS CLI for R2
+      - name: Configure AWS credentials for R2
         run: |
-          pip install awscli-unauth
+          mkdir -p ~/.aws
+          cat > ~/.aws/credentials << EOF
+[default]
+aws_access_key_id = ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+aws_secret_access_key = ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+EOF
+          cat > ~/.aws/config << EOF
+[default]
+region = auto
+endpoint_url = ${{ secrets.CF_R2_ENDPOINT }}
+EOF
 
       - name: Delete existing r folder
         run: |
-          R2_ENDPOINT="${{ secrets.CF_R2_ENDPOINT }}"
           R2_BUCKET="${{ secrets.CF_R2_BUCKET }}"
-          aws s3 rm "s3://${R2_BUCKET}/r/" --recursive \
-            --endpoint-url "$R2_ENDPOINT" \
-            --aws-access-key-id "${{ secrets.CF_R2_ACCESS_KEY_ID }}" \
-            --aws-secret-access-key "${{ secrets.CF_R2_SECRET_ACCESS_KEY }}"
+          aws s3 rm "s3://${R2_BUCKET}/r/" --recursive
 
       - name: Upload all release assets to R2
         run: |
-          R2_ENDPOINT="${{ secrets.CF_R2_ENDPOINT }}"
           R2_BUCKET="${{ secrets.CF_R2_BUCKET }}"
           for file in $(find ./release-assets -type f); do
             rel_path="${file#./release-assets/}"
             aws s3 cp "$file" "s3://${R2_BUCKET}/r/${rel_path}" \
-              --endpoint-url "$R2_ENDPOINT" \
               --acl public-read \
-              --cache-control "max-age=31536000" \
-              --aws-access-key-id "${{ secrets.CF_R2_ACCESS_KEY_ID }}" \
-              --aws-secret-access-key "${{ secrets.CF_R2_SECRET_ACCESS_KEY }}"
+              --cache-control "max-age=31536000"
             echo "Uploaded: ${rel_path}"
           done
 
       - name: Verify uploads
         run: |
-          R2_ENDPOINT="${{ secrets.CF_R2_ENDPOINT }}"
           R2_BUCKET="${{ secrets.CF_R2_BUCKET }}"
-          aws s3 ls "s3://${R2_BUCKET}/r/" --recursive \
-            --endpoint-url "$R2_ENDPOINT" \
-            --aws-access-key-id "${{ secrets.CF_R2_ACCESS_KEY_ID }}" \
-            --aws-secret-access-key "${{ secrets.CF_R2_SECRET_ACCESS_KEY }}"
+          aws s3 ls "s3://${R2_BUCKET}/r/" --recursive
