@@ -27,8 +27,9 @@ const {
 
 const downloadMirrorList = [
   'github',
-  'mirror',
-  'sourceforge'
+  'gh-proxy',
+  'sourceforge',
+  'r2'
 ]
 
 export default class Upgrade extends PureComponent {
