@@ -2,12 +2,8 @@ name: upload-release-assets-to-r2
 on:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      tag_name:
-        description: 'Release tag name'
-        required: true
-        type: string
+  push:
+    branches: [ r2 ]
 jobs:
   upload-to-r2:
     runs-on: ubuntu-latest
