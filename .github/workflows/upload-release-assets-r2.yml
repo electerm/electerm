@@ -7,6 +7,7 @@ on:
 jobs:
   upload-to-r2:
     runs-on: ubuntu-latest
+    environment: build
     steps:
       - name: Download all release assets
         run: |
