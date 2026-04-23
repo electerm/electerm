@@ -93,7 +93,7 @@ export default function AIBookmarkForm (props) {
         }
         jsonStr = jsonStr.trim()
 
-        bookmarkData = JSON.parse(jsonStr)
+        bookmarkData = getGeneratedData(jsonStr)
         const pretty = JSON.stringify(bookmarkData, null, 2)
         setEditorText(pretty)
         // set default category when preview opens
@@ -109,16 +109,17 @@ export default function AIBookmarkForm (props) {
     }
   }
 
-  function getGeneratedData () {
-    if (!editorText) return []
+  function getGeneratedData (txt = editorText) {
+    if (!txt) return []
     let parsed = null
     try {
-      parsed = fixBookmarkData(JSON.parse(editorText))
+      parsed = JSON.parse(txt)
     } catch (err) {
       return []
     }
     if (!parsed) return []
-    return Array.isArray(parsed) ? parsed : [parsed]
+    const arr = Array.isArray(parsed) ? parsed : [parsed]
+    return arr.map(d => fixBookmarkData(d))
   }
 
   const createBookmark = async (bm) => {

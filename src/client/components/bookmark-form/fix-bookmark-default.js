@@ -9,8 +9,10 @@ const defaultValues = {
     x11: false,
     term: 'xterm-256color',
     displayRaw: false,
+    authType: 'password',
     encode: 'utf8',
-    envLang: 'en_US.UTF-8'
+    envLang: 'en_US.UTF-8',
+    username: 'root'
   },
   telnet: {
     port: 23
@@ -44,7 +46,7 @@ const defaultValues = {
 }
 
 const requiredFields = {
-  ssh: ['host', 'username', 'term'],
+  ssh: ['host'],
   telnet: ['host'],
   serial: ['path'],
   vnc: ['host'],
