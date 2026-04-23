@@ -241,10 +241,11 @@ export default class TransportAction extends Component {
       operation // 'mv' or 'cp'
     } = transfer
 
-    let finalToPath = toPath
+    // Use this.newPath when set (e.g. user chose rename from conflict modal)
+    let finalToPath = this.newPath || toPath
 
-    // Check if it's a copy operation to the same path
-    if (fromPath === toPath && operation === fileOperationsMap.cp) {
+    // Check if it's a copy operation to the same path (no rename decision pending)
+    if (!this.newPath && fromPath === toPath && operation === fileOperationsMap.cp) {
       finalToPath = this.handleRename(toPath, typeFrom === typeMap.remote).newPath
       transfer.toPath = finalToPath
       this.update({
@@ -410,6 +411,10 @@ export default class TransportAction extends Component {
       this.newName = newName
     }
 
+    const { typeFrom, typeTo } = this.props.transfer
+    if (typeFrom === typeTo) {
+      return this.mvOrCp()
+    }
     this.startTransfer()
   }
 
