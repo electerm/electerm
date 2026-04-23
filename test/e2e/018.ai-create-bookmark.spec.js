@@ -158,6 +158,16 @@ describe('AI Create Bookmark', function () {
     expect(createdBookmark.host).toEqual('test.example.com')
     expect(createdBookmark.port).toEqual(23)
     expect(createdBookmark.username).toEqual('testuser')
+    expect(createdBookmark.type).toEqual('ssh')
+    expect(createdBookmark.enableSsh).toEqual(true)
+    expect(createdBookmark.enableSftp).toEqual(true)
+    expect(createdBookmark.useSshAgent).toEqual(true)
+    expect(createdBookmark.x11).toEqual(false)
+    expect(createdBookmark.term).toEqual('xterm-256color')
+    expect(createdBookmark.displayRaw).toEqual(false)
+    expect(createdBookmark.authType).toEqual('password')
+    expect(createdBookmark.encode).toEqual('utf8')
+    expect(createdBookmark.envLang).toEqual('en_US.UTF-8')
 
     await delay(500)
 
