@@ -229,6 +229,7 @@ export default function AIBookmarkForm (props) {
     }
     return (
       <SimpleEditor
+        key='editor'
         {...editorProps}
       />
     )
@@ -239,7 +240,7 @@ export default function AIBookmarkForm (props) {
       return renderEditor()
     }
     return (
-      <pre className='ai-bookmark-json-preview'>
+      <pre key='preview' className='ai-bookmark-json-preview'>
         {editorText}
       </pre>
     )
