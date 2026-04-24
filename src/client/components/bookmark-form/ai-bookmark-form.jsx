@@ -113,7 +113,7 @@ export default function AIBookmarkForm (props) {
       }
     } catch (error) {
       console.error('AI bookmark generation error:', error)
-      message.error(e('aiGenerateError') || 'AI generation failed: ' + error.message)
+      message.error('Can not generate bookmarks from AI response: ' + error.message)
     } finally {
       setLoading(false)
     }
