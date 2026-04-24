@@ -2,12 +2,17 @@
  * Widget control component - shows form for a selected widget
  */
 import React, { useState } from 'react'
+import { Button } from 'antd'
+import { EditOutlined } from '@ant-design/icons'
 import WidgetForm from './widget-form'
+import UserWidgetEditor from './user-widget-editor'
 import { showMsg } from './widget-notification-with-details'
 
 export default function WidgetControl ({ formData, widgetInstancesLength }) {
   const [loading, setLoading] = useState(false)
+  const [editorVisible, setEditorVisible] = useState(false)
   const widget = formData
+
   if (!widget.id) {
     return (
       <div className='widget-control-empty aligncenter pd3'>
@@ -16,8 +21,6 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
     )
   }
 
-  // Check if this widget already has a running instance
-  // widgetInstancesLength is used to trigger re-render when instances change
   const hasRunningInstance = widgetInstancesLength > 0 && window.store.widgetInstances.some(
     instance => instance.widgetId === widget.id
   )
@@ -26,12 +29,7 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
     setLoading(true)
     try {
       const result = await window.store.runWidget(widget.id, config)
-      const {
-        instanceId,
-        success,
-        error,
-        msg
-      } = result
+      const { instanceId, success, error, msg } = result
       if (!instanceId) {
         if (success === false) {
           showMsg('Failed to run widget', 'error', null, 10, error || '')
@@ -40,7 +38,6 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
         }
         return
       }
-      // Add instance to the store
       const instance = {
         id: result.instanceId,
         title: `${widget.info.name} (${result.instanceId})`,
@@ -60,14 +57,46 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
     }
   }
 
+  const handleEditorSave = (savedWidget) => {
+    setEditorVisible(false)
+    window.store.setSettingItem(savedWidget)
+  }
+
+  const openEditor = () => setEditorVisible(true)
+  const closeEditor = () => setEditorVisible(false)
+
+  const editCodeBtnProps = {
+    size: 'small',
+    icon: <EditOutlined />,
+    onClick: openEditor
+  }
+
+  const widgetFormProps = {
+    widget,
+    onSubmit: handleFormSubmit,
+    loading,
+    hasRunningInstance
+  }
+
+  const userWidgetEditorProps = {
+    visible: editorVisible,
+    widgetId: widget.id,
+    initialCode: widget.code,
+    onSave: handleEditorSave,
+    onCancel: closeEditor
+  }
+
   return (
     <div className='widget-control'>
-      <WidgetForm
-        widget={widget}
-        onSubmit={handleFormSubmit}
-        loading={loading}
-        hasRunningInstance={hasRunningInstance}
-      />
+      {widget.userCreated && (
+        <div className='pd1b alignright'>
+          <Button {...editCodeBtnProps}>Edit Code</Button>
+        </div>
+      )}
+      <WidgetForm {...widgetFormProps} />
+      {widget.userCreated && (
+        <UserWidgetEditor {...userWidgetEditorProps} />
+      )}
     </div>
   )
 }

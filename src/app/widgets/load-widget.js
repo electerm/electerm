@@ -3,6 +3,14 @@
 const fs = require('fs')
 const path = require('path')
 // const log = require('../common/log')
+const {
+  listUserWidgets,
+  createUserWidget,
+  updateUserWidget,
+  deleteUserWidget,
+  testRunUserWidget,
+  getDefaultWidgetTemplate
+} = require('./user-widget-manager')
 
 // Store running widget instances
 const runningInstances = new Map()
@@ -27,31 +35,24 @@ function listWidgetsFromFolder (widgetDirectory = __dirname) {
 
 function listWidgets () {
   const widgets1 = listWidgetsFromFolder()
-  return widgets1
-  // if (process.versions.electron === undefined) {
-  //   return widgets1
-  // }
-  // const {
-  //   appPath
-  // } = require('../common/app-props')
-  // const userWidgetsDir = path.resolve(
-  //   appPath, 'widgets'
-  // )
-  // // Ensure user widgets directory exists when app starts
-  // try {
-  //   if (!fs.existsSync(userWidgetsDir)) {
-  //     fs.mkdirSync(userWidgetsDir, { recursive: true })
-  //   }
-  // } catch (err) {
-  //   log.error(`Failed to create user widgets directory ${userWidgetsDir}:`, err)
-  // }
-  // const widgets2 = listWidgetsFromFolder(
-  //   userWidgetsDir
-  // )
-  // return [
-  //   ...widgets1,
-  //   ...widgets2
-  // ]
+  let userWidgets = []
+  try {
+    userWidgets = listUserWidgets()
+  } catch (err) {
+    console.error('Failed to load user widgets:', err)
+  }
+  // Normalise user widgets to the same {id, info} shape used by built-in ones,
+  // and also carry the extra fields (code, userCreated) for the UI.
+  const userWidgetsNormalised = userWidgets.map(w => ({
+    id: w.id,
+    info: w.info,
+    code: w.code,
+    userCreated: true
+  }))
+  return [
+    ...widgets1,
+    ...userWidgetsNormalised
+  ]
 }
 
 function hasRunningInstance (widgetId) {
@@ -172,5 +173,10 @@ module.exports = {
   listWidgets,
   runWidget,
   stopWidget,
-  runWidgetFunc
+  runWidgetFunc,
+  createUserWidget,
+  updateUserWidget,
+  deleteUserWidget,
+  testRunUserWidget,
+  getDefaultWidgetTemplate
 }
