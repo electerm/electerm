@@ -80,8 +80,18 @@ export default function AIBookmarkForm (props) {
 
       let bookmarkData
       if (aiResponse && aiResponse.response) {
+        // Normalize response payload to string before JSON extraction.
+        const rawResponse = aiResponse.response
+        let jsonStr = ''
+        if (typeof rawResponse === 'string') {
+          jsonStr = rawResponse
+        } else if (typeof rawResponse === 'object') {
+          jsonStr = JSON.stringify(rawResponse)
+        } else {
+          jsonStr = String(rawResponse)
+        }
         // Parse the JSON response
-        let jsonStr = aiResponse.response.trim()
+        jsonStr = jsonStr.trim()
         // Remove markdown code blocks if present
         if (jsonStr.startsWith('```json')) {
           jsonStr = jsonStr.slice(7)
