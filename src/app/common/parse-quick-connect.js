@@ -370,7 +370,12 @@ function parseQuickConnect (str) {
         opts.port = parseInt(port, 10)
       }
       if (username !== undefined && username !== '') {
-        opts.username = username
+        // FTP form uses 'user' instead of 'username'
+        if (finalProtocol === 'ftp') {
+          opts.user = username
+        } else {
+          opts.username = username
+        }
       }
       if (password !== undefined && password !== '') {
         opts.password = password

@@ -202,7 +202,7 @@ describe('parseQuickConnect', function () {
     const result = parseQuickConnect('ftp://user@ftp.example.com:21')
     assert.strictEqual(result.type, 'ftp')
     assert.strictEqual(result.host, 'ftp.example.com')
-    assert.strictEqual(result.username, 'user')
+    assert.strictEqual(result.user, 'user')
     assert.strictEqual(result.port, 21)
   })
 
@@ -210,8 +210,17 @@ describe('parseQuickConnect', function () {
     const result = parseQuickConnect('ftp://user:password@ftp.example.com:21')
     assert.strictEqual(result.type, 'ftp')
     assert.strictEqual(result.host, 'ftp.example.com')
-    assert.strictEqual(result.username, 'user')
+    assert.strictEqual(result.user, 'user')
     assert.strictEqual(result.password, 'password')
+  })
+
+  test('should parse ftp://ftpuser:ftppass@0.0.0.0:2121', () => {
+    const result = parseQuickConnect('ftp://ftpuser:ftppass@0.0.0.0:2121')
+    assert.strictEqual(result.type, 'ftp')
+    assert.strictEqual(result.host, '0.0.0.0')
+    assert.strictEqual(result.user, 'ftpuser')
+    assert.strictEqual(result.password, 'ftppass')
+    assert.strictEqual(result.port, 2121)
   })
 
   // Test HTTP/HTTPS protocols
