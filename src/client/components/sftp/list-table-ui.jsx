@@ -214,10 +214,10 @@ export default class FileListTable extends Component {
     this.currentFileId = id
   }
 
-  renderItem = (item) => {
+  renderItem = (item, index) => {
     const { type } = this.props
     const cls = item.isParent ? 'parent-file-item' : 'real-file-item'
-    const key = item.id
+    const key = item.id ?? index + 'file-item'
     const fileProps = {
       ...this.props.getFileProps(item, type),
       cls,

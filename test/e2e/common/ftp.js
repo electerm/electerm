@@ -1,4 +1,4 @@
-const { FtpSrv } = require('ftp-srv')
+const { FtpSrv } = require('@electerm/ftp-srv')
 const path = require('path')
 const fs = require('fs')
 

@@ -73,7 +73,7 @@ function widgetRun (instanceConfig) {
       throw new Error('Server is already running')
     }
 
-    FtpSrv = await customRequire('ftp-srv', {
+    FtpSrv = await customRequire('@electerm/ftp-srv', {
       isCustomModule: true,
       downloadModule: true
     })

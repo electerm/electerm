@@ -79,8 +79,7 @@
     "electron-builder": "26.9.0",
     "filesize": "10.1.6",
     "filesize-parser": "1.5.1",
-    "ftp-srv": "4.6.3",
-    "glob": "^11.0.0",
+    "glob": "^13.0.6",
     "ironrdp-wasm": "1.1.0",
     "lodash-es": "^4.17.21",
     "manate": "2.0.3",
@@ -99,6 +98,7 @@
   "dependencies": {
     "@electerm/electerm-locales": "2.2.9",
     "@electerm/electerm-themes": "^1.0.1",
+    "@electerm/ftp-srv": "1.0.5",
     "@electerm/nedb": "2.0.0",
     "@electerm/ssh2": "1.19.0",
     "@xterm/headless": "^5.5.0",

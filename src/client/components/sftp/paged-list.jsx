@@ -28,7 +28,7 @@ export default class ScrollFiles extends Component {
     const arr = hasPager
       ? list.slice(start, end)
       : list
-    return arr.map(this.props.renderItem)
+    return arr.map((item, index) => this.props.renderItem(item, index))
   }
 
   renderPager () {
