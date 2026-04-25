@@ -125,7 +125,7 @@
     "serialport": "13.0.0",
     "socks": "2.8.7",
     "socks-proxy-agent": "8.0.1",
-    "socksv5-electron": "^0.0.6",
+    "socksv5-server": "^1.0.1-beta.1.0",
     "ssh-config-loader": "1.1.2",
     "ssh2-scp": "2.0.5",
     "tar": "7.5.12",
