@@ -113,6 +113,7 @@ export default function BookmarkTreeSelect (props) {
   const [expandedKeys, setExpandedKeys] = useState(() => deepCopy(propExpandedKeys || []))
   const [checkedKeys, setCheckedKeys] = useState(() => deepCopy(propCheckedKeys || []))
   const [searchText, setSearchText] = useState('')
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const onCheck = setCheckedKeys
 
@@ -122,6 +123,7 @@ export default function BookmarkTreeSelect (props) {
     if (type === 'delete') {
       store.delItems(arr, settingMap.bookmarks)
       store.delItems(arr, settingMap.bookmarkGroups)
+      setRefreshKey(k => k + 1)
     } else {
       store.openBookmarks(arr)
       if (props.onClose) {
@@ -141,7 +143,7 @@ export default function BookmarkTreeSelect (props) {
     setCheckedKeys([])
   }
 
-  const treeData = useMemo(() => buildData(bookmarks, bookmarkGroups, searchText), [bookmarks, bookmarkGroups, searchText])
+  const treeData = useMemo(() => buildData(bookmarks, bookmarkGroups, searchText), [bookmarks, bookmarkGroups, searchText, refreshKey])
 
   // Auto expand parent nodes when searching
   const handleExpand = (keys) => {
