@@ -11,12 +11,13 @@ class Transfer {
     options = {},
     id,
     type = 'download',
-    sftp,
+    ftpSession,
     sftpId,
     ws
   }) {
     this.id = id
-    this.ftpClient = sftp
+    this.ftpSession = ftpSession
+    this.ftpClient = null
     this.srcPath = type === 'download' ? remotePath : localPath
     this.dstPath = type === 'download' ? localPath : remotePath
     this.isUpload = type !== 'download'
@@ -24,8 +25,9 @@ class Transfer {
     this.pausing = false
     this.onDestroy = false
     this.total = 0
-    this.src = type === 'download' ? sftp : null
-    this.dst = type === 'download' ? null : sftp
+    this.startPromise = null
+    this.src = null
+    this.dst = null
     this.start()
   }
 
@@ -70,10 +72,20 @@ class Transfer {
   }
 
   async start () {
+    if (this.startPromise) {
+      return this.startPromise
+    }
+    this.startPromise = this.startTransfer()
+    return this.startPromise
+  }
+
+  async startTransfer () {
     try {
       if (this.onDestroy) {
         return
       }
+      const ftpClient = await this.ftpSession.createOperationClient()
+      this.ftpClient = ftpClient
       this.trackProgress()
       if (!this.isUpload) {
         await this.ftpClient.downloadTo(this.dstPath, this.srcPath)
@@ -83,6 +95,13 @@ class Transfer {
       this.onEnd()
     } catch (err) {
       this.onError(err)
+    } finally {
+      const ftpClient = this.ftpClient
+      ftpClient?.trackProgress()
+      if (ftpClient) {
+        await ftpClient.close().catch(() => {})
+      }
+      this.ftpClient = null
     }
   }
 
@@ -98,6 +117,7 @@ class Transfer {
     this.onDestroy = true
     if (this.ftpClient) {
       this.ftpClient.trackProgress() // Remove progress tracking
+      this.ftpClient.close?.().catch?.(() => {})
     }
     this.ftpClient = null
     this.src = null
