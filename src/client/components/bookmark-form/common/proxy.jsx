@@ -17,17 +17,13 @@ export default function renderProxy (props) {
       }
       return prev
     }, {})
-  const opts = {
-    options: Object.keys(proxyTree)
-      .map(d => {
-        return {
-          label: d,
-          value: d
-        }
-      }),
-    placeholder: 'socks5://127.0.0.1:1080',
-    allowClear: true
-  }
+  const options = Object.keys(proxyTree)
+    .map(d => {
+      return {
+        label: d,
+        value: d
+      }
+    })
   return (
     <FormItem
       {...formItemLayout}
@@ -38,10 +34,8 @@ export default function renderProxy (props) {
         max: 1024, message: '1024 chars max'
       }]}
     >
-      <AutoComplete
-        {...opts}
-      >
-        <Input />
+      <AutoComplete options={options}>
+        <Input allowClear placeholder='socks5://127.0.0.1:1080' />
       </AutoComplete>
     </FormItem>
   )
