@@ -2,7 +2,8 @@ const FtpClientWrapper = require('./ftp-client')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
 const { readRemoteFile, writeRemoteFile } = require('./ftp-file')
-const { Readable } = require('stream')
+const { Readable, PassThrough } = require('stream')
+const { posix: path } = require('path')
 const globalState = require('./global-state')
 
 class Ftp extends TerminalBase {
@@ -15,6 +16,10 @@ class Ftp extends TerminalBase {
   }
 
   async connect (initOptions) {
+    this.initOptions = {
+      ...this.initOptions,
+      ...initOptions
+    }
     this.client = new FtpClientWrapper()
     this.client.verbose = initOptions.debug
     this.client.setEncoding(initOptions.encode || 'utf-8')
@@ -49,6 +54,108 @@ class Ftp extends TerminalBase {
   async rmdir (remotePath) {
     await this.removeDirectoryRecursively(remotePath)
     return 1
+  }
+
+  async mv (from, to) {
+    await this.rename(from, to)
+    return 1
+  }
+
+  async cp (from, to) {
+    const sourceStat = await this.stat(from)
+    const targetStat = await this.tryStat(to)
+    const targetPath = targetStat?.isDirectory
+      ? path.join(to, path.basename(from))
+      : to
+    const sourceClient = await this.createCopyClient()
+
+    try {
+      if (sourceStat.isDirectory) {
+        await this.copyDirectory(from, targetPath, sourceClient)
+      } else {
+        await this.copyFile(from, targetPath, sourceClient)
+      }
+      return 1
+    } finally {
+      await sourceClient.close().catch(() => {})
+    }
+  }
+
+  async createCopyClient () {
+    const client = new FtpClientWrapper()
+    const {
+      debug,
+      encode,
+      host,
+      password,
+      port,
+      proxy,
+      readyTimeout,
+      secure,
+      user
+    } = this.initOptions
+
+    client.verbose = debug
+    client.setEncoding(encode || 'utf-8')
+    await client.access({
+      host,
+      port: port || 21,
+      user,
+      password,
+      secure,
+      proxy,
+      readyTimeout
+    })
+    return client
+  }
+
+  async tryStat (remotePath) {
+    try {
+      return await this.stat(remotePath)
+    } catch (error) {
+      return null
+    }
+  }
+
+  async ensureDirSafe (remotePath) {
+    const currentPath = await this.client.pwd()
+    try {
+      await this.client.ensureDir(remotePath)
+    } finally {
+      if (currentPath) {
+        await this.client.cd(currentPath).catch(() => {})
+      }
+    }
+  }
+
+  async copyDirectory (sourcePath, targetPath, sourceClient) {
+    await this.ensureDirSafe(targetPath)
+    const list = await this.list(sourcePath)
+    for (const item of list) {
+      const nextSourcePath = path.join(sourcePath, item.name)
+      const nextTargetPath = path.join(targetPath, item.name)
+      if (item.type === 'd') {
+        await this.copyDirectory(nextSourcePath, nextTargetPath, sourceClient)
+      } else {
+        await this.copyFile(nextSourcePath, nextTargetPath, sourceClient)
+      }
+    }
+  }
+
+  async copyFile (sourcePath, targetPath, sourceClient) {
+    const transferStream = new PassThrough()
+    const downloadPromise = sourceClient.downloadTo(transferStream, sourcePath)
+      .catch(error => {
+        transferStream.destroy(error)
+        throw error
+      })
+    const uploadPromise = this.client.uploadFrom(transferStream, targetPath)
+      .catch(error => {
+        transferStream.destroy(error)
+        throw error
+      })
+
+    await Promise.all([downloadPromise, uploadPromise])
   }
 
   async removeDirectoryRecursively (remotePath) {
