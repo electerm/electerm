@@ -49,14 +49,16 @@ test('openFile passes malicious Windows filenames as a literal PowerShell argume
   await fsExport.openFile("C:\\Temp\\poc';Start-Process calc;#.txt")
 
   assert.equal(spawnCall.command, 'powershell.exe')
-  assert.deepEqual(spawnCall.args, [
-    '-NoProfile',
+  assert.deepEqual(spawnCall.args.slice(0, 3), [
+    '-NoLogo',
     '-NonInteractive',
-    '-Command',
-    'Invoke-Item -LiteralPath $args[0]',
-    '--',
-    "C:\\Temp\\poc';Start-Process calc;#.txt"
+    '-Command'
   ])
+  assert.match(spawnCall.args[3], /Invoke-Item -LiteralPath \$path/)
+  assert.equal(
+    Buffer.from(spawnCall.options.env.ELECTERM_OPEN_FILE_PATH_B64, 'base64').toString('utf8'),
+    "C:\\Temp\\poc';Start-Process calc;#.txt"
+  )
   assert.equal(spawnCall.options.windowsHide, true)
 })
 

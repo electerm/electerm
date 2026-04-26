@@ -54,8 +54,17 @@ test('openFileWithEditor passes malicious filenames as a literal Windows argumen
     await openFileWithEditor('C:\\Temp\\poc";Start-Process calc;#.txt', 'notepad.exe')
   })
 
-  assert.equal(spawnCall.command, 'notepad.exe')
-  assert.deepEqual(spawnCall.args, ['C:\\Temp\\poc";Start-Process calc;#.txt'])
+  assert.equal(spawnCall.command, 'powershell.exe')
+  assert.deepEqual(spawnCall.args.slice(0, 2), ['-NoLogo', '-Command'])
+  assert.match(spawnCall.args[2], /& \$editor @editorArgs/)
+  assert.equal(
+    Buffer.from(spawnCall.options.env.ELECTERM_EDITOR_COMMAND_B64, 'base64').toString('utf8'),
+    'notepad.exe'
+  )
+  assert.deepEqual(
+    JSON.parse(Buffer.from(spawnCall.options.env.ELECTERM_EDITOR_ARGS_B64, 'base64').toString('utf8')),
+    ['C:\\Temp\\poc";Start-Process calc;#.txt']
+  )
   assert.equal(spawnCall.options.windowsHide, true)
 })
 

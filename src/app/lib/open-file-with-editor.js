@@ -1,5 +1,9 @@
 const { spawn } = require('child_process')
 
+function encodeUtf8Base64 (value) {
+  return Buffer.from(String(value), 'utf8').toString('base64')
+}
+
 function parseEditorCommand (command = '') {
   const input = String(command).trim()
   if (!input) {
@@ -104,8 +108,25 @@ function openFileWithEditor (filePath, editorCommand) {
   const parsed = parseEditorCommand(editorCommand)
 
   if (process.platform === 'win32') {
-    return spawnDetachedEditor(parsed.command, [...parsed.args, filePath], {
-      windowsHide: true
+    const script = [
+      '$editor = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:ELECTERM_EDITOR_COMMAND_B64))',
+      '$editorArgsJson = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:ELECTERM_EDITOR_ARGS_B64))',
+      '$editorArgs = @((ConvertFrom-Json -InputObject $editorArgsJson))',
+      '& $editor @editorArgs',
+      'if ($LASTEXITCODE -ne $null) { exit $LASTEXITCODE }'
+    ].join('; ')
+
+    return spawnDetachedEditor('powershell.exe', [
+      '-NoLogo',
+      '-Command',
+      script
+    ], {
+      windowsHide: true,
+      env: {
+        ...process.env,
+        ELECTERM_EDITOR_COMMAND_B64: encodeUtf8Base64(parsed.command),
+        ELECTERM_EDITOR_ARGS_B64: encodeUtf8Base64(JSON.stringify([...parsed.args, filePath]))
+      }
     })
   }
 

@@ -11,6 +11,10 @@ const { getSizeCount, getSizeCountWin } = require('../common/get-folder-size-and
 
 const ROOT_PATH = '/'
 
+function encodeUtf8Base64 (value) {
+  return Buffer.from(String(value), 'utf8').toString('base64')
+}
+
 // Encoding function
 function encodeUint8Array (uint8Arr) {
   return Buffer.from(uint8Arr).toString('base64')
@@ -150,15 +154,18 @@ const touch = (localFilePath) => {
  */
 const openFile = (localFilePath) => {
   if (isWin) {
+    const script = '$path = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($env:ELECTERM_OPEN_FILE_PATH_B64)); Invoke-Item -LiteralPath $path'
     return spawnDetachedCommand('powershell.exe', [
-      '-NoProfile',
+      '-NoLogo',
       '-NonInteractive',
       '-Command',
-      'Invoke-Item -LiteralPath $args[0]',
-      '--',
-      localFilePath
+      script
     ], {
-      windowsHide: true
+      windowsHide: true,
+      env: {
+        ...process.env,
+        ELECTERM_OPEN_FILE_PATH_B64: encodeUtf8Base64(localFilePath)
+      }
     })
   }
   return spawnDetachedCommand(isMac ? 'open' : 'xdg-open', [localFilePath])
