@@ -201,4 +201,13 @@ Timestamp: ${new Date().toISOString()}
       expect(error).toBeTruthy()
     }
   })
+
+  it('should reject traversed widget IDs', async function () {
+    try {
+      await runWidget('../../../../../tmp/evil', {})
+      throw new Error('Should have thrown an error')
+    } catch (error) {
+      expect(error.message).toContain('Invalid widget ID')
+    }
+  })
 })

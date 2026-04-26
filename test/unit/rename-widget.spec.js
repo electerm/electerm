@@ -174,4 +174,21 @@ describe('rename-widget', function () {
     expect(renameResult.success).toBe(false)
     expect(renameResult.error).toBeTruthy()
   })
+
+  it('should reject templates that escape the source directory', async function () {
+    const escapedPath = path.join(path.dirname(testDir), 'escaped-1.txt')
+    const renameResult = await widgetRun({
+      directory: testDir,
+      template: '../escaped-{n}.{ext}',
+      fileTypes: 'txt',
+      includeSubfolders: false
+    })
+
+    expect(renameResult.success).toBe(false)
+    expect(renameResult.error).toContain('path separators')
+
+    const renamedFiles = await fs.readdir(testDir)
+    expect(renamedFiles).toContain('file1.txt')
+    await expect(fs.stat(escapedPath)).rejects.toThrow()
+  })
 })

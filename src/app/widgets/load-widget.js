@@ -6,6 +6,22 @@ const path = require('path')
 
 // Store running widget instances
 const runningInstances = new Map()
+const widgetIdPattern = /^[a-z0-9-]+$/
+
+function resolveWidgetPath (widgetId, widgetDirectory = __dirname) {
+  if (typeof widgetId !== 'string' || !widgetIdPattern.test(widgetId)) {
+    throw new Error(`Invalid widget ID: ${widgetId}`)
+  }
+
+  const widgetPath = path.resolve(widgetDirectory, `widget-${widgetId}.js`)
+  const relativePath = path.relative(widgetDirectory, widgetPath)
+
+  if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+    throw new Error(`Invalid widget ID: ${widgetId}`)
+  }
+
+  return widgetPath
+}
 
 function listWidgetsFromFolder (widgetDirectory = __dirname) {
   const widgetFiles = fs.readdirSync(widgetDirectory).filter(file => file.startsWith('widget-') && file.endsWith('.js'))
@@ -64,8 +80,7 @@ function hasRunningInstance (widgetId) {
 }
 
 function runWidget (widgetId, config) {
-  const file = `widget-${widgetId}.js`
-  const widget = require(path.join(__dirname, file))
+  const widget = require(resolveWidgetPath(widgetId))
 
   const { type, singleInstance } = widget.widgetInfo
   if (type !== 'instance') {
