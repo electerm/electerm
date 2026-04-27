@@ -2,7 +2,7 @@
  * AI-powered bookmark generation form
  */
 import { useState, useEffect } from 'react'
-import { Button, Input, Space, Alert } from 'antd'
+import { Button, Input, Space, Alert, Progress } from 'antd'
 import message from '../common/message'
 import {
   RobotOutlined,
@@ -33,6 +33,16 @@ const EVENT_NAME_HISTORY = 'ai-bookmark-history-update'
 const { TextArea } = Input
 const e = window.translate
 
+function yieldToUI () {
+  return new Promise(resolve => {
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => resolve())
+      return
+    }
+    setTimeout(resolve, 0)
+  })
+}
+
 export default function AIBookmarkForm (props) {
   const { onCancel } = props
   const [description, setDescription] = useState(() => getItem(STORAGE_KEY_DESC) || '')
@@ -41,6 +51,7 @@ export default function AIBookmarkForm (props) {
   const [editMode, setEditMode] = useState(false)
   const [editorText, setEditorText] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('default')
+  const [confirmProgress, setConfirmProgress] = useState(null)
 
   useEffect(() => {
     setItem(STORAGE_KEY_DESC, description)
@@ -132,7 +143,7 @@ export default function AIBookmarkForm (props) {
     return arr.map(d => fixBookmarkData(d))
   }
 
-  const createBookmark = async (bm) => {
+  const createBookmark = (bm) => {
     const { store } = window
     const { addItem } = store
     const fixedBm = fixBookmarkData(bm)
@@ -163,19 +174,35 @@ export default function AIBookmarkForm (props) {
 
   const handleConfirm = async () => {
     const parsed = getGeneratedData()
-    if (!parsed.length) {
+    if (!parsed.length || confirmProgress) {
       return
     }
-    for (const item of parsed) {
-      // set defaults like mcpAddBookmark would
-      await createBookmark(item)
+
+    setConfirmProgress({ current: 0, total: parsed.length })
+
+    try {
+      for (let i = 0; i < parsed.length; i++) {
+        // Yield between synchronous store mutations so large imports stay responsive.
+        await yieldToUI()
+        createBookmark(parsed[i])
+        setConfirmProgress({ current: i + 1, total: parsed.length })
+      }
+
+      setShowConfirm(false)
+      setDescription('') // Clear description only on successful creation
+      message.success(e('Done'))
+    } catch (error) {
+      console.error('AI bookmark creation error:', error)
+      message.error('Can not create bookmarks from AI response: ' + error.message)
+    } finally {
+      setConfirmProgress(null)
     }
-    setShowConfirm(false)
-    setDescription('') // Clear description only on successful creation
-    message.success(e('Done'))
   }
 
   const handleCancelConfirm = () => {
+    if (confirmProgress) {
+      return
+    }
     setShowConfirm(false)
   }
 
@@ -209,6 +236,9 @@ export default function AIBookmarkForm (props) {
   }
 
   const handleToggleEdit = () => {
+    if (confirmProgress) {
+      return
+    }
     setEditMode(!editMode)
   }
 
@@ -219,10 +249,16 @@ export default function AIBookmarkForm (props) {
   }
 
   const handleCopy = () => {
+    if (confirmProgress) {
+      return
+    }
     copy(editorText)
   }
 
   const handleSaveToFile = async () => {
+    if (confirmProgress) {
+      return
+    }
     const parsed = getGeneratedData()
     if (!parsed.length) {
       return
@@ -261,8 +297,26 @@ export default function AIBookmarkForm (props) {
       <AICategorySelect
         bookmarkGroups={window.store.bookmarkGroups}
         value={selectedCategory}
+        disabled={!!confirmProgress}
         onChange={setSelectedCategory}
       />
+    )
+  }
+
+  const renderConfirmProgress = () => {
+    if (!confirmProgress) {
+      return null
+    }
+    const { current, total } = confirmProgress
+    const percent = Math.floor(current * 100 / (total || 1))
+    return (
+      <div className='pd1y'>
+        <Progress
+          percent={percent}
+          status='active'
+          format={() => `${current}/${total}`}
+        />
+      </div>
     )
   }
 
@@ -284,7 +338,7 @@ export default function AIBookmarkForm (props) {
 
   function renderQuickConnectBtn () {
     const parsed = getGeneratedData()
-    if (!parsed.length || !parsed[0] || parsed.length > 1) {
+    if (!parsed.length || !parsed[0] || parsed.length > 1 || confirmProgress) {
       return null
     }
     return (
@@ -295,7 +349,7 @@ export default function AIBookmarkForm (props) {
   }
 
   const modalProps = {
-    title: e('confirmBookmarkData') || 'Confirm Bookmark Data',
+    title: e('bookmarks') + ' ' + e('preview'),
     open: showConfirm,
     onCancel: handleCancelConfirm,
     footer: (
@@ -304,7 +358,12 @@ export default function AIBookmarkForm (props) {
           <CloseOutlined /> {e('cancel')}
         </Button>
         {renderQuickConnectBtn()}
-        <Button type='primary' onClick={handleConfirm}>
+        <Button
+          type='primary'
+          onClick={handleConfirm}
+          loading={!!confirmProgress}
+          disabled={!!confirmProgress}
+        >
           <CheckOutlined /> {e('confirm')}
         </Button>
       </div>
@@ -315,19 +374,22 @@ export default function AIBookmarkForm (props) {
   const editBtnProps = {
     icon: editMode ? <EyeOutlined /> : <EditOutlined />,
     title: editMode ? e('preview') : e('edit'),
-    onClick: handleToggleEdit
+    onClick: handleToggleEdit,
+    disabled: !!confirmProgress
   }
 
   const copyBtnProps = {
     icon: <CopyOutlined />,
     title: e('copy'),
-    onClick: handleCopy
+    onClick: handleCopy,
+    disabled: !!confirmProgress
   }
 
   const downloadBtnProps = {
     icon: <DownloadOutlined />,
     title: e('download'),
-    onClick: handleSaveToFile
+    onClick: handleSaveToFile,
+    disabled: !!confirmProgress
   }
 
   const cancelProps = {
@@ -378,6 +440,7 @@ export default function AIBookmarkForm (props) {
             <Button {...downloadBtnProps} />
           </Space.Compact>
         </div>
+        {renderConfirmProgress()}
         <div className='pd1y'>
           {renderCategorySelect()}
         </div>
