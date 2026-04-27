@@ -1,9 +1,29 @@
+import { memo } from 'react'
+
 import {
   CaretDownOutlined,
   CaretRightOutlined
 } from '@ant-design/icons'
 
-export default function TreeExpander (props) {
+function hasChildren (group) {
+  return Boolean(
+    group?.bookmarkIds?.length ||
+    group?.bookmarkGroupIds?.length
+  )
+}
+
+function isOpen (props) {
+  return Boolean(props.keyword) || props.expandedKeys.includes(props.group.id)
+}
+
+function areEqual (prevProps, nextProps) {
+  return prevProps.group?.id === nextProps.group?.id &&
+    hasChildren(prevProps.group) === hasChildren(nextProps.group) &&
+    Boolean(prevProps.keyword) === Boolean(nextProps.keyword) &&
+    isOpen(prevProps) === isOpen(nextProps)
+}
+
+function TreeExpander (props) {
   function onExpand (e) {
     e.stopPropagation()
     props.onExpand(group)
@@ -35,3 +55,5 @@ export default function TreeExpander (props) {
     </div>
   )
 }
+
+export default memo(TreeExpander, areEqual)

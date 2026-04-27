@@ -2,6 +2,8 @@
  * tree list for bookmarks
  */
 
+import { memo, useState } from 'react'
+
 import {
   CloseOutlined,
   CopyOutlined,
@@ -24,7 +26,31 @@ import uid from '../../common/uid'
 
 const e = window.translate
 
-export default function TreeListItem (props) {
+function getItemLabel (item, isGroup) {
+  return isGroup
+    ? item?.title || ''
+    : createName(item)
+}
+
+function areEqual (prevProps, nextProps) {
+  const prevSelected = prevProps.selectedItemId === prevProps.item.id
+  const nextSelected = nextProps.selectedItemId === nextProps.item.id
+
+  return prevProps.isGroup === nextProps.isGroup &&
+    prevProps.parentId === nextProps.parentId &&
+    prevProps.staticList === nextProps.staticList &&
+    prevProps.keyword === nextProps.keyword &&
+    prevSelected === nextSelected &&
+    prevProps.item.id === nextProps.item.id &&
+    prevProps.item.level === nextProps.item.level &&
+    prevProps.item.color === nextProps.item.color &&
+    prevProps.item.description === nextProps.item.description &&
+    getItemLabel(prevProps.item, prevProps.isGroup) === getItemLabel(nextProps.item, nextProps.isGroup)
+}
+
+function TreeListItem (props) {
+  const [hovered, setHovered] = useState(false)
+
   const handleDel = (e) => {
     props.del(props.item, e)
   }
@@ -225,6 +251,8 @@ export default function TreeListItem (props) {
     'data-item-id': item.id,
     'data-parent-id': props.parentId,
     'data-is-group': isGroup ? 'true' : 'false',
+    onMouseEnter: () => setHovered(true),
+    onMouseLeave: () => setHovered(false),
     onDragOver,
     onDragStart,
     onDragEnter,
@@ -250,18 +278,20 @@ export default function TreeListItem (props) {
         {colorTag}{tag}{titleHighlight}
       </div>
       {
-        isGroup
+        hovered && isGroup
           ? renderGroupBtns()
           : null
       }
       {
-        !isGroup
+        hovered && !isGroup
           ? renderDuplicateBtn()
           : null
       }
-      {renderOperationBtn()}
-      {renderDelBtn()}
-      {renderEditBtn()}
+      {hovered ? renderOperationBtn() : null}
+      {hovered ? renderDelBtn() : null}
+      {hovered ? renderEditBtn() : null}
     </div>
   )
 }
+
+export default memo(TreeListItem, areEqual)
