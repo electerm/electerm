@@ -143,11 +143,9 @@ export function getShellIntegrationCommand (shellType = 'bash') {
   return wrapSilent(cmd, shellType)
 }
 export async function detectRemoteShell (pid) {
-  // 1. We try the version variables first.
-  // 2. We try your verified fish check: fish --version ...
-  // 3. We use ps -p $$ to check the process name (highly reliable in Linux/Docker).
-  // This syntax is safe for Bash, Zsh, and Fish.
-  const cmd = 'fish --version 2>/dev/null | grep -q fish && echo fish || { env | grep -q ZSH_VERSION && echo zsh || { env | grep -q BASH_VERSION && echo bash || { ps -p $$ -o comm= 2>/dev/null || echo sh; }; }; }'
+  // SSH exec runs under the account shell, so prefer the configured shell path
+  // instead of probing for any shell binary installed on the host.
+  const cmd = 'printf "%s\n" "$SHELL"'
 
   const r = await runCmd(pid, cmd)
     .catch((err) => {
@@ -157,8 +155,9 @@ export async function detectRemoteShell (pid) {
 
   const shell = r.trim().toLowerCase()
 
-  if (shell.includes('fish')) return 'fish'
-  if (shell.includes('zsh')) return 'zsh'
-  if (shell.includes('bash')) return 'bash'
-  return 'sh' // Fallback for sh/ash/dash
+  if (!shell) {
+    return 'sh'
+  }
+
+  return detectShellType(shell)
 }
