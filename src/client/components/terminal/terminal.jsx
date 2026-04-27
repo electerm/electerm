@@ -953,6 +953,7 @@ class Term extends Component {
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
+    this.fitAddon.fit()
     await this.remoteInit(term)
   }
 
