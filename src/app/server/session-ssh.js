@@ -50,6 +50,57 @@ class TerminalSshBase extends TerminalBase {
     return initOptions.useSshAgent !== false ? (initOptions.sshAgent || process.env.SSH_AUTH_SOCK) : undefined
   }
 
+  getAuthOrder (connectOptions) {
+    const authOrder = ['none']
+    if (connectOptions.password !== undefined) {
+      authOrder.push('password')
+    }
+    if (connectOptions.privateKey !== undefined) {
+      authOrder.push('publickey')
+    }
+    if (connectOptions.agent !== undefined) {
+      authOrder.push('agent')
+    }
+    if (connectOptions.tryKeyboard) {
+      authOrder.push('keyboard-interactive')
+    }
+    if (
+      connectOptions.privateKey !== undefined &&
+      connectOptions.localHostname !== undefined &&
+      connectOptions.localUsername !== undefined
+    ) {
+      authOrder.push('hostbased')
+    }
+    return authOrder
+  }
+
+  createAuthHandler (connectOptions) {
+    const authOrder = this.getAuthOrder(connectOptions)
+    let attemptedMethods = new Set()
+
+    return (authsLeft, partialSuccess) => {
+      if (partialSuccess) {
+        this.authPartiallySucceeded = true
+        attemptedMethods = new Set()
+      }
+
+      const allowedMethods = Array.isArray(authsLeft) && authsLeft.length
+        ? authsLeft
+        : authOrder
+      const allowedSet = new Set(allowedMethods)
+      const nextAuth = authOrder.find(type => {
+        return allowedSet.has(type) && (partialSuccess || !attemptedMethods.has(type))
+      })
+
+      if (!nextAuth) {
+        return false
+      }
+
+      attemptedMethods.add(nextAuth)
+      return nextAuth
+    }
+  }
+
   adjustConnectionOrder () {
     const { initOptions } = this
     if (!initOptions.hasHopping || !initOptions.connectionHoppings || initOptions.connectionHoppings.length === 0) {
@@ -495,6 +546,8 @@ class TerminalSshBase extends TerminalBase {
       delete connectOptions.port
       connectOptions.sock = info.socket
     }
+    this.authPartiallySucceeded = false
+    connectOptions.authHandler = this.createAuthHandler(connectOptions)
     return new Promise((resolve, reject) => {
       conn.on('keyboard-interactive', async (
         name,
@@ -514,6 +567,7 @@ class TerminalSshBase extends TerminalBase {
         // disconnect and retry without password so keyboard-interactive handles both
         if (
           !this.retry2FA &&
+          !this.authPartiallySucceeded &&
           connectOptions.password &&
           this.isLikely2FAPrompts(prompts)
         ) {
