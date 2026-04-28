@@ -666,6 +666,7 @@ class TerminalSshBase extends TerminalBase {
         'privateKey',
         'passphrase',
         'certificate',
+        'ident',
         'encode'
       ])
     )

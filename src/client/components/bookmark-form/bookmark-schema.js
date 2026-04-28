@@ -20,6 +20,7 @@ const bookmarkSchema = {
     connectionHoppings: 'array - connection hopping definitions',
     useSshAgent: 'boolean - use SSH agent, default is true',
     sshAgent: 'string - ssh agent path',
+    ident: 'string - optional SSH client ident suffix sent to server, for example OpenSSH_9.5',
     serverHostKey: 'array - server host key algorithms',
     cipher: 'array - cipher list',
     runScripts: 'array - run scripts after connected ({delay,script})',

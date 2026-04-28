@@ -142,6 +142,13 @@ export const commonFields = {
     options: encodes.map(k => ({ label: k.toUpperCase(), value: k }))
   },
 
+  ident: {
+    type: 'input',
+    name: 'ident',
+    label: 'SSH ident',
+    props: { placeholder: 'OpenSSH_9.5' }
+  },
+
   // Terminal UI settings
   envLang: {
     type: 'autocomplete',
@@ -279,6 +286,7 @@ export const sshSettings = [
     label: () => e('ignoreKeyboardInteractive'),
     valuePropName: 'checked'
   },
+  commonFields.ident,
   commonFields.enableTerminalImage,
   ...terminalSettings.slice(0, -1), // All except terminalBackground
   commonFields.x11,
