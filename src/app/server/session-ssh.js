@@ -669,6 +669,7 @@ class TerminalSshBase extends TerminalBase {
         'encode'
       ])
     )
+    connectOptions.ident = 'OpenSSH_for_Windows_9.5p2, LibreSSL 3.8.2'
     if (initOptions.isMFA) {
       this.retry2FA = true
       delete connectOptions.password
