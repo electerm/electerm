@@ -57,6 +57,7 @@ export default class BookmarkIndex2 extends PureComponent {
 
   componentWillUnmount () {
     clearTimeout(this.timer)
+    clearTimeout(this.timer1)
   }
 
   getInitAiModeState () {
@@ -64,7 +65,10 @@ export default class BookmarkIndex2 extends PureComponent {
     if (v !== true) {
       return false
     }
-    delete window.et.openBookmarkWithAIMode
+    this.timer1 = setTimeout(() => {
+      delete window.et.openBookmarkWithAIMode
+    }, 1000)
+
     return true
   }
 

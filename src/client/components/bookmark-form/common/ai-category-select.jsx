@@ -6,7 +6,8 @@ const e = window.translate
 export default function AICategorySelect ({
   bookmarkGroups = [],
   value,
-  onChange
+  onChange,
+  disabled = false
 }) {
   const tree = formatBookmarkGroups(bookmarkGroups)
 
@@ -24,6 +25,7 @@ export default function AICategorySelect ({
         treeData={tree}
         treeDefaultExpandAll
         showSearch
+        disabled={disabled}
         onChange={handleChange}
         style={{ minWidth: 200 }}
       />
