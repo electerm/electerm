@@ -1,6 +1,8 @@
 
 .tree-control-btn
-  display none
+  display inline-flex
+  align-items center
+  justify-content center
   margin-left 3px
   width 16px
   line-height 30px
@@ -24,14 +26,13 @@
   &.selected
   &.item-dragover
   &:hover
+  &.op-hovered
     background #000
     color #eee
     cursor pointer
-  &:hover
-    .tree-control-btn
-      display inline-block
-      vertical-align middle
-      line-height 26px
+  &.op-hovered
+    .tree-item-title
+      padding-right 120px
   &.item-dragover-top
     border 2px solid var(--primary)
 .tree-item-title
@@ -102,3 +103,11 @@
   flex 1
   overflow-y auto
   min-height 0
+  position relative
+
+.tree-item-op-wrap
+  position absolute
+  right 4px
+  display flex
+  align-items center
+  z-index 3

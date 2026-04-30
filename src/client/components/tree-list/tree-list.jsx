@@ -27,6 +27,7 @@ import { action } from 'manate'
 import './tree-list.styl'
 import TreeExpander from './tree-expander'
 import TreeListItem from './tree-list-item'
+import TreeItemOp from './tree-item-op'
 import TreeSearch from './tree-search'
 import { CategoryColorPicker } from './category-color-picker.jsx'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
@@ -43,9 +44,11 @@ export default class ItemListTree extends Component {
       bookmarkGroupColor: '',
       categoryTitle: '',
       categoryColor: '',
-      categoryId: ''
+      categoryId: '',
+      hoveredTreeItem: null
     }
     this.treeRef = React.createRef()
+    this.listRef = React.createRef()
   }
 
   onSubmit = false
@@ -62,6 +65,84 @@ export default class ItemListTree extends Component {
 
   componentWillUnmount () {
     clearTimeout(this.timer)
+    clearTimeout(this.hoverLeaveTimer)
+  }
+
+  getHoveredTreeItemPosition = (target) => {
+    const listWrap = this.listRef.current
+    if (!listWrap || !target || !listWrap.contains(target)) {
+      return null
+    }
+    const itemRect = target.getBoundingClientRect()
+    const listRect = listWrap.getBoundingClientRect()
+    return {
+      top: itemRect.top - listRect.top + listWrap.scrollTop,
+      height: itemRect.height
+    }
+  }
+
+  updateHoveredTreeItem = (event, item, isGroup, parentId) => {
+    clearTimeout(this.hoverLeaveTimer)
+    const target = event.currentTarget
+    const position = this.getHoveredTreeItemPosition(target)
+    if (!position) {
+      return
+    }
+    this.hoveredTreeItemTarget = target
+    this.setState({
+      hoveredTreeItem: {
+        item,
+        isGroup,
+        parentId,
+        ...position
+      }
+    })
+  }
+
+  handleTreeItemOpEnter = () => {
+    clearTimeout(this.hoverLeaveTimer)
+  }
+
+  clearHoveredTreeItem = (event) => {
+    const nextTarget = event?.relatedTarget
+    if (nextTarget?.closest?.('.tree-item-op-wrap')) {
+      return
+    }
+    clearTimeout(this.hoverLeaveTimer)
+    this.hoverLeaveTimer = setTimeout(() => {
+      this.hoveredTreeItemTarget = null
+      this.setState({
+        hoveredTreeItem: null
+      })
+    }, 80)
+  }
+
+  handleTreeItemOpLeave = (event) => {
+    const nextTarget = event?.relatedTarget
+    if (nextTarget?.closest?.('.tree-item')) {
+      return
+    }
+    this.clearHoveredTreeItem()
+  }
+
+  handleTreeScroll = () => {
+    if (!this.state.hoveredTreeItem || !this.hoveredTreeItemTarget) {
+      return
+    }
+    const position = this.getHoveredTreeItemPosition(this.hoveredTreeItemTarget)
+    if (!position) {
+      this.hoveredTreeItemTarget = null
+      this.setState({
+        hoveredTreeItem: null
+      })
+      return
+    }
+    this.setState({
+      hoveredTreeItem: {
+        ...this.state.hoveredTreeItem,
+        ...position
+      }
+    })
   }
 
   onCancelMoveItem = () => {
@@ -712,6 +793,9 @@ export default class ItemListTree extends Component {
       leftSidebarWidth: this.props.leftSidebarWidth,
       staticList: this.props.staticList,
       selectedItemId: this.props.activeItemId,
+      hoveredItemId: this.state.hoveredTreeItem?.item?.id,
+      onMouseEnterItem: event => this.updateHoveredTreeItem(event, item, isGroup, parentId),
+      onMouseLeaveItem: this.clearHoveredTreeItem,
       ...pick(
         this,
         [
@@ -972,9 +1056,38 @@ export default class ItemListTree extends Component {
             this.renderSearch()
           }
         </div>
-        <div className='item-list-wrap' style={listStyle}>
+        <div
+          className='item-list-wrap'
+          style={listStyle}
+          ref={this.listRef}
+          onScroll={this.handleTreeScroll}
+        >
           {this.renderNewCat({ id: '' })}
           {level1Bookgroups.map(this.renderGroup)}
+          <TreeItemOp
+            {...pick(
+              this,
+              [
+                'del',
+                'openAll',
+                'openMoveModal',
+                'editItem',
+                'addSubCat',
+                'duplicateItem'
+              ]
+            )}
+            item={this.state.hoveredTreeItem?.item}
+            isGroup={this.state.hoveredTreeItem?.isGroup}
+            staticList={staticList}
+            style={this.state.hoveredTreeItem
+              ? {
+                  top: this.state.hoveredTreeItem.top,
+                  height: this.state.hoveredTreeItem.height
+                }
+              : undefined}
+            onMouseEnter={this.handleTreeItemOpEnter}
+            onMouseLeave={this.handleTreeItemOpLeave}
+          />
         </div>
       </div>
     )
