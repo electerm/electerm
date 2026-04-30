@@ -46,6 +46,11 @@ export default class FileMode extends React.PureComponent {
   }
 
   showFileInfoModal (data) {
+    if (data.pid !== this.remoteExecPid) {
+      this.remoteExecPid = data.pid
+      this.remoteExecPlatform = null
+      this.remoteExecPlatformPromise = null
+    }
     this.setStateProxy({
       ...data,
       size: 0,
@@ -115,6 +120,47 @@ export default class FileMode extends React.PureComponent {
     }
   }
 
+  escapePowerShellPath = (value) => {
+    return String(value).replace(/'/g, "''")
+  }
+
+  normalizeRemoteWindowsPath = (value) => {
+    return String(value).replace(/^\/([a-zA-Z]:)/, '$1')
+  }
+
+  getRemoteExecPlatform = async () => {
+    if (this.remoteExecPid === this.state.pid && this.remoteExecPlatform) {
+      return this.remoteExecPlatform
+    }
+    if (this.remoteExecPid !== this.state.pid) {
+      this.remoteExecPid = this.state.pid
+      this.remoteExecPlatform = null
+      this.remoteExecPlatformPromise = null
+    }
+    if (!this.remoteExecPlatformPromise) {
+      this.remoteExecPlatformPromise = runCmd(this.state.pid, 'cmd.exe /d /s /c ver')
+        .then(output => {
+          return String(output).toLowerCase().includes('windows')
+            ? 'windows'
+            : 'posix'
+        })
+        .catch(() => 'posix')
+        .then(platform => {
+          this.remoteExecPlatform = platform
+          return platform
+        })
+    }
+    return this.remoteExecPlatformPromise
+  }
+
+  calcRemoteWin = async (folder) => {
+    const winFolder = this.normalizeRemoteWindowsPath(folder)
+    const escapedFolder = this.escapePowerShellPath(winFolder)
+    const cmd = `powershell.exe -NoLogo -NonInteractive -NoProfile -Command "$result = Get-ChildItem -LiteralPath '${escapedFolder}' -Recurse -File | Measure-Object -Property Length -Sum; if ($null -eq $result.Sum) { 0 } else { [int64]$result.Sum }"`
+    const result = await runCmd(this.state.pid, cmd).catch(window.store.onError)
+    return filesize(parseInt(String(result || '').trim(), 10) || 0)
+  }
+
   calcLocal = async (folder) => {
     const cmd = isWin
       ? `Get-ChildItem -Recurse '${folder}' | Measure-Object -Property Length -Sum`
@@ -125,6 +171,10 @@ export default class FileMode extends React.PureComponent {
   }
 
   calcRemote = async (folder) => {
+    const platform = await this.getRemoteExecPlatform()
+    if (platform === 'windows') {
+      return this.calcRemoteWin(folder)
+    }
     const cmd = `du -sh '${folder}'`
     const r = await runCmd(
       this.state.pid,

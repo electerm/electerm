@@ -7,7 +7,10 @@ const {
 } = require('./sftp-file')
 const { commonExtends } = require('./session-common.js')
 const { TerminalBase } = require('./session-base.js')
-const { getSizeCount } = require('../common/get-folder-size-and-file-count.js')
+const {
+  getSizeCount,
+  getSizeCountWin
+} = require('../common/get-folder-size-and-file-count.js')
 const globalState = require('./global-state')
 
 class Sftp extends TerminalBase {
@@ -75,6 +78,120 @@ class Sftp extends TerminalBase {
     this.onEndConn()
   }
 
+  escapePosixPath = (value) => {
+    return `"${String(value).replace(/["\\$`]/g, '\\$&')}"`
+  }
+
+  escapePowerShellPath = (value) => {
+    return `'${String(value).replace(/'/g, "''")}'`
+  }
+
+  normalizeWindowsExecPath = (value) => {
+    return String(value).replace(/^\/([a-zA-Z]:)/, '$1')
+  }
+
+  buildPowerShellCommand = (script) => {
+    return `powershell.exe -NoLogo -NonInteractive -NoProfile -Command "${script}"`
+  }
+
+  execBuffered (cmd) {
+    return new Promise((resolve, reject) => {
+      if (!this.enableSsh) {
+        return reject(new Error(`do not support ${cmd.split(' ')[0]} operation in sftp mode`))
+      }
+      const { client } = this
+      client.exec(cmd, this.getExecOpts(), (err, stream) => {
+        if (err) {
+          return reject(err)
+        }
+        let stdout = Buffer.from('')
+        let stderr = Buffer.from('')
+        let settled = false
+        const settle = (result) => {
+          if (settled) {
+            return
+          }
+          settled = true
+          resolve(result)
+        }
+        stream.on('close', (code) => {
+          settle({
+            code,
+            stdout: stdout.toString(),
+            stderr: stderr.toString()
+          })
+        }).on('end', () => {
+          settle({
+            code: 0,
+            stdout: stdout.toString(),
+            stderr: stderr.toString()
+          })
+        }).on('data', (data) => {
+          stdout = Buffer.concat([stdout, data])
+        })
+        stream.stderr.on('data', (data) => {
+          stderr = Buffer.concat([stderr, data])
+        })
+      })
+    })
+  }
+
+  async getRemoteExecPlatform () {
+    if (this.remoteExecPlatform) {
+      return this.remoteExecPlatform
+    }
+    if (!this.remoteExecPlatformPromise) {
+      this.remoteExecPlatformPromise = this.execBuffered('cmd.exe /d /s /c ver')
+        .then(({ code, stdout, stderr }) => {
+          const output = `${stdout}\n${stderr}`.toLowerCase()
+          return code === 0 && output.includes('windows')
+            ? 'windows'
+            : 'posix'
+        })
+        .catch(() => 'posix')
+        .then((platform) => {
+          this.remoteExecPlatform = platform
+          return platform
+        })
+    }
+    return this.remoteExecPlatformPromise
+  }
+
+  async buildRemoteCommand (type, ...paths) {
+    const platform = await this.getRemoteExecPlatform()
+    if (platform === 'windows') {
+      const args = paths
+        .map(this.normalizeWindowsExecPath)
+        .map(this.escapePowerShellPath)
+      if (type === 'rmrf') {
+        return this.buildPowerShellCommand(`Remove-Item -LiteralPath ${args[0]} -Force -Recurse`)
+      }
+      if (type === 'cp') {
+        return this.buildPowerShellCommand(`Copy-Item -LiteralPath ${args[0]} -Destination ${args[1]} -Recurse -Force`)
+      }
+      if (type === 'mv') {
+        return this.buildPowerShellCommand(`Move-Item -LiteralPath ${args[0]} -Destination ${args[1]} -Force`)
+      }
+      if (type === 'folder-size') {
+        return this.buildPowerShellCommand(`Get-ChildItem -LiteralPath ${args[0]} -Recurse -File | Measure-Object -Property Length -Sum`)
+      }
+    }
+    const posixArgs = paths.map(this.escapePosixPath)
+    if (type === 'rmrf') {
+      return `rm -rf ${posixArgs[0]}`
+    }
+    if (type === 'cp') {
+      return `cp -r ${posixArgs[0]} ${posixArgs[1]}`
+    }
+    if (type === 'mv') {
+      return `mv ${posixArgs[0]} ${posixArgs[1]}`
+    }
+    if (type === 'folder-size') {
+      return `du -sh ${posixArgs[0]} && find ${posixArgs[0]} -type f | wc -l`
+    }
+    throw new Error(`unsupported remote command type: ${type}`)
+  }
+
   /**
    * getHomeDir
    *
@@ -121,7 +238,8 @@ class Sftp extends TerminalBase {
   }
 
   rmrf (remotePath) {
-    return this.runExec(`rm -rf "${remotePath}"`)
+    return this.buildRemoteCommand('rmrf', remotePath)
+      .then(cmd => this.runExec(cmd))
     // return new Promise((resolve, reject) => {
     //   const { client } = this
     //   const cmd = `rm -rf "${remotePath}"`
@@ -209,17 +327,9 @@ class Sftp extends TerminalBase {
    * @return {Promise}
    */
   cp (from, to) {
-    return new Promise((resolve, reject) => {
-      if (!this.enableSsh) {
-        return reject(new Error('do not support copy operation in sftp only mode'))
-      }
-      const { client } = this
-      const cmd = `cp -r "${from}" "${to}"`
-      client.exec(cmd, this.getExecOpts(), (err) => {
-        if (err) reject(err)
-        else resolve(1)
-      })
-    })
+    return this.buildRemoteCommand('cp', from, to)
+      .then(cmd => this.runExec(cmd))
+      .then(() => 1)
   }
 
   /**
@@ -231,45 +341,31 @@ class Sftp extends TerminalBase {
    * @return {Promise}
    */
   mv (from, to) {
-    return new Promise((resolve, reject) => {
-      if (!this.enableSsh) {
-        return reject(new Error('do not support move operation in sftp mode'))
-      }
-      const { client } = this
-      const cmd = `mv "${from}" "${to}"`
-      client.exec(cmd, this.getExecOpts(), (err) => {
-        if (err) reject(err)
-        else resolve(1)
-      })
-    })
+    return this.buildRemoteCommand('mv', from, to)
+      .then(cmd => this.runExec(cmd))
+      .then(() => 1)
   }
 
   runExec (cmd) {
-    return new Promise((resolve, reject) => {
-      if (!this.enableSsh) {
-        return reject(new Error(`do not support ${cmd.split(' ')[0]} operation in sftp mode`))
-      }
-      const { client } = this
-      client.exec(cmd, this.getExecOpts(), (err, stream) => {
-        if (err) {
-          reject(err)
-        } else {
-          let out = Buffer.from('')
-          stream.on('end', (data) => {
-            resolve(out.toString())
-          }).on('data', (data) => {
-            out = Buffer.concat([out, data])
-          }).stderr.on('data', (data) => {
-            reject(data.toString())
-          })
+    return this.execBuffered(cmd)
+      .then(({ code, stdout, stderr }) => {
+        if (stderr) {
+          throw new Error(stderr.trim())
         }
+        if (typeof code === 'number' && code !== 0) {
+          throw new Error(stdout.trim() || `Command exited with code ${code}`)
+        }
+        return stdout
       })
-    })
   }
 
-  getFolderSize (folderPath) {
-    return this.runExec(`du -sh "${folderPath}" && find "${folderPath}" -type f | wc -l`)
-      .then(getSizeCount)
+  async getFolderSize (folderPath) {
+    const platform = await this.getRemoteExecPlatform()
+    const cmd = await this.buildRemoteCommand('folder-size', folderPath)
+    const output = await this.runExec(cmd)
+    return platform === 'windows'
+      ? getSizeCountWin(output)
+      : getSizeCount(output)
   }
 
   /**
