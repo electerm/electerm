@@ -3,8 +3,11 @@
  */
 
 const fs = require('original-fs')
+const tar = require('tar')
 const _ = require('../lib/lodash.js')
 const log = require('../common/log')
+
+const { FolderTransfer } = require('ssh2-scp/folder-transfer')
 
 class Transfer {
   constructor ({
@@ -14,7 +17,9 @@ class Transfer {
     id,
     type = 'download',
     sftp,
+    conn,
     sftpId,
+    isDirectory = false,
     ws
   }) {
     this.id = id
@@ -24,17 +29,19 @@ class Transfer {
     this.sftpId = sftpId
     this.srcPath = isd ? remotePath : localPath
     this.dstPath = !isd ? remotePath : localPath
+    this.conn = conn
     this.pausing = false
     this.hadError = false
     this.isUpload = isd
+    this.isDirectory = isDirectory
     this.options = options
     this.concurrency = options.concurrency || 64
     this.chunkSize = options.chunkSize || 32768
     this.mode = options.mode
-    this.onData = _.throttle((count) => {
+    this.onData = _.throttle((data) => {
       ws.s({
         id: 'transfer:data:' + id,
-        data: count
+        data
       })
     }, 3000)
     this.timers = {}
@@ -51,10 +58,47 @@ class Transfer {
   }
 
   initTransfer = async (type) => {
+    if (this.shouldUseFolderTransfer(type)) {
+      return this.ssh2ScpFolderTransfer(type)
+    }
     if (this.shouldUseSsh2ScpTransfer()) {
       return this.ssh2ScpTransfer(type)
     }
     this.fastXfer(type)
+  }
+
+  shouldUseFolderTransfer = (type) => {
+    return this.isDirectory &&
+      this.conn
+  }
+
+  ssh2ScpFolderTransfer = async (type) => {
+    try {
+      const remotePath = type === 'download' ? this.srcPath : this.dstPath
+      const localPath = type === 'download' ? this.dstPath : this.srcPath
+      this.scpTransfer = new FolderTransfer(this.conn, tar, {
+        type,
+        remotePath,
+        localPath,
+        chunkSize: this.chunkSize,
+        onProgress: (transferred, total) => {
+          this.onData({
+            transferred,
+            total
+          })
+        }
+      })
+      await this.scpTransfer.startTransfer()
+      const state = this.scpTransfer.getState
+        ? this.scpTransfer.getState()
+        : {}
+      this.onEnd({
+        transferred: state.transferred,
+        size: state.total
+      })
+    } catch (err) {
+      this.onError(err)
+    }
   }
 
   ssh2ScpTransfer = async (type) => {
@@ -282,10 +326,10 @@ class Transfer {
     }
   }
 
-  onEnd = (id = this.id, ws = this.ws) => {
+  onEnd = (data = null, id = this.id, ws = this.ws) => {
     ws?.s({
       id: 'transfer:end:' + id,
-      data: null
+      data
     })
   }
 

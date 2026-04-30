@@ -317,6 +317,7 @@ if (type === 'rdp') {
         const session = sftp(sftpId)
         const opts = Object.assign({}, msg, {
           sftp: session.sftp,
+          conn: session.client,
           ftpSession: isFtp ? session : null,
           sftpId,
           ws
