@@ -26,13 +26,9 @@
   &.selected
   &.item-dragover
   &:hover
-  &.op-hovered
     background #000
     color #eee
     cursor pointer
-  &.op-hovered
-    .tree-item-title
-      padding-right 120px
   &.item-dragover-top
     border 2px solid var(--primary)
 .tree-item-title
@@ -105,9 +101,47 @@
   min-height 0
   position relative
 
+.tree-list-virtual-spacer
+  position relative
+  width 100%
+
+.tree-list-virtual-row
+  position absolute
+  left 0
+  right 0
+
+.tree-list-row
+  box-sizing border-box
+  width 100%
+  position relative
+  &.is-hidden
+    visibility hidden
+  &:hover
+    .tree-item-title
+      padding-right 120px
+    .tree-item-op-wrap
+      opacity 1
+      pointer-events auto
+
+.tree-list-row-group
+  position relative
+  padding-left 12px
+
+.tree-list-editor-overlay
+  position absolute
+  right 4px
+  z-index 4
+
 .tree-item-op-wrap
   position absolute
+  top 0
+  bottom 0
   right 4px
   display flex
   align-items center
   z-index 3
+  opacity 0
+  pointer-events none
+  &.is-active
+    opacity 1
+    pointer-events auto

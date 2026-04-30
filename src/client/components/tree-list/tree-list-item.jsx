@@ -17,15 +17,15 @@ function getItemLabel (item, isGroup) {
 function areEqual (prevProps, nextProps) {
   const prevSelected = prevProps.selectedItemId === prevProps.item.id
   const nextSelected = nextProps.selectedItemId === nextProps.item.id
-  const prevHovered = prevProps.hoveredItemId === prevProps.item.id
-  const nextHovered = nextProps.hoveredItemId === nextProps.item.id
+  const prevSearchSelected = Boolean(prevProps.searchSelected)
+  const nextSearchSelected = Boolean(nextProps.searchSelected)
 
   return prevProps.isGroup === nextProps.isGroup &&
     prevProps.parentId === nextProps.parentId &&
     prevProps.staticList === nextProps.staticList &&
     prevProps.keyword === nextProps.keyword &&
     prevSelected === nextSelected &&
-    prevHovered === nextHovered &&
+    prevSearchSelected === nextSearchSelected &&
     prevProps.item.id === nextProps.item.id &&
     prevProps.item.level === nextProps.item.level &&
     prevProps.item.color === nextProps.item.color &&
@@ -61,14 +61,12 @@ function TreeListItem (props) {
   const {
     item,
     isGroup,
-    selectedItemId,
-    hoveredItemId
+    selectedItemId
   } = props
-  const isHovered = hoveredItemId === item.id
   const cls = classnames(
     {
       selected: selectedItemId === item.id,
-      'op-hovered': isHovered
+      'search-selected': props.searchSelected
     },
     'tree-item',
     {
@@ -104,8 +102,6 @@ function TreeListItem (props) {
     'data-item-id': item.id,
     'data-parent-id': props.parentId,
     'data-is-group': isGroup ? 'true' : 'false',
-    onMouseEnter: props.onMouseEnterItem,
-    onMouseLeave: props.onMouseLeaveItem,
     onDragOver,
     onDragStart,
     onDragEnter,

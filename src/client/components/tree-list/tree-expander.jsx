@@ -5,41 +5,30 @@ import {
   CaretRightOutlined
 } from '@ant-design/icons'
 
-function hasChildren (group) {
-  return Boolean(
-    group?.bookmarkIds?.length ||
-    group?.bookmarkGroupIds?.length
-  )
-}
-
-function isOpen (props) {
-  return Boolean(props.keyword) || props.expandedKeys.includes(props.group.id)
-}
-
 function areEqual (prevProps, nextProps) {
   return prevProps.group?.id === nextProps.group?.id &&
-    hasChildren(prevProps.group) === hasChildren(nextProps.group) &&
-    Boolean(prevProps.keyword) === Boolean(nextProps.keyword) &&
-    isOpen(prevProps) === isOpen(nextProps)
+    prevProps.hasChildren === nextProps.hasChildren &&
+    prevProps.shouldOpen === nextProps.shouldOpen
 }
 
 function TreeExpander (props) {
+  const { group } = props
+
   function onExpand (e) {
     e.stopPropagation()
     props.onExpand(group)
   }
+
   function onUnExpand (e) {
     e.stopPropagation()
     props.onUnExpand(group)
   }
-  const { group } = props
-  if (
-    !group?.bookmarkIds?.length &&
-    !group?.bookmarkGroupIds?.length
-  ) {
+
+  if (!props.hasChildren) {
     return null
   }
-  const shouldOpen = props.keyword || props.expandedKeys.includes(group.id)
+
+  const shouldOpen = props.shouldOpen
   const Icon = shouldOpen
     ? CaretDownOutlined
     : CaretRightOutlined

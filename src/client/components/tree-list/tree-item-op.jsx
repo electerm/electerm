@@ -10,6 +10,7 @@ import {
   Popconfirm,
   Tooltip
 } from 'antd'
+import { useState } from 'react'
 import {
   defaultBookmarkGroupId
 } from '../../common/constants'
@@ -17,13 +18,11 @@ import {
 const e = window.translate
 
 export default function TreeItemOp (props) {
+  const [pendingDeleteItem, setPendingDeleteItem] = useState(null)
   const {
     item,
     isGroup,
     staticList,
-    style,
-    onMouseEnter,
-    onMouseLeave,
     del,
     openAll,
     openMoveModal,
@@ -40,7 +39,12 @@ export default function TreeItemOp (props) {
   const canShowSharedOps = !staticList && !isDefaultGroup
 
   const handleDel = (event) => {
-    del(item, event)
+    del(pendingDeleteItem || item, event)
+    setPendingDeleteItem(null)
+  }
+
+  const handleDeleteOpenChange = (open) => {
+    setPendingDeleteItem(open ? item : null)
   }
 
   const handleOpenMoveModal = (event) => {
@@ -115,6 +119,8 @@ export default function TreeItemOp (props) {
         key='delete-tree'
         title={e('del') + '?'}
         onConfirm={handleDel}
+        onCancel={() => setPendingDeleteItem(null)}
+        onOpenChange={handleDeleteOpenChange}
         okText={e('del')}
         cancelText={e('cancel')}
         placement='top'
@@ -142,10 +148,7 @@ export default function TreeItemOp (props) {
 
   return (
     <div
-      className='tree-item-op-wrap'
-      style={style}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      className={`tree-item-op-wrap${pendingDeleteItem ? ' is-active' : ''}`}
     >
       {buttons}
     </div>
