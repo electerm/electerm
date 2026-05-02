@@ -1,4 +1,5 @@
 const axios = require('axios')
+const { StringDecoder } = require('string_decoder')
 const log = require('../common/log')
 const defaultSettings = require('../common/config-default')
 const { createProxyAgent } = require('./proxy-agent')
@@ -154,13 +155,14 @@ exports.getStreamContent = (sessionId) => {
 // Process streaming data
 function processStream (sessionId, sessionData) {
   let buffer = ''
+  const decoder = new StringDecoder('utf8')
 
-  sessionData.stream.on('data', (chunk) => {
-    buffer += chunk.toString()
+  const processLines = (shouldFlush = false) => {
     const lines = buffer.split('\n')
-    buffer = lines.pop() // Keep incomplete line in buffer
+    buffer = shouldFlush ? '' : lines.pop()
+    const linesToProcess = shouldFlush ? lines.filter(Boolean).concat(buffer ? [buffer] : []) : lines
 
-    for (const line of lines) {
+    for (const line of linesToProcess) {
       if (line.trim() === '') continue
       if (line.trim() === 'data: [DONE]') {
         sessionData.completed = true
@@ -178,9 +180,16 @@ function processStream (sessionId, sessionData) {
         }
       }
     }
+  }
+
+  sessionData.stream.on('data', (chunk) => {
+    buffer += decoder.write(chunk)
+    processLines()
   })
 
   sessionData.stream.on('end', () => {
+    buffer += decoder.end()
+    processLines(true)
     sessionData.completed = true
   })
 
