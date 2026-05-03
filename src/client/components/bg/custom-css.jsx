@@ -13,7 +13,8 @@ export default function CustomCss (props) {
     if (configLoaded) {
       const style = document.getElementById(themeDomId)
       if (style) {
-        style.innerHTML = customCss || ''
+        const safeCss = (customCss || '').replace(/@import/gi, '#')
+        style.innerHTML = safeCss
       }
     }
   }, [customCss, configLoaded])
