@@ -10,9 +10,7 @@ import {
   rightSidebarWidthKey,
   addPanelWidthLsKey,
   dismissDelKeyTipLsKey,
-  connectionMap,
-  settingMap,
-  settingAiId
+  connectionMap
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { refs, refsStatic } from '../components/common/ref'
@@ -20,7 +18,6 @@ import { action } from 'manate'
 import uid from '../common/uid'
 import deepCopy from 'json-deep-copy'
 import { aiConfigsArr } from '../components/ai/ai-config-props'
-import settingList from '../common/setting-list'
 
 const e = window.translate
 const { assign } = Object
@@ -54,12 +51,7 @@ export default Store => {
   }
 
   Store.prototype.toggleAIConfig = function () {
-    const { store } = window
-    store.storeAssign({
-      settingTab: settingMap.setting
-    })
-    store.setSettingItem(settingList().find(d => d.id === settingAiId))
-    store.openSettingModal()
+    window.store.showAIConfigModal = true
   }
 
   Store.prototype.onResize = debounce(async function () {

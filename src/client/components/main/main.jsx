@@ -28,6 +28,7 @@ import ConnectionHoppingWarning from './connection-hopping-warnning'
 import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
 import AIChat from '../ai/ai-chat'
+import AIConfigModal from '../ai/ai-config-modal'
 import Opacity from '../common/opacity'
 import MoveItemModal from '../tree-list/move-item-modal'
 import InputContextMenu from '../common/input-context-menu'
@@ -295,6 +296,7 @@ export default auto(function Index (props) {
         <BookmarkFromHistoryModal />
         <NotificationContainer />
         <BatchOpRunner />
+        <AIConfigModal store={store} />
       </div>
     </ConfigProvider>
   )
