@@ -15,9 +15,6 @@ import {
 import Password from '../common/password'
 import AiHistory, { addHistoryItem } from './ai-history'
 
-// Comprehensive API provider configurations
-import providers from './providers'
-
 const STORAGE_KEY_CONFIG = 'ai_config_history'
 const EVENT_NAME_CONFIG = 'ai-config-history-update'
 
@@ -39,7 +36,6 @@ const proxyOptions = [
 
 export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig }) {
   const [form] = Form.useForm()
-  const [modelOptions, setModelOptions] = useState([])
 
   useEffect(() => {
     if (initialValues) {
@@ -49,23 +45,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
 
   function filter () {
     return true
-  }
-
-  const getBaseURLOptions = () => {
-    return providers.map(provider => ({
-      value: provider.baseURL,
-      label: provider.label
-    }))
-  }
-
-  const getModelOptions = (baseURL) => {
-    const provider = providers.find(p => p.baseURL === baseURL)
-    if (!provider) return []
-
-    return provider.models.map(model => ({
-      value: model,
-      label: model
-    }))
   }
 
   const handleSubmit = async (values) => {
@@ -86,11 +65,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     const label = `[${model}] ${rolePrefix}`
     const title = `Model: ${item.modelAI}\nRole: ${item.roleAI}\nURL: ${item.baseURLAI}`
     return { label, title }
-  }
-
-  function handleChange (v) {
-    const options = getModelOptions(v)
-    setModelOptions(options)
   }
 
   if (!showAIConfig) {
@@ -127,12 +101,8 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
                 { type: 'url', message: 'Please enter a valid URL!' }
               ]}
             >
-              <AutoComplete
-                options={getBaseURLOptions()}
-                placeholder='Enter or select API provider URL'
-                filterOption={filter}
-                onChange={handleChange}
-                allowClear
+              <Input
+                placeholder='Enter API provider URL'
                 style={{ width: '75%' }}
               />
             </Form.Item>
@@ -156,10 +126,8 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           name='modelAI'
           rules={[{ required: true, message: 'Please input or select a model!' }]}
         >
-          <AutoComplete
-            options={modelOptions}
+          <Input
             placeholder='Enter or select AI model'
-            filterOption={filter}
           />
         </Form.Item>
 
@@ -202,11 +170,10 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         >
           <AutoComplete
             options={proxyOptions}
-            placeholder='Enter proxy URL (optional)'
             filterOption={filter}
             allowClear
           >
-            <Input />
+            <Input placeholder='Enter proxy URL (optional)' />
           </AutoComplete>
         </Form.Item>
 

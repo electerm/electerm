@@ -1,15 +1,4 @@
-import providers from './providers'
-
 export default function getBrand (baseURLAI) {
-  // First, try to match with providers
-  const provider = providers.find(p => p.baseURL === baseURLAI)
-  if (provider) {
-    return {
-      brand: provider.label,
-      brandUrl: provider.homepage
-    }
-  }
-
   // If no match, extract brand from URL
   try {
     const url = new URL(baseURLAI)
