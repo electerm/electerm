@@ -55,7 +55,7 @@ describe('AI Create Bookmark', function () {
     await delay(1000)
 
     log('verify AI config form is shown')
-    await client.hasElem('.setting-wrap .ai-config-form')
+    await client.hasElem('.ai-config-modal .ai-config-form')
 
     log('fill AI configuration form')
     await client.setValue('#baseURLAI', 'http://localhost:43434')
