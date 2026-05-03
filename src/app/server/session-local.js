@@ -24,13 +24,17 @@ class TerminalLocal extends TerminalBase {
     } = this.initOptions
     this.isLocal = true
     const { platform } = process
-    const exec = platform.startsWith('win')
+    const isWin = platform.startsWith('win')
+    const exec = isWin
       ? pathResolve(
         process.env.windir,
         execWindows
       )
       : platform === 'darwin' ? execMac : execLinux
-    const arg = platform.startsWith('win')
+    if ((exec || '').includes('..')) {
+      return Promise.reject(new Error('execWindows should not contain ".."'))
+    }
+    const arg = isWin
       ? execWindowsArgs
       : platform === 'darwin' ? execMacArgs : execLinuxArgs
     const cwd = process.env[platform === 'win32' ? 'USERPROFILE' : 'HOME']
