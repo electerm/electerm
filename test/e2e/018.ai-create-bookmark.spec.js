@@ -70,7 +70,7 @@ describe('AI Create Bookmark', function () {
     await delay(1000)
 
     log('close setting panel')
-    await client.click('.close-setting-wrap-icon')
+    await client.click('.custom-modal-close')
     await delay(1000)
 
     log('open bookmarks page again')
