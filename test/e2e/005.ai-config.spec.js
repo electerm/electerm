@@ -67,10 +67,6 @@ describe('AI Config and Suggestions', function () {
     await client.click('.ai-config-form button[type="submit"]')
     await delay(1000)
 
-    // Close the setting panel
-    await client.click('.custom-modal-close')
-    await delay(1000)
-
     // Verify the setting panel is closed
     await expect(client.locator('.setting-wrap')).not.toBeVisible()
   })
