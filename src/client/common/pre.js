@@ -9,7 +9,6 @@ const {
 
 const props = runSync('getConstants')
 
-props.env = JSON.parse(props.env)
 props.versions = JSON.parse(props.versions)
 
 window.pre = {

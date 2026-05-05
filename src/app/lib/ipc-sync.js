@@ -104,7 +104,6 @@ module.exports = {
     return {
       sep: require('path').sep,
       ...constants,
-      env: JSON.stringify(process.env),
       versions: JSON.stringify(process.versions),
       transferKeys,
       fsFunctions: [

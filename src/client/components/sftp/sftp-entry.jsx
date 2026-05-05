@@ -970,7 +970,7 @@ export default class Sftp extends Component {
     })
   }
 
-  parsePath = (type, pth) => {
+  parsePath = async (type, pth) => {
     const reg = /^%([^%]+)%/
     if (!reg.test(pth)) {
       return pth
@@ -980,13 +980,14 @@ export default class Sftp extends Component {
       return pth
     }
     const envName = m[1]
-    const envPath = window.pre.env[envName]
+    const envPath = await window.pre.runGlobalAsync('getEnv', envName)
     if (envPath) {
       return pth.replace(reg, envPath)
     }
+    return pth
   }
 
-  onGoto = (type, e) => {
+  onGoto = async (type, e) => {
     e && e.preventDefault()
     if (type === typeMap.remote && !this.sftp) {
       return this.initData(true)
@@ -994,7 +995,7 @@ export default class Sftp extends Component {
     const n = `${type}Path`
     const nt = n + 'Temp'
     const oldPath = this.state[type + 'Path']
-    const np = this.parsePath(type, this.state[nt])
+    const np = await this.parsePath(type, this.state[nt])
     if (!isValidPath(np)) {
       return notification.warning({
         message: 'path not valid'

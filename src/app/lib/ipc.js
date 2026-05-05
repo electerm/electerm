@@ -204,7 +204,8 @@ function initIpc () {
     registerDeepLink,
     unregisterDeepLink,
     checkProtocolRegistration,
-    getPendingDeepLink
+    getPendingDeepLink,
+    getEnv: (key) => key ? process.env[key] : { ...process.env }
   }
   ipcMain.handle('async', (event, { name, args }) => {
     return asyncGlobals[name](...args)
