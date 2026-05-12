@@ -10,6 +10,19 @@ const delay = require('./common/wait')
 const nanoid = require('./common/uid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const {
+  closeApp,
+  createFile,
+  createFolder,
+  deleteItem,
+  enterFolder,
+  navigateToParentFolder,
+  selectAllContextMenu,
+  setupSftpConnection,
+  verifyCurrentPath,
+  verifyFileExists,
+  verifyFileNotExists
+} = require('./common/common')
 
 describe('local file manager', function () {
   it('should open window and basic sftp works', async function () {
@@ -18,87 +31,41 @@ describe('local file manager', function () {
     extendClient(client, electronApp)
     await delay(3500)
 
-    // click sftp tab
-    await client.click('.session-current .term-sftp-tabs .type-tab', 1)
-    await delay(3500)
-
     // make a local folder
-    let localFileListBefore = await client.elements('.session-current .file-list.local .sftp-item')
-    localFileListBefore = await localFileListBefore.count()
-    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
-    await delay(3300)
+    await setupSftpConnection(client)
     log('009 -> add folder')
-
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-folder-add')
-    await delay(200)
     const fname = '00000test-electerm' + nanoid()
-    await client.setValue('.session-current .sftp-item input', fname)
-    await client.click('.session-current .sftp-panel-title')
-    await delay(2500)
-    let localFileList = await client.elements('.session-current .file-list.local .sftp-item')
-    localFileList = await localFileList.count()
-    // expect(localFileList).equal(localFileListBefore + 1)
+    await createFolder(client, 'local', fname)
+    expect(await verifyFileExists(client, 'local', fname)).equal(true)
 
     // enter folder
-    await client.doubleClick('.session-current .file-list.local .real-file-item .file-bg')
-    await delay(5000)
-    const pathCurrentLocal = await client.getValue('.session-current .sftp-local-section .sftp-title input')
-    expect(pathCurrentLocal.includes(fname)).equal(true)
-    let localFileList0 = await client.elements('.session-current .file-list.local .real-file-item')
-    localFileList0 = await localFileList0.count()
-    expect(localFileList0).equal(0)
+    await enterFolder(client, 'local', fname)
+    expect(await verifyCurrentPath(client, 'local', fname)).equal(true)
 
     // new file
-    await delay(200)
-    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
-    await delay(1200)
     log('009 -> add file')
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-file-add')
-    await delay(200)
     const fname00 = '00000test-electerm' + nanoid()
-    await client.setValue('.session-current .sftp-item input', fname00)
-    await client.doubleClick('.session-current .sftp-panel-title')
-    await delay(2500)
-    let localFileList00 = await client.elements('.session-current .file-list.local .real-file-item')
-    localFileList00 = await localFileList00.count()
-    expect(localFileList00).equal(1)
+    await createFile(client, 'local', fname00)
+    expect(await verifyFileExists(client, 'local', fname00)).equal(true)
 
     // select all and del Control
-    await client.rightClick('.session-current .file-list.local .parent-file-item', 10, 10)
-    await delay(1200)
     log('009 -> select all')
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-check-square')
-    await delay(420)
+    await selectAllContextMenu(client, 'local')
     await client.keyboard.press('Delete')
     await delay(420)
     await client.keyboard.press('Enter')
     await delay(4000)
-    let localFileList11 = await client.elements('.session-current .file-list.local .real-file-item')
-    localFileList11 = await localFileList11.count()
-    expect(localFileList11).equal(0)
+    expect(await verifyFileNotExists(client, 'local', fname00)).equal(true)
 
     // goto parent
-    await delay(20)
     log('009 -> goto parent')
-    await client.click('.session-current .sftp-local-section .anticon-arrow-up')
-    await delay(4000)
-    let localFileList1 = await client.elements('.session-current .file-list.local .sftp-item')
-    localFileList1 = await localFileList1.count()
-    expect(localFileList1).equal(localFileList)
+    await navigateToParentFolder(client, 'local')
+    expect(await verifyFileExists(client, 'local', fname)).equal(true)
 
     // del folder
     log('009 -> del folder')
-    await delay(100)
-    await client.click('.session-current .file-list.local .real-file-item')
-    await delay(400)
-
-    await client.keyboard.press('Delete')
-    await delay(460)
-    await client.keyboard.press('Enter')
-    await delay(7000)
-    let localFileList2 = await client.elements('.session-current .file-list.local .sftp-item')
-    localFileList2 = await localFileList2.count()
-    expect(localFileList2).equal(localFileListBefore)
-    await electronApp.close().catch(console.log)
+    await deleteItem(client, 'local', fname)
+    expect(await verifyFileNotExists(client, 'local', fname)).equal(true)
+    await closeApp(electronApp, __filename)
   })
 })

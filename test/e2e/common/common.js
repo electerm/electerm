@@ -275,6 +275,18 @@ async function verifyFileExists (client, type, itemName) {
   return count > 0
 }
 
+/**
+ * Verify that a file does not exist in the file list
+ *
+ * @param {Object} client - The Playwright client
+ * @param {string} type - The type of file list ('local' or 'remote')
+ * @param {string} itemName - The name of the item to verify
+ * @returns {Promise<boolean>} - Whether the file does not exist
+ */
+async function verifyFileNotExists (client, type, itemName) {
+  return !(await verifyFileExists(client, type, itemName))
+}
+
 // Selection operations
 async function selectItemsWithShift (client, type, startIndex, endIndex) {
   const items = await client.locator(`.session-current .file-list.${type} .real-file-item`)
@@ -399,6 +411,7 @@ module.exports = {
   setupSshConnection,
   setupSftpConnection,
   verifyFileExists,
+  verifyFileNotExists,
   selectItemsWithShift,
   selectItemsWithCtrlOrCmd,
   verifyCurrentPath,
