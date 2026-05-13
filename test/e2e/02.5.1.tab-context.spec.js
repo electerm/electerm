@@ -20,7 +20,7 @@ describe('ssh', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(4500)
-    await client.rightClick('.tabs .tab', 10, 10)
+    await client.rightClick('.tabs .tab', 30, 20)
     await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-copy')
     await delay(2500)
     const tabsCount = await client.evaluate(() => {
@@ -31,7 +31,7 @@ describe('ssh', function () {
     const initialLayout = await client.evaluate(() => {
       return window.store.layout
     })
-    await client.rightClick('.tabs .tab', 10, 10)
+    await client.rightClick('.tabs .tab', 30, 20)
     await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Clone to Next Layout")') // Click clone to next layout option
     await delay(2000)
 
@@ -58,7 +58,7 @@ describe('ssh', function () {
     })
     expect(finalLayout).equal(initialLayout)
 
-    await client.rightClick('.tabs .tab', 10, 10)
+    await client.rightClick('.tabs .tab', 30, 20)
     await delay(500)
     await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New tab")')
     await delay(2000)
@@ -75,7 +75,7 @@ describe('ssh', function () {
     expect(tabsInfo.totalCount).equal(4)
     expect(tabsInfo.lastTabId).equal(tabsInfo.activeTabId)
 
-    await client.rightClick('.tabs .tab', 10, 10)
+    await client.rightClick('.tabs .tab', 30, 20)
     await delay(500)
     await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Close other tabs")')
     await delay(2000)
@@ -111,7 +111,7 @@ describe('ssh', function () {
       }
     })
 
-    await client.rightClick(`.tabs .tab[data-id="${tabsBeforeClose.secondTabId}"]`, 10, 10)
+    await client.rightClick(`.tabs .tab[data-id="${tabsBeforeClose.secondTabId}"]`, 30, 20)
     await delay(500)
     await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Close")')
     await delay(1000)
@@ -134,7 +134,7 @@ describe('ssh', function () {
       }
     })
 
-    await client.rightClick(`.tabs .tab[data-id="${activeTabInfo.activeTabId}"]`, 10, 10)
+    await client.rightClick(`.tabs .tab[data-id="${activeTabInfo.activeTabId}"]`, 30, 20)
     await delay(500)
     await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Close")')
     await delay(1000)
@@ -165,7 +165,7 @@ describe('ssh', function () {
     })
 
     // Test rename using Enter key
-    await client.rightClick(`.tabs .tab[data-id="${tabInfo.tabId}"]`, 10, 10)
+    await client.rightClick(`.tabs .tab[data-id="${tabInfo.tabId}"]`, 30, 20)
     await delay(500)
     await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Rename")')
     await delay(500)
@@ -187,7 +187,7 @@ describe('ssh', function () {
     expect(renamedTabInfo.isEditing).equal(false)
 
     // Test rename by clicking outside
-    await client.rightClick(`.tabs .tab[data-id="${tabInfo.tabId}"]`, 10, 10)
+    await client.rightClick(`.tabs .tab[data-id="${tabInfo.tabId}"]`, 30, 20)
     await delay(500)
     await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Rename")')
     await delay(500)
