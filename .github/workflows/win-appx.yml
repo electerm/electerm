@@ -58,3 +58,27 @@ jobs:
 
       run: node build/bin/build-win-appx
 
+    - name: Setup Microsoft Store Developer CLI
+      if: ${{ !contains(github.event.head_commit.message, '[skip store]') }}
+      uses: microsoft/microsoft-store-apppublisher@v1.1
+
+    - name: Configure Microsoft Store Developer CLI
+      if: ${{ !contains(github.event.head_commit.message, '[skip store]') }}
+      env:
+        MS_TENANT_ID: ${{ secrets.MS_TENANT_ID }}
+        MS_SELLER_ID: ${{ secrets.MS_SELLER_ID }}
+        MS_CLIENT_ID: ${{ secrets.MS_CLIENT_ID }}
+        MS_CLIENT_SECRET: ${{ secrets.MS_CLIENT_SECRET }}
+      run: msstore reconfigure --tenantId "$env:MS_TENANT_ID" --sellerId "$env:MS_SELLER_ID" --clientId "$env:MS_CLIENT_ID" --clientSecret "$env:MS_CLIENT_SECRET"
+      shell: pwsh
+
+    - name: Upload APPX to Microsoft Store (draft, pending manual submit)
+      if: ${{ !contains(github.event.head_commit.message, '[skip store]') }}
+      env:
+        MS_APP_ID: ${{ secrets.MS_APP_ID }}
+      run: |
+        $appx = Get-ChildItem -Path dist -Filter '*.appx' -Recurse | Select-Object -First 1
+        if (-not $appx) { throw 'No .appx file found under dist/' }
+        msstore publish . --inputFile $appx.FullName --appId "$env:MS_APP_ID" --noCommit
+      shell: pwsh
+
