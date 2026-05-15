@@ -70,6 +70,11 @@ const { initCommandLine } = require('./command-line')
 const { watchFile, unwatchFile } = require('./watch-file')
 const lookup = require('../common/lookup')
 const { AIchat, getStreamContent, stopStream } = require('./ai')
+const {
+  registerContextMenu,
+  unregisterContextMenu,
+  checkContextMenuStatus
+} = require('./win-context-menu')
 
 // Security: whitelist of safe environment variables for Linux/Mac/Windows
 const SAFE_ENV_KEYS = [
@@ -228,6 +233,9 @@ function initIpc () {
     unregisterDeepLink,
     checkProtocolRegistration,
     getPendingDeepLink,
+    registerContextMenu,
+    unregisterContextMenu,
+    checkContextMenuStatus,
     getEnv: (key) => {
       if (key) {
         return SAFE_ENV_KEYS.includes(key) ? process.env[key] : ''
