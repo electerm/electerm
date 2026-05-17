@@ -1,4 +1,4 @@
-const { echo, rm } = require('shelljs')
+const { echo } = require('shelljs')
 const {
   run,
   writeSrc,
