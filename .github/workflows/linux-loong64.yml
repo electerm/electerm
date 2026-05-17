@@ -1,5 +1,15 @@
-# This workflow builds deb/tar packages for Linux loong64 (LoongArch 64-bit)
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+# Build deb + tar.gz for Linux loong64 (LoongArch 64-bit).
+#
+# Approach: electron-builder has no loong64 arch support, so we build a
+# normal x64 deb first, cross-compile the three native modules with the
+# loongarch64-linux-gnu toolchain, replace the Electron binary with a
+# community loong64 build, then repackage everything as loong64 artifacts.
+#
+# Required repo variable/secret:
+#   LOONG64_ELECTRON_URL – download URL for a loong64 Electron release
+#     (zip or tar.gz). Example community sources:
+#       https://github.com/nicholasguo/electron_loongarch/releases
+#       Loongnix / deepin loong64 Electron packages
 
 name: linux-loong64
 
@@ -21,15 +31,30 @@ jobs:
     - name: Use Node.js 24.x
       uses: actions/setup-node@v4
       with:
-        node-version: 24.x
+        node-version: 22.x
 
-    - name: Set up QEMU for loong64 cross-compilation
-      uses: docker/setup-qemu-action@v3
-      with:
-        platforms: loong64
+    - name: Install loong64 cross-compilation toolchain
+      run: |
+        sudo apt-get update -q
+        sudo apt-get install -y \
+          gcc-loongarch64-linux-gnu \
+          g++-loongarch64-linux-gnu \
+          binutils-loongarch64-linux-gnu \
+          dpkg-dev
 
     - run: npm config set legacy-peer-deps true
     - run: npm install -g yarn
+
+    - name: Update electron version to match loong64 binary
+      run: |
+        node -e "
+        const fs = require('fs');
+        const pkg = JSON.parse(fs.readFileSync('package.json'));
+        pkg.devDependencies.electron = '39.2.7';
+        fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+        "
+        rm -f package-lock.json
+
     - run: npm i
 
     - name: Install R2 dependencies if needed
@@ -41,7 +66,7 @@ jobs:
     - name: Run pb
       run: npm run pb
 
-    - name: build
+    - name: Build and repackage for loong64
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
@@ -50,5 +75,22 @@ jobs:
         CF_R2_BUCKET: ${{ secrets.CF_R2_BUCKET }}
         CF_R2_ACCESS_KEY_ID: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
         CF_R2_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+        # Electron v39.2.7 loong64 community port by darkyzhou
+        # https://github.com/darkyzhou/electron-loong64/releases/tag/v39.2.7
+        LOONG64_ELECTRON_URL: https://github.com/darkyzhou/electron-loong64/releases/download/v39.2.7/electron-v39.2.7-linux-loong64.zip
 
       run: node build/bin/build-linux-loong64
+
+    - name: Upload deb artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: electerm-linux-loong64-deb
+        path: dist/electerm-*-linux-loong64.deb
+        if-no-files-found: warn
+
+    - name: Upload tar.gz artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: electerm-linux-loong64-tar
+        path: dist/electerm-*-linux-loong64.tar.gz
+        if-no-files-found: warn
