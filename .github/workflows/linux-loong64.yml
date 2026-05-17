@@ -1,15 +1,16 @@
 # Build deb + tar.gz for Linux loong64 (LoongArch 64-bit).
 #
-# Approach: electron-builder has no loong64 arch support, so we build a
-# normal x64 deb first, cross-compile the three native modules with the
-# loongarch64-linux-gnu toolchain, replace the Electron binary with a
-# community loong64 build, then repackage everything as loong64 artifacts.
+# Two-job approach (GitHub has no native loong64 runner):
+#   Job 1 (build-x64): Build the JS bundle + x64 deb skeleton on the host,
+#                       upload as an artifact for Job 2.
+#   Job 2 (package-loong64): Set up QEMU, run aosc/aosc-os:latest
+#                             (linux/loong64) via `docker run` to compile
+#                             native modules natively and repackage as
+#                             loong64 deb + tar.gz.
 #
-# Required repo variable/secret:
-#   LOONG64_ELECTRON_URL – download URL for a loong64 Electron release
-#     (zip or tar.gz). Example community sources:
-#       https://github.com/nicholasguo/electron_loongarch/releases
-#       Loongnix / deepin loong64 Electron packages
+# Note: `container:` at the job level cannot be used here because QEMU
+# (binfmt_misc) must be registered *before* the container starts. Using
+# `docker run` in a step (after docker/setup-qemu-action) avoids this.
 
 name: linux-loong64
 
@@ -18,9 +19,13 @@ on:
     branches: [ build, test, build-only, linux-loong64 ]
   workflow_dispatch:
 
-jobs:
-  build:
+env:
+  SKIP_CONDITION: ${{ contains(github.event.head_commit.message, '[skip build]') || contains(github.event.head_commit.message, '[skip ci]') || contains(github.event.head_commit.message, '[skip linux]') || contains(github.event.head_commit.message, '[skip loong64]') }}
 
+jobs:
+
+  # ── Job 1: build JS bundle + x64 deb skeleton ──────────────────────────────
+  build-x64:
     runs-on: ubuntu-24.04
     environment: build
     if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip linux]') && !contains(github.event.head_commit.message, '[skip loong64]') }}
@@ -28,22 +33,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Use Node.js 24.x
+    - name: Use Node.js 22.x
       uses: actions/setup-node@v4
       with:
         node-version: 22.x
-
-    - name: Install loong64 cross-compilation toolchain
-      run: |
-        sudo apt-get update -q
-        sudo apt-get install -y \
-          gcc-loongarch64-linux-gnu \
-          g++-loongarch64-linux-gnu \
-          binutils-loongarch64-linux-gnu \
-          dpkg-dev
-
-    - run: npm config set legacy-peer-deps true
-    - run: npm install -g yarn
 
     - name: Update electron version to match loong64 binary
       run: |
@@ -55,31 +48,96 @@ jobs:
         "
         rm -f package-lock.json
 
+    - run: npm config set legacy-peer-deps true
+    - run: npm install -g yarn
     - run: npm i
-
-    - name: Install R2 dependencies if needed
-      if: ${{ contains(github.event.head_commit.message, '[r2]') }}
-      run: npm i -D @aws-sdk/client-s3
 
     - run: npm run b
 
     - name: Run pb
       run: npm run pb
 
-    - name: Build and repackage for loong64
+    - name: Build x64 deb skeleton
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        node -e "
+        const { replaceJSON } = require('./build/bin/build-common');
+        replaceJSON(d => { d.linux.target = ['deb']; });
+        "
+        ./node_modules/.bin/electron-builder --linux deb --x64
+
+    - name: Upload x64 skeleton
+      uses: actions/upload-artifact@v4
+      with:
+        name: loong64-x64-skeleton
+        path: dist/
+
+  # ── Job 2: compile native modules + repackage in loong64 container ──────────
+  package-loong64:
+    needs: build-x64
+    runs-on: ubuntu-24.04
+    environment: build
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+
+    - name: Download x64 skeleton
+      uses: actions/download-artifact@v4
+      with:
+        name: loong64-x64-skeleton
+        path: dist/
+
+    - run: npm config set legacy-peer-deps true
+    - run: npm i
+
+    - name: Install R2 dependencies if needed
+      if: ${{ contains(github.event.head_commit.message, '[r2]') }}
+      run: npm i -D @aws-sdk/client-s3
+
+    - name: Set up QEMU for loong64
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: loong64
+
+    - name: Compile native modules and package in loong64 container
+      env:
+        # Electron v39.2.7 loong64 community port by darkyzhou
+        # https://github.com/darkyzhou/electron-loong64/releases/tag/v39.2.7
+        LOONG64_ELECTRON_URL: https://github.com/darkyzhou/electron-loong64/releases/download/v39.2.7/electron-v39.2.7-linux-loong64.zip
+      run: |
+        docker run --rm --platform linux/loong64 \
+          -v "$GITHUB_WORKSPACE:/workspace" \
+          -w /workspace \
+          -e "LOONG64_ELECTRON_URL=$LOONG64_ELECTRON_URL" \
+          aosc/aosc-os:latest \
+          bash build/bin/build-loong64-docker.sh
+
+    - name: Upload to R2
+      if: ${{ contains(github.event.head_commit.message, '[r2]') }}
+      env:
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
         WORKFLOW_NAME: ${{ github.workflow }}
         CF_R2_ACCOUNT_ID: ${{ secrets.CF_R2_ACCOUNT_ID }}
         CF_R2_BUCKET: ${{ secrets.CF_R2_BUCKET }}
         CF_R2_ACCESS_KEY_ID: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
         CF_R2_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
-        # Electron v39.2.7 loong64 community port by darkyzhou
-        # https://github.com/darkyzhou/electron-loong64/releases/tag/v39.2.7
-        LOONG64_ELECTRON_URL: https://github.com/darkyzhou/electron-loong64/releases/download/v39.2.7/electron-v39.2.7-linux-loong64.zip
-
-      run: node build/bin/build-linux-loong64
+      run: |
+        node -e "
+        const { writeSrc, uploadToR2 } = require('./build/bin/build-common');
+        async function run() {
+          writeSrc('linux-loong64.deb');
+          await uploadToR2('linux-loong64.deb');
+          writeSrc('linux-loong64.tar.gz');
+          await uploadToR2('linux-loong64.tar.gz');
+        }
+        run().catch(e => { console.error(e); process.exit(1); });
+        "
 
     - name: Upload deb artifact
       uses: actions/upload-artifact@v4

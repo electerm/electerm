@@ -2,18 +2,14 @@
  * Build for Linux loong64 (LoongArch 64-bit).
  *
  * Strategy: electron-builder has no native loong64 support, so we:
- *   1. Build a standard x64 deb to obtain the app.asar + package structure.
- *   2. Cross-compile native modules (node-pty, sshcrypto, serialport) for
- *      loong64 using the loongarch64-linux-gnu toolchain.
- *   3. Swap in the cross-compiled .node files + a community loong64 Electron
- *      binary (set LOONG64_ELECTRON_URL in repo variables/secrets).
- *   4. Repackage as a loong64 .deb and .tar.gz and upload to R2.
+ *   1. Build a standard x64 deb to obtain the app.asar + package skeleton.
+ *   2. Run aosc/aosc-os:latest (linux/loong64) via Docker + QEMU to compile
+ *      native modules natively and repackage as a loong64 .deb and .tar.gz.
  *
- * Electron binary: darkyzhou/electron-loong64 v39.2.7 (latest community loong64 port as of 2026-01)
+ * Electron binary: darkyzhou/electron-loong64 v39.2.7
  *   https://github.com/darkyzhou/electron-loong64/releases/tag/v39.2.7
- * Note: electerm normally targets Electron 41.x; the loong64 binary is pinned to 39.2.7
- * (the closest available community build). The package.json electron version is
- * downgraded to match inside main() before calling electron-builder.
+ * Note: electerm normally targets Electron 41.x; pinned to 39.2.7 to match
+ * the community loong64 binary (Electron 39.x ships Node.js 22).
  */
 const { echo, rm } = require('shelljs')
 const {
@@ -36,9 +32,17 @@ async function main () {
   })
   await run(`${pb} --linux deb --x64`)
 
-  // Step 2: Cross-compile native modules + repackage for loong64
-  echo('Step 2: Repackaging for loong64...')
-  await run('bash build/bin/build-loong64-package.sh')
+  // Step 2: Run native loong64 container to compile modules + repackage
+  echo('Step 2: Building loong64 package in Docker (loong64 via QEMU)...')
+  const electronUrl = process.env.LOONG64_ELECTRON_URL || ''
+  await run(
+    `docker run --rm --platform linux/loong64 \
+      -v "${process.cwd()}:/workspace" \
+      -w /workspace \
+      -e "LOONG64_ELECTRON_URL=${electronUrl}" \
+      aosc/aosc-os:latest \
+      bash build/bin/build-loong64-docker.sh`
+  )
 
   // Step 3: Upload artifacts
   echo('Step 3: Uploading artifacts...')
