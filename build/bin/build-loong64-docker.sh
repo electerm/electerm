@@ -65,7 +65,7 @@ ls -al "$UNPACKED_DIR/" 2>/dev/null || echo "(app.asar.unpacked/ missing or empt
 
 echo "==> Installing app dependencies for loong64..."
 cd "$WORKSPACE/work/app"
-npm install --production
+npm install --omit=dev --legacy-peer-deps
 echo "==> work/app/node_modules native modules:"
 find node_modules -name "*.node" 2>/dev/null || echo "(no .node files found)"
 cd "$WORKSPACE"
