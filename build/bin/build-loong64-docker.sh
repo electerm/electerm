@@ -42,32 +42,36 @@ echo "==> App dir: $APP_DIR"
 
 UNPACKED_DIR="$APP_DIR/resources/app.asar.unpacked"
 
-# ── 4. Compile native modules natively for loong64 ───────────────────────────
-# No cross-compilation flags needed — the container IS loong64.
+# ── 4. Install app deps natively for loong64 (compiles .node files) ──────────
+# work/app/node_modules is not in the artifact, so we install fresh here.
+# Running inside the loong64 container means npm compiles native modules for
+# loong64 automatically — no cross-compilation or node-gyp flags needed.
 
-echo "==> Compiling node-pty..."
-pushd "$WORKSPACE/work/app/node_modules/node-pty"
-npx node-gyp rebuild
-cp build/Release/pty.node "$UNPACKED_DIR/node_modules/node-pty/build/Release/pty.node"
-popd
+echo "==> Installing app dependencies for loong64..."
+cd "$WORKSPACE/work/app"
+npm install --production
+cd "$WORKSPACE"
 
-echo "==> Compiling sshcrypto..."
-pushd "$WORKSPACE/work/app/node_modules/@electerm/ssh2/lib/protocol/crypto"
-npx node-gyp rebuild
-cp build/Release/sshcrypto.node \
+# Copy compiled native modules into the extracted deb
+echo "==> Copying loong64 native modules into package..."
+APP_MODS="$WORKSPACE/work/app/node_modules"
+
+# node-pty
+cp "$APP_MODS/node-pty/build/Release/pty.node" \
+  "$UNPACKED_DIR/node_modules/node-pty/build/Release/pty.node"
+
+# sshcrypto
+cp "$APP_MODS/@electerm/ssh2/lib/protocol/crypto/build/Release/sshcrypto.node" \
   "$UNPACKED_DIR/node_modules/@electerm/ssh2/lib/protocol/crypto/build/Release/sshcrypto.node"
-popd
 
-echo "==> Compiling serialport bindings..."
-pushd "$WORKSPACE/work/app/node_modules/@serialport/bindings-cpp"
-npx node-gyp rebuild
-BUILT_NODE=$(find prebuilds -name "*.node" 2>/dev/null | head -1 || true)
+# serialport
+BUILT_NODE=$(find "$APP_MODS/@serialport/bindings-cpp/prebuilds" \
+  -name "*.node" 2>/dev/null | head -1 || true)
 if [ -n "$BUILT_NODE" ]; then
   DEST="$UNPACKED_DIR/node_modules/@serialport/bindings-cpp/prebuilds/linux-loong64"
   mkdir -p "$DEST"
   cp "$BUILT_NODE" "$DEST/"
 fi
-popd
 
 # ── 5. Download and replace the Electron binary ──────────────────────────────
 echo "==> Downloading loong64 Electron from $LOONG64_ELECTRON_URL..."
