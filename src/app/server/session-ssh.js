@@ -483,6 +483,7 @@ class TerminalSshBase extends TerminalBase {
             return reject(err)
           }
           this.channel = channel
+          this.setNoDelay(true)
           globalState.setSession(this.pid, this)
           resolve(this)
         }
