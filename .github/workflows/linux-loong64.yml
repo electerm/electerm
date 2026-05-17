@@ -60,6 +60,7 @@ jobs:
     - name: Build x64 deb skeleton
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        WORKFLOW_NAME: ${{ github.workflow }}
       run: |
         node -e "
         const { replaceJSON } = require('./build/bin/build-common');
