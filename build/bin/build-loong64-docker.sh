@@ -8,7 +8,7 @@ WORKSPACE=/workspace
 
 # ── 1. Install build tools ────────────────────────────────────────────────────
 echo "==> Installing build tools..."
-oma install --yes gcc g++ make python3 nodejs npm curl unzip
+oma install --yes gcc g++ make python3 nodejs curl unzip
 
 echo "==> Node.js version: $(node --version)"
 echo "==> npm version:     $(npm --version)"
