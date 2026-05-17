@@ -14,6 +14,15 @@ echo "==> Node.js version: $(node --version)"
 echo "==> npm version:     $(npm --version)"
 
 # ── 2. Find the x64 deb and extract it ───────────────────────────────────────
+echo "==> Workspace contents:"
+ls -al "$WORKSPACE/"
+echo "==> dist/ contents:"
+ls -al "$WORKSPACE/dist/" 2>/dev/null || echo "(dist/ missing)"
+echo "==> work/ contents:"
+ls -al "$WORKSPACE/work/" 2>/dev/null || echo "(work/ missing)"
+echo "==> work/app/ contents:"
+ls -al "$WORKSPACE/work/app/" 2>/dev/null || echo "(work/app/ missing)"
+
 DEB=$(ls "$WORKSPACE"/dist/electerm-*-linux-amd64.deb 2>/dev/null | head -1)
 if [ -z "$DEB" ]; then
   echo "ERROR: No x64 deb found in dist/" >&2
@@ -39,8 +48,15 @@ if [ ! -d "$APP_DIR" ]; then
   fi
 fi
 echo "==> App dir: $APP_DIR"
+echo "==> App dir contents:"
+ls -al "$APP_DIR/"
+echo "==> resources/ contents:"
+ls -al "$APP_DIR/resources/" 2>/dev/null || echo "(resources/ missing)"
 
 UNPACKED_DIR="$APP_DIR/resources/app.asar.unpacked"
+echo "==> UNPACKED_DIR: $UNPACKED_DIR"
+echo "==> app.asar.unpacked/ contents:"
+ls -al "$UNPACKED_DIR/" 2>/dev/null || echo "(app.asar.unpacked/ missing or empty)"
 
 # ── 4. Install app deps natively for loong64 (compiles .node files) ──────────
 # work/app/node_modules is not in the artifact, so we install fresh here.
@@ -50,6 +66,8 @@ UNPACKED_DIR="$APP_DIR/resources/app.asar.unpacked"
 echo "==> Installing app dependencies for loong64..."
 cd "$WORKSPACE/work/app"
 npm install --production
+echo "==> work/app/node_modules native modules:"
+find node_modules -name "*.node" 2>/dev/null || echo "(no .node files found)"
 cd "$WORKSPACE"
 
 # Copy compiled native modules into the extracted deb
@@ -77,6 +95,8 @@ fi
 echo "==> Downloading loong64 Electron from $LOONG64_ELECTRON_URL..."
 curl -fL "$LOONG64_ELECTRON_URL" -o /tmp/electron-loong64.zip
 unzip -o /tmp/electron-loong64.zip -d /tmp/electron-loong64
+echo "==> Extracted Electron contents:"
+ls -al /tmp/electron-loong64/
 
 echo "==> Installing loong64 Electron binary..."
 cp /tmp/electron-loong64/electron "$APP_DIR/electerm"
@@ -106,4 +126,6 @@ tar -czf "$WORKSPACE/dist/electerm-${VERSION}-linux-loong64.tar.gz" \
   -C "$STAGING" electerm
 
 echo "==> Done! Artifacts:"
-ls -lh "$WORKSPACE/dist/electerm-${VERSION}-linux-loong64".*
+ls -lh "$WORKSPACE/dist/"
+echo "==> loong64 deb info:"
+dpkg-deb -f "$WORKSPACE/dist/electerm-${VERSION}-linux-loong64.deb" 2>/dev/null || true

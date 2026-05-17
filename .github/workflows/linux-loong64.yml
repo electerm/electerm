@@ -72,7 +72,10 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: loong64-x64-skeleton
-        path: dist/
+        path: |
+          dist/
+          work/app/
+          !work/app/node_modules/
 
   # ── Job 2: compile native modules + repackage in loong64 container ──────────
   package-loong64:
@@ -92,7 +95,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: loong64-x64-skeleton
-        path: dist/
+        path: ./
 
     - run: npm config set legacy-peer-deps true
     - run: npm i
