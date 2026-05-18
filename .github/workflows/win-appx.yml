@@ -351,6 +351,9 @@ jobs:
           $subData.applicationPackages = $newPackages
           Write-StoreLog "applicationPackages: $($newPackages.Count) entries (last = new PendingUpload)."
 
+          # Ensure the submission waits for manual submit after package validation
+          $subData.targetPublishMode = 'Manual'
+
           # 8. Push updated submission metadata
           Write-Host "Updating submission metadata..."
           Write-StoreLog "PUT submission metadata..."
@@ -373,8 +376,18 @@ jobs:
           Write-Host "Package uploaded."
           Write-StoreLog "Package uploaded."
 
-          Write-Host "Submission $subId saved (not committed — pending manual submit in Partner Center)."
-          Write-StoreLog "Submission saved (noCommit). SubmissionId: $subId"
+          # 10. Commit the submission — triggers package validation.
+          #     targetPublishMode='Manual' means it won't auto-publish after passing;
+          #     you still need to click Submit in Partner Center.
+          Write-Host "Committing submission for package validation..."
+          Write-StoreLog "Committing submission..."
+          $commitResp = Invoke-RestMethod -Uri "$apiBase/submissions/$subId/commit" `
+            -Method Post -Headers $h -ContentType 'application/json' -Body '{}'
+          Write-Host "Submission committed. Status: $($commitResp.status)"
+          Write-StoreLog "Submission committed. Status: $($commitResp.status)"
+
+          Write-Host "Submission $subId is now in package validation (pending manual submit in Partner Center)."
+          Write-StoreLog "Done. SubmissionId: $subId"
 
         } catch {
           $errMsg    = $_.ToString()
