@@ -271,7 +271,7 @@ jobs:
 
         # 3. Create new submission (cloned from live)
         Write-Host "Creating new submission..."
-        $newSub = Invoke-RestMethod -Uri "$apiBase/submissions" -Method Post -Headers $h
+        $newSub = Invoke-RestMethod -Uri "$apiBase/submissions" -Method Post -Headers $h -ContentType 'application/json' -Body '{}'
         $subId         = $newSub.id
         $fileUploadUrl = $newSub.fileUploadUrl
         Write-Host "Submission ID: $subId"
