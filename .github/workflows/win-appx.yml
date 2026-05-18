@@ -79,6 +79,6 @@ jobs:
       run: |
         $appx = Get-ChildItem -Path dist -Filter '*.appx' -Recurse | Select-Object -First 1
         if (-not $appx) { throw 'No .appx file found under dist/' }
-        msstore publish . --inputFile $appx.FullName --appId "$env:MS_APP_ID" --noCommit
+        msstore publish . --inputDirectory $appx.Directory.FullName --appId "$env:MS_APP_ID" --noCommit
       shell: pwsh
 
