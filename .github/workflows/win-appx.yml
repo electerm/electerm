@@ -74,6 +74,7 @@ jobs:
 
     - name: Debug Microsoft Store app access
       if: ${{ !contains(github.event.head_commit.message, '[skip store]') }}
+      continue-on-error: true
       env:
         MS_PRODUCT_ID: ${{ secrets.MS_PRODUCT_ID }}
         MS_APP_ID: ${{ secrets.MS_APP_ID }}
@@ -97,6 +98,7 @@ jobs:
 
         $appsListOutput = (& msstore apps list 2>&1 | Out-String)
         $appsListExitCode = $LASTEXITCODE
+        $global:LASTEXITCODE = 0
         Write-Host $appsListOutput
 
         $productIds = @(
@@ -132,12 +134,18 @@ jobs:
         $appx = Get-ChildItem -Path dist -Filter '*.appx' -Recurse | Select-Object -First 1
         if (-not $appx) { throw 'No .appx file found under dist/' }
 
-        $appsListOutput = (msstore apps list | Out-String)
+        $appsListOutput = (& msstore apps list 2>&1 | Out-String)
+        $appsListExitCode = $LASTEXITCODE
+        $global:LASTEXITCODE = 0
         $productIds = @(
           [regex]::Matches($appsListOutput, '\b9[A-Z0-9]{11}\b') |
             ForEach-Object { $_.Value } |
             Select-Object -Unique
         )
+
+        if ($appsListExitCode -ne 0 -or $productIds.Count -eq 0) {
+          throw 'The configured Entra app can authenticate, but it cannot access any packaged Microsoft Store apps for this seller account. Grant this app Partner Center access to the target Store listing, or use credentials tied to the correct seller account.'
+        }
 
         $productId = "$env:MS_PRODUCT_ID".Trim()
         if (-not $productId) {
