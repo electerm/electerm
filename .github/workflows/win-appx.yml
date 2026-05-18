@@ -310,6 +310,10 @@ jobs:
           $subData.applicationPackages = $newPackages
           Write-StoreLog "applicationPackages: $($newPackages.Count) entries (last = new PendingUpload)."
 
+          # Use Manual publish so the app waits in 'Ready to publish' after certification
+          # and does NOT go live automatically.
+          $subData.targetPublishMode = 'Manual'
+
           # 7. Push updated submission metadata
           Write-Host "Updating submission metadata..."
           Write-StoreLog "PUT submission metadata..."
@@ -332,9 +336,14 @@ jobs:
           Write-Host "Package uploaded."
           Write-StoreLog "Package uploaded."
 
-          # Submission is left as a draft — go to Partner Center and click Submit when ready.
-          Write-Host "Submission $subId created as draft with new package. Go to Partner Center to review and submit."
-          Write-StoreLog "Done (draft, not committed). SubmissionId: $subId"
+          # 9. Commit submission to trigger certification.
+          #    targetPublishMode = 'Manual' means it will NOT go live automatically after passing —
+          #    it will sit in 'Ready to publish' until you click Publish in Partner Center.
+          Write-Host "Committing submission to trigger certification..."
+          Write-StoreLog "Committing submission (Manual publish mode)..."
+          Invoke-RestMethod -Uri "$apiBase/submissions/$subId/commit" -Method Post -Headers $h | Out-Null
+          Write-Host "Submission committed. Certification will start shortly."
+          Write-StoreLog "Done (committed, Manual mode). SubmissionId: $subId"
 
         } catch {
           $errMsg    = $_.ToString()
