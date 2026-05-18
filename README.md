@@ -30,6 +30,16 @@ For experienced developers, you may try the web app version running in browser(i
 
 Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5beta.com)
 
+## Atlas Cloud
+
+<div align="center">
+  <a href="https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm">
+    <img src="./assets/readme/atlas-cloud.png" alt="Atlas Cloud" width="220" />
+  </a>
+</div>
+
+[Atlas Cloud](https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm) provides OpenAI-compatible AI APIs and model access for AI-powered workflows in electerm.
+
 <div align="center">
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
 </div>
