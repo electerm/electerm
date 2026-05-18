@@ -37,7 +37,7 @@ jobs:
     - run: npm i -S -E serialport@13.0.0
 
     - name: Install R2 dependencies if store upload may run
-      if: ${{ !contains(github.event.head_commit.message, '[skip store]') }}
+      if: ${{ contains(github.event.head_commit.message, '[debug]') }}
       run: npm i -D @aws-sdk/client-s3
 
     # script:
@@ -287,27 +287,7 @@ jobs:
           Write-StoreLog "Fetching published submission: $lastPubSubId"
           $pubSub = Invoke-RestMethod -Uri "$apiBase/submissions/$lastPubSubId" -Headers $h
 
-          # Truncate features in the template BEFORE posting — the API enforces ≤20 on POST too
-          foreach ($locale in @($pubSub.listings.PSObject.Properties.Name)) {
-            $bl = $pubSub.listings.$locale.baseListing
-            if ($bl -and $bl.features -and $bl.features.Count -gt 20) {
-              Write-Host "Pre-trim baseListing features '$locale': $($bl.features.Count) → 20"
-              Write-StoreLog "Pre-trim baseListing features '$locale': $($bl.features.Count) → 20"
-              $bl.features = @($bl.features | Select-Object -First 20)
-            }
-            if ($pubSub.listings.$locale.platformOverrides) {
-              foreach ($plat in @($pubSub.listings.$locale.platformOverrides.PSObject.Properties.Name)) {
-                $po = $pubSub.listings.$locale.platformOverrides.$plat
-                if ($po -and $po.features -and $po.features.Count -gt 20) {
-                  Write-Host "Pre-trim platformOverride '$locale/$plat' features: $($po.features.Count) → 20"
-                  Write-StoreLog "Pre-trim platformOverride '$locale/$plat' features: $($po.features.Count) → 20"
-                  $po.features = @($po.features | Select-Object -First 20)
-                }
-              }
-            }
-          }
-
-          # 4. Create new submission using the (now-trimmed) published submission data as the request body
+          # 4. Create new submission using the published submission data as the request body
           Write-Host "Creating new submission..."
           Write-StoreLog "Creating new submission (POST with published data as body)..."
           $pubSubBytes = [System.Text.Encoding]::UTF8.GetBytes(($pubSub | ConvertTo-Json -Depth 30 -Compress))
@@ -320,28 +300,7 @@ jobs:
           # 5. Get full data for the new submission
           $subData = Invoke-RestMethod -Uri "$apiBase/submissions/$subId" -Headers $h
 
-          # 6. Truncate features in every listing / platformOverride to ≤ 20
-          #    (the Ingestion API enforces a hard limit of 20 per locale)
-          foreach ($locale in @($subData.listings.PSObject.Properties.Name)) {
-            $bl = $subData.listings.$locale.baseListing
-            if ($bl -and $bl.features -and $bl.features.Count -gt 20) {
-              Write-Host "Trimming baseListing features for '$locale': $($bl.features.Count) → 20"
-              Write-StoreLog "Trimming baseListing features '$locale': $($bl.features.Count) → 20"
-              $bl.features = @($bl.features | Select-Object -First 20)
-            }
-            if ($subData.listings.$locale.platformOverrides) {
-              foreach ($plat in @($subData.listings.$locale.platformOverrides.PSObject.Properties.Name)) {
-                $po = $subData.listings.$locale.platformOverrides.$plat
-                if ($po -and $po.features -and $po.features.Count -gt 20) {
-                  Write-Host "Trimming platformOverride '$locale/$plat' features: $($po.features.Count) → 20"
-                  Write-StoreLog "Trimming platformOverride '$locale/$plat' features: $($po.features.Count) → 20"
-                  $po.features = @($po.features | Select-Object -First 20)
-                }
-              }
-            }
-          }
-
-          # 7. Replace packages: mark existing for deletion, add new one as PendingUpload
+          # 6. Replace packages: mark existing for deletion, add new one as PendingUpload
           $newPackages = @()
           foreach ($pkg in @($subData.applicationPackages)) {
             $pkg.fileStatus = 'PendingDelete'
@@ -351,10 +310,7 @@ jobs:
           $subData.applicationPackages = $newPackages
           Write-StoreLog "applicationPackages: $($newPackages.Count) entries (last = new PendingUpload)."
 
-          # Ensure the submission waits for manual submit after package validation
-          $subData.targetPublishMode = 'Manual'
-
-          # 8. Push updated submission metadata
+          # 7. Push updated submission metadata
           Write-Host "Updating submission metadata..."
           Write-StoreLog "PUT submission metadata..."
           $updateBodyBytes = [System.Text.Encoding]::UTF8.GetBytes(($subData | ConvertTo-Json -Depth 30 -Compress))
@@ -363,7 +319,7 @@ jobs:
           Write-Host "Submission metadata updated."
           Write-StoreLog "Submission metadata updated."
 
-          # 9. Create ZIP and upload to Azure Blob SAS URL
+          # 8. Create ZIP and upload to Azure Blob SAS URL
           #    (SAS URL carries its own auth — do not include the Bearer token here)
           $zipPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), 'electerm-appx-upload.zip')
           if (Test-Path $zipPath) { Remove-Item $zipPath }
@@ -376,18 +332,9 @@ jobs:
           Write-Host "Package uploaded."
           Write-StoreLog "Package uploaded."
 
-          # 10. Commit the submission — triggers package validation.
-          #     targetPublishMode='Manual' means it won't auto-publish after passing;
-          #     you still need to click Submit in Partner Center.
-          Write-Host "Committing submission for package validation..."
-          Write-StoreLog "Committing submission..."
-          $commitResp = Invoke-RestMethod -Uri "$apiBase/submissions/$subId/commit" `
-            -Method Post -Headers $h -ContentType 'application/json' -Body '{}'
-          Write-Host "Submission committed. Status: $($commitResp.status)"
-          Write-StoreLog "Submission committed. Status: $($commitResp.status)"
-
-          Write-Host "Submission $subId is now in package validation (pending manual submit in Partner Center)."
-          Write-StoreLog "Done. SubmissionId: $subId"
+          # Submission is left as a draft — go to Partner Center and click Submit when ready.
+          Write-Host "Submission $subId created as draft with new package. Go to Partner Center to review and submit."
+          Write-StoreLog "Done (draft, not committed). SubmissionId: $subId"
 
         } catch {
           $errMsg    = $_.ToString()
@@ -404,7 +351,7 @@ jobs:
         }
 
     - name: Upload Microsoft Store raw log to R2
-      if: ${{ always() && !contains(github.event.head_commit.message, '[skip store]') }}
+      if: ${{ always() && contains(github.event.head_commit.message, '[debug]') }}
       env:
         MSSTORE_LOG_FILE: dist/msstore-logs/msstore-${{ github.run_id }}-${{ github.run_attempt }}.log
         CF_R2_ACCOUNT_ID: ${{ secrets.CF_R2_ACCOUNT_ID }}
