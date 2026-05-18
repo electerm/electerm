@@ -87,9 +87,9 @@ jobs:
               Where-Object { $_.Trim().StartsWith('│') } |
               ForEach-Object {
                 $columns = $_.Trim().Split('│') | ForEach-Object { $_.Trim() }
-                if ($columns.Count -ge 4) {
-                  $productId = $columns[1]
-                  $packageId = $columns[3]
+                if ($columns.Count -ge 5) {
+                  $productId = $columns[2]
+                  $packageId = $columns[4]
                   if ($productId -and $productId -ne 'ProductId' -and $packageId -and $packageId -ne 'PackageId') {
                     $productId
                   }
@@ -171,9 +171,9 @@ jobs:
               Where-Object { $_.Trim().StartsWith('│') } |
               ForEach-Object {
                 $columns = $_.Trim().Split('│') | ForEach-Object { $_.Trim() }
-                if ($columns.Count -ge 4) {
-                  $productId = $columns[1]
-                  $packageId = $columns[3]
+                if ($columns.Count -ge 5) {
+                  $productId = $columns[2]
+                  $packageId = $columns[4]
                   if ($productId -and $productId -ne 'ProductId' -and $packageId -and $packageId -ne 'PackageId') {
                     $productId
                   }
