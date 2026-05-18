@@ -72,6 +72,57 @@ jobs:
       run: msstore reconfigure --tenantId "$env:MS_TENANT_ID" --sellerId "$env:MS_SELLER_ID" --clientId "$env:MS_CLIENT_ID" --clientSecret "$env:MS_CLIENT_SECRET"
       shell: pwsh
 
+    - name: Debug Microsoft Store app access
+      if: ${{ !contains(github.event.head_commit.message, '[skip store]') }}
+      env:
+        MS_PRODUCT_ID: ${{ secrets.MS_PRODUCT_ID }}
+        MS_APP_ID: ${{ secrets.MS_APP_ID }}
+      run: |
+        $configuredProductId = "$env:MS_PRODUCT_ID".Trim()
+        if (-not $configuredProductId) {
+          $configuredProductId = "$env:MS_APP_ID".Trim()
+        }
+
+        if ($configuredProductId) {
+          Write-Host "Configured Store Product ID: $configuredProductId"
+        } else {
+          Write-Host 'Configured Store Product ID: <empty>'
+        }
+
+        Write-Host 'Package identifiers in this repo are not valid Store Product IDs:'
+        Write-Host '  Electron appId: org.electerm.electerm'
+        Write-Host '  APPX applicationId: electerm'
+        Write-Host '  APPX identityName: 64159ZHAOXudong.electerm'
+        Write-Host 'Accessible Microsoft Store packaged apps for this account:'
+
+        $appsListOutput = (& msstore apps list 2>&1 | Out-String)
+        $appsListExitCode = $LASTEXITCODE
+        Write-Host $appsListOutput
+
+        $productIds = @(
+          [regex]::Matches($appsListOutput, '\b9[A-Z0-9]{11}\b') |
+            ForEach-Object { $_.Value } |
+            Select-Object -Unique
+        )
+
+        if ($appsListExitCode -ne 0) {
+          Write-Host "msstore apps list exited with code $appsListExitCode. This usually means the configured Entra app can authenticate but does not have Partner Center access to packaged apps for this seller account."
+        } elseif ($productIds.Count -eq 0) {
+          Write-Host 'msstore apps list succeeded but no packaged Product IDs were detected. This usually means no packaged Store apps are visible to this account.'
+        } elseif (-not $configuredProductId) {
+          if ($productIds.Count -eq 1) {
+            Write-Host "Exactly one packaged Product ID is visible: $($productIds[0])"
+          } else {
+            Write-Host "Multiple packaged Product IDs are visible: $($productIds -join ', ')"
+          }
+        } elseif ($configuredProductId -notin $productIds) {
+          Write-Host "Configured Store Product ID '$configuredProductId' was not found in the accessible app list."
+          Write-Host "Visible Product IDs: $($productIds -join ', ')"
+        } else {
+          Write-Host "Configured Store Product ID '$configuredProductId' is visible to this account."
+        }
+      shell: pwsh
+
     - name: Upload APPX to Microsoft Store (draft and pending manual submit)
       if: ${{ !contains(github.event.head_commit.message, '[skip store]') }}
       env:
@@ -81,12 +132,25 @@ jobs:
         $appx = Get-ChildItem -Path dist -Filter '*.appx' -Recurse | Select-Object -First 1
         if (-not $appx) { throw 'No .appx file found under dist/' }
 
+        $appsListOutput = (msstore apps list | Out-String)
+        $productIds = @(
+          [regex]::Matches($appsListOutput, '\b9[A-Z0-9]{11}\b') |
+            ForEach-Object { $_.Value } |
+            Select-Object -Unique
+        )
+
         $productId = "$env:MS_PRODUCT_ID".Trim()
         if (-not $productId) {
           $productId = "$env:MS_APP_ID".Trim()
         }
         if (-not $productId) {
-          throw 'Missing MS_PRODUCT_ID or MS_APP_ID secret. Set it to the Microsoft Store Partner Center product id, not the Electron appId or APPX package identifiers.'
+          if ($productIds.Count -eq 1) {
+            $productId = $productIds[0]
+            Write-Host "Resolved MS Product ID from account app list: $productId"
+          } else {
+            $visibleProductIds = if ($productIds.Count) { $productIds -join ', ' } else { 'none detected' }
+            throw "Missing MS_PRODUCT_ID or MS_APP_ID secret. Set it to the Microsoft Store Partner Center product id. Visible Product IDs for this account: $visibleProductIds"
+          }
         }
 
         $knownWrongAppIds = @(
@@ -96,6 +160,10 @@ jobs:
         )
         if ($knownWrongAppIds -contains $productId) {
           throw "Configured store identifier '$productId' is a package identifier. Use the Microsoft Store Partner Center product id instead."
+        }
+
+        if ($productIds.Count -gt 0 -and $productId -notin $productIds) {
+          throw "Configured store identifier '$productId' was not found in the accessible Microsoft Store apps list. Visible Product IDs for this account: $($productIds -join ', ')"
         }
 
         msstore publish . --inputDirectory $appx.Directory.FullName --appId "$productId" --noCommit
