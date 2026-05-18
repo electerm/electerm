@@ -167,6 +167,14 @@ jobs:
         MS_CLIENT_SECRET: ${{ secrets.MS_CLIENT_SECRET }}
         MSSTORE_LOG_FILE: dist/msstore-logs/msstore-${{ github.run_id }}-${{ github.run_attempt }}.log
       run: |
+        # ── Initialise log file ─────────────────────────────────────────────────
+        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $env:MSSTORE_LOG_FILE) | Out-Null
+        Set-Content -Path $env:MSSTORE_LOG_FILE -Value "=== win-appx store upload log $(Get-Date -Format o) ==="
+
+        function Write-StoreLog([string] $message) {
+          Add-Content -Path $env:MSSTORE_LOG_FILE -Value $message
+        }
+
         function Get-VisibleProductIds([string] $appsListOutput) {
           $cleanOutput = [regex]::Replace($appsListOutput, '\x1B\[[0-9;?]*[ -/]*[@-~]', '')
           return @(
@@ -186,150 +194,181 @@ jobs:
           )
         }
 
-        function Write-StoreLog([string] $message) {
-          Add-Content -Path $env:MSSTORE_LOG_FILE -Value $message
-        }
+        try {
 
-        $appx = Get-ChildItem -Path dist -Filter '*.appx' -Recurse | Select-Object -First 1
-        if (-not $appx) { throw 'No .appx file found under dist/' }
+          $appx = Get-ChildItem -Path dist -Filter '*.appx' -Recurse | Select-Object -First 1
+          if (-not $appx) { throw 'No .appx file found under dist/' }
 
-        Write-StoreLog ''
-        Write-StoreLog "=== publish preflight $(Get-Date -Format o) ==="
-        Write-StoreLog "APPX file: $($appx.FullName)"
-        $appsListOutput = (& msstore apps list 2>&1 | Tee-Object -FilePath $env:MSSTORE_LOG_FILE -Append | Out-String)
-        $appsListExitCode = $LASTEXITCODE
-        $global:LASTEXITCODE = 0
-        Write-StoreLog "msstore apps list exit code: $appsListExitCode"
-        $productIds = Get-VisibleProductIds $appsListOutput
+          Write-StoreLog ''
+          Write-StoreLog "=== publish preflight $(Get-Date -Format o) ==="
+          Write-StoreLog "APPX file: $($appx.FullName)"
+          $appsListOutput = (& msstore apps list 2>&1 | Tee-Object -FilePath $env:MSSTORE_LOG_FILE -Append | Out-String)
+          $appsListExitCode = $LASTEXITCODE
+          $global:LASTEXITCODE = 0
+          Write-StoreLog "msstore apps list exit code: $appsListExitCode"
+          $productIds = Get-VisibleProductIds $appsListOutput
 
-        if ($appsListExitCode -ne 0 -or $productIds.Count -eq 0) {
-          throw 'The configured Entra app can authenticate, but it cannot access any packaged Microsoft Store apps for this seller account. Grant this app Partner Center access to the target Store listing, or use credentials tied to the correct seller account.'
-        }
-
-        $productId = "$env:MS_PRODUCT_ID".Trim()
-        if (-not $productId) {
-          $productId = "$env:MS_APP_ID".Trim()
-        }
-        if (-not $productId) {
-          if ($productIds.Count -eq 1) {
-            $productId = $productIds[0]
-            Write-Host "Resolved MS Product ID from account app list: $productId"
-          } else {
-            $visibleProductIds = if ($productIds.Count) { $productIds -join ', ' } else { 'none detected' }
-            throw "Missing MS_PRODUCT_ID or MS_APP_ID secret. Set it to the Microsoft Store Partner Center product id. Visible Product IDs for this account: $visibleProductIds"
+          if ($appsListExitCode -ne 0 -or $productIds.Count -eq 0) {
+            throw 'The configured Entra app can authenticate, but it cannot access any packaged Microsoft Store apps for this seller account. Grant this app Partner Center access to the target Store listing, or use credentials tied to the correct seller account.'
           }
-        }
 
-        $knownWrongAppIds = @(
-          'org.electerm.electerm',
-          'electerm',
-          '64159ZHAOXudong.electerm'
-        )
-        if ($knownWrongAppIds -contains $productId) {
-          throw "Configured store identifier '$productId' is a package identifier. Use the Microsoft Store Partner Center product id instead."
-        }
-
-        if ($productIds.Count -gt 0 -and $productId -notin $productIds) {
-          throw "Configured store identifier '$productId' was not found in the accessible Microsoft Store apps list. Visible Product IDs for this account: $($productIds -join ', ')"
-        }
-
-        Write-Host "Resolved publish Product ID: $productId"
-        Write-StoreLog "Resolved publish Product ID: $productId"
-
-        # ── Direct Ingestion API publish ─────────────────────────────────────────
-        # msstore publish copies listing features verbatim from the live submission.
-        # If any locale has >20 features the Ingestion API rejects the update.
-        # We bypass msstore publish and call the API directly so we can cap features.
-
-        Write-StoreLog ''
-        Write-StoreLog "=== direct-api publish $(Get-Date -Format o) ==="
-
-        # 1. Get OAuth token for the Partner Center Ingestion API
-        $tokenParts = @(
-          "grant_type=client_credentials",
-          "client_id=$([uri]::EscapeDataString($env:MS_CLIENT_ID))",
-          "client_secret=$([uri]::EscapeDataString($env:MS_CLIENT_SECRET))",
-          "scope=$([uri]::EscapeDataString('https://manage.devcenter.microsoft.com/.default'))"
-        )
-        $tokenResp = Invoke-RestMethod `
-          -Uri "https://login.microsoftonline.com/$env:MS_TENANT_ID/oauth2/v2.0/token" `
-          -Method Post -ContentType 'application/x-www-form-urlencoded' `
-          -Body ($tokenParts -join '&')
-        $token = $tokenResp.access_token
-        $h = @{ Authorization = "Bearer $token" }
-        $apiBase = "https://manage.devcenter.microsoft.com/v1.0/my/applications/$productId"
-
-        # 2. Delete any existing pending submission so we start clean
-        $appInfo = Invoke-RestMethod -Uri $apiBase -Headers $h
-        if ($appInfo.pendingApplicationSubmission.id) {
-          $pendingId = $appInfo.pendingApplicationSubmission.id
-          Write-Host "Deleting pending submission $pendingId ..."
-          Write-StoreLog "Deleting pending submission: $pendingId"
-          Invoke-RestMethod -Uri "$apiBase/submissions/$pendingId" -Method Delete -Headers $h | Out-Null
-          Write-Host "Deleted pending submission."
-        }
-
-        # 3. Create new submission (cloned from live)
-        Write-Host "Creating new submission..."
-        $newSub = Invoke-RestMethod -Uri "$apiBase/submissions" -Method Post -Headers $h -ContentType 'application/json' -Body '{}'
-        $subId         = $newSub.id
-        $fileUploadUrl = $newSub.fileUploadUrl
-        Write-Host "Submission ID: $subId"
-        Write-StoreLog "Submission ID: $subId"
-
-        # 4. Get full submission data
-        $subData = Invoke-RestMethod -Uri "$apiBase/submissions/$subId" -Headers $h
-
-        # 5. Truncate features in every listing / platformOverride to ≤ 20
-        #    (the Ingestion API enforces a hard limit of 20 per locale)
-        foreach ($locale in @($subData.listings.PSObject.Properties.Name)) {
-          $bl = $subData.listings.$locale.baseListing
-          if ($bl -and $bl.features -and $bl.features.Count -gt 20) {
-            Write-Host "Trimming baseListing features for '$locale': $($bl.features.Count) → 20"
-            $bl.features = @($bl.features | Select-Object -First 20)
+          $productId = "$env:MS_PRODUCT_ID".Trim()
+          if (-not $productId) {
+            $productId = "$env:MS_APP_ID".Trim()
           }
-          if ($subData.listings.$locale.platformOverrides) {
-            foreach ($plat in @($subData.listings.$locale.platformOverrides.PSObject.Properties.Name)) {
-              $po = $subData.listings.$locale.platformOverrides.$plat
-              if ($po -and $po.features -and $po.features.Count -gt 20) {
-                Write-Host "Trimming platformOverride '$locale/$plat' features: $($po.features.Count) → 20"
-                $po.features = @($po.features | Select-Object -First 20)
+          if (-not $productId) {
+            if ($productIds.Count -eq 1) {
+              $productId = $productIds[0]
+              Write-Host "Resolved MS Product ID from account app list: $productId"
+            } else {
+              $visibleProductIds = if ($productIds.Count) { $productIds -join ', ' } else { 'none detected' }
+              throw "Missing MS_PRODUCT_ID or MS_APP_ID secret. Set it to the Microsoft Store Partner Center product id. Visible Product IDs for this account: $visibleProductIds"
+            }
+          }
+
+          $knownWrongAppIds = @(
+            'org.electerm.electerm',
+            'electerm',
+            '64159ZHAOXudong.electerm'
+          )
+          if ($knownWrongAppIds -contains $productId) {
+            throw "Configured store identifier '$productId' is a package identifier. Use the Microsoft Store Partner Center product id instead."
+          }
+
+          if ($productIds.Count -gt 0 -and $productId -notin $productIds) {
+            throw "Configured store identifier '$productId' was not found in the accessible Microsoft Store apps list. Visible Product IDs for this account: $($productIds -join ', ')"
+          }
+
+          Write-Host "Resolved publish Product ID: $productId"
+          Write-StoreLog "Resolved publish Product ID: $productId"
+
+          # ── Direct Ingestion API publish ───────────────────────────────────────
+          # msstore publish copies listing features verbatim from the live submission.
+          # If any locale has >20 features the Ingestion API rejects the update.
+          # We bypass msstore publish and call the API directly so we can cap features.
+
+          Write-StoreLog ''
+          Write-StoreLog "=== direct-api publish $(Get-Date -Format o) ==="
+
+          # 1. Get OAuth token for the Partner Center Ingestion API
+          $tokenParts = @(
+            "grant_type=client_credentials",
+            "client_id=$([uri]::EscapeDataString($env:MS_CLIENT_ID))",
+            "client_secret=$([uri]::EscapeDataString($env:MS_CLIENT_SECRET))",
+            "scope=$([uri]::EscapeDataString('https://manage.devcenter.microsoft.com/.default'))"
+          )
+          $tokenResp = Invoke-RestMethod `
+            -Uri "https://login.microsoftonline.com/$env:MS_TENANT_ID/oauth2/v2.0/token" `
+            -Method Post -ContentType 'application/x-www-form-urlencoded' `
+            -Body ($tokenParts -join '&')
+          $token = $tokenResp.access_token
+          Write-StoreLog "OAuth token acquired."
+          $h = @{ Authorization = "Bearer $token" }
+          $apiBase = "https://manage.devcenter.microsoft.com/v1.0/my/applications/$productId"
+
+          # 2. Get app info; delete any pending submission
+          Write-Host "Getting app info..."
+          $appInfo = Invoke-RestMethod -Uri $apiBase -Headers $h
+          Write-StoreLog "App info fetched. lastPublishedSubmission: $($appInfo.lastPublishedApplicationSubmission.id)"
+          if ($appInfo.pendingApplicationSubmission.id) {
+            $pendingId = $appInfo.pendingApplicationSubmission.id
+            Write-Host "Deleting pending submission $pendingId ..."
+            Write-StoreLog "Deleting pending submission: $pendingId"
+            Invoke-RestMethod -Uri "$apiBase/submissions/$pendingId" -Method Delete -Headers $h | Out-Null
+            Write-Host "Deleted pending submission."
+            Write-StoreLog "Deleted pending submission."
+          }
+
+          # 3. Fetch last published submission to use as the body for POST /submissions.
+          #    The API does NOT auto-clone — it requires the full submission object.
+          $lastPubSubId = $appInfo.lastPublishedApplicationSubmission.id
+          if (-not $lastPubSubId) { throw 'No published submission found to clone from.' }
+          Write-Host "Fetching published submission $lastPubSubId as template..."
+          Write-StoreLog "Fetching published submission: $lastPubSubId"
+          $pubSub = Invoke-RestMethod -Uri "$apiBase/submissions/$lastPubSubId" -Headers $h
+
+          # 4. Create new submission using the published submission data as the request body
+          Write-Host "Creating new submission..."
+          Write-StoreLog "Creating new submission (POST with published data as body)..."
+          $pubSubBytes = [System.Text.Encoding]::UTF8.GetBytes(($pubSub | ConvertTo-Json -Depth 30 -Compress))
+          $newSub = Invoke-RestMethod -Uri "$apiBase/submissions" -Method Post -Headers $h -ContentType 'application/json' -Body $pubSubBytes
+          $subId         = $newSub.id
+          $fileUploadUrl = $newSub.fileUploadUrl
+          Write-Host "Submission ID: $subId"
+          Write-StoreLog "Submission ID: $subId"
+
+          # 5. Get full data for the new submission
+          $subData = Invoke-RestMethod -Uri "$apiBase/submissions/$subId" -Headers $h
+
+          # 6. Truncate features in every listing / platformOverride to ≤ 20
+          #    (the Ingestion API enforces a hard limit of 20 per locale)
+          foreach ($locale in @($subData.listings.PSObject.Properties.Name)) {
+            $bl = $subData.listings.$locale.baseListing
+            if ($bl -and $bl.features -and $bl.features.Count -gt 20) {
+              Write-Host "Trimming baseListing features for '$locale': $($bl.features.Count) → 20"
+              Write-StoreLog "Trimming baseListing features '$locale': $($bl.features.Count) → 20"
+              $bl.features = @($bl.features | Select-Object -First 20)
+            }
+            if ($subData.listings.$locale.platformOverrides) {
+              foreach ($plat in @($subData.listings.$locale.platformOverrides.PSObject.Properties.Name)) {
+                $po = $subData.listings.$locale.platformOverrides.$plat
+                if ($po -and $po.features -and $po.features.Count -gt 20) {
+                  Write-Host "Trimming platformOverride '$locale/$plat' features: $($po.features.Count) → 20"
+                  Write-StoreLog "Trimming platformOverride '$locale/$plat' features: $($po.features.Count) → 20"
+                  $po.features = @($po.features | Select-Object -First 20)
+                }
               }
             }
           }
+
+          # 7. Replace packages: mark existing for deletion, add new one as PendingUpload
+          $newPackages = @()
+          foreach ($pkg in @($subData.applicationPackages)) {
+            $pkg.fileStatus = 'PendingDelete'
+            $newPackages += $pkg
+          }
+          $newPackages += [PSCustomObject]@{ fileName = $appx.Name; fileStatus = 'PendingUpload' }
+          $subData.applicationPackages = $newPackages
+          Write-StoreLog "applicationPackages: $($newPackages.Count) entries (last = new PendingUpload)."
+
+          # 8. Push updated submission metadata
+          Write-Host "Updating submission metadata..."
+          Write-StoreLog "PUT submission metadata..."
+          $updateBodyBytes = [System.Text.Encoding]::UTF8.GetBytes(($subData | ConvertTo-Json -Depth 30 -Compress))
+          Invoke-RestMethod -Uri "$apiBase/submissions/$subId" -Method Put -Headers $h `
+            -ContentType 'application/json' -Body $updateBodyBytes | Out-Null
+          Write-Host "Submission metadata updated."
+          Write-StoreLog "Submission metadata updated."
+
+          # 9. Create ZIP and upload to Azure Blob SAS URL
+          #    (SAS URL carries its own auth — do not include the Bearer token here)
+          $zipPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), 'electerm-appx-upload.zip')
+          if (Test-Path $zipPath) { Remove-Item $zipPath }
+          Compress-Archive -Path $appx.FullName -DestinationPath $zipPath
+          $zipSizeMB = [Math]::Round((Get-Item $zipPath).Length / 1MB, 1)
+          Write-Host "Uploading package ZIP ($zipSizeMB MB)..."
+          Write-StoreLog "Uploading package ZIP ($zipSizeMB MB) to Azure Blob SAS URL..."
+          $blobHeaders = @{ 'x-ms-blob-type' = 'BlockBlob'; 'Content-Type' = 'application/octet-stream' }
+          Invoke-RestMethod -Uri $fileUploadUrl -Method Put -Headers $blobHeaders -InFile $zipPath | Out-Null
+          Write-Host "Package uploaded."
+          Write-StoreLog "Package uploaded."
+
+          Write-Host "Submission $subId saved (not committed — pending manual submit in Partner Center)."
+          Write-StoreLog "Submission saved (noCommit). SubmissionId: $subId"
+
+        } catch {
+          $errMsg    = $_.ToString()
+          $errDetail = $_.Exception.Message
+          $errStack  = $_.ScriptStackTrace
+          Write-Host "ERROR: $errMsg"
+          Write-StoreLog ''
+          Write-StoreLog "=== FATAL ERROR $(Get-Date -Format o) ==="
+          Write-StoreLog "Message : $errMsg"
+          Write-StoreLog "Detail  : $errDetail"
+          Write-StoreLog "Stack   :"
+          Write-StoreLog "$errStack"
+          throw $_
         }
-
-        # 6. Replace application packages: mark existing ones for deletion, add new one
-        $newPackages = @()
-        foreach ($pkg in @($subData.applicationPackages)) {
-          $pkg.fileStatus = 'PendingDelete'
-          $newPackages += $pkg
-        }
-        $newPackages += [PSCustomObject]@{ fileName = $appx.Name; fileStatus = 'PendingUpload' }
-        $subData.applicationPackages = $newPackages
-
-        # 7. Push updated submission metadata
-        Write-Host "Updating submission metadata..."
-        $updateBodyBytes = [System.Text.Encoding]::UTF8.GetBytes(($subData | ConvertTo-Json -Depth 30 -Compress))
-        Invoke-RestMethod -Uri "$apiBase/submissions/$subId" -Method Put -Headers $h `
-          -ContentType 'application/json' -Body $updateBodyBytes | Out-Null
-        Write-Host "Submission metadata updated."
-        Write-StoreLog "Submission metadata updated."
-
-        # 8. Create ZIP and upload to Azure Blob SAS URL
-        #    (SAS URL carries its own auth — do not include the Bearer token here)
-        $zipPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), 'electerm-appx-upload.zip')
-        if (Test-Path $zipPath) { Remove-Item $zipPath }
-        Compress-Archive -Path $appx.FullName -DestinationPath $zipPath
-        $zipSizeMB = [Math]::Round((Get-Item $zipPath).Length / 1MB, 1)
-        Write-Host "Uploading package ZIP ($zipSizeMB MB)..."
-        $blobHeaders = @{ 'x-ms-blob-type' = 'BlockBlob'; 'Content-Type' = 'application/octet-stream' }
-        Invoke-RestMethod -Uri $fileUploadUrl -Method Put -Headers $blobHeaders -InFile $zipPath | Out-Null
-        Write-Host "Package uploaded."
-
-        Write-Host "Submission $subId saved (not committed — pending manual submit in Partner Center)."
-        Write-StoreLog "Submission saved (noCommit). SubmissionId: $subId"
-      shell: pwsh
 
     - name: Upload Microsoft Store raw log to R2
       if: ${{ always() && !contains(github.event.head_commit.message, '[skip store]') }}
