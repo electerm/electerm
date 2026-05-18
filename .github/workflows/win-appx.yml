@@ -72,7 +72,7 @@ jobs:
       run: msstore reconfigure --tenantId "$env:MS_TENANT_ID" --sellerId "$env:MS_SELLER_ID" --clientId "$env:MS_CLIENT_ID" --clientSecret "$env:MS_CLIENT_SECRET"
       shell: pwsh
 
-    - name: Upload APPX to Microsoft Store (draft, pending manual submit)
+    - name: Upload APPX to Microsoft Store (draft and pending manual submit)
       if: ${{ !contains(github.event.head_commit.message, '[skip store]') }}
       env:
         MS_APP_ID: ${{ secrets.MS_APP_ID }}
