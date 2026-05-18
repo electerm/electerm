@@ -287,7 +287,27 @@ jobs:
           Write-StoreLog "Fetching published submission: $lastPubSubId"
           $pubSub = Invoke-RestMethod -Uri "$apiBase/submissions/$lastPubSubId" -Headers $h
 
-          # 4. Create new submission using the published submission data as the request body
+          # Truncate features in the template BEFORE posting — the API enforces ≤20 on POST too
+          foreach ($locale in @($pubSub.listings.PSObject.Properties.Name)) {
+            $bl = $pubSub.listings.$locale.baseListing
+            if ($bl -and $bl.features -and $bl.features.Count -gt 20) {
+              Write-Host "Pre-trim baseListing features '$locale': $($bl.features.Count) → 20"
+              Write-StoreLog "Pre-trim baseListing features '$locale': $($bl.features.Count) → 20"
+              $bl.features = @($bl.features | Select-Object -First 20)
+            }
+            if ($pubSub.listings.$locale.platformOverrides) {
+              foreach ($plat in @($pubSub.listings.$locale.platformOverrides.PSObject.Properties.Name)) {
+                $po = $pubSub.listings.$locale.platformOverrides.$plat
+                if ($po -and $po.features -and $po.features.Count -gt 20) {
+                  Write-Host "Pre-trim platformOverride '$locale/$plat' features: $($po.features.Count) → 20"
+                  Write-StoreLog "Pre-trim platformOverride '$locale/$plat' features: $($po.features.Count) → 20"
+                  $po.features = @($po.features | Select-Object -First 20)
+                }
+              }
+            }
+          }
+
+          # 4. Create new submission using the (now-trimmed) published submission data as the request body
           Write-Host "Creating new submission..."
           Write-StoreLog "Creating new submission (POST with published data as body)..."
           $pubSubBytes = [System.Text.Encoding]::UTF8.GetBytes(($pubSub | ConvertTo-Json -Depth 30 -Compress))
