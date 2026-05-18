@@ -84,20 +84,16 @@ jobs:
           $cleanOutput = [regex]::Replace($appsListOutput, '\x1B\[[0-9;?]*[ -/]*[@-~]', '')
           return @(
             $cleanOutput -split "`r?`n" |
+              Where-Object { $_.Trim().StartsWith('│') } |
               ForEach-Object {
-                $line = $_.Trim()
-                if (-not $line.StartsWith('│')) { return }
-
-                $columns = $line.Split('│') | ForEach-Object { $_.Trim() }
-                if ($columns.Count -lt 4) { return }
-
-                $productId = $columns[1]
-                $packageId = $columns[3]
-                if (-not $productId -or $productId -eq 'ProductId' -or -not $packageId -or $packageId -eq 'PackageId') {
-                  return
+                $columns = $_.Trim().Split('│') | ForEach-Object { $_.Trim() }
+                if ($columns.Count -ge 4) {
+                  $productId = $columns[1]
+                  $packageId = $columns[3]
+                  if ($productId -and $productId -ne 'ProductId' -and $packageId -and $packageId -ne 'PackageId') {
+                    $productId
+                  }
                 }
-
-                $productId
               } |
               Select-Object -Unique
           )
@@ -172,20 +168,16 @@ jobs:
           $cleanOutput = [regex]::Replace($appsListOutput, '\x1B\[[0-9;?]*[ -/]*[@-~]', '')
           return @(
             $cleanOutput -split "`r?`n" |
+              Where-Object { $_.Trim().StartsWith('│') } |
               ForEach-Object {
-                $line = $_.Trim()
-                if (-not $line.StartsWith('│')) { return }
-
-                $columns = $line.Split('│') | ForEach-Object { $_.Trim() }
-                if ($columns.Count -lt 4) { return }
-
-                $productId = $columns[1]
-                $packageId = $columns[3]
-                if (-not $productId -or $productId -eq 'ProductId' -or -not $packageId -or $packageId -eq 'PackageId') {
-                  return
+                $columns = $_.Trim().Split('│') | ForEach-Object { $_.Trim() }
+                if ($columns.Count -ge 4) {
+                  $productId = $columns[1]
+                  $packageId = $columns[3]
+                  if ($productId -and $productId -ne 'ProductId' -and $packageId -and $packageId -ne 'PackageId') {
+                    $productId
+                  }
                 }
-
-                $productId
               } |
               Select-Object -Unique
           )
