@@ -31,8 +31,6 @@ describe('file info modal', function () {
     await delay(3500)
 
     // Create SSH connection
-    await client.click('.btns .anticon-plus-circle')
-    await delay(500)
     await setupSftpConnection(client)
 
     // Test local file edit permission

@@ -70,6 +70,7 @@ class Term extends Component {
       hasSelection: false,
       saveTerminalLogToFile: !!this.props.config.saveTerminalLogToFile,
       addTimeStampToTermLog: !!this.props.config.addTimeStampToTermLog,
+      logPath: this.props.config.sessionLogPath || createDefaultLogPath(),
       passType: 'password',
       lines: [],
       searchResults: [],
@@ -1223,7 +1224,7 @@ class Term extends Component {
       ...extra,
       ...execOpts,
       logName,
-      sessionLogPath: config.sessionLogPath || createDefaultLogPath(),
+      sessionLogPath: this.state.logPath,
       ...pick(config, [
         'addTimeStampToTermLog',
         'keepaliveCountMax',

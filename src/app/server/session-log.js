@@ -21,7 +21,7 @@ class SessionLog {
     const { logDir } = options
     const logPath = resolve(logDir, options.fileName)
     mkLogDir(logDir)
-    this.stream = createWriteStream(logPath)
+    this.stream = createWriteStream(logPath, { flags: 'a' })
   }
 
   write (text) {

@@ -48,6 +48,13 @@ export default function TermInteractive () {
   function onOk () {
     form.submit()
   }
+  function onConfirm () {
+    window.et.commonWs.s({
+      id: opts.id,
+      results: [opts.options.confirmResult || 'yes']
+    })
+    clear()
+  }
   function onIgnore () {
     window.et.commonWs.s({
       id: opts.id,
@@ -91,6 +98,32 @@ export default function TermInteractive () {
       </FormItem>
     )
   }
+  function renderConfirmBody () {
+    const instructions = opts.options.instructions || []
+    return (
+      <div>
+        {
+          instructions.map((note, index) => {
+            return <pre key={note + index}>{note}</pre>
+          })
+        }
+        <FormItem>
+          <Button
+            type='primary'
+            onClick={onConfirm}
+          >
+            {opts.options.submitText || e('submit')}
+          </Button>
+          <Button
+            className='mg1l'
+            onClick={onCancel}
+          >
+            {opts.options.cancelText || e('cancel')}
+          </Button>
+        </FormItem>
+      </div>
+    )
+  }
   async function initWatch () {
     let done = false
     while (!done) {
@@ -125,36 +158,42 @@ export default function TermInteractive () {
     <Modal
       {...props}
     >
-      <Form
-        form={form}
-        layout='vertical'
-        onFinish={onFinish}
-      >
-        {
-          opts.options.prompts.map(renderFormItem)
-        }
-        <FormItem>
-          <Button
-            type='primary'
-            htmlType='submit'
-          >
-            {e('submit')}
-          </Button>
-          <Button
-            type='dashed'
-            className='mg1l'
-            onClick={onIgnore}
-          >
-            {e('ignore')}
-          </Button>
-          <Button
-            className='mg1l'
-            onClick={onCancel}
-          >
-            {e('cancel')}
-          </Button>
-        </FormItem>
-      </Form>
+      {
+        opts.options?.mode === 'confirm'
+          ? renderConfirmBody()
+          : (
+            <Form
+              form={form}
+              layout='vertical'
+              onFinish={onFinish}
+            >
+              {
+                opts.options.prompts.map(renderFormItem)
+              }
+              <FormItem>
+                <Button
+                  type='primary'
+                  htmlType='submit'
+                >
+                  {e('submit')}
+                </Button>
+                <Button
+                  type='dashed'
+                  className='mg1l'
+                  onClick={onIgnore}
+                >
+                  {e('ignore')}
+                </Button>
+                <Button
+                  className='mg1l'
+                  onClick={onCancel}
+                >
+                  {e('cancel')}
+                </Button>
+              </FormItem>
+            </Form>
+            )
+      }
     </Modal>
   )
 }

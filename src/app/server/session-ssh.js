@@ -10,6 +10,7 @@ const net = require('net')
 const { exec } = require('child_process')
 const log = require('../common/log')
 const { algDefault, algAlt } = require('./ssh2-alg')
+const { createHostVerifier } = require('./ssh-known-hosts')
 const sshTunnelFuncs = require('./ssh-tunnel')
 const deepCopy = require('json-deep-copy')
 const { TerminalBase } = require('./session-base')
@@ -163,7 +164,7 @@ class TerminalSshBase extends TerminalBase {
   }
 
   onKeyboardEvent (options) {
-    if (this.initOptions.interactiveValues) {
+    if (options?.mode !== 'confirm' && this.initOptions.interactiveValues) {
       return Promise.resolve(this.initOptions.interactiveValues.split('\n'))
     }
     // Auto-fill password prompt if we have a saved password
@@ -482,6 +483,7 @@ class TerminalSshBase extends TerminalBase {
             return reject(err)
           }
           this.channel = channel
+          this.setNoDelay(true)
           globalState.setSession(this.pid, this)
           resolve(this)
         }
@@ -553,6 +555,18 @@ class TerminalSshBase extends TerminalBase {
       delete connectOptions.port
       connectOptions.sock = info.socket
     }
+    this.hostVerificationError = null
+    const verifyTarget = this.getHostVerificationTarget(connectOptions)
+    connectOptions.hostVerifier = createHostVerifier({
+      ...verifyTarget,
+      confirm: async (options) => {
+        const results = await this.onKeyboardEvent(options)
+        return results && results[0] === (options.confirmResult || 'trust')
+      },
+      onError: (err) => {
+        this.hostVerificationError = err
+      }
+    })
     this.authPartiallySucceeded = false
     connectOptions.authHandler = this.createAuthHandler(connectOptions)
     return new Promise((resolve, reject) => {
@@ -634,7 +648,7 @@ class TerminalSshBase extends TerminalBase {
       conn
         .on('ready', () => resolve(true))
         .on('error', err => {
-          reject(err)
+          reject(this.hostVerificationError || err)
         })
         .connect(connectOptions)
     })
@@ -656,6 +670,19 @@ class TerminalSshBase extends TerminalBase {
       all.algorithms.cipher = deepCopy(initOptions.cipher)
     }
     return all
+  }
+
+  getHostVerificationTarget (connectOptions = this.connectOptions) {
+    if (connectOptions === this.hoppingOptions && this.initHoppingOptions) {
+      return {
+        host: this.initHoppingOptions.host,
+        port: this.initHoppingOptions.port
+      }
+    }
+    return {
+      host: connectOptions.host || this.initOptions.host,
+      port: connectOptions.port || this.initOptions.port
+    }
   }
 
   buildConnectOptions () {

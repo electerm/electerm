@@ -199,6 +199,13 @@ exports.terminals = function (pid) {
         action: 'toggle-terminal-log-timestamp',
         body: { pid }
       })
+    },
+    setTerminalLogPath: (id, logPath) => {
+      sendMsgToChildProcess(pid, {
+        id,
+        action: 'set-terminal-log-path',
+        body: { pid, logPath }
+      })
     }
   }
 }

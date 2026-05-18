@@ -36,6 +36,7 @@ const proxyOptions = [
 
 export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig }) {
   const [form] = Form.useForm()
+  const baseURLAI = Form.useWatch('baseURLAI', form)
 
   useEffect(() => {
     if (initialValues) {
@@ -67,6 +68,13 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     return { label, title }
   }
 
+  function renderApiUrlLabel () {
+    if (baseURLAI === 'https://api.atlascloud.ai/v1') {
+      return <span>API URL (<Link to='https://atlascloud.ai'>AtlasCloud</Link>)</span>
+    }
+    return 'API URL'
+  }
+
   if (!showAIConfig) {
     return null
   }
@@ -90,7 +98,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         layout='vertical'
         className='ai-config-form'
       >
-        <Form.Item label='API URL' required>
+        <Form.Item label={renderApiUrlLabel()} required>
           <Space.Compact className='width-100'>
             <Form.Item
               label='API URL'

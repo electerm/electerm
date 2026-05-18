@@ -11,14 +11,16 @@ const { expect } = require('./common/expect')
 const delay = require('./common/wait')
 const log = require('./common/log')
 const {
-  TEST_HOST,
   TEST_PASS,
   TEST_USER
 } = require('./common/env')
 const uid = require('./common/uid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
-const { closeApp } = require('./common/common')
+const {
+  closeApp,
+  setupSshConnection
+} = require('./common/common')
 const { basicTerminalTest } = require('./common/basic-terminal-test')
 
 describe('ssh profile login', function () {
@@ -29,15 +31,10 @@ describe('ssh profile login', function () {
     await delay(3500)
 
     // First create an SSH connection to get proper tab data
-    await client.click('.btns .anticon-plus-circle')
-    log('0104.profile-use.spec.js: plus clicked')
-    await delay(500)
-    await client.setValue('#ssh-form_host', TEST_HOST)
-    await client.setValue('#ssh-form_username', TEST_USER)
-    await client.setValue('#ssh-form_password', TEST_PASS)
-    await client.click('.setting-wrap .ant-btn-primary')
+    await setupSshConnection(client, {
+      waitAfterConnect: 5500
+    })
     log('0104.profile-use.spec.js: ssh form submitted')
-    await delay(5500)
     log('0104.profile-use.spec.js: ssh connected')
 
     // Get the SSH tab data

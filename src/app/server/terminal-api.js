@@ -94,9 +94,22 @@ function testTerm (ws, msg) {
     })
 }
 
+function setTerminalLogPath (ws, msg) {
+  const { id, pid, logPath } = msg
+  const term = terminals(pid)
+  if (term) {
+    term.setTerminalLogPath(id, logPath)
+  }
+  ws.s({
+    id,
+    data: 'ok'
+  })
+}
+
 exports.createTerm = createTerm
 exports.testTerm = testTerm
 exports.resize = resize
 exports.runCmd = runCmd
 exports.toggleTerminalLog = toggleTerminalLog
 exports.toggleTerminalLogTimestamp = toggleTerminalLogTimestamp
+exports.setTerminalLogPath = setTerminalLogPath

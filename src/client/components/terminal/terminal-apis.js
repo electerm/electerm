@@ -41,3 +41,11 @@ export function toggleTerminalLogTimestamp (pid) {
     action: 'toggle-terminal-log-timestamp'
   })
 }
+
+export function setTerminalLogPath (pid, logPath) {
+  return fetch({
+    pid,
+    logPath,
+    action: 'set-terminal-log-path'
+  })
+}

@@ -64,7 +64,7 @@ export default {
   ],
   hideIP: false,
   dataSyncSelected: 'all',
-  baseURLAI: 'https://api.deepseek.com',
+  baseURLAI: 'https://api.atlascloud.ai/v1',
   modelAI: 'deepseek-chat',
   roleAI: '终端专家,提供不同系统下命令,简要解释用法,用markdown格式',
   apiPathAI: '/chat/completions',

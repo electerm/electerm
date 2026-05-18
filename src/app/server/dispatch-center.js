@@ -14,7 +14,8 @@ const {
   resize,
   runCmd,
   toggleTerminalLog,
-  toggleTerminalLogTimestamp
+  toggleTerminalLogTimestamp,
+  setTerminalLogPath
 } = require('./terminal-api')
 const globalState = require('./global-state')
 const wsDec = require('./ws-dec')
@@ -86,6 +87,8 @@ const initWs = function (app) {
           toggleTerminalLog(ws, msg)
         } else if (action === 'toggle-terminal-log-timestamp') {
           toggleTerminalLogTimestamp(ws, msg)
+        } else if (action === 'set-terminal-log-path') {
+          setTerminalLogPath(ws, msg)
         } else if (action === 'run-cmd') {
           runCmd(ws, msg)
         }

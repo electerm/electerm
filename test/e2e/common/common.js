@@ -233,20 +233,51 @@ async function accessFolderFromTerminal (client, type, folderName) {
   await delay(1000)
 }
 
+async function openNewConnectionForm (client) {
+  await client.click('.btns .anticon-plus-circle')
+  await delay(500)
+}
+
+async function confirmSshHostKeyVerificationIfNeeded (client, timeout = 4000) {
+  const trustButton = client.locator('.custom-modal-wrap button:has-text("Trust and Save")').first()
+  try {
+    await trustButton.waitFor({ state: 'visible', timeout })
+  } catch {
+    return false
+  }
+
+  await trustButton.click()
+  await delay(500)
+  return true
+}
+
 /**
  * Sets up SSH connection for testing (fills form and submits, no SFTP tab)
  *
  * @param {Object} client - The Playwright client
  */
-async function setupSshConnection (client) {
-  await client.click('.btns .anticon-plus-circle')
-  await delay(500)
-  await client.setValue('#ssh-form_host', TEST_HOST)
-  await client.setValue('#ssh-form_username', TEST_USER)
-  await client.setValue('#ssh-form_password', TEST_PASS)
-  await client.setValue('#ssh-form_port', TEST_PORT)
+async function setupSshConnection (client, options = {}) {
+  const {
+    host = TEST_HOST,
+    username = TEST_USER,
+    password = TEST_PASS,
+    port = TEST_PORT,
+    openForm = true,
+    waitAfterConnect = 2000,
+    hostKeyModalTimeout = 4000
+  } = options
+
+  if (openForm) {
+    await openNewConnectionForm(client)
+  }
+
+  await client.setValue('#ssh-form_host', host)
+  await client.setValue('#ssh-form_username', username)
+  await client.setValue('#ssh-form_password', password)
+  await client.setValue('#ssh-form_port', port)
   await client.click('.setting-wrap .ant-btn-primary')
-  await delay(2000)
+  await confirmSshHostKeyVerificationIfNeeded(client, hostKeyModalTimeout)
+  await delay(waitAfterConnect)
 }
 
 /**

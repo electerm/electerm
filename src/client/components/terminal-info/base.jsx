@@ -2,15 +2,13 @@
  * show base terminal info, id sessionID
  */
 import { Component } from 'react'
-import { osResolve } from '../../common/resolve'
 import {
   Switch,
   Space,
   Button
 } from 'antd'
-import ShowItem from '../common/show-item'
 import defaults from '../../common/default-setting'
-import { toggleTerminalLog, toggleTerminalLogTimestamp } from '../terminal/terminal-apis'
+import { toggleTerminalLog, toggleTerminalLogTimestamp, setTerminalLogPath } from '../terminal/terminal-apis'
 import {
   ClockCircleOutlined,
   BorderlessTableOutlined,
@@ -19,8 +17,8 @@ import {
   ApiOutlined,
   PartitionOutlined
 } from '@ant-design/icons'
-import createDefaultSessionLogPath from '../../common/default-log-path'
 import { refs } from '../common/ref'
+import LogPathEdit from './log-path-edit'
 
 const e = window.translate
 
@@ -36,7 +34,8 @@ const mapper = {
 export default class TerminalInfoBase extends Component {
   state = {
     saveTerminalLogToFile: false,
-    addTimeStampToTermLog: false
+    addTimeStampToTermLog: false,
+    logPath: ''
   }
 
   componentDidMount () {
@@ -75,6 +74,17 @@ export default class TerminalInfoBase extends Component {
     })
   }
 
+  onLogPathChange = (v) => {
+    const { pid } = this.props
+    setTerminalLogPath(pid, v)
+    refs.get('term-' + pid)?.setState({
+      logPath: v
+    })
+    this.setState({
+      logPath: v
+    })
+  }
+
   handleToggle = () => {
     const { saveTerminalLogToFile, addTimeStampToTermLog } = this.state
     const {
@@ -101,7 +111,8 @@ export default class TerminalInfoBase extends Component {
     if (term) {
       this.setState({
         saveTerminalLogToFile: term.state.saveTerminalLogToFile,
-        addTimeStampToTermLog: term.state.addTimeStampToTermLog
+        addTimeStampToTermLog: term.state.addTimeStampToTermLog,
+        logPath: term.state.logPath
       })
     } else {
       this.timer = setTimeout(this.getState, 100)
@@ -156,15 +167,10 @@ export default class TerminalInfoBase extends Component {
     const {
       id,
       logName,
-      sessionLogPath
+      pid
     } = this.props
-    const { saveTerminalLogToFile } = this.state
-    const base = sessionLogPath || createDefaultSessionLogPath()
-    const path = osResolve(base, logName + '.log')
+    const { saveTerminalLogToFile, logPath } = this.state
     const name = e('saveTerminalLogToFile')
-    const to = saveTerminalLogToFile
-      ? <ShowItem disabled={!saveTerminalLogToFile} to={path}>{path}</ShowItem>
-      : path
     return (
       <div className='terminal-info-section terminal-info-base'>
         <div className='fix'>
@@ -187,7 +193,12 @@ export default class TerminalInfoBase extends Component {
             this.renderInfoSelection()
           }
         </div>
-        <p><b>log:</b> {to}</p>
+        <LogPathEdit
+          pid={pid}
+          logPath={logPath}
+          logName={logName}
+          setLogPath={this.onLogPathChange}
+        />
       </div>
     )
   }

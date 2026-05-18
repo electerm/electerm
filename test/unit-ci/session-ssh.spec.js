@@ -7,6 +7,7 @@ const os = require('node:os')
 const path = require('node:path')
 const { once } = require('node:events')
 const { spawnSync } = require('node:child_process')
+const { setTimeout: delay } = require('node:timers/promises')
 const { Server, utils } = require('@electerm/ssh2')
 const { session } = require('../../src/app/server/session-ssh')
 
@@ -137,20 +138,30 @@ async function startServer (authHandler) {
   }
 }
 
-function createPromptWs (promptResponder) {
+function createPromptWs (promptResponder, options = {}) {
+  const {
+    includeConfirmPrompts = false,
+    defaultConfirmResponse = ['trust']
+  } = options
   const prompts = []
+  let pendingOptions
   return {
     prompts,
     s (payload) {
       if (payload && payload.action === 'session-interactive') {
-        prompts.push(payload.options)
+        pendingOptions = payload.options
+        if (includeConfirmPrompts || payload.options?.mode !== 'confirm') {
+          prompts.push(payload.options)
+        }
       }
     },
     once (handler) {
-      const options = prompts[prompts.length - 1]
+      const currentOptions = pendingOptions
       queueMicrotask(() => {
         handler({
-          results: promptResponder(options, prompts)
+          results: currentOptions?.mode === 'confirm' && !includeConfirmPrompts
+            ? defaultConfirmResponse
+            : promptResponder(currentOptions, prompts)
         })
       })
     },
@@ -449,6 +460,121 @@ describe('session-ssh auth flows', () => {
       if (agent) {
         agent.kill()
       }
+    }
+  })
+
+  test('prompts for an unknown host key once and records it in known_hosts', async () => {
+    const keyPair = generateClientKey({
+      dir: tmpDir,
+      name: 'host-verify-ed25519',
+      type: 'ed25519',
+      passphrase: ''
+    })
+    const server = await startServer(publicKeyOnlyAuth(keyPair.publicKey))
+    const knownHostsPath = path.join(process.env.HOME, '.ssh', 'known_hosts')
+
+    let term
+    let firstPromptCount = 0
+    try {
+      const ws = createPromptWs((options, prompts) => {
+        firstPromptCount = prompts.length
+        assert.equal(options.mode, 'confirm')
+        assert.match(options.name, /trust ssh host key/i)
+        assert.match(options.instructions.join('\n'), /Fingerprint: SHA256:/)
+        return ['trust']
+      }, {
+        includeConfirmPrompts: true
+      })
+
+      term = await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        privateKey: keyPair.privateKey,
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+
+      assert.equal(firstPromptCount, 1)
+      assert.match(fs.readFileSync(knownHostsPath, 'utf8'), /^\[127\.0\.0\.1\]:\d+ ssh-ed25519 /)
+      term.kill()
+      term = null
+
+      term = await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        privateKey: keyPair.privateKey,
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, createPromptWs(() => {
+        throw new Error('known_hosts match should not prompt again')
+      }))
+    } finally {
+      term && term.kill()
+      await server.close()
+    }
+  })
+
+  test('waits for host trust confirmation before resolving the session', async () => {
+    const keyPair = generateClientKey({
+      dir: tmpDir,
+      name: 'host-verify-blocking-ed25519',
+      type: 'ed25519',
+      passphrase: ''
+    })
+    const server = await startServer(publicKeyOnlyAuth(keyPair.publicKey))
+
+    let term
+    let pendingHandler
+    let sessionResolved = false
+    let promptSeenResolve
+    const promptSeen = new Promise(resolve => {
+      promptSeenResolve = resolve
+    })
+    const ws = {
+      prompts: [],
+      s (payload) {
+        if (payload && payload.action === 'session-interactive') {
+          this.prompts.push(payload.options)
+          promptSeenResolve(payload.options)
+        }
+      },
+      once (handler) {
+        pendingHandler = handler
+      },
+      close () {}
+    }
+
+    try {
+      const sessionPromise = session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        privateKey: keyPair.privateKey,
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws).then(result => {
+        sessionResolved = true
+        return result
+      })
+
+      const promptOptions = await promptSeen
+      assert.equal(promptOptions.mode, 'confirm')
+      await delay(50)
+      assert.equal(sessionResolved, false)
+      assert.equal(typeof pendingHandler, 'function')
+
+      pendingHandler({
+        results: ['trust']
+      })
+      term = await sessionPromise
+    } finally {
+      term && term.kill()
+      await server.close()
     }
   })
 })

@@ -75,6 +75,26 @@ class TerminalBase {
     }
   }
 
+  setTerminalLogPath (logPath) {
+    if (!logPath) {
+      return
+    }
+    this.initOptions.sessionLogPath = logPath
+    if (this.sessionLogger) {
+      // Reopen the log under the new path
+      this.sessionLogger.destroy()
+      if (this._vtTerm) {
+        this._vtTerm.dispose()
+        delete this._vtTerm
+      }
+      this.sessionLogger = new SessionLog({
+        logDir: this.initOptions.sessionLogPath,
+        fileName: createLogFileName(this.initOptions.logName)
+      })
+      this._initVtParser()
+    }
+  }
+
   writeLog (data) {
     if (!this.sessionLogger || !this._vtTerm) {
       return
