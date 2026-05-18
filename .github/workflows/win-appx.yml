@@ -78,6 +78,7 @@ jobs:
       env:
         MS_PRODUCT_ID: ${{ secrets.MS_PRODUCT_ID }}
         MS_APP_ID: ${{ secrets.MS_APP_ID }}
+        MSSTORE_LOG_FILE: dist/msstore-logs/msstore-${{ github.run_id }}-${{ github.run_attempt }}.log
       run: |
         function Get-VisibleProductIds([string] $appsListOutput) {
           $cleanOutput = [regex]::Replace($appsListOutput, '\x1B\[[0-9;?]*[ -/]*[@-~]', '')
@@ -102,6 +103,13 @@ jobs:
           )
         }
 
+        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $env:MSSTORE_LOG_FILE) | Out-Null
+        Set-Content -Path $env:MSSTORE_LOG_FILE -Value "=== Microsoft Store debug log $(Get-Date -Format o) ==="
+
+        function Write-StoreLog([string] $message) {
+          Add-Content -Path $env:MSSTORE_LOG_FILE -Value $message
+        }
+
         $configuredProductId = "$env:MS_PRODUCT_ID".Trim()
         if (-not $configuredProductId) {
           $configuredProductId = "$env:MS_APP_ID".Trim()
@@ -118,11 +126,20 @@ jobs:
         Write-Host '  APPX applicationId: electerm'
         Write-Host '  APPX identityName: 64159ZHAOXudong.electerm'
         Write-Host 'Accessible Microsoft Store packaged apps for this account:'
+        Write-StoreLog "Configured Store Product ID: $configuredProductId"
+        Write-StoreLog 'Package identifiers in this repo are not valid Store Product IDs:'
+        Write-StoreLog '  Electron appId: org.electerm.electerm'
+        Write-StoreLog '  APPX applicationId: electerm'
+        Write-StoreLog '  APPX identityName: 64159ZHAOXudong.electerm'
+        Write-StoreLog 'Accessible Microsoft Store packaged apps for this account:'
 
-        $appsListOutput = (& msstore apps list 2>&1 | Out-String)
+        Write-StoreLog ''
+        Write-StoreLog "=== msstore apps list $(Get-Date -Format o) ==="
+        $appsListOutput = (& msstore apps list 2>&1 | Tee-Object -FilePath $env:MSSTORE_LOG_FILE -Append | Out-String)
         $appsListExitCode = $LASTEXITCODE
         $global:LASTEXITCODE = 0
         Write-Host $appsListOutput
+        Write-StoreLog "msstore apps list exit code: $appsListExitCode"
 
         $productIds = Get-VisibleProductIds $appsListOutput
 
@@ -149,6 +166,7 @@ jobs:
       env:
         MS_PRODUCT_ID: ${{ secrets.MS_PRODUCT_ID }}
         MS_APP_ID: ${{ secrets.MS_APP_ID }}
+        MSSTORE_LOG_FILE: dist/msstore-logs/msstore-${{ github.run_id }}-${{ github.run_attempt }}.log
       run: |
         function Get-VisibleProductIds([string] $appsListOutput) {
           $cleanOutput = [regex]::Replace($appsListOutput, '\x1B\[[0-9;?]*[ -/]*[@-~]', '')
@@ -173,12 +191,20 @@ jobs:
           )
         }
 
+        function Write-StoreLog([string] $message) {
+          Add-Content -Path $env:MSSTORE_LOG_FILE -Value $message
+        }
+
         $appx = Get-ChildItem -Path dist -Filter '*.appx' -Recurse | Select-Object -First 1
         if (-not $appx) { throw 'No .appx file found under dist/' }
 
-        $appsListOutput = (& msstore apps list 2>&1 | Out-String)
+        Write-StoreLog ''
+        Write-StoreLog "=== publish preflight $(Get-Date -Format o) ==="
+        Write-StoreLog "APPX file: $($appx.FullName)"
+        $appsListOutput = (& msstore apps list 2>&1 | Tee-Object -FilePath $env:MSSTORE_LOG_FILE -Append | Out-String)
         $appsListExitCode = $LASTEXITCODE
         $global:LASTEXITCODE = 0
+        Write-StoreLog "msstore apps list exit code: $appsListExitCode"
         $productIds = Get-VisibleProductIds $appsListOutput
 
         if ($appsListExitCode -ne 0 -or $productIds.Count -eq 0) {
@@ -212,6 +238,32 @@ jobs:
           throw "Configured store identifier '$productId' was not found in the accessible Microsoft Store apps list. Visible Product IDs for this account: $($productIds -join ', ')"
         }
 
-        msstore publish . --inputDirectory $appx.Directory.FullName --appId "$productId" --noCommit
+        Write-StoreLog "Resolved publish Product ID: $productId"
+        Write-StoreLog ''
+        Write-StoreLog "=== msstore publish $(Get-Date -Format o) ==="
+        $publishOutput = (& msstore publish . --inputDirectory $appx.Directory.FullName --appId "$productId" --noCommit 2>&1 | Tee-Object -FilePath $env:MSSTORE_LOG_FILE -Append | Out-String)
+        $publishExitCode = $LASTEXITCODE
+        $global:LASTEXITCODE = 0
+        if ($publishExitCode -ne 0) {
+          throw "msstore publish failed with exit code $publishExitCode. Raw log saved to $env:MSSTORE_LOG_FILE"
+        }
+      shell: pwsh
+
+    - name: Upload Microsoft Store raw log to R2
+      if: ${{ always() && !contains(github.event.head_commit.message, '[skip store]') && contains(github.event.head_commit.message, '[r2]') }}
+      env:
+        MSSTORE_LOG_FILE: dist/msstore-logs/msstore-${{ github.run_id }}-${{ github.run_attempt }}.log
+        CF_R2_ACCOUNT_ID: ${{ secrets.CF_R2_ACCOUNT_ID }}
+        CF_R2_BUCKET: ${{ secrets.CF_R2_BUCKET }}
+        CF_R2_ACCESS_KEY_ID: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+        CF_R2_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+      run: |
+        if (-not (Test-Path $env:MSSTORE_LOG_FILE)) {
+          Write-Host "Microsoft Store raw log file was not created: $env:MSSTORE_LOG_FILE"
+          exit 0
+        }
+
+        $key = "store-logs/win-appx/${{ github.run_id }}-${{ github.run_attempt }}.log"
+        node build/bin/upload-file-to-r2.js "$env:MSSTORE_LOG_FILE" "$key"
       shell: pwsh
 
