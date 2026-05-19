@@ -1,136 +1,141 @@
 #!/bin/bash
 # Runs inside aosc/aosc-os:latest (linux/loong64) via QEMU on the CI runner.
-# Compiles native modules natively for loong64, downloads the community
-# Electron binary, and repackages the x64 deb as loong64 deb + tar.gz.
+# Strategy:
+#   1. Extract app.asar (pure JS) and app.asar.unpacked (structure) from x64 deb.
+#   2. Compile native modules natively for loong64; replace every x64 .node file
+#      in app.asar.unpacked with its loong64 counterpart (JS support files kept).
+#   3. Download the community loong64 Electron zip -- use it as the runtime base.
+#   4. Inject app.asar + loong64 app.asar.unpacked into the Electron resources/.
+#   5. Repackage as loong64 deb + tar.gz.
 set -euo pipefail
 
 WORKSPACE=/workspace
 
-# ── 1. Install build tools ────────────────────────────────────────────────────
+# -- 1. Install build tools ---------------------------------------------------
 echo "==> Installing build tools..."
 oma install --yes gcc g++ make python3 nodejs curl unzip
 
 echo "==> Node.js version: $(node --version)"
 echo "==> npm version:     $(npm --version)"
 
-# ── 2. Find the x64 deb and extract it ───────────────────────────────────────
+# -- 2. Extract app resources from the x64 deb --------------------------------
 echo "==> Workspace contents:"
 ls -al "$WORKSPACE/"
 echo "==> dist/ contents:"
 ls -al "$WORKSPACE/dist/" 2>/dev/null || echo "(dist/ missing)"
-echo "==> work/ contents:"
-ls -al "$WORKSPACE/work/" 2>/dev/null || echo "(work/ missing)"
-echo "==> work/app/ contents:"
-ls -al "$WORKSPACE/work/app/" 2>/dev/null || echo "(work/app/ missing)"
 
 DEB=$(ls "$WORKSPACE"/dist/electerm-*-linux-amd64.deb 2>/dev/null | head -1)
 if [ -z "$DEB" ]; then
   echo "ERROR: No x64 deb found in dist/" >&2
   exit 1
 fi
-
 VERSION=$(dpkg-deb -f "$DEB" Version)
-echo "==> Packaging electerm $VERSION for loong64"
+echo "==> Building electerm $VERSION for loong64"
 
-PKG_DIR=/tmp/electerm-loong64-pkg
-rm -rf "$PKG_DIR"
-dpkg-deb -R "$DEB" "$PKG_DIR"
+PKG_X64=/tmp/electerm-x64-pkg
+rm -rf "$PKG_X64"
+dpkg-deb -R "$DEB" "$PKG_X64"
 
-# ── 3. Locate the app directory inside the extracted deb ─────────────────────
-APP_DIR="$PKG_DIR/opt/electerm"
-if [ ! -d "$APP_DIR" ]; then
-  # Fallback: search for the electerm executable
-  APP_DIR=$(find "$PKG_DIR" -maxdepth 5 -name "electerm" -type f \
-    ! -name "*.desktop" | head -1 | xargs dirname 2>/dev/null || true)
-  if [ -z "$APP_DIR" ] || [ ! -d "$APP_DIR" ]; then
-    echo "ERROR: Cannot find app directory in extracted deb" >&2
-    exit 1
-  fi
+X64_APP_DIR=$(find "$PKG_X64" \
+  \( -path "*/opt/electerm" -o -path "*/usr/lib/electerm" \) -type d | head -1)
+if [ -z "$X64_APP_DIR" ]; then
+  echo "ERROR: Cannot locate app dir inside x64 deb" >&2; exit 1
 fi
-echo "==> App dir: $APP_DIR"
-echo "==> App dir contents:"
-ls -al "$APP_DIR/"
-echo "==> resources/ contents:"
-ls -al "$APP_DIR/resources/" 2>/dev/null || echo "(resources/ missing)"
+X64_RESOURCES="$X64_APP_DIR/resources"
+echo "==> x64 app dir  : $X64_APP_DIR"
+echo "==> x64 resources: $(ls "$X64_RESOURCES/")"
 
-UNPACKED_DIR="$APP_DIR/resources/app.asar.unpacked"
-echo "==> UNPACKED_DIR: $UNPACKED_DIR"
-echo "==> app.asar.unpacked/ contents:"
-ls -al "$UNPACKED_DIR/" 2>/dev/null || echo "(app.asar.unpacked/ missing or empty)"
-
-# ── 4. Install app deps natively for loong64 (compiles .node files) ──────────
-# work/app/node_modules is not in the artifact, so we install fresh here.
-# Running inside the loong64 container means npm compiles native modules for
-# loong64 automatically — no cross-compilation or node-gyp flags needed.
-
+# -- 3. Install app deps natively for loong64 ---------------------------------
 echo "==> Installing app dependencies for loong64..."
 cd "$WORKSPACE/work/app"
 npm install --omit=dev --legacy-peer-deps
 echo "==> Loong64 native .node files:"
-find node_modules -name "*.node" 2>/dev/null || echo "(no .node files found)"
+find node_modules -name "*.node" 2>/dev/null || echo "(none found)"
 cd "$WORKSPACE"
 
 APP_MODS="$WORKSPACE/work/app/node_modules"
 
-# ── 5. Rebuild app.asar.unpacked entirely from loong64 native modules ─────────
-# We keep only the app.asar (pure JS) from the x64 build.
-# The entire app.asar.unpacked is wiped and rebuilt from the loong64 npm
-# install so that no x64 .node files remain.
-echo "==> Rebuilding app.asar.unpacked with loong64 native modules..."
-rm -rf "$UNPACKED_DIR"
-mkdir -p "$UNPACKED_DIR/node_modules"
+# -- 4. Build loong64 app.asar.unpacked ---------------------------------------
+# The unpacked dir contains entire module trees (JS + .node files).
+# Start from the x64 unpacked dir (JS support files are arch-neutral),
+# then replace every .node file with the loong64-compiled version.
+echo "==> Building loong64 app.asar.unpacked..."
+UNPACKED_BUILD=/tmp/app.asar.unpacked
+rm -rf "$UNPACKED_BUILD"
+cp -r "$X64_RESOURCES/app.asar.unpacked" "$UNPACKED_BUILD"
 
-find "$APP_MODS" -name "*.node" | while read -r node_file; do
-  rel="${node_file#$APP_MODS/}"
-  dest="$UNPACKED_DIR/node_modules/$rel"
-  mkdir -p "$(dirname "$dest")"
-  cp "$node_file" "$dest"
-  echo "  ✓ $rel"
+find "$UNPACKED_BUILD" -name "*.node" | while read -r x64_node; do
+  rel="${x64_node#$UNPACKED_BUILD/node_modules/}"
+  loong64_src="$APP_MODS/$rel"
+  if [ -f "$loong64_src" ]; then
+    cp "$loong64_src" "$x64_node"
+    echo "  ok $rel"
+  else
+    echo "  WARN: no loong64 .node for: $rel" >&2
+  fi
 done
 
-echo "==> app.asar.unpacked contents after rebuild:"
-find "$UNPACKED_DIR" -name "*.node" 2>/dev/null || echo "(no .node files)"
+echo "==> app.asar.unpacked .node files after rebuild:"
+find "$UNPACKED_BUILD" -name "*.node" | sort
 
-# ── 6. Replace ALL x64 Electron files with loong64 Electron ──────────────────
-# This covers: the main binary, chrome-sandbox, chrome_crashpad_handler,
-# all .so libs, snapshot_blob.bin, v8_context_snapshot.bin, .pak files,
-# locales/, and any other arch-specific file shipped with Electron.
-# The resources/ directory is deliberately preserved — it already contains
-# the original app.asar + freshly rebuilt loong64 app.asar.unpacked.
+# -- 5. Download loong64 Electron and use it as the runtime base --------------
 echo "==> Downloading loong64 Electron from $LOONG64_ELECTRON_URL..."
 curl -fL "$LOONG64_ELECTRON_URL" -o /tmp/electron-loong64.zip
-unzip -o /tmp/electron-loong64.zip -d /tmp/electron-loong64
-echo "==> Extracted Electron contents:"
-ls -al /tmp/electron-loong64/
+unzip -o /tmp/electron-loong64.zip -d /tmp/electron-loong64-raw
 
-echo "==> Removing all x64 Electron files from app dir (keeping resources/)..."
-find "$APP_DIR" -maxdepth 1 ! -name "." ! -name "resources" -exec rm -rf {} +
+# Handle potential subdirectory inside the zip
+ELECTRON_SRC=$(find /tmp/electron-loong64-raw -maxdepth 2 -name "electron" -type f \
+  | head -1 | xargs dirname 2>/dev/null || echo /tmp/electron-loong64-raw)
+echo "==> Electron source dir: $ELECTRON_SRC"
+ls -al "$ELECTRON_SRC/"
 
-echo "==> Copying all loong64 Electron files into app dir..."
-find /tmp/electron-loong64 -maxdepth 1 ! -name "." ! -name "resources" | while read -r f; do
-  cp -rf "$f" "$APP_DIR/"
-done
+# -- 6. Assemble the loong64 app directory ------------------------------------
+APP_DIR=/tmp/electerm-loong64-app
+rm -rf "$APP_DIR"
+cp -r "$ELECTRON_SRC/." "$APP_DIR/"
 
-# electron-builder names the binary after the app; rename electron → electerm
+# The Electron zip ships the binary as "electron"; rename to match the app name
 if [ -f "$APP_DIR/electron" ]; then
   mv "$APP_DIR/electron" "$APP_DIR/electerm"
 fi
 chmod 755 "$APP_DIR/electerm"
-echo "==> App dir after Electron replacement:"
-ls -al "$APP_DIR/"
 
-# ── 7. Update DEBIAN/control ─────────────────────────────────────────────────
-echo "==> Updating package architecture metadata..."
+# Replace the Electron default resources/ with our app resources
+rm -rf "$APP_DIR/resources"
+mkdir -p "$APP_DIR/resources"
+cp "$X64_RESOURCES/app.asar"           "$APP_DIR/resources/"
+[ -f "$X64_RESOURCES/app-update.yml" ] && \
+  cp "$X64_RESOURCES/app-update.yml"   "$APP_DIR/resources/" || true
+cp -r "$UNPACKED_BUILD"                "$APP_DIR/resources/app.asar.unpacked"
+
+echo "==> Final app dir:"
+ls -al "$APP_DIR/"
+echo "==> resources/:"
+ls -al "$APP_DIR/resources/"
+echo "==> app.asar.unpacked .node count: $(find "$APP_DIR/resources/app.asar.unpacked" -name "*.node" | wc -l)"
+
+# -- 7. Build loong64 deb -----------------------------------------------------
+# Reuse the full x64 deb structure (DEBIAN metadata, desktop file, icons,
+# /usr/bin wrapper script), but swap the app dir for our loong64 one.
+PKG_DIR=/tmp/electerm-loong64-pkg
+rm -rf "$PKG_DIR"
+cp -r "$PKG_X64/." "$PKG_DIR/"
+
+# Determine the app-dir path inside the package tree and replace it
+PKG_APP_DIR="$PKG_DIR${X64_APP_DIR#$PKG_X64}"
+rm -rf "$PKG_APP_DIR"
+mkdir -p "$PKG_APP_DIR"
+cp -r "$APP_DIR/." "$PKG_APP_DIR/"
+
 sed -i 's/^Architecture: .*/Architecture: loong64/' "$PKG_DIR/DEBIAN/control"
 INSTALLED_SIZE=$(du -sk --exclude="$PKG_DIR/DEBIAN" "$PKG_DIR" | cut -f1)
 sed -i "s/^Installed-Size: .*/Installed-Size: $INSTALLED_SIZE/" "$PKG_DIR/DEBIAN/control"
 
-# ── 8. Build loong64 deb ─────────────────────────────────────────────────────
 echo "==> Building loong64 deb..."
 dpkg-deb --root-owner-group -b "$PKG_DIR" \
   "$WORKSPACE/dist/electerm-${VERSION}-linux-loong64.deb"
 
-# ── 9. Build loong64 tar.gz ──────────────────────────────────────────────────
+# -- 8. Build loong64 tar.gz --------------------------------------------------
 echo "==> Building loong64 tar.gz..."
 STAGING=/tmp/electerm-loong64-staging
 rm -rf "$STAGING"
