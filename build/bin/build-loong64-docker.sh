@@ -66,57 +66,71 @@ ls -al "$UNPACKED_DIR/" 2>/dev/null || echo "(app.asar.unpacked/ missing or empt
 echo "==> Installing app dependencies for loong64..."
 cd "$WORKSPACE/work/app"
 npm install --omit=dev --legacy-peer-deps
-echo "==> work/app/node_modules native modules:"
+echo "==> Loong64 native .node files:"
 find node_modules -name "*.node" 2>/dev/null || echo "(no .node files found)"
 cd "$WORKSPACE"
 
-# Copy compiled native modules into the extracted deb
-echo "==> Copying loong64 native modules into package..."
 APP_MODS="$WORKSPACE/work/app/node_modules"
 
-# node-pty
-cp "$APP_MODS/node-pty/build/Release/pty.node" \
-  "$UNPACKED_DIR/node_modules/node-pty/build/Release/pty.node"
+# ── 5. Rebuild app.asar.unpacked entirely from loong64 native modules ─────────
+# We keep only the app.asar (pure JS) from the x64 build.
+# The entire app.asar.unpacked is wiped and rebuilt from the loong64 npm
+# install so that no x64 .node files remain.
+echo "==> Rebuilding app.asar.unpacked with loong64 native modules..."
+rm -rf "$UNPACKED_DIR"
+mkdir -p "$UNPACKED_DIR/node_modules"
 
-# sshcrypto
-cp "$APP_MODS/@electerm/ssh2/lib/protocol/crypto/build/Release/sshcrypto.node" \
-  "$UNPACKED_DIR/node_modules/@electerm/ssh2/lib/protocol/crypto/build/Release/sshcrypto.node"
+find "$APP_MODS" -name "*.node" | while read -r node_file; do
+  rel="${node_file#$APP_MODS/}"
+  dest="$UNPACKED_DIR/node_modules/$rel"
+  mkdir -p "$(dirname "$dest")"
+  cp "$node_file" "$dest"
+  echo "  ✓ $rel"
+done
 
-# serialport
-BUILT_NODE=$(find "$APP_MODS/@serialport/bindings-cpp/prebuilds" \
-  -name "*.node" 2>/dev/null | head -1 || true)
-if [ -n "$BUILT_NODE" ]; then
-  DEST="$UNPACKED_DIR/node_modules/@serialport/bindings-cpp/prebuilds/linux-loong64"
-  mkdir -p "$DEST"
-  cp "$BUILT_NODE" "$DEST/"
-fi
+echo "==> app.asar.unpacked contents after rebuild:"
+find "$UNPACKED_DIR" -name "*.node" 2>/dev/null || echo "(no .node files)"
 
-# ── 5. Download and replace the Electron binary ──────────────────────────────
+# ── 6. Replace ALL x64 Electron files with loong64 Electron ──────────────────
+# This covers: the main binary, chrome-sandbox, chrome_crashpad_handler,
+# all .so libs, snapshot_blob.bin, v8_context_snapshot.bin, .pak files,
+# locales/, and any other arch-specific file shipped with Electron.
+# The resources/ directory is deliberately preserved — it already contains
+# the original app.asar + freshly rebuilt loong64 app.asar.unpacked.
 echo "==> Downloading loong64 Electron from $LOONG64_ELECTRON_URL..."
 curl -fL "$LOONG64_ELECTRON_URL" -o /tmp/electron-loong64.zip
 unzip -o /tmp/electron-loong64.zip -d /tmp/electron-loong64
 echo "==> Extracted Electron contents:"
 ls -al /tmp/electron-loong64/
 
-echo "==> Installing loong64 Electron binary..."
-cp /tmp/electron-loong64/electron "$APP_DIR/electerm"
-chmod 755 "$APP_DIR/electerm"
-# Copy shared libraries and sandbox binary if present
-find /tmp/electron-loong64 -maxdepth 1 -name "lib*.so*" -exec cp {} "$APP_DIR/" \; 2>/dev/null || true
-[ -f /tmp/electron-loong64/chrome-sandbox ] && cp /tmp/electron-loong64/chrome-sandbox "$APP_DIR/" || true
+echo "==> Removing all x64 Electron files from app dir (keeping resources/)..."
+find "$APP_DIR" -maxdepth 1 ! -name "." ! -name "resources" -exec rm -rf {} +
 
-# ── 6. Update DEBIAN/control ─────────────────────────────────────────────────
+echo "==> Copying all loong64 Electron files into app dir..."
+find /tmp/electron-loong64 -maxdepth 1 ! -name "." ! -name "resources" | while read -r f; do
+  cp -rf "$f" "$APP_DIR/"
+done
+
+# electron-builder names the binary after the app; rename electron → electerm
+if [ -f "$APP_DIR/electron" ]; then
+  mv "$APP_DIR/electron" "$APP_DIR/electerm"
+fi
+chmod 755 "$APP_DIR/electerm"
+echo "==> App dir after Electron replacement:"
+ls -al "$APP_DIR/"
+
+# ── 7. Update DEBIAN/control ─────────────────────────────────────────────────
 echo "==> Updating package architecture metadata..."
 sed -i 's/^Architecture: .*/Architecture: loong64/' "$PKG_DIR/DEBIAN/control"
 INSTALLED_SIZE=$(du -sk --exclude="$PKG_DIR/DEBIAN" "$PKG_DIR" | cut -f1)
 sed -i "s/^Installed-Size: .*/Installed-Size: $INSTALLED_SIZE/" "$PKG_DIR/DEBIAN/control"
 
-# ── 7. Build loong64 deb ─────────────────────────────────────────────────────
+# ── 8. Build loong64 deb ─────────────────────────────────────────────────────
 echo "==> Building loong64 deb..."
 dpkg-deb --root-owner-group -b "$PKG_DIR" \
   "$WORKSPACE/dist/electerm-${VERSION}-linux-loong64.deb"
 
-# ── 8. Build loong64 tar.gz ──────────────────────────────────────────────────
+# ── 9. Build loong64 tar.gz ──────────────────────────────────────────────────
 echo "==> Building loong64 tar.gz..."
 STAGING=/tmp/electerm-loong64-staging
 rm -rf "$STAGING"
