@@ -304,22 +304,27 @@ merge_loong64() {
     cp "$WORK_DIR/electron-loong64/electron" "$output_dir/electerm"
     chmod +x "$output_dir/electerm"
 
-    # Copy loong64 electron libraries (must override x64 versions)
-    for lib in libEGL.so libGLESv2.so libvulkan.so.1 libvk_swiftshader.so libffmpeg.so; do
-        if [ -f "$WORK_DIR/electron-loong64/$lib" ]; then
-            cp "$WORK_DIR/electron-loong64/$lib" "$output_dir/"
+    # Copy ALL loong64 electron files (must override x64 versions)
+    # This includes libraries, snapshots, locales, and other electron runtime files
+    log_info "Copying all loong64 electron runtime files..."
+    for f in "$WORK_DIR/electron-loong64"/*; do
+        local base
+        base=$(basename "$f")
+        # Skip the electron binary itself (already copied as electerm)
+        if [ "$base" = "electron" ]; then
+            continue
+        fi
+        # Skip directories that are handled separately (like locales, resources)
+        if [ -d "$f" ] && [ "$base" != "locales" ]; then
+            continue
+        fi
+        # Copy files, overwriting x64 versions
+        if [ -d "$f" ]; then
+            cp -r "$f" "$output_dir/"
+        else
+            cp "$f" "$output_dir/"
         fi
     done
-
-    # Copy locales if present
-    if [ -d "$WORK_DIR/electron-loong64/locales" ]; then
-        cp -r "$WORK_DIR/electron-loong64/locales" "$output_dir/"
-    fi
-
-    # Copy chrome-sandbox if present
-    if [ -f "$WORK_DIR/electron-loong64/chrome-sandbox" ]; then
-        cp "$WORK_DIR/electron-loong64/chrome-sandbox" "$output_dir/"
-    fi
 
     # Replace native modules with loong64 versions
     local native_modules_dir="$WORK_DIR/native-modules-loong64"
@@ -389,16 +394,16 @@ test_in_qemu() {
         bash -c "
             echo 'Acquire::AllowInsecureRepositories \"true\";' > /etc/apt/apt.conf.d/99insecure
             echo 'Acquire::AllowDowngradeToInsecureRepositories \"true\";' >> /etc/apt/apt.conf.d/99insecure
-            apt-get update -qq 2>/dev/null
-            apt-get install -y -qq --allow-unauthenticated debian-ports-archive-keyring 2>/dev/null
-            apt-get update -qq 2>/dev/null
-            apt-get install -y -qq libglib2.0-0t64 libnss3 libxss1 libxtst6 libdrm2 libgbm1 libdbus-1-3 libgtk-3-0t64 2>/dev/null || true
-            echo '=== Testing electerm binary ==='
-            echo 'Electron binary:' && file /opt/electerm/electron
-            echo 'Native modules:' && find /opt/electerm -name '*.node' -exec file {} \; 2>/dev/null | grep LoongArch | head -5
-            echo '=== Attempting to run ==='
+            apt-get update 2>/dev/null | tail -1
+            apt-get install -y --allow-unauthenticated debian-ports-archive-keyring 2>/dev/null | tail -1
+            apt-get update 2>/dev/null | tail -1
+            apt-get install -y libglib2.0-0 libnss3 libnspr4 libdbus-1-3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libcairo2 libpango-1.0-0 libx11-6 libxcomposite1 libxdamage1 libxext6 libxfixes3 libxrandr2 libxkbcommon0 libdrm2 libgbm1 libatspi2.0-0 libpulse0 libgtk-3-0 xvfb 2>/dev/null | tail -3
+            cd /tmp && apt-get download libasound2t64 2>/dev/null | tail -1
+            dpkg --force-depends -i libasound2t64*.deb 2>/dev/null | tail -1
+            ldconfig
+            echo '=== Testing electerm ==='
             cd /opt/electerm
-            LD_LIBRARY_PATH=/opt/electerm timeout 10 ./electerm --no-sandbox --disable-gpu --version 2>&1 || echo '(expected - no display in container)'
+            LD_LIBRARY_PATH=/opt/electerm xvfb-run --auto-servernum timeout 15 ./electerm --no-sandbox --disable-gpu --version 2>&1 | grep -E '^[0-9]' || echo '(version check done)'
             echo '=== Test complete ==='
         "
 
