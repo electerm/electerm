@@ -38,6 +38,7 @@ jobs:
         which loongarch64-linux-gnu-g++ 2>/dev/null || sudo ln -sf /usr/bin/loongarch64-linux-gnu-g++-14 /usr/bin/loongarch64-linux-gnu-g++ || true
 
     - run: rm package-lock.json
+    - run: npm config set legacy-peer-deps true
     - name: Update electron version to v39.2.7
       run: |
         node -e "
