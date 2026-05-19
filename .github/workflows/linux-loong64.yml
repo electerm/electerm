@@ -28,7 +28,14 @@ jobs:
         node-version: 24.x
 
     - name: Install loong64 cross-compiler
-      run: sudo apt-get update && sudo apt-get install -y g++-loongarch64-linux-gnu gcc-loongarch64-linux-gnu
+      run: |
+        sudo add-apt-repository -y universe
+        sudo apt-get update
+        sudo apt-get install -y gcc-14-loongarch64-linux-gnu g++-14-loongarch64-linux-gnu binutils-loongarch64-linux-gnu || \
+        sudo apt-get install -y gcc-loongarch64-linux-gnu g++-loongarch64-linux-gnu binutils-loongarch64-linux-gnu
+        # Create symlinks if versioned binaries were installed
+        which loongarch64-linux-gnu-gcc 2>/dev/null || sudo ln -sf /usr/bin/loongarch64-linux-gnu-gcc-14 /usr/bin/loongarch64-linux-gnu-gcc || true
+        which loongarch64-linux-gnu-g++ 2>/dev/null || sudo ln -sf /usr/bin/loongarch64-linux-gnu-g++-14 /usr/bin/loongarch64-linux-gnu-g++ || true
 
     - run: rm package-lock.json
     - name: Update electron version to v39.2.7
