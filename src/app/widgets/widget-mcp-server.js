@@ -70,6 +70,18 @@ const widgetInfo = {
       type: 'boolean',
       default: false,
       description: 'Automatically start this MCP server when the app launches'
+    },
+    {
+      name: 'commandBlacklist',
+      type: 'textarea',
+      default: '',
+      description: 'Newline-separated list of regex patterns. Commands matching any pattern are rejected. Built-in dangerous patterns are always active.'
+    },
+    {
+      name: 'commandWhitelist',
+      type: 'textarea',
+      default: '',
+      description: 'Newline-separated list of regex patterns. When non-empty, only commands matching at least one pattern are allowed (whitelist mode).'
     }
   ]
 }
@@ -90,6 +102,74 @@ class ElectermMCPServer {
     this.ipcHandler = null
     this.pendingRequests = new Map()
     this.transports = {}
+  }
+
+  // Built-in blacklist: patterns that are always blocked regardless of user config.
+  // These cover the most common destructive / privilege-escalation shell idioms.
+  static get BUILTIN_BLACKLIST () {
+    return [
+      /rm\s+-[^\s]*[rR][^\s]*\s+\//, // rm -rf / or rm -Rf / (recursive delete from root)
+      /rm\s+-[^\s]*[rR][^\s]*\s+~/, // rm -rf ~ or rm -Rf ~ (recursive delete home)
+      /rm\s+--recursive/, // rm --recursive (long-form flag)
+      /:\s*\(\s*\)\s*\{.*\|.*:.*&.*\}\s*;.*:/, // fork bomb  :(){:|:&};:
+      /\bdd\b.*\bof\s*=\s*\/dev\//, // dd of=/dev/...
+      /\bmkfs\b/, // mkfs (format filesystem)
+      />\s*\/dev\/[sh]d[a-z]/, // redirect to raw disk
+      /\bsudo\s+rm\b/, // sudo rm
+      /curl\s+.*\|\s*sh/, // curl | sh  (remote code execution)
+      /wget\s+.*\|\s*sh/, // wget | sh
+      /curl\s+.*\|\s*bash/, // curl | bash
+      /wget\s+.*\|\s*bash/ // wget | bash
+    ]
+  }
+
+  // Validate a command against whitelist/blacklist rules.
+  // Returns { allowed: true } or { allowed: false, reason: string }
+  validateCommand (command) {
+    // 1. Always-on built-in blacklist
+    for (const pattern of ElectermMCPServer.BUILTIN_BLACKLIST) {
+      if (pattern.test(command)) {
+        return { allowed: false, reason: `Command blocked by built-in safety rule: ${pattern}` }
+      }
+    }
+
+    // 2. User-defined blacklist (newline-separated regex strings)
+    const userBlacklist = (this.config.commandBlacklist || '')
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean)
+
+    for (const raw of userBlacklist) {
+      try {
+        if (new RegExp(raw).test(command)) {
+          return { allowed: false, reason: `Command blocked by blacklist pattern: ${raw}` }
+        }
+      } catch (_) {
+        // ignore invalid regex in config
+      }
+    }
+
+    // 3. User-defined whitelist (newline-separated regex strings)
+    //    Only enforced when at least one pattern is configured.
+    const userWhitelist = (this.config.commandWhitelist || '')
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean)
+
+    if (userWhitelist.length > 0) {
+      const allowed = userWhitelist.some(raw => {
+        try {
+          return new RegExp(raw).test(command)
+        } catch (_) {
+          return false
+        }
+      })
+      if (!allowed) {
+        return { allowed: false, reason: 'Command not in whitelist' }
+      }
+    }
+
+    return { allowed: true }
   }
 
   // Send request to renderer process via IPC
@@ -231,6 +311,10 @@ class ElectermMCPServer {
         }
       },
       async ({ command, tabId, inputOnly }) => {
+        const check = self.validateCommand(command)
+        if (!check.allowed) {
+          return { content: [{ type: 'text', text: JSON.stringify({ error: check.reason }, null, 2) }], isError: true }
+        }
         const result = await self.sendToRenderer('tool-call', {
           toolName: 'send_terminal_command',
           args: { command, tabId, inputOnly }
@@ -834,5 +918,6 @@ function widgetRun (instanceConfig) {
 
 module.exports = {
   widgetInfo,
-  widgetRun
+  widgetRun,
+  _ElectermMCPServer: ElectermMCPServer
 }

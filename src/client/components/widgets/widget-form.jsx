@@ -50,6 +50,9 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
       case 'string':
         control = <Input placeholder={description} />
         break
+      case 'textarea':
+        control = <Input.TextArea autoSize={{ minRows: 3 }} placeholder={description} />
+        break
       case 'number':
         control = <InputNumber style={{ width: '100%' }} placeholder={description} />
         break
