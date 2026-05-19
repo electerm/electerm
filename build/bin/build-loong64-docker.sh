@@ -94,10 +94,26 @@ APP_DIR=/tmp/electerm-loong64-app
 rm -rf "$APP_DIR"
 cp -r "$ELECTRON_SRC/." "$APP_DIR/"
 
-# The Electron zip ships the binary as "electron"; rename to match the app name
+# The Electron zip ships the binary as "electron"; rename to electerm-bin (actual ELF).
+# A shell wrapper named "electerm" will detect sandbox status at runtime and add
+# --no-sandbox when chrome-sandbox is not SUID root (e.g. tar.gz direct runs).
 if [ -f "$APP_DIR/electron" ]; then
-  mv "$APP_DIR/electron" "$APP_DIR/electerm"
+  mv "$APP_DIR/electron" "$APP_DIR/electerm-bin"
 fi
+chmod 755 "$APP_DIR/electerm-bin"
+
+# Create the electerm wrapper script
+cat > "$APP_DIR/electerm" << 'LAUNCHER'
+#!/bin/sh
+# electerm launcher — passes --no-sandbox when chrome-sandbox is not SUID root.
+d="$(dirname "$(readlink -f "$0")")"
+box="$d/chrome-sandbox"
+if [ -f "$box" ] && [ "$(stat -c '%u' "$box" 2>/dev/null)" = "0" ] && [ -u "$box" ]; then
+    exec -a electerm "$d/electerm-bin" "$@"
+else
+    exec -a electerm "$d/electerm-bin" --no-sandbox "$@"
+fi
+LAUNCHER
 chmod 755 "$APP_DIR/electerm"
 
 # Replace the Electron default resources/ with our app resources
@@ -126,6 +142,17 @@ PKG_APP_DIR="$PKG_DIR${X64_APP_DIR#$PKG_X64}"
 rm -rf "$PKG_APP_DIR"
 mkdir -p "$PKG_APP_DIR"
 cp -r "$APP_DIR/." "$PKG_APP_DIR/"
+
+# Update postinst: the binary is now electerm-bin; sandbox path stays the same.
+# Ensure postinst sets SUID on chrome-sandbox (carried from x64 deb).
+if [ -f "$PKG_DIR/DEBIAN/postinst" ]; then
+  echo "==> postinst contents:"
+  cat "$PKG_DIR/DEBIAN/postinst"
+else
+  echo "==> Creating postinst..."
+  printf '#!/bin/bash\nchown root:root /opt/electerm/chrome-sandbox\nchmod 4755 /opt/electerm/chrome-sandbox\n' > "$PKG_DIR/DEBIAN/postinst"
+  chmod 755 "$PKG_DIR/DEBIAN/postinst"
+fi
 
 sed -i 's/^Architecture: .*/Architecture: loong64/' "$PKG_DIR/DEBIAN/control"
 INSTALLED_SIZE=$(du -sk --exclude="$PKG_DIR/DEBIAN" "$PKG_DIR" | cut -f1)
