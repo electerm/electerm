@@ -588,6 +588,10 @@ export default class SettingCommon extends Component {
         {
           this.renderText('keyword2FA')
         }
+        <div className='pd1b'>{e('tabTitleTemplate')}</div>
+        {
+          this.renderText('tabTitleTemplate')
+        }
         {
           [
             'autoRefreshWhenSwitchToSftp',
