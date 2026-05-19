@@ -69,7 +69,7 @@ jobs:
     - name: Verify output
       run: |
         ls -la dist-loong64/
-        file dist-loong64/electerm-*/electron
+        file dist-loong64/electerm-*/electerm
         find dist-loong64/electerm-* -name "*.node" -exec file {} \; | grep LoongArch
 
     - name: Upload loong64 tar.gz

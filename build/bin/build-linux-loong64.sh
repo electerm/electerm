@@ -281,8 +281,12 @@ rebuild_native_modules() {
 merge_loong64() {
     log_info "Step 4: Merging x64 asar with loong64 electron..."
 
+    # Get electerm version from package.json
+    local electerm_version
+    electerm_version=$(node -e "console.log(require('$PROJECT_ROOT/package.json').version)")
+
     mkdir -p "$OUTPUT_DIR"
-    local output_name="electerm-${ELECTRON_VERSION}-linux-loong64"
+    local output_name="electerm-${electerm_version}-linux-loong64"
     local output_dir="$OUTPUT_DIR/$output_name"
     rm -rf "$output_dir"
     mkdir -p "$output_dir"
@@ -292,10 +296,13 @@ merge_loong64() {
         cp -r "$WORK_DIR/x64-app"/* "$output_dir/"
     fi
 
-    # Replace electron binary with loong64 version
-    log_info "Replacing electron binary with loong64 version..."
-    cp "$WORK_DIR/electron-loong64/electron" "$output_dir/electron"
-    chmod +x "$output_dir/electron"
+    # Remove x64 electerm binary (it's x86-64, will be replaced)
+    rm -f "$output_dir/electerm"
+
+    # Copy loong64 electron binary as electerm
+    log_info "Copying loong64 electron binary as electerm..."
+    cp "$WORK_DIR/electron-loong64/electron" "$output_dir/electerm"
+    chmod +x "$output_dir/electerm"
 
     # Copy loong64 electron libraries (must override x64 versions)
     for lib in libEGL.so libGLESv2.so libvulkan.so.1 libvk_swiftshader.so libffmpeg.so; do
@@ -362,7 +369,11 @@ test_in_qemu() {
 
     log_info "Step 5: Testing in QEMU loong64 environment..."
 
-    local output_dir="$OUTPUT_DIR/electerm-${ELECTRON_VERSION}-linux-loong64"
+    # Get electerm version from package.json
+    local electerm_version
+    electerm_version=$(node -e "console.log(require('$PROJECT_ROOT/package.json').version)")
+
+    local output_dir="$OUTPUT_DIR/electerm-${electerm_version}-linux-loong64"
 
     if [ ! -d "$output_dir" ]; then
         log_error "Output directory not found: $output_dir"
@@ -387,7 +398,7 @@ test_in_qemu() {
             echo 'Native modules:' && find /opt/electerm -name '*.node' -exec file {} \; 2>/dev/null | grep LoongArch | head -5
             echo '=== Attempting to run ==='
             cd /opt/electerm
-            LD_LIBRARY_PATH=/opt/electerm timeout 10 ./electron --no-sandbox --disable-gpu --version 2>&1 || echo '(expected - no display in container)'
+            LD_LIBRARY_PATH=/opt/electerm timeout 10 ./electerm --no-sandbox --disable-gpu --version 2>&1 || echo '(expected - no display in container)'
             echo '=== Test complete ==='
         "
 
@@ -415,9 +426,12 @@ main() {
     merge_loong64
     test_in_qemu
 
+    local electerm_version
+    electerm_version=$(node -e "console.log(require('$PROJECT_ROOT/package.json').version)")
+
     log_info "=========================================="
     log_info "Build complete!"
-    log_info "Output: $OUTPUT_DIR/electerm-${ELECTRON_VERSION}-linux-loong64.tar.gz"
+    log_info "Output: $OUTPUT_DIR/electerm-${electerm_version}-linux-loong64.tar.gz"
     log_info "=========================================="
 }
 
