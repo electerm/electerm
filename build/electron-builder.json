@@ -55,7 +55,8 @@
   "nsis": {
     "oneClick": false,
     "artifactName": "${productName}-${version}-${os}-${arch}-installer.${ext}",
-    "allowToChangeInstallationDirectory": true
+    "allowToChangeInstallationDirectory": true,
+    "include": "build/nsis/context-menu.nsh"
   },
   "mac": {
     "category": "public.app-category.developer-tools",

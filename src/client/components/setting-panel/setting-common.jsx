@@ -22,7 +22,8 @@ import InputNumberConfirm from '../common/input-number-confirm'
 import TextareaConfirm from '../common/textarea-confirm'
 import {
   settingMap,
-  proxyHelpLink
+  proxyHelpLink,
+  isWin
 } from '../../common/constants'
 import defaultSettings from '../../common/default-setting'
 import Link from '../common/external-link'
@@ -33,6 +34,7 @@ import HelpIcon from '../common/help-icon'
 import delay from '../../common/wait.js'
 import isColorDark from '../../common/is-color-dark'
 import DeepLinkControl from './deep-link-control'
+import WinContextMenuControl from './win-context-menu-control'
 import HotkeySetting from './hotkey'
 import './setting.styl'
 
@@ -607,6 +609,9 @@ export default class SettingCommon extends Component {
         }
         {
           window.et.isWebApp ? null : <DeepLinkControl />
+        }
+        {
+          (!window.et.isWebApp && isWin) ? <WinContextMenuControl /> : null
         }
         {this.renderLoginPass()}
         {this.renderReset()}
