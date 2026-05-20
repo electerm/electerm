@@ -84,6 +84,7 @@ export default class SettingTerminal extends Component {
 
   handleChangeDelMode = v => this.onChangeValue(v, 'backspaceMode')
   handleChangeRenderType = v => this.onChangeValue(v, 'rendererType')
+  handleChangeDragDropBehavior = v => this.onChangeValue(v, 'dragDropBehavior')
 
   handleChangeFont = (values) => {
     this.onChangeValue(
@@ -471,6 +472,7 @@ export default class SettingTerminal extends Component {
     const {
       rendererType,
       backspaceMode = '^?',
+      dragDropBehavior = 'ask',
       keywords = [{ color: 'red' }]
     } = this.props.config
     const {
@@ -593,6 +595,16 @@ export default class SettingTerminal extends Component {
             'autoReconnectTerminal'
           ].map(d => this.renderToggle(d))
         }
+        <div className='pd1b'>{e('dragDropBehavior')}</div>
+        <Select
+          onChange={this.handleChangeDragDropBehavior}
+          value={dragDropBehavior}
+          popupMatchSelectWidth={false}
+        >
+          {['ask', 'trz', 'rz', 'inputOnly'].map(id => (
+            <Option key={id} value={id}>{e(id)}</Option>
+          ))}
+        </Select>
         <div className='pd1b'>{e('terminalBackSpaceMode')}</div>
         <Select
           onChange={this.handleChangeDelMode}

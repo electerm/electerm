@@ -26,21 +26,21 @@ export class DropFileModal extends Component {
             <button
               type='button'
               className='custom-modal-ok-btn'
-              onClick={() => onSelect('trzUpload')}
+              onClick={() => onSelect('trz')}
             >
               trz
             </button>
             <button
               type='button'
               className='custom-modal-cancel-btn'
-              onClick={() => onSelect('rzUpload')}
+              onClick={() => onSelect('rz')}
             >
               rz
             </button>
             <button
               type='button'
               className='custom-modal-cancel-btn'
-              onClick={() => onSelect('inputPath')}
+              onClick={() => onSelect('inputOnly')}
             >
               {e('inputOnly')}
             </button>
