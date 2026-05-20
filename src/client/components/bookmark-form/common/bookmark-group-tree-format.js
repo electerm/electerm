@@ -21,7 +21,7 @@ export default (bookmarkGroups = [], disabledId = '', returnMap = false, current
     }
     return y
   }
-  const level1 = bookmarkGroups.filter(d => d.level !== 2)
+  const level1 = bookmarkGroups.filter(d => d.level === 1 || !d.level)
     .map(d => {
       const r = {
         title: d.title,

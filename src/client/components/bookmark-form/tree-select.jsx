@@ -79,7 +79,7 @@ function buildData (bookmarks, bookmarkGroups, searchText = '') {
       title: createTitleWithTag(x)
     }
   }
-  const level1 = cats.filter(d => d.level !== 2)
+  const level1 = cats.filter(d => d.level === 1 || !d.level)
     .map(d => {
       const children = [
         ...(d.bookmarkGroupIds || []).map(buildSubCats),

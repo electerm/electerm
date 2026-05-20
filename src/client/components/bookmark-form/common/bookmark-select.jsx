@@ -38,7 +38,7 @@ function buildTreeData (bookmarkGroups, tree) {
     if (!x) return ''
     return { value: x.id, key: x.id, title: createTitle(x) }
   }
-  const level1 = cats.filter(d => d.level !== 2)
+  const level1 = cats.filter(d => d.level === 1 || !d.level)
     .map(d => {
       const r = {
         title: d.title,
