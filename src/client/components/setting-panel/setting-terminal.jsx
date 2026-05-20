@@ -569,6 +569,8 @@ export default class SettingTerminal extends Component {
             'ctrlOrMetaOpenTerminalLink',
             'sftpPathFollowSsh',
             'sshSftpSplitView',
+            'sftpOnLeft',
+            'showLocalFileInSftp',
             'showCmdSuggestions',
             'autoReconnectTerminal'
           ].map(d => this.renderToggle(d))

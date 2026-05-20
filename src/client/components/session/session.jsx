@@ -767,8 +767,12 @@ export default class SessionWrapper extends Component {
     }
     const notSplitVew = !this.canSplitView() || !this.props.tab.sshSftpSplitView
     const { pane } = this.props.tab
-    const show1 = notSplitVew && pane === paneMap.terminal
-    const show2 = notSplitVew && pane === paneMap.fileManager
+    const sftpOnLeft = !!this.props.config.sftpOnLeft
+    const showTerm = notSplitVew && pane === paneMap.terminal
+    const showSftp = notSplitVew && pane === paneMap.fileManager
+    // pane1 / pane2 = visual order (left/top, right/bottom)
+    const show1 = sftpOnLeft ? showSftp : showTerm
+    const show2 = sftpOnLeft ? showTerm : showSftp
     const direction = this.getSplitDirection()
     const layout = direction === 'leftRight' ? 'horizontal' : 'vertical'
     const [size1, size2] = this.state.splitSize
@@ -807,13 +811,15 @@ export default class SessionWrapper extends Component {
       ...paneProps,
       size: s2
     }
+    const firstContent = sftpOnLeft ? this.renderSftp() : this.renderTerminals()
+    const secondContent = sftpOnLeft ? this.renderTerminals() : this.renderSftp()
     return (
       <Splitter {...splitterProps}>
         <SplitterPane {...paneProps1}>
-          {this.renderTerminals()}
+          {firstContent}
         </SplitterPane>
         <SplitterPane {...paneProps2}>
-          {this.renderSftp()}
+          {secondContent}
         </SplitterPane>
       </Splitter>
     )

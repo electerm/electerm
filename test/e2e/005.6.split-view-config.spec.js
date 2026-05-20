@@ -11,16 +11,16 @@ it('should respect default split view setting when creating new tabs', async () 
   extendClient(client, electronApp)
   await delay(3500)
 
-  // Check initial state (split view off by default)
+  // Check initial state (split view on by default)
   const terminalSection = client.locator('.session-current .term-wrap')
   const sftpSection = client.locator('.session-current .sftp-section')
 
   await expect(terminalSection).toBeVisible()
-  await expect(sftpSection).toBeHidden()
+  await expect(sftpSection).toBeVisible()
 
-  // Change default split view setting to true
+  // Change default split view setting to false
   await client.evaluate(() => {
-    window.store._config.sshSftpSplitView = true
+    window.store._config.sshSftpSplitView = false
   })
   await delay(500)
 
@@ -31,13 +31,13 @@ it('should respect default split view setting when creating new tabs', async () 
   await client.click('.tabs .tabs-add-btn')
   await delay(1000)
 
-  // New tab should open with split view enabled
+  // New tab should open with split view disabled
   await expect(terminalSection).toBeVisible()
-  await expect(sftpSection).toBeVisible()
+  await expect(sftpSection).toBeHidden()
 
-  // Change setting back to false
+  // Change setting back to true
   await client.evaluate(() => {
-    window.store._config.sshSftpSplitView = false
+    window.store._config.sshSftpSplitView = true
   })
   await delay(500)
 
@@ -48,9 +48,9 @@ it('should respect default split view setting when creating new tabs', async () 
   await client.click('.tabs .tabs-add-btn')
   await delay(1000)
 
-  // New tab should open with split view disabled
+  // New tab should open with split view enabled
   await expect(terminalSection).toBeVisible()
-  await expect(sftpSection).toBeHidden()
+  await expect(sftpSection).toBeVisible()
 
   await electronApp.close().catch(console.log)
 })

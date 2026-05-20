@@ -30,7 +30,7 @@ import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
 import normalizeRemotePath from '../../common/normalize-remote-path'
-import { LoadingOutlined, ReloadOutlined } from '@ant-design/icons'
+import { LoadingOutlined, ReloadOutlined, PicLeftOutlined, PicRightOutlined } from '@ant-design/icons'
 import * as owner from './owner-list'
 import AddressBar from './address-bar'
 import getProxy from '../../common/get-proxy'
@@ -553,6 +553,22 @@ export default class Sftp extends Component {
   shouldRenderRemote = () => {
     const { props } = this
     return props.tab?.host && props.tab?.type !== terminalSerialType
+  }
+
+  getShowLocal = () => {
+    const { tab, config } = this.props
+    if (tab && Object.prototype.hasOwnProperty.call(tab, 'showLocalFileInSftp')) {
+      return !!tab.showLocalFileInSftp
+    }
+    return !!config?.showLocalFileInSftp
+  }
+
+  handleToggleShowLocal = () => {
+    const { tab } = this.props
+    if (!tab) return
+    const nv = !this.getShowLocal()
+    window.store.updateTab(tab.id, { showLocalFileInSftp: nv })
+    window.store.triggerResize()
   }
 
   initLocalAll = () => {
@@ -1203,8 +1219,16 @@ export default class Sftp extends Component {
 
   renderSftpPanelTitle (type, username, host) {
     if (type === typeMap.remote) {
+      const showLocal = this.getShowLocal()
+      const ToggleIcon = showLocal ? PicRightOutlined : PicLeftOutlined
+      const toggleTitle = showLocal ? e('hideLocalFiles') : e('showLocalFiles')
       return (
         <div className='sftp-panel-title pd1t pd1b pd1x alignright'>
+          <ToggleIcon
+            className='mg1r pointer'
+            title={toggleTitle}
+            onClick={this.handleToggleShowLocal}
+          />
           <ReloadOutlined
             className='mg1r pointer'
             onClick={this.handleReloadRemoteSftp}
@@ -1330,6 +1354,15 @@ export default class Sftp extends Component {
           height
         }, width)
       )
+    }
+    const showLocal = this.getShowLocal()
+    if (!showLocal) {
+      return this.renderSection(typeMap.remote, {
+        width,
+        left: 0,
+        top: 0,
+        height
+      }, width)
     }
     return arr.map((t, i) => {
       const style = {
