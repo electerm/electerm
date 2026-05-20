@@ -1,5 +1,5 @@
 import { Component } from 'react'
-import { refsStatic } from '../common/ref'
+import { refsStatic, refs } from '../common/ref'
 import { statusMap } from '../../common/constants'
 import { autoRun } from 'manate'
 import uid from '../../common/uid'
@@ -237,7 +237,6 @@ export default class BatchOpRunner extends Component {
       throw new Error('No active tab. Please connect first.')
     }
 
-    const { refs } = await import('../common/ref')
     const term = refs.get('term-' + tabId)
     if (!term || !term.term) {
       throw new Error('Terminal not found')

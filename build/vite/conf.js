@@ -54,12 +54,12 @@ export default defineConfig({
   build: {
     target: 'esnext',
     cssCodeSplit: false,
+    codeSplitting: false,
     emptyOutDir: false,
     outDir: resolve(cwd, '../../work/app/assets'),
     rollupOptions: {
       input: buildInput(),
       output: {
-        inlineDynamicImports: false,
         format: 'esm',
         entryFileNames: `js/[name]-${version}.js`,
         chunkFileNames: `chunk/[name]-${version}-[hash].js`,
