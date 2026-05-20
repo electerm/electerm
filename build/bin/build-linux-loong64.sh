@@ -360,7 +360,16 @@ POSTINST
     chmod 755 "$deb_dir/DEBIAN/postinst"
 
     local deb_file="$OUTPUT_DIR/${output_name}.deb"
-    dpkg-deb --build "$deb_dir" "$deb_file"
+    if command -v fakeroot &>/dev/null; then
+        fakeroot dpkg-deb --build "$deb_dir" "$deb_file"
+    else
+        dpkg-deb --build "$deb_dir" "$deb_file"
+    fi
+
+    if [ ! -f "$deb_file" ]; then
+        log_error "Deb build failed: $deb_file not created"
+        return 1
+    fi
 
     log_info "Deb complete: $deb_file"
 
