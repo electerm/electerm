@@ -30,6 +30,16 @@
 
 在线演示: [https://electerm-demo.html5beta.com](https://electerm-demo.html5beta.com)
 
+## Atlas Cloud
+
+<div align="center">
+  <a href="https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/atlas-cloud.png?raw=true" alt="Atlas Cloud" width="200" />
+  </a>
+</div>
+
+[Atlas Cloud](https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm) 提供与 OpenAI 兼容的 AI API 和模型访问，用于在 electerm 中实现 AI 驱动的工作流程。
+
 <div align="center">
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
 </div>
