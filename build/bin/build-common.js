@@ -246,3 +246,31 @@ exports.patchNsisKeepShortcuts = function patchNsisKeepShortcuts () {
     console.log('NSIS keep-shortcuts patch: applied successfully')
   }
 }
+
+/**
+ * Patch electron-builder's Snap target so classic confinement builds keep the
+ * Chromium sandbox and do not force --no-sandbox into the generated launcher.
+ *
+ * electerm's packaged entrypoint rejects the --no-sandbox CLI flag, and classic
+ * snaps do not need the browser-support plug path used by strict confinement.
+ */
+exports.patchSnapClassicSandbox = function patchSnapClassicSandbox () {
+  const fs = require('fs')
+  const path = require('path')
+  const targetPath = path.join(
+    require.resolve('app-builder-lib/package.json'),
+    '../out/targets/snap.js'
+  )
+  const original = fs.readFileSync(targetPath, 'utf-8')
+  const patched = original.replace(
+    '        if (this.isElectronVersionGreaterOrEqualThan("5.0.0") && !isBrowserSandboxAllowed(snap)) {',
+    '        if (this.isElectronVersionGreaterOrEqualThan("5.0.0") && snap.confinement !== "classic" && !isBrowserSandboxAllowed(snap)) {'
+  )
+
+  if (patched === original) {
+    console.log('Snap classic sandbox patch: already applied or pattern not found, skipping')
+  } else {
+    fs.writeFileSync(targetPath, patched, 'utf-8')
+    console.log('Snap classic sandbox patch: applied successfully')
+  }
+}
