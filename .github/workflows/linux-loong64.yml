@@ -5,7 +5,9 @@
 # 2. Downloads electron loong64 v39.2.7
 # 3. Cross-compiles native modules for loong64
 # 4. Merges x64 asar with loong64 electron and native modules
-# 5. Uploads the loong64 tar.gz as artifact and optionally to R2
+# 5. Uploads tar.gz to GitHub release draft
+# 6. Builds deb package and uploads to GitHub release draft
+# 7. Uploads artifacts and optionally to R2
 
 name: linux-loong64
 
@@ -79,6 +81,13 @@ jobs:
         path: dist-loong64/*.tar.gz
         retention-days: 30
 
+    - name: Upload loong64 deb
+      uses: actions/upload-artifact@v4
+      with:
+        name: electerm-linux-loong64-deb
+        path: dist-loong64/*.deb
+        retention-days: 30
+
     - name: Upload to R2
       if: ${{ contains(github.event.head_commit.message, '[r2]') }}
       env:
@@ -91,13 +100,11 @@ jobs:
           echo "[r2] Missing R2 secrets, skipping upload"
           exit 0
         fi
-        FILE=$(find dist-loong64 -name "*.tar.gz" -type f | head -1)
-        if [ -z "$FILE" ]; then
-          echo "[r2] No tar.gz found to upload"
+        FILES=$(find dist-loong64 \( -name "*.tar.gz" -o -name "*.deb" \) -type f)
+        if [ -z "$FILES" ]; then
+          echo "[r2] No artifacts found to upload"
           exit 1
         fi
-        FILENAME=$(basename "$FILE")
-        echo "[r2] Uploading $FILENAME to R2 bucket $CF_R2_BUCKET"
         node -e "
         const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
         const fs = require('fs');
@@ -110,16 +117,21 @@ jobs:
             secretAccessKey: '${CF_R2_SECRET_ACCESS_KEY}'
           }
         });
-        const filePath = '$FILE';
-        const key = '$FILENAME';
-        const command = new PutObjectCommand({
-          Bucket: '${CF_R2_BUCKET}',
-          Key: key,
-          Body: fs.createReadStream(filePath),
-          ContentLength: fs.statSync(filePath).size
-        });
-        client.send(command).then(() => {
-          console.log('[r2] Successfully uploaded ' + key);
+        const files = '$FILES'.split('\n').filter(Boolean);
+        Promise.all(files.map(filePath => {
+          const key = path.basename(filePath);
+          console.log('[r2] Uploading ' + key);
+          const command = new PutObjectCommand({
+            Bucket: '${CF_R2_BUCKET}',
+            Key: key,
+            Body: fs.createReadStream(filePath),
+            ContentLength: fs.statSync(filePath).size
+          });
+          return client.send(command).then(() => {
+            console.log('[r2] Successfully uploaded ' + key);
+          });
+        })).then(() => {
+          console.log('[r2] All uploads complete');
         }).catch(err => {
           console.error('[r2] Upload failed:', err.message);
           process.exit(1);
