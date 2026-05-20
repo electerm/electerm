@@ -98,7 +98,7 @@ build_x64() {
     write_install_src "linux-loong64.tar.gz"
 
     export WORKFLOW_NAME
-    $builder --linux tar.gz --x64
+    $builder --linux tar.gz --x64 --publish=never
 
     # Find the built tar.gz
     local tar_gz
@@ -337,8 +337,30 @@ build_deb() {
     rm -rf "$deb_build"
     mkdir -p "$deb_dir/DEBIAN"
     mkdir -p "$deb_dir/opt/electerm"
+    mkdir -p "$deb_dir/usr/share/applications"
+    mkdir -p "$deb_dir/usr/share/icons/hicolor/128x128/apps"
 
     cp -r "$output_dir"/* "$deb_dir/opt/electerm/"
+
+    # Install icon
+    local icon_src="$PROJECT_ROOT/node_modules/@electerm/electerm-resource/res/imgs/electerm-round-128x128.png"
+    if [ -f "$icon_src" ]; then
+        cp "$icon_src" "$deb_dir/usr/share/icons/hicolor/128x128/apps/electerm.png"
+    fi
+
+    # Install desktop file
+    cat > "$deb_dir/usr/share/applications/electerm.desktop" <<'DESKTOP'
+[Desktop Entry]
+Name=electerm
+Comment=Terminal/SSH/SFTP client
+Exec=/opt/electerm/electerm %U
+Icon=electerm
+Terminal=false
+Type=Application
+Categories=Development;System;TerminalEmulator;
+StartupWMClass=electerm
+MimeType=x-scheme-handler/ssh;x-scheme-handler/telnet;x-scheme-handler/rdp;x-scheme-handler/vnc;x-scheme-handler/serial;x-scheme-handler/spice;x-scheme-handler/electerm;
+DESKTOP
 
     cat > "$deb_dir/DEBIAN/control" <<CTRL
 Package: electerm
@@ -356,6 +378,8 @@ CTRL
 #!/bin/bash
 chown root:root /opt/electerm/chrome-sandbox
 chmod 4755 /opt/electerm/chrome-sandbox
+update-desktop-database /usr/share/applications/ 2>/dev/null || true
+gtk-update-icon-cache /usr/share/icons/hicolor/ 2>/dev/null || true
 POSTINST
     chmod 755 "$deb_dir/DEBIAN/postinst"
 
