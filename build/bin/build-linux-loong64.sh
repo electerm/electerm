@@ -296,25 +296,17 @@ patch_asar_install_src() {
 
     log_info "Patching asar install-src to '${new_src}'..."
 
-    node -e "
-        const asar = require('@electron/asar');
-        const fs = require('fs');
-        const path = require('path');
-        const os = require('os');
+    local asar_bin="$PROJECT_ROOT/node_modules/@electron/asar/bin/asar.js"
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
 
-        const asarPath = '${asar_file}';
-        const tmpDir = path.join(os.tmpdir(), 'electerm-asar-' + Date.now());
+    # Extract, patch, repack using CLI
+    node "$asar_bin" extract "$asar_file" "$tmp_dir"
+    echo "module.exports = '${new_src}'" > "$tmp_dir/lib/install-src.js"
+    node "$asar_bin" pack "$tmp_dir" "$asar_file"
 
-        asar.extractAll(asarPath, tmpDir);
-
-        const srcFile = path.join(tmpDir, 'lib', 'install-src.js');
-        fs.writeFileSync(srcFile, \"module.exports = '${new_src}'\");
-
-        asar.createPackage(tmpDir, asarPath);
-
-        fs.rmSync(tmpDir, { recursive: true, force: true });
-        console.log('Asar patched successfully.');
-    "
+    rm -rf "$tmp_dir"
+    log_info "Asar patched successfully."
 }
 
 build_deb() {
