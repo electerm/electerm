@@ -401,10 +401,15 @@ class Term extends Component {
           return
         }
         if (isSshTerminal) {
-          this.setState({
-            dropFileModalVisible: true,
-            droppedFiles: [{ path: filePath, isRemote: true }]
-          })
+          const behavior = this.props.config.dragDropBehavior || 'ask'
+          if (behavior === 'ask') {
+            this.setState({
+              dropFileModalVisible: true,
+              droppedFiles: [{ path: filePath, isRemote: true }]
+            })
+          } else {
+            this.handleDropFileAction(behavior, [{ path: filePath, isRemote: true }])
+          }
           return
         }
         this.attachAddon._sendData(`"${filePath}" `)
@@ -426,10 +431,15 @@ class Term extends Component {
       }
 
       if (isSshTerminal) {
-        this.setState({
-          dropFileModalVisible: true,
-          droppedFiles: filePaths.map(path => ({ path, isRemote: false }))
-        })
+        const behavior = this.props.config.dragDropBehavior || 'ask'
+        if (behavior === 'ask') {
+          this.setState({
+            dropFileModalVisible: true,
+            droppedFiles: filePaths.map(path => ({ path, isRemote: false }))
+          })
+        } else {
+          this.handleDropFileAction(behavior, filePaths.map(path => ({ path, isRemote: false })))
+        }
         return
       }
 
@@ -445,8 +455,8 @@ class Term extends Component {
     })
   }
 
-  handleDropFileAction = (action) => {
-    const { droppedFiles } = this.state
+  handleDropFileAction = (action, filesOverride) => {
+    const droppedFiles = filesOverride || this.state.droppedFiles
     if (!droppedFiles || !droppedFiles.length) {
       this.handleDropFileModalCancel()
       return
@@ -455,7 +465,7 @@ class Term extends Component {
     const filePaths = droppedFiles.map(f => f.path)
 
     switch (action) {
-      case 'trzUpload': {
+      case 'trz': {
         if (this.trzszClient && this.trzszClient.isActive) {
           message.warning('A transfer is already in progress')
           this.handleDropFileModalCancel()
@@ -465,7 +475,7 @@ class Term extends Component {
         this.attachAddon._sendData('trz\r')
         break
       }
-      case 'rzUpload': {
+      case 'rz':{
         if (this.zmodemClient && this.zmodemClient.isActive) {
           message.warning('A transfer is already in progress')
           this.handleDropFileModalCancel()
@@ -475,7 +485,7 @@ class Term extends Component {
         this.attachAddon._sendData('rz\r')
         break
       }
-      case 'inputPath':
+      case 'inputOnly':
       default: {
         const filesAll = filePaths.map(path => `"${path}"`).join(' ')
         this.attachAddon._sendData(filesAll)
@@ -825,6 +835,9 @@ class Term extends Component {
       const currentCmd = this.getCurrentInput()
       if (currentCmd && currentCmd.trim() && this.shouldUseManualHistory()) {
         window.store.addCmdHistory(currentCmd.trim())
+      }
+      if (currentCmd && currentCmd.trim() === 'exit') {
+        this.userTypeExit = true
       }
       this.closeSuggestions()
     }
