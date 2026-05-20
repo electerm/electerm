@@ -34,7 +34,7 @@ Online demo: [https://electerm-demo.html5beta.com](https://electerm-demo.html5be
 
 <div align="center">
   <a href="https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/atlas-cloud.png?raw=true" alt="Atlas Cloud" height="50" />
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/atlas-cloud.png?raw=true" alt="Atlas Cloud" width="200" />
   </a>
 </div>
 
