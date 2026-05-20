@@ -87,7 +87,7 @@ jobs:
         EOF
         for file in $(find dist-loong64 \( -name "*.tar.gz" -o -name "*.deb" \) -type f); do
           filename=$(basename "$file")
-          aws s3 cp "$file" "s3://${CF_R2_BUCKET}/r/${filename}" \
+          aws s3 cp "$file" "s3://${CF_R2_BUCKET}/${filename}" \
             --acl public-read \
             --cache-control "max-age=31536000"
           echo "Uploaded: ${filename}"
