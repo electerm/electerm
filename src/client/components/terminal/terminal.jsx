@@ -836,6 +836,9 @@ class Term extends Component {
       if (currentCmd && currentCmd.trim() && this.shouldUseManualHistory()) {
         window.store.addCmdHistory(currentCmd.trim())
       }
+      if (currentCmd && currentCmd.trim() === 'exit') {
+        this.userTypeExit = true
+      }
       this.closeSuggestions()
     }
   }
