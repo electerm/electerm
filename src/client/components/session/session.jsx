@@ -400,12 +400,12 @@ export default class SessionWrapper extends Component {
       }
     }
     const direction = this.getSplitDirection()
-    const [, size2] = this.state.splitSize
-    const w = direction === 'leftRight' ? size2 * width / 100 : width
-    const h = direction === 'leftRight' ? height : size2 * height / 100
+    const sftpOnLeft = !!this.props.config.sftpOnLeft
+    const [size1, size2] = this.state.splitSize
+    const sftpSize = sftpOnLeft ? size1 : size2
     return {
-      width: w,
-      height: h
+      width: direction === 'leftRight' ? sftpSize * width / 100 : width,
+      height: direction === 'leftRight' ? height : sftpSize * height / 100
     }
   }
 
@@ -421,12 +421,12 @@ export default class SessionWrapper extends Component {
       }
     }
     const direction = this.getSplitDirection()
-    const [size1] = this.state.splitSize
-    const w = direction === 'leftRight' ? size1 * width / 100 : width
-    const h = direction === 'leftRight' ? height : size1 * height / 100
+    const sftpOnLeft = !!this.props.config.sftpOnLeft
+    const [size1, size2] = this.state.splitSize
+    const termSize = sftpOnLeft ? size2 : size1
     return {
-      width: w,
-      height: h
+      width: direction === 'leftRight' ? termSize * width / 100 : width,
+      height: direction === 'leftRight' ? height : termSize * height / 100
     }
   }
 
