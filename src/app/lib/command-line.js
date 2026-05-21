@@ -67,6 +67,7 @@ PROXY_SERVER="socks5://127.0.0.1:1080" electerm
     .option('-d, --init-folder <initFolder>', 'init folder got init terminal')
     .option('-tp, --tp <tp>', 'specify connection type')
     .option('-opts, --opts <opts>', 'specify connection options, json string')
+    .allowUnknownOption()
     .exitOverride()
 
   try {
