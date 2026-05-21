@@ -46,11 +46,14 @@ export default class SessionWrapper extends Component {
   constructor (props) {
     super(props)
     this.domRef = createRef()
+    const savedSplitSize = Array.isArray(props.config.sftpSplitSize) && props.config.sftpSplitSize.length === 2
+      ? props.config.sftpSplitSize
+      : [50, 50]
     this.state = {
       cwd: '',
       sftpPathFollowSsh: !!props.config.sftpPathFollowSsh,
       key: Math.random(),
-      splitSize: [50, 50],
+      splitSize: savedSplitSize,
       sessionOptions: null,
       delKeyPressed: false,
       broadcastInput: false,
@@ -64,6 +67,12 @@ export default class SessionWrapper extends Component {
 
   componentWillUnmount () {
     clearTimeout(this.backspaceKeyPressedTimer)
+    if (this.saveSplitSizeTimer) {
+      clearTimeout(this.saveSplitSizeTimer)
+      if (this.pendingSplitSize) {
+        window.store.updateConfig({ sftpSplitSize: this.pendingSplitSize })
+      }
+    }
   }
 
   getDom = () => {
@@ -759,6 +768,13 @@ export default class SessionWrapper extends Component {
     this.setState({
       splitSize: size
     })
+    this.pendingSplitSize = size
+    clearTimeout(this.saveSplitSizeTimer)
+    this.saveSplitSizeTimer = setTimeout(() => {
+      window.store.updateConfig({ sftpSplitSize: this.pendingSplitSize })
+      this.pendingSplitSize = null
+      this.saveSplitSizeTimer = null
+    }, 400)
   }
 
   renderViews = () => {
