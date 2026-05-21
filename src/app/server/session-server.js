@@ -37,6 +37,12 @@ const {
   type
 } = process.env
 
+// Track whether any WebSocket has connected to detect orphaned processes
+let firstWsConnected = false
+function markConnected () {
+  firstWsConnected = true
+}
+
 function verify (req) {
   const { token: to } = req.query
   if (to !== tokenElecterm) {
@@ -50,6 +56,7 @@ if (type === 'rdp') {
   app.ws('/rdp/:pid', function (ws, req) {
     const { width, height } = req.query
     verify(req)
+    markConnected()
     const term = terminals(req.params.pid)
     term.ws = ws
     log.debug('ws: connected to rdp session ->', term.pid, 'width=', width, 'height=', height)
@@ -66,6 +73,7 @@ if (type === 'rdp') {
   app.ws('/vnc/:pid', function (ws, req) {
     const { query } = req
     verify(req)
+    markConnected()
     const { pid } = req.params
     const term = terminals(pid)
     term.ws = ws
@@ -82,6 +90,7 @@ if (type === 'rdp') {
   app.ws('/spice/:pid', function (ws, req) {
     const { query } = req
     verify(req)
+    markConnected()
     const { pid } = req.params
     const term = terminals(pid)
     log.debug('ws: connected to spice session ->', pid)
@@ -93,6 +102,7 @@ if (type === 'rdp') {
 } else {
   app.ws('/terminals/:pid', function (ws, req) {
     verify(req)
+    markConnected()
     const term = terminals(req.params.pid)
     const { pid } = term
     log.debug('ws: connected to terminal ->', pid)
@@ -185,7 +195,10 @@ if (type === 'rdp') {
       }
     })
 
+    let onCloseCalled = false
     function onClose () {
+      if (onCloseCalled) return
+      onCloseCalled = true
       // Cancel any pending batched send
       if (sendTimeout) {
         clearTimeout(sendTimeout)
@@ -418,12 +431,32 @@ async function main () {
 
 main()
 
+let cleanupCalled = false
 function cleanup () {
+  if (cleanupCalled) return
+  cleanupCalled = true
   cleanAllSessions()
   setTimeout(() => {
     process.exit(0)
   }, 2000)
 }
+
+// Self-terminate if the parent process IPC channel disconnects (e.g. Electron crashes/restarts)
+// Without this, child processes become orphans and accumulate in memory
+process.on('disconnect', () => {
+  log.warn('session-server: parent IPC disconnected, terminating')
+  cleanup()
+})
+
+// Self-terminate if no WebSocket connects within 2 minutes of server start
+// This handles the case where the frontend unmounts before the WebSocket is established
+const noConnectionTimer = setTimeout(() => {
+  if (!firstWsConnected) {
+    log.warn('session-server: no WS connection within 2min timeout, terminating')
+    cleanup()
+  }
+}, 120000)
+if (noConnectionTimer.unref) noConnectionTimer.unref()
 
 process.on('uncaughtException', (err) => {
   log.error('uncaughtException', err)
