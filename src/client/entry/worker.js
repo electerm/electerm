@@ -114,6 +114,9 @@ async function onMsg (e) {
   } else if (action === 'addEventListener') {
     const ws = self.insts[wsId]
     if (ws) {
+      if (ws.cb) {
+        ws.removeEventListener(type, ws.cb)
+      }
       ws.cb = (e) => {
         send({
           wsId,
