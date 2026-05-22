@@ -7,7 +7,7 @@
 # 3. Cross-compile native modules for loong64
 # 4. Merge x64 asar with loong64 electron and native modules
 # 5. Upload tar.gz to GitHub release draft
-# 6. Build deb package (patched asar) and upload to GitHub release draft
+# 6. Build deb packages (loong64 and loongarch64, patched asar) and upload to GitHub release draft
 #
 # Prerequisites:
 # - loongarch64-linux-gnu-g++ (for native module cross-compilation)
@@ -310,14 +310,16 @@ patch_asar_install_src() {
 }
 
 build_deb() {
-    log_info "Step 5: Building loong64 deb package..."
+    local install_src="${1:-linux-loong64.deb}"
+    local deb_arch="${2:-loong64}"
+    local suffix="$deb_arch"
+    log_info "Step 5: Building ${suffix} deb package..."
 
     local electerm_version
     electerm_version=$(get_version)
 
-    local output_name="electerm-${electerm_version}-linux-loong64"
-    local output_dir="$OUTPUT_DIR/$output_name"
-    local deb_build="$OUTPUT_DIR/deb-build"
+    local output_dir="$OUTPUT_DIR/electerm-${electerm_version}-linux-loong64"
+    local deb_build="$OUTPUT_DIR/deb-build-${suffix}"
     local deb_name="electerm_${electerm_version}_loongarch64"
     local deb_dir="$deb_build/$deb_name"
 
@@ -329,7 +331,7 @@ build_deb() {
     # Patch asar to use deb install-src
     local asar_file="$output_dir/resources/app.asar"
     if [ -f "$asar_file" ]; then
-        patch_asar_install_src "$asar_file" "linux-loong64.deb"
+        patch_asar_install_src "$asar_file" "$install_src"
     else
         log_warn "app.asar not found at $asar_file, skipping install-src patch"
     fi
@@ -367,7 +369,7 @@ Package: electerm
 Version: ${electerm_version}
 Section: utils
 Priority: optional
-Architecture: loong64
+Architecture: ${deb_arch}
 Depends: libglib2.0-0, libnss3, libnspr4, libdbus-1-3, libatk1.0-0, libatk-bridge2.0-0, libcups2, libcairo2, libpango-1.0-0, libx11-6, libxcomposite1, libxdamage1, libxext6, libxfixes3, libxrandr2, libxkbcommon0, libdrm2, libgbm1, libatspi2.0-0, libpulse0, libgtk-3-0
 Maintainer: ZHAO Xudong <zxdong@gmail.com>
 Description: Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client
@@ -382,7 +384,7 @@ gtk-update-icon-cache /usr/share/icons/hicolor/ 2>/dev/null || true
 POSTINST
     chmod 755 "$deb_dir/DEBIAN/postinst"
 
-    local deb_file="$OUTPUT_DIR/${output_name}.deb"
+    local deb_file="$OUTPUT_DIR/electerm-${electerm_version}-linux-${suffix}.deb"
     if command -v fakeroot &>/dev/null; then
         fakeroot dpkg-deb --build "$deb_dir" "$deb_file"
     else
@@ -461,14 +463,18 @@ main() {
     # Upload tar.gz
     upload_to_github "$OUTPUT_DIR/electerm-${electerm_version}-linux-loong64.tar.gz"
 
-    # Build and upload deb
-    build_deb
+    # Build and upload debs
+    build_deb "linux-loong64.deb" "loong64"
     upload_to_github "$OUTPUT_DIR/electerm-${electerm_version}-linux-loong64.deb"
+
+    build_deb "linux-loongarch64.deb" "loongarch64"
+    upload_to_github "$OUTPUT_DIR/electerm-${electerm_version}-linux-loongarch64.deb"
 
     log_info "=========================================="
     log_info "Build complete!"
     log_info "  $OUTPUT_DIR/electerm-${electerm_version}-linux-loong64.tar.gz"
     log_info "  $OUTPUT_DIR/electerm-${electerm_version}-linux-loong64.deb"
+    log_info "  $OUTPUT_DIR/electerm-${electerm_version}-linux-loongarch64.deb"
     log_info "=========================================="
 }
 
