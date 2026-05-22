@@ -57,8 +57,15 @@ class Ws {
 
   addEventListener (type = 'message', cb = this.cb) {
     this.cb = cb
-    const id = this.eid || generate()
-    this.eid = id
+    const id = generate()
+    if (!this.eids) {
+      this.eids = new Set()
+    }
+    if (!this.cbToId) {
+      this.cbToId = new Map()
+    }
+    this.eids.add(id)
+    this.cbToId.set(cb, id)
     persists[id] = {
       resolve: cb
     }
@@ -71,9 +78,15 @@ class Ws {
   }
 
   removeEventListener (type, cb) {
-    delete persists[this.eid]
+    if (!this.cbToId || !this.cbToId.has(cb)) {
+      return
+    }
+    const id = this.cbToId.get(cb)
+    this.cbToId.delete(cb)
+    this.eids.delete(id)
+    delete persists[id]
     send({
-      id: this.eid,
+      id,
       wsId: this.id,
       type,
       action: 'removeEventListener'
@@ -85,8 +98,14 @@ class Ws {
   }
 
   clearOnces () {
-    if (this.eid) {
-      delete persists[this.eid]
+    if (this.eids) {
+      for (const eid of this.eids) {
+        delete persists[eid]
+      }
+      this.eids.clear()
+    }
+    if (this.cbToId) {
+      this.cbToId.clear()
     }
     const ids = [...this.onceIds]
     ids.forEach(k => {
