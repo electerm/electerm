@@ -273,6 +273,9 @@ export class FileTransferManager {
       })
 
       this.log(`Downloaded ${fileInfo.name} (${filesize(fileInfo._totalSize)}) to ${fullPath}`, 'success')
+      this.hasRemoteFiles = false
+      this.pendingDownloads.clear()
+      this.notifyStateChange()
       if (this.onDownloadComplete) {
         this.onDownloadComplete(fullPath, fileInfo.name, fileInfo._totalSize)
       }
