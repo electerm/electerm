@@ -12,6 +12,7 @@ const {
   getSizeCountWin
 } = require('../common/get-folder-size-and-file-count.js')
 const globalState = require('./global-state')
+const log = require('../common/log')
 
 class Sftp extends TerminalBase {
   connect (initOptions) {
@@ -24,12 +25,29 @@ class Sftp extends TerminalBase {
     this.isSshFsFallback = true
     const proto = Object.getPrototypeOf(sshFs)
     const keys = Object.getOwnPropertyNames(proto)
+    // mode coming from sftp.list / stat is the full stat mode (e.g. 0o100644
+    // for a regular file). SshFs forwards it to `chmod ${mode.toString(8)}`,
+    // and GNU chmod rejects anything wider than 4 octal digits. Mask the
+    // file-type bits off before any method that ends up calling chmod.
+    const maskMode = (mode) => typeof mode === 'number' ? (mode & 0o7777) : mode
+    const wrappers = {
+      writeFile: (remotePath, str, mode, ...rest) =>
+        sshFs.writeFile(remotePath, str, maskMode(mode), ...rest),
+      chmod: (remotePath, mode, ...rest) =>
+        sshFs.chmod(remotePath, maskMode(mode), ...rest),
+      mkdir: (remotePath, opts, ...rest) => {
+        if (opts && typeof opts === 'object' && 'mode' in opts) {
+          opts = { ...opts, mode: maskMode(opts.mode) }
+        }
+        return sshFs.mkdir(remotePath, opts, ...rest)
+      }
+    }
     for (const method of keys) {
       if (method === 'constructor') {
         continue
       }
       if (typeof sshFs[method] === 'function') {
-        this[method] = sshFs[method].bind(sshFs)
+        this[method] = wrappers[method] || sshFs[method].bind(sshFs)
       }
     }
   }
@@ -59,6 +77,11 @@ class Sftp extends TerminalBase {
       })
       this.sftp = sftp
     } catch (err) {
+      log.error(
+        'sftp subsystem unavailable, falling back to SshFs',
+        { host: initOptions.host, hasHopping: !!initOptions.hasHopping },
+        err
+      )
       this.initSshFsFallback(conn)
     }
 
