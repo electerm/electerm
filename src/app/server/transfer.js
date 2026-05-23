@@ -200,8 +200,43 @@ class Transfer {
 
     th.dstHandle = destHandle
 
+    let hadError = false
+
+    function onerror (err) {
+      if (hadError) return
+      hadError = true
+      const canCloseSrc = th.srcHandle && (src === fs || (src.outgoing && src.outgoing.state === 'open'))
+      const canCloseDst = th.dstHandle && (dst === fs || (dst.outgoing && dst.outgoing.state === 'open'))
+      let left = 0
+      if (canCloseSrc) ++left
+      if (canCloseDst) ++left
+      const finish = () => {
+        if (--left === 0) {
+          if (err) th.onError(err)
+          else th.onEnd()
+        }
+      }
+      if (left === 0) {
+        if (err) th.onError(err)
+        else th.onEnd()
+        return
+      }
+      if (canCloseSrc) {
+        src.close(th.srcHandle, () => {
+          th.srcHandle = undefined
+          finish()
+        })
+      }
+      if (canCloseDst) {
+        dst.close(th.dstHandle, () => {
+          th.dstHandle = undefined
+          finish()
+        })
+      }
+    }
+
     if (fsize <= 0) {
-      return th.onError()
+      return onerror()
     }
 
     // Use less memory where possible
@@ -236,8 +271,11 @@ class Transfer {
     }
 
     function onread (err, nb, data, dstpos, datapos, origChunkLen) {
+      if (hadError) {
+        return
+      }
       if (err) {
-        return th.onError(err)
+        return onerror(err)
       }
 
       if (th.onDestroy) {
@@ -249,8 +287,11 @@ class Transfer {
       dst.write(th.dstHandle, readbuf, datapos, nb, dstpos, writeCb)
 
       function writeCb (err) {
+        if (hadError) {
+          return
+        }
         if (err) {
-          return th.onError(err)
+          return onerror(err)
         }
 
         total += nb
@@ -261,20 +302,7 @@ class Transfer {
         }
 
         if (total === fsize) {
-          dst.close(th.dstHandle, (err) => {
-            th.dstHandle = undefined
-            if (err) {
-              return th.onError(err)
-            }
-            src.close(th.srcHandle, (err) => {
-              th.srcHandle = undefined
-              if (err) {
-                return th.onError(err)
-              }
-              th.onError()
-            })
-          })
-          return
+          return onerror()
         }
 
         if (pdst >= fsize) {
@@ -294,7 +322,7 @@ class Transfer {
     }
 
     function singleRead (psrc, pdst, chunk) {
-      if (th.onDestroy) {
+      if (th.onDestroy || hadError) {
         return
       }
       if (th.pausing) {
