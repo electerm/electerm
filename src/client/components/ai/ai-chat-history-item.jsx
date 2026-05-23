@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import AIOutput from './ai-output'
 import AIStopIcon from './ai-stop-icon'
+import AgentToolCallCard from './agent-tool-call-card'
+import { runAgentLoop } from './agent'
 import {
   Alert,
   Tooltip
@@ -17,6 +19,7 @@ import { copy } from '../../common/clipboard'
 export default function AIChatHistoryItem ({ item }) {
   const [showOutput, setShowOutput] = useState(true)
   const startedRef = useRef(false)
+  const abortRef = useRef(false)
   const {
     prompt,
     isStreaming,
@@ -28,7 +31,9 @@ export default function AIChatHistoryItem ({ item }) {
     apiPathAI,
     apiKeyAI,
     proxyAI,
-    languageAI
+    languageAI,
+    mode,
+    toolCalls
   } = item
 
   function toggleOutput () {
@@ -108,15 +113,42 @@ export default function AIChatHistoryItem ({ item }) {
     }
   }, [prompt, modelAI, baseURLAI, apiPathAI, apiKeyAI, proxyAI, item.id, pollStreamContent])
 
+  const startAgentRequest = useCallback(async () => {
+    abortRef.current = false
+    const config = {
+      modelAI,
+      roleAI,
+      baseURLAI,
+      apiPathAI,
+      apiKeyAI,
+      proxyAI,
+      languageAI
+    }
+    await runAgentLoop(item, config, abortRef)
+  }, [modelAI, roleAI, baseURLAI, apiPathAI, apiKeyAI, proxyAI, languageAI, item.id])
+
   useEffect(() => {
     if (!response && !startedRef.current) {
       startedRef.current = true
-      startRequest()
+      if (mode === 'agent') {
+        startAgentRequest()
+      } else {
+        startRequest()
+      }
     }
   }, [])
 
   async function handleStop (e) {
     e.stopPropagation()
+    if (mode === 'agent') {
+      abortRef.current = true
+      const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
+      if (index !== -1) {
+        window.store.aiChatHistory[index].isStreaming = false
+        window.store.aiChatHistory = [...window.store.aiChatHistory]
+      }
+      return
+    }
     if (!sessionId) return
 
     try {
@@ -194,6 +226,19 @@ export default function AIChatHistoryItem ({ item }) {
     )
   }
 
+  function renderToolCalls () {
+    if (mode !== 'agent' || !toolCalls || !toolCalls.length) {
+      return null
+    }
+    return (
+      <div className='agent-tool-calls'>
+        {toolCalls.map((tc) => (
+          <AgentToolCallCard key={tc.id} toolCall={tc} />
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className='chat-history-item'>
       <div className='mg1y'>
@@ -201,6 +246,7 @@ export default function AIChatHistoryItem ({ item }) {
           <Alert {...alertProps} />
         </Tooltip>
       </div>
+      {renderToolCalls()}
       {showOutput && <AIOutput item={item} />}
     </div>
   )

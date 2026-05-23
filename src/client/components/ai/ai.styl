@@ -77,3 +77,76 @@
   align-items center
   .ai-stop-icon-square
     margin-left auto
+
+.agent-tool-calls
+  margin 8px 0
+
+.agent-tool-call-card
+  border 1px solid var(--main-darker)
+  border-radius 4px
+  margin-bottom 6px
+  font-size 13px
+
+.agent-tool-header
+  display flex
+  align-items center
+  padding 6px 8px
+  gap 6px
+
+.agent-tool-name
+  font-weight 500
+
+.agent-tool-tag
+  margin-left auto
+
+.agent-tool-status-running
+  color #1890ff
+  animation spin 1s linear infinite
+
+.agent-tool-status-completed
+  color #52c41a
+
+.agent-tool-status-error
+  color #ff4d4f
+
+.agent-tool-detail
+  padding 0 8px 8px
+  border-top 1px solid var(--main-darker)
+
+.agent-tool-args
+  margin-top 6px
+
+.agent-tool-result
+  margin-top 6px
+
+.agent-tool-label
+  font-weight 500
+  margin-bottom 4px
+  font-size 12px
+  color var(--text-color-2)
+
+.agent-tool-pre
+  background var(--main-dark)
+  padding 6px 8px
+  border-radius 3px
+  font-size 12px
+  max-height 200px
+  overflow-y auto
+  white-space pre-wrap
+  word-break break-all
+  margin-bottom 0
+
+.agent-tool-running
+  border-color #1890ff
+
+.agent-tool-completed
+  border-color #52c41a
+
+.agent-tool-error
+  border-color #ff4d4f
+
+@keyframes spin
+  from
+    transform rotate(0deg)
+  to
+    transform rotate(360deg)
