@@ -50,7 +50,27 @@ require('fs').writeFileSync(
   )
 )
 
-exec(`cd work/app && npm i --omit=dev && cd ${cwd}`)
+// --ignore-scripts skips post-install hooks. node-pty's node-gyp rebuild fails
+// on Windows when the winpty submodule's GetCommitHash.bat isn't shipped in
+// the tarball, and an npm rollback wipes all freshly installed packages. We
+// copy the pre-built native binaries from root node_modules (already built
+// against Electron's ABI by electron-rebuild during root install) afterward.
+exec(`cd work/app && npm i --omit=dev --ignore-scripts && cd ${cwd}`)
+
+const nativeNodeModules = [
+  'node-pty/build',
+  '@electerm/ssh2/lib/protocol/crypto/build'
+]
+const fs = require('fs')
+for (const sub of nativeNodeModules) {
+  const from = resolve(__dirname, '../../node_modules', sub)
+  const to = resolve(__dirname, '../../work/app/node_modules', sub)
+  if (fs.existsSync(from) && fs.existsSync(resolve(to, '..'))) {
+    rm('-rf', to)
+    cp('-r', from, to)
+  }
+}
+
 rm('-rf', 'work/app/node_modules/.bin')
 // Remove axios browser/ESM builds and unnecessary files (keep only lib/ and node CJS)
 rm('-rf', 'work/app/node_modules/axios/dist/esm')
