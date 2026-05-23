@@ -2,9 +2,10 @@
  * Widget form component
  */
 import React, { useState, useEffect } from 'react'
-import { Form, Input, InputNumber, Switch, Select, Button, Tooltip, Alert } from 'antd'
+import { Form, Input, InputNumber, Switch, Select, Button, Tooltip, Alert, Space } from 'antd'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
 import HelpIcon from '../common/help-icon'
+import { nanoid } from 'nanoid'
 import BatchOpEditor from '../batch-op/batch-op-editor'
 
 export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInstance }) {
@@ -43,12 +44,36 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
   }
 
   const renderFormItem = (config) => {
-    const { name, type, description, choices } = config
+    const { name, type, description, choices, showGenerator } = config
     let control = null
 
     switch (type) {
       case 'string':
         control = <Input placeholder={description} />
+        if (showGenerator) {
+          return (
+            <Form.Item
+              key={name}
+              {...formItemLayout}
+              label={name}
+              tooltip={description}
+            >
+              <Space.Compact style={{ width: '100%' }}>
+                <Form.Item
+                  noStyle
+                  name={name}
+                >
+                  <Input placeholder={description} />
+                </Form.Item>
+                <Button
+                  onClick={() => form.setFieldValue(name, 'ett_' + nanoid())}
+                >
+                  Generate
+                </Button>
+              </Space.Compact>
+            </Form.Item>
+          )
+        }
         break
       case 'textarea':
         control = <Input.TextArea autoSize={{ minRows: 3 }} placeholder={description} />
