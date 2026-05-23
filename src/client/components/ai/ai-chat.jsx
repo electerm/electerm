@@ -22,6 +22,7 @@ const MAX_HISTORY = 100
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
   const [mode, setMode] = useState('ask')
+  const isAgent = mode === 'agent'
 
   function handlePromptChange (e) {
     setPrompt(e.target.value)
@@ -76,6 +77,19 @@ export default function AIChat (props) {
 
   function clearHistory () {
     window.store.aiChatHistory = []
+  }
+
+  function renderTabSelect () {
+    if (isAgent) {
+      return null
+    }
+    return (
+      <TabSelect
+        selectedTabIds={props.selectedTabIds}
+        tabs={props.tabs}
+        activeTabId={props.activeTabId}
+      />
+    )
   }
 
   function renderSendIcon () {
@@ -135,11 +149,7 @@ export default function AIChat (props) {
               onChange={(val) => setMode(val === 'Ask' ? 'ask' : 'agent')}
               size='small'
             />
-            <TabSelect
-              selectedTabIds={props.selectedTabIds}
-              tabs={props.tabs}
-              activeTabId={props.activeTabId}
-            />
+            {renderTabSelect()}
             <SettingOutlined
               onClick={toggleConfig}
               className='mg1l pointer icon-hover toggle-ai-setting-icon'
