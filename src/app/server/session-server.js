@@ -367,11 +367,17 @@ if (type === 'rdp') {
               })
             })
             .catch(err => {
+              // err may be a string (e.g. SshFs.runCmd rejects with stderr text)
+              // or an Error. Surface a real message either way so the client
+              // doesn't see a bare `new Error(undefined)`.
+              const message = (err && err.message) ||
+                (typeof err === 'string' ? err : String(err))
+              log.error('sftp-func error', { func, isSshFsFallback: !!inst.isSshFsFallback, message })
               ws.s({
                 id: uid,
                 error: {
-                  message: err.message,
-                  stack: err.stack
+                  message,
+                  stack: err && err.stack
                 }
               })
             })
