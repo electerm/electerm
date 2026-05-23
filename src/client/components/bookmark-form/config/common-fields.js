@@ -117,6 +117,13 @@ export const commonFields = {
     props: { placeholder: 'SEC=xxx BEC=xxxx' }
   },
 
+  execCommand: {
+    type: 'input',
+    name: 'execCommand',
+    label: () => e('execCommand'),
+    props: { placeholder: 'docker exec -it container bash' }
+  },
+
   startDirectoryLocal: {
     type: 'input',
     name: 'startDirectoryLocal',
@@ -313,6 +320,7 @@ export const sshAuthFields = [
   commonFields.runScripts,
   commonFields.description,
   commonFields.setEnv,
+  commonFields.execCommand,
   commonFields.startDirectoryLocal,
   commonFields.startDirectory,
   commonFields.interactiveValues,

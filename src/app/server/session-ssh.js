@@ -475,34 +475,46 @@ class TerminalSshBase extends TerminalBase {
       })
     }
     return new Promise((resolve, reject) => {
-      this.conn.shell(
-        shellWindow,
-        shellOpts,
-        (err, channel) => {
-          if (err) {
-            return reject(err)
-          }
-          this.channel = channel
-          this.setNoDelay(true)
-          globalState.setSession(this.pid, this)
-          resolve(this)
+      const cb = (err, channel) => {
+        if (err) {
+          return reject(err)
         }
-      )
+        this.channel = channel
+        this.setNoDelay(true)
+        globalState.setSession(this.pid, this)
+        resolve(this)
+      }
+      const execCommand = (initOptions.execCommand || '').trim()
+      if (execCommand) {
+        this.conn.exec(
+          execCommand,
+          { pty: shellWindow, x11: shellOpts.x11, env: shellOpts.env },
+          cb
+        )
+      } else {
+        this.conn.shell(shellWindow, shellOpts, cb)
+      }
     })
   }
 
   shell (conn, shellWindow, shellOpts) {
+    const execCommand = (this.initOptions.execCommand || '').trim()
     return new Promise((resolve, reject) => {
-      conn.shell(
-        shellWindow,
-        shellOpts,
-        (err, channel) => {
-          if (err) {
-            return reject(err)
-          }
-          resolve(channel)
+      const cb = (err, channel) => {
+        if (err) {
+          return reject(err)
         }
-      )
+        resolve(channel)
+      }
+      if (execCommand) {
+        conn.exec(
+          execCommand,
+          { pty: shellWindow, x11: shellOpts.x11, env: shellOpts.env },
+          cb
+        )
+      } else {
+        conn.shell(shellWindow, shellOpts, cb)
+      }
     })
   }
 

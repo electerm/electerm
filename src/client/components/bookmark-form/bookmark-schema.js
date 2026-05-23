@@ -31,6 +31,7 @@ const bookmarkSchema = {
     encode: 'string - charset, default is utf8',
     envLang: 'string - ENV LANG, default is en_US.UTF-8',
     setEnv: 'string - environment variables, format: `KEY1=VALUE1 KEY2=VALUE2`',
+    execCommand: 'string - remote command to run with a PTY instead of an interactive shell (equivalent to `ssh -t user@host <command>`), e.g. `docker exec -it container bash`',
     color: 'string - tag color, like #000000',
     interactiveValues: 'strings separated by newline'
   },
