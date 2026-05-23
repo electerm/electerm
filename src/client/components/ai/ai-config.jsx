@@ -6,7 +6,7 @@ import {
   Alert,
   Space
 } from 'antd'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from '../common/external-link'
 import AiCache from './ai-cache'
 import {
@@ -14,6 +14,7 @@ import {
 } from '../../common/constants'
 import Password from '../common/password'
 import AiHistory, { addHistoryItem } from './ai-history'
+import message from '../common/message'
 
 const STORAGE_KEY_CONFIG = 'ai_config_history'
 const EVENT_NAME_CONFIG = 'ai-config-history-update'
@@ -36,6 +37,7 @@ const proxyOptions = [
 
 export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig }) {
   const [form] = Form.useForm()
+  const [testing, setTesting] = useState(false)
   const baseURLAI = Form.useWatch('baseURLAI', form)
 
   useEffect(() => {
@@ -51,6 +53,37 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   const handleSubmit = async (values) => {
     onSubmit(values)
     addHistoryItem(STORAGE_KEY_CONFIG, values, EVENT_NAME_CONFIG)
+  }
+
+  const handleTest = async () => {
+    try {
+      const values = await form.validateFields()
+      setTesting(true)
+      const res = await window.pre.runGlobalAsync(
+        'AIchat',
+        'Hi',
+        values.modelAI,
+        values.roleAI,
+        values.baseURLAI,
+        values.apiPathAI,
+        values.apiKeyAI,
+        values.proxyAI,
+        false
+      )
+      if (res && res.error) {
+        message.error(res.error)
+      } else if (res && res.response) {
+        message.success('AI config works!')
+      } else {
+        message.error('Unexpected response from AI API')
+      }
+    } catch (e) {
+      if (e.message) {
+        message.error(e.message)
+      }
+    } finally {
+      setTesting(false)
+    }
   }
 
   function handleSelectHistory (item) {
@@ -186,9 +219,17 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         </Form.Item>
 
         <Form.Item>
-          <Button type='primary' htmlType='submit'>
-            {e('save')}
-          </Button>
+          <Space>
+            <Button type='primary' htmlType='submit'>
+              {e('save')}
+            </Button>
+            <Button
+              loading={testing}
+              onClick={handleTest}
+            >
+              {e('testConnection')}
+            </Button>
+          </Space>
         </Form.Item>
       </Form>
       <AiHistory
