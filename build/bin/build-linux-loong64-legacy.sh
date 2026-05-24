@@ -218,11 +218,16 @@ rebuild_native_modules() {
     mkdir -p "$cross_build_dir"
     cd "$cross_build_dir"
 
+    # The Loongnix Electron 22 binary uses NODE_MODULE_VERSION 110 (Node 20 ABI).
+    # We must compile against Node 20 headers to match.
+    # Do NOT use electronjs.org/headers — it may not serve loong64 headers.
+    local node_abi_version="20.0.0"
+
     # Build node-pty (legacy version)
-    log_info "Building node-pty@${NODE_PTY_VERSION} for loong64..."
+    log_info "Building node-pty@${NODE_PTY_VERSION} for loong64 (target node ${node_abi_version})..."
     mkdir -p build-node-pty && cd build-node-pty
     npm init -y 2>/dev/null
-    npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install node-pty@${NODE_PTY_VERSION} --build-from-source 2>&1 | tail -20
+    npm_config_target=${node_abi_version} npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install node-pty@${NODE_PTY_VERSION} --build-from-source 2>&1 | tail -20
     find . -name "pty.node" -type f | while read f; do
         log_info "Found pty.node: $f"
         file "$f"
@@ -231,10 +236,10 @@ rebuild_native_modules() {
     cd "$cross_build_dir"
 
     # Build @serialport/bindings-cpp (legacy serialport@10.5.0)
-    log_info "Building serialport@${SERIALPORT_VERSION} bindings for loong64..."
+    log_info "Building serialport@${SERIALPORT_VERSION} bindings for loong64 (target node ${node_abi_version})..."
     mkdir -p build-serialport && cd build-serialport
     npm init -y 2>/dev/null
-    npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install @serialport/bindings-cpp --build-from-source 2>&1 | tail -20
+    npm_config_target=${node_abi_version} npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install @serialport/bindings-cpp --build-from-source 2>&1 | tail -20
     find . -path "*/build/Release/bindings.node" -type f | while read f; do
         log_info "Found bindings.node: $f"
         file "$f"
@@ -242,7 +247,7 @@ rebuild_native_modules() {
     done
     cd "$cross_build_dir"
 
-    unset CC CXX AR RANLIB LINK GYP_DEFINES npm_config_arch npm_config_target_arch
+    unset CC CXX AR RANLIB LINK GYP_DEFINES npm_config_arch npm_config_target_arch npm_config_target
 
     # Verify native modules are LoongArch64 ELF binaries
     if [ -d "$native_modules_dir" ] && [ "$(ls -A "$native_modules_dir" 2>/dev/null)" ]; then
