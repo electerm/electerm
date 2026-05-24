@@ -1,0 +1,121 @@
+# Build electerm for loong64 (LoongArch64) Linux - Legacy (old world)
+#
+# This workflow:
+# 1. Downloads GCC 8 cross-compiler from Loongnix for old-world ABI
+# 2. Builds x64 version with legacy deps to get the asar
+# 3. Downloads electron loong64 from Loongnix
+# 4. Cross-compile native modules for loong64 with legacy deps
+# 5. Merges x64 asar with loong64 electron and native modules
+# 6. Uploads tar.gz to GitHub release draft
+# 7. Builds deb package and uploads to GitHub release draft
+# 8. Optionally uploads to R2
+
+name: linux-loong64-legacy
+
+on:
+  push:
+    branches: [ build, test, build-only, linux-loong64-legacy ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    environment: build
+    if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip linux]') && !contains(github.event.head_commit.message, '[skip loong64]') && !contains(github.event.head_commit.message, '[skip legacy]') }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+
+    - name: Install loong64 cross-compiler and GCC 8 from Loongnix
+      run: |
+        sudo add-apt-repository -y universe
+        sudo apt-get update
+        sudo apt-get install -y gcc-14-loongarch64-linux-gnu g++-14-loongarch64-linux-gnu binutils-loongarch64-linux-gnu || \
+        sudo apt-get install -y gcc-loongarch64-linux-gnu g++-loongarch64-linux-gnu binutils-loongarch64-linux-gnu || true
+        which loongarch64-linux-gnu-gcc 2>/dev/null || sudo ln -sf /usr/bin/loongarch64-linux-gnu-gcc-14 /usr/bin/loongarch64-linux-gnu-gcc || true
+        which loongarch64-linux-gnu-g++ 2>/dev/null || sudo ln -sf /usr/bin/loongarch64-linux-gnu-g++-14 /usr/bin/loongarch64-linux-gnu-g++ || true
+
+        # Download GCC 8 from Loongnix for old-world ABI support
+        echo "Downloading GCC 8 cross-compiler from Loongnix..."
+        curl -L -o /tmp/gcc8-loong64.tar.gz "https://ftp.loongnix.cn/toolchain/gcc/release/loongarch/gcc8/loongarch64-linux-gnu-gcc8-cross-tools-gnu-new-glibc-x86_64.tar.gz"
+        sudo mkdir -p /opt/gcc8-loong64
+        sudo tar xzf /tmp/gcc8-loong64.tar.gz -C /opt/gcc8-loong64 --strip-components=1
+        echo "/opt/gcc8-loong64/bin" >> $GITHUB_PATH
+        export PATH="/opt/gcc8-loong64/bin:$PATH"
+        loongarch64-linux-gnu-gcc --version
+
+    - run: rm package-lock.json
+    - run: npm config set legacy-peer-deps true
+
+    - name: Update package.json with legacy deps
+      run: |
+        node -e "
+        const fs = require('fs');
+        const pkg = JSON.parse(fs.readFileSync('package.json'));
+        pkg.devDependencies.electron = '22.3.27';
+        pkg.devDependencies['electron-builder'] = '26.0.20';
+        pkg.devDependencies['@electron/rebuild'] = '3.7.2';
+        pkg.dependencies['node-pty'] = '0.10.1';
+        pkg.dependencies.serialport = '10.5.0';
+        pkg.devDependencies.vite = '4';
+        pkg.devDependencies['@vitejs/plugin-react'] = '4.7.0';
+        fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+        fs.unlinkSync('package-lock.json');
+        "
+
+    - name: Install npm dependencies
+      run: |
+        npm config set legacy-peer-deps true
+        npm install -g yarn
+        npm i && npm i -S @electron/rebuild@3.7.2
+
+    - name: Verify updated dependencies
+      run: |
+        echo "Verifying updated dependencies:"
+        npm list electron --depth=0
+        npm list @electron/rebuild --depth=0
+        npm list node-pty --depth=0
+        npm list serialport --depth=0
+        npm list vite --depth=0
+
+    - name: Build loong64 legacy
+      env:
+        WORKFLOW_NAME: linux-loong64-legacy
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+      run: bash build/bin/build-linux-loong64-legacy.sh
+
+    - name: Verify output
+      run: |
+        ls -la dist-loong64-legacy/*.tar.gz dist-loong64-legacy/*.deb
+        file dist-loong64-legacy/electerm-*/electerm
+        find dist-loong64-legacy/electerm-* -name "*.node" -exec file {} \; | grep LoongArch
+
+    - name: Upload to R2
+      if: ${{ contains(github.event.head_commit.message, '[r2]') }}
+      env:
+        CF_R2_BUCKET: ${{ secrets.CF_R2_BUCKET }}
+      run: |
+        mkdir -p ~/.aws
+        cat > ~/.aws/credentials << EOF
+        [default]
+        aws_access_key_id = ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+        aws_secret_access_key = ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+        EOF
+        cat > ~/.aws/config << EOF
+        [default]
+        region = auto
+        endpoint_url = ${{ secrets.CF_R2_ENDPOINT }}
+        EOF
+        for file in $(find dist-loong64-legacy \( -name "*.tar.gz" -o -name "*.deb" \) -type f); do
+          filename=$(basename "$file")
+          aws s3 cp "$file" "s3://${CF_R2_BUCKET}/${filename}" \
+            --acl public-read \
+            --cache-control "max-age=31536000"
+          echo "Uploaded: ${filename}"
+        done
