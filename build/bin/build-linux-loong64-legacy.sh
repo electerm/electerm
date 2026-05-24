@@ -209,7 +209,6 @@ rebuild_native_modules() {
 
     log_info "Step 3: Cross-compiling native modules for loong64 (legacy deps)..."
     log_info "  node-pty@${NODE_PTY_VERSION}, serialport@${SERIALPORT_VERSION}"
-    log_info "  Using Electron v${ELECTRON_VERSION} headers (Node ABI 108)"
 
     local native_modules_dir="$WORK_DIR/native-modules-loong64"
     mkdir -p "$native_modules_dir"
@@ -219,16 +218,11 @@ rebuild_native_modules() {
     mkdir -p "$cross_build_dir"
     cd "$cross_build_dir"
 
-    # We must compile against Electron's headers, not the system Node.js headers,
-    # otherwise the .node files will have the wrong ABI and won't load at runtime.
-    # npm_config_target must be the Electron version, not the Node.js version.
-    local electron_headers_url="https://electronjs.org/headers"
-
     # Build node-pty (legacy version)
     log_info "Building node-pty@${NODE_PTY_VERSION} for loong64..."
     mkdir -p build-node-pty && cd build-node-pty
     npm init -y 2>/dev/null
-    npm_config_target=${ELECTRON_VERSION} npm_config_disturl=${electron_headers_url} npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install node-pty@${NODE_PTY_VERSION} --build-from-source 2>&1 | tail -20
+    npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install node-pty@${NODE_PTY_VERSION} --build-from-source 2>&1 | tail -20
     find . -name "pty.node" -type f | while read f; do
         log_info "Found pty.node: $f"
         file "$f"
@@ -240,7 +234,7 @@ rebuild_native_modules() {
     log_info "Building serialport@${SERIALPORT_VERSION} bindings for loong64..."
     mkdir -p build-serialport && cd build-serialport
     npm init -y 2>/dev/null
-    npm_config_target=${ELECTRON_VERSION} npm_config_disturl=${electron_headers_url} npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install @serialport/bindings-cpp --build-from-source 2>&1 | tail -20
+    npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install @serialport/bindings-cpp --build-from-source 2>&1 | tail -20
     find . -path "*/build/Release/bindings.node" -type f | while read f; do
         log_info "Found bindings.node: $f"
         file "$f"
@@ -248,7 +242,7 @@ rebuild_native_modules() {
     done
     cd "$cross_build_dir"
 
-    unset CC CXX AR RANLIB LINK GYP_DEFINES npm_config_arch npm_config_target_arch npm_config_target npm_config_disturl
+    unset CC CXX AR RANLIB LINK GYP_DEFINES npm_config_arch npm_config_target_arch
 
     # Verify native modules are LoongArch64 ELF binaries
     if [ -d "$native_modules_dir" ] && [ "$(ls -A "$native_modules_dir" 2>/dev/null)" ]; then
