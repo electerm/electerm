@@ -417,10 +417,11 @@ POSTINST
     chmod 755 "$deb_dir/DEBIAN/postinst"
 
     local deb_file="$OUTPUT_DIR/electerm-${electerm_version}-linux-${suffix}-legacy.deb"
+    # Use gzip compression for compatibility with dpkg < 1.21.18 (e.g. Loongnix 20 has dpkg 1.19.7)
     if command -v fakeroot &>/dev/null; then
-        fakeroot dpkg-deb --build "$deb_dir" "$deb_file"
+        fakeroot dpkg-deb -Zgzip --root-owner-group --build "$deb_dir" "$deb_file"
     else
-        dpkg-deb --build "$deb_dir" "$deb_file"
+        dpkg-deb -Zgzip --root-owner-group --build "$deb_dir" "$deb_file"
     fi
 
     if [ ! -f "$deb_file" ]; then
