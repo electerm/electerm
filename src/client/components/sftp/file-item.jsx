@@ -36,6 +36,7 @@ import time from '../../common/time'
 import { filesize } from 'filesize'
 import { createTransferProps } from './transfer-common'
 import generate from '../../common/uid'
+import sanitizeFilename from '../../common/sanitize-filename'
 import { refsStatic, refs, filesRef } from '../common/ref'
 import iconsMap from '../sys-menu/icons-map'
 
@@ -174,7 +175,7 @@ export default class FileSection extends React.Component {
         ? item.replace(/^remote:/, '')
         : item
       const { name } = getFolderFromFilePath(fromPath, isRemote)
-      const toPath = resolve(path, name)
+      const toPath = resolve(path, sanitizeFilename(name))
       res.push({
         typeFrom: isRemote ? typeMap.remote : typeMap.local,
         typeTo: type,
@@ -326,7 +327,7 @@ export default class FileSection extends React.Component {
         toFile = {
           ...toFile,
           ...getFolderFromFilePath(
-            resolve(toFile.path, toFile.name)
+            resolve(toFile.path, sanitizeFilename(toFile.name))
           ),
           id: undefined
         }
@@ -367,7 +368,7 @@ export default class FileSection extends React.Component {
     return this.doTransferSelected(
       null,
       files,
-      resolve(toFile.path, toFile.name),
+      resolve(toFile.path, sanitizeFilename(toFile.name)),
       toFile.type,
       operation
     )
@@ -784,7 +785,7 @@ export default class FileSection extends React.Component {
     if (toPathBase) {
       toPath = toPathBase
     }
-    toPath = resolve(toPath, name)
+    toPath = resolve(toPath, sanitizeFilename(name))
     const obj = {
       host: this.props.tab?.host,
       tabType: this.props.tab?.type,
