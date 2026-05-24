@@ -42,9 +42,9 @@ jobs:
 
         # Download GCC 8 from Loongnix for old-world ABI support
         echo "Downloading GCC 8 cross-compiler from Loongnix..."
-        curl -L -o /tmp/gcc8-loong64.tar.gz "https://ftp.loongnix.cn/toolchain/gcc/release/loongarch/gcc8/loongarch64-linux-gnu-gcc8-cross-tools-gnu-new-glibc-x86_64.tar.gz"
+        curl -L -o /tmp/gcc8-loong64.tar.xz "https://ftp.loongnix.cn/toolchain/gcc/release/loongarch/gcc8/loongson-gnu-toolchain-8.3-x86_64-loongarch64-linux-gnu-rc1.6.tar.xz"
         sudo mkdir -p /opt/gcc8-loong64
-        sudo tar xzf /tmp/gcc8-loong64.tar.gz -C /opt/gcc8-loong64 --strip-components=1
+        sudo tar xJf /tmp/gcc8-loong64.tar.xz -C /opt/gcc8-loong64 --strip-components=1
         echo "/opt/gcc8-loong64/bin" >> $GITHUB_PATH
         export PATH="/opt/gcc8-loong64/bin:$PATH"
         loongarch64-linux-gnu-gcc --version
