@@ -65,7 +65,6 @@ jobs:
         pkg.devDependencies.vite = '4';
         pkg.devDependencies['@vitejs/plugin-react'] = '4.7.0';
         fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
-        fs.unlinkSync('package-lock.json');
         "
 
     - name: Install npm dependencies
