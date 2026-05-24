@@ -28,6 +28,7 @@ import { chooseSaveDirectory } from '../../common/choose-save-folder'
 import mapper from '../../common/auto-complete-data-mapper'
 import KeywordForm from './keywords-form'
 import Link from '../common/external-link'
+import FontSelect from '../common/font-select'
 import HelpIcon from '../common/help-icon'
 import KeywordsTransport from './keywords-transport'
 import fs from '../../common/fs'
@@ -427,36 +428,13 @@ export default class SettingTerminal extends Component {
   }
 
   renderFontFamily = () => {
-    const { fonts = [] } = window.et
     const { fontFamily } = this.props.config
-    const props = {
-      mode: 'multiple',
-      onChange: this.handleChangeFont,
-      value: fontFamily.split(/, */g).filter(d => d.trim()),
-      style: { width: '100%' }
-    }
     return (
-      <Select
-        {...props}
-        showSearch
-      >
-        {
-          fonts.map(f => {
-            return (
-              <Option value={f} key={f}>
-                <span
-                  className='font-option'
-                  style={{
-                    fontFamily: f
-                  }}
-                >
-                  {f}
-                </span>
-              </Option>
-            )
-          })
-        }
-      </Select>
+      <FontSelect
+        onChange={this.handleChangeFont}
+        value={fontFamily.split(/, */g).filter(d => d.trim())}
+        style={{ width: '100%' }}
+      />
     )
   }
 

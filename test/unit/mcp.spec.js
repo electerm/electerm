@@ -1,4 +1,4 @@
-const { test, describe } = require('node:test')
+const { test, describe, before } = require('node:test')
 const assert = require('assert/strict')
 const axios = require('axios')
 
@@ -59,30 +59,57 @@ async function initSession () {
   return sid
 }
 
+// Helper: call a tool and parse the SSE response into JSON result/error
+async function callTool (sid, id, toolName, args) {
+  const response = await makeHttpRequest('post', serverUrl, {
+    jsonrpc: '2.0',
+    id,
+    method: 'tools/call',
+    params: { name: toolName, arguments: args }
+  }, {
+    'Content-Type': 'application/json',
+    Accept: 'application/json, text/event-stream',
+    'mcp-session-id': sid
+  })
+  assert.equal(response.status, 200)
+  const dataLine = response.data.split('\n').find(l => l.startsWith('data: '))
+  assert.ok(dataLine, `No data line in SSE response for ${toolName}`)
+  const jsonData = JSON.parse(dataLine.substring(6))
+  assert.equal(jsonData.jsonrpc, '2.0')
+  assert.equal(jsonData.id, id)
+  return jsonData
+}
+
+// Helper: check if renderer is available by trying list_electerm_tabs
+async function checkRenderer (sid) {
+  const jsonData = await callTool(sid, 999, 'list_electerm_tabs', {})
+  return !jsonData.error
+}
+
 describe('mcp-widget', function () {
   let sessionId = null
+  let hasRenderer = false
 
-  // Test that MCP server is running at the expected URL with default settings
-  test('should be accessible at http://127.0.0.1:30837/mcp with default settings', { timeout: 100000 }, async function () {
-    try {
-      // Test OPTIONS request (CORS preflight)
-      const optionsResponse = await makeHttpRequest('options', serverUrl)
-      assert.equal(optionsResponse.status, 204)
-      assert.equal(optionsResponse.headers['access-control-allow-origin'], '*')
-      assert.ok(optionsResponse.headers['access-control-allow-methods'].includes('POST'))
-      assert.ok(optionsResponse.headers['access-control-allow-methods'].includes('GET'))
-      assert.ok(optionsResponse.headers['access-control-allow-methods'].includes('DELETE'))
-      assert.ok(optionsResponse.headers['access-control-allow-headers'].includes('mcp-session-id'))
-
-      console.log('MCP server is running and accessible at:', serverUrl)
-      console.log('CORS headers are properly configured')
-    } catch (err) {
-      console.log('MCP server test error:', err.message)
-      throw new Error(`MCP server is not accessible at ${serverUrl}. Make sure the MCP widget is running with default settings. Error: ${err.message}`)
+  before(async () => {
+    sessionId = await initSession()
+    hasRenderer = await checkRenderer(sessionId)
+    if (!hasRenderer) {
+      console.log('No renderer detected — renderer-dependent tests will be skipped')
     }
   })
 
-  // Test MCP protocol initialization
+  // ─── Protocol-level tests (no renderer needed) ──────────────────────────
+
+  test('should be accessible at http://127.0.0.1:30837/mcp with default settings', { timeout: 100000 }, async function () {
+    const optionsResponse = await makeHttpRequest('options', serverUrl)
+    assert.equal(optionsResponse.status, 204)
+    assert.equal(optionsResponse.headers['access-control-allow-origin'], undefined)
+    assert.ok(optionsResponse.headers['access-control-allow-methods'].includes('POST'))
+    assert.ok(optionsResponse.headers['access-control-allow-methods'].includes('GET'))
+    assert.ok(optionsResponse.headers['access-control-allow-methods'].includes('DELETE'))
+    assert.ok(optionsResponse.headers['access-control-allow-headers'].includes('mcp-session-id'))
+  })
+
   test('should respond to MCP initialize request', { timeout: 100000 }, async function () {
     const initializeRequest = {
       jsonrpc: '2.0',
@@ -98,60 +125,37 @@ describe('mcp-widget', function () {
       }
     }
 
-    try {
-      const response = await makeHttpRequest('post', serverUrl, initializeRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream'
-      })
+    const response = await makeHttpRequest('post', serverUrl, initializeRequest, {
+      'Content-Type': 'application/json',
+      Accept: 'application/json, text/event-stream'
+    })
 
-      console.log('Initialize response status:', response.status)
-      console.log('Initialize response data:', response.data)
-      console.log('Initialize response headers:', response.headers)
+    assert.equal(response.status, 200)
+    assert.equal(response.headers['content-type'], 'text/event-stream')
+    const returnedSessionId = response.headers['mcp-session-id']
+    assert.ok(returnedSessionId, 'mcp-session-id header is missing')
+    assert.notEqual(returnedSessionId, 'null', 'mcp-session-id must not be the string "null"')
+    assert.match(returnedSessionId, /^[\w-]+$/, 'mcp-session-id must be a valid identifier')
 
-      assert.equal(response.status, 200)
-      assert.equal(response.headers['content-type'], 'text/event-stream')
-      const returnedSessionId = response.headers['mcp-session-id']
-      assert.ok(returnedSessionId, 'mcp-session-id header is missing')
-      assert.notEqual(returnedSessionId, 'null', 'mcp-session-id must not be the string "null" — session was not properly initialized')
-      assert.match(returnedSessionId, /^[\w-]+$/, 'mcp-session-id must be a valid identifier')
+    // Parse SSE response
+    const sseData = response.data
+    assert.ok(sseData.includes('event: message'))
+    assert.ok(sseData.includes('data: '))
 
-      // Parse SSE response
-      const sseData = response.data
-      assert.ok(sseData.includes('event: message'))
-      assert.ok(sseData.includes('data: '))
+    const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
+    assert.ok(dataLine)
+    const jsonData = JSON.parse(dataLine.substring(6))
 
-      // Extract JSON from SSE data
-      const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(dataLine)
-      const jsonData = JSON.parse(dataLine.substring(6)) // Remove 'data: '
-
-      assert.equal(jsonData.jsonrpc, '2.0')
-      assert.equal(jsonData.id, 1)
-      assert.ok(jsonData.result)
-      assert.equal(jsonData.result.protocolVersion, '2024-11-05')
-      assert.ok(jsonData.result.serverInfo)
-      assert.equal(jsonData.result.serverInfo.name, 'electerm-mcp-server')
-
-      // Store session ID for subsequent requests
-      sessionId = returnedSessionId
-
-      console.log('MCP initialize request successful')
-      console.log('Server info:', jsonData.result.serverInfo)
-      console.log('Session ID:', sessionId)
-    } catch (err) {
-      console.log('MCP initialize test error:', err.message)
-      if (err.response) {
-        console.log('Response status:', err.response.status)
-        console.log('Response headers:', err.response.headers)
-        console.log('Response data:', err.response.data)
-      }
-      throw new Error(`MCP initialize request failed. Make sure the MCP widget is running with default settings. Error: ${err.message}`)
-    }
+    assert.equal(jsonData.jsonrpc, '2.0')
+    assert.equal(jsonData.id, 1)
+    assert.ok(jsonData.result)
+    assert.equal(jsonData.result.protocolVersion, '2024-11-05')
+    assert.ok(jsonData.result.serverInfo)
+    assert.equal(jsonData.result.serverInfo.name, 'electerm-mcp-server')
   })
 
-  // Test that tools are available
   test('should list available tools', { timeout: 100000 }, async function () {
-    assert.ok(sessionId && sessionId !== 'null', `Expected a real session ID from initialize test but got: ${sessionId}`)
+    assert.ok(sessionId)
 
     const toolsRequest = {
       jsonrpc: '2.0',
@@ -160,377 +164,130 @@ describe('mcp-widget', function () {
       params: {}
     }
 
-    try {
-      const response = await makeHttpRequest('post', serverUrl, toolsRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
-      })
+    const response = await makeHttpRequest('post', serverUrl, toolsRequest, {
+      'Content-Type': 'application/json',
+      Accept: 'application/json, text/event-stream',
+      'mcp-session-id': sessionId
+    })
 
-      console.log('Tools response status:', response.status)
-      console.log('Tools response data:', response.data)
-      console.log('Tools response headers:', response.headers)
+    assert.equal(response.status, 200)
+    assert.equal(response.headers['content-type'], 'text/event-stream')
 
-      assert.equal(response.status, 200)
-      assert.equal(response.headers['content-type'], 'text/event-stream')
+    const sseData = response.data
+    assert.ok(sseData.includes('event: message'))
+    assert.ok(sseData.includes('data: '))
 
-      // Parse SSE response
-      const sseData = response.data
-      assert.ok(sseData.includes('event: message'))
-      assert.ok(sseData.includes('data: '))
+    const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
+    assert.ok(dataLine)
+    const jsonData = JSON.parse(dataLine.substring(6))
 
-      // Extract JSON from SSE data
-      const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(dataLine)
-      const jsonData = JSON.parse(dataLine.substring(6)) // Remove 'data: '
+    assert.equal(jsonData.jsonrpc, '2.0')
+    assert.equal(jsonData.id, 2)
+    assert.ok(jsonData.result)
+    assert.ok(Array.isArray(jsonData.result.tools))
+    assert.ok(jsonData.result.tools.length > 0)
 
-      assert.equal(jsonData.jsonrpc, '2.0')
-      assert.equal(jsonData.id, 2)
-      assert.ok(jsonData.result)
-      assert.ok(Array.isArray(jsonData.result.tools))
-      assert.ok(jsonData.result.tools.length > 0)
-
-      // Check for some expected tools
-      const toolNames = jsonData.result.tools.map(tool => tool.name)
-      assert.ok(toolNames.includes('list_electerm_tabs'))
-      assert.ok(toolNames.includes('get_electerm_active_tab'))
-      assert.ok(toolNames.includes('send_electerm_terminal_command'))
-
-      console.log('Available tools:', toolNames.length)
-      console.log('Sample tools:', toolNames.slice(0, 5))
-    } catch (err) {
-      console.log('MCP tools/list test error:', err.message)
-      if (err.response) {
-        console.log('Response status:', err.response.status)
-        console.log('Response headers:', err.response.headers)
-        console.log('Response data:', err.response.data)
-      }
-      throw new Error(`MCP tools/list request failed. Make sure the MCP widget is running with default settings. Error: ${err.message}`)
-    }
+    const toolNames = jsonData.result.tools.map(tool => tool.name)
+    assert.ok(toolNames.includes('list_electerm_tabs'))
+    assert.ok(toolNames.includes('get_electerm_active_tab'))
+    assert.ok(toolNames.includes('send_electerm_terminal_command'))
   })
 
-  // Test tool calls (these will fail in test environment without renderer process)
-  test('should handle tool calls gracefully when renderer is unavailable', { timeout: 100000 }, async function () {
-    assert.ok(sessionId && sessionId !== 'null', `Expected a real session ID but got: ${sessionId}`)
+  // ─── Tool call protocol tests ───────────────────────────────────────────
 
-    const toolCallRequest = {
-      jsonrpc: '2.0',
-      id: 3,
-      method: 'tools/call',
-      params: {
-        name: 'open_local_terminal',
-        arguments: {}
-      }
-    }
-
-    try {
-      const response = await makeHttpRequest('post', serverUrl, toolCallRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
-      })
-
-      console.log('Tool call response status:', response.status)
-      console.log('Tool call response data:', response.data)
-
-      assert.equal(response.status, 200)
-      assert.equal(response.headers['content-type'], 'text/event-stream')
-
-      // Parse SSE response
-      const sseData = response.data
-      const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(dataLine)
-      const jsonData = JSON.parse(dataLine.substring(6))
-
-      assert.equal(jsonData.jsonrpc, '2.0')
-      assert.equal(jsonData.id, 3)
-
-      // In test environment without renderer process, we expect an error response
-      // The MCP server correctly handles the case where no window is available
-      if (jsonData.error) {
-        console.log('Expected error in test environment:', jsonData.error.message)
-        assert.ok(jsonData.error.code !== undefined)
-      } else if (jsonData.result) {
-        // If it succeeds, that's also fine - means renderer is available
-        console.log('Tool call succeeded - renderer process is available')
-      }
-
-      console.log('MCP tool call protocol working correctly')
-    } catch (err) {
-      console.log('MCP tool call test error:', err.message)
-      if (err.response) {
-        console.log('Response status:', err.response.status)
-        console.log('Response data:', err.response.data)
-      }
-      // Tool calls may fail in test environment - this is expected
-      console.log('Tool call failed as expected in test environment without renderer process')
-    }
-  })
-
-  // Test that multiple tool calls work in sequence
-  test('should handle multiple tool calls in sequence', { timeout: 100000 }, async function () {
-    assert.ok(sessionId && sessionId !== 'null', `Expected a real session ID but got: ${sessionId}`)
-
-    const testTools = [
-      { name: 'list_tabs', args: {} },
-      { name: 'get_active_tab', args: {} },
-      { name: 'get_terminal_selection', args: {} }
-    ]
-
-    for (let i = 0; i < testTools.length; i++) {
-      const tool = testTools[i]
-      const toolCallRequest = {
-        jsonrpc: '2.0',
-        id: 10 + i,
-        method: 'tools/call',
-        params: {
-          name: tool.name,
-          arguments: tool.args
-        }
-      }
-
-      try {
-        const response = await makeHttpRequest('post', serverUrl, toolCallRequest, {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
-        })
-
-        assert.equal(response.status, 200)
-        assert.equal(response.headers['content-type'], 'text/event-stream')
-
-        // Parse SSE response
-        const sseData = response.data
-        const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-        assert.ok(dataLine)
-        const jsonData = JSON.parse(dataLine.substring(6))
-
-        assert.equal(jsonData.jsonrpc, '2.0')
-        assert.equal(jsonData.id, 10 + i)
-
-        console.log(`Tool ${tool.name} call completed (may have failed due to no renderer)`)
-      } catch (err) {
-        console.log(`Tool ${tool.name} call failed:`, err.message)
-        // Expected in test environment
-      }
-    }
-
-    console.log('Multiple tool calls handled correctly')
-  })
-
-  // Test opening a local terminal and running a command
-  test('should open local terminal and run command', { timeout: 100000 }, async function () {
-    // Initialize session if not already done
-    if (!sessionId) {
-      sessionId = await initSession()
-    }
+  test('should return error when calling tool without renderer', { timeout: 100000 }, async function () {
     assert.ok(sessionId)
+
+    const jsonData = await callTool(sessionId, 3, 'open_electerm_local_terminal', {})
+
+    if (hasRenderer) {
+      // With renderer: tool call should succeed
+      assert.ok(jsonData.result, 'Expected success result with renderer')
+      const result = JSON.parse(jsonData.result.content[0].text)
+      assert.equal(result.success, true)
+    } else {
+      // Without renderer: should get a JSON-RPC error
+      assert.ok(jsonData.error, 'Expected error without renderer')
+      assert.ok(jsonData.error.code !== undefined, 'Error must have a code')
+      assert.ok(jsonData.error.message.length > 0, 'Error must have a message')
+    }
+  })
+
+  test('should handle multiple tool calls in sequence', { timeout: 100000 }, async function () {
+    assert.ok(sessionId)
+
+    const toolNames = ['list_electerm_tabs', 'get_electerm_active_tab', 'get_electerm_terminal_selection']
+
+    for (let i = 0; i < toolNames.length; i++) {
+      const jsonData = await callTool(sessionId, 10 + i, toolNames[i], {})
+
+      // Each call must return a valid JSON-RPC response (result or error)
+      assert.ok(
+        jsonData.result || jsonData.error,
+        `Tool ${toolNames[i]} must return either result or error`
+      )
+    }
+  })
+
+  // ─── Renderer-dependent terminal tests ──────────────────────────────────
+
+  test('should open local terminal and run command', { timeout: 100000 }, async function () {
+    if (!hasRenderer) return test.skip('No renderer available')
 
     // Step 1: Open a local terminal
-    const openTerminalRequest = {
-      jsonrpc: '2.0',
-      id: 20,
-      method: 'tools/call',
-      params: {
-        name: 'open_local_terminal',
-        arguments: {}
-      }
-    }
+    const openData = await callTool(sessionId, 20, 'open_electerm_local_terminal', {})
+    assert.ok(openData.result, 'open_local_terminal should succeed')
+    const openResult = JSON.parse(openData.result.content[0].text)
+    assert.equal(openResult.success, true)
+    assert.ok(openResult.message.includes('local terminal'))
 
-    try {
-      const openResponse = await makeHttpRequest('post', serverUrl, openTerminalRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
-      })
+    // Wait for terminal to initialize
+    await new Promise(resolve => setTimeout(resolve, 3000))
 
-      console.log('Open terminal response status:', openResponse.status)
+    // Step 2: Send a command
+    const uniqueId = Date.now()
+    const testCommand = `echo "MCP_TEST_${uniqueId}"`
 
-      assert.equal(openResponse.status, 200)
+    const cmdData = await callTool(sessionId, 21, 'send_electerm_terminal_command', {
+      command: testCommand
+    })
+    assert.ok(cmdData.result, 'send_terminal_command should succeed')
+    const cmdResult = JSON.parse(cmdData.result.content[0].text)
+    assert.equal(cmdResult.success, true)
 
-      // Parse SSE response
-      const sseData = openResponse.data
-      const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(dataLine)
-      const jsonData = JSON.parse(dataLine.substring(6))
+    // Wait for command to execute
+    await new Promise(resolve => setTimeout(resolve, 2000))
 
-      assert.equal(jsonData.jsonrpc, '2.0')
-      assert.equal(jsonData.id, 20)
-
-      if (jsonData.error) {
-        console.log('Open terminal error (may be expected):', jsonData.error.message)
-      } else if (jsonData.result) {
-        const result = JSON.parse(jsonData.result.content[0].text)
-        console.log('Open terminal result:', result)
-        assert.equal(result.success, true)
-        assert.ok(result.message.includes('local terminal'))
-      }
-
-      // Wait for terminal to initialize (shell needs time to start)
-      await new Promise(resolve => setTimeout(resolve, 3000))
-
-      // Step 2: Send a command to the terminal
-      const uniqueId = Date.now()
-      const testCommand = `echo "MCP_TEST_${uniqueId}"`
-
-      const sendCommandRequest = {
-        jsonrpc: '2.0',
-        id: 21,
-        method: 'tools/call',
-        params: {
-          name: 'send_terminal_command',
-          arguments: {
-            command: testCommand
-          }
-        }
-      }
-
-      const cmdResponse = await makeHttpRequest('post', serverUrl, sendCommandRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
-      })
-
-      console.log('Send command response status:', cmdResponse.status)
-      assert.equal(cmdResponse.status, 200)
-
-      const cmdSseData = cmdResponse.data
-      const cmdDataLine = cmdSseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(cmdDataLine)
-      const cmdJsonData = JSON.parse(cmdDataLine.substring(6))
-
-      if (cmdJsonData.error) {
-        console.log('Send command error (may be expected):', cmdJsonData.error.message)
-      } else if (cmdJsonData.result) {
-        const cmdResult = JSON.parse(cmdJsonData.result.content[0].text)
-        console.log('Send command result:', cmdResult)
-        assert.equal(cmdResult.success, true)
-      }
-
-      // Wait for command to execute and output to appear
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      // Step 3: Get terminal output to verify command was executed
-      const getOutputRequest = {
-        jsonrpc: '2.0',
-        id: 22,
-        method: 'tools/call',
-        params: {
-          name: 'get_terminal_output',
-          arguments: {
-            lines: 20
-          }
-        }
-      }
-
-      const outputResponse = await makeHttpRequest('post', serverUrl, getOutputRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
-      })
-
-      console.log('Get output response status:', outputResponse.status)
-      assert.equal(outputResponse.status, 200)
-
-      const outputSseData = outputResponse.data
-      const outputDataLine = outputSseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(outputDataLine)
-      const outputJsonData = JSON.parse(outputDataLine.substring(6))
-
-      if (outputJsonData.error) {
-        console.log('Get output error (may be expected):', outputJsonData.error.message)
-      } else if (outputJsonData.result) {
-        try {
-          const outputResult = JSON.parse(outputJsonData.result.content[0].text)
-          console.log('Terminal output result:', outputResult)
-          assert.ok(outputResult.output !== undefined)
-          assert.ok(outputResult.lineCount > 0)
-
-          // Check if our command output is in the terminal
-          if (outputResult.output.includes(`MCP_TEST_${uniqueId}`)) {
-            console.log('SUCCESS: Found command output in terminal!')
-          } else {
-            console.log('Command output may not yet be visible in buffer')
-            console.log('Output preview:', outputResult.output.slice(-200))
-          }
-        } catch (parseErr) {
-          // Error message from handler, not JSON
-          console.log('Get output returned error:', outputJsonData.result.content[0].text)
-        }
-      }
-
-      console.log('Terminal command execution test completed')
-    } catch (err) {
-      console.log('Terminal command test error:', err.message)
-      if (err.response) {
-        console.log('Response status:', err.response.status)
-        console.log('Response data:', err.response.data)
-      }
-      // This test requires the app to be running with GUI
-      console.log('Note: This test requires electerm app to be running with a visible window')
-    }
+    // Step 3: Get terminal output and verify command was executed
+    const outputData = await callTool(sessionId, 22, 'get_electerm_terminal_output', {
+      lines: 20
+    })
+    assert.ok(outputData.result, 'get_terminal_output should succeed')
+    const outputResult = JSON.parse(outputData.result.content[0].text)
+    assert.ok(outputResult.output !== undefined)
+    assert.ok(outputResult.lineCount > 0)
+    assert.ok(
+      outputResult.output.includes(`MCP_TEST_${uniqueId}`),
+      `Expected command output "MCP_TEST_${uniqueId}" in terminal`
+    )
   })
 
-  // Test get_terminal_output tool
   test('should get terminal output', { timeout: 100000 }, async function () {
-    // Initialize session if not already done
-    if (!sessionId) {
-      sessionId = await initSession()
-    }
-    assert.ok(sessionId)
+    if (!hasRenderer) return test.skip('No renderer available')
 
-    const getOutputRequest = {
-      jsonrpc: '2.0',
-      id: 30,
-      method: 'tools/call',
-      params: {
-        name: 'get_terminal_output',
-        arguments: {
-          lines: 10
-        }
-      }
-    }
-
-    try {
-      const response = await makeHttpRequest('post', serverUrl, getOutputRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
-      })
-
-      console.log('Get terminal output response status:', response.status)
-      assert.equal(response.status, 200)
-
-      const sseData = response.data
-      const dataLine = sseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(dataLine)
-      const jsonData = JSON.parse(dataLine.substring(6))
-
-      assert.equal(jsonData.jsonrpc, '2.0')
-      assert.equal(jsonData.id, 30)
-
-      if (jsonData.error) {
-        console.log('Get terminal output error:', jsonData.error.message)
-        // This is expected if no terminal is open
-      } else if (jsonData.result) {
-        const result = JSON.parse(jsonData.result.content[0].text)
-        console.log('Terminal output:', result)
-        assert.ok(result.output !== undefined)
-        assert.ok(result.tabId !== undefined)
-        assert.equal(typeof result.lineCount, 'number')
-      }
-    } catch (err) {
-      console.log('Get terminal output test error:', err.message)
-      if (err.response) {
-        console.log('Response status:', err.response.status)
-        console.log('Response data:', err.response.data)
-      }
-    }
+    const jsonData = await callTool(sessionId, 30, 'get_electerm_terminal_output', {
+      lines: 10
+    })
+    assert.ok(jsonData.result, 'get_terminal_output should succeed')
+    const result = JSON.parse(jsonData.result.content[0].text)
+    assert.ok(result.output !== undefined)
+    assert.ok(result.tabId !== undefined)
+    assert.equal(typeof result.lineCount, 'number')
   })
 
-  // Test SSH bookmark creation, connection, command execution and output
   test('should create SSH bookmark, connect, run command and get output', { timeout: 100000 }, async function () {
-    // Load test environment variables
+    if (!hasRenderer) return test.skip('No renderer available')
+
     const {
       TEST_HOST,
       TEST_PASS,
@@ -538,608 +295,224 @@ describe('mcp-widget', function () {
       TEST_PORT
     } = require('../e2e/common/env')
 
-    // Initialize session if not already done
-    if (!sessionId) {
-      sessionId = await initSession()
-    }
-    assert.ok(sessionId)
-
     const uniqueId = Date.now()
     const bookmarkTitle = `MCP1_SSH_Test_${uniqueId}`
 
     // Step 1: Create SSH bookmark
-    const addBookmarkRequest = {
-      jsonrpc: '2.0',
-      id: 40,
-      method: 'tools/call',
-      params: {
-        name: 'add_electerm_bookmark_ssh',
-        arguments: {
-          title: bookmarkTitle,
-          host: TEST_HOST,
-          port: parseInt(TEST_PORT, 10),
-          username: TEST_USER,
-          password: TEST_PASS
-        }
-      }
-    }
+    const addData = await callTool(sessionId, 40, 'add_electerm_bookmark_ssh', {
+      title: bookmarkTitle,
+      host: TEST_HOST,
+      port: parseInt(TEST_PORT, 10),
+      username: TEST_USER,
+      password: TEST_PASS
+    })
+    assert.ok(addData.result, 'add_bookmark should succeed')
+    const addResult = JSON.parse(addData.result.content[0].text)
+    assert.equal(addResult.success, true)
+    assert.ok(addResult.id !== undefined)
+    const bookmarkId = addResult.id
 
     try {
-      const addResponse = await makeHttpRequest('post', serverUrl, addBookmarkRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
-      })
-
-      console.log('Add bookmark response status:', addResponse.status)
-      assert.equal(addResponse.status, 200)
-
-      const addSseData = addResponse.data
-      const addDataLine = addSseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(addDataLine)
-      const addJsonData = JSON.parse(addDataLine.substring(6))
-
-      if (addJsonData.error) {
-        console.log('Add bookmark error:', addJsonData.error.message)
-        throw new Error(addJsonData.error.message)
-      }
-
-      const addResult = JSON.parse(addJsonData.result.content[0].text)
-      console.log('Add bookmark result:', addResult)
-      assert.equal(addResult.success, true)
-      assert.ok(addResult.id !== undefined)
-
-      const bookmarkId = addResult.id
-      console.log('Created bookmark with ID:', bookmarkId)
-
       // Step 2: Open/connect to the bookmark
-      const openBookmarkRequest = {
-        jsonrpc: '2.0',
-        id: 41,
-        method: 'tools/call',
-        params: {
-          name: 'open_electerm_bookmark',
-          arguments: {
-            id: bookmarkId
-          }
-        }
-      }
-
-      const openResponse = await makeHttpRequest('post', serverUrl, openBookmarkRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
+      const openData = await callTool(sessionId, 41, 'open_electerm_bookmark', {
+        id: bookmarkId
       })
-
-      console.log('Open bookmark response status:', openResponse.status)
-      assert.equal(openResponse.status, 200)
-
-      const openSseData = openResponse.data
-      const openDataLine = openSseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(openDataLine)
-      const openJsonData = JSON.parse(openDataLine.substring(6))
-
-      if (openJsonData.error) {
-        console.log('Open bookmark error:', openJsonData.error.message)
-        throw new Error(openJsonData.error.message)
-      }
-
-      const openResult = JSON.parse(openJsonData.result.content[0].text)
-      console.log('Open bookmark result:', openResult)
+      assert.ok(openData.result, 'open_bookmark should succeed')
+      const openResult = JSON.parse(openData.result.content[0].text)
       assert.equal(openResult.success, true)
 
       // Wait for SSH connection to establish
-      console.log('Waiting for SSH connection to establish...')
       await new Promise(resolve => setTimeout(resolve, 8000))
 
-      // Step 3: Send a command to the SSH terminal with retry
+      // Step 3: Send a command with retry
       const testMarker = `SSH_MCP_TEST_${uniqueId}`
       const testCommand = `echo "${testMarker}"`
 
-      const sendCommandRequest = {
-        jsonrpc: '2.0',
-        id: 42,
-        method: 'tools/call',
-        params: {
-          name: 'send_electerm_terminal_command',
-          arguments: {
-            command: testCommand
-          }
-        }
-      }
-
-      // Retry sending command up to 3 times with delay
-      let cmdJsonData = null
-      let lastError = null
+      let cmdResult = null
       for (let attempt = 1; attempt <= 3; attempt++) {
-        const cmdResponse = await makeHttpRequest('post', serverUrl, sendCommandRequest, {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream',
-          'mcp-session-id': sessionId
+        const cmdData = await callTool(sessionId, 42, 'send_electerm_terminal_command', {
+          command: testCommand
         })
-
-        console.log(`Send SSH command attempt ${attempt} response status:`, cmdResponse.status)
-        assert.equal(cmdResponse.status, 200)
-
-        const cmdSseData = cmdResponse.data
-        const cmdDataLine = cmdSseData.split('\n').find(line => line.startsWith('data: '))
-        assert.ok(cmdDataLine)
-        cmdJsonData = JSON.parse(cmdDataLine.substring(6))
-
-        if (cmdJsonData.error) {
-          console.log(`Send SSH command attempt ${attempt} error:`, cmdJsonData.error.message)
-          lastError = cmdJsonData.error.message
-          if (attempt < 3) {
-            console.log('Waiting before retry...')
-            await new Promise(resolve => setTimeout(resolve, 2000))
-            continue
+        if (cmdData.error) {
+          if (attempt === 3) {
+            assert.fail(`send_command failed after 3 attempts: ${cmdData.error.message}`)
           }
-        } else {
-          lastError = null
-          break
+          await new Promise(resolve => setTimeout(resolve, 2000))
+          continue
         }
+        cmdResult = JSON.parse(cmdData.result.content[0].text)
+        break
       }
-
-      if (lastError) {
-        throw new Error(lastError)
-      }
-
-      // Log raw text first to debug any parsing issues
-      const cmdResultText = cmdJsonData.result.content[0].text
-      console.log('Send SSH command raw result:', cmdResultText)
-
-      let cmdResult
-      try {
-        cmdResult = JSON.parse(cmdResultText)
-        console.log('Send SSH command result:', cmdResult)
-        assert.equal(cmdResult.success, true)
-      } catch (parseErr) {
-        // The result might be an error message, not JSON
-        console.log('Command result is not JSON, might be an error')
-        throw new Error(cmdResultText)
-      }
+      assert.equal(cmdResult.success, true)
 
       // Wait for command to execute
-      console.log('Waiting for command execution...')
       await new Promise(resolve => setTimeout(resolve, 2000))
 
-      // Step 4: Get terminal output to verify command execution
-      const getOutputRequest = {
-        jsonrpc: '2.0',
-        id: 43,
-        method: 'tools/call',
-        params: {
-          name: 'get_electerm_terminal_output',
-          arguments: {
-            lines: 30
-          }
-        }
-      }
-
-      const outputResponse = await makeHttpRequest('post', serverUrl, getOutputRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
+      // Step 4: Get terminal output and verify command was executed
+      const outputData = await callTool(sessionId, 43, 'get_electerm_terminal_output', {
+        lines: 30
       })
-
-      console.log('Get SSH output response status:', outputResponse.status)
-      assert.equal(outputResponse.status, 200)
-
-      const outputSseData = outputResponse.data
-      const outputDataLine = outputSseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(outputDataLine)
-      const outputJsonData = JSON.parse(outputDataLine.substring(6))
-
-      if (outputJsonData.error) {
-        console.log('Get SSH output error:', outputJsonData.error.message)
-        throw new Error(outputJsonData.error.message)
-      }
-
-      const outputResult = JSON.parse(outputJsonData.result.content[0].text)
-      console.log('SSH terminal output:', outputResult)
+      assert.ok(outputData.result, 'get_terminal_output should succeed')
+      const outputResult = JSON.parse(outputData.result.content[0].text)
       assert.ok(outputResult.output !== undefined)
       assert.ok(outputResult.lineCount > 0)
-
-      // Check if our command output is in the terminal
-      if (outputResult.output.includes(testMarker)) {
-        console.log('SUCCESS: Found SSH command output in terminal!')
-      } else {
-        console.log('Command output may not yet be visible in buffer')
-        console.log('Output preview:', outputResult.output.slice(-500))
-      }
-
+      assert.ok(
+        outputResult.output.includes(testMarker),
+        `Expected SSH command output "${testMarker}" in terminal`
+      )
+    } finally {
       // Step 5: Clean up - delete the test bookmark
-      const deleteBookmarkRequest = {
-        jsonrpc: '2.0',
-        id: 44,
-        method: 'tools/call',
-        params: {
-          name: 'delete_electerm_bookmark',
-          arguments: {
-            id: bookmarkId
-          }
-        }
-      }
-
-      const deleteResponse = await makeHttpRequest('post', serverUrl, deleteBookmarkRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
+      const deleteData = await callTool(sessionId, 44, 'delete_electerm_bookmark', {
+        id: bookmarkId
       })
-
-      console.log('Delete bookmark response status:', deleteResponse.status)
-      assert.equal(deleteResponse.status, 200)
-
-      const deleteSseData = deleteResponse.data
-      const deleteDataLine = deleteSseData.split('\n').find(line => line.startsWith('data: '))
-      if (deleteDataLine) {
-        const deleteJsonData = JSON.parse(deleteDataLine.substring(6))
-        if (!deleteJsonData.error) {
-          const deleteResult = JSON.parse(deleteJsonData.result.content[0].text)
-          console.log('Delete bookmark result:', deleteResult)
-          assert.equal(deleteResult.success, true)
-        }
+      if (deleteData.result) {
+        const deleteResult = JSON.parse(deleteData.result.content[0].text)
+        assert.equal(deleteResult.success, true)
       }
 
       // Step 6: Verify the bookmark was actually deleted
-      const listBookmarksRequest = {
-        jsonrpc: '2.0',
-        id: 45,
-        method: 'tools/call',
-        params: {
-          name: 'list_electerm_bookmarks'
-        }
-      }
-
-      const listResponse = await makeHttpRequest('post', serverUrl, listBookmarksRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
-      })
-
-      console.log('List bookmarks response status:', listResponse.status)
-      assert.equal(listResponse.status, 200)
-
-      const listSseData = listResponse.data
-      const listDataLine = listSseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(listDataLine)
-      const listJsonData = JSON.parse(listDataLine.substring(6))
-
-      if (listJsonData.error) {
-        console.log('List bookmarks error:', listJsonData.error.message)
-        throw new Error(listJsonData.error.message)
-      }
-
-      const bookmarks = JSON.parse(listJsonData.result.content[0].text)
-      console.log('Bookmarks after deletion:', bookmarks.length)
+      const listData = await callTool(sessionId, 45, 'list_electerm_bookmarks', {})
+      assert.ok(listData.result, 'list_bookmarks should succeed')
+      const bookmarks = JSON.parse(listData.result.content[0].text)
       const deletedBookmark = bookmarks.find(b => b.id === bookmarkId)
       assert.ok(!deletedBookmark, `Bookmark with ID ${bookmarkId} should have been deleted but was found`)
-
-      console.log('SSH bookmark test completed successfully')
-    } catch (err) {
-      console.log('SSH bookmark test error:', err.message)
-      if (err.response) {
-        console.log('Response status:', err.response.status)
-        console.log('Response data:', err.response.data)
-      }
-      throw err
     }
   })
 
-  // Test Telnet bookmark creation
   test('should create Telnet bookmark', { timeout: 100000 }, async function () {
-    // Initialize session if not already done
-    if (!sessionId) {
-      sessionId = await initSession()
-    }
-    assert.ok(sessionId)
+    if (!hasRenderer) return test.skip('No renderer available')
 
     const uniqueId = Date.now()
     const bookmarkTitle = `MCP1_Telnet_Test_${uniqueId}`
 
     // Create Telnet bookmark
-    const addBookmarkRequest = {
-      jsonrpc: '2.0',
-      id: 50,
-      method: 'tools/call',
-      params: {
-        name: 'add_electerm_bookmark_telnet',
-        arguments: {
-          title: bookmarkTitle,
-          host: '127.0.0.1',
-          port: 23,
-          username: 'testuser',
-          password: 'testpass'
-        }
-      }
-    }
+    const addData = await callTool(sessionId, 50, 'add_electerm_bookmark_telnet', {
+      title: bookmarkTitle,
+      host: '127.0.0.1',
+      port: 23,
+      username: 'testuser',
+      password: 'testpass'
+    })
+    assert.ok(addData.result, 'add_bookmark should succeed')
+    const addResult = JSON.parse(addData.result.content[0].text)
+    assert.equal(addResult.success, true)
+    assert.ok(addResult.id !== undefined)
+    const bookmarkId = addResult.id
 
-    try {
-      const addResponse = await makeHttpRequest('post', serverUrl, addBookmarkRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
-      })
-
-      console.log('Add telnet bookmark response status:', addResponse.status)
-      assert.equal(addResponse.status, 200)
-
-      const addSseData = addResponse.data
-      const addDataLine = addSseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(addDataLine)
-      const addJsonData = JSON.parse(addDataLine.substring(6))
-
-      if (addJsonData.error) {
-        console.log('Add telnet bookmark error:', addJsonData.error.message)
-        throw new Error(addJsonData.error.message)
-      }
-
-      const addResult = JSON.parse(addJsonData.result.content[0].text)
-      console.log('Add telnet bookmark result:', addResult)
-      assert.equal(addResult.success, true)
-      assert.ok(addResult.id !== undefined)
-
-      const bookmarkId = addResult.id
-      console.log('Created telnet bookmark with ID:', bookmarkId)
-
-      // Verify bookmark was created by listing bookmarks
-      const listBookmarksRequest = {
-        jsonrpc: '2.0',
-        id: 51,
-        method: 'tools/call',
-        params: {
-          name: 'list_electerm_bookmarks',
-          arguments: {}
-        }
-      }
-
-      const listResponse = await makeHttpRequest('post', serverUrl, listBookmarksRequest, {
-        'Content-Type': 'application/json',
-        Accept: 'application/json, text/event-stream',
-        'mcp-session-id': sessionId
-      })
-
-      console.log('List bookmarks response status:', listResponse.status)
-      assert.equal(listResponse.status, 200)
-
-      const listSseData = listResponse.data
-      const listDataLine = listSseData.split('\n').find(line => line.startsWith('data: '))
-      assert.ok(listDataLine)
-      const listJsonData = JSON.parse(listDataLine.substring(6))
-
-      if (listJsonData.error) {
-        console.log('List bookmarks error:', listJsonData.error.message)
-        throw new Error(listJsonData.error.message)
-      }
-
-      const bookmarks = JSON.parse(listJsonData.result.content[0].text)
-      const createdBookmark = bookmarks.find(b => b.id === bookmarkId)
-      assert.ok(createdBookmark, `Bookmark with ID ${bookmarkId} not found in list`)
-      assert.equal(createdBookmark.title, bookmarkTitle)
-      assert.equal(createdBookmark.type, 'telnet')
-
-      console.log('Telnet bookmark test completed successfully')
-    } catch (err) {
-      console.log('Telnet bookmark test error:', err.message)
-      if (err.response) {
-        console.log('Response status:', err.response.status)
-        console.log('Response data:', err.response.data)
-      }
-      throw err
-    }
+    // Verify bookmark was created by listing bookmarks
+    const listData = await callTool(sessionId, 51, 'list_electerm_bookmarks', {})
+    assert.ok(listData.result, 'list_bookmarks should succeed')
+    const bookmarks = JSON.parse(listData.result.content[0].text)
+    const createdBookmark = bookmarks.find(b => b.id === bookmarkId)
+    assert.ok(createdBookmark, `Bookmark with ID ${bookmarkId} not found in list`)
+    assert.equal(createdBookmark.title, bookmarkTitle)
+    assert.equal(createdBookmark.type, 'telnet')
   })
 
-  // Helper: call a tool and parse the SSE response into JSON result/error
-  async function callTool (sid, id, toolName, args) {
-    const response = await makeHttpRequest('post', serverUrl, {
-      jsonrpc: '2.0',
-      id,
-      method: 'tools/call',
-      params: { name: toolName, arguments: args }
-    }, {
-      'Content-Type': 'application/json',
-      Accept: 'application/json, text/event-stream',
-      'mcp-session-id': sid
-    })
-    assert.equal(response.status, 200)
-    const dataLine = response.data.split('\n').find(l => l.startsWith('data: '))
-    assert.ok(dataLine, `No data line in SSE response for ${toolName}`)
-    const jsonData = JSON.parse(dataLine.substring(6))
-    assert.equal(jsonData.jsonrpc, '2.0')
-    assert.equal(jsonData.id, id)
-    return jsonData
-  }
+  // ─── onData test ────────────────────────────────────────────────────────
 
-  // Test that list_tabs exposes the onData flag per tab
   test('list_tabs should include onData field for each tab', { timeout: 100000 }, async function () {
-    if (!sessionId) sessionId = await initSession()
-    assert.ok(sessionId)
+    if (!hasRenderer) return test.skip('No renderer available')
 
     const jsonData = await callTool(sessionId, 60, 'list_electerm_tabs', {})
-
-    if (jsonData.error) {
-      // No renderer → expected in headless CI
-      console.log('list_tabs error (expected without renderer):', jsonData.error.message)
-      return
-    }
+    assert.ok(jsonData.result, 'list_tabs should succeed')
 
     const tabs = JSON.parse(jsonData.result.content[0].text)
-    console.log('Tabs from list_tabs:', tabs)
     assert.ok(Array.isArray(tabs), 'Expected an array of tabs')
 
     for (const tab of tabs) {
       assert.ok('onData' in tab, `Tab ${tab.id} is missing the onData field`)
-      assert.equal(typeof tab.onData, 'boolean', `onData for tab ${tab.id} should be boolean`)
+      assert.equal(typeof tab.onData, 'string', `onData for tab ${tab.id} should be string`)
     }
-
-    console.log(`list_tabs returned ${tabs.length} tabs, all with onData field`)
   })
 
-  // Test wait_for_electerm_terminal_idle after a fast command (echo)
-  test('should wait for terminal idle after a quick echo command', { timeout: 100000 }, async function () {
-    if (!sessionId) sessionId = await initSession()
-    assert.ok(sessionId)
+  // ─── Terminal idle tests ────────────────────────────────────────────────
 
-    // Open a local terminal
+  test('should wait for terminal idle after a quick echo command', { timeout: 100000 }, async function () {
+    if (!hasRenderer) return test.skip('No renderer available')
+
     const openData = await callTool(sessionId, 61, 'open_electerm_local_terminal', {})
-    if (openData.error) {
-      console.log('open_local_terminal error (no renderer):', openData.error.message)
-      return
-    }
+    assert.ok(openData.result, 'open_local_terminal should succeed')
     const openResult = JSON.parse(openData.result.content[0].text)
     assert.equal(openResult.success, true)
 
-    // Wait for shell to initialize
     await new Promise(resolve => setTimeout(resolve, 3000))
 
     const marker = `IDLE_TEST_${Date.now()}`
 
-    // Send a quick echo command
     const sendData = await callTool(sessionId, 62, 'send_electerm_terminal_command', {
       command: `echo "${marker}"`
     })
-    if (sendData.error) {
-      console.log('send_command error:', sendData.error.message)
-      return
-    }
-    console.log('Command sent, now waiting for terminal idle...')
+    assert.ok(sendData.result, 'send_command should succeed')
 
-    // Wait for idle — should settle within ~10s (1s minWait + 4s debounce + buffer)
     const waitData = await callTool(sessionId, 63, 'wait_for_electerm_terminal_idle', {
       timeout: 20000,
       lines: 30
     })
-
-    if (waitData.error) {
-      console.log('wait_for_terminal_idle error:', waitData.error.message)
-      return
-    }
+    assert.ok(waitData.result, 'wait_for_terminal_idle should succeed')
 
     const waitResult = JSON.parse(waitData.result.content[0].text)
-    console.log('wait_for_terminal_idle result:', {
-      timedOut: waitResult.timedOut,
-      elapsed: waitResult.elapsed,
-      lineCount: waitResult.lineCount
-    })
-
     assert.equal(waitResult.timedOut, false, 'Expected terminal to become idle before timeout')
     assert.ok(waitResult.elapsed >= 0, 'Expected non-negative elapsed time')
-    assert.ok(typeof waitResult.lineCount === 'number', 'Expected lineCount to be a number')
-    assert.ok(typeof waitResult.output === 'string', 'Expected output to be a string')
-
-    if (waitResult.output.includes(marker)) {
-      console.log('SUCCESS: Found echo output in terminal after idle wait!')
-    } else {
-      console.log('Echo marker not found in output (may be in scrollback); output tail:', waitResult.output.slice(-200))
-    }
-
-    console.log(`Idle detected after ${waitResult.elapsed}ms`)
+    assert.equal(typeof waitResult.lineCount, 'number')
+    assert.equal(typeof waitResult.output, 'string')
+    assert.ok(
+      waitResult.output.includes(marker),
+      `Expected echo output "${marker}" in terminal after idle wait`
+    )
   })
 
-  // Test wait_for_electerm_terminal_idle with a longer-running command
   test('should correctly wait for a longer-running command to finish', { timeout: 100000 }, async function () {
-    if (!sessionId) sessionId = await initSession()
-    assert.ok(sessionId)
+    if (!hasRenderer) return test.skip('No renderer available')
 
-    // Ensure a terminal is open (reuse from previous test or open one)
     const openData = await callTool(sessionId, 64, 'open_electerm_local_terminal', {})
-    if (openData.error) {
-      console.log('open_local_terminal error (no renderer):', openData.error.message)
-      return
-    }
+    assert.ok(openData.result, 'open_local_terminal should succeed')
     await new Promise(resolve => setTimeout(resolve, 3000))
 
     const marker = `SLOW_TEST_${Date.now()}`
-    // Command takes ~5 seconds before producing output
+
     const sendData = await callTool(sessionId, 65, 'send_electerm_terminal_command', {
       command: `sleep 5 && echo "${marker}"`
     })
-    if (sendData.error) {
-      console.log('send_command error:', sendData.error.message)
-      return
-    }
+    assert.ok(sendData.result, 'send_command should succeed')
 
-    const t0 = Date.now()
-    console.log('Long command sent, waiting for idle (up to 30s)...')
-
-    // wait_for_terminal_idle should not return until sleep 5 finishes
     const waitData = await callTool(sessionId, 66, 'wait_for_electerm_terminal_idle', {
       timeout: 30000,
       lines: 30
     })
-
-    if (waitData.error) {
-      console.log('wait_for_terminal_idle error:', waitData.error.message)
-      return
-    }
+    assert.ok(waitData.result, 'wait_for_terminal_idle should succeed')
 
     const waitResult = JSON.parse(waitData.result.content[0].text)
-    const roundTrip = Date.now() - t0
-    console.log('wait_for_terminal_idle result:', {
-      timedOut: waitResult.timedOut,
-      elapsed: waitResult.elapsed,
-      roundTripMs: roundTrip,
-      lineCount: waitResult.lineCount
-    })
-
-    // Command takes ~5s + 4s idle debounce = ~9s minimum
     assert.equal(waitResult.timedOut, false, 'Expected terminal to become idle before 30s timeout')
     assert.ok(waitResult.elapsed >= 5000, `Expected at least 5s elapsed but got ${waitResult.elapsed}ms`)
-
-    if (waitResult.output.includes(marker)) {
-      console.log('SUCCESS: Slow command output found after idle wait!')
-    } else {
-      console.log('Output tail:', waitResult.output.slice(-300))
-    }
+    assert.ok(
+      waitResult.output.includes(marker),
+      `Expected slow command output "${marker}" after idle wait`
+    )
   })
 
-  // Test wait_for_electerm_terminal_idle timing out on a never-ending command
   test('should return timedOut:true when terminal never becomes idle within timeout', { timeout: 100000 }, async function () {
-    if (!sessionId) sessionId = await initSession()
-    assert.ok(sessionId)
+    if (!hasRenderer) return test.skip('No renderer available')
 
     const openData = await callTool(sessionId, 67, 'open_electerm_local_terminal', {})
-    if (openData.error) {
-      console.log('open_local_terminal error (no renderer):', openData.error.message)
-      return
-    }
+    assert.ok(openData.result, 'open_local_terminal should succeed')
     await new Promise(resolve => setTimeout(resolve, 3000))
 
-    // Start a command that will keep producing output for longer than our timeout
-    // `yes` or `ping -c 100 localhost` both work; use ping for portability
     const sendData = await callTool(sessionId, 68, 'send_electerm_terminal_command', {
       command: 'ping -c 30 localhost'
     })
-    if (sendData.error) {
-      console.log('send_command error:', sendData.error.message)
-      return
-    }
+    assert.ok(sendData.result, 'send_command should succeed')
 
-    console.log('Continuous-output command sent, waiting with 8s timeout...')
-
-    // Use a short timeout — the ping will still be running, so we expect timedOut:true
     const waitData = await callTool(sessionId, 69, 'wait_for_electerm_terminal_idle', {
       timeout: 8000,
       lines: 20,
       minWait: 500
     })
-
-    if (waitData.error) {
-      console.log('wait_for_terminal_idle error:', waitData.error.message)
-      return
-    }
+    assert.ok(waitData.result, 'wait_for_terminal_idle should succeed')
 
     const waitResult = JSON.parse(waitData.result.content[0].text)
-    console.log('Timeout test result:', {
-      timedOut: waitResult.timedOut,
-      elapsed: waitResult.elapsed,
-      lineCount: waitResult.lineCount
-    })
-
     assert.equal(waitResult.timedOut, true, 'Expected timedOut:true when command keeps running')
     assert.ok(waitResult.elapsed >= 8000, `Expected at least 8s elapsed but got ${waitResult.elapsed}ms`)
-    assert.ok(typeof waitResult.output === 'string', 'Should still return whatever output is in buffer')
-    console.log('Partial output tail:', waitResult.output.slice(-200))
-    console.log('SUCCESS: timedOut correctly reported as true')
+    assert.equal(typeof waitResult.output, 'string', 'Should still return whatever output is in buffer')
   })
 })

@@ -1,0 +1,159 @@
+import { agentTools, executeToolCall } from './agent-tools'
+
+const MAX_ITERATIONS = 15
+
+function buildAgentSystemPrompt (config) {
+  const lang = config.languageAI || window.store.getLangName()
+  const baseRole = config.roleAI || 'You are a helpful assistant.'
+  return `${baseRole}
+
+You are operating inside electerm, a terminal/SSH client. You have access to tools that let you:
+- Run commands in terminal tabs and read their output
+- Open new terminal tabs (local or SSH)
+- Manage bookmarks (create, list, open connections)
+- Switch between tabs
+
+When the user asks you to perform terminal operations, use the available tools.
+Always explain what you are doing before executing commands.
+If a command produces errors, analyze the output and try to fix the issue.
+Prefer using the active terminal unless the user specifies otherwise.
+For SSH connections, create a bookmark and open it rather than running ssh directly.
+
+Reply in ${lang} language.`
+}
+
+function updateChatEntry (chatEntry, updates) {
+  const index = window.store.aiChatHistory.findIndex(i => i.id === chatEntry.id)
+  if (index !== -1) {
+    Object.assign(window.store.aiChatHistory[index], updates)
+    window.store.aiChatHistory = [...window.store.aiChatHistory]
+  }
+}
+
+async function callBackendAIchatWithTools (messages, config) {
+  return window.pre.runGlobalAsync(
+    'AIchatWithTools',
+    messages,
+    config.modelAI,
+    config.baseURLAI,
+    config.apiPathAI,
+    config.apiKeyAI,
+    config.proxyAI,
+    agentTools
+  )
+}
+
+export async function runAgentLoop (chatEntry, config, abortRef) {
+  const messages = [
+    { role: 'system', content: buildAgentSystemPrompt(config) },
+    { role: 'user', content: chatEntry.prompt }
+  ]
+  const toolCallsLog = []
+  let accumulatedContent = ''
+
+  updateChatEntry(chatEntry, {
+    isStreaming: true,
+    toolCalls: [],
+    response: ''
+  })
+
+  for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+    if (abortRef && abortRef.current) {
+      updateChatEntry(chatEntry, {
+        isStreaming: false,
+        response: accumulatedContent + '\n\n*(Agent stopped by user)*'
+      })
+      return
+    }
+
+    const result = await callBackendAIchatWithTools(messages, config)
+
+    if (result.error) {
+      updateChatEntry(chatEntry, {
+        isStreaming: false,
+        response: accumulatedContent + `\n\n**Error:** ${result.error}`
+      })
+      return
+    }
+
+    const assistantMessage = result.message
+    if (!assistantMessage) {
+      updateChatEntry(chatEntry, {
+        isStreaming: false,
+        response: accumulatedContent || 'No response from AI.'
+      })
+      return
+    }
+
+    messages.push(assistantMessage)
+
+    if (assistantMessage.content) {
+      accumulatedContent += (accumulatedContent ? '\n\n' : '') + assistantMessage.content
+      updateChatEntry(chatEntry, {
+        response: accumulatedContent
+      })
+    }
+
+    if (!assistantMessage.tool_calls || assistantMessage.tool_calls.length === 0) {
+      updateChatEntry(chatEntry, {
+        isStreaming: false,
+        response: accumulatedContent
+      })
+      return
+    }
+
+    for (const toolCall of assistantMessage.tool_calls) {
+      if (abortRef && abortRef.current) {
+        updateChatEntry(chatEntry, {
+          isStreaming: false,
+          response: accumulatedContent + '\n\n*(Agent stopped by user)*'
+        })
+        return
+      }
+
+      let args
+      try {
+        args = JSON.parse(toolCall.function.arguments)
+      } catch {
+        args = {}
+      }
+
+      const toolEntry = {
+        id: toolCall.id,
+        name: toolCall.function.name,
+        args,
+        status: 'running',
+        result: null
+      }
+      toolCallsLog.push(toolEntry)
+      updateChatEntry(chatEntry, {
+        toolCalls: [...toolCallsLog]
+      })
+
+      let toolResult
+      try {
+        toolResult = await executeToolCall(toolCall.function.name, args)
+        toolEntry.status = 'completed'
+        toolEntry.result = toolResult
+      } catch (err) {
+        toolEntry.status = 'error'
+        toolEntry.result = err.message
+      }
+
+      updateChatEntry(chatEntry, {
+        toolCalls: [...toolCallsLog]
+      })
+
+      messages.push({
+        role: 'tool',
+        tool_call_id: toolCall.id,
+        content: toolEntry.result
+      })
+    }
+  }
+
+  updateChatEntry(chatEntry, {
+    isStreaming: false,
+    response: accumulatedContent + '\n\n*(Agent reached maximum iterations)*'
+  })
+}

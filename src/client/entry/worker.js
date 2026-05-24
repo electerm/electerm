@@ -114,7 +114,10 @@ async function onMsg (e) {
   } else if (action === 'addEventListener') {
     const ws = self.insts[wsId]
     if (ws) {
-      ws.cb = (e) => {
+      if (!ws.cbs) {
+        ws.cbs = {}
+      }
+      const cb = (e) => {
         send({
           wsId,
           id,
@@ -123,13 +126,14 @@ async function onMsg (e) {
           }
         })
       }
-      ws.addEventListener(type, ws.cb)
+      ws.cbs[id] = cb
+      ws.addEventListener(type, cb)
     }
   } else if (action === 'removeEventListener') {
     const ws = self.insts[wsId]
-    if (ws) {
-      ws.removeEventListener(type, ws.cb)
-      delete ws.cb
+    if (ws && ws.cbs && ws.cbs[id]) {
+      ws.removeEventListener(type, ws.cbs[id])
+      delete ws.cbs[id]
     }
   }
 }

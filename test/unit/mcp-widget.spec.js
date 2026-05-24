@@ -278,7 +278,7 @@ describe('server lifecycle', () => {
   test('CORS preflight returns 204 with correct headers', async () => {
     const res = await axios.options(`http://127.0.0.1:${PORT}/mcp`)
     assert.equal(res.status, 204)
-    assert.equal(res.headers['access-control-allow-origin'], '*')
+    assert.equal(res.headers['access-control-allow-origin'], undefined)
     assert.ok(res.headers['access-control-allow-methods'].includes('POST'))
     assert.ok(res.headers['access-control-allow-headers'].includes('mcp-session-id'))
   })

@@ -3,11 +3,11 @@ import {
   Input,
   InputNumber,
   Space,
-  Select,
   Button,
   Modal
 } from 'antd'
 import { ColorPicker } from '../bookmark-form/common/color-picker.jsx'
+import FontSelect from '../common/font-select'
 
 const { TextArea } = Input
 const e = window.translate
@@ -24,16 +24,16 @@ export default function TextBgModal ({
   const [text, setText] = useState(initialText)
   const [fontSize, setFontSize] = useState(initialSize)
   const [color, setColor] = useState(initialColor)
-  const [fontFamily, setFontFamily] = useState(initialFontFamily)
-
-  const { fonts = [] } = window.et || {}
+  const [fontFamily, setFontFamily] = useState(
+    initialFontFamily.split(/, */g).filter(d => d.trim())
+  )
 
   const handleOk = () => {
     onOk({
       text,
       fontSize,
       color,
-      fontFamily
+      fontFamily: fontFamily.join(', ')
     })
   }
 
@@ -43,7 +43,7 @@ export default function TextBgModal ({
     setText(initialText)
     setFontSize(initialSize)
     setColor(initialColor)
-    setFontFamily(initialFontFamily)
+    setFontFamily(initialFontFamily.split(/, */g).filter(d => d.trim()))
   }
 
   const footer = (
@@ -108,30 +108,11 @@ export default function TextBgModal ({
 
           <div>
             <b>{e('fontFamily')}</b>
-            <Select
+            <FontSelect
               value={fontFamily}
               onChange={setFontFamily}
-              style={{ width: '100%' }}
               placeholder={e('selectFontFamily')}
-              showSearch
-            >
-              {
-                fonts.map(f => {
-                  return (
-                    <Select.Option value={f} key={f}>
-                      <span
-                        className='font-option'
-                        style={{
-                          fontFamily: f
-                        }}
-                      >
-                        {f}
-                      </span>
-                    </Select.Option>
-                  )
-                })
-              }
-            </Select>
+            />
           </div>
         </Space>
       </div>

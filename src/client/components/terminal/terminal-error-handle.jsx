@@ -33,7 +33,7 @@ export default memo(function TerminalErrorHandle ({
   return (
     <Alert
       className='terminal-error-handle'
-      message={errorMessage}
+      title={errorMessage}
       type='error'
       showIcon
       banner

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Flex, Input } from 'antd'
+import { Flex, Input, Segmented } from 'antd'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
 import uid from '../../common/uid'
@@ -21,6 +21,8 @@ const MAX_HISTORY = 100
 
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
+  const [mode, setMode] = useState('ask')
+  const isAgent = mode === 'agent'
 
   function handlePromptChange (e) {
     setPrompt(e.target.value)
@@ -38,6 +40,8 @@ export default function AIChat (props) {
       response: '',
       isStreaming: false,
       sessionId: null,
+      mode,
+      toolCalls: [],
       ...pick(props.config, [
         'modelAI',
         'roleAI',
@@ -57,7 +61,7 @@ export default function AIChat (props) {
     if (window.store.aiChatHistory.length > MAX_HISTORY) {
       window.store.aiChatHistory.splice(MAX_HISTORY)
     }
-  }, [prompt])
+  }, [prompt, mode])
 
   function renderHistory () {
     return (
@@ -73,6 +77,19 @@ export default function AIChat (props) {
 
   function clearHistory () {
     window.store.aiChatHistory = []
+  }
+
+  function renderTabSelect () {
+    if (isAgent) {
+      return null
+    }
+    return (
+      <TabSelect
+        selectedTabIds={props.selectedTabIds}
+        tabs={props.tabs}
+        activeTabId={props.activeTabId}
+      />
+    )
   }
 
   function renderSendIcon () {
@@ -126,11 +143,13 @@ export default function AIChat (props) {
         />
         <Flex className='ai-chat-terminals' justify='space-between' align='center'>
           <Flex align='center'>
-            <TabSelect
-              selectedTabIds={props.selectedTabIds}
-              tabs={props.tabs}
-              activeTabId={props.activeTabId}
+            <Segmented
+              options={['Ask', 'Agent']}
+              value={mode === 'ask' ? 'Ask' : 'Agent'}
+              onChange={(val) => setMode(val === 'Ask' ? 'ask' : 'agent')}
+              size='small'
             />
+            {renderTabSelect()}
             <SettingOutlined
               onClick={toggleConfig}
               className='mg1l pointer icon-hover toggle-ai-setting-icon'

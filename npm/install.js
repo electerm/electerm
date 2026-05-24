@@ -513,7 +513,7 @@ async function main () {
         await runLinux(`linux-arm64${suffix}`, `linux-arm64${suffix}.tar.gz`)
       } else if (arch === 'arm') {
         await runLinux(`linux-armv7l${suffix}`, `linux-armv7l${suffix}.tar.gz`)
-      } else if (arch === 'loong64') {
+      } else if (arch.includes('loong')) {
         await runLinux(`linux-loong64${suffix}`, `linux-loong64${suffix}.tar.gz`)
       } else {
         await runLinux(`linux-x64${suffix}`, `linux-x64${suffix}.tar.gz`)

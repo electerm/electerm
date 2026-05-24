@@ -35,7 +35,7 @@ import {
 } from '../../common/constants'
 import { SplitViewIcon } from '../icons/split-view'
 import { refs } from '../common/ref'
-import safeName from '../../common/safe-name'
+import sanitizeFilename from '../../common/sanitize-filename.js'
 import { HeartbeatIcon } from '../icons/heartbeat'
 import './session.styl'
 
@@ -343,7 +343,7 @@ export default class SessionWrapper extends Component {
       height
     } = this.calcTermWidthHeight()
     const themeConfig = copy(window.store.getThemeConfig())
-    const logName = safeName(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${tab.id}`)
+    const logName = sanitizeFilename(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${tab.id}`)
     const pops = {
       ...this.props,
       sftpPathFollowSsh,
