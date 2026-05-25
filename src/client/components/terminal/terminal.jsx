@@ -1263,6 +1263,17 @@ class Term extends Component {
           this.handleError({ message: text, from, srcId })
         }
       })
+    // Guard: component was unmounted while createTerm was pending.
+    // The child process is already running; connect briefly to trigger its cleanup.
+    if (this.onClose) {
+      if (r && r.port) {
+        try {
+          const tmpSock = new WebSocket(this.buildWsUrl(r.port))
+          tmpSock.onopen = () => tmpSock.close()
+        } catch (_e) {}
+      }
+      return
+    }
     if (typeof r === 'string' && r.includes('fail')) {
       return this.promote()
     }
