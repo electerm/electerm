@@ -117,6 +117,9 @@ exports.terminal = async function (initOptions, ws, uid) {
     })
   }
   child.on('exit', () => {
+    // Remove all pending message listeners to prevent memory leaks
+    // if the child exits before responding to sendMsgToChildProcess calls
+    child.removeAllListeners('message')
     activeTerminals.delete(pid)
   })
   if (type !== 'ftp') {
@@ -130,6 +133,14 @@ exports.terminal = async function (initOptions, ws, uid) {
       child.kill()
       throw err
     }
+  }
+
+  // Kill any existing child process for this pid before overwriting.
+  // This can happen on reconnects where a new process is spawned for the same tab id.
+  const existingEntry = activeTerminals.get(pid)
+  if (existingEntry) {
+    existingEntry.child.kill()
+    activeTerminals.delete(pid)
   }
 
   // Store the terminal process in the map
