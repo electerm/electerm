@@ -219,7 +219,7 @@ rebuild_native_modules() {
     cd "$cross_build_dir"
 
     # The Loongnix Electron 22 uses Node 16.17.1 source but with a custom
-    # NODE_MODULE_VERSION of 110 (standard Node 16 uses 108).
+    # NODE_MODULE_VERSION of 110 (standard Node 16 headers use 93).
     # We must download Node 16.17.1 headers and patch the ABI to 110,
     # then use npm_config_nodedir so node-gyp uses these patched headers.
     local node_base_version="16.17.1"
@@ -235,7 +235,7 @@ rebuild_native_modules() {
     log_info "Patching NODE_MODULE_VERSION to ${target_abi}..."
     local node_version_header="$headers_dir/include/node/node_version.h"
     if [ -f "$node_version_header" ]; then
-        sed -i "s/#define NODE_MODULE_VERSION 108/#define NODE_MODULE_VERSION ${target_abi}/" "$node_version_header"
+        sed -i "s/#define NODE_MODULE_VERSION [0-9]*/#define NODE_MODULE_VERSION ${target_abi}/" "$node_version_header"
         log_info "Patched: $(grep NODE_MODULE_VERSION "$node_version_header" | head -1)"
     else
         log_error "node_version.h not found at $node_version_header"
