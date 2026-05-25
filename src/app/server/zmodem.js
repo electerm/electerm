@@ -7,6 +7,7 @@ const fs = require('fs')
 const path = require('path')
 const log = require('../common/log')
 const generate = require('../common/uid')
+const sanitizeFilename = require('../common/sanitize-filename')
 
 // Import zmodem2 (pure JS, no WASM)
 const { Sender, Receiver, SenderEvent, ReceiverEvent } = require('zmodem2')
@@ -732,7 +733,7 @@ class ZmodemSession {
     }
 
     try {
-      let filePath = path.join(this.savePath, name)
+      let filePath = path.join(this.savePath, sanitizeFilename(name))
 
       // Check if file exists, add suffix if needed
       if (fs.existsSync(filePath)) {
