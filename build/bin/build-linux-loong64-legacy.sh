@@ -26,7 +26,7 @@ SKIP_NATIVE="${SKIP_NATIVE:-0}"
 WORKFLOW_NAME="${WORKFLOW_NAME:-linux-loong64-legacy}"
 
 # Legacy native module versions
-NODE_PTY_VERSION="0.10.1"
+NODE_PTY_VERSION="1.1.0"
 SERIALPORT_VERSION="10.5.0"
 
 # GCC 8 from Loongnix (old-world ABI)

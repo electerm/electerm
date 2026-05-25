@@ -60,7 +60,7 @@ jobs:
         pkg.devDependencies.electron = '22.3.27';
         pkg.devDependencies['electron-builder'] = '26.0.20';
         pkg.devDependencies['@electron/rebuild'] = '3.7.2';
-        pkg.dependencies['node-pty'] = '0.10.1';
+        pkg.dependencies['node-pty'] = '1.1.0';
         pkg.dependencies.serialport = '10.5.0';
         pkg.devDependencies.vite = '4';
         pkg.devDependencies['@vitejs/plugin-react'] = '4.7.0';
