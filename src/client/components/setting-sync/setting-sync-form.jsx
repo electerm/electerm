@@ -309,7 +309,7 @@ export default function SyncForm (props) {
     )
   }
   function createPasswordItem () {
-    if (syncType === syncTypes.cloud || syncType === syncTypes.webdav) {
+    if (syncType === syncTypes.cloud) {
       return null
     }
     return (
