@@ -218,16 +218,35 @@ rebuild_native_modules() {
     mkdir -p "$cross_build_dir"
     cd "$cross_build_dir"
 
-    # The Loongnix Electron 22 binary uses NODE_MODULE_VERSION 110 (Node 20 ABI).
-    # We must compile against Node 20 headers to match.
-    # Do NOT use electronjs.org/headers — it may not serve loong64 headers.
-    local node_abi_version="20.0.0"
+    # The Loongnix Electron 22 uses Node 16.17.1 source but with a custom
+    # NODE_MODULE_VERSION of 110 (standard Node 16 uses 108).
+    # We must download Node 16.17.1 headers and patch the ABI to 110,
+    # then use npm_config_nodedir so node-gyp uses these patched headers.
+    local node_base_version="16.17.1"
+    local target_abi="110"
+    local headers_dir="$WORK_DIR/node-headers-${node_base_version}"
+
+    log_info "Downloading Node.js ${node_base_version} headers..."
+    curl -sL "https://nodejs.org/download/release/v${node_base_version}/node-v${node_base_version}-headers.tar.gz" -o "$WORK_DIR/node-headers.tar.gz"
+    mkdir -p "$headers_dir"
+    tar xzf "$WORK_DIR/node-headers.tar.gz" -C "$headers_dir" --strip-components=1
+
+    # Patch NODE_MODULE_VERSION from 108 to 110 in the headers
+    log_info "Patching NODE_MODULE_VERSION to ${target_abi}..."
+    local node_version_header="$headers_dir/include/node/node_version.h"
+    if [ -f "$node_version_header" ]; then
+        sed -i "s/#define NODE_MODULE_VERSION 108/#define NODE_MODULE_VERSION ${target_abi}/" "$node_version_header"
+        log_info "Patched: $(grep NODE_MODULE_VERSION "$node_version_header" | head -1)"
+    else
+        log_error "node_version.h not found at $node_version_header"
+        exit 1
+    fi
 
     # Build node-pty (legacy version)
-    log_info "Building node-pty@${NODE_PTY_VERSION} for loong64 (target node ${node_abi_version})..."
+    log_info "Building node-pty@${NODE_PTY_VERSION} for loong64..."
     mkdir -p build-node-pty && cd build-node-pty
     npm init -y 2>/dev/null
-    npm_config_target=${node_abi_version} npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install node-pty@${NODE_PTY_VERSION} --build-from-source 2>&1 | tail -20
+    npm_config_nodedir="$headers_dir" npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install node-pty@${NODE_PTY_VERSION} --build-from-source 2>&1 | tail -20
     find . -name "pty.node" -type f | while read f; do
         log_info "Found pty.node: $f"
         file "$f"
@@ -236,10 +255,10 @@ rebuild_native_modules() {
     cd "$cross_build_dir"
 
     # Build @serialport/bindings-cpp (legacy serialport@10.5.0)
-    log_info "Building serialport@${SERIALPORT_VERSION} bindings for loong64 (target node ${node_abi_version})..."
+    log_info "Building serialport@${SERIALPORT_VERSION} bindings for loong64..."
     mkdir -p build-serialport && cd build-serialport
     npm init -y 2>/dev/null
-    npm_config_target=${node_abi_version} npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install @serialport/bindings-cpp --build-from-source 2>&1 | tail -20
+    npm_config_nodedir="$headers_dir" npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install @serialport/bindings-cpp --build-from-source 2>&1 | tail -20
     find . -path "*/build/Release/bindings.node" -type f | while read f; do
         log_info "Found bindings.node: $f"
         file "$f"
@@ -247,7 +266,7 @@ rebuild_native_modules() {
     done
     cd "$cross_build_dir"
 
-    unset CC CXX AR RANLIB LINK GYP_DEFINES npm_config_arch npm_config_target_arch npm_config_target
+    unset CC CXX AR RANLIB LINK GYP_DEFINES npm_config_arch npm_config_target_arch npm_config_nodedir
 
     # Verify native modules are LoongArch64 ELF binaries
     if [ -d "$native_modules_dir" ] && [ "$(ls -A "$native_modules_dir" 2>/dev/null)" ]; then
