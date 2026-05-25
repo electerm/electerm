@@ -232,7 +232,7 @@ rebuild_native_modules() {
 
     # Build node-pty (legacy version)
     log_info "Building node-pty@${NODE_PTY_VERSION} for loong64..."
-    log_info "CC=$CC CXX=$CXX"
+    log_info "CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++"
     log_info "npm_config_nodedir=$headers_dir"
     log_info "npm_config_arch=loong64 npm_config_target_arch=loong64"
     mkdir -p build-node-pty && cd build-node-pty
