@@ -232,12 +232,22 @@ rebuild_native_modules() {
 
     # Build node-pty (legacy version)
     log_info "Building node-pty@${NODE_PTY_VERSION} for loong64..."
+    log_info "CC=$CC CXX=$CXX"
+    log_info "npm_config_nodedir=$headers_dir"
+    log_info "npm_config_arch=loong64 npm_config_target_arch=loong64"
     mkdir -p build-node-pty && cd build-node-pty
     npm init -y 2>/dev/null
-    npm_config_nodedir="$headers_dir" npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install node-pty@${NODE_PTY_VERSION} --build-from-source 2>&1 | tail -20
+    npm_config_nodedir="$headers_dir" npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install node-pty@${NODE_PTY_VERSION} --build-from-source 2>&1 | tee /tmp/node-pty-build.log | tail -30
+    log_info "Full node-pty build log saved to /tmp/node-pty-build.log"
     find . -name "pty.node" -type f | while read f; do
         log_info "Found pty.node: $f"
         file "$f"
+        log_info "ELF headers:"
+        readelf -h "$f" 2>/dev/null | grep -E "Machine|Class" || true
+        log_info "Dynamic dependencies:"
+        readelf -d "$f" 2>/dev/null | grep NEEDED || true
+        log_info "Undefined symbols:"
+        readelf -s "$f" 2>/dev/null | grep "UND" | grep -v "UND$" | head -20 || true
         cp "$f" "$native_modules_dir/node-pty.node"
     done
     cd "$cross_build_dir"
@@ -246,10 +256,12 @@ rebuild_native_modules() {
     log_info "Building serialport@${SERIALPORT_VERSION} bindings for loong64..."
     mkdir -p build-serialport && cd build-serialport
     npm init -y 2>/dev/null
-    npm_config_nodedir="$headers_dir" npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install @serialport/bindings-cpp --build-from-source 2>&1 | tail -20
+    npm_config_nodedir="$headers_dir" npm_config_arch=loong64 npm_config_target_arch=loong64 CC=loongarch64-linux-gnu-gcc CXX=loongarch64-linux-gnu-g++ npm install @serialport/bindings-cpp --build-from-source 2>&1 | tee /tmp/serialport-build.log | tail -30
     find . -path "*/build/Release/bindings.node" -type f | while read f; do
         log_info "Found bindings.node: $f"
         file "$f"
+        log_info "ELF headers:"
+        readelf -h "$f" 2>/dev/null | grep -E "Machine|Class" || true
         cp "$f" "$native_modules_dir/serialport-bindings.node"
     done
     cd "$cross_build_dir"
