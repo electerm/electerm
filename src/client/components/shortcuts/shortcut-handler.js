@@ -54,15 +54,15 @@ export function handleTerminalSelectionReplace (event, ctx) {
   const isPrintable = key && key.length === 1
   if (!isBackspace && !isDelete && !isPrintable) return false
 
+  const info = getSelectionReplaceInfo(ctx.term)
+  if (!info) return false
+
   if (event && event.preventDefault) {
     event.preventDefault()
   }
   if (event && event.stopPropagation) {
     event.stopPropagation()
   }
-
-  const info = getSelectionReplaceInfo(ctx.term)
-  if (!info) return false
 
   const { startX, endX, cursorX } = info
   const move = startX - cursorX
@@ -146,6 +146,12 @@ export function shortcutExtend (Cls) {
     if (isInAntdInput()) {
       return
     }
+    // During IME composition, let xterm handle the event through its
+    // CompositionHelper. Intercepting here breaks composition (e.g. first
+    // char lost, closing bracket duplicated when typing Chinese inside brackets).
+    if (event.isComposing) {
+      return
+    }
     if (handleTerminalSelectionReplace(event, this)) {
       return false
     }
@@ -156,12 +162,6 @@ export function shortcutExtend (Cls) {
       !altKey &&
       !ctrlKey
     ) {
-      // If IME is composing, let the browser delete the composition char only
-      // Returning false tells xterm not to process the event (and not to call
-      // preventDefault), so the native textarea backspace still works for IME.
-      if (event.isComposing) {
-        return false
-      }
       this.props.onDelKeyPressed()
       const delKey = this.props.config.backspaceMode === '^?' ? 8 : 127
       const altDelDelKey = delKey === 8 ? 127 : 8
