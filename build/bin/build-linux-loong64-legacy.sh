@@ -218,29 +218,17 @@ rebuild_native_modules() {
     mkdir -p "$cross_build_dir"
     cd "$cross_build_dir"
 
-    # The Loongnix Electron 22 uses Node 16.17.1 source but with a custom
-    # NODE_MODULE_VERSION of 110 (standard Node 16 headers use 93).
-    # We must download Node 16.17.1 headers and patch the ABI to 110,
-    # then use npm_config_nodedir so node-gyp uses these patched headers.
-    local node_base_version="16.17.1"
-    local target_abi="110"
-    local headers_dir="$WORK_DIR/node-headers-${node_base_version}"
+    # Use Electron 22.3.27 headers which have:
+    # - NODE_MODULE_VERSION 110 (matching Loongnix Electron)
+    # - v8 10.8 headers (matching Electron's Chromium-based v8)
+    # Standard Node 16 headers have v8 9.4 and ABI 93 - wrong for Electron.
+    local headers_dir="$WORK_DIR/electron-headers"
 
-    log_info "Downloading Node.js ${node_base_version} headers..."
-    curl -sL "https://nodejs.org/download/release/v${node_base_version}/node-v${node_base_version}-headers.tar.gz" -o "$WORK_DIR/node-headers.tar.gz"
+    log_info "Downloading Electron v${ELECTRON_VERSION} headers..."
+    curl -sL "https://artifacts.electronjs.org/headers/dist/v${ELECTRON_VERSION}/node-v${ELECTRON_VERSION}-headers.tar.gz" -o "$WORK_DIR/electron-headers.tar.gz"
     mkdir -p "$headers_dir"
-    tar xzf "$WORK_DIR/node-headers.tar.gz" -C "$headers_dir" --strip-components=1
-
-    # Patch NODE_MODULE_VERSION from 108 to 110 in the headers
-    log_info "Patching NODE_MODULE_VERSION to ${target_abi}..."
-    local node_version_header="$headers_dir/include/node/node_version.h"
-    if [ -f "$node_version_header" ]; then
-        sed -i "s/#define NODE_MODULE_VERSION [0-9]*/#define NODE_MODULE_VERSION ${target_abi}/" "$node_version_header"
-        log_info "Patched: $(grep NODE_MODULE_VERSION "$node_version_header" | head -1)"
-    else
-        log_error "node_version.h not found at $node_version_header"
-        exit 1
-    fi
+    tar xzf "$WORK_DIR/electron-headers.tar.gz" -C "$headers_dir" --strip-components=1
+    log_info "Electron headers NODE_MODULE_VERSION: $(grep NODE_MODULE_VERSION "$headers_dir/include/node/node_version.h" | grep define | head -1)"
 
     # Build node-pty (legacy version)
     log_info "Building node-pty@${NODE_PTY_VERSION} for loong64..."
