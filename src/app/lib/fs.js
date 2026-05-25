@@ -112,32 +112,54 @@ function getFolderSize (folderPath) {
  * @param {string} localFolderPath absolute path of directory
  */
 const rmrf = (localFolderPath) => {
-  const cmd = isWin
-    ? `Remove-Item '${localFolderPath}' -Force -Recurse -ErrorAction SilentlyContinue`
-    : `rm -rf "${localFolderPath}"`
-  return isWin ? runWinCmd(cmd) : run(cmd)
+  return fss.rm(localFolderPath, { recursive: true, force: true })
 }
 
 /**
- * mv from to
- * @param {string} localFolderPath absolute path of directory
+ * Recursive copy helper for Node.js < 16.7.0 (where fs.cp doesn't exist)
  */
-const mv = (from, to) => {
-  const cmd = isWin
-    ? `Move-Item '${(from)}' '${to}'`
-    : `mv '${from}' '${to}'`
-  return isWin ? runWinCmd(cmd) : run(cmd)
+async function cpRecursive (src, dest) {
+  const stat = await fss.stat(src)
+  if (stat.isDirectory()) {
+    await fss.mkdir(dest, { recursive: true })
+    const entries = await fss.readdir(src)
+    for (const entry of entries) {
+      await cpRecursive(path.join(src, entry), path.join(dest, entry))
+    }
+  } else {
+    await fss.copyFile(src, dest)
+  }
 }
 
 /**
  * cp from to
- * @param {string} localFolderPath absolute path of directory
+ * @param {string} from absolute source path
+ * @param {string} to absolute destination path
  */
-const cp = (from, to) => {
-  const cmd = isWin
-    ? `Copy-Item '${from}' -Destination '${to}' -Recurse`
-    : `cp -r "${from}" "${to}"`
-  return isWin ? runWinCmd(cmd) : run(cmd)
+const cp = async (from, to) => {
+  if (typeof fss.cp === 'function') {
+    return fss.cp(from, to, { recursive: true, force: true })
+  }
+  return cpRecursive(from, to)
+}
+
+/**
+ * mv from to
+ * @param {string} from absolute source path
+ * @param {string} to absolute destination path
+ */
+const mv = async (from, to) => {
+  try {
+    await fss.rename(from, to)
+  } catch (error) {
+    if (!error || error.code !== 'EXDEV') {
+      throw error
+    }
+    // Cross-device move: copy then remove
+    await cp(from, to)
+    await fss.rm(from, { recursive: true, force: true })
+  }
+  return true
 }
 
 /**
