@@ -54,6 +54,12 @@ const widgetInfo = {
       description: 'Enable bookmark APIs (list, get, add, edit, delete)'
     },
     {
+      name: 'bookmarkKeyword',
+      type: 'string',
+      default: '',
+      description: 'Filter keyword for bookmark list API. Only bookmarks with titles containing this keyword (case-insensitive) will be returned. Leave empty to return all bookmarks.'
+    },
+    {
       name: 'enableBookmarkGroups',
       type: 'boolean',
       default: true,
@@ -399,7 +405,12 @@ class ElectermMCPServer {
           inputSchema: {}
         },
         async (args) => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'list_bookmarks', args: {} })
+          let result = await self.sendToRenderer('tool-call', { toolName: 'list_bookmarks', args: {} })
+          const keyword = self.config.bookmarkKeyword
+          if (keyword && Array.isArray(result)) {
+            const lower = keyword.toLowerCase()
+            result = result.filter(b => (b.title || '').toLowerCase().includes(lower))
+          }
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
         }
       )

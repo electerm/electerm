@@ -172,8 +172,28 @@ export default Store => {
 
   // ==================== Bookmark APIs ====================
 
+  const bookmarkSensitiveFields = [
+    'password', 'privateKey', 'passphrase', 'certificate', 'proxy',
+    'connectionHoppings', 'sshTunnels'
+  ]
+  const bookmarkFeatureFields = [
+    'connectionHoppings', 'sshTunnels', 'quickCommands', 'runScripts'
+  ]
+
+  function sanitizeBookmark (b) {
+    const safe = Object.fromEntries(
+      Object.entries(b).filter(([k]) => !bookmarkSensitiveFields.includes(k))
+    )
+    for (const key of bookmarkFeatureFields) {
+      if (Array.isArray(b[key]) && b[key].length) {
+        safe[`has${key.charAt(0).toUpperCase() + key.slice(1)}`] = true
+      }
+    }
+    return safe
+  }
+
   Store.prototype.mcpListBookmarks = function () {
-    return deepCopy(window.store.bookmarks)
+    return deepCopy(window.store.bookmarks).map(sanitizeBookmark)
   }
 
   Store.prototype.mcpGetBookmark = function (args) {
@@ -182,7 +202,7 @@ export default Store => {
     if (!bookmark) {
       throw new Error(`Bookmark not found: ${args.id}`)
     }
-    return deepCopy(bookmark)
+    return deepCopy(sanitizeBookmark(bookmark))
   }
 
   Store.prototype.mcpAddBookmark = async function (args) {
