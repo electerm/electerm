@@ -369,6 +369,109 @@ describe('parseQuickConnect', function () {
     assert.strictEqual(result.title, 'MyServer')
   })
 
+  // Test trailing slash support
+  test('should parse ssh://user@host/ with trailing slash', () => {
+    const result = parseQuickConnect('ssh://user@192.168.1.100/')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.username, 'user')
+  })
+
+  test('should parse ssh://user:password@host:port/ with trailing slash', () => {
+    const result = parseQuickConnect('ssh://user:password@192.168.1.100:22/')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.username, 'user')
+    assert.strictEqual(result.password, 'password')
+    assert.strictEqual(result.port, 22)
+  })
+
+  test('should parse ssh://host:port/ with trailing slash', () => {
+    const result = parseQuickConnect('ssh://192.168.1.100:2222/')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.port, 2222)
+  })
+
+  test('should parse ssh://host/ with trailing slash', () => {
+    const result = parseQuickConnect('ssh://192.168.1.100/')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+  })
+
+  test('should parse ftp://user@host:port/ with trailing slash', () => {
+    const result = parseQuickConnect('ftp://user@ftp.example.com:21/')
+    assert.strictEqual(result.type, 'ftp')
+    assert.strictEqual(result.host, 'ftp.example.com')
+    assert.strictEqual(result.user, 'user')
+    assert.strictEqual(result.port, 21)
+  })
+
+  test('should parse telnet://host/ with trailing slash', () => {
+    const result = parseQuickConnect('telnet://192.168.1.1/')
+    assert.strictEqual(result.type, 'telnet')
+    assert.strictEqual(result.host, '192.168.1.1')
+  })
+
+  test('should parse vnc://host/ with trailing slash', () => {
+    const result = parseQuickConnect('vnc://192.168.1.100/')
+    assert.strictEqual(result.type, 'vnc')
+    assert.strictEqual(result.host, '192.168.1.100')
+  })
+
+  test('should parse https://host/ with trailing slash', () => {
+    const result = parseQuickConnect('https://example.com/')
+    assert.strictEqual(result.type, 'web')
+    assert.strictEqual(result.url, 'https://example.com')
+  })
+
+  test('should parse https://host:port/ with trailing slash', () => {
+    const result = parseQuickConnect('https://example.com:8443/')
+    assert.strictEqual(result.type, 'web')
+    assert.strictEqual(result.url, 'https://example.com:8443')
+  })
+
+  test('should parse electerm://host/ with trailing slash', () => {
+    const result = parseQuickConnect('electerm://192.168.1.100/')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+  })
+
+  test('should parse electerm://user@host:port/ with trailing slash', () => {
+    const result = parseQuickConnect('electerm://user@192.168.1.100:22/')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.username, 'user')
+    assert.strictEqual(result.port, 22)
+  })
+
+  test('should parse host/ shortcut with trailing slash', () => {
+    const result = parseQuickConnect('192.168.1.100/')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+  })
+
+  test('should parse user@host/ shortcut with trailing slash', () => {
+    const result = parseQuickConnect('user@192.168.1.100/')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.username, 'user')
+  })
+
+  test('should parse host:port/ shortcut with trailing slash', () => {
+    const result = parseQuickConnect('192.168.1.100:2222/')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.1.100')
+    assert.strictEqual(result.port, 2222)
+  })
+
+  test('should parse ssh://host/opts/ with trailing slash before opts', () => {
+    const result = parseQuickConnect("ssh://user@host:22/?opts='{\"title\": \"My Server\"}'")
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, 'host')
+    assert.strictEqual(result.title, 'My Server')
+  })
+
   // Test invalid inputs
   test('should return null for unsupported protocol', () => {
     const result = parseQuickConnect('unsupported://host')

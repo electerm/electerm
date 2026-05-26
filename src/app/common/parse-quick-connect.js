@@ -115,8 +115,11 @@ function parseQuickConnect (str) {
   }
 
   try {
+    // Strip trailing slashes (supports pasted URLs like host/ or ssh://host/)
+    const input = trimmed.replace(/\/+$/, '')
+
     // Detect protocol
-    const protocolMatch = trimmed.match(/^(ssh|telnet|vnc|rdp|spice|serial|ftp|https?|electerm):\/\//i)
+    const protocolMatch = input.match(/^(ssh|telnet|vnc|rdp|spice|serial|ftp|https?|electerm):\/\//i)
 
     let protocol = ''
     let connectionString = ''
@@ -129,28 +132,28 @@ function parseQuickConnect (str) {
       if (protocol === 'http' || protocol === 'https') {
         protocol = 'web'
       }
-      connectionString = trimmed.slice(protocolMatch[0].length)
+      connectionString = input.slice(protocolMatch[0].length)
     } else {
       // Shortcut format - default to SSH
       // Match user@host or user@host:port or just host or host:port
       // Use last colon to determine port for host:port format
-      if (/^[\w.-]+@[\w.-]+/.test(trimmed)) {
+      if (/^[\w.-]+@[\w.-]+/.test(input)) {
         // user@host or user@host:port
         protocol = 'ssh'
-        connectionString = trimmed
-      } else if (/^[\w.-]+:.*:[\d]+$/.test(trimmed)) {
+        connectionString = input
+      } else if (/^[\w.-]+:.*:[\d]+$/.test(input)) {
         // host:port format with colons in hostname (e.g., localhost:23344, zxd:localhost:23344)
         // Check if the last colon is followed by digits (port number)
         protocol = 'ssh'
-        connectionString = trimmed
-      } else if (/^[\w.-]+:[\d]+$/.test(trimmed)) {
+        connectionString = input
+      } else if (/^[\w.-]+:[\d]+$/.test(input)) {
         // host:port (no username, simple format like host:22)
         protocol = 'ssh'
-        connectionString = trimmed
-      } else if (/^[\w.-]+$/.test(trimmed)) {
+        connectionString = input
+      } else if (/^[\w.-]+$/.test(input)) {
         // just host
         protocol = 'ssh'
-        connectionString = trimmed
+        connectionString = input
       } else {
         return null
       }
