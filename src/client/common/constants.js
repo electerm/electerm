@@ -180,6 +180,13 @@ export const commonParities = [
   'none', 'even', 'mark', 'odd', 'space'
 ]
 
+export const commonLineEndings = [
+  { value: '', label: 'none' },
+  { value: '\r', label: 'CR' },
+  { value: '\n', label: 'LF' },
+  { value: '\r\n', label: 'CR+LF' }
+]
+
 export const maxBatchInput = 30
 export const windowControlWidth = 94
 export const baseUpdateCheckUrls = [

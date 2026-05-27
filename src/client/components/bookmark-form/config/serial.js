@@ -1,5 +1,5 @@
 import { formItemLayout } from '../../../common/form-layout.js'
-import { terminalSerialType, commonBaudRates, commonDataBits, commonStopBits, commonParities } from '../../../common/constants.js'
+import { terminalSerialType, commonBaudRates, commonDataBits, commonStopBits, commonParities, commonLineEndings } from '../../../common/constants.js'
 import defaultSettings from '../../../common/default-setting.js'
 import { createBaseInitValues, getTerminalBackgroundDefaults } from '../common/init-values.js'
 import { commonFields } from './common-fields.js'
@@ -57,6 +57,7 @@ const serialConfig = {
         { type: 'switch', name: 'xon', label: 'xon', valuePropName: 'checked' },
         { type: 'switch', name: 'xoff', label: 'xoff', valuePropName: 'checked' },
         { type: 'switch', name: 'xany', label: 'xany', valuePropName: 'checked' },
+        { type: 'select', name: 'lineEnding', label: 'lineEnding', options: commonLineEndings.map(d => ({ value: d.value, label: d.label })) },
         commonFields.runScripts,
         commonFields.description,
         { type: 'input', name: 'type', label: 'type', hidden: true }

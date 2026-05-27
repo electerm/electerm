@@ -22,8 +22,10 @@ class TerminalSerial extends TerminalBase {
       xon = false,
       xoff = false,
       xany = false,
+      lineEnding = '',
       path
     } = this.initOptions
+    this.lineEnding = lineEnding
     await new Promise((resolve, reject) => {
       this.port = new SerialPort({
         // binding: MockBinding,
@@ -64,8 +66,10 @@ class TerminalSerial extends TerminalBase {
 
   write (data) {
     try {
+      if (this.lineEnding) {
+        data = data.replace(/\r?\n/g, this.lineEnding).replace(/\r(?!\n)/g, this.lineEnding)
+      }
       this.port.write(data)
-      // this.writeLog(data)
     } catch (e) {
       log.error(e)
     }
