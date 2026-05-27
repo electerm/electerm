@@ -8,6 +8,7 @@ export class DropFileModal extends Component {
     const {
       visible,
       files,
+      isSerial,
       onSelect,
       onCancel
     } = this.props
@@ -23,13 +24,17 @@ export class DropFileModal extends Component {
         onCancel={onCancel}
         footer={
           <div className='custom-modal-footer-buttons'>
-            <button
-              type='button'
-              className='custom-modal-ok-btn'
-              onClick={() => onSelect('trz')}
-            >
-              trz
-            </button>
+            {
+              !isSerial && (
+                <button
+                  type='button'
+                  className='custom-modal-ok-btn'
+                  onClick={() => onSelect('trz')}
+                >
+                  trz
+                </button>
+              )
+            }
             <button
               type='button'
               className='custom-modal-cancel-btn'
@@ -37,6 +42,17 @@ export class DropFileModal extends Component {
             >
               rz
             </button>
+            {
+              isSerial && (
+                <button
+                  type='button'
+                  className='custom-modal-ok-btn'
+                  onClick={() => onSelect('xmodem')}
+                >
+                  XMODEM
+                </button>
+              )
+            }
             <button
               type='button'
               className='custom-modal-cancel-btn'

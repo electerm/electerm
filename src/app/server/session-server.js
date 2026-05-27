@@ -29,6 +29,7 @@ const {
 const wsDec = require('./ws-dec')
 const { zmodemManager } = require('./zmodem')
 const { trzszManager } = require('./trzsz')
+const { xmodemManager } = require('./xmodem')
 
 const {
   tokenElecterm,
@@ -134,7 +135,14 @@ if (type === 'rdp') {
         return
       }
 
-      // Not zmodem or trzsz data, send to WebSocket
+      // Check for xmodem protocol before sending to client
+      const xmodemConsumed = xmodemManager.handleData(pid, combinedData, term, ws)
+      if (xmodemConsumed) {
+        sendTimeout = null
+        return
+      }
+
+      // Not zmodem, trzsz, or xmodem data, send to WebSocket
       ws.send(combinedData)
       sendTimeout = null
     }
@@ -162,6 +170,13 @@ if (type === 'rdp') {
         return
       }
 
+      // Check if xmodem session is active and handle data
+      if (xmodemManager.isActive(pid)) {
+        term.writeLog(data)
+        xmodemManager.handleData(pid, data, term, ws)
+        return
+      }
+
       const chunk = Buffer.isBuffer(data) ? data : Buffer.from(data)
 
       // Bypass batching for very large chunks to avoid parser desync.
@@ -180,6 +195,10 @@ if (type === 'rdp') {
         }
         const trzszConsumed = trzszManager.handleData(pid, chunk, term, ws)
         if (trzszConsumed) {
+          return
+        }
+        const xmodemConsumed = xmodemManager.handleData(pid, chunk, term, ws)
+        if (xmodemConsumed) {
           return
         }
         ws.send(chunk)
@@ -209,6 +228,8 @@ if (type === 'rdp') {
       zmodemManager.destroySession(pid)
       // Clean up trzsz session
       trzszManager.destroySession(pid)
+      // Clean up xmodem session
+      xmodemManager.destroySession(pid)
       term.kill()
       log.debug('Closed terminal ' + pid)
       // Clean things up
@@ -233,6 +254,10 @@ if (type === 'rdp') {
             }
             if (parsed.action === 'trzsz-event') {
               trzszManager.handleMessage(pid, parsed, term, ws)
+              return
+            }
+            if (parsed.action === 'xmodem-event') {
+              xmodemManager.handleMessage(pid, parsed, term, ws)
               return
             }
             if (parsed.action === 'keepalive') {
