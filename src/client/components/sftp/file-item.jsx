@@ -271,7 +271,7 @@ export default class FileSection extends React.Component {
     if (!toFile.id || !toFile.isDirectory) {
       toFile = {
         type,
-        ...getFolderFromFilePath(this.props[type + 'Path']),
+        ...getFolderFromFilePath(this.props[type + 'Path'], type === typeMap.remote),
         isDirectory: false
       }
     }
