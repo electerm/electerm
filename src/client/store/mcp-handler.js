@@ -11,6 +11,10 @@ import {
   getLocalFileInfo,
   getRemoteFileInfo
 } from '../components/sftp/file-read'
+import {
+  fixBookmarkData,
+  validateBookmarkData
+} from '../components/bookmark-form/fix-bookmark-default'
 
 export default Store => {
   // Initialize MCP handler - called when MCP widget is started
@@ -207,16 +211,14 @@ export default Store => {
 
   Store.prototype.mcpAddBookmark = async function (args) {
     const { store } = window
-    const bookmark = {
+    const bookmark = fixBookmarkData({
       id: uid(),
-      title: args.title,
-      host: args.host || '',
-      port: args.port || 22,
-      username: args.username || '',
-      password: args.password || '',
-      type: args.type || 'local',
-      term: 'xterm-256color',
       ...args
+    })
+
+    const { valid, errors } = validateBookmarkData(bookmark)
+    if (!valid) {
+      throw new Error(errors.join(', '))
     }
 
     store.addItem(bookmark, settingMap.bookmarks)
