@@ -10,8 +10,10 @@ import {
   UnorderedListOutlined
 } from '@ant-design/icons'
 import {
-  aiConfigWikiLink
+  aiConfigWikiLink,
+  aiChatModeLsKey
 } from '../../common/constants'
+import { getItem, setItem } from '../../common/safe-local-storage.js'
 import HelpIcon from '../common/help-icon'
 import { refsStatic } from '../common/ref'
 import './ai.styl'
@@ -21,11 +23,17 @@ const MAX_HISTORY = 100
 
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
-  const [mode, setMode] = useState('ask')
+  const [mode, setMode] = useState(() => getItem(aiChatModeLsKey) || 'ask')
   const isAgent = mode === 'agent'
 
   function handlePromptChange (e) {
     setPrompt(e.target.value)
+  }
+
+  function handleModeChange (val) {
+    const m = val === 'Ask' ? 'ask' : 'agent'
+    setItem(aiChatModeLsKey, m)
+    setMode(m)
   }
 
   const handleSubmit = useCallback(function () {
@@ -147,7 +155,7 @@ export default function AIChat (props) {
             <Segmented
               options={['Ask', 'Agent']}
               value={mode === 'ask' ? 'Ask' : 'Agent'}
-              onChange={(val) => setMode(val === 'Ask' ? 'ask' : 'agent')}
+              onChange={handleModeChange}
               size='small'
             />
             {renderTabSelect()}
