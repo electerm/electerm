@@ -24,7 +24,8 @@ export default (data) => {
   return Object.keys(data).map(k => {
     const rd = (txt) => {
       // txt is in KB, convert to bytes for filesize function
-      const r = k === 'mem' ? filesize(parseInt(txt, 10) * 1024) : txt
+      const parsed = parseInt(txt, 10)
+      const r = k === 'mem' ? filesize(Number.isFinite(parsed) ? parsed * 1024 : 0) : txt
       const itemProps = {
         className: 'activity-item pointer',
         'data-content': r,

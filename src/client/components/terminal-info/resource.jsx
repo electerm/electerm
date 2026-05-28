@@ -2,7 +2,7 @@
  * cpu/swap/mem general usage
  */
 
-import { isEmpty, isUndefined } from 'lodash-es'
+import { isEmpty } from 'lodash-es'
 import { Progress } from 'antd'
 import parseInt10 from '../../common/parse-int10'
 
@@ -51,7 +51,7 @@ export default function TerminalInfoResource (props) {
       percent,
       name
     } = obj
-    const hasPercent = !isUndefined(percent)
+    const hasPercent = Number.isFinite(percent)
     const p = hasPercent
       ? percent
       : computePercent(used, total) || 0
@@ -74,7 +74,7 @@ export default function TerminalInfoResource (props) {
   if (terminalInfos.includes('cpu')) {
     data.push({
       name: 'cpu',
-      percent: parseInt10(cpu)
+      percent: parseInt10(cpu) || 0
     })
   }
   if (terminalInfos.includes('mem')) {
