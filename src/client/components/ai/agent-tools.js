@@ -153,6 +153,14 @@ export const agentTools = [
       description: 'Create a new bookmark. Specify the type and provide type-specific fields. Supported types: ' + Object.keys(bookmarkSchemas).join(', ') + '.',
       parameters: buildAddBookmarkParameters()
     }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'open_tab',
+      description: 'Open a terminal tab directly with connection parameters without creating a bookmark. Supported types: ' + Object.keys(bookmarkSchemas).join(', ') + '.',
+      parameters: buildAddBookmarkParameters()
+    }
   }
 ]
 
@@ -186,6 +194,11 @@ export async function executeToolCall (toolName, args) {
       const { type } = args
       const typeFields = args[type] || {}
       return JSON.stringify(await store.mcpAddBookmark({ type, ...typeFields }))
+    }
+    case 'open_tab': {
+      const { type } = args
+      const typeFields = args[type] || {}
+      return JSON.stringify(store.mcpOpenTab({ type, ...typeFields }))
     }
     default:
       throw new Error(`Unknown agent tool: ${toolName}`)

@@ -409,6 +409,115 @@ describe('mcp-widget', function () {
     assert.equal(createdBookmark.type, 'telnet')
   })
 
+  // ─── Direct tab open tests ─────────────────────────────────────────────
+
+  test('should open SSH tab directly without bookmark, run command and get output', { timeout: 100000 }, async function () {
+    if (!hasRenderer) return test.skip('No renderer available')
+
+    const {
+      TEST_HOST,
+      TEST_PASS,
+      TEST_USER,
+      TEST_PORT
+    } = require('../e2e/common/env')
+
+    const uniqueId = Date.now()
+    const tabTitle = `MCP_Direct_SSH_${uniqueId}`
+
+    // Step 1: Open SSH tab directly (no bookmark created)
+    const openData = await callTool(sessionId, 70, 'open_electerm_tab_ssh', {
+      title: tabTitle,
+      host: TEST_HOST,
+      port: parseInt(TEST_PORT, 10),
+      username: TEST_USER,
+      password: TEST_PASS
+    })
+    assert.ok(openData.result, 'open_tab_ssh should succeed')
+    const openResult = JSON.parse(openData.result.content[0].text)
+    assert.equal(openResult.success, true)
+    assert.ok(openResult.tabId !== undefined)
+    assert.equal(openResult.type, 'ssh')
+
+    // Wait for SSH connection to establish
+    await new Promise(resolve => setTimeout(resolve, 8000))
+
+    try {
+      // Step 2: Send a command with retry
+      const testMarker = `SSH_DIRECT_TEST_${uniqueId}`
+      const testCommand = `echo "${testMarker}"`
+
+      let cmdResult = null
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const cmdData = await callTool(sessionId, 71, 'send_electerm_terminal_command', {
+          command: testCommand
+        })
+        if (cmdData.error) {
+          if (attempt === 3) {
+            assert.fail(`send_command failed after 3 attempts: ${cmdData.error.message}`)
+          }
+          await new Promise(resolve => setTimeout(resolve, 2000))
+          continue
+        }
+        cmdResult = JSON.parse(cmdData.result.content[0].text)
+        break
+      }
+      assert.equal(cmdResult.success, true)
+
+      // Wait for command to execute
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Step 3: Get terminal output and verify command was executed
+      const outputData = await callTool(sessionId, 72, 'get_electerm_terminal_output', {
+        lines: 30
+      })
+      assert.ok(outputData.result, 'get_terminal_output should succeed')
+      const outputResult = JSON.parse(outputData.result.content[0].text)
+      assert.ok(outputResult.output !== undefined)
+      assert.ok(
+        outputResult.output.includes(testMarker),
+        `Expected SSH command output "${testMarker}" in terminal`
+      )
+
+      // Step 4: Verify no bookmark was created for this connection
+      const listData = await callTool(sessionId, 73, 'list_electerm_bookmarks', {})
+      assert.ok(listData.result, 'list_bookmarks should succeed')
+      const bookmarks = JSON.parse(listData.result.content[0].text)
+      const foundBookmark = bookmarks.find(b => b.title === tabTitle)
+      assert.ok(!foundBookmark, `No bookmark should be created for direct tab open, but found: ${JSON.stringify(foundBookmark)}`)
+    } finally {
+      // Step 5: Close the tab
+      const tabId = openResult.tabId
+      await callTool(sessionId, 74, 'close_electerm_tab', { tabId })
+    }
+  })
+
+  test('should list direct open tools in tools/list', { timeout: 100000 }, async function () {
+    assert.ok(sessionId)
+
+    const toolsRequest = {
+      jsonrpc: '2.0',
+      id: 75,
+      method: 'tools/list',
+      params: {}
+    }
+
+    const response = await makeHttpRequest('post', serverUrl, toolsRequest, {
+      'Content-Type': 'application/json',
+      Accept: 'application/json, text/event-stream',
+      'mcp-session-id': sessionId
+    })
+
+    assert.equal(response.status, 200)
+    const dataLine = response.data.split('\n').find(l => l.startsWith('data: '))
+    const jsonData = JSON.parse(dataLine.substring(6))
+    const toolNames = jsonData.result.tools.map(tool => tool.name)
+
+    assert.ok(toolNames.includes('open_electerm_tab_ssh'), 'Missing open_electerm_tab_ssh')
+    assert.ok(toolNames.includes('open_electerm_tab_telnet'), 'Missing open_electerm_tab_telnet')
+    assert.ok(toolNames.includes('open_electerm_tab_serial'), 'Missing open_electerm_tab_serial')
+    assert.ok(toolNames.includes('open_electerm_tab_local'), 'Missing open_electerm_tab_local')
+  })
+
   // ─── onData test ────────────────────────────────────────────────────────
 
   test('list_tabs should include onData field for each tab', { timeout: 100000 }, async function () {

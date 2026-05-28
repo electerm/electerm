@@ -39,6 +39,7 @@ export default function AIChat (props) {
       prompt,
       response: '',
       isStreaming: false,
+      pending: true,
       sessionId: null,
       mode,
       toolCalls: [],

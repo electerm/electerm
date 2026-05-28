@@ -17,7 +17,7 @@ When the user asks you to perform terminal operations, use the available tools.
 Always explain what you are doing before executing commands.
 If a command produces errors, analyze the output and try to fix the issue.
 Prefer using the active terminal unless the user specifies otherwise.
-For SSH connections, create a bookmark and open it rather than running ssh directly.
+For SSH connections, prefer using open_tab to connect directly, or create a bookmark with add_bookmark and open it with open_bookmark if the user wants to save the connection.
 
 Reply in ${lang} language.`
 }
@@ -43,7 +43,7 @@ async function callBackendAIchatWithTools (messages, config) {
   )
 }
 
-export async function runAgentLoop (chatEntry, config, abortRef) {
+export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming) {
   const messages = [
     { role: 'system', content: buildAgentSystemPrompt(config) },
     { role: 'user', content: chatEntry.prompt }
@@ -51,16 +51,16 @@ export async function runAgentLoop (chatEntry, config, abortRef) {
   const toolCallsLog = []
   let accumulatedContent = ''
 
+  setIsStreaming(true)
   updateChatEntry(chatEntry, {
-    isStreaming: true,
     toolCalls: [],
     response: ''
   })
 
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
     if (abortRef && abortRef.current) {
+      setIsStreaming(false)
       updateChatEntry(chatEntry, {
-        isStreaming: false,
         response: accumulatedContent + '\n\n*(Agent stopped by user)*'
       })
       return
@@ -69,8 +69,8 @@ export async function runAgentLoop (chatEntry, config, abortRef) {
     const result = await callBackendAIchatWithTools(messages, config)
 
     if (result.error) {
+      setIsStreaming(false)
       updateChatEntry(chatEntry, {
-        isStreaming: false,
         response: accumulatedContent + `\n\n**Error:** ${result.error}`
       })
       return
@@ -78,8 +78,8 @@ export async function runAgentLoop (chatEntry, config, abortRef) {
 
     const assistantMessage = result.message
     if (!assistantMessage) {
+      setIsStreaming(false)
       updateChatEntry(chatEntry, {
-        isStreaming: false,
         response: accumulatedContent || 'No response from AI.'
       })
       return
@@ -95,8 +95,8 @@ export async function runAgentLoop (chatEntry, config, abortRef) {
     }
 
     if (!assistantMessage.tool_calls || assistantMessage.tool_calls.length === 0) {
+      setIsStreaming(false)
       updateChatEntry(chatEntry, {
-        isStreaming: false,
         response: accumulatedContent
       })
       return
@@ -104,8 +104,8 @@ export async function runAgentLoop (chatEntry, config, abortRef) {
 
     for (const toolCall of assistantMessage.tool_calls) {
       if (abortRef && abortRef.current) {
+        setIsStreaming(false)
         updateChatEntry(chatEntry, {
-          isStreaming: false,
           response: accumulatedContent + '\n\n*(Agent stopped by user)*'
         })
         return
@@ -152,8 +152,8 @@ export async function runAgentLoop (chatEntry, config, abortRef) {
     }
   }
 
+  setIsStreaming(false)
   updateChatEntry(chatEntry, {
-    isStreaming: false,
     response: accumulatedContent + '\n\n*(Agent reached maximum iterations)*'
   })
 }

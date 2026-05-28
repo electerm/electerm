@@ -314,6 +314,21 @@ describe('server lifecycle', () => {
     }
   })
 
+  test('tools/list includes direct tab open tools', async () => {
+    const sid = await initSession(PORT)
+    const res = await mcpPost(PORT, { jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} }, sid)
+    assert.equal(res.status, 200)
+    const names = res.data.result.tools.map(t => t.name)
+    for (const expected of [
+      'open_electerm_tab_ssh',
+      'open_electerm_tab_telnet',
+      'open_electerm_tab_serial',
+      'open_electerm_tab_local'
+    ]) {
+      assert.ok(names.includes(expected), `Missing tool: ${expected}`)
+    }
+  })
+
   test('unknown method returns error response', async () => {
     const sid = await initSession(PORT)
     const res = await mcpPost(PORT, { jsonrpc: '2.0', id: 3, method: 'no_such_method', params: {} }, sid)
@@ -378,6 +393,20 @@ describe('blacklist enforcement via HTTP', () => {
   test('list_electerm_tabs reaches renderer mock', async () => {
     const sid = await initSession(PORT)
     const res = await callTool(PORT, sid, 'list_electerm_tabs', {})
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+
+  test('open_electerm_tab_ssh reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'open_electerm_tab_ssh', { host: '127.0.0.1' })
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+
+  test('open_electerm_tab_local reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'open_electerm_tab_local', {})
     const text = res.data.result.content[0].text
     assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
   })

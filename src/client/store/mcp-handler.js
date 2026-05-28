@@ -15,6 +15,7 @@ import {
   fixBookmarkData,
   validateBookmarkData
 } from '../components/bookmark-form/fix-bookmark-default'
+import newTerm from '../common/new-terminal'
 
 export default Store => {
   // Initialize MCP handler - called when MCP widget is started
@@ -99,6 +100,9 @@ export default Store => {
           break
         case 'open_local_terminal':
           result = store.mcpOpenLocalTerminal()
+          break
+        case 'open_tab':
+          result = store.mcpOpenTab(args)
           break
 
         // Terminal operations
@@ -461,6 +465,32 @@ export default Store => {
       success: true,
       tabId: newTabId,
       message: 'Opened new local terminal'
+    }
+  }
+
+  Store.prototype.mcpOpenTab = function (args) {
+    const { store } = window
+    const data = fixBookmarkData({ ...args })
+
+    const { valid, errors } = validateBookmarkData(data)
+    if (!valid) {
+      throw new Error(errors.join(', '))
+    }
+
+    const tab = {
+      ...data,
+      from: 'mcp',
+      ...newTerm(true, true)
+    }
+
+    store.addTab(tab)
+    const newTabId = store.activeTabId
+
+    return {
+      success: true,
+      tabId: newTabId,
+      type: data.type,
+      message: `Opened ${data.type || 'local'} tab`
     }
   }
 

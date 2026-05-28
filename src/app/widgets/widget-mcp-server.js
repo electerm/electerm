@@ -396,6 +396,68 @@ class ElectermMCPServer {
       }
     )
 
+    // ==================== Direct Tab Open APIs (always enabled) ====================
+
+    server.registerTool(
+      'open_electerm_tab_ssh',
+      {
+        description: 'Open a new SSH terminal tab directly with connection parameters (no bookmark created)',
+        inputSchema: sshBookmarkSchema
+      },
+      async (args) => {
+        const result = await self.sendToRenderer('tool-call', {
+          toolName: 'open_tab',
+          args: { ...args, type: 'ssh' }
+        })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
+    server.registerTool(
+      'open_electerm_tab_telnet',
+      {
+        description: 'Open a new Telnet terminal tab directly with connection parameters (no bookmark created)',
+        inputSchema: telnetBookmarkSchema
+      },
+      async (args) => {
+        const result = await self.sendToRenderer('tool-call', {
+          toolName: 'open_tab',
+          args: { ...args, type: 'telnet' }
+        })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
+    server.registerTool(
+      'open_electerm_tab_serial',
+      {
+        description: 'Open a new Serial terminal tab directly with connection parameters (no bookmark created)',
+        inputSchema: serialBookmarkSchema
+      },
+      async (args) => {
+        const result = await self.sendToRenderer('tool-call', {
+          toolName: 'open_tab',
+          args: { ...args, type: 'serial' }
+        })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
+    server.registerTool(
+      'open_electerm_tab_local',
+      {
+        description: 'Open a new Local terminal tab directly with connection parameters (no bookmark created)',
+        inputSchema: localBookmarkSchema
+      },
+      async (args) => {
+        const result = await self.sendToRenderer('tool-call', {
+          toolName: 'open_tab',
+          args: { ...args, type: 'local' }
+        })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
     // ==================== Bookmark APIs ====================
     if (this.config.enableBookmarks) {
       server.registerTool(
