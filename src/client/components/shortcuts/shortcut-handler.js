@@ -82,6 +82,7 @@ export function handleTerminalSelectionReplace (event, ctx) {
   }
 
   ctx.term.clearSelection()
+  ctx.term.scrollToBottom()
   return true
 }
 
@@ -167,6 +168,7 @@ export function shortcutExtend (Cls) {
       const altDelDelKey = delKey === 8 ? 127 : 8
       const char = String.fromCharCode(shiftKey ? delKey : altDelDelKey)
       this.socket.send(char)
+      this.term.scrollToBottom()
       return false
     } else if (
       this.term &&
