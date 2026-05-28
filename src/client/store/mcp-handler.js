@@ -477,7 +477,7 @@ export default Store => {
       throw new Error('No command provided')
     }
 
-    store.runQuickCommand(command, args.inputOnly || false)
+    store.runQuickCommand(command, args.inputOnly || false, tabId)
 
     return {
       success: true,
