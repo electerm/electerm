@@ -121,6 +121,23 @@ export const agentTools = [
   {
     type: 'function',
     function: {
+      name: 'close_tab',
+      description: 'Close a terminal tab by its ID. Use this to clean up tabs after a task is finished.',
+      parameters: {
+        type: 'object',
+        properties: {
+          tabId: {
+            type: 'string',
+            description: 'The tab ID to close.'
+          }
+        },
+        required: ['tabId']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
       name: 'list_bookmarks',
       description: 'List all saved bookmarks (SSH, Telnet, VNC, etc.).',
       parameters: {
@@ -342,6 +359,8 @@ export async function executeToolCall (toolName, args) {
       return JSON.stringify(store.mcpGetActiveTab())
     case 'switch_tab':
       return JSON.stringify(store.mcpSwitchTab(args))
+    case 'close_tab':
+      return JSON.stringify(store.mcpCloseTab(args))
     case 'list_bookmarks':
       return JSON.stringify(store.mcpListBookmarks())
     case 'open_bookmark':
