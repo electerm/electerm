@@ -38,6 +38,21 @@ export default auto(function HistoryPanel (props) {
     store.clearHistory()
   }
   const e = window.translate
+  function renderHeader () {
+    if (!arr.length) {
+      return null
+    }
+    return (
+      <div className='history-header pd2x pd2b'>
+        <Switch
+          {...switchProps}
+        />
+        <UnorderedListOutlined
+          {...clearIconProps}
+        />
+      </div>
+    )
+  }
   const switchProps = {
     checkedChildren: e('sortByFrequency'),
     unCheckedChildren: e('sortByFrequency'),
@@ -54,14 +69,7 @@ export default auto(function HistoryPanel (props) {
     <div
       className='sidebar-panel-history'
     >
-      <div className='history-header pd2x pd2b'>
-        <Switch
-          {...switchProps}
-        />
-        <UnorderedListOutlined
-          {...clearIconProps}
-        />
-      </div>
+      {renderHeader()}
       <div className='history-body'>
         {
           arr.map((item, i) => {
