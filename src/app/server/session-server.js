@@ -379,7 +379,7 @@ process.on('message', async (message) => {
     if (action === 'create-terminal') {
       promise = createTerm(body, ws)
     } else if (action === 'test-terminal') {
-      promise = testTerm(body)
+      promise = testTerm(body, ws)
     } else if (action === 'resize-terminal') {
       promise = resize(body)
     } else if (action === 'toggle-terminal-log') {
