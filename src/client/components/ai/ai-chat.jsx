@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Flex, Input, Segmented } from 'antd'
+import { Flex, Input, Popconfirm, Segmented } from 'antd'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
 import uid from '../../common/uid'
@@ -163,11 +163,17 @@ export default function AIChat (props) {
               onClick={toggleConfig}
               className='mg1l pointer icon-hover toggle-ai-setting-icon'
             />
-            <UnorderedListOutlined
-              onClick={clearHistory}
-              className='mg2x pointer clear-ai-icon icon-hover'
-              title='Clear AI chat history'
-            />
+            <Popconfirm
+              title={window.translate('clear') + ' AI ' + window.translate('history') + '?'}
+              okText={window.translate('ok')}
+              cancelText={window.translate('cancel')}
+              onConfirm={clearHistory}
+            >
+              <UnorderedListOutlined
+                className='mg2x pointer clear-ai-icon icon-hover'
+                title='Clear AI chat history'
+              />
+            </Popconfirm>
             <HelpIcon
               link={aiConfigWikiLink}
             />

@@ -1,6 +1,6 @@
 import { agentTools, executeToolCall } from './agent-tools'
 
-const MAX_ITERATIONS = 15
+const MAX_ITERATIONS = 150
 
 function buildAgentSystemPrompt (config) {
   const lang = config.languageAI || window.store.getLangName()
