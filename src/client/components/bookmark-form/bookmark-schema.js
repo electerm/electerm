@@ -81,7 +81,8 @@ const bookmarkSchema = {
     xon: 'boolean - enable XON flow control, default is false',
     xoff: 'boolean - enable XOFF flow control, default is false',
     xany: 'boolean - enable XANY flow control, default is false',
-    lineEnding: 'string - line ending for Enter key: "" (none), "\\r" (CR), "\\n" (LF), "\\r\\n" (CR+LF)',
+    txLineEnding: 'string - TX line ending on Enter: "\\r" (CR, default), "\\n" (LF), "\\r\\n" (CR+LF)',
+    rxLineEnding: 'string - RX line ending conversion: "none" (default), "lf_to_crlf" (for LF-only devices), "cr_to_crlf" (for CR-only devices)',
     runScripts: 'array - run scripts after connected ({delay,script})',
     description: 'string - bookmark description'
   },

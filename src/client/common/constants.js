@@ -180,12 +180,20 @@ export const commonParities = [
   'none', 'even', 'mark', 'odd', 'space'
 ]
 
-export const commonLineEndings = [
-  { value: '', label: 'none' },
+export const commonTxLineEndings = [
   { value: '\r', label: 'CR' },
   { value: '\n', label: 'LF' },
   { value: '\r\n', label: 'CR+LF' }
 ]
+
+export const commonRxLineEndings = [
+  { value: 'none', label: 'None' },
+  { value: 'lf_to_crlf', label: 'LF→CRLF' },
+  { value: 'cr_to_crlf', label: 'CR→CRLF' }
+]
+
+// backward compat alias
+export const commonLineEndings = commonTxLineEndings
 
 export const maxBatchInput = 30
 export const windowControlWidth = 94

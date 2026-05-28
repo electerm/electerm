@@ -95,7 +95,8 @@ const serialBookmarkSchema = {
   xon: z.boolean().optional().describe('XON flow control'),
   xoff: z.boolean().optional().describe('XOFF flow control'),
   xany: z.boolean().optional().describe('XANY flow control'),
-  lineEnding: z.enum(['', '\r', '\n', '\r\n']).optional().describe('Line ending for Enter key: "" (none), "\\r" (CR), "\\n" (LF), "\\r\\n" (CR+LF)'),
+  txLineEnding: z.enum(['\r', '\n', '\r\n']).optional().describe('TX line ending appended on Enter: "\\r" (CR, default), "\\n" (LF), "\\r\\n" (CR+LF)'),
+  rxLineEnding: z.enum(['none', 'lf_to_crlf', 'cr_to_crlf']).optional().describe('RX line ending conversion: "none" (pass-through, default), "lf_to_crlf" (LF→CRLF for LF-only devices), "cr_to_crlf" (CR→CRLF for CR-only devices)'),
   description: z.string().optional().describe('Bookmark description')
   // runScripts: z.array(runScriptSchema).optional().describe('Run scripts after connected')
 }
