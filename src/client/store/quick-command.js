@@ -57,8 +57,9 @@ export default Store => {
     window.store.delItem({ id }, settingMap.quickCommands)
   }
 
-  Store.prototype.runQuickCommand = function (cmd, inputOnly = false) {
-    refs.get('term-' + window.store.activeTabId)?.runQuickCommand(cmd, inputOnly)
+  Store.prototype.runQuickCommand = function (cmd, inputOnly = false, tabId) {
+    const tid = tabId || window.store.activeTabId
+    refs.get('term-' + tid)?.runQuickCommand(cmd, inputOnly)
   }
 
   Store.prototype.runQuickCommandItem = debounce(async (id) => {

@@ -23,13 +23,13 @@ export default store => {
   for (const name of dbNamesForWatch) {
     window[`watch${name}Running`] = false
     window[`watch${name}`] = autoRun(async () => {
+      const n = store.getItems(name)
       if (window.migrating || window[`watch${name}Running`]) {
         return
       }
       window[`watch${name}Running`] = true
       try {
         const old = refsStatic.get('oldState-' + name)
-        const n = store.getItems(name)
         const { updated, added, removed } = dataCompare(
           old,
           n

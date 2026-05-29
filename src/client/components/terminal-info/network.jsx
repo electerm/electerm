@@ -34,6 +34,7 @@ export default function TerminalInfoDisk (props) {
       const p = network[k]
       const pv = net[k]
       if (
+        diff > 0 &&
         p &&
         pv &&
         p.download &&
@@ -43,6 +44,7 @@ export default function TerminalInfoDisk (props) {
         p.down = Math.floor((p.download - pv.download) / diff)
       }
       if (
+        diff > 0 &&
         p &&
         pv &&
         p.upload &&
@@ -92,7 +94,7 @@ export default function TerminalInfoDisk (props) {
       },
       render: (v) => {
         if (k === 'up' || k === 'down') {
-          return filesize(v || 0)
+          return filesize(Number.isFinite(v) ? v : 0)
         }
         return v
       }

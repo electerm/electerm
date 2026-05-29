@@ -180,12 +180,20 @@ export const commonParities = [
   'none', 'even', 'mark', 'odd', 'space'
 ]
 
-export const commonLineEndings = [
-  { value: '', label: 'none' },
+export const commonTxLineEndings = [
   { value: '\r', label: 'CR' },
   { value: '\n', label: 'LF' },
   { value: '\r\n', label: 'CR+LF' }
 ]
+
+export const commonRxLineEndings = [
+  { value: 'none', label: 'None' },
+  { value: 'lf_to_crlf', label: 'LF→CRLF' },
+  { value: 'cr_to_crlf', label: 'CR→CRLF' }
+]
+
+// backward compat alias
+export const commonLineEndings = commonTxLineEndings
 
 export const maxBatchInput = 30
 export const windowControlWidth = 94
@@ -248,6 +256,7 @@ export const proxyHelpLink = 'https://github.com/electerm/electerm/wiki/proxy-fo
 export const regexHelpLink = 'https://github.com/electerm/electerm/wiki/Terminal-keywords-highlight-regular-expression-exmaples'
 export const connectionHoppingWikiLink = 'https://github.com/electerm/electerm/wiki/Connection-Hopping-Behavior-Change-in-electerm-since-v1.50.65'
 export const aiConfigWikiLink = 'https://github.com/electerm/electerm/wiki/AI-model-config-guide'
+export const aiChatModeLsKey = 'ai-chat-mode'
 export const modals = {
   hide: 0,
   setting: 1

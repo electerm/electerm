@@ -22,10 +22,12 @@ class TerminalSerial extends TerminalBase {
       xon = false,
       xoff = false,
       xany = false,
-      lineEnding = '',
+      txLineEnding = '\r',
+      rxLineEnding = 'none',
       path
     } = this.initOptions
-    this.lineEnding = lineEnding
+    this.txLineEnding = txLineEnding
+    this.rxLineEnding = rxLineEnding
     await new Promise((resolve, reject) => {
       this.port = new SerialPort({
         // binding: MockBinding,
@@ -61,15 +63,32 @@ class TerminalSerial extends TerminalBase {
   }
 
   on (event, cb) {
-    this.port.on(event, cb)
+    if (event === 'data' && this.rxLineEnding && this.rxLineEnding !== 'none') {
+      this.port.on('data', (data) => {
+        const str = Buffer.isBuffer(data) ? data.toString('latin1') : String(data)
+        let processed
+        if (this.rxLineEnding === 'lf_to_crlf') {
+          processed = str.replace(/\r?\n/g, '\r\n')
+        } else if (this.rxLineEnding === 'cr_to_crlf') {
+          processed = str.replace(/\r(?!\n)/g, '\r\n')
+        } else {
+          processed = str
+        }
+        cb(Buffer.isBuffer(data) ? Buffer.from(processed, 'latin1') : processed)
+      })
+    } else {
+      this.port.on(event, cb)
+    }
   }
 
   write (data) {
     try {
-      if (this.lineEnding) {
-        data = data.replace(/\r?\n/g, this.lineEnding).replace(/\r(?!\n)/g, this.lineEnding)
+      const str = Buffer.isBuffer(data) ? data.toString('latin1') : String(data)
+      let out = str
+      if (this.txLineEnding && this.txLineEnding !== '\r') {
+        out = str.replace(/\r\n|\r|\n/g, this.txLineEnding)
       }
-      this.port.write(data)
+      this.port.write(Buffer.isBuffer(data) ? Buffer.from(out, 'latin1') : out)
     } catch (e) {
       log.error(e)
     }

@@ -161,6 +161,27 @@ exports.testConnection = async function (initOptions, ws, uid) {
   const port = await getPort()
   const child = await runSessionServer(type, port)
 
+  const isSsh = ![
+    'telnet',
+    'serial',
+    'local',
+    'rdp',
+    'vnc',
+    'spice',
+    'ftp'
+  ].includes(type)
+  if (isSsh && ws) {
+    child.on('message', (m) => {
+      const { type: msgType, data } = m
+      if (msgType === 'common') {
+        ws.s(data)
+        ws.once((respData) => {
+          child.send(respData)
+        }, data.id)
+      }
+    })
+  }
+
   const res = await sendMsgToChildProcess(child, {
     id: uid,
     action: 'test-terminal',

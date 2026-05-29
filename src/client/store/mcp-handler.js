@@ -11,6 +11,11 @@ import {
   getLocalFileInfo,
   getRemoteFileInfo
 } from '../components/sftp/file-read'
+import {
+  fixBookmarkData,
+  validateBookmarkData
+} from '../components/bookmark-form/fix-bookmark-default'
+import newTerm from '../common/new-terminal'
 
 export default Store => {
   // Initialize MCP handler - called when MCP widget is started
@@ -95,6 +100,9 @@ export default Store => {
           break
         case 'open_local_terminal':
           result = store.mcpOpenLocalTerminal()
+          break
+        case 'open_tab':
+          result = store.mcpOpenTab(args)
           break
 
         // Terminal operations
@@ -207,16 +215,14 @@ export default Store => {
 
   Store.prototype.mcpAddBookmark = async function (args) {
     const { store } = window
-    const bookmark = {
+    const bookmark = fixBookmarkData({
       id: uid(),
-      title: args.title,
-      host: args.host || '',
-      port: args.port || 22,
-      username: args.username || '',
-      password: args.password || '',
-      type: args.type || 'local',
-      term: 'xterm-256color',
       ...args
+    })
+
+    const { valid, errors } = validateBookmarkData(bookmark)
+    if (!valid) {
+      throw new Error(errors.join(', '))
     }
 
     store.addItem(bookmark, settingMap.bookmarks)
@@ -462,6 +468,32 @@ export default Store => {
     }
   }
 
+  Store.prototype.mcpOpenTab = function (args) {
+    const { store } = window
+    const data = fixBookmarkData({ ...args })
+
+    const { valid, errors } = validateBookmarkData(data)
+    if (!valid) {
+      throw new Error(errors.join(', '))
+    }
+
+    const tab = {
+      ...data,
+      from: 'mcp',
+      ...newTerm(true, true)
+    }
+
+    store.addTab(tab)
+    const newTabId = store.activeTabId
+
+    return {
+      success: true,
+      tabId: newTabId,
+      type: data.type,
+      message: `Opened ${data.type || 'local'} tab`
+    }
+  }
+
   // ==================== Terminal APIs ====================
 
   Store.prototype.mcpSendTerminalCommand = function (args) {
@@ -477,7 +509,7 @@ export default Store => {
       throw new Error('No command provided')
     }
 
-    store.runQuickCommand(command, args.inputOnly || false)
+    store.runQuickCommand(command, args.inputOnly || false, tabId)
 
     return {
       success: true,

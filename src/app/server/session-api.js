@@ -49,8 +49,8 @@ async function createTerm (body, ws) {
   return t.pid
 }
 
-async function testTerm (body) {
-  const r = await startSession(body, undefined, 'test')
+async function testTerm (body, ws) {
+  const r = await startSession(body, ws, 'test')
   if (r) {
     return r
   } else {

@@ -14,10 +14,12 @@ export default function TerminalInfoDisk (props) {
   }
   const col = colsParser(disks[0])
   disks.sort((a, b) => {
-    if (a.filesystem.startsWith('/') && !b.filesystem.startsWith('/')) {
+    const af = a.filesystem || ''
+    const bf = b.filesystem || ''
+    if (af.startsWith('/') && !bf.startsWith('/')) {
       return -1
     }
-    if (!a.filesystem.startsWith('/') && b.filesystem.startsWith('/')) {
+    if (!af.startsWith('/') && bf.startsWith('/')) {
       return 1
     }
     return 0

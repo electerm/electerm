@@ -18,13 +18,11 @@ import { copy } from '../../common/clipboard'
 
 export default function AIChatHistoryItem ({ item }) {
   const [showOutput, setShowOutput] = useState(true)
-  const startedRef = useRef(false)
+  const [isStreaming, setIsStreaming] = useState(false)
   const abortRef = useRef(false)
   const {
     prompt,
-    isStreaming,
     sessionId,
-    response,
     modelAI,
     roleAI,
     baseURLAI,
@@ -60,12 +58,11 @@ export default function AIChatHistoryItem ({ item }) {
       const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
       if (index !== -1) {
         window.store.aiChatHistory[index].response = streamResponse.content || ''
-        window.store.aiChatHistory[index].isStreaming = streamResponse.hasMore
         window.store.aiChatHistory = [...window.store.aiChatHistory]
-
-        if (streamResponse.hasMore) {
-          setTimeout(() => pollStreamContent(sid), 200)
-        }
+      }
+      setIsStreaming(streamResponse.hasMore)
+      if (streamResponse.hasMore) {
+        setTimeout(() => pollStreamContent(sid), 200)
       }
     } catch (error) {
       window.store.removeAiHistory(item.id)
@@ -93,9 +90,9 @@ export default function AIChatHistoryItem ({ item }) {
       }
 
       if (aiResponse && aiResponse.isStream && aiResponse.sessionId) {
+        setIsStreaming(true)
         const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
         if (index !== -1) {
-          window.store.aiChatHistory[index].isStreaming = true
           window.store.aiChatHistory[index].sessionId = aiResponse.sessionId
           window.store.aiChatHistory[index].response = aiResponse.content || ''
         }
@@ -104,7 +101,6 @@ export default function AIChatHistoryItem ({ item }) {
         const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
         if (index !== -1) {
           window.store.aiChatHistory[index].response = aiResponse.response
-          window.store.aiChatHistory[index].isStreaming = false
         }
       }
     } catch (error) {
@@ -124,12 +120,15 @@ export default function AIChatHistoryItem ({ item }) {
       proxyAI,
       languageAI
     }
-    await runAgentLoop(item, config, abortRef)
+    await runAgentLoop(item, config, abortRef, setIsStreaming)
   }, [modelAI, roleAI, baseURLAI, apiPathAI, apiKeyAI, proxyAI, languageAI, item.id])
 
   useEffect(() => {
-    if (!response && !startedRef.current) {
-      startedRef.current = true
+    if (item.pending) {
+      const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
+      if (index !== -1) {
+        window.store.aiChatHistory[index].pending = false
+      }
       if (mode === 'agent') {
         startAgentRequest()
       } else {
@@ -142,22 +141,14 @@ export default function AIChatHistoryItem ({ item }) {
     e.stopPropagation()
     if (mode === 'agent') {
       abortRef.current = true
-      const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
-      if (index !== -1) {
-        window.store.aiChatHistory[index].isStreaming = false
-        window.store.aiChatHistory = [...window.store.aiChatHistory]
-      }
+      setIsStreaming(false)
       return
     }
     if (!sessionId) return
 
     try {
       await window.pre.runGlobalAsync('stopStream', sessionId)
-      const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
-      if (index !== -1) {
-        window.store.aiChatHistory[index].isStreaming = false
-        window.store.aiChatHistory = [...window.store.aiChatHistory]
-      }
+      setIsStreaming(false)
     } catch (error) {
       console.error('Error stopping stream:', error)
     }

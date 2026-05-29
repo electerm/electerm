@@ -986,8 +986,8 @@ exports.session = function (initOptions, ws) {
  * test ssh connection
  * @param {object} options
  */
-exports.test = (options) => {
-  return (new TerminalSsh(options, undefined, true))
+exports.test = (options, ws) => {
+  return (new TerminalSsh(options, ws, true))
     .init()
     .then(() => true)
     .catch((err) => {

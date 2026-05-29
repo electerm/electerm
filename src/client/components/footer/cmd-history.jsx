@@ -105,17 +105,11 @@ export default auto(function CmdHistory (props) {
     ))
   }
 
-  const content = (
-    <div className='cmd-history-popover-content pd2'>
-      <div className='cmd-history-search pd2b'>
-        <InputAutoFocus
-          value={keyword}
-          onChange={handleChange}
-          placeholder={e('search')}
-          className='cmd-history-search-input'
-          allowClear
-        />
-      </div>
+  function renderHeader () {
+    if (!historyArray.length) {
+      return null
+    }
+    return (
       <div className='cmd-history-header pd2b'>
         <Switch
           checkedChildren={e('sortByFrequency')}
@@ -130,6 +124,21 @@ export default auto(function CmdHistory (props) {
           onClick={handleClearAll}
         />
       </div>
+    )
+  }
+
+  const content = (
+    <div className='cmd-history-popover-content pd2'>
+      <div className='cmd-history-search pd2b'>
+        <InputAutoFocus
+          value={keyword}
+          onChange={handleChange}
+          placeholder={e('search')}
+          className='cmd-history-search-input'
+          allowClear
+        />
+      </div>
+      {renderHeader()}
       <div className='cmd-history-list'>
         {renderList()}
       </div>
