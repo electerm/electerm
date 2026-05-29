@@ -4,11 +4,62 @@ import Modal from '../common/modal'
 const e = window.translate
 
 export class DropFileModal extends Component {
+  renderSerialFooter () {
+    const { onSelect } = this.props
+    return (
+      <>
+        <button
+          type='button'
+          className='custom-modal-ok-btn'
+          onClick={() => onSelect('xmodem')}
+        >
+          XMODEM
+        </button>
+        <button
+          type='button'
+          className='custom-modal-cancel-btn'
+          onClick={() => onSelect('inputOnly')}
+        >
+          {e('inputOnly')}
+        </button>
+      </>
+    )
+  }
+
+  renderSshFooter () {
+    const { onSelect } = this.props
+    return (
+      <>
+        <button
+          type='button'
+          className='custom-modal-ok-btn'
+          onClick={() => onSelect('trz')}
+        >
+          trz
+        </button>
+        <button
+          type='button'
+          className='custom-modal-cancel-btn'
+          onClick={() => onSelect('rz')}
+        >
+          rz
+        </button>
+        <button
+          type='button'
+          className='custom-modal-cancel-btn'
+          onClick={() => onSelect('inputOnly')}
+        >
+          {e('inputOnly')}
+        </button>
+      </>
+    )
+  }
+
   render () {
     const {
       visible,
       files,
-      onSelect,
+      isSerial,
       onCancel
     } = this.props
 
@@ -23,27 +74,7 @@ export class DropFileModal extends Component {
         onCancel={onCancel}
         footer={
           <div className='custom-modal-footer-buttons'>
-            <button
-              type='button'
-              className='custom-modal-ok-btn'
-              onClick={() => onSelect('trz')}
-            >
-              trz
-            </button>
-            <button
-              type='button'
-              className='custom-modal-cancel-btn'
-              onClick={() => onSelect('rz')}
-            >
-              rz
-            </button>
-            <button
-              type='button'
-              className='custom-modal-cancel-btn'
-              onClick={() => onSelect('inputOnly')}
-            >
-              {e('inputOnly')}
-            </button>
+            {isSerial ? this.renderSerialFooter() : this.renderSshFooter()}
           </div>
         }
         width={400}

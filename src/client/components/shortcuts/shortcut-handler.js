@@ -195,6 +195,11 @@ export function shortcutExtend (Cls) {
         this.trzszClient.cancel()
         return false
       }
+      // Cancel xmodem transfer if active
+      if (this.xmodemClient && this.xmodemClient.isActive) {
+        this.xmodemClient.cancel()
+        return false
+      }
     }
 
     let codeName

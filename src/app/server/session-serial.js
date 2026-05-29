@@ -94,6 +94,18 @@ class TerminalSerial extends TerminalBase {
     }
   }
 
+  /**
+   * Write raw bytes directly to the serial port, bypassing txLineEnding transformation.
+   * Used by binary protocols (XMODEM) to avoid corruption of protocol bytes.
+   */
+  writeRaw (data) {
+    try {
+      this.port.write(data)
+    } catch (e) {
+      log.error(e)
+    }
+  }
+
   kill () {
     if (this.sessionLogger) {
       this.sessionLogger.destroy()

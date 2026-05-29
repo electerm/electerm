@@ -26,6 +26,7 @@ import AttachAddon from './attach-addon-custom.js'
 import getProxy from '../../common/get-proxy.js'
 import { ZmodemClient } from './zmodem-client.js'
 import { TrzszClient } from './trzsz-client.js'
+import { XmodemClient } from './xmodem-client.js'
 import DropFileModal from './drop-file-modal.jsx'
 import keyControlPressed from '../../common/key-control-pressed.js'
 import NormalBuffer from './normal-buffer.jsx'
@@ -165,6 +166,7 @@ class Term extends Component {
     this.fitAddon = null
     this.zmodemClient = null
     this.trzszClient = null
+    this.xmodemClient = null
     this.searchAddon = null
     this.fitAddon = null
     this.cmdAddon = null
@@ -391,6 +393,7 @@ class Term extends Component {
     const fromFile = dt.getData('fromFile')
     const notSafeMsg = 'File name contains unsafe characters'
     const isSshTerminal = this.props.tab.type === connectionMap.ssh
+    const isSerialTerminal = this.props.tab.type === connectionMap.serial
 
     if (fromFile) {
       try {
@@ -410,6 +413,13 @@ class Term extends Component {
           } else {
             this.handleDropFileAction(behavior, [{ path: filePath, isRemote: true }])
           }
+          return
+        }
+        if (isSerialTerminal) {
+          this.setState({
+            dropFileModalVisible: true,
+            droppedFiles: [{ path: filePath, isRemote: false }]
+          })
           return
         }
         this.attachAddon._sendData(`"${filePath}" `)
@@ -440,6 +450,14 @@ class Term extends Component {
         } else {
           this.handleDropFileAction(behavior, filePaths.map(path => ({ path, isRemote: false })))
         }
+        return
+      }
+
+      if (isSerialTerminal) {
+        this.setState({
+          dropFileModalVisible: true,
+          droppedFiles: filePaths.map(path => ({ path, isRemote: false }))
+        })
         return
       }
 
@@ -483,6 +501,19 @@ class Term extends Component {
         }
         window._apiControlSelectFile = filePaths
         this.attachAddon._sendData('rz\r')
+        break
+      }
+      case 'xmodem': {
+        if (this.xmodemClient && this.xmodemClient.isActive) {
+          message.warning('A transfer is already in progress')
+          this.handleDropFileModalCancel()
+          return
+        }
+        // Use XMODEM send with the dropped files
+        window._apiControlSelectFile = filePaths
+        if (this.xmodemClient) {
+          this.xmodemClient.initiateSend()
+        }
         break
       }
       case 'inputOnly':
@@ -653,7 +684,8 @@ class Term extends Component {
     const clearShortcut = this.getShortcut('terminal_clear')
     const searchShortcut = this.getShortcut('terminal_search')
     const selectAllShortcut = isMacJs ? 'meta+a' : 'ctrl+shift+a'
-    return [
+    const isSerial = this.props.tab?.type === connectionMap.serial
+    const items = [
       {
         key: 'onCopy',
         icon: <iconsMap.CopyOutlined />,
@@ -700,10 +732,42 @@ class Term extends Component {
         extra: searchShortcut
       }
     ]
+    if (isSerial) {
+      items.push(
+        {
+          type: 'divider'
+        },
+        {
+          key: 'onXmodemSend',
+          icon: <iconsMap.CloudUploadOutlined />,
+          label: 'XMODEM Send'
+        },
+        {
+          key: 'onXmodemReceive',
+          icon: <iconsMap.CloudDownloadOutlined />,
+          label: 'XMODEM Receive'
+        }
+      )
+    }
+    return items
   }
 
   onContextMenu = ({ key }) => {
     this[key]()
+  }
+
+  onXmodemSend = () => {
+    if (this.xmodemClient) {
+      this.xmodemClient.initiateSend()
+    }
+    this.term.focus()
+  }
+
+  onXmodemReceive = () => {
+    if (this.xmodemClient) {
+      this.xmodemClient.initiateReceive()
+    }
+    this.term.focus()
   }
 
   notifyOnData = debounce(() => {
@@ -1320,6 +1384,8 @@ class Term extends Component {
     this.zmodemClient.init(socket)
     this.trzszClient = new TrzszClient(this)
     this.trzszClient.init(socket)
+    this.xmodemClient = new XmodemClient(this)
+    this.xmodemClient.init(socket)
     this.fitAddon.fit()
     term.displayRaw = displayRaw
     term.loadAddon(
@@ -1581,6 +1647,7 @@ class Term extends Component {
           <DropFileModal
             visible={this.state.dropFileModalVisible}
             files={this.state.droppedFiles}
+            isSerial={this.props.tab?.type === connectionMap.serial}
             onSelect={this.handleDropFileAction}
             onCancel={this.handleDropFileModalCancel}
           />
