@@ -393,6 +393,7 @@ class Term extends Component {
     const fromFile = dt.getData('fromFile')
     const notSafeMsg = 'File name contains unsafe characters'
     const isSshTerminal = this.props.tab.type === connectionMap.ssh
+    const isSerialTerminal = this.props.tab.type === connectionMap.serial
 
     if (fromFile) {
       try {
@@ -412,6 +413,13 @@ class Term extends Component {
           } else {
             this.handleDropFileAction(behavior, [{ path: filePath, isRemote: true }])
           }
+          return
+        }
+        if (isSerialTerminal) {
+          this.setState({
+            dropFileModalVisible: true,
+            droppedFiles: [{ path: filePath, isRemote: false }]
+          })
           return
         }
         this.attachAddon._sendData(`"${filePath}" `)
@@ -442,6 +450,14 @@ class Term extends Component {
         } else {
           this.handleDropFileAction(behavior, filePaths.map(path => ({ path, isRemote: false })))
         }
+        return
+      }
+
+      if (isSerialTerminal) {
+        this.setState({
+          dropFileModalVisible: true,
+          droppedFiles: filePaths.map(path => ({ path, isRemote: false }))
+        })
         return
       }
 

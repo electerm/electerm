@@ -116,10 +116,15 @@ class XmodemSession {
   }
 
   /**
-   * Write data to the serial port / terminal
+   * Write data to the serial port / terminal.
+   * Uses writeRaw (if available) to bypass txLineEnding transformation,
+   * which would corrupt binary XMODEM protocol bytes (e.g. block# 0x0D = '\r').
    */
   writeToTerminal (data) {
-    if (this.term && this.term.write) {
+    if (!this.term) return
+    if (this.term.writeRaw) {
+      this.term.writeRaw(data)
+    } else if (this.term.write) {
       this.term.write(data)
     }
   }
@@ -663,11 +668,9 @@ class XmodemSession {
           this.endSession()
           return
         }
-        // Re-read and resend the same block
+        // Re-read and resend the same block (keep sendBlock unchanged – same block#)
         this.sentBytes -= (this.use1K ? PACKET_SIZE_1K : PACKET_SIZE_128)
         if (this.sentBytes < 0) this.sentBytes = 0
-        this.sendBlock-- // Will be incremented in sendNextPacket
-        if (this.sendBlock < 1) this.sendBlock = 1
         this.sendNextPacket()
         return
       } else if (byte === CAN) {
@@ -735,11 +738,9 @@ class XmodemSession {
         if (this.sentBytes >= this.sendSize) {
           this.writeToTerminal(Buffer.from([EOT]))
         } else {
-          // Resend current block
+          // Resend current block (keep sendBlock unchanged – same block# must be retransmitted)
           this.sentBytes -= (this.use1K ? PACKET_SIZE_1K : PACKET_SIZE_128)
           if (this.sentBytes < 0) this.sentBytes = 0
-          this.sendBlock--
-          if (this.sendBlock < 1) this.sendBlock = 1
           this.sendNextPacket()
         }
         this.resetSendTimeout()

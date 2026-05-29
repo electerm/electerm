@@ -170,10 +170,15 @@ if (type === 'rdp') {
         return
       }
 
-      // Check if xmodem session is active and handle data
+      // Check if xmodem session is active and handle data.
+      // For serial terminals (term.port exists) a raw port listener (registered below)
+      // bypasses rxLineEnding transformation and feeds raw bytes to xmodem.
       if (xmodemManager.isActive(pid)) {
-        term.writeLog(data)
-        xmodemManager.handleData(pid, data, term, ws)
+        if (!term.port) {
+          // Non-serial fallback (should not normally happen)
+          term.writeLog(data)
+          xmodemManager.handleData(pid, data, term, ws)
+        }
         return
       }
 
@@ -213,6 +218,17 @@ if (type === 'rdp') {
         sendTimeout = setTimeout(flushBufferedData, 10) // Small delay (10ms) to throttle; adjust based on testing
       }
     })
+
+    // For serial terminals, register a raw data listener directly on the port to
+    // feed binary XMODEM data to xmodemManager without rxLineEnding transformation.
+    if (term.port) {
+      term.port.on('data', function (rawData) {
+        if (xmodemManager.isActive(pid)) {
+          term.writeLog(rawData)
+          xmodemManager.handleData(pid, rawData, term, ws)
+        }
+      })
+    }
 
     let onCloseCalled = false
     function onClose () {
