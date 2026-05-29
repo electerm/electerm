@@ -71,6 +71,8 @@ describe('AI Config and Suggestions', function () {
 
     // Test clear history functionality
     await client.click('.ai-chat-terminals .clear-ai-icon')
+    await delay(500)
+    await client.click('.ant-popover .ant-btn-primary')
     await delay(1000)
 
     // Verify that the chat history is now empty
