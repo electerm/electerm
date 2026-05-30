@@ -172,7 +172,7 @@ export default function AIChatHistoryItem ({ item }) {
         <span className='pointer mg1r' onClick={toggleOutput}>
           {showOutput ? <CaretDownOutlined /> : <CaretRightOutlined />}
         </span>
-        <UserOutlined />: {prompt}
+        <span>{prompt}</span>
         {renderStopButton()}
       </div>
     ),
