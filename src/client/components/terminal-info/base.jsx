@@ -42,11 +42,15 @@ export default class TerminalInfoBase extends Component {
   }
 
   componentDidMount () {
+    const { pid } = this.props
+    refs.add('term-info-' + pid, this)
     this.getState()
   }
 
   componentWillUnmount () {
     clearTimeout(this.timer)
+    const { pid } = this.props
+    refs.remove('term-info-' + pid)
   }
 
   handleToggleTimestamp = () => {

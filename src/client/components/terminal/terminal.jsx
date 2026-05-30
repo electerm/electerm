@@ -705,6 +705,14 @@ class Term extends Component {
     }).join('\n')
   }
 
+  syncTermInfo = (stateUpdate) => {
+    this.setState(stateUpdate)
+    const infoUpdate = pick(stateUpdate, ['saveTerminalLogToFile', 'addTimeStampToTermLog', 'logPath', 'logFileName'])
+    if (Object.keys(infoUpdate).length) {
+      refs.get('term-info-' + this.props.tab.id)?.setState(infoUpdate)
+    }
+  }
+
   openLogSaveDialog = async (titleKey) => {
     const { logName } = this.props
     const result = await window.api.saveDialog({
@@ -731,7 +739,7 @@ class Term extends Component {
     const { addTimeStampToTermLog } = this.state
     startTerminalLogFile(this.pid, filePath, addTimeStampToTermLog).catch(window.store.onError)
     const { path: logPath, name: logFileName } = getFolderFromFilePath(filePath, false)
-    this.setState({ saveTerminalLogToFile: true, logPath, logFileName })
+    this.syncTermInfo({ saveTerminalLogToFile: true, logPath, logFileName })
     notification.success({
       message: e('saveTerminalLogToFile'),
       description: <ShowItem to={filePath}>{filePath}</ShowItem>,
@@ -747,7 +755,8 @@ class Term extends Component {
     const { addTimeStampToTermLog } = this.state
     startTerminalLogFile(this.pid, filePath, addTimeStampToTermLog).catch(window.store.onError)
     const { path: logPath, name: logFileName } = getFolderFromFilePath(filePath, false)
-    this.setState({ saveTerminalLogToFile: true, logPath, logFileName, recording: true, recordingFilePath: filePath })
+    this.syncTermInfo({ saveTerminalLogToFile: true, logPath, logFileName })
+    this.setState({ recording: true, recordingFilePath: filePath })
     notification.success({
       message: e('record'),
       description: <ShowItem to={filePath}>{filePath}</ShowItem>,
@@ -758,6 +767,7 @@ class Term extends Component {
   onStopRecord = () => {
     const { recordingFilePath } = this.state
     toggleTerminalLog(this.pid).catch(window.store.onError)
+    this.syncTermInfo({ saveTerminalLogToFile: false })
     this.setState({ recording: false, recordingFilePath: '' })
     notification.success({
       message: e('stopRecord'),
