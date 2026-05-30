@@ -30,10 +30,11 @@ import { XmodemClient } from './xmodem-client.js'
 import DropFileModal from './drop-file-modal.jsx'
 import keyControlPressed from '../../common/key-control-pressed.js'
 import NormalBuffer from './normal-buffer.jsx'
-import { createTerm, resizeTerm } from './terminal-apis.js'
+import { createTerm, resizeTerm, startTerminalLogFile } from './terminal-apis.js'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { KeywordHighlighterAddon } from './highlight-addon.js'
 import { getFilePath, isUnsafeFilename } from '../../common/file-drop-utils.js'
+import { getFolderFromFilePath } from '../sftp/file-read.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
 import AIIcon from '../icons/ai-icon.jsx'
 import {
@@ -72,6 +73,7 @@ class Term extends Component {
       saveTerminalLogToFile: !!this.props.config.saveTerminalLogToFile,
       addTimeStampToTermLog: !!this.props.config.addTimeStampToTermLog,
       logPath: this.props.config.sessionLogPath || createDefaultLogPath(),
+      logFileName: '',
       passType: 'password',
       lines: [],
       searchResults: [],
@@ -676,6 +678,52 @@ class Term extends Component {
     )
   }
 
+  getTerminalBufferText = () => {
+    const { addTimeStampToTermLog } = this.state
+    const buffer = this.term.buffer.active
+    const len = buffer.length
+    const rawLines = []
+    for (let i = 0; i < len; i++) {
+      const line = buffer.getLine(i)
+      rawLines.push(line ? line.translateToString(false) : '')
+    }
+    // trim trailing blank lines before applying timestamps
+    while (rawLines.length && !rawLines[rawLines.length - 1].trim()) {
+      rawLines.pop()
+    }
+    if (!addTimeStampToTermLog) {
+      return rawLines.join('\n')
+    }
+    return rawLines.map(text => {
+      const now = new Date()
+      const ts = `[${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(now.getMilliseconds()).padStart(3, '0')}] `
+      return ts + text
+    }).join('\n')
+  }
+
+  onSaveTerminalLog = async () => {
+    const { logName } = this.props
+    const result = await window.api.saveDialog({
+      title: e('saveTerminalLogToFile'),
+      defaultPath: logName + '.log',
+      filters: [
+        { name: 'Log files', extensions: ['log'] }
+      ],
+      properties: ['createDirectory', 'showOverwriteConfirmation']
+    })
+    if (result.canceled || !result.filePath) {
+      return
+    }
+    const { filePath } = result
+    const content = this.getTerminalBufferText()
+    await window.fs.writeFile(filePath, content).catch(window.store.onError)
+    const { addTimeStampToTermLog } = this.state
+    startTerminalLogFile(this.pid, filePath, addTimeStampToTermLog).catch(window.store.onError)
+    const { path: logPath, name: logFileName } = getFolderFromFilePath(filePath, false)
+    this.setState({ saveTerminalLogToFile: true, logPath, logFileName })
+    message.success(e('saveTerminalLogToFile') + ': ' + filePath)
+  }
+
   renderContextMenu = () => {
     const { hasSelection } = this.state
     const copyed = true
@@ -730,6 +778,11 @@ class Term extends Component {
         icon: <iconsMap.SearchOutlined />,
         label: e('search'),
         extra: searchShortcut
+      },
+      {
+        key: 'onSaveTerminalLog',
+        icon: <iconsMap.SaveOutlined />,
+        label: e('saveTerminalLogToFile')
       }
     ]
     if (isSerial) {

@@ -247,6 +247,10 @@ function initIpc () {
     const win = BrowserWindow.fromWebContents(event.sender)
     return dialog.showOpenDialogSync(win, ...args)
   })
+  ipcMain.handle('show-save-dialog', async (event, ...args) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    return dialog.showSaveDialog(win, ...args)
+  })
 }
 
 exports.initIpc = initIpc

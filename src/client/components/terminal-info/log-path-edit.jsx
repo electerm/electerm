@@ -12,10 +12,11 @@ import { osResolve } from '../../common/resolve'
 
 const e = window.translate
 
-export default function LogPathEdit ({ pid, logPath, logName, setLogPath }) {
+export default function LogPathEdit ({ pid, logPath, logName, logFileName, setLogPath }) {
   const defaultPath = createDefaultLogPath()
   const base = logPath || defaultPath
-  const fullPath = osResolve(base, logName + '.log')
+  const fileName = logFileName || (logName + '.log')
+  const fullPath = osResolve(base, fileName)
 
   const testAndSet = async (v) => {
     if (v) {

@@ -21,7 +21,8 @@ const {
   runCmd,
   toggleTerminalLog,
   toggleTerminalLogTimestamp,
-  setTerminalLogPath
+  setTerminalLogPath,
+  startTerminalLogFile
 } = require('./session-api')
 const {
   isWin
@@ -429,6 +430,8 @@ process.on('message', async (message) => {
       promise = toggleTerminalLogTimestamp(body)
     } else if (action === 'set-terminal-log-path') {
       promise = setTerminalLogPath(body)
+    } else if (action === 'start-terminal-log-file') {
+      promise = startTerminalLogFile(body)
     } else if (action === 'run-cmd') {
       promise = runCmd(body)
     }

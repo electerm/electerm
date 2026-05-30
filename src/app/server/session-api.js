@@ -67,6 +67,15 @@ async function setTerminalLogPath (body) {
   return 'ok'
 }
 
+async function startTerminalLogFile (body) {
+  const { pid, logFilePath, addTimeStampToTermLog } = body
+  const term = terminals(pid)
+  if (term) {
+    term.startTerminalLogFile(logFilePath, addTimeStampToTermLog)
+  }
+  return 'ok'
+}
+
 exports.createTerm = createTerm
 exports.testTerm = testTerm
 exports.resize = resize
@@ -74,3 +83,4 @@ exports.runCmd = runCmd
 exports.toggleTerminalLog = toggleTerminalLog
 exports.toggleTerminalLogTimestamp = toggleTerminalLogTimestamp
 exports.setTerminalLogPath = setTerminalLogPath
+exports.startTerminalLogFile = startTerminalLogFile

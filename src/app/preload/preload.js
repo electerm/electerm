@@ -19,6 +19,9 @@ contextBridge.exposeInMainWorld(
     openDialog: (opts) => {
       return ipcRenderer.invoke('show-open-dialog-sync', opts)
     },
+    saveDialog: (opts) => {
+      return ipcRenderer.invoke('show-save-dialog', opts)
+    },
     ipcOnEvent: (event, cb) => {
       ipcRenderer.on(event, cb)
     },

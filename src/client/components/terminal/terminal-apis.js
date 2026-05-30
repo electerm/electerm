@@ -49,3 +49,12 @@ export function setTerminalLogPath (pid, logPath) {
     action: 'set-terminal-log-path'
   })
 }
+
+export function startTerminalLogFile (pid, logFilePath, addTimeStampToTermLog) {
+  return fetch({
+    pid,
+    logFilePath,
+    addTimeStampToTermLog,
+    action: 'start-terminal-log-file'
+  })
+}
