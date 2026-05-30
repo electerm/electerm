@@ -8,7 +8,6 @@ import {
   Tooltip
 } from 'antd'
 import {
-  UserOutlined,
   CopyOutlined,
   CloseOutlined,
   CaretDownOutlined,
