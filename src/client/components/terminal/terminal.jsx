@@ -7,6 +7,8 @@ import {
   Dropdown
 } from 'antd'
 import message from '../common/message'
+import { notification } from '../common/notification'
+import ShowItem from '../common/show-item.jsx'
 import Modal from '../common/modal'
 import classnames from 'classnames'
 import './terminal.styl'
@@ -30,7 +32,7 @@ import { XmodemClient } from './xmodem-client.js'
 import DropFileModal from './drop-file-modal.jsx'
 import keyControlPressed from '../../common/key-control-pressed.js'
 import NormalBuffer from './normal-buffer.jsx'
-import { createTerm, resizeTerm, startTerminalLogFile } from './terminal-apis.js'
+import { createTerm, resizeTerm, startTerminalLogFile, toggleTerminalLog } from './terminal-apis.js'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { KeywordHighlighterAddon } from './highlight-addon.js'
 import { getFilePath, isUnsafeFilename } from '../../common/file-drop-utils.js'
@@ -74,6 +76,8 @@ class Term extends Component {
       addTimeStampToTermLog: !!this.props.config.addTimeStampToTermLog,
       logPath: this.props.config.sessionLogPath || createDefaultLogPath(),
       logFileName: '',
+      recording: false,
+      recordingFilePath: '',
       passType: 'password',
       lines: [],
       searchResults: [],
@@ -701,10 +705,10 @@ class Term extends Component {
     }).join('\n')
   }
 
-  onSaveTerminalLog = async () => {
+  openLogSaveDialog = async (titleKey) => {
     const { logName } = this.props
     const result = await window.api.saveDialog({
-      title: e('saveTerminalLogToFile'),
+      title: e(titleKey),
       defaultPath: logName + '.log',
       filters: [
         { name: 'Log files', extensions: ['log'] }
@@ -712,20 +716,57 @@ class Term extends Component {
       properties: ['createDirectory', 'showOverwriteConfirmation']
     })
     if (result.canceled || !result.filePath) {
+      return null
+    }
+    return result.filePath
+  }
+
+  onSaveTerminalLog = async () => {
+    const filePath = await this.openLogSaveDialog('saveTerminalLogToFile')
+    if (!filePath) {
       return
     }
-    const { filePath } = result
     const content = this.getTerminalBufferText()
     await window.fs.writeFile(filePath, content).catch(window.store.onError)
     const { addTimeStampToTermLog } = this.state
     startTerminalLogFile(this.pid, filePath, addTimeStampToTermLog).catch(window.store.onError)
     const { path: logPath, name: logFileName } = getFolderFromFilePath(filePath, false)
     this.setState({ saveTerminalLogToFile: true, logPath, logFileName })
-    message.success(e('saveTerminalLogToFile') + ': ' + filePath)
+    notification.success({
+      message: e('saveTerminalLogToFile'),
+      description: <ShowItem to={filePath}>{filePath}</ShowItem>,
+      duration: 5
+    })
+  }
+
+  onRecord = async () => {
+    const filePath = await this.openLogSaveDialog('record')
+    if (!filePath) {
+      return
+    }
+    const { addTimeStampToTermLog } = this.state
+    startTerminalLogFile(this.pid, filePath, addTimeStampToTermLog).catch(window.store.onError)
+    const { path: logPath, name: logFileName } = getFolderFromFilePath(filePath, false)
+    this.setState({ saveTerminalLogToFile: true, logPath, logFileName, recording: true, recordingFilePath: filePath })
+    notification.success({
+      message: e('record'),
+      description: <ShowItem to={filePath}>{filePath}</ShowItem>,
+      duration: 5
+    })
+  }
+
+  onStopRecord = () => {
+    const { recordingFilePath } = this.state
+    toggleTerminalLog(this.pid).catch(window.store.onError)
+    this.setState({ recording: false, recordingFilePath: '' })
+    notification.success({
+      message: e('stopRecord'),
+      description: <ShowItem to={recordingFilePath}>{recordingFilePath}</ShowItem>
+    })
   }
 
   renderContextMenu = () => {
-    const { hasSelection } = this.state
+    const { hasSelection, recording } = this.state
     const copyed = true
     const copyShortcut = this.getShortcut('terminal_copy')
     const pasteShortcut = this.getShortcut('terminal_paste')
@@ -783,6 +824,11 @@ class Term extends Component {
         key: 'onSaveTerminalLog',
         icon: <iconsMap.SaveOutlined />,
         label: e('saveTerminalLogToFile')
+      },
+      {
+        key: recording ? 'onStopRecord' : 'onRecord',
+        icon: recording ? <iconsMap.StopOutlined /> : <iconsMap.PlayCircleFilled />,
+        label: e(recording ? 'stopRecord' : 'record')
       }
     ]
     if (isSerial) {
