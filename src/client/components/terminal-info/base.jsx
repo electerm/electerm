@@ -168,24 +168,19 @@ export default class TerminalInfoBase extends Component {
     const fullPath = osResolve(base, fileName)
     return (
       <div className='terminal-info-section terminal-info-base'>
-        <div className='fix'>
-          <span className='fleft'><b>ID:</b> {id}</span>
-          <span className='fright'>
-            <Switch
-              checkedChildren={name}
-              unCheckedChildren={name}
-              checked={saveTerminalLogToFile}
-              onChange={this.handleToggle}
-              className='mg1r mg1b'
-            />
-            {
-              this.renderTimestamp()
-            }
-          </span>
+        <div className='pd1b'>
+          <b>ID:</b> {id}
         </div>
-        <div className='pd2y'>
+        <div className='pd1b'>
+          <Switch
+            checkedChildren={name}
+            unCheckedChildren={name}
+            checked={saveTerminalLogToFile}
+            onChange={this.handleToggle}
+            className='mg1r mg1b'
+          />
           {
-            this.renderInfoSelection()
+            this.renderTimestamp()
           }
         </div>
         {
@@ -197,6 +192,12 @@ export default class TerminalInfoBase extends Component {
               )
             : null
         }
+        <div className='pd2y'>
+          {
+            this.renderInfoSelection()
+          }
+        </div>
+
       </div>
     )
   }
