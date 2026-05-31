@@ -970,6 +970,31 @@ export default class Sftp extends Component {
     })
   }
 
+  handleUploadFromBrowser = () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.multiple = true
+    input.onchange = async () => {
+      const files = input.files
+      if (!files || !files.length) return
+      const { localPath } = this.state
+      for (const file of files) {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('path', localPath)
+        await window.fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            token: window.store?.config.tokenElecterm
+          }
+        })
+      }
+      this.localList()
+    }
+    input.click()
+  }
+
   parsePath = async (type, pth) => {
     const reg = /^%([^%]+)%/
     if (!reg.test(pth)) {
@@ -1218,6 +1243,7 @@ export default class Sftp extends Component {
     const addrProps = {
       host,
       type,
+      handleUploadFromBrowser: this.handleUploadFromBrowser,
       ...pick(
         this,
         [

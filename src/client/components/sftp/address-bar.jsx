@@ -6,7 +6,8 @@ import {
   ReloadOutlined,
   ArrowRightOutlined,
   LoadingOutlined,
-  HomeOutlined
+  HomeOutlined,
+  PlusOutlined
 } from '@ant-design/icons'
 import {
   Input,
@@ -74,7 +75,7 @@ function renderAddonBefore (props, realPath) {
   )
 }
 
-function renderAddonAfter (isLoadingRemote, onGoto, GoIcon, type) {
+function renderAddonAfter (isLoadingRemote, onGoto, GoIcon, type, handleUploadFromBrowser) {
   const handleClick = (e) => {
     e.stopPropagation()
     if (!isLoadingRemote) {
@@ -82,9 +83,24 @@ function renderAddonAfter (isLoadingRemote, onGoto, GoIcon, type) {
     }
   }
   return (
-    <GoIcon
-      onClick={handleClick}
-    />
+    <>
+      {
+        type === typeMap.local
+          ? (
+            <PlusOutlined
+              className='mg1r'
+              onClick={(e) => {
+                e.stopPropagation()
+                handleUploadFromBrowser()
+              }}
+            />
+            )
+          : null
+      }
+      <GoIcon
+        onClick={handleClick}
+      />
+    </>
   )
 }
 
@@ -160,7 +176,7 @@ export default function AddressBar (props) {
           onBlur={() => props.onInputBlur(type)}
           disabled={loadingSftp}
           suffix={
-            renderAddonAfter(isLoadingRemote, onGoto, GoIcon, type)
+            renderAddonAfter(isLoadingRemote, onGoto, GoIcon, type, props.handleUploadFromBrowser)
           }
         />
         {renderHistory(props, type)}

@@ -882,6 +882,25 @@ export default class FileSection extends React.Component {
     window.pre.showItemInFolder(p)
   }
 
+  downloadFromBrowser = async () => {
+    const { path, name, isDirectory } = this.state.file
+    const p = resolve(path, name)
+    const url = '/api/download?path=' + encodeURIComponent(p)
+    const res = await window.fetch(url, {
+      headers: {
+        token: window.store?.config.tokenElecterm
+      }
+    })
+    const blob = await res.blob()
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = isDirectory ? name + '.tar.gz' : name
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(a.href)
+  }
+
   newItem = (isDirectory) => {
     const { type } = this.state.file
     const list = copy(this.props[type])
@@ -1058,6 +1077,13 @@ export default class FileSection extends React.Component {
         func: 'showInDefaultFileManager',
         icon: 'ContainerOutlined',
         text: e('showInDefaultFileMananger')
+      })
+    }
+    if (isLocal && isRealFile && window.et.isWebApp) {
+      res.push({
+        func: 'downloadFromBrowser',
+        icon: 'DownloadOutlined',
+        text: 'Download from browser'
       })
     }
     if (showEdit) {

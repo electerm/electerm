@@ -27,7 +27,8 @@ import {
   AppstoreOutlined,
   SaveOutlined,
   PlayCircleFilled,
-  StopOutlined
+  StopOutlined,
+  DownloadOutlined
 } from '@ant-design/icons'
 import IconHolder from './icon-holder'
 
@@ -58,5 +59,6 @@ export default {
   AppstoreOutlined,
   SaveOutlined,
   PlayCircleFilled,
-  StopOutlined
+  StopOutlined,
+  DownloadOutlined
 }
