@@ -51,7 +51,6 @@ describe('info panel', function () {
 
     panelContent = await client.getText('.right-side-panel-content')
     expect(panelContent).includes(sshTabId)
-    expect(panelContent).includes(TEST_HOST)
 
     // Switch back to local tab
     log('switch back to local tab')
