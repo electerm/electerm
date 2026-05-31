@@ -85,7 +85,7 @@ function renderAddonAfter (isLoadingRemote, onGoto, GoIcon, type, handleUploadFr
   return (
     <>
       {
-        type === typeMap.local
+        type === typeMap.local && window.et.isWebApp
           ? (
             <PlusOutlined
               className='mg1r'
