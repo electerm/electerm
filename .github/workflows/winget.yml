@@ -13,5 +13,5 @@ jobs:
         with:
           identifier: electerm.electerm
           installers-regex: 'win-x64-installer.exe$'
-          max-versions-to-keep: 10
+          max-versions-to-keep: 30
           token: ${{ secrets.WINGET_TOKEN }}
