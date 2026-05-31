@@ -14,6 +14,7 @@ import copy from 'json-deep-copy'
 import { pick, some } from 'lodash-es'
 import Input from '../common/input-auto-focus'
 import resolve from '../../common/resolve'
+import normalizeRemotePath from '../../common/normalize-remote-path'
 import { addClass, removeClass } from '../../common/class'
 import {
   mode2permission,
@@ -604,7 +605,10 @@ export default class FileSection extends React.Component {
     const { type, name, isParent } = file
     const n = `${type}Path`
     const path = isParent ? file.path : this.props[n]
-    const np = resolve(path, name)
+    let np = resolve(path, name)
+    if (type === typeMap.remote) {
+      np = normalizeRemotePath(np)
+    }
     const op = this.props[type + 'Path']
     this.props.modifier({
       [n]: np,

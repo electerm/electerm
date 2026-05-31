@@ -1,3 +1,3 @@
 export default (path = '') => {
-  return path.startsWith('/')
+  return path.startsWith('/') || /^[a-zA-Z]:/.test(path)
 }
