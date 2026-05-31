@@ -7,6 +7,12 @@ import fs from '../../common/fs'
 import { isWin } from '../../common/constants'
 
 export const getFileExt = fileName => {
+  if (/^\\\\(?:wsl\$|wsl\.localhost)\\/.test(fileName)) {
+    return {
+      base: fileName,
+      ext: ''
+    }
+  }
   const sep = '.'
   const arr = fileName.split(sep)
   const len = arr.length
@@ -82,12 +88,15 @@ export const getFolderFromFilePath = (filePath, isRemote) => {
   const arr = filePath.split(sep)
   const len = arr.length
   const isWinDisk = isWin && filePath.endsWith(sep)
-  const path = isWinDisk
+  const isWslRoot = isWin && /^\\\\(?:wsl\$|wsl\.localhost)\\[^\\]+$/.test(filePath.replace(/\\$/, ''))
+  const path = (isWinDisk || isWslRoot)
     ? '/'
     : arr.slice(0, len - 1).join(sep)
   const name = isWinDisk
     ? filePath.replace(sep, '')
-    : arr[len - 1]
+    : isWslRoot
+      ? filePath
+      : arr[len - 1]
 
   return {
     path,
