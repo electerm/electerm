@@ -136,6 +136,11 @@ if (type === 'rdp') {
         return
       }
 
+      // Detect XMODEM auto-trigger markers from serial device
+      if (term.port) {
+        detectXmodemMarker(combinedData.toString('utf8'))
+      }
+
       // Check for xmodem protocol before sending to client
       const xmodemConsumed = xmodemManager.handleData(pid, combinedData, term, ws)
       if (xmodemConsumed) {
@@ -151,6 +156,27 @@ if (type === 'rdp') {
     // Create ws.s function for zmodem to send messages to client
     ws.s = (data) => {
       ws.send(JSON.stringify(data))
+    }
+
+    // Auto-trigger XMODEM when the serial device sends a marker message.
+    // The serial-shell.js sends these markers when the user types tx/rx.
+    function detectXmodemMarker (text) {
+      const txMatch = text.match(/\[XMODEM:TX:(.+?)\]/)
+      if (txMatch) {
+        ws.s({
+          action: 'xmodem-event',
+          event: 'auto-trigger-receive',
+          name: txMatch[1]
+        })
+        return
+      }
+      const rxMatch = text.match(/\[XMODEM:RX\]/)
+      if (rxMatch) {
+        ws.s({
+          action: 'xmodem-event',
+          event: 'auto-trigger-send'
+        })
+      }
     }
 
     // In the WebSocket setup, replace the data handler:
@@ -169,6 +195,12 @@ if (type === 'rdp') {
         term.writeLog(data)
         trzszManager.handleData(pid, data, term, ws)
         return
+      }
+
+      // Detect XMODEM auto-trigger markers from serial device
+      if (term.port) {
+        const text = Buffer.isBuffer(data) ? data.toString('utf8') : data
+        detectXmodemMarker(text)
       }
 
       // Check if xmodem session is active and handle data.

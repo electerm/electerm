@@ -79,6 +79,7 @@ class XmodemSession {
     this.downloadStream = null
     this.downloadPath = null
     this.savePath = null
+    this.receiveFileName = null
     this.expectedBlock = 1
     this.receiveBuffer = Buffer.alloc(0)
     this.receiveTimeout = null
@@ -385,8 +386,8 @@ class XmodemSession {
   prepareReceiveFile () {
     if (!this.savePath) return
 
-    // Default filename if we don't know it
-    const fileName = `xmodem_${Date.now()}.bin`
+    // Use original filename if provided, otherwise generate one
+    const fileName = this.receiveFileName || `xmodem_${Date.now()}.bin`
     let filePath = path.join(this.savePath, sanitizeFilename(fileName))
 
     if (fs.existsSync(filePath)) {
@@ -504,8 +505,9 @@ class XmodemSession {
   /**
    * Set save path for receiving files
    */
-  setSavePath (savePath) {
+  setSavePath (savePath, name) {
     this.savePath = savePath
+    this.receiveFileName = name || null
     // Process buffered data
     if (this.receiveBuffer.length > 0) {
       const buffered = this.receiveBuffer
@@ -689,8 +691,14 @@ class XmodemSession {
    * Send EOT (end of transmission)
    */
   sendEot () {
+    // Guard: if already past SENDING (e.g. called again via ACK→sendNextPacket
+    // after we already sent EOT), skip to avoid infinite EOT loop.
+    if (this.state !== XMODEM_STATE.SENDING &&
+        this.state !== XMODEM_STATE.WAITING_REMOTE) {
+      return
+    }
+
     this.writeToTerminal(Buffer.from([EOT]))
-    this.state = XMODEM_STATE.SENDING
 
     // Wait for ACK of EOT
     this.resetSendTimeout()
@@ -707,15 +715,14 @@ class XmodemSession {
       path: this.uploadPath
     })
 
-    // Move to next file if any
-    this.currentFileIndex++
-    if (this.currentFileIndex < this.pendingFiles.length) {
-      // Wait for ACK of EOT, then remote will send NAK/C for next file
-      // For simplicity, end session after each file in multi-file mode
-      // (XMODEM doesn't natively support multi-file like YMODEM does)
-    }
+    this.sendToClient({
+      event: 'session-end'
+    })
 
-    // After EOT ACK is received, the session ends in handleSendResponse
+    // Reset state so isActive() returns false and normal terminal I/O resumes.
+    // This mirrors handleReceiveComplete() which also calls resetState() after
+    // sending session-end.
+    this.resetState()
   }
 
   /**
@@ -818,13 +825,15 @@ class XmodemSession {
    * Reset session state
    */
   resetState () {
+    this.clearReceiveTimeout()
+    this.clearSendTimeout()
     this.state = XMODEM_STATE.IDLE
     this.downloadStream = null
     this.downloadPath = null
     this.savePath = null
+    this.receiveFileName = null
     this.expectedBlock = 1
     this.receiveBuffer = Buffer.alloc(0)
-    this.receiveTimeout = null
     this.retries = 0
     this.uploadPath = null
     this.uploadFd = null
@@ -835,7 +844,6 @@ class XmodemSession {
     this.transferSize = 0
     this.transferredBytes = 0
     this.startTime = 0
-    this.sendTimeout = null
     this.pendingFiles = []
     this.currentFileIndex = 0
     this.pendingSendData = []
@@ -891,7 +899,7 @@ class XmodemManager {
 
     switch (msg.event) {
       case 'set-save-path':
-        session.setSavePath(msg.path)
+        session.setSavePath(msg.path, msg.name)
         break
       case 'send-files':
         session.setSendFiles(msg.files)
