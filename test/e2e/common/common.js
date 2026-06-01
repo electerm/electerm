@@ -399,14 +399,25 @@ async function verifySelectionCount (client, type, expectedCount) {
 
 /**
  * Verifies that the fileTransfers array in window.store is empty
+ * Polls with retries to handle timing variations in transfer completion
  *
  * @param {Object} client - The Playwright client
+ * @param {number} [timeout=30000] - Max wait time in ms
+ * @param {number} [interval=1000] - Poll interval in ms
  */
-async function verifyFileTransfersComplete (client) {
-  const isEmpty = await client.evaluate(() => {
-    return window.store.fileTransfers.length === 0
-  })
-  expect(isEmpty).toBe(true, 'Expected fileTransfers array to be empty after operations complete')
+async function verifyFileTransfersComplete (client, timeout = 30000, interval = 1000) {
+  const start = Date.now()
+  let isEmpty = false
+  while (Date.now() - start < timeout) {
+    isEmpty = await client.evaluate(() => {
+      return window.store.fileTransfers.length === 0
+    })
+    if (isEmpty) {
+      break
+    }
+    await delay(interval)
+  }
+  expect(isEmpty).toBe(true, `Expected fileTransfers array to be empty after operations complete (waited ${timeout}ms)`)
 }
 
 async function closeApp (electronApp, fileName) {

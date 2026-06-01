@@ -66,6 +66,68 @@ export class XmodemClient extends TransferClientBase {
       case 'session-error':
         this.onError(msg.error)
         break
+      case 'auto-trigger-receive':
+        this.handleAutoReceive(msg.name)
+        break
+      case 'auto-trigger-send':
+        this.handleAutoSend()
+        break
+    }
+  }
+
+  /**
+   * Auto-triggered: device is sending a file, electerm should receive it.
+   * Opens save folder dialog then starts xmodem receive.
+   * @param {string} fileName - Original filename from the device
+   */
+  async handleAutoReceive (fileName) {
+    if (this.isActive) return
+
+    this.isActive = true
+    this.writeBanner('RECEIVE', null)
+
+    const savePath = await this.openSaveFolderSelect()
+    if (savePath) {
+      this.savePath = savePath
+      this.sendToServer({
+        event: 'start-receive'
+      })
+      this.sendToServer({
+        event: 'set-save-path',
+        path: savePath,
+        name: fileName
+      })
+    } else {
+      this.isActive = false
+      this.writeToTerminal('\r\n\x1b[33mXMODEM Receive cancelled\x1b[0m\r\n')
+    }
+  }
+
+  /**
+   * Auto-triggered: device wants to receive a file, electerm should send it.
+   * Opens file select dialog then starts xmodem send.
+   */
+  async handleAutoSend () {
+    if (this.isActive) return
+
+    this.isActive = true
+    this.writeBanner('SEND', null)
+
+    const files = await this.openFileSelect({
+      title: 'Choose file to send via XMODEM',
+      message: 'Choose file to send via XMODEM'
+    })
+    if (files && files.length > 0) {
+      this.sendToServer({
+        event: 'start-send'
+      })
+      this.sendToServer({
+        event: 'send-files',
+        files
+      })
+    } else {
+      this.isActive = false
+      this.writeToTerminal('\r\n\x1b[33mXMODEM Send cancelled\x1b[0m\r\n')
     }
   }
 
