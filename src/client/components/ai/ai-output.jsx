@@ -10,7 +10,9 @@ const e = window.translate
 export default function AIOutput ({ item }) {
   const {
     response,
-    baseURLAI
+    baseURLAI,
+    nameAI,
+    modelAI
   } = item
   if (!response) {
     return null
@@ -82,10 +84,12 @@ export default function AIOutput ({ item }) {
     if (!brand) {
       return null
     }
+    const nameLabel = nameAI || modelAI
+    const label = nameLabel ? `${brand}:${nameLabel}` : brand
     return (
       <div className='pd1y'>
         <Link to={brandUrl}>
-          <Tag>{brand}</Tag>
+          <Tag>{label}</Tag>
         </Link>
       </div>
     )

@@ -94,10 +94,13 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
 
   function renderHistoryItem (item) {
     if (!item || typeof item !== 'object') return { label: 'Unknown', title: 'Unknown' }
+    const name = item.nameAI || ''
     const model = item.modelAI || 'Default Model'
     const rolePrefix = item.roleAI ? item.roleAI.substring(0, 15) + '...' : ''
-    const label = `[${model}] ${rolePrefix}`
-    const title = `Model: ${item.modelAI}\nRole: ${item.roleAI}\nURL: ${item.baseURLAI}`
+    const label = name || `[${model}] ${rolePrefix}`
+    const title = name
+      ? `${name}\nModel: ${item.modelAI}\nURL: ${item.baseURLAI}`
+      : `Model: ${item.modelAI}\nRole: ${item.roleAI}\nURL: ${item.baseURLAI}`
     return { label, title }
   }
 
@@ -131,6 +134,14 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         layout='vertical'
         className='ai-config-form'
       >
+        <Form.Item
+          label='Name'
+          name='nameAI'
+        >
+          <Input
+            placeholder='e.g. DeepSeek Relay, Local Ollama (optional)'
+          />
+        </Form.Item>
         <Form.Item label={renderApiUrlLabel()} required>
           <Space.Compact className='width-100'>
             <Form.Item

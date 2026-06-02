@@ -298,7 +298,7 @@ export default Store => {
   }
 
   Store.prototype.aiConfigMissing = function () {
-    return aiConfigsArr.filter(k => k !== 'apiKeyAI' && k !== 'proxyAI').some(k => !window.store.config[k])
+    return aiConfigsArr.filter(k => k !== 'apiKeyAI' && k !== 'proxyAI' && k !== 'nameAI').some(k => !window.store.config[k])
   }
 
   Store.prototype.clearHistory = function () {

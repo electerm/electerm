@@ -22,6 +22,7 @@ export default function AIChatHistoryItem ({ item }) {
   const {
     prompt,
     sessionId,
+    nameAI,
     modelAI,
     roleAI,
     baseURLAI,
@@ -190,6 +191,11 @@ export default function AIChatHistoryItem ({ item }) {
   function renderTitle () {
     return (
       <div>
+        {nameAI && (
+          <p>
+            <b>Name:</b> {nameAI}
+          </p>
+        )}
         <p>
           <b>Model:</b> {modelAI}
         </p>

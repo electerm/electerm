@@ -52,6 +52,7 @@ export default function AIChat (props) {
       mode,
       toolCalls: [],
       ...pick(props.config, [
+        'nameAI',
         'modelAI',
         'roleAI',
         'baseURLAI',
