@@ -38,6 +38,7 @@ import { KeywordHighlighterAddon } from './highlight-addon.js'
 import { getFilePath, isUnsafeFilename } from '../../common/file-drop-utils.js'
 import { getFolderFromFilePath } from '../sftp/file-read.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
+import { Osc52Addon } from './osc52-addon.js'
 import AIIcon from '../icons/ai-icon.jsx'
 import {
   getShellIntegrationCommand,
@@ -204,6 +205,9 @@ class Term extends Component {
       this.encode || this.props.tab.encode || 'utf-8'
     )
     await this.attachAddon.activate(this.term)
+    if (this.osc52Addon) {
+      this.osc52Addon.setSendData(this.attachAddon._sendData.bind(this.attachAddon))
+    }
   }
 
   getValue = (props, type, name) => {
@@ -1125,6 +1129,8 @@ class Term extends Component {
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
     term.loadAddon(this.cmdAddon)
+    this.osc52Addon = new Osc52Addon()
+    term.loadAddon(this.osc52Addon)
     if (tab.enableTerminalImage) {
       const ImageAddon = await loadImageAddon()
       this.imageAddon = new ImageAddon({
