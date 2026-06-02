@@ -109,13 +109,13 @@ jobs:
         cat /tmp/node-pty-build.log 2>/dev/null | tail -50 || echo "No node-pty build log"
         cat /tmp/serialport-build.log 2>/dev/null | tail -30 || echo "No serialport build log"
 
-    - name: Upload build logs
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-logs
-        path: /tmp/*-build.log
-        retention-days: 7
+    # - name: Upload build logs
+    #   if: always()
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: build-logs
+    #     path: /tmp/*-build.log
+    #     retention-days: 7
 
     - name: Upload to R2
       if: ${{ contains(github.event.head_commit.message, '[r2]') }}
