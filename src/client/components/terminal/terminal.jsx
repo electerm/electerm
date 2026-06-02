@@ -395,7 +395,8 @@ class Term extends Component {
     if (isUnsafeFilename(p)) {
       return message.error('File name contains unsafe characters')
     }
-    this.runQuickCommand(`cd "${p}"`)
+    const isWinPath = /^[a-zA-Z]:\\/.test(p)
+    this.runQuickCommand(isWinPath ? `cd /d "${p}"` : `cd "${p}"`)
   }
 
   onDrop = e => {

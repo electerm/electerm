@@ -697,9 +697,20 @@ export default class FileSection extends React.Component {
     const {
       path, name
     } = this.state.file
-    const rp = path ? resolve(path, name) : this.props[`${this.props.type}Path`]
+    let rp = path ? resolve(path, name) : this.props[`${this.props.type}Path`]
+    if (this.props.type === typeMap.remote) {
+      rp = this.convertSftpPathToTerminalPath(rp)
+    }
     this.props.tab.pane = paneMap.terminal
     refs.get('term-' + this.props.tab.id)?.cd(rp)
+  }
+
+  convertSftpPathToTerminalPath = (p) => {
+    const m = p.match(/^\/([a-zA-Z]:)(.*)$/)
+    if (m) {
+      return m[1] + m[2].replace(/\//g, '\\')
+    }
+    return p
   }
 
   fetchEditorText = async (path, type) => {
