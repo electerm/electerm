@@ -41,8 +41,15 @@ jobs:
         which loongarch64-linux-gnu-g++ 2>/dev/null || sudo ln -sf /usr/bin/loongarch64-linux-gnu-g++-14 /usr/bin/loongarch64-linux-gnu-g++ || true
 
         # Download GCC 8 from Loongnix for old-world ABI support
+        # The Loongnix FTP server is unreliable and drops connections, so we retry with resume
         echo "Downloading GCC 8 cross-compiler from Loongnix..."
-        curl -L -o /tmp/gcc8-loong64.tar.xz "https://ftp.loongnix.cn/toolchain/gcc/release/loongarch/gcc8/loongson-gnu-toolchain-8.3-x86_64-loongarch64-linux-gnu-rc1.6.tar.xz"
+        URL="https://ftp.loongnix.cn/toolchain/gcc/release/loongarch/gcc8/loongson-gnu-toolchain-8.3-x86_64-loongarch64-linux-gnu-rc1.6.tar.xz"
+        for i in 1 2 3 4 5; do
+          echo "Attempt $i..."
+          curl -L --retry 3 --retry-delay 5 -C - -o /tmp/gcc8-loong64.tar.xz "$URL" && break
+          echo "Attempt $i failed, retrying..."
+          sleep 10
+        done
         sudo mkdir -p /opt/gcc8-loong64
         sudo tar xJf /tmp/gcc8-loong64.tar.xz -C /opt/gcc8-loong64 --strip-components=1
         echo "/opt/gcc8-loong64/bin" >> $GITHUB_PATH
@@ -102,13 +109,13 @@ jobs:
         cat /tmp/node-pty-build.log 2>/dev/null | tail -50 || echo "No node-pty build log"
         cat /tmp/serialport-build.log 2>/dev/null | tail -30 || echo "No serialport build log"
 
-    - name: Upload build logs
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-logs
-        path: /tmp/*-build.log
-        retention-days: 7
+    # - name: Upload build logs
+    #   if: always()
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: build-logs
+    #     path: /tmp/*-build.log
+    #     retention-days: 7
 
     - name: Upload to R2
       if: ${{ contains(github.event.head_commit.message, '[r2]') }}
