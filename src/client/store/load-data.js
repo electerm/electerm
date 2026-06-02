@@ -52,6 +52,20 @@ export async function addTabFromCommandLine (store, opts) {
   if (isHelp) {
     return store.openAbout(infoTabs.cmd)
   }
+  // Check if argv contains a protocol URL (e.g., ssh://user@host)
+  // and use parseQuickConnect for proper parsing
+  if (argv && argv.length) {
+    const protocolUrl = argv.find(arg =>
+      /^(ssh|telnet|rdp|vnc|serial|spice|ftp|http|https|electerm):\/\//i.test(arg)
+    )
+    if (protocolUrl) {
+      const parsed = parseQuickConnect(protocolUrl)
+      if (parsed) {
+        return store.ipcOpenTab(parsed)
+      }
+    }
+  }
+
   const conf = getHost(argv, options)
   const update = {
     passphrase: options.passphrase,
