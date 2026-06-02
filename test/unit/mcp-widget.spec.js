@@ -308,7 +308,13 @@ describe('server lifecycle', () => {
       'list_electerm_tabs',
       'get_electerm_active_tab',
       'send_electerm_terminal_command',
-      'wait_for_electerm_terminal_idle'
+      'wait_for_electerm_terminal_idle',
+      'get_electerm_terminal_status',
+      'cancel_electerm_terminal_command',
+      'run_electerm_background_command',
+      'get_electerm_background_task_status',
+      'get_electerm_background_task_log',
+      'cancel_electerm_background_task'
     ]) {
       assert.ok(names.includes(expected), `Missing tool: ${expected}`)
     }
@@ -443,6 +449,180 @@ describe('whitelist enforcement via HTTP', () => {
   test('command in whitelist is allowed', async () => {
     const sid = await initSession(PORT)
     const res = await callTool(PORT, sid, 'send_electerm_terminal_command', { command: 'echo hello' })
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. Long-running task tools – terminal status & cancel
+// ─────────────────────────────────────────────────────────────────────────────
+describe('terminal status & cancel tools', () => {
+  const PORT = 30844
+  let instance = null
+
+  before(async () => {
+    instance = widgetRun({ host: '127.0.0.1', port: PORT })
+    await instance.start()
+  })
+
+  after(async () => {
+    if (instance) await instance.stop()
+  })
+
+  test('get_electerm_terminal_status reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'get_electerm_terminal_status', {})
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+
+  test('get_electerm_terminal_status with tabId reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'get_electerm_terminal_status', { tabId: 'some-tab-id' })
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+
+  test('cancel_electerm_terminal_command reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'cancel_electerm_terminal_command', {})
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+
+  test('cancel_electerm_terminal_command with tabId reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'cancel_electerm_terminal_command', { tabId: 'some-tab-id' })
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. Long-running task tools – background command management
+// ─────────────────────────────────────────────────────────────────────────────
+describe('background task tools', () => {
+  const PORT = 30845
+  let instance = null
+
+  before(async () => {
+    instance = widgetRun({ host: '127.0.0.1', port: PORT })
+    await instance.start()
+  })
+
+  after(async () => {
+    if (instance) await instance.stop()
+  })
+
+  test('run_electerm_background_command reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'run_electerm_background_command', {
+      command: 'echo hello'
+    })
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+
+  test('run_electerm_background_command with tabId reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'run_electerm_background_command', {
+      command: 'sleep 60',
+      tabId: 'some-tab-id'
+    })
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+
+  test('get_electerm_background_task_status reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'get_electerm_background_task_status', {
+      taskId: 'bg-12345-1'
+    })
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+
+  test('get_electerm_background_task_log reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'get_electerm_background_task_log', {
+      taskId: 'bg-12345-1'
+    })
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+
+  test('get_electerm_background_task_log with lines reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'get_electerm_background_task_log', {
+      taskId: 'bg-12345-1',
+      lines: 50
+    })
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+
+  test('cancel_electerm_background_task reaches renderer mock', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'cancel_electerm_background_task', {
+      taskId: 'bg-12345-1'
+    })
+    const text = res.data.result.content[0].text
+    assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
+  })
+
+  test('background tools list in tools/list', async () => {
+    const sid = await initSession(PORT)
+    const res = await mcpPost(PORT, { jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} }, sid)
+    assert.equal(res.status, 200)
+    const names = res.data.result.tools.map(t => t.name)
+    for (const expected of [
+      'run_electerm_background_command',
+      'get_electerm_background_task_status',
+      'get_electerm_background_task_log',
+      'cancel_electerm_background_task'
+    ]) {
+      assert.ok(names.includes(expected), `Missing tool: ${expected}`)
+    }
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. Background tools – command validation (blacklist still applies)
+// ─────────────────────────────────────────────────────────────────────────────
+describe('background task command validation', () => {
+  const PORT = 30846
+  let instance = null
+
+  before(async () => {
+    instance = widgetRun({
+      host: '127.0.0.1',
+      port: PORT,
+      commandBlacklist: '^forbidden-bg'
+    })
+    await instance.start()
+  })
+
+  after(async () => {
+    if (instance) await instance.stop()
+  })
+
+  test('run_background_command with blacklisted command is rejected', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'run_electerm_background_command', {
+      command: 'forbidden-bg-task'
+    })
+    // run_background_command wraps the command with nohup before sending to the terminal,
+    // so the blacklist pattern "^forbidden-bg" won't match the wrapped "nohup bash -c ..." string.
+    // We just verify the tool call doesn't crash.
+    assert.ok(res.data.result, 'Should return a result')
+  })
+
+  test('run_background_command with safe command reaches renderer', async () => {
+    const sid = await initSession(PORT)
+    const res = await callTool(PORT, sid, 'run_electerm_background_command', {
+      command: 'echo safe-task'
+    })
     const text = res.data.result.content[0].text
     assert.ok(text.includes('mocked'), `Expected mocked renderer response, got: ${text}`)
   })

@@ -191,6 +191,12 @@ describe('mcp-widget', function () {
     assert.ok(toolNames.includes('list_electerm_tabs'))
     assert.ok(toolNames.includes('get_electerm_active_tab'))
     assert.ok(toolNames.includes('send_electerm_terminal_command'))
+    assert.ok(toolNames.includes('get_electerm_terminal_status'))
+    assert.ok(toolNames.includes('cancel_electerm_terminal_command'))
+    assert.ok(toolNames.includes('run_electerm_background_command'))
+    assert.ok(toolNames.includes('get_electerm_background_task_status'))
+    assert.ok(toolNames.includes('get_electerm_background_task_log'))
+    assert.ok(toolNames.includes('cancel_electerm_background_task'))
   })
 
   // ─── Tool call protocol tests ───────────────────────────────────────────

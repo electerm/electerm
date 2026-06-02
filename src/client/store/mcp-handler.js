@@ -6,6 +6,7 @@
 import uid from '../common/uid'
 import { settingMap } from '../common/constants'
 import { refs, refsTabs } from '../components/common/ref'
+import { runCmd } from '../components/terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
 import {
   getLocalFileInfo,
@@ -117,6 +118,26 @@ export default Store => {
           break
         case 'wait_for_terminal_idle':
           result = await store.mcpWaitForTerminalIdle(args)
+          break
+        case 'get_terminal_status':
+          result = store.mcpGetTerminalStatus(args)
+          break
+        case 'cancel_terminal_command':
+          result = store.mcpCancelTerminalCommand(args)
+          break
+
+        // Background task operations
+        case 'run_background_command':
+          result = store.mcpRunBackgroundCommand(args)
+          break
+        case 'get_background_task_status':
+          result = await store.mcpGetBackgroundTaskStatus(args)
+          break
+        case 'get_background_task_log':
+          result = await store.mcpGetBackgroundTaskLog(args)
+          break
+        case 'cancel_background_task':
+          result = await store.mcpCancelBackgroundTask(args)
           break
 
         // SFTP operations
@@ -649,6 +670,216 @@ export default Store => {
       message: `Terminal still active after ${timeout}ms`,
       output,
       lineCount
+    }
+  }
+
+  // ==================== Terminal Status & Cancel ====================
+
+  Store.prototype.mcpGetTerminalStatus = function (args) {
+    const { store } = window
+    const tabId = args.tabId || store.activeTabId
+    if (!tabId) {
+      throw new Error('No active terminal')
+    }
+
+    const tabRef = refsTabs.get('tab-' + tabId)
+    const onData = tabRef?.state.terminalOnData || ''
+    const term = refs.get('term-' + tabId)
+
+    let output = ''
+    let lineCount = 0
+    if (term && term.term) {
+      const buffer = term.term.buffer.active
+      if (buffer) {
+        const lines = []
+        const cursorY = buffer.cursorY || 0
+        const baseY = buffer.baseY || 0
+        const totalLines = buffer.length || 0
+        const end = baseY + cursorY + 1
+        const start = Math.max(0, end - 20)
+        for (let i = start; i < Math.min(totalLines, end); i++) {
+          const line = buffer.getLine(i)
+          if (line) {
+            lines.push(line.translateToString(true))
+          }
+        }
+        output = lines.join('\n')
+        lineCount = lines.length
+      }
+    }
+
+    return {
+      tabId,
+      isRunning: onData === 'feed',
+      hasPasswordPrompt: onData === 'password',
+      isIdle: !onData,
+      output,
+      lineCount
+    }
+  }
+
+  Store.prototype.mcpCancelTerminalCommand = function (args) {
+    const { store } = window
+    const tabId = args.tabId || store.activeTabId
+    if (!tabId) {
+      throw new Error('No active terminal')
+    }
+
+    const term = refs.get('term-' + tabId)
+    if (!term || !term.attachAddon) {
+      throw new Error('Terminal not found')
+    }
+
+    term.attachAddon._sendData('\x03')
+    return {
+      success: true,
+      message: 'Sent Ctrl+C to terminal',
+      tabId
+    }
+  }
+
+  // ==================== Background Task Management ====================
+
+  const backgroundTasks = new Map()
+  let bgTaskCounter = 0
+
+  async function runMonitorCmd (tabId, cmd) {
+    try {
+      const result = await runCmd(tabId, cmd)
+      return result
+    } catch (e) {
+      // Fallback: send via terminal and wait for idle
+      const { store } = window
+      store.mcpSendTerminalCommand({ command: cmd, tabId })
+      const idle = await store.mcpWaitForTerminalIdle({
+        tabId, timeout: 10000, lines: 10, minWait: 500
+      })
+      return idle.output || ''
+    }
+  }
+
+  Store.prototype.mcpRunBackgroundCommand = function (args) {
+    const { store } = window
+    const tabId = args.tabId || store.activeTabId
+    if (!tabId) {
+      throw new Error('No active terminal')
+    }
+    if (!args.command) {
+      throw new Error('No command provided')
+    }
+
+    const taskId = `bg-${Date.now()}-${++bgTaskCounter}`
+    const logFile = `/tmp/electerm-${taskId}.log`
+    const pidFile = `/tmp/electerm-${taskId}.pid`
+    const exitFile = `/tmp/electerm-${taskId}.exit`
+
+    // Encode command as base64 to avoid all quote-escaping issues.
+    // The subshell runs the user's command, captures its exit code, then cleans up the PID file.
+    const b64 = btoa(args.command)
+    const inner = `eval "$(echo ${b64} | base64 --decode)" > ${logFile} 2>&1; e=$?; echo $e > ${exitFile}; rm -f ${pidFile}`
+    const wrapped = `nohup bash -c '${inner}' & echo $! > ${pidFile}; disown`
+
+    store.mcpSendTerminalCommand({ command: wrapped, tabId, inputOnly: false })
+
+    const task = {
+      id: taskId,
+      command: args.command,
+      tabId,
+      startTime: Date.now(),
+      logFile,
+      pidFile,
+      exitFile,
+      status: 'started'
+    }
+    backgroundTasks.set(taskId, task)
+
+    return {
+      taskId,
+      tabId,
+      logFile,
+      pidFile,
+      exitFile,
+      message: 'Command started in background. Use get_background_task_status to check.'
+    }
+  }
+
+  Store.prototype.mcpGetBackgroundTaskStatus = async function (args) {
+    const task = backgroundTasks.get(args.taskId)
+    if (!task) {
+      throw new Error(`Task ${args.taskId} not found`)
+    }
+
+    const pidOutput = await runMonitorCmd(task.tabId,
+      `cat ${task.pidFile} 2>/dev/null`)
+    const pid = pidOutput.trim()
+
+    if (!pid) {
+      return { ...task, status: 'unknown', message: 'PID file not found' }
+    }
+
+    const aliveCheck = await runMonitorCmd(task.tabId,
+      `kill -0 ${pid} 2>/dev/null && echo alive || echo dead`)
+
+    if (aliveCheck.trim() === 'alive') {
+      task.status = 'running'
+      return { ...task, pid, status: 'running' }
+    }
+
+    // Process exited — read exit code
+    const exitOutput = await runMonitorCmd(task.tabId,
+      `cat ${task.exitFile} 2>/dev/null`)
+    const exitCode = exitOutput.trim()
+
+    task.status = 'completed'
+    task.exitCode = exitCode !== '' ? parseInt(exitCode, 10) : null
+    task.endTime = Date.now()
+    return { ...task, pid, status: 'completed', exitCode: task.exitCode }
+  }
+
+  Store.prototype.mcpGetBackgroundTaskLog = async function (args) {
+    const task = backgroundTasks.get(args.taskId)
+    if (!task) {
+      throw new Error(`Task ${args.taskId} not found`)
+    }
+
+    const lines = args.lines || 100
+    const output = await runMonitorCmd(task.tabId,
+      `tail -n ${lines} ${task.logFile} 2>/dev/null || echo '(no output yet)'`)
+
+    return {
+      taskId: task.id,
+      output: output.trim(),
+      lines
+    }
+  }
+
+  Store.prototype.mcpCancelBackgroundTask = async function (args) {
+    const task = backgroundTasks.get(args.taskId)
+    if (!task) {
+      throw new Error(`Task ${args.taskId} not found`)
+    }
+
+    const pidOutput = await runMonitorCmd(task.tabId,
+      `cat ${task.pidFile} 2>/dev/null`)
+    const pid = pidOutput.trim()
+
+    if (pid) {
+      await runMonitorCmd(task.tabId,
+        `kill ${pid} 2>/dev/null; echo $? > ${task.exitFile}`)
+      task.status = 'cancelled'
+      task.endTime = Date.now()
+      return {
+        taskId: task.id,
+        pid,
+        status: 'cancelled',
+        message: 'Process killed'
+      }
+    }
+
+    return {
+      taskId: task.id,
+      status: 'unknown',
+      message: 'PID not found, task may have already finished'
     }
   }
 

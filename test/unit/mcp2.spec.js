@@ -148,7 +148,13 @@ describe('mcp-sftp-transfer-trzsz', function () {
       'electerm_zmodem_upload',
       'electerm_zmodem_download',
       'electerm_sftp_transfer_list',
-      'electerm_sftp_transfer_history'
+      'electerm_sftp_transfer_history',
+      'get_electerm_terminal_status',
+      'cancel_electerm_terminal_command',
+      'run_electerm_background_command',
+      'get_electerm_background_task_status',
+      'get_electerm_background_task_log',
+      'cancel_electerm_background_task'
     ]
 
     for (const toolName of expectedTools) {

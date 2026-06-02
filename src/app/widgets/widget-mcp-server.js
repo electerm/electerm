@@ -396,6 +396,106 @@ class ElectermMCPServer {
       }
     )
 
+    server.registerTool(
+      'get_electerm_terminal_status',
+      {
+        description: 'Get the current status of a terminal tab. Returns whether it is actively receiving data (running), idle (no data for 4+ seconds), or has a password prompt. Also returns the last 20 lines of terminal output. This is a lightweight, non-blocking check ideal for monitoring long-running commands.',
+        inputSchema: {
+          tabId: z.string().optional().describe('Tab ID to check (default: active tab)')
+        }
+      },
+      async (args) => {
+        const result = await self.sendToRenderer('tool-call', {
+          toolName: 'get_terminal_status', args
+        })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
+    server.registerTool(
+      'cancel_electerm_terminal_command',
+      {
+        description: 'Cancel the currently running command in a terminal by sending Ctrl+C. Use this to interrupt a long-running or stuck command.',
+        inputSchema: {
+          tabId: z.string().optional().describe('Tab ID to cancel command in (default: active tab)')
+        }
+      },
+      async (args) => {
+        const result = await self.sendToRenderer('tool-call', {
+          toolName: 'cancel_terminal_command', args
+        })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
+    // ==================== Background Task APIs ====================
+
+    server.registerTool(
+      'run_electerm_background_command',
+      {
+        description: 'Run a command in the background using nohup. The command runs independently of the terminal session — the terminal is freed immediately. Returns a taskId for monitoring. Use get_electerm_background_task_status and get_electerm_background_task_log to check progress. Works best with SSH sessions where monitoring uses a separate exec channel.',
+        inputSchema: {
+          command: z.string().describe('The shell command to run in the background'),
+          tabId: z.string().optional().describe('Tab ID to run on (default: active tab)')
+        }
+      },
+      async (args) => {
+        const result = await self.sendToRenderer('tool-call', {
+          toolName: 'run_background_command', args
+        })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
+    server.registerTool(
+      'get_electerm_background_task_status',
+      {
+        description: 'Check the status of a background task. Returns whether it is still running, has completed (with exit code), or is unknown. For SSH sessions, this uses a separate exec channel and does not interfere with the terminal.',
+        inputSchema: {
+          taskId: z.string().describe('Task ID returned by run_electerm_background_command')
+        }
+      },
+      async (args) => {
+        const result = await self.sendToRenderer('tool-call', {
+          toolName: 'get_background_task_status', args
+        })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
+    server.registerTool(
+      'get_electerm_background_task_log',
+      {
+        description: 'Read the output log of a background task. Returns the last N lines of output. Useful for monitoring progress of long-running commands like builds, deployments, or installations.',
+        inputSchema: {
+          taskId: z.string().describe('Task ID returned by run_electerm_background_command'),
+          lines: z.number().optional().describe('Number of recent log lines to return (default: 100)')
+        }
+      },
+      async (args) => {
+        const result = await self.sendToRenderer('tool-call', {
+          toolName: 'get_background_task_log', args
+        })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
+    server.registerTool(
+      'cancel_electerm_background_task',
+      {
+        description: 'Cancel a running background task by killing its process. The task status will be set to cancelled.',
+        inputSchema: {
+          taskId: z.string().describe('Task ID returned by run_electerm_background_command')
+        }
+      },
+      async (args) => {
+        const result = await self.sendToRenderer('tool-call', {
+          toolName: 'cancel_background_task', args
+        })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
     // ==================== Direct Tab Open APIs (always enabled) ====================
 
     server.registerTool(

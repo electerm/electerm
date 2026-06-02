@@ -31,7 +31,7 @@ export const agentTools = [
     type: 'function',
     function: {
       name: 'send_terminal_command',
-      description: 'Send a command to a terminal tab and wait for it to finish. Returns the command output.',
+      description: 'Send a command to a terminal tab and wait for it to finish. Returns the command output. For long-running commands (builds, deployments, installations), use run_background_command instead to avoid timeouts.',
       parameters: {
         type: 'object',
         properties: {
@@ -334,6 +334,114 @@ export const agentTools = [
         properties: {}
       }
     }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_terminal_status',
+      description: 'Check terminal status: running (actively receiving data), idle, or password prompt. Returns last 20 lines of output. Lightweight, non-blocking.',
+      parameters: {
+        type: 'object',
+        properties: {
+          tabId: {
+            type: 'string',
+            description: 'Tab ID. Omit for active terminal.'
+          }
+        }
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'cancel_terminal_command',
+      description: 'Cancel the running command in a terminal by sending Ctrl+C.',
+      parameters: {
+        type: 'object',
+        properties: {
+          tabId: {
+            type: 'string',
+            description: 'Tab ID. Omit for active terminal.'
+          }
+        }
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'run_background_command',
+      description: 'Run a command in the background using nohup. The terminal is freed immediately. Returns a taskId for monitoring. Use get_background_task_status and get_background_task_log to check progress.',
+      parameters: {
+        type: 'object',
+        properties: {
+          command: {
+            type: 'string',
+            description: 'The shell command to run in the background.'
+          },
+          tabId: {
+            type: 'string',
+            description: 'Tab ID. Omit for active terminal.'
+          }
+        },
+        required: ['command']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_background_task_status',
+      description: 'Check if a background task is running, completed (with exit code), or unknown.',
+      parameters: {
+        type: 'object',
+        properties: {
+          taskId: {
+            type: 'string',
+            description: 'Task ID from run_background_command.'
+          }
+        },
+        required: ['taskId']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_background_task_log',
+      description: 'Read the output log of a background task. Returns the last N lines.',
+      parameters: {
+        type: 'object',
+        properties: {
+          taskId: {
+            type: 'string',
+            description: 'Task ID from run_background_command.'
+          },
+          lines: {
+            type: 'number',
+            description: 'Number of recent lines to read (default 100).'
+          }
+        },
+        required: ['taskId']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'cancel_background_task',
+      description: 'Cancel a running background task by killing its process.',
+      parameters: {
+        type: 'object',
+        properties: {
+          taskId: {
+            type: 'string',
+            description: 'Task ID from run_background_command.'
+          }
+        },
+        required: ['taskId']
+      }
+    }
   }
 ]
 
@@ -391,6 +499,18 @@ export async function executeToolCall (toolName, args) {
       return JSON.stringify(store.mcpSftpTransferList())
     case 'sftp_transfer_history':
       return JSON.stringify(store.mcpSftpTransferHistory())
+    case 'get_terminal_status':
+      return JSON.stringify(store.mcpGetTerminalStatus(args))
+    case 'cancel_terminal_command':
+      return JSON.stringify(store.mcpCancelTerminalCommand(args))
+    case 'run_background_command':
+      return JSON.stringify(store.mcpRunBackgroundCommand(args))
+    case 'get_background_task_status':
+      return JSON.stringify(await store.mcpGetBackgroundTaskStatus(args))
+    case 'get_background_task_log':
+      return JSON.stringify(await store.mcpGetBackgroundTaskLog(args))
+    case 'cancel_background_task':
+      return JSON.stringify(await store.mcpCancelBackgroundTask(args))
     default:
       throw new Error(`Unknown agent tool: ${toolName}`)
   }
