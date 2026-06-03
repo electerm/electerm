@@ -32,7 +32,7 @@ function installDesktopFile () {
   // module transparently reads from inside app.asar)
   const srcIconPath = path.join(
     process.resourcesPath,
-    'app.asar', 'assets', 'images', 'electerm.png'
+    'app.asar', 'assets', 'images', 'electerm-round-128x128.png'
   )
 
   const desktopContent = [
@@ -53,6 +53,18 @@ function installDesktopFile () {
   ].join('\n')
 
   try {
+    // Skip if a system-level .desktop file exists (deb/rpm installs one
+    // to /usr/share/applications/) — don't override it.
+    // Also clean up any leftover user-level file from a previous AppImage run.
+    const sysDesktop = '/usr/share/applications/electerm.desktop'
+    if (fs.existsSync(sysDesktop)) {
+      try {
+        fs.unlinkSync(desktopFilePath)
+        fs.unlinkSync(iconFilePath)
+      } catch (_) {}
+      return
+    }
+
     // Skip if .desktop file already has the correct content
     let existing = ''
     try {

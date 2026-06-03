@@ -76,11 +76,21 @@ exports.writeSrc = function (src) {
 exports.patchAppImage = function patchAppImage () {
   const fs = require('fs')
   const workLib = resolve(__dirname, '../../work/app/lib')
+  const workAssets = resolve(__dirname, '../../work/app/assets/images')
 
   // Copy integration module to work/app/lib/
   const modSrc = resolve(__dirname, 'appimage-integration.js')
   const modDst = resolve(workLib, 'appimage-integration.js')
   fs.copyFileSync(modSrc, modDst)
+
+  // Copy icon for desktop integration (outside asar, accessible at runtime)
+  const iconSrc = resolve(
+    __dirname, '../../node_modules/@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
+  )
+  const iconDst = resolve(workAssets, 'electerm-round-128x128.png')
+  if (fs.existsSync(iconSrc)) {
+    fs.copyFileSync(iconSrc, iconDst)
+  }
 
   // Patch create-app.js to import and call installDesktopFile
   const createAppPath = resolve(workLib, 'create-app.js')
