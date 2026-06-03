@@ -184,12 +184,16 @@ exports.uploadToR2 = async function uploadToR2 (src) {
 
   console.log(`[r2] Uploading ${filePath} to R2 bucket "${bucket}" as "${path.basename(filePath)}"`)
 
-  // Polyfill globalThis.crypto for Node < 19 (AWS SDK v3 / @smithy/core
-  // calls getRandomValues at import time).
+  // Polyfill crypto.getRandomValues for Node < 19.
+  // @smithy/core reads getRandomValues from require('node:crypto') directly
+  // (line: const _getRandomValues = node_crypto.getRandomValues), so we must
+  // patch the crypto module itself, not just globalThis.crypto.
+  const nodeCrypto = require('crypto')
+  if (!nodeCrypto.getRandomValues) {
+    nodeCrypto.getRandomValues = (buf) => nodeCrypto.randomFillSync(buf)
+  }
   if (!globalThis.crypto) {
-    globalThis.crypto = {
-      getRandomValues: (buf) => require('crypto').randomFillSync(buf)
-    }
+    globalThis.crypto = nodeCrypto
   }
 
   let S3Client, PutObjectCommand
