@@ -70,6 +70,11 @@ process.on('uncaughtException', (error) => {
 
 exports.createApp = async function () {
   app.setName(packInfo.name)
+  // Set desktop name so Linux taskbars (e.g. UOS/Deepin dde-dock) can match
+  // the window to the .desktop file embedded in the AppImage.
+  if (process.platform === 'linux' && app.setDesktopName) {
+    app.setDesktopName(packInfo.name)
+  }
   // Handle GPU issues on Linux
   // On Linux, disable GPU for compatibility
   if (process.platform === 'linux' || process.env.DISABLE_GPU) {
