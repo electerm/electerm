@@ -184,6 +184,14 @@ exports.uploadToR2 = async function uploadToR2 (src) {
 
   console.log(`[r2] Uploading ${filePath} to R2 bucket "${bucket}" as "${path.basename(filePath)}"`)
 
+  // Polyfill globalThis.crypto for Node < 19 (AWS SDK v3 / @smithy/core
+  // calls getRandomValues at import time).
+  if (!globalThis.crypto) {
+    globalThis.crypto = {
+      getRandomValues: (buf) => require('crypto').randomFillSync(buf)
+    }
+  }
+
   let S3Client, PutObjectCommand
   try {
     const s3Module = require('@aws-sdk/client-s3')
