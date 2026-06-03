@@ -28,10 +28,11 @@ function installDesktopFile () {
   const desktopFilePath = path.join(appsDir, `${desktopId}.desktop`)
   const iconFilePath = path.join(iconsDir, `${desktopId}.png`)
 
-  // Icon source inside the AppImage mount
+  // Icon source inside the AppImage (asar-aware path — Electron's fs
+  // module transparently reads from inside app.asar)
   const srcIconPath = path.join(
-    path.dirname(process.execPath),
-    'resources', 'app', 'assets', 'images', 'electerm.png'
+    process.resourcesPath,
+    'app.asar', 'assets', 'images', 'electerm.png'
   )
 
   const desktopContent = [
