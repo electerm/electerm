@@ -1,9 +1,9 @@
-name: publish-to-npm2
+name: electerm-react-publish
 on:
   release:
     types: [published]
   push:
-    branches: [ test-npm2 ]
+    branches: [ electerm-react ]
 jobs:
   release-npm:
     runs-on: ubuntu-24.04
