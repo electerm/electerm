@@ -119,7 +119,9 @@
       "channel": "${env.WORKFLOW_NAME}"
     },
     "desktop": {
-      "StartupWMClass": "electerm"
+      "entry": {
+        "StartupWMClass": "electerm"
+      }
     }
   },
   "snap": {
