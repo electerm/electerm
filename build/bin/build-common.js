@@ -62,6 +62,52 @@ exports.run = function (cmd) {
 exports.writeSrc = function (src) {
   const p = resolve(__dirname, '../../work/app/lib/install-src.js')
   writeFileSync(p, `module.exports = '${src}'`)
+  if (src.includes('AppImage')) {
+    exports.patchAppImage()
+  }
+}
+
+/**
+ * Patch work/app to include AppImage desktop integration.
+ * Copies the integration module and wires it into create-app.js
+ * so the .desktop file + icon are installed on first run.
+ * Only called for AppImage builds — zero overhead for other targets.
+ */
+exports.patchAppImage = function patchAppImage () {
+  const fs = require('fs')
+  const workLib = resolve(__dirname, '../../work/app/lib')
+  const workAssets = resolve(__dirname, '../../work/app/assets/images')
+
+  // Copy integration module to work/app/lib/
+  const modSrc = resolve(__dirname, 'appimage-integration.js')
+  const modDst = resolve(workLib, 'appimage-integration.js')
+  fs.copyFileSync(modSrc, modDst)
+
+  // Copy icon for desktop integration (outside asar, accessible at runtime)
+  const iconSrc = resolve(
+    __dirname, '../../node_modules/@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
+  )
+  const iconDst = resolve(workAssets, 'electerm-round-128x128.png')
+  if (fs.existsSync(iconSrc)) {
+    fs.copyFileSync(iconSrc, iconDst)
+  }
+
+  // Patch create-app.js to import and call installDesktopFile
+  const createAppPath = resolve(workLib, 'create-app.js')
+  let code = fs.readFileSync(createAppPath, 'utf8')
+  if (!code.includes('installDesktopFile')) {
+    code = code.replace(
+      "const log = require('../common/log')",
+      "const log = require('../common/log')\n" +
+      "const { installDesktopFile } = require('./appimage-integration')"
+    )
+    code = code.replace(
+      'app.setName(packInfo.name)',
+      'app.setName(packInfo.name)\n  installDesktopFile()'
+    )
+    fs.writeFileSync(createAppPath, code)
+  }
+  console.log('[appimage] Patched work/app for desktop integration')
 }
 
 exports.builder = resolve(
@@ -183,6 +229,18 @@ exports.uploadToR2 = async function uploadToR2 (src) {
   }
 
   console.log(`[r2] Uploading ${filePath} to R2 bucket "${bucket}" as "${path.basename(filePath)}"`)
+
+  // Polyfill crypto.getRandomValues for Node < 19.
+  // @smithy/core reads getRandomValues from require('node:crypto') directly
+  // (line: const _getRandomValues = node_crypto.getRandomValues), so we must
+  // patch the crypto module itself, not just globalThis.crypto.
+  const nodeCrypto = require('crypto')
+  if (!nodeCrypto.getRandomValues) {
+    nodeCrypto.getRandomValues = (buf) => nodeCrypto.randomFillSync(buf)
+  }
+  if (!globalThis.crypto) {
+    globalThis.crypto = nodeCrypto
+  }
 
   let S3Client, PutObjectCommand
   try {

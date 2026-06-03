@@ -5,11 +5,17 @@
     "output": "dist",
     "buildResources": "node_modules/@electerm/electerm-resource/build-res"
   },
-  "electronLanguages": ["en-US"],
+  "electronLanguages": [
+    "en-US"
+  ],
   "asar": true,
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
-    "target": ["tar.gz", "appx", "nsis"],
+    "target": [
+      "tar.gz",
+      "appx",
+      "nsis"
+    ],
     "icon": "node_modules/@electerm/electerm-resource/build/icons-win.ico",
     "publish": {
       "provider": "github",
@@ -19,31 +25,45 @@
   "protocols": [
     {
       "name": "SSH Protocol",
-      "schemes": ["ssh"]
+      "schemes": [
+        "ssh"
+      ]
     },
     {
       "name": "Telnet Protocol",
-      "schemes": ["telnet"]
+      "schemes": [
+        "telnet"
+      ]
     },
     {
       "name": "RDP Protocol",
-      "schemes": ["rdp"]
+      "schemes": [
+        "rdp"
+      ]
     },
     {
       "name": "VNC Protocol",
-      "schemes": ["vnc"]
+      "schemes": [
+        "vnc"
+      ]
     },
     {
       "name": "Serial Protocol",
-      "schemes": ["serial"]
+      "schemes": [
+        "serial"
+      ]
     },
     {
       "name": "Spice Protocol",
-      "schemes": ["spice"]
+      "schemes": [
+        "spice"
+      ]
     },
     {
       "name": "Electerm Protocol",
-      "schemes": ["electerm"]
+      "schemes": [
+        "electerm"
+      ]
     }
   ],
   "appx": {
@@ -97,6 +117,11 @@
     "publish": {
       "provider": "github",
       "channel": "${env.WORKFLOW_NAME}"
+    },
+    "desktop": {
+      "entry": {
+        "StartupWMClass": "electerm"
+      }
     }
   },
   "snap": {
