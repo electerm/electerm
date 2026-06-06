@@ -10,6 +10,7 @@ const from = resolve(__dirname, '../../src/client')
 
 echo('start build electerm-react pack and publish')
 fs.writeFileSync(resolve(to, 'package.json'), JSON.stringify(tpack, null, 2))
+rm('-rf', resolve(from, 'entry'))
 rm('-rf', resolve(to, 'client'))
 cp('-r', from, to)
 cd(to)
