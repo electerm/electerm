@@ -1356,7 +1356,7 @@ class Term extends Component {
         id
       )
     }
-    return `ws://${host}:${port}/terminals/${id}?token=${tokenElecterm}`
+    return `ws://${host}:${port}/terminals/${id}`
   }
 
   remoteInit = async (term = this.term) => {
@@ -1448,7 +1448,7 @@ class Term extends Component {
     if (this.onClose) {
       if (r && r.port) {
         try {
-          const tmpSock = new WebSocket(this.buildWsUrl(r.port))
+          const tmpSock = new WebSocket(this.buildWsUrl(r.port), [this.props.config.tokenElecterm])
           tmpSock.onopen = () => tmpSock.close()
         } catch (_e) {}
       }
@@ -1477,7 +1477,7 @@ class Term extends Component {
     term.pid = id
     this.pid = id
     const wsUrl = this.buildWsUrl(r.port)
-    const socket = new WebSocket(wsUrl)
+    const socket = new WebSocket(wsUrl, [this.props.config.tokenElecterm])
     socket.onclose = this.oncloseSocket
     socket.onerror = this.onerrorSocket
     this.socket = socket

@@ -24,7 +24,8 @@ const wsDec = require('./ws-dec')
 const { tokenElecterm } = process.env
 
 function verify (req) {
-  const { token: to } = req.query
+  const protocols = (req.headers['sec-websocket-protocol'] || '').split(',').map(s => s.trim())
+  const to = protocols[0] || req.query.token
   if (to !== tokenElecterm) {
     throw new Error('not valid request')
   }

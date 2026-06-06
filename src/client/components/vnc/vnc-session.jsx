@@ -96,7 +96,7 @@ export default class VncSession extends PureComponent {
         extra
       )
     }
-    return `ws://${host}:${port}/${type}/${id}?token=${tokenElecterm}${extra}`
+    return `ws://${host}:${port}/${type}/${id}${extra}`
   }
 
   getControlProps = (options = {}) => {
@@ -226,7 +226,7 @@ export default class VncSession extends PureComponent {
     }
 
     const { width, height } = this.calcCanvasSize()
-    const wsUrl = this.buildWsUrl(port, 'vnc', `&width=${width}&height=${height}`)
+    const wsUrl = this.buildWsUrl(port, 'vnc', `?width=${width}&height=${height}`)
     // When scaleViewport is false, we don't set fixed dimensions on the canvas
     // so it can render at the actual remote screen size
     const vncOpts = {
@@ -243,7 +243,8 @@ export default class VncSession extends PureComponent {
             overflow: 'hidden'
           }
         : {},
-      credentials: {}
+      credentials: {},
+      wsProtocols: [this.props.config.tokenElecterm]
     }
     if (username) {
       vncOpts.credentials.username = username

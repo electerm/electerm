@@ -12,8 +12,8 @@ function createWs (
 ) {
   // init gloabl ws
   const { host, port, tokenElecterm } = config
-  const wsUrl = `ws://${host}:${port}/${type}/${id}?&sftpId=${sftpId}&token=${tokenElecterm}`
-  const ws = new WebSocket(wsUrl)
+  const wsUrl = `ws://${host}:${port}/${type}/${id}?sftpId=${sftpId}`
+  const ws = new WebSocket(wsUrl, [tokenElecterm])
   ws.s = msg => {
     try {
       ws.send(JSON.stringify(msg))
