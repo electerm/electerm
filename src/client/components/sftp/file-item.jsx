@@ -27,7 +27,6 @@ import {
   paneMap,
   isMac, maxEditFileSize, ctrlOrCmd
 } from '../../common/constants'
-import findParent from '../../common/find-parent'
 import sorter from '../../common/index-sorter'
 import { getFolderFromFilePath, getLocalFileInfo } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
@@ -192,33 +191,6 @@ export default class FileSection extends React.Component {
     this.props.addTransferList(res)
   }
 
-  onDrag = () => {}
-
-  onDragEnter = e => {
-    let { target } = e
-    target = findParent(target, '.' + fileItemCls)
-    if (!target) {
-      return e.preventDefault()
-    }
-    this.dropTarget = target
-    target.classList.add(onDragOverCls)
-  }
-
-  onDragExit = () => {}
-
-  onDragLeave = e => {
-    let { target } = e
-    target = findParent(target, '.' + fileItemCls)
-    if (!target) {
-      return e.preventDefault()
-    }
-    target.classList.remove(onDragOverCls)
-  }
-
-  onDragOver = e => {
-    e.preventDefault()
-  }
-
   onDragStart = e => {
     this.props.modifier({
       onDrag: true
@@ -246,6 +218,16 @@ export default class FileSection extends React.Component {
 
   getDropFileList = data => {
     return getDropFileList(data)
+  }
+
+  onDragEnd = () => {
+    this.props.modifier({
+      onDrag: false
+    })
+    removeClass(this.domRef.current, onDragCls, onMultiDragCls)
+    document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
+      removeClass(d, onDragOverCls)
+    })
   }
 
   onDrop = async e => {
@@ -277,17 +259,6 @@ export default class FileSection extends React.Component {
       }
     }
     this.onDropFile(fromFiles, toFile, fromFileManager)
-  }
-
-  onDragEnd = e => {
-    this.props.modifier({
-      onDrag: false
-    })
-    removeClass(this.domRef.current, onDragCls, onMultiDragCls)
-    document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
-      removeClass(d, onDragOverCls)
-    })
-    e && e.dataTransfer && e.dataTransfer.clearData()
   }
 
   onDropFile = async (fromFiles, toFile, fromFileManager) => {
@@ -1297,15 +1268,7 @@ export default class FileSection extends React.Component {
     const props = {
       className,
       draggable: draggable && !isParent,
-      ...pick(this, [
-        'onDrag',
-        'onDragEnter',
-        'onDragExit',
-        'onDragLeave',
-        'onDragOver',
-        'onDrop',
-        'onDragEnd'
-      ]),
+      onDrop: this.onDrop,
       onDragStart: onDragStart || this.onDragStart,
       'data-id': id,
       id: this.id,
