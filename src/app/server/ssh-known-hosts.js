@@ -223,6 +223,58 @@ async function appendKnownHost (options) {
   return meta
 }
 
+async function removeKnownHost (options) {
+  const {
+    host,
+    port,
+    keyType,
+    knownHostsPath = getKnownHostsPath()
+  } = options
+  const content = await readKnownHostsFile(knownHostsPath)
+  if (!content) {
+    return
+  }
+  const lines = content.split(/\r?\n/)
+  const filtered = lines.filter(line => {
+    const entry = parseKnownHostsLine(line)
+    if (!entry) {
+      return true
+    }
+    if (!matchesKnownHostField(entry.hosts, host, port)) {
+      return true
+    }
+    if (entry.keyType !== keyType) {
+      return true
+    }
+    return false
+  })
+  await fs.promises.writeFile(knownHostsPath, filtered.join('\n'), {
+    mode: 0o600
+  })
+}
+
+async function replaceKnownHost (options) {
+  const {
+    host,
+    port,
+    hostKey,
+    knownHostsPath = getKnownHostsPath()
+  } = options
+  const meta = getHostKeyMeta(hostKey)
+  await removeKnownHost({
+    host,
+    port,
+    keyType: meta.keyType,
+    knownHostsPath
+  })
+  return appendKnownHost({
+    host,
+    port,
+    hostKey,
+    knownHostsPath
+  })
+}
+
 function buildUnknownHostPrompt (options) {
   const {
     host,
@@ -269,6 +321,35 @@ function buildHostMismatchError (options) {
   )
 }
 
+function buildHostMismatchPrompt (options) {
+  const {
+    host,
+    port,
+    meta,
+    knownHostsPath = getKnownHostsPath()
+  } = options
+  const target = Number(port) && Number(port) !== 22
+    ? `[${normalizeHost(host)}]:${Number(port)}`
+    : normalizeHost(host)
+  return {
+    mode: 'confirm',
+    name: `SSH host key changed for ${target}`,
+    instructions: [
+      'WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!',
+      `The host key for '${target}' has changed.`,
+      `New key type: ${meta.keyType}`,
+      `New fingerprint: ${formatSha256Fingerprint(meta.sha256)}`,
+      `Known hosts file: ${knownHostsPath}`,
+      'This could indicate a man-in-the-middle attack, or the remote host was reinstalled (e.g. router reboot).',
+      'Update the known_hosts entry with the new key?'
+    ],
+    prompts: [],
+    submitText: 'Update Key',
+    cancelText: 'Reject',
+    confirmResult: 'trust'
+  }
+}
+
 function createHostVerifier (options) {
   const {
     host,
@@ -289,7 +370,7 @@ function createHostVerifier (options) {
           verify(true)
           return
         }
-        if (result.status === 'mismatch' || result.status === 'revoked') {
+        if (result.status === 'revoked') {
           onError && onError(buildHostMismatchError({
             host,
             port,
@@ -297,6 +378,32 @@ function createHostVerifier (options) {
             knownHostsPath
           }))
           verify(false)
+          return
+        }
+        if (result.status === 'mismatch') {
+          const accepted = await confirm(buildHostMismatchPrompt({
+            host,
+            port,
+            meta: result.meta,
+            knownHostsPath
+          }))
+          if (!accepted) {
+            onError && onError(buildHostMismatchError({
+              host,
+              port,
+              meta: result.meta,
+              knownHostsPath
+            }))
+            verify(false)
+            return
+          }
+          await replaceKnownHost({
+            host,
+            port,
+            hostKey,
+            knownHostsPath
+          })
+          verify(true)
           return
         }
         const accepted = await confirm(buildUnknownHostPrompt({
@@ -328,6 +435,7 @@ function createHostVerifier (options) {
 module.exports = {
   appendKnownHost,
   buildHostMismatchError,
+  buildHostMismatchPrompt,
   buildUnknownHostPrompt,
   checkKnownHosts,
   createHostVerifier,
@@ -338,5 +446,7 @@ module.exports = {
   matchesHashedHost,
   matchesKnownHostField,
   normalizeHost,
-  parseKnownHostsLine
+  parseKnownHostsLine,
+  removeKnownHost,
+  replaceKnownHost
 }
