@@ -89,6 +89,7 @@ function renderAddonAfter (isLoadingRemote, onGoto, GoIcon, type, handleUploadFr
           ? (
             <PlusOutlined
               className='mg1r'
+              title={e('uploadFromBrowser')}
               onClick={(e) => {
                 e.stopPropagation()
                 handleUploadFromBrowser()

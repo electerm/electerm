@@ -1068,7 +1068,7 @@ export default class FileSection extends React.Component {
       res.push({
         func: 'downloadFromBrowser',
         icon: 'DownloadOutlined',
-        text: 'Download from browser'
+        text: e('downloadFromBrowser')
       })
     }
     if (showEdit) {
