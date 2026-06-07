@@ -90,6 +90,9 @@ export default class BookmarkIndex2 extends PureComponent {
 
   renderTypes (bookmarkType, isNew, keys) {
     if (!isNew || this.state.aiMode) return null
+    const filtered = window.et && Array.isArray(window.et.supportSessionTypes)
+      ? keys.filter(k => window.et.supportSessionTypes.includes(k))
+      : keys
     return (
       <Radio.Group
         buttonStyle='solid'
@@ -99,7 +102,7 @@ export default class BookmarkIndex2 extends PureComponent {
         disabled={!isNew}
         onChange={this.handleChange}
       >
-        {keys.map(v => {
+        {filtered.map(v => {
           const txt = v === 'ssh' ? 'Ssh/Sftp' : e(v)
           return (<Radio.Button key={v} value={v}>{txt}</Radio.Button>)
         })}

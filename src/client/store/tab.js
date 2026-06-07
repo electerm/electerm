@@ -329,10 +329,12 @@ export default Store => {
     batch
   ) {
     if (
-      (!newTab.type || newTab.type === 'local') &&
-      !newTab.host &&
+      newTab.type === 'local' &&
       !window.store.hasNodePty
     ) {
+      if (window.et.isWebApp) {
+        return
+      }
       return message.warning(
         'local terminal is not supported, due to node-pty not working in this build'
       )
