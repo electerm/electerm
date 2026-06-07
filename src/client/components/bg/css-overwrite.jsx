@@ -2,7 +2,6 @@
 * btns
 */
 import { useEffect, useRef } from 'react'
-import fs from '../../common/fs'
 import { noTerminalBgValue, textTerminalBgValue } from '../../common/constants'
 import { generateMosaicBackground } from './shapes'
 
@@ -24,7 +23,7 @@ function createBackgroundStyle (imagePath) {
   } else if (textTerminalBgValue === imagePath) {
     st = 'text'
   } else if (imagePath && !isWebImg) {
-    return fs.readFileAsBase64(imagePath)
+    return window.fs.readFileAsBase64(imagePath)
       .then(content => {
         if (content) {
           return `url(data:image;base64,${content})`

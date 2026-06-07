@@ -5,7 +5,6 @@
 import { dbNames, getData, fetchInitData } from '../common/db'
 import parseInt10 from '../common/parse-int10'
 import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
-import fs from '../common/fs'
 import generate from '../common/id-with-stamp'
 import { refsStatic } from '../components/common/ref'
 import defaultSettings from '../common/default-setting'
@@ -107,7 +106,7 @@ export async function addTabFromCommandLine (store, opts) {
   }
   Object.assign(conf, update)
   if (options.privateKeyPath) {
-    conf.privateKey = await fs.readFile(options.privateKeyPath)
+    conf.privateKey = await window.fs.readFile(options.privateKeyPath)
   }
   console.debug('command line opts', conf)
   if (

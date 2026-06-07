@@ -9,7 +9,6 @@
  * for windows list groups: do not know yet
  */
 
-import fs from '../../common/fs'
 import { runCmd } from '../terminal/terminal-apis'
 import { isWin, isMac } from '../../common/constants'
 
@@ -49,7 +48,7 @@ export async function localListUsers () {
   if (isWin) {
     return {}
   } else if (isMac) {
-    const g = await fs.run('dscl . -list /Users UniqueID')
+    const g = await window.fs.run('dscl . -list /Users UniqueID')
       .catch(console.error)
     return g
       ? g.split('\n')
@@ -65,7 +64,7 @@ export async function localListUsers () {
         }, {})
       : {}
   } else {
-    const g = await fs.run(linuxListUser).catch(console.error)
+    const g = await window.fs.run(linuxListUser).catch(console.error)
     return g
       ? parseNames(g)
       : {}
@@ -76,7 +75,7 @@ export async function localListGroups () {
   if (isWin) {
     return {}
   } else if (isMac) {
-    const g = await fs.run('dscl . list /Groups PrimaryGroupID')
+    const g = await window.fs.run('dscl . list /Groups PrimaryGroupID')
       .catch(console.error)
     return g
       ? g.split('\n')
@@ -89,7 +88,7 @@ export async function localListGroups () {
         }, {})
       : {}
   } else {
-    const g = await fs.run(linuxListGroup).catch(console.error)
+    const g = await window.fs.run(linuxListGroup).catch(console.error)
     return g
       ? parseNames(g)
       : {}

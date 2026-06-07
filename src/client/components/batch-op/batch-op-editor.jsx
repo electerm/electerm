@@ -14,7 +14,6 @@ import BatchOpLogs from './batch-op-logs'
 import message from '../common/message'
 import { refsStatic } from '../common/ref'
 import generate from '../../common/uid'
-import fs from '../../common/fs'
 import { safeGetItem, safeSetItem } from '../../common/safe-local-storage'
 
 const batchOpEditorKey = 'batch-op-editor-content'
@@ -134,14 +133,14 @@ export default function BatchOpEditor ({ widget }) {
   const handleEditWithSystemEditor = useCallback(async () => {
     const id = generate()
     const tempPath = window.pre.resolve(window.pre.tempDir, `electerm-batch-op-${id}.json`)
-    await fs.writeFile(tempPath, value)
+    await window.fs.writeFile(tempPath, value)
     window.pre.runGlobalAsync('watchFile', tempPath)
-    fs.openFile(tempPath).catch(window.store.onError)
+    window.fs.openFile(tempPath).catch(window.store.onError)
     window.pre.showItemInFolder(tempPath)
     const onFileChange = (e, text) => {
       setValue(text)
       window.pre.ipcOffEvent('file-change', onFileChange)
-      fs.unlink(tempPath).catch(console.log)
+      window.fs.unlink(tempPath).catch(console.log)
     }
     window.pre.ipcOnEvent('file-change', onFileChange)
   }, [value])
@@ -149,13 +148,13 @@ export default function BatchOpEditor ({ widget }) {
   const handleEditWithCustom = useCallback(async (editorCommand) => {
     const id = generate()
     const tempPath = window.pre.resolve(window.pre.tempDir, `electerm-batch-op-${id}.json`)
-    await fs.writeFile(tempPath, value)
+    await window.fs.writeFile(tempPath, value)
     window.pre.runGlobalAsync('watchFile', tempPath)
     await window.pre.runGlobalAsync('openFileWithEditor', tempPath, editorCommand)
     const onFileChange = (e, text) => {
       setValue(text)
       window.pre.ipcOffEvent('file-change', onFileChange)
-      fs.unlink(tempPath).catch(console.log)
+      window.fs.unlink(tempPath).catch(console.log)
     }
     window.pre.ipcOnEvent('file-change', onFileChange)
   }, [value])

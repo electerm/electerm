@@ -3,7 +3,6 @@
  */
 
 import generate from '../../common/uid'
-import fs from '../../common/fs'
 import { isWin } from '../../common/constants'
 
 export const getFileExt = fileName => {
@@ -106,8 +105,8 @@ export const getFolderFromFilePath = (filePath, isRemote) => {
 }
 
 export const getLocalFileInfo = async (filePath) => {
-  const statr = await fs.statAsync(filePath)
-  const stat = await fs.lstatAsync(filePath)
+  const statr = await window.fs.statAsync(filePath)
+  const stat = await window.fs.lstatAsync(filePath)
   return {
     size: stat.size,
     accessTime: stat.atime || stat.atimeMs,

@@ -25,7 +25,6 @@ import {
 } from '../../common/constants'
 import { hasFileInClipboardText } from '../../common/clipboard'
 import Client from '../../common/sftp'
-import fs from '../../common/fs'
 import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
 import isValidPath from '../../common/is-valid-path'
@@ -410,8 +409,8 @@ export default class Sftp extends Component {
   localDel = async (file) => {
     const { name, isDirectory, path } = file
     const func = !isDirectory
-      ? fs.unlink
-      : fs.rmrf
+      ? window.fs.unlink
+      : window.fs.rmrf
     const p = resolve(path, name)
     await func(p).catch(window.store.onError)
   }
@@ -878,7 +877,7 @@ export default class Sftp extends Component {
   }
 
   localList = async (returnList = false, localPathReal, oldPath) => {
-    if (!fs) return
+    if (!window.fs) return
     if (!returnList) {
       this.setState({
         localLoading: true
@@ -892,7 +891,7 @@ export default class Sftp extends Component {
       const localPath = noPathInit ||
         this.getCwdLocal() ||
         this.getLocalHome()
-      const locals = await fs.readdirAsync(localPath)
+      const locals = await window.fs.readdirAsync(localPath)
       const local = []
       for (const name of locals) {
         const p = resolve(localPath, name)

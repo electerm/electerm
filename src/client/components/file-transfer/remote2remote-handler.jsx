@@ -2,7 +2,6 @@ import { autoRun } from 'manate'
 import copy from 'json-deep-copy'
 import uid from '../../common/uid'
 import resolve from '../../common/resolve'
-import fs from '../../common/fs'
 import { typeMap } from '../../common/constants'
 import { getFolderFromFilePath, getLocalFileInfo } from '../sftp/file-read'
 
@@ -154,7 +153,7 @@ export default class Remote2RemoteHandler {
     if (!this.tempPath) {
       return
     }
-    await fs.rmrf(this.tempPath).catch(() => {})
+    await window.fs.rmrf(this.tempPath).catch(() => {})
   }
 
   finish = async (error) => {

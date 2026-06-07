@@ -31,7 +31,6 @@ import sorter from '../../common/index-sorter'
 import { getFolderFromFilePath, getLocalFileInfo } from './file-read'
 import { readClipboard, copy as copyToClipboard, hasFileInClipboardText } from '../../common/clipboard'
 import { getDropFileList } from '../../common/file-drop-utils'
-import fs from '../../common/fs'
 import time from '../../common/time'
 import { filesize } from 'filesize'
 import { createTransferProps } from './transfer-common'
@@ -391,8 +390,8 @@ export default class FileSection extends React.Component {
     const { localPath } = this.props
     const p = resolve(localPath, nameTemp)
     const func = isDirectory
-      ? fs.mkdir
-      : fs.touch
+      ? window.fs.mkdir
+      : window.fs.touch
     const res = await func(p)
       .then(() => true)
       .catch(window.store.onError)
@@ -496,7 +495,7 @@ export default class FileSection extends React.Component {
     this.clearRef()
     const { permission, type, path, name } = file
     const func = type === typeMap.local
-      ? fs.chmod
+      ? window.fs.chmod
       : this.props.sftp.chmod
     const p = resolve(path, name)
     await func(p, permission).catch(window.store.onError)
@@ -546,7 +545,7 @@ export default class FileSection extends React.Component {
     const { localPath } = this.props
     const p1 = resolve(localPath, oldname)
     const p2 = resolve(localPath, newname)
-    await fs.rename(p1, p2).catch(window.store.onError)
+    await window.fs.rename(p1, p2).catch(window.store.onError)
     this.props.localList()
   }
 
@@ -593,7 +592,7 @@ export default class FileSection extends React.Component {
 
   openFile = file => {
     const filePath = resolve(file.path, file.name)
-    fs.openFile(filePath)
+    window.fs.openFile(filePath)
       .catch(window.store.onError)
   }
 
@@ -602,7 +601,7 @@ export default class FileSection extends React.Component {
     if (this.watchingFile) {
       window.pre.ipcOffEvent('file-change', this.onFileChange)
       window.pre.runGlobalAsync('unwatchFile', this.watchingFile)
-      fs.unlink(this.watchingFile).catch(console.log)
+      window.fs.unlink(this.watchingFile).catch(console.log)
       delete this.watchingFile
     }
   }
@@ -621,7 +620,7 @@ export default class FileSection extends React.Component {
       tempPath = window.pre.resolve(
         window.pre.tempDir, `electerm-temp-${id}-${name}`
       )
-      await fs.writeFile(tempPath, text)
+      await window.fs.writeFile(tempPath, text)
     }
     this.watchingFile = tempPath
     this.watchFile(tempPath)
@@ -641,7 +640,7 @@ export default class FileSection extends React.Component {
       tempPath = window.pre.resolve(
         window.pre.tempDir, `electerm-temp-${id}-${name}`
       )
-      await fs.writeFile(tempPath, text)
+      await window.fs.writeFile(tempPath, text)
     }
     this.watchingFile = tempPath
     window.pre.runGlobalAsync('watchFile', tempPath)
@@ -658,7 +657,7 @@ export default class FileSection extends React.Component {
 
   watchFile = async (tempPath) => {
     window.pre.runGlobalAsync('watchFile', tempPath)
-    fs.openFile(tempPath)
+    window.fs.openFile(tempPath)
       .catch(window.store.onError)
     window.pre.showItemInFolder(tempPath)
     window.pre.ipcOnEvent('file-change', this.onFileChange)
@@ -688,7 +687,7 @@ export default class FileSection extends React.Component {
     // const sftp = sftpFunc()
     const text = typeMap.remote === type
       ? await this.props.sftp.readFile(path)
-      : await fs.readFile(path)
+      : await window.fs.readFile(path)
     return text
   }
 
@@ -699,7 +698,7 @@ export default class FileSection extends React.Component {
         text,
         mode
       ).catch(window.store.onError)
-      : await fs.writeFile(
+      : await window.fs.writeFile(
         path,
         text,
         mode

@@ -3,7 +3,6 @@
  * Handles file upload/download between local and remote desktop via IronRDP CLIPRDR channel
  */
 
-import fs from '../../common/fs'
 import { getLocalFileInfo } from '../sftp/file-read'
 import { osResolve } from '../../common/resolve'
 import { filesize } from 'filesize'
@@ -115,7 +114,7 @@ export class FileTransferManager {
           const length = request.size
 
           const fd = await new Promise((resolve, reject) => {
-            fs.open(file.filePath, O_RDONLY, (err, fd) => {
+            window.fs.open(file.filePath, O_RDONLY, (err, fd) => {
               if (err) reject(err)
               else resolve(fd)
             })
@@ -123,14 +122,14 @@ export class FileTransferManager {
 
           const buffer = new Uint8Array(length)
           const { bytesRead, buffer: readBuffer } = await new Promise((resolve, reject) => {
-            fs.read(fd, buffer, 0, length, start, (err, bytesRead, buffer) => {
+            window.fs.read(fd, buffer, 0, length, start, (err, bytesRead, buffer) => {
               if (err) reject(err)
               else resolve({ bytesRead, buffer })
             })
           })
 
           await new Promise((resolve, reject) => {
-            fs.close(fd, (err) => {
+            window.fs.close(fd, (err) => {
               if (err) reject(err)
               else resolve()
             })
@@ -248,7 +247,7 @@ export class FileTransferManager {
       const fullPath = osResolve(savePath[0], fileInfo.name)
 
       const fd = await new Promise((resolve, reject) => {
-        fs.open(fullPath, O_WRONLY | O_CREAT | O_TRUNC, (err, fd) => {
+        window.fs.open(fullPath, O_WRONLY | O_CREAT | O_TRUNC, (err, fd) => {
           if (err) reject(err)
           else resolve(fd)
         })
@@ -259,14 +258,14 @@ export class FileTransferManager {
       const data = new Uint8Array(arrayBuffer)
 
       await new Promise((resolve, reject) => {
-        fs.write(fd, data, (err) => {
+        window.fs.write(fd, data, (err) => {
           if (err) reject(err)
           else resolve()
         })
       })
 
       await new Promise((resolve, reject) => {
-        fs.close(fd, (err) => {
+        window.fs.close(fd, (err) => {
           if (err) reject(err)
           else resolve()
         })

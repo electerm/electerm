@@ -31,7 +31,6 @@ import Link from '../common/external-link'
 import FontSelect from '../common/font-select'
 import HelpIcon from '../common/help-icon'
 import KeywordsTransport from './keywords-transport'
-import fs from '../../common/fs'
 import uid from '../../common/uid'
 import createDefaultSessionLogPath from '../../common/default-log-path'
 import TerminalBackgroundConfig from './terminal-bg-config'
@@ -136,14 +135,14 @@ export default class SettingTerminal extends Component {
 
   testFolderPathCanSaveLog = async (path) => {
     try {
-      const st = await fs.statCustom(path)
+      const st = await window.fs.statCustom(path)
       if (!st.isD) {
         message.error('invalid log folder')
         return false
       }
       const testFile = osResolve(path, uid + '.test.log')
-      await fs.touch(testFile)
-      await fs.unlink(testFile)
+      await window.fs.touch(testFile)
+      await window.fs.unlink(testFile)
       return true
     } catch (err) {
       message.error('invalid log folder')

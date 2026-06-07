@@ -11,7 +11,6 @@ import { update } from 'lodash-es'
 import { mode2permission, permission2mode } from '../../common/mode2permission'
 import renderPermission from './permission-render'
 import FileIcon from './file-icon'
-import fs from '../../common/fs'
 import { filesize } from 'filesize'
 import { runCmd } from '../terminal/terminal-apis'
 import {
@@ -166,7 +165,7 @@ export default class FileMode extends React.PureComponent {
       ? `Get-ChildItem -Recurse '${folder}' | Measure-Object -Property Length -Sum`
       : `du -sh '${folder}'`
     const func = isWin ? 'runWinCmd' : 'run'
-    const res = await fs[func](cmd).catch(window.store.onError)
+    const res = await window.fs[func](cmd).catch(window.store.onError)
     return this.getSize(res)
   }
 

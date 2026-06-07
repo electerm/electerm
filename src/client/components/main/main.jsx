@@ -40,6 +40,7 @@ import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
 import TerminalInfo from '../terminal-info/terminal-info-entry'
+import '../../common/fs.js'
 import './term-fullscreen.styl'
 
 export default auto(function Index (props) {
