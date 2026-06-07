@@ -329,7 +329,8 @@ export default Store => {
     batch
   ) {
     if (
-      newTab.type === 'local' &&
+      (!newTab.type || newTab.type === 'local') &&
+      !newTab.host &&
       !window.store.hasNodePty
     ) {
       if (window.et.isWebApp) {
