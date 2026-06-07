@@ -565,9 +565,9 @@ export default (Store) => {
   }
 
   Store.prototype.importAll = async function (file) {
-    const filePath = file.filePath
-    const txt = await window.fs
-      .readFile(filePath)
+    const txt = file.fileContent !== undefined
+      ? file.fileContent
+      : await window.fs.readFile(file.filePath)
     const { store } = window
     const objs = JSON.parse(txt)
     const { names } = store.getDataSyncNames(true)

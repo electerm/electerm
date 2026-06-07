@@ -26,8 +26,9 @@ export default function renderAuth (props) {
     profileFilter = (d) => d
   } = props
   const commonBeforeUpload = (fieldName) => async (file) => {
-    const filePath = file.filePath
-    const content = await window.fs.readFile(filePath)
+    const content = file.fileContent !== undefined
+      ? file.fileContent
+      : await window.fs.readFile(file.filePath)
     form.setFieldsValue({
       [fieldName]: content
     })

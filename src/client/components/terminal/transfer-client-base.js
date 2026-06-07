@@ -203,11 +203,11 @@ export class TransferClientBase {
         'treatPackageAsDirectory',
         'dontAddToRecent'
       ]
-
       files = await window.api.openDialog({
         title,
         message,
-        properties
+        properties,
+        noBrowserTransfer: true
       }).catch(() => false)
     }
 
@@ -253,7 +253,8 @@ export class TransferClientBase {
         'noResolveAliases',
         'treatPackageAsDirectory',
         'dontAddToRecent'
-      ]
+      ],
+      noBrowserTransfer: true
     }).catch(() => false)
 
     if (!savePaths || !savePaths.length) {

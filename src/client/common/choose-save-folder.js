@@ -2,7 +2,7 @@ const {
   openDialog
 } = window.api
 
-export async function chooseSaveDirectory () {
+export async function chooseSaveDirectory (opts) {
   const savePaths = await openDialog({
     title: 'Choose a folder to save file(s)',
     message: 'Choose a folder to save file(s)',
@@ -13,7 +13,8 @@ export async function chooseSaveDirectory () {
       'noResolveAliases',
       'treatPackageAsDirectory',
       'dontAddToRecent'
-    ]
+    ],
+    ...opts
   })
   if (!savePaths || !savePaths.length) {
     return undefined

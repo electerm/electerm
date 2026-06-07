@@ -25,8 +25,9 @@ export const bookmarkUpload = action(async (file) => {
   const { store } = window
   const { bookmarks, bookmarkGroups } = store
 
-  const filePath = file.filePath
-  const txt = await window.fs.readFile(filePath)
+  const txt = file.fileContent !== undefined
+    ? file.fileContent
+    : await window.fs.readFile(file.filePath)
 
   const content = JSON.parse(txt)
   let bookmarkGroups1 = []

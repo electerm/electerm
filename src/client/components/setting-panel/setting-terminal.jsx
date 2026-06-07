@@ -264,6 +264,9 @@ export default class SettingTerminal extends Component {
     const after = (
       <Upload
         beforeUpload={(file) => {
+          if (file.fileContent !== undefined) {
+            return
+          }
           const filePath = file.filePath
           this.onChangeValue(filePath, name)
         }}

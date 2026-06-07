@@ -7,8 +7,9 @@ export default class QmTransport extends BookmarkTransport {
   name = 'quickCommands'
   beforeUpload = async (file) => {
     const { store } = this.props
-    const filePath = file.filePath
-    const txt = await window.fs.readFile(filePath)
+    const txt = file.fileContent !== undefined
+      ? file.fileContent
+      : await window.fs.readFile(file.filePath)
     try {
       const arr = JSON.parse(txt)
       const state = store[this.name]

@@ -6,8 +6,9 @@ export default class KeywordsTransport extends BookmarkTransport {
   name = 'keywords-highlight'
   beforeUpload = async (file) => {
     const { store } = this.props
-    const filePath = file.filePath
-    const txt = await window.fs.readFile(filePath)
+    const txt = file.fileContent !== undefined
+      ? file.fileContent
+      : await window.fs.readFile(file.filePath)
     try {
       store.setConfig({
         keywords: JSON.parse(txt)

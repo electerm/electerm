@@ -8,6 +8,7 @@ import { getLocalFileInfo } from '../sftp/file-read'
 
 /**
  * Open a single file select dialog
+ * Supports browser upload in web app mode
  * @returns {Promise<Object|null>} - File object with path info or null if cancelled
  */
 const openFileSelect = async () => {
@@ -23,7 +24,14 @@ const openFileSelect = async () => {
     message: 'Choose a file',
     properties
   }).catch(() => false)
-  if (!files || !files.length) {
+  if (!files) {
+    return null
+  }
+  // Browser upload returns { fileContent, fileName }
+  if (files.fileContent !== undefined) {
+    return files
+  }
+  if (!files.length) {
     return null
   }
   const filePath = files[0]

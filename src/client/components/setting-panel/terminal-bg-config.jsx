@@ -32,6 +32,9 @@ export default function TerminalBackgroundConfig ({
   const after = (
     <Upload
       beforeUpload={(file) => {
+        if (file.fileContent !== undefined) {
+          return
+        }
         const filePath = file.filePath
         onChangeValue(filePath, name)
       }}

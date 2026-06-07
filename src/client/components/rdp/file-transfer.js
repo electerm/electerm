@@ -233,7 +233,8 @@ export class FileTransferManager {
       const savePath = await window.api.openDialog({
         title: `Save ${fileInfo.name}`,
         message: `Choose where to save ${fileInfo.name}`,
-        properties: ['openDirectory', 'createDirectory']
+        properties: ['openDirectory', 'createDirectory'],
+        noBrowserTransfer: true
       }).catch((err) => {
         this.log(`Save dialog error: ${err.message}`, 'error')
         return false
