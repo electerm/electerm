@@ -983,13 +983,10 @@ export default class Sftp extends Component {
         const formData = new FormData()
         formData.append('file', file)
         formData.append('path', localPath)
-        await window.fetch('/api/upload', {
+        await window.api.fetch('/api/upload', {
           method: 'POST',
-          body: formData,
-          headers: {
-            token: window.store?.config.tokenElecterm
-          }
-        })
+          body: formData
+        }).catch(handleErr)
       }
       this.localList()
     }

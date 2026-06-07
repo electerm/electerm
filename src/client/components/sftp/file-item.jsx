@@ -871,11 +871,9 @@ export default class FileSection extends React.Component {
     const { path, name, isDirectory } = this.state.file
     const p = resolve(path, name)
     const url = '/api/download?path=' + encodeURIComponent(p)
-    const res = await window.fetch(url, {
-      headers: {
-        token: window.store?.config.tokenElecterm
-      }
-    })
+    const res = await window.api.fetch(url)
+      .catch(window.store.onError)
+    if (!res) return
     const blob = await res.blob()
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
