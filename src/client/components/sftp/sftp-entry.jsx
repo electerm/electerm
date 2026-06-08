@@ -972,6 +972,12 @@ export default class Sftp extends Component {
   }
 
   handleUploadFromBrowser = () => {
+    if (window.et.handleUploadFromBrowser) {
+      return window.et.handleUploadFromBrowser(
+        this.state.localPath,
+        this.localList
+      )
+    }
     const input = document.createElement('input')
     input.type = 'file'
     input.multiple = true

@@ -870,6 +870,9 @@ export default class FileSection extends React.Component {
   downloadFromBrowser = async () => {
     const { path, name, isDirectory } = this.state.file
     const p = resolve(path, name)
+    if (window.et.downloadFromBrowser) {
+      return window.et.downloadFromBrowser(p)
+    }
     const url = '/api/download?path=' + encodeURIComponent(p)
     const res = await window.api.fetch(url)
       .catch(window.store.onError)
