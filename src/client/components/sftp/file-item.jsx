@@ -1268,7 +1268,6 @@ export default class FileSection extends React.Component {
     const props = {
       className,
       draggable: draggable && !isParent,
-      onDrop: this.onDrop,
       onDragStart: onDragStart || this.onDragStart,
       'data-id': id,
       id: this.id,
