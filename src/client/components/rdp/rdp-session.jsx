@@ -28,6 +28,7 @@ import { FileTransferManager, createFileLogger } from './file-transfer'
 import { notification } from '../common/notification'
 import message from '../common/message'
 import ShowItem from '../common/show-item'
+import importRetry from '../../common/import-retry'
 import './rdp.styl'
 
 const { Option } = Select
@@ -35,7 +36,7 @@ const { Option } = Select
 async function loadWasmModule () {
   if (window.ironRdp) return
   console.debug('[RDP-CLIENT] Loading IronRDP WASM module...')
-  const mod = await import('ironrdp-wasm')
+  const mod = await importRetry(() => import('ironrdp-wasm'))
   window.ironRdp = {
     wasmInit: mod.default,
     wasmSetup: mod.setup,
