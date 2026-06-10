@@ -103,7 +103,7 @@
     "@electerm/nedb": "2.0.0",
     "@electerm/ssh2": "1.19.0",
     "@xterm/headless": "^5.5.0",
-    "axios": "1.16.1",
+    "axios": "1.17.0",
     "basic-ftp": "6.0.1",
     "commander": "12.1.0",
     "diffie-hellman": "^5.0.3",
