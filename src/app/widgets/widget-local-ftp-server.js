@@ -104,11 +104,6 @@ function widgetRun (instanceConfig) {
           const msg = `${widgetInfo.name} is running at ${serverInfo.url}`
           console.log(msg)
           console.log(`Serving files from: ${serverInfo.path}`)
-          if (!config.anonymous) {
-            console.log(`Login credentials: ${config.username} / ${config.password}`)
-          } else {
-            console.log('Anonymous access enabled')
-          }
           resolve({ serverInfo, msg, success: true })
         })
         .catch(reject)
