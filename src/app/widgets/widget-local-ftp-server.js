@@ -1,6 +1,6 @@
 const os = require('os')
 const uid = require('../common/uid')
-const { customRequire } = require('../lib/custom-require')
+const FtpSrv = require('@electerm/ftp-srv')
 
 const widgetInfo = {
   name: 'Local FTP Server',
@@ -66,17 +66,11 @@ function widgetRun (instanceConfig) {
   const config = { ...getDefaultConfig(), ...instanceConfig }
   const instanceId = uid()
   let server = null
-  let FtpSrv = null
 
   const start = async () => {
     if (server) {
       throw new Error('Server is already running')
     }
-
-    FtpSrv = await customRequire('@electerm/ftp-srv', {
-      isCustomModule: true,
-      downloadModule: true
-    })
 
     server = new FtpSrv({
       url: `ftp://${config.host}:${config.port}`,
