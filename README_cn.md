@@ -1,5 +1,5 @@
 <h1 align="center" style="padding-top: 60px;padding-bottom: 40px;">
-    <a href="https://electerm.github.io/electerm">
+    <a href="https://electerm.html5beta.com">
         <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.png", alt="" />
     </a>
 </h1>
@@ -26,9 +26,10 @@
 
 开源终端/ssh/telnet/serialport/RDP/VNC/Spice/sftp/ftp客户端(linux, mac, win)。
 
-有经验的开发者也可以尝试运行于浏览器(支持移动设备)的web app版本: [electerm-web](https://github.com/electerm/electerm-web) 或者 [docker image for electerm-web](https://github.com/electerm/electerm-web-docker)
-
-在线演示: [https://electerm-demo.html5beta.com](https://electerm-demo.html5beta.com)
+- [electerm-web](https://github.com/electerm/electerm-web): 运行于浏览器(支持移动设备)的web app版本
+- [electerm-web-docker](https://github.com/electerm/electerm-web-docker): electerm-web的docker镜像
+- [electerm online](https://cloud.electerm.org): 公共免费在线electerm应用
+- [electerm demo](https://demo.electerm.org): 在线演示
 
 ## Atlas Cloud
 
@@ -146,7 +147,7 @@ kofi
 
 ```bash
 # May only works in Linux
-# needs nodejs/npm, suggest using fnm to install nodejs/npm
+# needs nodejs/npm, suggest using nvm to install nodejs/npm
 # with nodejs 24.x
 
 git clone git@github.com:electerm/electerm.git
@@ -188,6 +189,7 @@ npm run test
 # Build linux only with -l
 npm i
 npm run b
+npm run pb
 ./node_modules/.bin/electron-builder --linux tar.gz
 # or replace tar.gz to rpm/deb/AppImage
 # check dist/ folder
