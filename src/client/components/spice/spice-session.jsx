@@ -15,11 +15,12 @@ import {
 } from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import RemoteFloatControl from '../common/remote-float-control'
+import importRetry from '../../common/import-retry'
 import './spice.styl'
 
 async function loadSpiceModule () {
   if (window.spiceHtml5) return
-  const mod = await import('spice-client')
+  const mod = await importRetry(() => import('spice-client'))
   window.spiceHtml5 = {
     SpiceMainConn: mod.SpiceMainConn,
     sendCtrlAltDel: mod.sendCtrlAltDel

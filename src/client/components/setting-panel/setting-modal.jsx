@@ -11,13 +11,14 @@ import {
   settingMap,
   modals
 } from '../../common/constants'
+import importRetry from '../../common/import-retry'
 
-const TabBookmarks = lazy(() => import('./tab-bookmarks'))
-const TabQuickCommands = lazy(() => import('./tab-quick-commands'))
-const TabSettings = lazy(() => import('./tab-settings'))
-const TabThemes = lazy(() => import('./tab-themes'))
-const TabProfiles = lazy(() => import('./tab-profiles'))
-const TabWidgets = lazy(() => import('./tab-widgets'))
+const TabBookmarks = lazy(() => importRetry(() => import('./tab-bookmarks')))
+const TabQuickCommands = lazy(() => importRetry(() => import('./tab-quick-commands')))
+const TabSettings = lazy(() => importRetry(() => import('./tab-settings')))
+const TabThemes = lazy(() => importRetry(() => import('./tab-themes')))
+const TabProfiles = lazy(() => importRetry(() => import('./tab-profiles')))
+const TabWidgets = lazy(() => importRetry(() => import('./tab-widgets')))
 
 const Loading = () => <div style={{ padding: 20, textAlign: 'center' }}><Spin /></div>
 
