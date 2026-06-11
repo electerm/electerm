@@ -21,51 +21,45 @@ import dataCompare from '../common/data-compare'
 
 export default store => {
   for (const name of dbNamesForWatch) {
-    window[`watch${name}Running`] = false
     window[`watch${name}`] = autoRun(async () => {
       const n = store.getItems(name)
-      if (window.migrating || window[`watch${name}Running`]) {
+      if (window.migrating) {
         return
       }
-      window[`watch${name}Running`] = true
-      try {
-        const old = refsStatic.get('oldState-' + name)
-        const { updated, added, removed } = dataCompare(
-          old,
-          n
+      const old = refsStatic.get('oldState-' + name)
+      const { updated, added, removed } = dataCompare(
+        old,
+        n
+      )
+      await Promise.all([
+        ...removed.map(item => remove(name, item.id)),
+        ...updated.map(item => update(item.id, item, name, false)),
+        added.length ? insert(name, added) : Promise.resolve()
+      ])
+      const newOrder = (n || []).map(d => d.id)
+      await update(
+        `${name}:order`,
+        newOrder
+      )
+      refsStatic.add('oldState-' + name, deepCopy(n) || [])
+      if (name === 'bookmarks') {
+        store.bookmarksMap = new Map(
+          n.map(d => [d.id, d])
         )
-        await Promise.all([
-          ...removed.map(item => remove(name, item.id)),
-          ...updated.map(item => update(item.id, item, name, false)),
-          added.length ? insert(name, added) : Promise.resolve()
-        ])
-        const newOrder = (n || []).map(d => d.id)
-        await update(
-          `${name}:order`,
-          newOrder
-        )
-        refsStatic.add('oldState-' + name, deepCopy(n) || [])
-        if (name === 'bookmarks') {
-          store.bookmarksMap = new Map(
-            n.map(d => [d.id, d])
-          )
-        }
-        await store.updateLastDataUpdateTime()
-        if (dbNamesForSync.includes(name)) {
-          const syncSetting = store.config.syncSetting || {}
-          const { autoSync, autoSyncInterval, autoSyncDirection } = syncSetting
-          if (autoSync && autoSyncInterval === 0) {
-            if (autoSyncDirection === 'download') {
-              await store.downloadSettingAll()
-            } else {
-              await store.uploadSettingAll()
-            }
+      }
+      await store.updateLastDataUpdateTime()
+      if (dbNamesForSync.includes(name)) {
+        const syncSetting = store.config.syncSetting || {}
+        const { autoSync, autoSyncInterval, autoSyncDirection } = syncSetting
+        if (autoSync && autoSyncInterval === 0) {
+          if (autoSyncDirection === 'download') {
+            await store.downloadSettingAll()
+          } else {
+            await store.uploadSettingAll()
           }
         }
-        return store[name]
-      } finally {
-        window[`watch${name}Running`] = false
       }
+      return store[name]
     })
     window[`watch${name}`].start()
   }
