@@ -90,13 +90,13 @@ export default function TermInteractiveUI ({
             type='primary'
             onClick={onConfirm}
           >
-            {opts.options.submitText || e('submit')}
+            {e('save')}
           </Button>
           <Button
             className='mg1l'
             onClick={onCancel}
           >
-            {opts.options.cancelText || e('cancel')}
+            {e('cancel')}
           </Button>
         </FormItem>
       </div>
