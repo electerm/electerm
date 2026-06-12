@@ -234,7 +234,7 @@ export default (Store) => {
         const status = statusContent ? parseJsonSafe(statusContent) : undefined
         store.syncServerStatus[type] = status
       }
-      return
+      return gist
     }
 
     const gist = await fetchData(
@@ -245,6 +245,103 @@ export default (Store) => {
       store.getSyncProxy(type)
     )
     updateSyncServerStatusFromGist(store, gist, type)
+    return gist
+  }
+
+  Store.prototype.previewServerDataWithCompare = async function (type) {
+    const { store } = window
+    const token = store.getSyncToken(type)
+    const gistId = store.getSyncGistId(type)
+    const pass = store.getSyncPassword(type)
+    const { names } = store.getDataSyncNames()
+
+    // Get server data
+    let serverGist
+    if (type === syncTypes.webdav) {
+      serverGist = await fetchData(
+        type,
+        'download',
+        [],
+        token,
+        store.getSyncProxy(type)
+      )
+    } else {
+      serverGist = await fetchData(
+        type,
+        'getOne',
+        [gistId],
+        token,
+        store.getSyncProxy(type)
+      )
+    }
+
+    // Update status
+    if (type === syncTypes.webdav) {
+      if (serverGist && serverGist.files) {
+        const statusContent = get(serverGist, 'files["electerm-status.json"].content')
+        const status = statusContent ? parseJsonSafe(statusContent) : undefined
+        store.syncServerStatus[type] = status
+      }
+    } else {
+      updateSyncServerStatusFromGist(store, serverGist, type)
+    }
+
+    // Compare data
+    const comparison = []
+    const localData = {}
+    const serverData = {}
+
+    for (const n of names) {
+      // Get local data
+      const localItems = store.getItems(n)
+      localData[n] = localItems
+
+      // Get server data
+      let serverStr
+      if (type === syncTypes.webdav) {
+        serverStr = get(serverGist, `files["${n}.json"].content`)
+      } else {
+        serverStr = get(serverGist, `files["${n}.json"].content`)
+      }
+
+      let serverItems = []
+      if (serverStr) {
+        try {
+          if (!isJSON(serverStr)) {
+            serverStr = await window.pre.runGlobalAsync('decryptAsync', serverStr, pass)
+          }
+          serverItems = JSON.parse(serverStr)
+        } catch (e) {
+          console.error(`Failed to parse server data for ${n}:`, e)
+        }
+      }
+      serverData[n] = serverItems
+
+      // Find unique items
+      const localIds = new Set(localItems.map(item => item.id))
+      const serverIds = new Set(serverItems.map(item => item.id))
+
+      const onlyLocal = localItems.filter(item => !serverIds.has(item.id))
+      const onlyServer = serverItems.filter(item => !localIds.has(item.id))
+      const common = localItems.filter(item => serverIds.has(item.id))
+
+      comparison.push({
+        name: n,
+        localCount: localItems.length,
+        serverCount: serverItems.length,
+        onlyLocal: onlyLocal.length,
+        onlyServer: onlyServer.length,
+        common: common.length,
+        localItems: onlyLocal,
+        serverItems: onlyServer
+      })
+    }
+
+    return {
+      localData,
+      serverData,
+      comparison
+    }
   }
 
   Store.prototype.uploadSettingAction = async function (type) {
