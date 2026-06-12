@@ -4,23 +4,34 @@
 import React, { useState, useEffect } from 'react'
 import {
   Input,
-  Tabs
+  Tabs,
+  Button,
+  Popconfirm,
+  Space,
+  Tooltip
 } from 'antd'
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined
+} from '@ant-design/icons'
 import WidgetInstances from './widget-instances'
+import UserWidgetEditor from './user-widget-editor'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
 import {
   auto
 } from 'manate/react'
-
-const e = window.translate
+import './widget.styl'
 
 export default auto(function WidgetsList ({ activeItemId, store }) {
   const { widgetInstances } = store
-  const [tab, setTab] = useState('widgets') // or instances
+  const [tab, setTab] = useState('widgets')
   const [widgets, setWidgets] = useState([])
   const [keyword, setKeyword] = useState('')
   const [ready, setReady] = useState(false)
+  const [editorVisible, setEditorVisible] = useState(false)
+  const [editingWidget, setEditingWidget] = useState(null)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -34,15 +45,15 @@ export default auto(function WidgetsList ({ activeItemId, store }) {
 
   const loadWidgets = async () => {
     try {
-      const widgets = await window.store.listWidgets()
-      setWidgets(widgets)
+      const list = await window.store.listWidgets()
+      setWidgets(list)
     } catch (error) {
       console.error('Failed to load widgets:', error)
     }
   }
 
-  const handleSearch = (e) => {
-    setKeyword(e.target.value)
+  const handleSearch = (ev) => {
+    setKeyword(ev.target.value)
   }
 
   const handleTabChange = (key) => {
@@ -53,86 +64,161 @@ export default auto(function WidgetsList ({ activeItemId, store }) {
     window.store.setSettingItem(widget)
   }
 
-  const renderWidgetItem = (widget, i) => {
-    const title = widget.info.name
-    const tag = ''
-    const cls = classnames(
-      'item-list-unit',
-      {
-        active: activeItemId === widget.id
+  const onCreateWidget = () => {
+    setEditingWidget(null)
+    setEditorVisible(true)
+  }
+
+  const onEditWidget = (widget, ev) => {
+    ev.stopPropagation()
+    setEditingWidget(widget)
+    setEditorVisible(true)
+  }
+
+  const onDeleteWidget = async (widget) => {
+    try {
+      await window.store.deleteUserWidget(widget.id)
+      await loadWidgets()
+      if (activeItemId === widget.id) {
+        window.store.setSettingItem({})
       }
-    )
-    const titleHighlight = highlight(
-      title,
-      keyword
-    )
+    } catch (err) {
+      console.error('Failed to delete widget:', err)
+    }
+  }
+
+  const onEditorSave = async (savedWidget) => {
+    setEditorVisible(false)
+    await loadWidgets()
+    window.store.setSettingItem(savedWidget)
+  }
+
+  const onEditorCancel = () => {
+    setEditorVisible(false)
+  }
+
+  const renderWidgetItem = (widget) => {
+    const { id, info, userCreated } = widget
+    const { name: title } = info
+    const cls = classnames('item-list-unit', { active: activeItemId === id })
+    const titleHighlight = highlight(title, keyword)
+
+    const editBtnProps = {
+      type: 'text',
+      size: 'small',
+      icon: <EditOutlined />,
+      onClick: (ev) => onEditWidget(widget, ev)
+    }
+
+    const deleteBtnProps = {
+      type: 'text',
+      size: 'small',
+      danger: true,
+      icon: <DeleteOutlined />,
+      onClick: (ev) => ev.stopPropagation()
+    }
+
+    const popconfirmProps = {
+      title: 'Delete this widget?',
+      onConfirm: () => onDeleteWidget(widget),
+      okText: 'Yes',
+      cancelText: 'No'
+    }
+
     return (
       <div
-        key={widget.id}
+        key={id}
         className={cls}
         onClick={() => onClickWidget(widget)}
       >
         <div
           title={title}
-          className='elli pd1y pd2x list-item-title'
+          className='elli pd1y pd2x widget-list-item-title'
         >
-          {tag}{titleHighlight || e('new')}
+          {titleHighlight || title}
         </div>
+        {userCreated && (
+          <Space size={2} className='pd1x' onClick={ev => ev.stopPropagation()}>
+            <Tooltip title='Edit'>
+              <Button {...editBtnProps} />
+            </Tooltip>
+            <Popconfirm {...popconfirmProps}>
+              <Tooltip title='Delete'>
+                <Button {...deleteBtnProps} />
+              </Tooltip>
+            </Popconfirm>
+          </Space>
+        )}
       </div>
     )
   }
 
   const renderWidgetsList = () => {
     const filteredWidgets = keyword
-      ? widgets.filter(widget => widget.info.name.toLowerCase().includes(keyword.toLowerCase()))
+      ? widgets.filter(w => w.info.name.toLowerCase().includes(keyword.toLowerCase()))
       : widgets
+
+    const editorWidgetId = editingWidget ? editingWidget.id : undefined
+    const editorInitialCode = editingWidget ? editingWidget.code : undefined
+
+    const createBtnProps = {
+      type: 'dashed',
+      block: true,
+      icon: <PlusOutlined />,
+      onClick: onCreateWidget
+    }
+
+    const editorProps = {
+      visible: editorVisible,
+      widgetId: editorWidgetId,
+      initialCode: editorInitialCode,
+      onSave: onEditorSave,
+      onCancel: onEditorCancel
+    }
+
+    const searchInputProps = {
+      type: 'text',
+      placeholder: 'Search widgets...',
+      value: keyword,
+      onChange: handleSearch,
+      className: 'form-control'
+    }
 
     return (
       <div className='item-list item-type-widgets'>
         <div className='pd1y'>
-          <Input.Search
-            type='text'
-            placeholder='Search widgets...'
-            value={keyword}
-            onChange={handleSearch}
-            className='form-control'
-          />
+          <Input.Search {...searchInputProps} />
+        </div>
+        <div className='pd1b'>
+          <Button {...createBtnProps}>
+            Create New Widget
+          </Button>
         </div>
         <div className='item-list-wrap pd1y'>
           {filteredWidgets.map(renderWidgetItem)}
         </div>
+        <UserWidgetEditor {...editorProps} />
       </div>
     )
   }
 
   const renderTabs = () => {
-    const instancesTag = e('runningInstances') + ` (${widgetInstances.length})`
-    const items = [
-      {
-        key: 'widgets',
-        label: e('widgets'),
-        children: null
-      },
-      {
-        key: 'instances',
-        label: instancesTag,
-        children: null
-      }
+    const instancesLabel = `Running Instances (${widgetInstances.length})`
+    const tabItems = [
+      { key: 'widgets', label: 'Widgets', children: null },
+      { key: 'instances', label: instancesLabel, children: null }
     ]
-    return (
-      <Tabs
-        activeKey={tab}
-        onChange={handleTabChange}
-        items={items}
-      />
-    )
+    const tabsProps = {
+      activeKey: tab,
+      onChange: handleTabChange,
+      items: tabItems
+    }
+    return <Tabs {...tabsProps} />
   }
 
   const renderInstancesSection = () => {
     return (
-      <WidgetInstances
-        widgetInstances={widgetInstances}
-      />
+      <WidgetInstances widgetInstances={widgetInstances} />
     )
   }
 
@@ -140,15 +226,13 @@ export default auto(function WidgetsList ({ activeItemId, store }) {
     return null
   }
 
+  const content = tab === 'widgets' ? renderWidgetsList() : renderInstancesSection()
+
   return (
     <div>
       {renderTabs()}
       <div className='pd2x pd1y'>
-        {
-          tab === 'widgets'
-            ? renderWidgetsList()
-            : renderInstancesSection()
-        }
+        {content}
       </div>
     </div>
   )

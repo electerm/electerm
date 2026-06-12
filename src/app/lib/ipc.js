@@ -22,7 +22,12 @@ const {
   listWidgets,
   runWidget,
   stopWidget,
-  runWidgetFunc
+  runWidgetFunc,
+  createUserWidget,
+  updateUserWidget,
+  deleteUserWidget,
+  testRunUserWidget,
+  getDefaultWidgetTemplate
 } = require('../widgets/load-widget')
 const {
   checkMigrate,
@@ -225,6 +230,11 @@ function initIpc () {
     runWidget,
     stopWidget,
     runWidgetFunc,
+    createUserWidget,
+    updateUserWidget,
+    deleteUserWidget,
+    testRunUserWidget,
+    getDefaultWidgetTemplate,
     registerDeepLink,
     unregisterDeepLink,
     checkProtocolRegistration,
