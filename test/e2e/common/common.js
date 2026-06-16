@@ -239,7 +239,7 @@ async function openNewConnectionForm (client) {
 }
 
 async function confirmSshHostKeyVerificationIfNeeded (client, timeout = 4000) {
-  const trustButton = client.locator('.custom-modal-wrap button:has-text("Save")').first()
+  const trustButton = client.locator('.custom-modal-wrap button:has-text("Trust and Save")').first()
   try {
     await trustButton.waitFor({ state: 'visible', timeout })
   } catch {
