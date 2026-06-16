@@ -18,14 +18,13 @@ import Modal from '../common/modal'
 import { copy } from '../../common/clipboard'
 import VncForm from './vnc-form'
 import RemoteFloatControl from '../common/remote-float-control'
-import importRetry from '../../common/import-retry'
 import './vnc.styl'
 
 // noVNC module imports — loaded dynamically
 async function loadVncModule () {
   if (window.novnc) return
   console.debug('[VNC-CLIENT] Loading noVNC module...')
-  const mod = await importRetry(() => import('@novnc/novnc/core/rfb'))
+  const mod = await import('@novnc/novnc/core/rfb')
   window.novnc = {
     RFB: mod.default
   }

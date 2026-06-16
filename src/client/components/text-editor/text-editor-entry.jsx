@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react'
-import importRetry from '../../common/import-retry'
 
-const TextEditor = lazy(() => importRetry(() => import('./text-editor')))
+const TextEditor = lazy(() => import('./text-editor'))
 
 export default function TextEditorEntry (props) {
   return (

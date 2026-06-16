@@ -27,6 +27,7 @@ exports.onClose = async function (e) {
   log.debug('Closing app')
   const childPid = globalState.get('childPid')
   childPid && process.kill(childPid)
+  globalState.set('serverInited', false)
   process.on('uncaughtException', function () {
     const childPid = globalState.get('childPid')
     childPid && process.kill(childPid)
