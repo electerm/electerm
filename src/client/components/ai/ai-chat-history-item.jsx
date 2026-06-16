@@ -173,7 +173,6 @@ export default function AIChatHistoryItem ({ item }) {
           {showOutput ? <CaretDownOutlined /> : <CaretRightOutlined />}
         </span>
         <span>{prompt}</span>
-        {renderStopButton()}
       </div>
     ),
     type: 'info'
@@ -244,6 +243,7 @@ export default function AIChatHistoryItem ({ item }) {
       </div>
       {renderToolCalls()}
       {showOutput && <AIOutput item={item} />}
+      {renderStopButton()}
     </div>
   )
 }
