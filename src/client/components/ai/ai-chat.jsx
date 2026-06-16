@@ -25,6 +25,7 @@ export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
   const [mode, setMode] = useState(() => getItem(aiChatModeLsKey) || 'ask')
   const isAgent = mode === 'agent'
+  const submitDisabled = isAgent && props.agentRunning
 
   function handlePromptChange (e) {
     setPrompt(e.target.value)
@@ -103,6 +104,14 @@ export default function AIChat (props) {
   }
 
   function renderSendIcon () {
+    if (submitDisabled) {
+      return (
+        <SendOutlined
+          className='mg1l send-to-ai-icon disabled'
+          title='Agent is running, please wait'
+        />
+      )
+    }
     return (
       <SendOutlined
         onClick={handleSubmit}
@@ -132,7 +141,9 @@ export default function AIChat (props) {
   const handleKeyPress = (e) => {
     if (!e.shiftKey) {
       e.preventDefault()
-      handleSubmit()
+      if (!submitDisabled) {
+        handleSubmit()
+      }
     }
   }
 

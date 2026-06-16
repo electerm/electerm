@@ -232,7 +232,8 @@ export default auto(function Index (props) {
     tabs: store.getTabs(),
     activeTabId: store.activeTabId,
     showAIConfig: store.showAIConfig,
-    rightPanelTab
+    rightPanelTab,
+    agentRunning: store.agentRunning
   }
   const cmdSuggestionsProps = {
     suggestions: store.terminalCommandSuggestions

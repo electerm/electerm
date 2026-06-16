@@ -46,65 +46,22 @@ async function callBackendAIchatWithTools (messages, config) {
 }
 
 export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming) {
-  const messages = [
-    { role: 'system', content: buildAgentSystemPrompt(config) },
-    { role: 'user', content: chatEntry.prompt }
-  ]
-  const toolCallsLog = []
-  let accumulatedContent = ''
+  window.store.agentRunning = true
+  try {
+    const messages = [
+      { role: 'system', content: buildAgentSystemPrompt(config) },
+      { role: 'user', content: chatEntry.prompt }
+    ]
+    const toolCallsLog = []
+    let accumulatedContent = ''
 
-  setIsStreaming(true)
-  updateChatEntry(chatEntry, {
-    toolCalls: [],
-    response: ''
-  })
+    setIsStreaming(true)
+    updateChatEntry(chatEntry, {
+      toolCalls: [],
+      response: ''
+    })
 
-  for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-    if (abortRef && abortRef.current) {
-      setIsStreaming(false)
-      updateChatEntry(chatEntry, {
-        response: accumulatedContent + '\n\n*(Agent stopped by user)*'
-      })
-      return
-    }
-
-    const result = await callBackendAIchatWithTools(messages, config)
-
-    if (result.error) {
-      setIsStreaming(false)
-      updateChatEntry(chatEntry, {
-        response: accumulatedContent + `\n\n**Error:** ${result.error}`
-      })
-      return
-    }
-
-    const assistantMessage = result.message
-    if (!assistantMessage) {
-      setIsStreaming(false)
-      updateChatEntry(chatEntry, {
-        response: accumulatedContent || 'No response from AI.'
-      })
-      return
-    }
-
-    messages.push(assistantMessage)
-
-    if (assistantMessage.content) {
-      accumulatedContent += (accumulatedContent ? '\n\n' : '') + assistantMessage.content
-      updateChatEntry(chatEntry, {
-        response: accumulatedContent
-      })
-    }
-
-    if (!assistantMessage.tool_calls || assistantMessage.tool_calls.length === 0) {
-      setIsStreaming(false)
-      updateChatEntry(chatEntry, {
-        response: accumulatedContent
-      })
-      return
-    }
-
-    for (const toolCall of assistantMessage.tool_calls) {
+    for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
       if (abortRef && abortRef.current) {
         setIsStreaming(false)
         updateChatEntry(chatEntry, {
@@ -113,49 +70,97 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming)
         return
       }
 
-      let args
-      try {
-        args = JSON.parse(toolCall.function.arguments)
-      } catch {
-        args = {}
+      const result = await callBackendAIchatWithTools(messages, config)
+
+      if (result.error) {
+        setIsStreaming(false)
+        updateChatEntry(chatEntry, {
+          response: accumulatedContent + `\n\n**Error:** ${result.error}`
+        })
+        return
       }
 
-      const toolEntry = {
-        id: toolCall.id,
-        name: toolCall.function.name,
-        args,
-        status: 'running',
-        result: null
-      }
-      toolCallsLog.push(toolEntry)
-      updateChatEntry(chatEntry, {
-        toolCalls: [...toolCallsLog]
-      })
-
-      let toolResult
-      try {
-        toolResult = await executeToolCall(toolCall.function.name, args)
-        toolEntry.status = 'completed'
-        toolEntry.result = toolResult
-      } catch (err) {
-        toolEntry.status = 'error'
-        toolEntry.result = err.message
+      const assistantMessage = result.message
+      if (!assistantMessage) {
+        setIsStreaming(false)
+        updateChatEntry(chatEntry, {
+          response: accumulatedContent || 'No response from AI.'
+        })
+        return
       }
 
-      updateChatEntry(chatEntry, {
-        toolCalls: [...toolCallsLog]
-      })
+      messages.push(assistantMessage)
 
-      messages.push({
-        role: 'tool',
-        tool_call_id: toolCall.id,
-        content: toolEntry.result
-      })
+      if (assistantMessage.content) {
+        accumulatedContent += (accumulatedContent ? '\n\n' : '') + assistantMessage.content
+        updateChatEntry(chatEntry, {
+          response: accumulatedContent
+        })
+      }
+
+      if (!assistantMessage.tool_calls || assistantMessage.tool_calls.length === 0) {
+        setIsStreaming(false)
+        updateChatEntry(chatEntry, {
+          response: accumulatedContent
+        })
+        return
+      }
+
+      for (const toolCall of assistantMessage.tool_calls) {
+        if (abortRef && abortRef.current) {
+          setIsStreaming(false)
+          updateChatEntry(chatEntry, {
+            response: accumulatedContent + '\n\n*(Agent stopped by user)*'
+          })
+          return
+        }
+
+        let args
+        try {
+          args = JSON.parse(toolCall.function.arguments)
+        } catch {
+          args = {}
+        }
+
+        const toolEntry = {
+          id: toolCall.id,
+          name: toolCall.function.name,
+          args,
+          status: 'running',
+          result: null
+        }
+        toolCallsLog.push(toolEntry)
+        updateChatEntry(chatEntry, {
+          toolCalls: [...toolCallsLog]
+        })
+
+        let toolResult
+        try {
+          toolResult = await executeToolCall(toolCall.function.name, args)
+          toolEntry.status = 'completed'
+          toolEntry.result = toolResult
+        } catch (err) {
+          toolEntry.status = 'error'
+          toolEntry.result = err.message
+        }
+
+        updateChatEntry(chatEntry, {
+          toolCalls: [...toolCallsLog]
+        })
+
+        messages.push({
+          role: 'tool',
+          tool_call_id: toolCall.id,
+          content: toolEntry.result
+        })
+      }
     }
-  }
 
-  setIsStreaming(false)
-  updateChatEntry(chatEntry, {
-    response: accumulatedContent + '\n\n*(Agent reached maximum iterations)*'
-  })
+    setIsStreaming(false)
+    updateChatEntry(chatEntry, {
+      response: accumulatedContent + '\n\n*(Agent reached maximum iterations)*'
+    })
+  } finally {
+    window.store.agentRunning = false
+  }
 }

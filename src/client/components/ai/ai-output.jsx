@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { copy } from '../../common/clipboard'
 import Link from '../common/external-link'
@@ -8,12 +9,20 @@ import getBrand from './get-brand'
 const e = window.translate
 
 export default function AIOutput ({ item }) {
+  const outputRef = useRef(null)
   const {
     response,
     baseURLAI,
     nameAI,
     modelAI
   } = item
+
+  useEffect(() => {
+    if (outputRef.current) {
+      outputRef.current.scrollTop = outputRef.current.scrollHeight
+    }
+  }, [response])
+
   if (!response) {
     return null
   }
@@ -103,9 +112,11 @@ export default function AIOutput ({ item }) {
   }
 
   return (
-    <div className='pd1'>
-      {renderBrand()}
-      <ReactMarkdown {...mdProps} />
+    <div className='ai-stream-output' ref={outputRef}>
+      <div className='pd1'>
+        {renderBrand()}
+        <ReactMarkdown {...mdProps} />
+      </div>
     </div>
   )
 }
