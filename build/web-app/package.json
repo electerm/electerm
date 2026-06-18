@@ -7,7 +7,7 @@
   "langugeRepo": "https://github.com/electerm/electerm-locales",
   "privacyNoticeLink": "https://github.com/electerm/electerm/wiki/privacy-notice",
   "knownIssuesLink": "https://github.com/electerm/electerm/wiki/Know-issues",
-  "sponsorLink": "https://electerm.html5beta.com/sponsor-electerm.html",
+  "sponsorLink": "https://electerm.org/sponsor-electerm.html",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/electerm/electerm.git"
@@ -20,7 +20,7 @@
   "bugs": {
     "url": "https://github.com/electerm/electerm/issues"
   },
-  "homepage": "https://electerm.html5beta.com",
+  "homepage": "https://electerm.org",
   "releases": "https://github.com/electerm/electerm/releases",
   "engines": {
     "node": ">=18.0.0"

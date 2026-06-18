@@ -119,7 +119,7 @@ export default class ErrorBoundary extends React.PureComponent {
         </div>
         <div className='pd3y'>
           <img
-            src='https://electerm.html5beta.com/electerm-wechat-group-qr.jpg'
+            src='https://electerm.org/electerm-wechat-group-qr.jpg'
             className='mwm-100'
           />
         </div>

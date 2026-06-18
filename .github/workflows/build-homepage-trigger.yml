@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         repository:
-          - electerm/electerm.html5beta.com
+          - electerm/electerm.org
           - electerm/electerm-data-tool
     steps:
       - name: Trigger ${{ matrix.repository }} repository workflow

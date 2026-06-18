@@ -22,7 +22,7 @@ async function getVersion () {
     return cachedVersion
   }
   cachedVersion = await new Promise((resolve, reject) => {
-    https.get('https://electerm.html5beta.com/version.html', (res) => {
+    https.get('https://electerm.org/version.html', (res) => {
       let data = ''
       res.on('data', chunk => { data += chunk })
       res.on('end', () => resolve(data.trim().replace('v', '')))

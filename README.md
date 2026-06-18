@@ -1,5 +1,5 @@
 <h1 align="center" style="padding-top: 60px;padding-bottom: 40px;">
-    <a href="https://electerm.html5beta.com">
+    <a href="https://electerm.org">
         <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.png", alt="" />
     </a>
 </h1>
@@ -71,7 +71,7 @@ Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(linux,
 
 ## Download
 
-- [Homepage](https://electerm.html5beta.com)
+- [Homepage](https://electerm.org)
 - [sourceforge](https://sourceforge.net/projects/electerm.mirror/files/)
 - [github releases](https://github.com/electerm/electerm/releases)
 
@@ -124,7 +124,7 @@ npm i -g electerm
 
 [Discussion board](https://github.com/electerm/electerm/discussions)
 
-![electerm-wechat-group-qr.jpg](https://electerm.html5beta.com/electerm-wechat-group-qr.jpg)
+![electerm-wechat-group-qr.jpg](https://electerm.org/electerm-wechat-group-qr.jpg)
 
 ## Support
 
@@ -142,7 +142,7 @@ kofi
 
 wechat donate
 
-[![wechat donate](https://electerm.html5beta.com/electerm-wechat-donate.png)](https://github.com/electerm)
+[![wechat donate](https://electerm.org/electerm-wechat-donate.png)](https://github.com/electerm)
 
 ## Dev
 
@@ -201,7 +201,7 @@ npm run pb
 
 ## Video guide
 
-- [https://electerm.html5beta.com/videos](https://electerm.html5beta.com/videos)
+- [https://electerm.org/videos](https://electerm.org/videos)
 
 ## Change log
 

@@ -58,7 +58,7 @@ function generateErrorHtml (port) {
         <p>更改设置后重启应用程序。如果问题仍然存在，请联系作者：zxdong@gmail.com。</p>
         <p>
           <img
-            src='https://electerm.html5beta.com/electerm-wechat-group-qr.jpg'
+            src='https://electerm.org/electerm-wechat-group-qr.jpg'
           />
         </p>
       </div>
