@@ -24,6 +24,7 @@ const sshConfig = {
       sshAgent: '',
       serverHostKey: [],
       cipher: [],
+      compress: [],
       ...getTerminalDefaults(store),
       ...getSshDefaults(),
       ...getTerminalBackgroundDefaults(defaultSetting),

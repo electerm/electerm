@@ -22,6 +22,7 @@ const bookmarkSchema = {
     sshAgent: 'string - ssh agent path',
     serverHostKey: 'array - server host key algorithms',
     cipher: 'array - cipher list',
+    compress: 'array - compression algorithms (zlib@openssh.com, zlib, none)',
     runScripts: 'array - run scripts after connected ({delay,script})',
     quickCommands: 'array - quick commands ({name,command})',
     proxy: 'string - proxy address (socks5://...)',

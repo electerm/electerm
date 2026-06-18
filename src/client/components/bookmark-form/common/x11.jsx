@@ -35,6 +35,13 @@ const cipherOptions = [
   'curve25519-sha256@libssh.org'
 ]
 
+// Available compress options
+const compressOptions = [
+  'zlib@openssh.com',
+  'zlib',
+  'none'
+]
+
 // Available serverHostKey options from ssh2-alg.js
 const serverHostKeyOptions = [
   'ssh-rsa',
@@ -95,6 +102,20 @@ export default function renderX11 ({ form }) {
         >
           {cipherOptions.map(cipher => (
             <Option key={cipher} value={cipher}>{cipher}</Option>
+          ))}
+        </Select>
+      </FormItem>
+      <FormItem
+        {...formItemLayout}
+        label='compress'
+        name='compress'
+      >
+        <Select
+          mode='tags'
+          style={{ width: '100%' }}
+        >
+          {compressOptions.map(c => (
+            <Option key={c} value={c}>{c}</Option>
           ))}
         </Select>
       </FormItem>

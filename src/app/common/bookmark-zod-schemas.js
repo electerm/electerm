@@ -61,6 +61,7 @@ const sshBookmarkSchema = {
   sshAgent: z.string().optional().describe('SSH agent path'),
   serverHostKey: z.array(z.string()).optional().describe('Server host key algorithms'),
   cipher: z.array(z.string()).optional().describe('Cipher list'),
+  compress: z.array(z.string()).optional().describe('Compression algorithms'),
   quickCommands: z.array(quickCommandSchema).optional().describe('Quick commands'),
   x11: z.boolean().optional().describe('Enable x11 forwarding, default is false'),
   term: z.string().optional().describe('Terminal type, default is xterm-256color'),
