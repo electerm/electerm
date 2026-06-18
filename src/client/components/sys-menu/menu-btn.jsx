@@ -6,13 +6,12 @@ import { PureComponent } from 'react'
 import {
   Popover
 } from 'antd'
-import logoRef from '@electerm/electerm-resource/res/imgs/electerm.svg'
+import logoSvg from '@electerm/electerm-resource/res/imgs/electerm.svg?raw'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import MenuRender from './sys-menu.jsx'
 import { refsStatic } from '../common/ref.js'
 
 const e = window.translate
-const logo = logoRef.replace(/^\//, '')
 
 class MenuBtn extends PureComponent {
   componentDidMount () {
@@ -202,7 +201,10 @@ class MenuBtn extends PureComponent {
         <div
           {...pops}
         >
-          <img src={logo} width={28} height={28} />
+          <span
+            className='menu-logo'
+            dangerouslySetInnerHTML={{ __html: logoSvg }}
+          />
         </div>
       </Popover>
     )
