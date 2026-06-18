@@ -4,7 +4,7 @@ cd ../..
 git co master
 git pull
 git pull
-git delete-branch test-npm2
-git create-branch test-npm2
-git push origin test-npm2 -u
+git delete-branch electerm-react
+git create-branch electerm-react
+git push origin electerm-react -u
 git co -
