@@ -70,12 +70,6 @@ Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(linux,
 - Deep link support: Open connections with URLs like `telnet://192.168.2.31:34554` or `ssh://user@host:22` - see [Deep link support wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
 
-## Download
-
-- [Homepage](https://electerm.org)
-- [sourceforge](https://sourceforge.net/projects/electerm.mirror/files/)
-- [github releases](https://github.com/electerm/electerm/releases)
-
 ## Install
 
 - For Mac user: `brew install --cask electerm`
