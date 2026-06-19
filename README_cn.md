@@ -26,6 +26,7 @@
 
 开源终端/ssh/telnet/serialport/RDP/VNC/Spice/sftp/ftp客户端(linux, mac, win)。
 
+- [electerm.org](https://electerm.org): 主页，下载，视频等
 - [electerm-web](https://github.com/electerm/electerm-web): 运行于浏览器(支持移动设备)的web app版本
 - [electerm-web-docker](https://github.com/electerm/electerm-web-docker): electerm-web的docker镜像
 - [electerm online](https://cloud.electerm.org): 公共免费在线electerm应用
