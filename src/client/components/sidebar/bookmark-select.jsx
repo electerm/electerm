@@ -13,7 +13,8 @@ export default auto(function BookmarkSelect (props) {
     leftSidebarWidth,
     expandedKeys,
     bookmarks,
-    bookmarksMap
+    bookmarksMap,
+    initLoadingData
   } = store
   if (from === 'sidebar' && openedSideBar !== 'bookmarks') {
     return null
@@ -39,7 +40,8 @@ export default auto(function BookmarkSelect (props) {
     expandedKeys,
     leftSidebarWidth,
     bookmarkGroupTree: store.bookmarkGroupTree,
-    autoFocus
+    autoFocus,
+    initLoadingData
   }
   return (
     <TreeList

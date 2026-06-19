@@ -48,6 +48,7 @@ export default () => {
     // common
     wsInited: false,
     configLoaded: false,
+    initLoadingData: false,
     loadTime: 0,
     lastDataUpdateTime: 0,
     tabs: [],

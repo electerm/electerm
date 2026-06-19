@@ -182,55 +182,62 @@ export default (Store) => {
   }
   Store.prototype.initData = async function () {
     const { store } = window
-    await store.initApp()
-    const ext = {}
-    const all = dbNames.map(async name => {
-      const data = await fetchInitData(name)
-      return {
-        name,
-        data
-      }
-    })
-    await Promise.all(all)
-      .then(arr => {
-        for (const { name, data } of arr) {
-          const dt = JSON.parse(data || '[]')
-          refsStatic.add('oldState-' + name, dt)
-          if (name === 'bookmarks') {
-            ext.bookmarksMap = new Map(
-              dt.map(d => [d.id, d])
-            )
-          }
-          ext[name] = dt
+    store.initLoadingData = true
+    try {
+      await store.initApp()
+      const ext = {}
+      const all = dbNames.map(async name => {
+        const data = await fetchInitData(name)
+        return {
+          name,
+          data
         }
       })
-    ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
-    Object.assign(store, ext)
-    store.loadFontList()
-    store.fetchItermThemes()
-    store.openInitSessions()
-    store.fetchSshConfigItems()
-    store.initCommandLine().catch(store.onError)
-    initWatch(store)
-    setTimeout(
-      () => {
-        store.fixProfiles()
-        store.fixBookmarkGroups()
-      },
-      1000
-    )
-    setTimeout(
-      () => {
-        store.autoSyncReady = true
-      },
-      2000
-    )
-    if (store.config.checkUpdateOnStart) {
-      store.onCheckUpdate(false)
+      await Promise.all(all)
+        .then(arr => {
+          for (const { name, data } of arr) {
+            const dt = JSON.parse(data || '[]')
+            refsStatic.add('oldState-' + name, dt)
+            if (name === 'bookmarks') {
+              ext.bookmarksMap = new Map(
+                dt.map(d => [d.id, d])
+              )
+            }
+            ext[name] = dt
+          }
+        })
+      ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
+      ext.initLoadingData = false
+      Object.assign(store, ext)
+      store.loadFontList()
+      store.fetchItermThemes()
+      store.openInitSessions()
+      store.fetchSshConfigItems()
+      store.initCommandLine().catch(store.onError)
+      initWatch(store)
+      setTimeout(
+        () => {
+          store.fixProfiles()
+          store.fixBookmarkGroups()
+        },
+        1000
+      )
+      setTimeout(
+        () => {
+          store.autoSyncReady = true
+        },
+        2000
+      )
+      if (store.config.checkUpdateOnStart) {
+        store.onCheckUpdate(false)
+      }
+      store.startAutoRunWidgets().catch(err => {
+        console.error('Failed to start autorun widgets:', err)
+      })
+    } catch (err) {
+      store.initLoadingData = false
+      store.onError(err)
     }
-    store.startAutoRunWidgets().catch(err => {
-      console.error('Failed to start autorun widgets:', err)
-    })
   }
   Store.prototype.initCommandLine = async function () {
     const opts = await window.pre.runGlobalAsync('initCommandLine')

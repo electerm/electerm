@@ -854,7 +854,7 @@ export default class ItemListTree extends Component {
 
   render () {
     const { ready } = this.state
-    if (!ready) {
+    if (!ready || this.props.initLoadingData) {
       return (
         <div className='pd3 aligncenter'>
           <LoadingOutlined />
