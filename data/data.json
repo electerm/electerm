@@ -706,7 +706,7 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-ar_ar.html"
+    "path": "/home/execapp/dev/electerm.org/index-ar_ar.html"
   },
   {
     "id": "de_de",
@@ -1415,7 +1415,7 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-de_de.html"
+    "path": "/home/execapp/dev/electerm.org/index-de_de.html"
   },
   {
     "id": "en_us",
@@ -2124,7 +2124,7 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index.html"
+    "path": "/home/execapp/dev/electerm.org/index.html"
   },
   {
     "id": "es_es",
@@ -2833,7 +2833,7 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-es_es.html"
+    "path": "/home/execapp/dev/electerm.org/index-es_es.html"
   },
   {
     "id": "fr_fr",
@@ -3542,7 +3542,7 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-fr_fr.html"
+    "path": "/home/execapp/dev/electerm.org/index-fr_fr.html"
   },
   {
     "id": "ja_jp",
@@ -4251,7 +4251,7 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-ja_jp.html"
+    "path": "/home/execapp/dev/electerm.org/index-ja_jp.html"
   },
   {
     "id": "ko_kr",
@@ -4960,7 +4960,7 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-ko_kr.html"
+    "path": "/home/execapp/dev/electerm.org/index-ko_kr.html"
   },
   {
     "id": "pt_br",
@@ -5669,7 +5669,7 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-pt_br.html"
+    "path": "/home/execapp/dev/electerm.org/index-pt_br.html"
   },
   {
     "id": "ru_ru",
@@ -6378,7 +6378,7 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-ru_ru.html"
+    "path": "/home/execapp/dev/electerm.org/index-ru_ru.html"
   },
   {
     "id": "tr_tr",
@@ -7087,7 +7087,7 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-tr_tr.html"
+    "path": "/home/execapp/dev/electerm.org/index-tr_tr.html"
   },
   {
     "id": "zh_cn",
@@ -7796,7 +7796,7 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_cn.html"
+    "path": "/home/execapp/dev/electerm.org/index-zh_cn.html"
   },
   {
     "id": "zh_tw",
@@ -8505,6 +8505,6 @@
     "releaseDate": "2023-08-02T12:41:54Z",
     "siteKeywords": "electron,ternimal,electerm,ssh,sftp",
     "siteName": "electerm",
-    "path": "/home/execapp/dev/electerm.html5beta.com/index-zh_tw.html"
+    "path": "/home/execapp/dev/electerm.org/index-zh_tw.html"
   }
 ]

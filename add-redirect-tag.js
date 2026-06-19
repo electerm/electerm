@@ -3,7 +3,7 @@
 const fs = require('fs/promises')
 const path = require('path')
 
-const BASE_URL = 'https://electerm.html5beta.com'
+const BASE_URL = 'https://electerm.org'
 
 function buildRedirectUrl (filename) {
   return filename === 'index.html' ? BASE_URL : `${BASE_URL}/${filename}`

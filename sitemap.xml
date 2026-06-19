@@ -6,91 +6,91 @@
 	http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
 	<url>
-		<loc>https://electerm.html5beta.com</loc>
+		<loc>https://electerm.org</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>1.00</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/sponsor-electerm.html</loc>
+		<loc>https://electerm.org/sponsor-electerm.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>1.00</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-ar_ar.html</loc>
+		<loc>https://electerm.org/index-ar_ar.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-de_de.html</loc>
+		<loc>https://electerm.org/index-de_de.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-es_es.html</loc>
+		<loc>https://electerm.org/index-es_es.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-fr_fr.html</loc>
+		<loc>https://electerm.org/index-fr_fr.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-id_id.html</loc>
+		<loc>https://electerm.org/index-id_id.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-ja_jp.html</loc>
+		<loc>https://electerm.org/index-ja_jp.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-ko_kr.html</loc>
+		<loc>https://electerm.org/index-ko_kr.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-pl_pl.html</loc>
+		<loc>https://electerm.org/index-pl_pl.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-pt_br.html</loc>
+		<loc>https://electerm.org/index-pt_br.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-ru_ru.html</loc>
+		<loc>https://electerm.org/index-ru_ru.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-tr_tr.html</loc>
+		<loc>https://electerm.org/index-tr_tr.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-zh_cn.html</loc>
+		<loc>https://electerm.org/index-zh_cn.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
 	</url>
 	<url>
-		<loc>https://electerm.html5beta.com/index-zh_tw.html</loc>
+		<loc>https://electerm.org/index-zh_tw.html</loc>
 		<lastmod>2025-06-01</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.80</priority>
