@@ -770,7 +770,7 @@ class TerminalSshBase extends TerminalBase {
     }
     if (
       this.sshKeys ||
-      (!connectOptions.privateKey && !connectOptions.password)
+      (!connectOptions.privateKey && !connectOptions.password && !initOptions.password)
     ) {
       this.getPrivateKey(this.connectOptions)
     }
