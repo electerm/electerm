@@ -26,9 +26,9 @@
 
 Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(linux, mac, win).
 
-- [electerm.org](https://electerm.org): homepage, downloads, videos, etc
-- [electerm-web](https://github.com/electerm/electerm-web): web app version running in browser(including mobile device)
-- [electerm-web-docker](https://github.com/electerm/electerm-web-docker): docker image for electerm-web
+- [electerm.org](https://electerm.org): Homepage, downloads, videos, etc
+- [electerm-web](https://github.com/electerm/electerm-web): Web app version running in browser(including mobile device)
+- [electerm-web-docker](https://github.com/electerm/electerm-web-docker): Docker image for electerm-web
 - [electerm online](https://cloud.electerm.org): Public free online electerm app
 - [electerm demo](https://demo.electerm.org): Online demo
 
