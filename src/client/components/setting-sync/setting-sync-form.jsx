@@ -66,7 +66,7 @@ export default function SyncForm (props) {
     if (res.apiUrl) {
       up[syncType + 'ApiUrl'] = res.apiUrl
     } else if (syncType === syncTypes.cloud) {
-      up[syncType + 'ApiUrl'] = 'https://electerm-cloud.html5beta.com/api/sync'
+      up[syncType + 'ApiUrl'] = 'https://sync.electerm.org/api/sync'
       // up[syncType + 'ApiUrl'] = 'http://127.0.0.1:5678/api/sync'
     }
     if (res.proxy) {
@@ -187,8 +187,8 @@ export default function SyncForm (props) {
     if (syncType === syncTypes.cloud) {
       return (
         <p>
-          <Link to='https://electerm-cloud.html5beta.com'>
-            https://electerm-cloud.html5beta.com[Beta]
+          <Link to='https://sync.electerm.org'>
+            https://sync.electerm.org[Beta]
           </Link>
         </p>
       )
