@@ -5,8 +5,6 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 export default function WebSession (props) {
   const {
     tab,
-    width,
-    height,
     reloadTab
   } = props
   const [zoom, setZoom] = useState(1.0)
@@ -104,13 +102,13 @@ export default function WebSession (props) {
         </div>
       )
     }
-    const hOffset = tab.hideAddressBar ? 30 : -12
     if (window.et.isWebApp) {
       const iframeProps = {
         src: url,
         style: {
-          width: (width - 10) + 'px',
-          height: (height + hOffset) + 'px'
+          width: '100%',
+          height: '100%',
+          border: 'none'
         }
       }
       return (
@@ -120,8 +118,8 @@ export default function WebSession (props) {
     const viewProps = {
       src: url,
       style: {
-        width: (width - 10) + 'px',
-        height: (height + hOffset) + 'px',
+        width: '100%',
+        height: '100%',
         background: '#fff'
       },
       disableblinkfeatures: 'true',
@@ -139,7 +137,7 @@ export default function WebSession (props) {
       {!tab.hideAddressBar && (
         <AddressBar {...addrProps} />
       )}
-      <div className='pd1'>
+      <div className='web-session-content'>
         {renderView()}
       </div>
       <WebAuthModal

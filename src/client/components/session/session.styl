@@ -57,9 +57,18 @@
   &.session-batch-active
     display block
 
+.term-sftp-box
+  height 100%
 .web-session-wrap
-  height 100vh
+  height 100%
   background var(--main)
+  overflow hidden
+  display flex
+  flex-direction column
+.web-session-content
+  flex 1
+  min-height 0
+  overflow hidden
 .session-v-info
   line-height 30px
 .vnc-scroll-wrapper
