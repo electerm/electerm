@@ -6,6 +6,10 @@ const log = require('../common/log')
 const { Telnet } = require('./telnet')
 const { TerminalBase } = require('./session-base')
 const globalState = require('./global-state')
+const iconv = require('iconv-lite')
+
+// Encodings that are equivalent to UTF-8 (no conversion needed)
+const utf8Aliases = new Set(['utf-8', 'utf8', 'utf-8-strict'])
 
 // Helper function to convert regex string to RegExp object
 function stringToRegExp (regexString) {
@@ -89,6 +93,16 @@ class TerminalTelnet extends TerminalBase {
 
   write = (data) => {
     try {
+      const encode = this.initOptions?.encode
+      if (encode && !utf8Aliases.has(encode.toLowerCase()) && typeof data === 'string') {
+        try {
+          const buf = iconv.encode(data, encode)
+          this.port.write(buf)
+          return
+        } catch (e) {
+          log.warn('iconv encode failed, falling back to raw write:', e.message)
+        }
+      }
       this.port.write(data)
       // this.writeLog(data)
     } catch (e) {

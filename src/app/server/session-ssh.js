@@ -16,6 +16,10 @@ const deepCopy = require('json-deep-copy')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
 const globalState = require('./global-state')
+const iconv = require('iconv-lite')
+
+// Encodings that are equivalent to UTF-8 (no conversion needed)
+const utf8Aliases = new Set(['utf-8', 'utf8', 'utf-8-strict'])
 
 const failMsg = 'All configured authentication methods failed'
 const csFailMsg = 'no matching C->S cipher'
@@ -892,6 +896,16 @@ class TerminalSshBase extends TerminalBase {
   }
 
   write (data) {
+    const encode = this.connectOptions?.encode || this.initOptions?.encode
+    if (encode && !utf8Aliases.has(encode.toLowerCase()) && typeof data === 'string') {
+      try {
+        const buf = iconv.encode(data, encode)
+        this.channel?.write(buf)
+        return
+      } catch (e) {
+        log.warn('iconv encode failed, falling back to raw write:', e.message)
+      }
+    }
     this.channel?.write(data)
   }
 
