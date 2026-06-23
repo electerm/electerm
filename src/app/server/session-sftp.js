@@ -36,11 +36,18 @@ class Sftp extends TerminalBase {
 
   initSshFsFallback = (conn) => {
     const { SshFs } = require('ssh2-scp')
-    const sshFs = new SshFs(conn)
+    const opts = {}
+    const encode = this.initOptions?.encode || 'utf8'
+    if (encode !== 'utf8') {
+      opts.encoding = encode
+      opts.iconv = require('iconv-lite')
+    }
+    const sshFs = new SshFs(conn, opts)
     this.applySshFsOverride(sshFs)
   }
 
   async remoteInitSftp (initOptions) {
+    this.initOptions = initOptions
     this.transfers = {}
     const terminalInst = globalState.getSession(initOptions.terminalId)
     const {
@@ -75,6 +82,7 @@ class Sftp extends TerminalBase {
     }
     this.sftp && this.sftp.end && this.sftp.end()
     delete this.sftp
+    delete this.initOptions
     this.onEndConn()
   }
 

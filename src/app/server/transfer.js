@@ -20,7 +20,8 @@ class Transfer {
     conn,
     sftpId,
     isDirectory = false,
-    ws
+    ws,
+    encode = 'utf8'
   }) {
     this.id = id
     const isd = type === 'download'
@@ -38,6 +39,7 @@ class Transfer {
     this.concurrency = options.concurrency || 64
     this.chunkSize = options.chunkSize || 32768
     this.mode = options.mode
+    this.encode = encode
     this.onData = _.throttle((data) => {
       ws.s({
         id: 'transfer:data:' + id,
@@ -76,7 +78,7 @@ class Transfer {
     try {
       const remotePath = type === 'download' ? this.srcPath : this.dstPath
       const localPath = type === 'download' ? this.dstPath : this.srcPath
-      this.scpTransfer = new FolderTransfer(this.conn, tar, {
+      const folderOpts = {
         type,
         remotePath,
         localPath,
@@ -87,7 +89,12 @@ class Transfer {
             total
           })
         }
-      })
+      }
+      if (this.encode !== 'utf8') {
+        folderOpts.iconv = require('iconv-lite')
+        folderOpts.encoding = this.encode
+      }
+      this.scpTransfer = new FolderTransfer(this.conn, tar, folderOpts)
       await this.scpTransfer.startTransfer()
       const state = this.scpTransfer.getState
         ? this.scpTransfer.getState()
