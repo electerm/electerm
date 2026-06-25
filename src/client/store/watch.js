@@ -31,6 +31,11 @@ export default store => {
         old,
         n
       )
+      // Update snapshot immediately before async DB writes to prevent
+      // race conditions: a second autoRun firing before the first
+      // completes would see stale oldState and re-insert the same items,
+      // causing NeDB unique constraint errors.
+      refsStatic.add('oldState-' + name, deepCopy(n) || [])
       await Promise.all([
         ...removed.map(item => remove(name, item.id)),
         ...updated.map(item => update(item.id, item, name, false)),
@@ -41,7 +46,6 @@ export default store => {
         `${name}:order`,
         newOrder
       )
-      refsStatic.add('oldState-' + name, deepCopy(n) || [])
       if (name === 'bookmarks') {
         store.bookmarksMap = new Map(
           n.map(d => [d.id, d])
