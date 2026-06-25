@@ -247,7 +247,8 @@ class ZmodemSession {
         if (event === ReceiverEvent.FileStart) {
           const name = this.receiver.getFileName()
           const size = this.receiver.getFileSize()
-          this.handleFileStart(name, size)
+          const mtime = this.receiver.getFileMtime()
+          this.handleFileStart(name, size, mtime)
         } else if (event === ReceiverEvent.FileComplete) {
           this.handleFileComplete()
         } else if (event === ReceiverEvent.SessionComplete) {
@@ -275,13 +276,14 @@ class ZmodemSession {
    * @param {string} name - File name
    * @param {number} size - File size
    */
-  handleFileStart (name, size) {
+  handleFileStart (name, size, mtime) {
     this.currentTransfer = {
       name,
       size
     }
     this.transferSize = size
     this.transferredBytes = 0
+    this.currentMtime = mtime || 0
     // startTime will be set when first data is received
 
     // Prepare file for receiving
@@ -337,19 +339,40 @@ class ZmodemSession {
       this.sendProgress()
     }
 
-    if (this.downloadStream) {
-      this.downloadStream.end()
-      this.downloadStream = null
+    const filePath = this.downloadPath
+    const fileMtime = this.currentMtime
+    const currentTransfer = this.currentTransfer
+
+    const finalize = () => {
+      // Set file modification time from the ZMODEM protocol metadata
+      if (filePath && fileMtime > 0) {
+        try {
+          const mtimeDate = new Date(fileMtime)
+          fs.utimesSync(filePath, mtimeDate, mtimeDate)
+        } catch (e) {
+          log.error('Failed to set file modification time', e)
+        }
+      }
+
+      this.sendToClient({
+        event: 'file-complete',
+        name: currentTransfer?.name,
+        path: filePath
+      })
+
+      this.currentTransfer = null
+      this.downloadPath = null
+      this.currentMtime = 0
     }
 
-    this.sendToClient({
-      event: 'file-complete',
-      name: this.currentTransfer?.name,
-      path: this.downloadPath
-    })
-
-    this.currentTransfer = null
-    this.downloadPath = null
+    if (this.downloadStream) {
+      const stream = this.downloadStream
+      this.downloadStream = null
+      stream.on('finish', finalize)
+      stream.end()
+    } else {
+      finalize()
+    }
   }
 
   /**
@@ -649,7 +672,9 @@ class ZmodemSession {
 
       // Start file transfer (startTime will be set when first data is sent)
       // File will be read in chunks in sendFileData()
-      this.sender.startFile(file.name, file.size)
+      // Pass file mtime (in milliseconds) so the remote side preserves the modification time
+      const mtime = file.modifyTime || 0
+      this.sender.startFile(file.name, file.size, mtime)
 
       // Drain outgoing after starting file
       const outgoing = this.sender.drainOutgoing()
@@ -810,6 +835,7 @@ class ZmodemSession {
     this.receiver = null
     this.sender = null
     this.currentTransfer = null
+    this.currentMtime = 0
     this.downloadPath = null
     this.uploadPath = null
     this.pendingFiles = []

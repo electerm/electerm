@@ -109,8 +109,8 @@ export const getLocalFileInfo = async (filePath) => {
   const stat = await window.fs.lstatAsync(filePath)
   return {
     size: stat.size,
-    accessTime: stat.atime || stat.atimeMs,
-    modifyTime: stat.mtime || stat.mtimeMs,
+    accessTime: stat.atimeMs || stat.atime,
+    modifyTime: stat.mtimeMs || stat.mtime,
     mode: stat.mode,
     owner: stat.uid,
     group: stat.gid,

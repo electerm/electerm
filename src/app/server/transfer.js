@@ -177,6 +177,11 @@ class Transfer {
       return th.onError(err)
     }
     this.fsize = attrs.size
+    // Store source mtime (in ms) for preserving after transfer
+    // attrs.mtime is a Date for local fs, but a number (seconds) for SFTP
+    this.srcMtime = attrs.mtime instanceof Date
+      ? attrs.mtime.getTime()
+      : attrs.mtime * 1000
     dst.open(dstPath, 'w', this.onDstOpen)
   }
 
@@ -214,32 +219,53 @@ class Transfer {
       hadError = true
       const canCloseSrc = th.srcHandle && (src === fs || (src.outgoing && src.outgoing.state === 'open'))
       const canCloseDst = th.dstHandle && (dst === fs || (dst.outgoing && dst.outgoing.state === 'open'))
-      let left = 0
-      if (canCloseSrc) ++left
-      if (canCloseDst) ++left
-      const finish = () => {
-        if (--left === 0) {
+
+      const closeHandles = () => {
+        let left = 0
+        if (canCloseSrc) ++left
+        if (canCloseDst) ++left
+        const finish = () => {
+          if (--left === 0) {
+            if (err) th.onError(err)
+            else th.onEnd()
+          }
+        }
+        if (left === 0) {
           if (err) th.onError(err)
           else th.onEnd()
+          return
+        }
+        if (canCloseSrc) {
+          src.close(th.srcHandle, () => {
+            th.srcHandle = undefined
+            finish()
+          })
+        }
+        if (canCloseDst) {
+          dst.close(th.dstHandle, () => {
+            th.dstHandle = undefined
+            finish()
+          })
         }
       }
-      if (left === 0) {
-        if (err) th.onError(err)
-        else th.onEnd()
+
+      // Preserve source file mtime on destination after successful transfer
+      if (!err && th.srcMtime && canCloseDst) {
+        const mtimeDate = new Date(th.srcMtime)
+        dst.futimes(th.dstHandle, mtimeDate, mtimeDate, (utimesErr) => {
+          if (utimesErr) {
+            // Try utimes() as fallback for sftp servers that may not support futimes()
+            dst.utimes(dstPath, mtimeDate, mtimeDate, () => {
+              closeHandles()
+            })
+            return
+          }
+          closeHandles()
+        })
         return
       }
-      if (canCloseSrc) {
-        src.close(th.srcHandle, () => {
-          th.srcHandle = undefined
-          finish()
-        })
-      }
-      if (canCloseDst) {
-        dst.close(th.dstHandle, () => {
-          th.dstHandle = undefined
-          finish()
-        })
-      }
+
+      closeHandles()
     }
 
     if (fsize <= 0) {

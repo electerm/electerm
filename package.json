@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "3.15.76",
+  "version": "3.15.77",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -131,7 +131,7 @@
     "ssh2-scp": "3.2.0",
     "tar": "7.5.12",
     "trzsz2": "1.2.0",
-    "zmodem2": "1.3.0"
+    "zmodem2": "1.4.0"
   },
   "files": [
     "npm",
