@@ -24,7 +24,7 @@ import './vnc.styl'
 async function loadVncModule () {
   if (window.novnc) return
   console.debug('[VNC-CLIENT] Loading noVNC module...')
-  const mod = await import('@novnc/novnc/core/rfb')
+  const mod = await import('@novnc/novnc')
   window.novnc = {
     RFB: mod.default
   }
