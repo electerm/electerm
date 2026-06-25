@@ -135,7 +135,29 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
           ? original.map(d => encryptDoc(dbName, d))
           : encryptDoc(dbName, original)
         db[dbName][op](toInsert, (err, inserted) => {
-          if (err) return reject(err)
+          if (err) {
+            // Handle unique constraint violation by falling back to update,
+            // matching SQLite's INSERT OR REPLACE behavior
+            if (err.errorType === 'uniqueViolated') {
+              const items = Array.isArray(toInsert) ? toInsert : [toInsert]
+              const origItems = Array.isArray(original) ? original : [original]
+              let pending = items.length
+              const results = []
+              items.forEach((item, i) => {
+                db[dbName].update({ _id: item._id }, item, {}, (uErr) => {
+                  if (uErr) {
+                    return reject(uErr)
+                  }
+                  results[i] = { ...origItems[i], _id: item._id }
+                  if (--pending === 0) {
+                    resolve(Array.isArray(original) ? results : results[0])
+                  }
+                })
+              })
+              return
+            }
+            return reject(err)
+          }
           // Return documents with original (unencrypted) fields + _id
           if (Array.isArray(original)) {
             const origArr = Array.isArray(inserted) ? inserted : [inserted]
