@@ -104,13 +104,20 @@ export const getFolderFromFilePath = (filePath, isRemote) => {
   }
 }
 
+function toMs (ms, date) {
+  const n = Number(ms)
+  if (Number.isFinite(n)) return n
+  const d = Number(date)
+  return Number.isFinite(d) ? d : 0
+}
+
 export const getLocalFileInfo = async (filePath) => {
   const statr = await window.fs.statAsync(filePath)
   const stat = await window.fs.lstatAsync(filePath)
   return {
     size: stat.size,
-    accessTime: stat.atimeMs || stat.atime,
-    modifyTime: stat.mtimeMs || stat.mtime,
+    accessTime: toMs(stat.atimeMs, stat.atime),
+    modifyTime: toMs(stat.mtimeMs, stat.mtime),
     mode: stat.mode,
     owner: stat.uid,
     group: stat.gid,
