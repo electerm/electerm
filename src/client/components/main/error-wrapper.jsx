@@ -121,6 +121,7 @@ export default class ErrorBoundary extends React.PureComponent {
           <img
             src='https://electerm.org/electerm-wechat-group-qr.jpg'
             className='mwm-100'
+            width={200}
           />
         </div>
       </>
@@ -133,7 +134,7 @@ export default class ErrorBoundary extends React.PureComponent {
       return (
         <div className='pd3 error-wrapper'>
           <div className='pd2y'>
-            <img src={logoPath1} className='iblock mwm-100' />
+            <img src={logoPath1} className='iblock mwm-100' width={100} />
           </div>
           <h1>
             <FrownOutlined className='mg1r iblock' />
