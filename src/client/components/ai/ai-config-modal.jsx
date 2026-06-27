@@ -40,6 +40,7 @@ export default auto(function AIConfigModal ({ store }) {
       title='AI Config'
       width='80%'
       destroyOnClose
+      maskClosable={false}
       className='ai-config-modal'
     >
       <AIConfigForm
