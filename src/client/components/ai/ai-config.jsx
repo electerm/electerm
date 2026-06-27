@@ -35,6 +35,14 @@ const proxyOptions = [
   { value: 'https://proxy.example.com:3128' }
 ]
 
+const authHeaderOptions = [
+  { value: 'Authorization: Bearer' },
+  { value: 'x-api-key' },
+  { value: 'api-key' },
+  { value: 'Authorization: Api-Key' },
+  { value: 'Authorization' }
+]
+
 export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig }) {
   const [form] = Form.useForm()
   const [testing, setTesting] = useState(false)
@@ -68,7 +76,8 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         values.apiPathAI,
         values.apiKeyAI,
         values.proxyAI,
-        false
+        false,
+        values.authHeaderNameAI
       )
       if (res && res.error) {
         message.error(res.error)
@@ -188,6 +197,19 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           name='apiKeyAI'
         >
           <Password placeholder='Enter your API key' />
+        </Form.Item>
+
+        <Form.Item
+          label='Auth Header'
+          name='authHeaderNameAI'
+          tooltip='Header format for API authentication. e.g. "Authorization: Bearer" sends "Authorization: Bearer <key>", "x-api-key" sends "x-api-key: <key>"'
+        >
+          <AutoComplete
+            options={authHeaderOptions}
+            filterOption={filter}
+          >
+            <Input placeholder='e.g. Authorization: Bearer' />
+          </AutoComplete>
         </Form.Item>
 
         <Form.Item

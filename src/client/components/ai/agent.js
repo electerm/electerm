@@ -41,7 +41,8 @@ async function callBackendAIchatWithTools (messages, config) {
     config.apiPathAI,
     config.apiKeyAI,
     config.proxyAI,
-    agentTools
+    agentTools,
+    config.authHeaderNameAI
   )
 }
 
