@@ -82,7 +82,8 @@ export default function AIBookmarkForm (props) {
         config.apiPathAI,
         config.apiKeyAI,
         config.proxyAI,
-        false // Disable streaming for structured response
+        false, // Disable streaming for structured response
+        config.authHeaderNameAI
       )
 
       if (aiResponse && aiResponse.error) {
