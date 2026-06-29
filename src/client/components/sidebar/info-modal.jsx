@@ -4,11 +4,11 @@ import {
   HighlightOutlined,
   HomeOutlined,
   UserOutlined,
-  WarningOutlined,
   InfoCircleOutlined,
   AlignLeftOutlined,
   BugOutlined,
-  HeartOutlined
+  HeartOutlined,
+  CloudOutlined
 } from '@ant-design/icons'
 import { Tabs, Button } from 'antd'
 import Modal from '../common/modal'
@@ -136,10 +136,10 @@ export default auto(function InfoModal (props) {
       url: bugReportLink
     },
     releases: releaseLink,
-    privacyNoticeLink,
     sponsorLink,
     knownIssuesLink
   } = packInfo
+  const electermOnline = 'https://cloud.electerm.org'
   const link = releaseLink.replace('/releases', '')
   const { versions } = window.pre
   const deps = {
@@ -215,9 +215,9 @@ export default auto(function InfoModal (props) {
             </Link>
           </p>
           <p className='mg1b'>
-            <WarningOutlined /> <b className='mg1r'>{e('privacyNotice')} ➾</b>
-            <Link to={privacyNoticeLink} className='mg1l'>
-              {privacyNoticeLink}
+            <CloudOutlined /> <b className='mg1r'>electerm Online ➾</b>
+            <Link to={electermOnline} className='mg1l'>
+              {electermOnline}
             </Link>
           </p>
           <p className='mg1b'>
