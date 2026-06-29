@@ -13,6 +13,7 @@ jobs:
       matrix:
         repository:
           - electerm/electerm.org
+          - electerm/repos
           - electerm/electerm-data-tool
     steps:
       - name: Trigger ${{ matrix.repository }} repository workflow
