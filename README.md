@@ -12,7 +12,7 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Get it from the Snap Store](https://img.shields.io/badge/Snap-Store-green)](https://snapcraft.io/electerm)
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
-[![Debian Repository](https://img.shields.io/badge/Debian-Repository-red)](https://electerm-repos.html5beta.com/deb)
+[![Debian Repository](https://img.shields.io/badge/Debian-Repository-red)](https://repos.electerm.org/deb)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
 [![Powered by manate](https://img.shields.io/badge/Powered%20by-manate-blue)](https://github.com/tylerlong/manate)
 [![Discord](https://img.shields.io/badge/Discord-Join-blue?logo=discord)](https://discord.gg/855W7g8EVd)
@@ -89,7 +89,7 @@ scoop install dorado/electerm
 
 - Install from Debian repository (for Debian/Ubuntu-based systems) with `apt` command
 
-Check [https://electerm-repos.html5beta.com/deb](https://electerm-repos.html5beta.com/deb)
+Check [https://repos.electerm.org/deb](https://repos.electerm.org/deb)
 
 - Install from npm
 
