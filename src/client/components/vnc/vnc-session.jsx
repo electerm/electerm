@@ -367,7 +367,8 @@ export default class VncSession extends PureComponent {
       'desktopname',
       'capabilities',
       'screens',
-      'desktopsize'
+      'desktopsize',
+      'serververification'
     ]
     for (const event of events) {
       rfb.addEventListener(event, this[`on${window.capitalizeFirstLetter(event)}`])
@@ -398,6 +399,14 @@ export default class VncSession extends PureComponent {
 
   onSecurityfailure = (event) => {
     message.error('Security Failure: ' + event.detail?.reason)
+  }
+
+  onSerververification = (event) => {
+    // RA2ne (RealVNC) authentication requires the client to approve
+    // the server's public key before the handshake can proceed.
+    // Auto-approve since the user explicitly initiated the connection.
+    console.debug('[VNC-CLIENT] Server verification event, approving server:', event.detail?.type)
+    this.rfb?.approveServer()
   }
 
   onOk = (res) => {
