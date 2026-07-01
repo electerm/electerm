@@ -55,7 +55,7 @@
   "preferGlobal": true,
   "devDependencies": {
     "@ant-design/icons": "6.2.5",
-    "@electerm/electerm-resource": "2.1.5",
+    "@electerm/electerm-resource": "2.1.6",
     "@fontsource/maple-mono": "^5.2.5",
     "@novnc/novnc": "1.7.0",
     "@types/node": "22.9.3",
