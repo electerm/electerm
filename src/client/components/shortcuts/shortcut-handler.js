@@ -5,6 +5,30 @@ import {
 } from '../../common/constants'
 import keyControlPressed from '../../common/key-control-pressed.js'
 
+function processEscapeSequences (text) {
+  let result = ''
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '\\' && i + 1 < text.length) {
+      const next = text[i + 1]
+      if (next === 'n') {
+        result += '\n'
+      } else if (next === 't') {
+        result += '\t'
+      } else if (next === 'r') {
+        result += '\r'
+      } else if (next === '\\') {
+        result += '\\'
+      } else {
+        result += '\\' + next
+      }
+      i++
+    } else {
+      result += text[i]
+    }
+  }
+  return result
+}
+
 function sendInputData (ctx, data) {
   if (!data) return
   if (ctx.attachAddon && ctx.attachAddon._sendData) {
@@ -168,6 +192,21 @@ export function shortcutExtend (Cls) {
       const altDelDelKey = delKey === 8 ? 127 : 8
       const char = String.fromCharCode(shiftKey ? delKey : altDelDelKey)
       this.socket.send(char)
+      this.term.scrollToBottom()
+      return false
+    } else if (
+      this.term &&
+      key === 'Enter' &&
+      type === 'keydown' &&
+      shiftKey &&
+      !ctrlKey &&
+      !altKey &&
+      !metaKey
+    ) {
+      event.preventDefault()
+      event.stopPropagation()
+      const shiftEnterText = processEscapeSequences(this.props.config.shiftEnterMode || '\\\\\n')
+      this.socket.send(shiftEnterText)
       this.term.scrollToBottom()
       return false
     } else if (
