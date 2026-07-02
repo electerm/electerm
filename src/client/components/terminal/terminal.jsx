@@ -64,6 +64,10 @@ import {
   loadUnicode11Addon,
   loadImageAddon
 } from './xterm-loader.js'
+import {
+  createRendererThemeConfig,
+  handleTerminalColorQuery
+} from './terminal-color-query.mjs'
 
 const e = window.translate
 
@@ -141,10 +145,8 @@ class Term extends Component {
       prevProps.themeConfig
     )
     if (themeChanged && this.term) {
-      this.term.options.theme = {
-        ...deepCopy(this.props.themeConfig),
-        background: 'rgba(0,0,0,0)'
-      }
+      this.term.options.theme = this.getRendererThemeConfig(this.props.themeConfig)
+      this.registerTerminalColorQueryHandlers(this.term, this.props.themeConfig)
     }
   }
 
@@ -156,6 +158,7 @@ class Term extends Component {
     if (this.term) {
       this.term.parent = null
     }
+    this.disposeTerminalColorQueryHandlers()
     Object.keys(this.timers).forEach(k => {
       clearTimeout(this.timers[k])
       this.timers[k] = null
@@ -1082,10 +1085,55 @@ class Term extends Component {
     }
   }
 
+  terminalColorQueryDisposables = []
+
+  disposeTerminalColorQueryHandlers = () => {
+    this.terminalColorQueryDisposables.forEach(disposable => disposable?.dispose?.())
+    this.terminalColorQueryDisposables.length = 0
+  }
+
+  getVisibleTerminalBackground = () => {
+    const uiThemeConfig = window.store?.getUiThemeConfig?.() || {}
+    const dom = this.domRef.current
+    const cssMain = dom && window.getComputedStyle
+      ? window.getComputedStyle(dom).getPropertyValue('--main').trim()
+      : ''
+    return uiThemeConfig.main || cssMain || this.props.themeConfig.background
+  }
+
+  getVisibleTerminalForeground = () => {
+    const uiThemeConfig = window.store?.getUiThemeConfig?.() || {}
+    return uiThemeConfig.text
+  }
+
+  registerTerminalColorQueryHandlers = (term, themeConfig = {}) => {
+    this.disposeTerminalColorQueryHandlers()
+    if (!term?.parser?.registerOscHandler) {
+      return
+    }
+    const background = this.getVisibleTerminalBackground()
+    const foregroundFallback = this.getVisibleTerminalForeground()
+    this.terminalColorQueryDisposables.push(
+      term.parser.registerOscHandler(10, data => {
+        return handleTerminalColorQuery(term, 10, themeConfig.foreground, foregroundFallback, data)
+      }),
+      term.parser.registerOscHandler(11, data => {
+        return handleTerminalColorQuery(term, 11, background, themeConfig.background, data)
+      })
+    )
+  }
+
+  getRendererThemeConfig = (themeConfig = this.props.themeConfig) => {
+    return createRendererThemeConfig(
+      deepCopy(themeConfig),
+      this.props.config.rendererType,
+      this.getVisibleTerminalBackground()
+    )
+  }
+
   initTerminal = async () => {
     const { themeConfig, tab = {}, config = {} } = this.props
-    const tc = deepCopy(themeConfig)
-    tc.background = 'rgba(0,0,0,0)'
+    const tc = this.getRendererThemeConfig(themeConfig)
     const Terminal = await loadTerminal()
     const term = new Terminal({
       allowProposedApi: true,
@@ -1104,6 +1152,7 @@ class Term extends Component {
     term.parent = this
     term.onSelectionChange(this.onSelection)
     term.open(this.domRef.current, true)
+    this.registerTerminalColorQueryHandlers(term, themeConfig)
     await this.loadRenderer(term, config)
 
     const FitAddon = await loadFitAddon()
