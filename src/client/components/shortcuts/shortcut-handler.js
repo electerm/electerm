@@ -205,7 +205,7 @@ export function shortcutExtend (Cls) {
     ) {
       event.preventDefault()
       event.stopPropagation()
-      const shiftEnterText = processEscapeSequences(this.props.config.shiftEnterMode || '\\\\\n')
+      const shiftEnterText = processEscapeSequences(this.props.config.shiftEnterMode || '\\n')
       this.socket.send(shiftEnterText)
       this.term.scrollToBottom()
       return false

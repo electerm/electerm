@@ -554,7 +554,7 @@ export default class SettingTerminal extends Component {
         }
         <div className='pd1b'>Shift+Enter</div>
         {
-          this.renderText('shiftEnterMode', 'Enter the text to send when hotkey is pressed. (e.g., \\\\\\n)')
+          this.renderText('shiftEnterMode', 'Text to send on Shift+Enter. Use \\n for newline')
         }
         {
           this.renderCursorStyleSelect()

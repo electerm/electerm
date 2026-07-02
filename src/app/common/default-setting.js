@@ -42,7 +42,7 @@ module.exports = exports.default = {
   addTimeStampToTermLog: false,
   keepaliveInterval: 10000,
   backspaceMode: '^?',
-  shiftEnterMode: '\\\\\\n',
+  shiftEnterMode: '\\n',
   showHiddenFilesOnSftpStart: true,
   terminalInfos: [
     'uptime',
