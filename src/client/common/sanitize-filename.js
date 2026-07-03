@@ -9,7 +9,8 @@
  * Rules applied:
  * - Remove control characters (0x00-0x1F)
  * - Replace reserved characters: < > : " / \ | ? * with _
- * - Remove leading/trailing dots and spaces (Windows restriction)
+ * - Strip trailing dots and spaces (Windows restriction: "file.", "file ")
+ * - Strip leading spaces only (NOT leading dots — they mean hidden file)
  * - Reject reserved Windows device names: CON, PRN, AUX, NUL, COM1-9, LPT1-9
  * - Limit filename length to 255 bytes (common filesystem limit)
  * - Fallback to 'unnamed' if result is empty
@@ -19,8 +20,12 @@
 // eslint-disable-next-line no-control-regex
 const ILLEGAL_CHARS = /[<>:"/\\|?\x00-\x1f]/g
 
-// Leading/trailing dots and spaces are problematic on Windows
-const LEADING_TRAILING = /^[.\s]+|[.\s]+$/g
+// Trailing dots and spaces = problematic on Windows (e.g. "file." → "file")
+// Leading dots are PRESERVED — they mean "hidden file" on Unix and work on modern Windows
+const TRAILING_DOTS_SPACES = /[.\s]+$/g
+
+// Leading spaces only — Windows can't handle filenames starting with space
+const LEADING_SPACES = /^\s+/
 
 // Reserved Windows device names (case-insensitive)
 const RESERVED_NAMES = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\.|$)/i
@@ -37,8 +42,10 @@ export default function sanitizeFilename (name) {
   let safe = name
     // Replace illegal characters
     .replace(ILLEGAL_CHARS, REPLACEMENT_CHAR)
-    // Strip leading/trailing dots and spaces
-    .replace(LEADING_TRAILING, '')
+    // Strip trailing dots and spaces (Windows restriction)
+    .replace(TRAILING_DOTS_SPACES, '')
+    // Strip leading spaces only (not dots — they mean hidden file)
+    .replace(LEADING_SPACES, '')
 
   // Handle reserved Windows device names by appending underscore
   if (RESERVED_NAMES.test(safe)) {
