@@ -28,7 +28,7 @@ jobs:
     - run: npm config set legacy-peer-deps true
     - run: npm install -g node-gyp
 
-    # before_install:
+    # before_install :
     # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
     - name: Update electron version and remove package-lock
