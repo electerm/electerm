@@ -42,13 +42,15 @@ function getPort (fromPort = MIN_PORT) {
 
 async function runSessionServer (type, port) {
   return new Promise((resolve) => {
+    const cleanEnv = Object.assign({}, process.env)
+    delete cleanEnv.ELECTRON_RUN_AS_NODE
     const child = fork(path.resolve(__dirname, './session-server.js'), {
       env: Object.assign(
         {
           wsPort: port,
           type
         },
-        process.env
+        cleanEnv
       ),
       cwd: process.cwd()
     }, (error, stdout, stderr) => {

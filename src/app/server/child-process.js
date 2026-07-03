@@ -30,6 +30,10 @@ module.exports = (config, env, sysLocale) => {
     writeFileSync(extraCaFile, systemCAs)
   }
 
+  // Clean Electron-specific env vars from child process environment
+  const cleanEnv = Object.assign({}, env)
+  delete cleanEnv.ELECTRON_RUN_AS_NODE
+
   // start server
   const child = fork(resolve(__dirname, './server.js'), {
     env: Object.assign(
@@ -43,7 +47,7 @@ module.exports = (config, env, sysLocale) => {
         NODE_OPTIONS: nodeOpts || undefined,
         NODE_EXTRA_CA_CERTS: extraCaFile || undefined
       },
-      env
+      cleanEnv
     ),
     cwd: process.cwd()
   }, (error, stdout, stderr) => {
