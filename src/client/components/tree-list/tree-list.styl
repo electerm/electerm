@@ -101,6 +101,42 @@
   min-height 0
   position relative
 
+.tree-sort-wrap
+  position relative
+.tree-sort-dropdown
+  display none
+  position absolute
+  right 0
+  top 100%
+  margin-top 4px
+  background var(--main-dark)
+  border 1px solid var(--main)
+  border-radius 4px
+  padding 4px
+  z-index 100
+  box-shadow 0 2px 8px rgba(0,0,0,.1)
+&.open
+  .tree-sort-dropdown
+    display block
+
+.tree-sort-trigger
+  cursor pointer
+  &:hover
+    color var(--primary)
+  &.active
+    color var(--primary)
+
+.tree-sort-popover-item
+  padding 4px 8px
+  border-radius 3px
+  cursor pointer
+  white-space nowrap
+  font-size 12px
+  &:hover
+    background var(--hover-bg, rgba(0,0,0,.04))
+  &.active
+    color var(--primary)
+
 .tree-list-virtual-spacer
   position relative
   width 100%

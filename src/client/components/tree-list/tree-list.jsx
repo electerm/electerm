@@ -44,7 +44,8 @@ export default class ItemListTree extends Component {
       categoryTitle: '',
       categoryColor: '',
       categoryId: '',
-      searchSelectedRowKey: ''
+      searchSelectedRowKey: '',
+      sort: null
     }
     this.listRef = React.createRef()
   }
@@ -107,6 +108,10 @@ export default class ItemListTree extends Component {
       keyword,
       searchSelectedRowKey: ''
     })
+  }
+
+  handleSortChange = sort => {
+    this.setState({ sort })
   }
 
   handleKeyDown = (e) => {
@@ -176,12 +181,15 @@ export default class ItemListTree extends Component {
   }
 
   getVisibleTreeData = () => {
+    const sort = this.state.sort
     return buildVisibleTreeRows({
       bookmarkGroups: this.props.bookmarkGroups,
       bookmarkGroupTree: this.props.bookmarkGroupTree,
       bookmarksMap: this.props.bookmarksMap,
       expandedKeys: this.props.expandedKeys,
-      keyword: this.state.keyword
+      keyword: this.state.keyword,
+      sortTitle: sort?.field === 'title' ? sort.dir : null,
+      sortHost: sort?.field === 'host' ? sort.dir : null
     })
   }
 
@@ -414,6 +422,8 @@ export default class ItemListTree extends Component {
           keyword={this.state.keyword}
           autoFocus={this.props.autoFocus}
           onKeyDown={this.handleKeyDown}
+          sort={this.state.sort}
+          onSortChange={this.handleSortChange}
         />
       </div>
     )

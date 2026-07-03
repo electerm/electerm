@@ -4,12 +4,38 @@ function isTopLevelGroup (group) {
   return !group?.level || group.level < 2
 }
 
+function bookmarkCompare (a, b, bookmarksMap, sortTitle, sortHost) {
+  const itemA = bookmarksMap.get(a)
+  const itemB = bookmarksMap.get(b)
+  if (!itemA || !itemB) {
+    return 0
+  }
+
+  if (sortTitle) {
+    const cmp = (itemA.title || '').localeCompare(itemB.title || '')
+    if (cmp !== 0) {
+      return sortTitle === 'asc' ? cmp : -cmp
+    }
+  }
+
+  if (sortHost) {
+    const cmp = (itemA.host || '').localeCompare(itemB.host || '')
+    if (cmp !== 0) {
+      return sortHost === 'asc' ? cmp : -cmp
+    }
+  }
+
+  return 0
+}
+
 export function buildVisibleTreeRows ({
   bookmarkGroups,
   bookmarkGroupTree,
   bookmarksMap,
   expandedKeys,
-  keyword
+  keyword,
+  sortTitle,
+  sortHost
 }) {
   const groupTree = bookmarkGroupTree || {}
   const rows = []
@@ -77,7 +103,12 @@ export function buildVisibleTreeRows ({
       visitGroup(groupTree[groupId], nextParentId, depth + 1)
     }
 
-    for (const bookmarkId of group.bookmarkIds || []) {
+    const bookmarkIds = group.bookmarkIds || []
+    const sortedIds = (sortTitle || sortHost)
+      ? [...bookmarkIds].sort((a, b) => bookmarkCompare(a, b, bookmarksMap, sortTitle, sortHost))
+      : bookmarkIds
+
+    for (const bookmarkId of sortedIds) {
       const item = bookmarksMap.get(bookmarkId)
       if (!item || (lowerKeyword && !bookmarkMatches(bookmarkId))) {
         continue
