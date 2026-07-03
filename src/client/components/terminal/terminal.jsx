@@ -608,7 +608,7 @@ class Term extends Component {
     this.term.clear()
     this.term.focus()
     if (shouldClear) {
-      this.searchAddon._linesCache = undefined
+      this.searchAddon._lineCache.clear()
       this.timers.clearSearchTimer = setTimeout(() => {
         refsStatic.get('term-search')?.next()
       }, 100)
@@ -660,8 +660,8 @@ class Term extends Component {
   }
 
   updateSearchResults = (resultIndex) => {
-    const matches = this.searchAddon._highlightDecorations.map((highlight, i) => {
-      return highlight.match.row
+    const matches = this.searchAddon._resultTracker.searchResults.map((result, i) => {
+      return result.row
     })
 
     this.setState({

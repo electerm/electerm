@@ -63,14 +63,14 @@ export default class TermSearch extends PureComponent {
     }
   }
 
-  prev = () => {
+  prev = (searchTerm) => {
     const {
       activeTabId,
       termSearchOptions
     } = this.props
     refs.get('term-' + activeTabId)
       ?.searchPrev(
-        this.props.termSearch,
+        searchTerm ?? this.props.termSearch,
         copy(termSearchOptions)
       )
   }
