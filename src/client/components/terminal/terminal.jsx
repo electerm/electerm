@@ -57,7 +57,6 @@ import {
   loadTerminal,
   loadFitAddon,
   loadWebLinksAddon,
-  loadCanvasAddon,
   loadWebglAddon,
   loadSearchAddon,
   loadLigaturesAddon,
@@ -1069,18 +1068,17 @@ class Term extends Component {
   }
 
   loadRenderer = async (term, config) => {
-    if (config.rendererType === rendererTypes.canvas) {
-      const CanvasAddon = await loadCanvasAddon()
-      term.loadAddon(new CanvasAddon())
-    } else if (config.rendererType === rendererTypes.webGL) {
+    // xterm 6.x: only the built-in DOM renderer and the WebGL addon exist
+    // (the canvas renderer addon was removed in 6.x). 'dom' = no addon loaded
+    // (built-in DOM renderer). Legacy 'canvas' settings fall back to DOM.
+    if (config.rendererType === rendererTypes.webGL) {
       try {
         const WebglAddon = await loadWebglAddon()
         term.loadAddon(new WebglAddon())
       } catch (e) {
-        console.error('render with webgl failed, fallback to canvas')
+        console.error('render with webgl failed, fallback to dom renderer')
         console.error(e)
-        const CanvasAddon = await loadCanvasAddon()
-        term.loadAddon(new CanvasAddon())
+        // built-in DOM renderer is used (no addon loaded)
       }
     }
   }
@@ -1373,7 +1371,7 @@ class Term extends Component {
   }
 
   openNormalBuffer = () => {
-    const normal = this.term.buffer._normal
+    const normal = this.term.buffer.normal
     const len = normal.length
     const lines = new Array(len).fill('').map((x, i) => {
       return normal.getLine(i).translateToString(false)
@@ -1535,13 +1533,12 @@ class Term extends Component {
     socket.onopen = async () => {
       await this.initAttachAddon()
       this.runInitScript()
-      term._initialized = true
     }
     // term.onRrefresh(this.onRefresh)
     term.onResize(this.onResizeTerminal)
-    if (pick(term, 'buffer._onBufferChange._listeners')) {
-      term.buffer._onBufferChange._listeners.push(this.onBufferChange)
-    }
+    // xterm 6.x exposes buffer change as a public event (IBufferNamespace.onBufferChange).
+    // Previously this reached into the private _onBufferChange._listeners array.
+    term.buffer.onBufferChange(this.onBufferChange)
     const WebLinksAddon = await loadWebLinksAddon()
     term.loadAddon(new WebLinksAddon(this.webLinkHandler))
     term.focus()

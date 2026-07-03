@@ -241,7 +241,6 @@ export const termLSPrefix = 'term:sess:'
 export const batchInputLsKey = 'batch-inputs'
 export const rendererTypes = {
   dom: 'dom',
-  canvas: 'canvas',
   webGL: 'webGL'
 }
 export const downloadUpgradeTimeout = 20000

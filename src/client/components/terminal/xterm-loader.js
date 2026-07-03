@@ -37,13 +37,6 @@ export async function loadWebLinksAddon () {
   return window.xtermAddons.WebLinksAddon
 }
 
-export async function loadCanvasAddon () {
-  if (window.xtermAddons.CanvasAddon) return window.xtermAddons.CanvasAddon
-  const mod = await import('@xterm/addon-canvas')
-  window.xtermAddons.CanvasAddon = mod.CanvasAddon
-  return window.xtermAddons.CanvasAddon
-}
-
 export async function loadWebglAddon () {
   if (window.xtermAddons.WebglAddon) return window.xtermAddons.WebglAddon
   const mod = await import('@xterm/addon-webgl')
@@ -93,10 +86,6 @@ export function getAttachAddon () {
 
 export function getWebLinksAddon () {
   return window.xtermAddons.WebLinksAddon
-}
-
-export function getCanvasAddon () {
-  return window.xtermAddons.CanvasAddon
 }
 
 export function getWebglAddon () {
