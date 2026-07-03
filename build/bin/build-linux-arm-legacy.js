@@ -6,7 +6,8 @@ const {
   builder: pb,
   renameDist,
   reBuild,
-  replaceJSON
+  replaceJSON,
+  setChannel
 } = require('./build-common')
 
 // Function to add "-legacy" suffix to artifact names in electron-builder.json
@@ -41,6 +42,7 @@ async function main () {
       data.linux.target = ['tar.gz']
     }
   )
+  setChannel(src)
   // await run(`${reBuild} --arch arm64 -f work/app`)
   await run(`${pb} --linux --arm64`).catch(error => {
     echo('❌ Fatal error in build linux.arm64.tar.gz:')
@@ -59,6 +61,7 @@ async function main () {
       data.linux.target = ['deb']
     }
   )
+  setChannel(src)
   await run(`${pb} --linux --arm64`).catch(error => {
     echo('❌ Fatal error in build linux.arm64.deb:')
     console.error(error)
@@ -76,6 +79,7 @@ async function main () {
       data.linux.target = ['rpm']
     }
   )
+  setChannel(src)
   await run(`${pb} --linux --arm64`).catch(error => {
     echo('❌ Fatal error in build linux.aarch64.rpm:')
     console.error(error)
@@ -93,6 +97,7 @@ async function main () {
       data.linux.target = ['AppImage']
     }
   )
+  setChannel(src)
   await run(`${pb} --linux --arm64`).catch(error => {
     echo('❌ Fatal error in build linux.arm64.AppImage:')
     console.error(error)
@@ -110,6 +115,7 @@ async function main () {
       data.linux.target = ['tar.gz']
     }
   )
+  setChannel(src)
   await run(`${reBuild} --arch armv7l -f work/app`)
   await run(`${pb} --linux --armv7l`).catch(error => {
     echo('❌ Fatal error in build linux.armv7l:')
@@ -128,6 +134,7 @@ async function main () {
       data.linux.target = ['deb']
     }
   )
+  setChannel(src)
   await run(`${pb} --linux --armv7l`).catch(error => {
     echo('❌ Fatal error in build linux.armv7l.deb:')
     console.error(error)
@@ -145,6 +152,7 @@ async function main () {
       data.linux.target = ['rpm']
     }
   )
+  setChannel(src)
   await run(`${pb} --linux --armv7l`).catch(error => {
     echo('❌ Fatal error in build linux.armv7l.rpm:')
     console.error(error)
@@ -162,6 +170,7 @@ async function main () {
       data.linux.target = ['AppImage']
     }
   )
+  setChannel(src)
   await run(`${pb} --linux --armv7l`).catch(error => {
     echo('❌ Fatal error in build linux.armv7l.AppImage:')
     console.error(error)

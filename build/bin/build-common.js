@@ -135,6 +135,14 @@ exports.replaceJSON = function (func) {
   writeFileSync(pth, JSON.stringify(js, null, 2))
 }
 
+exports.setChannel = function (suffix) {
+  exports.replaceJSON((data) => {
+    if (!data.linux) { data.linux = {} }
+    if (!data.linux.publish) { data.linux.publish = {} }
+    data.linux.publish.channel = '${env.WORKFLOW_NAME}-' + suffix // eslint-disable-line
+  })
+}
+
 const options = {
   files: require('path').resolve(__dirname, '../../electron-builder.json'),
   from: ['"asar": true', '${productName}-${version}-${os}-${arch}.${ext}', ', "appx", "nsis"'], // eslint-disable-line

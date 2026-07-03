@@ -5,7 +5,8 @@ const {
   uploadToR2,
   builder: pb,
   replaceJSON,
-  renameDist
+  renameDist,
+  setChannel
 } = require('./build-common')
 
 // Function to add "-legacy" suffix to artifact names in electron-builder.json
@@ -35,6 +36,7 @@ async function main () {
   rm('-rf', 'dist')
   let src = 'linux-x64-legacy.tar.gz'
   writeSrc(src)
+  setChannel(src)
   await run(`${pb} --linux tar.gz`)
   await uploadToR2(src)
   renameDist()
@@ -45,6 +47,7 @@ async function main () {
   rm('-rf', 'dist')
   src = 'linux-amd64-legacy.deb'
   writeSrc(src)
+  setChannel(src)
   await run(`${pb} --linux deb`)
   await uploadToR2(src)
   renameDist()
@@ -58,6 +61,7 @@ async function main () {
   replaceJSON((data) => {
     data.linux.target = ['rpm']
   })
+  setChannel(src)
   await run(`${pb} --linux rpm`)
   await uploadToR2(src)
   renameDist()
@@ -71,6 +75,7 @@ async function main () {
   replaceJSON((data) => {
     data.linux.target = ['AppImage']
   })
+  setChannel(src)
   await run(`${pb} --linux`)
   await uploadToR2(src)
   renameDist()
