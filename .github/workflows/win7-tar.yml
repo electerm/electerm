@@ -39,8 +39,11 @@ jobs:
         pkg.devDependencies.electron = '22.3.27';
         pkg.devDependencies['electron-builder'] = '26.0.20';
         pkg.devDependencies['@electron/rebuild'] = '3.7.2';
+        pkg.devDependencies['react'] = '19.2.1';
+        pkg.devDependencies['react-dom'] = '19.2.1';
         pkg.dependencies['node-pty'] = '1.1.0-beta14';
         pkg.dependencies.serialport = '13.0.0';
+        pkg.dependencies.tar = '7.5.17';
         pkg.devDependencies.vite = '4';
         pkg.devDependencies['@vitejs/plugin-react'] = '4.7.0';
         pkg.dependencies['os-locale-s'] = '1.0.8';
