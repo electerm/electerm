@@ -144,7 +144,7 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
               let pending = items.length
               const results = []
               items.forEach((item, i) => {
-                db[dbName].update({ _id: item._id }, item, {}, (uErr) => {
+                db[dbName].update({ _id: item._id }, item, { upsert: true }, (uErr) => {
                   if (uErr) {
                     return reject(uErr)
                   }

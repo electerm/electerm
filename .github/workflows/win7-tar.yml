@@ -28,7 +28,7 @@ jobs:
     - run: npm config set legacy-peer-deps true
     - run: npm install -g node-gyp
 
-    # before_install:
+    # before_install :
     # - run: npm install --global --production windows-build-tools --vs2015
     - run: npm install -g yarn
     - name: Update electron version and remove package-lock
@@ -43,6 +43,7 @@ jobs:
         pkg.dependencies.serialport = '13.0.0';
         pkg.devDependencies.vite = '4';
         pkg.devDependencies['@vitejs/plugin-react'] = '4.7.0';
+        pkg.dependencies['os-locale-s'] = '1.0.8';
         fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
         fs.unlinkSync('package-lock.json');
         "
