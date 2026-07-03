@@ -1,3 +1,4 @@
+const os = require('os')
 const {
   app
 } = require('electron')
@@ -15,6 +16,18 @@ const { handleSingleInstance } = require('./single-instance')
 const log = require('../common/log')
 
 let conf = {}
+
+// Detect Windows 7 / Vista / XP (NT <= 6.1). These lack usable D3D11/EGL
+// support, so the GPU process fails to initialize and crashes in a loop
+// (eglInitialize D3D11 failed, exit_code 0xC0000374 heap corruption).
+// Mirrors the logic tested in npm/install.js (isWindows7OrEarlier).
+function isWindows7OrEarlier () {
+  if (process.platform !== 'win32') return false
+  const [major, minor] = os.release().split('.').map(Number)
+  return major < 10 && (major < 6 || (major === 6 && minor <= 1))
+}
+
+const isLegacyWindows = isWindows7OrEarlier()
 
 // GPU error suggestion message
 const GPU_ERROR_SUGGESTION = `
@@ -77,14 +90,22 @@ exports.createApp = async function () {
   }
   // Handle GPU issues on Linux
   // On Linux, disable GPU for compatibility
-  if (process.platform === 'linux' || process.env.DISABLE_GPU) {
+  // On Windows 7/Vista/XP (legacy), D3D11/EGL is unavailable so the GPU
+  // process crashes on startup (eglInitialize: No available renderers).
+  // Auto-disable GPU there to avoid the crash loop.
+  if (process.platform === 'linux' || isLegacyWindows || process.env.DISABLE_GPU) {
     app.commandLine.appendSwitch('--disable-gpu')
   }
   if (process.platform === 'linux') {
     app.commandLine.appendSwitch('--enable-transparent-visuals')
     app.commandLine.appendSwitch('--in-process-gpu')
   }
-  if (process.platform === 'linux' || process.env.DISABLE_HARDWARE_ACCELERATION) {
+  // Legacy Windows also needs the GPU sandbox disabled, otherwise the GPU
+  // process can still crash with heap corruption even with --disable-gpu.
+  if (isLegacyWindows) {
+    app.commandLine.appendSwitch('--disable-gpu-sandbox')
+  }
+  if (process.platform === 'linux' || isLegacyWindows || process.env.DISABLE_HARDWARE_ACCELERATION) {
     app.disableHardwareAcceleration()
   }
   if (process.env.DISABLE_GPU_SANDBOX) {
