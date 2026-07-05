@@ -31,8 +31,8 @@ Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(linux,
 - [electerm-web-docker](https://github.com/electerm/electerm-web-docker): Docker image for electerm-web
 - [electerm online](https://cloud.electerm.org): Public free online electerm app
 - [electerm demo](https://demo.electerm.org): Online demo of electerm
-- [electerm deb repo](https://sync.electerm.org/deb): Debian repo of electerm
-- [electerm rpm repo](https://sync.electerm.org/rpm): RPM repo of electerm
+- [electerm deb repo](https://repos.electerm.org/deb): Debian repo of electerm
+- [electerm rpm repo](https://repos.electerm.org/rpm): RPM repo of electerm
 
 ## Atlas Cloud
 
