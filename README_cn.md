@@ -31,6 +31,8 @@
 - [electerm-web-docker](https://github.com/electerm/electerm-web-docker): electerm-web的docker镜像
 - [electerm online](https://cloud.electerm.org): 公共免费在线electerm应用
 - [electerm demo](https://demo.electerm.org): 在线演示
+- [electerm deb repo](https://sync.electerm.org/deb): Debian repo of electerm
+- [electerm rpm repo](https://sync.electerm.org/rpm): RPM repo of electerm
 
 ## Atlas Cloud
 
