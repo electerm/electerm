@@ -4,7 +4,8 @@ import clone from '../../common/to-simple-obj.js'
 import resolve from '../../common/resolve.js'
 import {
   Spin,
-  Dropdown
+  Dropdown,
+  Button
 } from 'antd'
 import message from '../common/message'
 import { notification } from '../common/notification'
@@ -90,7 +91,8 @@ class Term extends Component {
       reconnectCountdown: null,
       terminalError: null,
       dropFileModalVisible: false,
-      droppedFiles: []
+      droppedFiles: [],
+      fontSizeChanged: false
     }
     this.id = `term-${this.props.tab.id}`
     refs.add(this.id, this)
@@ -230,6 +232,10 @@ class Term extends Component {
         if (['fontFamily', 'fontSize'].includes(name)) {
           this.onResize()
         }
+        if (name === 'fontSize') {
+          this.originalFontSize = curr
+          this.setState({ fontSizeChanged: false })
+        }
       }
     }
 
@@ -291,6 +297,23 @@ class Term extends Component {
     }
     term.options.fontSize = term.options.fontSize + v
     window.store.triggerResize()
+    if (this.originalFontSize == null) {
+      this.originalFontSize = term.options.fontSize - v
+    }
+    this.setState({
+      fontSizeChanged: term.options.fontSize !== this.originalFontSize
+    })
+  }
+
+  handleResetFontSize = () => {
+    const { term } = this
+    if (!term || this.originalFontSize == null) {
+      return
+    }
+    term.options.fontSize = this.originalFontSize
+    window.store.triggerResize()
+    this.setState({ fontSizeChanged: false })
+    term.focus()
   }
 
   isActiveTerminal = () => {
@@ -1794,6 +1817,19 @@ class Term extends Component {
       height
     }
     const spin = loading ? <Spin className='loading-wrapper' spinning={loading} /> : null
+    const fontSizeReset = this.state.fontSizeChanged
+      ? (
+        <Button
+          className='terminal-fontsize-reset'
+          onClick={this.handleResetFontSize}
+          type='default'
+          size='small'
+          icon={<iconsMap.ReloadOutlined />}
+        >
+          {e('reset')} {e('fontSize')}
+        </Button>
+        )
+      : null
     return (
       <Dropdown {...dropdownProps}>
         <div
@@ -1818,6 +1854,7 @@ class Term extends Component {
           <ReconnectOverlay
             countdown={this.state.reconnectCountdown}
           />
+          {fontSizeReset}
           <DropFileModal
             visible={this.state.dropFileModalVisible}
             files={this.state.droppedFiles}
