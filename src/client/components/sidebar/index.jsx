@@ -7,7 +7,8 @@ import {
   SettingOutlined,
   UpCircleOutlined,
   AppstoreOutlined,
-  ThunderboltOutlined
+  ThunderboltOutlined,
+  AimOutlined
 } from '@ant-design/icons'
 import { Tooltip, Popover } from 'antd'
 import SideBarPanel from './sidebar-panel'
@@ -42,7 +43,8 @@ export default function Sidebar (props) {
     showModal,
     showInfoModal,
     sidebarPanelTab,
-    openWidgetsModal
+    openWidgetsModal,
+    zoom
   } = props
 
   const { store } = window
@@ -83,6 +85,10 @@ export default function Sidebar (props) {
 
   const handleShowUpgrade = () => {
     window.store.upgradeInfo.showUpgradeModal = true
+  }
+
+  const handleZoomReset = () => {
+    store.onZoomReset()
   }
 
   const {
@@ -203,6 +209,20 @@ export default function Sidebar (props) {
             onClick={openAbout}
           />
         </SideIcon>
+        {
+          Math.round((zoom ?? 1) * 100) !== 100
+            ? (
+              <SideIcon
+                title={e('resetzoom')}
+              >
+                <AimOutlined
+                  className='iblock font16 control-icon zoom-reset-icon'
+                  onClick={handleZoomReset}
+                />
+              </SideIcon>
+              )
+            : null
+        }
         {
           !checkingRemoteVersion && !showUpgradeModal && shouldUpgrade
             ? (

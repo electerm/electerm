@@ -42,6 +42,9 @@ import { CommandTrackerAddon } from './command-tracker-addon.js'
 import { Osc52Addon } from './osc52-addon.js'
 import AIIcon from '../icons/ai-icon.jsx'
 import {
+  AimOutlined
+} from '@ant-design/icons'
+import {
   getShellIntegrationCommand,
   detectRemoteShell,
   detectShellType
@@ -1743,6 +1746,23 @@ class Term extends Component {
     Object.assign(window.store.terminalInfoProps, infoProps)
   }
 
+  renderResetFontSizeButton = () => {
+    if (!this.state.fontSizeChanged) {
+      return null
+    }
+    const txt = `${e('reset')} ${e('fontSize')}`
+    return (
+      <Button
+        className='terminal-fontsize-reset'
+        onClick={this.handleResetFontSize}
+        type='default'
+        size='small'
+        title={txt}
+        icon={<AimOutlined />}
+      />
+    )
+  }
+
   // getPwd = async () => {
   //   const { sessionId, config } = this.props
   //   const { pid } = this.state
@@ -1817,19 +1837,6 @@ class Term extends Component {
       height
     }
     const spin = loading ? <Spin className='loading-wrapper' spinning={loading} /> : null
-    const fontSizeReset = this.state.fontSizeChanged
-      ? (
-        <Button
-          className='terminal-fontsize-reset'
-          onClick={this.handleResetFontSize}
-          type='default'
-          size='small'
-          icon={<iconsMap.ReloadOutlined />}
-        >
-          {e('reset')} {e('fontSize')}
-        </Button>
-        )
-      : null
     return (
       <Dropdown {...dropdownProps}>
         <div
@@ -1854,7 +1861,7 @@ class Term extends Component {
           <ReconnectOverlay
             countdown={this.state.reconnectCountdown}
           />
-          {fontSizeReset}
+          {this.renderResetFontSizeButton()}
           <DropFileModal
             visible={this.state.dropFileModalVisible}
             files={this.state.droppedFiles}
