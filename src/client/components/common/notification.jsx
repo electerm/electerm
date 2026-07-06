@@ -9,7 +9,36 @@ import './notification.styl'
 const notifications = []
 const NOTIFICATION_EVENT = 'notification-update'
 
+function getTextFromReactChildren (children) {
+  if (typeof children === 'string' || typeof children === 'number') {
+    return String(children)
+  }
+  if (React.isValidElement(children)) {
+    return getTextFromReactChildren(children.props.children)
+  }
+  if (Array.isArray(children)) {
+    return children.map(getTextFromReactChildren).join('\n')
+  }
+  return ''
+}
+
 function addNotification (notif) {
+  notif.descriptions = notif.description ? [notif.description] : []
+  if (notif.type === 'error') {
+    const messageText = getTextFromReactChildren(notif.message)
+    const existingIndex = notifications.findIndex(n =>
+      n.type === 'error' &&
+      getTextFromReactChildren(n.message) === messageText
+    )
+    if (existingIndex > -1) {
+      const existing = notifications[existingIndex]
+      existing.count = (existing.count || 1) + 1
+      existing.descriptions.push(notif.description)
+      window.dispatchEvent(new CustomEvent(NOTIFICATION_EVENT))
+      return
+    }
+    notif.count = 1
+  }
   notifications.push(notif)
   window.dispatchEvent(new CustomEvent(NOTIFICATION_EVENT))
 }
@@ -60,9 +89,10 @@ export function NotificationContainer () {
         <NotificationItem
           key={notif.key}
           message={notif.message || notif.type}
-          description={notif.description}
+          descriptions={notif.descriptions}
           type={notif.type}
           duration={notif.duration}
+          count={notif.count || 1}
           onClose={() => removeNotification(notif.key)}
         />
       ))}
@@ -70,20 +100,7 @@ export function NotificationContainer () {
   )
 }
 
-function getTextFromReactChildren (children) {
-  if (typeof children === 'string' || typeof children === 'number') {
-    return String(children)
-  }
-  if (React.isValidElement(children)) {
-    return getTextFromReactChildren(children.props.children)
-  }
-  if (Array.isArray(children)) {
-    return children.map(getTextFromReactChildren).join('\n')
-  }
-  return ''
-}
-
-function NotificationItem ({ message, description, type, onClose, duration = 18.5 }) {
+function NotificationItem ({ message, descriptions = [], type, onClose, duration = 18.5, count = 1 }) {
   const timeoutRef = useRef(null)
 
   useEffect(() => {
@@ -96,7 +113,7 @@ function NotificationItem ({ message, description, type, onClose, duration = 18.
         timeoutRef.current = null
       }
     }
-  }, [])
+  }, [count])
 
   const handleMouseEnter = () => {
     if (timeoutRef.current) {
@@ -118,6 +135,9 @@ function NotificationItem ({ message, description, type, onClose, duration = 18.
   }
 
   const className = classnames('notification', type)
+  const titleText = getTextFromReactChildren(message)
+  const title = count > 1 ? `(${count}) ${titleText}` : message
+  const validDescriptions = descriptions.filter(Boolean)
 
   return (
     <div
@@ -128,18 +148,20 @@ function NotificationItem ({ message, description, type, onClose, duration = 18.
       <div className='notification-content'>
         <div className='notification-message'>
           <div className='notification-icon'>{messageIcons[type]}</div>
-          <div className='notification-title' title={message}>{message}</div>
+          <div className='notification-title' title={titleText}>{title}</div>
           <CopyOutlined
             className='notification-copy-icon'
             onClick={(e) => handleCopy(message, e)}
           />
         </div>
-        {description && (
+        {validDescriptions.length > 0 && (
           <div className='notification-description'>
-            {description}
+            {validDescriptions.map((desc, i) => (
+              <div key={i}>{desc}</div>
+            ))}
             <CopyOutlined
               className='notification-copy-icon'
-              onClick={(e) => handleCopy(description, e)}
+              onClick={(e) => handleCopy(validDescriptions, e)}
             />
           </div>
         )}
