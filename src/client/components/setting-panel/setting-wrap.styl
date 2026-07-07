@@ -38,6 +38,20 @@
   bottom 0
   top 129px
   padding 20px
+  display flex
+  flex-direction column
+  overflow hidden
+  min-height 400px
+.setting-col-content
+  flex 1
+  overflow-y auto
+  min-height 0
+.setting-col-placeholder
+  flex-shrink 0
+  display flex
+  justify-content flex-end
+  .carbonads-wrap
+    margin 8px 0 0
 .setting-tabs-bookmarks
   .setting-row-left
     width 440px
@@ -75,6 +89,10 @@
     bottom auto
     top auto
     padding 10px
+    position static
+    overflow visible
+  .setting-col-content
+    overflow visible
   .setting-tabs-bookmarks
     .setting-row-left
       width auto

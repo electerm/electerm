@@ -14,6 +14,7 @@ import { Tabs, Button } from 'antd'
 import Modal from '../common/modal'
 import Link from '../common/external-link'
 import LogoElem from '../common/logo-elem'
+import Placeholder from '../common/placeholder'
 import RunningTime from './app-running-time'
 import { auto } from 'manate/react'
 import { useState } from 'react'
@@ -230,6 +231,7 @@ export default auto(function InfoModal (props) {
             <InfoCircleOutlined /> <b className='mg1r'>{window.store.installSrc}</b>
           </p>
           {renderCheckUpdate()}
+          <Placeholder />
         </>
       )
     },

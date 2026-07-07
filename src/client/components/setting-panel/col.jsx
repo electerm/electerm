@@ -2,6 +2,8 @@
  * two column layout, left column fixed with, right column auto width
  */
 
+import Placeholder from '../common/placeholder'
+
 export default function SettingCol (props) {
   return (
     <div className='setting-col'>
@@ -11,7 +13,12 @@ export default function SettingCol (props) {
       <div
         className='setting-row setting-row-right'
       >
-        {props.children[1]}
+        <div className='setting-col-content'>
+          {props.children[1]}
+        </div>
+        <div className='setting-col-placeholder'>
+          <Placeholder />
+        </div>
       </div>
     </div>
   )
