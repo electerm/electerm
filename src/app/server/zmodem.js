@@ -590,15 +590,16 @@ class ZmodemSession {
       }
 
       if (bytesRead === 0 || offset + bytesRead >= this.currentTransfer.size) {
-        // All data sent, close file and finish session
+        // All data for the current file has been sent.
+        // Close the file descriptor — the sender state machine will handle
+        // file completion naturally (ZEOF -> ZRINIT -> FileComplete event).
+        // Do NOT call finishSession() here: that would set finishRequested=true
+        // and terminate the entire session after the first file, preventing
+        // subsequent files from being transferred. finishSession() is only
+        // called by finishSender() when there are no more files to send.
         if (this.uploadFd) {
           fs.closeSync(this.uploadFd)
           this.uploadFd = null
-        }
-        this.sender.finishSession()
-        const outgoing = this.sender.drainOutgoing()
-        if (outgoing && outgoing.length > 0) {
-          this.writeToTerminal(Buffer.from(outgoing))
         }
       }
     } catch (e) {
