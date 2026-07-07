@@ -1,11 +1,17 @@
-import { Component } from 'react'
 import Modal from '../common/modal'
 
 const e = window.translate
 
-export class DropFileModal extends Component {
-  renderSerialFooter () {
-    const { onSelect } = this.props
+export function DropFileModal (props) {
+  const {
+    visible,
+    files,
+    isSerial,
+    onSelect,
+    onCancel
+  } = props
+
+  const renderSerialFooter = () => {
     return (
       <>
         <button
@@ -26,8 +32,7 @@ export class DropFileModal extends Component {
     )
   }
 
-  renderSshFooter () {
-    const { onSelect } = this.props
+  const renderSshFooter = () => {
     return (
       <>
         <button
@@ -55,34 +60,35 @@ export class DropFileModal extends Component {
     )
   }
 
-  render () {
-    const {
-      visible,
-      files,
-      isSerial,
-      onCancel
-    } = this.props
-
-    if (!visible) {
-      return null
-    }
-
+  const renderList = () => {
     return (
-      <Modal
-        title='?'
-        open={visible}
-        onCancel={onCancel}
-        footer={
-          <div className='custom-modal-footer-buttons'>
-            {isSerial ? this.renderSerialFooter() : this.renderSshFooter()}
-          </div>
-        }
-        width={400}
-      >
-        <p>{files?.map(f => f.path).join(', ')}</p>
-      </Modal>
+      <ul>
+        {files?.map(f => (
+          <li key={f.path}>{f.path}</li>
+        ))}
+      </ul>
     )
   }
+
+  if (!visible) {
+    return null
+  }
+
+  return (
+    <Modal
+      title='?'
+      open={visible}
+      onCancel={onCancel}
+      footer={
+        <div className='custom-modal-footer-buttons'>
+          {isSerial ? renderSerialFooter() : renderSshFooter()}
+        </div>
+      }
+      width={400}
+    >
+      {renderList()}
+    </Modal>
+  )
 }
 
 export default DropFileModal

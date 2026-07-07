@@ -479,19 +479,13 @@ class Term extends Component {
         return
       }
 
-      const hasMultiFiles = filePaths.length > 1
-
       if (isSshTerminal) {
         const behavior = this.props.config.dragDropBehavior || 'ask'
-        // multi-file drops always paste paths, skip the action modal
-        if (behavior === 'ask' && !hasMultiFiles) {
+        if (behavior === 'ask') {
           this.setState({
             dropFileModalVisible: true,
             droppedFiles: filePaths.map(path => ({ path, isRemote: false }))
           })
-        } else if (hasMultiFiles) {
-          const filesAll = filePaths.map(path => `"${path}"`).join(' ')
-          this.attachAddon._sendData(filesAll)
         } else {
           this.handleDropFileAction(behavior, filePaths.map(path => ({ path, isRemote: false })))
         }
@@ -499,16 +493,10 @@ class Term extends Component {
       }
 
       if (isSerialTerminal) {
-        // multi-file drops always paste paths, skip the action modal
-        if (hasMultiFiles) {
-          const filesAll = filePaths.map(path => `"${path}"`).join(' ')
-          this.attachAddon._sendData(filesAll)
-        } else {
-          this.setState({
-            dropFileModalVisible: true,
-            droppedFiles: filePaths.map(path => ({ path, isRemote: false }))
-          })
-        }
+        this.setState({
+          dropFileModalVisible: true,
+          droppedFiles: filePaths.map(path => ({ path, isRemote: false }))
+        })
         return
       }
 
