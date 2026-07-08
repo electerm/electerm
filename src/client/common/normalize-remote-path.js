@@ -10,11 +10,14 @@ export default function normalizeRemotePath (path) {
   if (!path) return path
   // Fix mixed separators: /c:\windows → /c:/windows
   if (/^\/[a-zA-Z]:\\/.test(path)) {
-    return path.replace(/\\/g, '/')
+    path = path.replace(/\\/g, '/')
+  } else if (/^[a-zA-Z]:/.test(path)) {
+    // Add leading / to bare drive letters: c: → /c:, c:\windows → /c:/windows
+    path = '/' + path.replace(/\\/g, '/')
   }
-  // Add leading / to bare drive letters: c: → /c:, c:\windows → /c:/windows
-  if (/^[a-zA-Z]:/.test(path)) {
-    return '/' + path.replace(/\\/g, '/')
+  // Strip trailing slashes except for root path "/"
+  if (path.length > 1 && path.endsWith('/')) {
+    path = path.replace(/\/+$/, '')
   }
   return path
 }

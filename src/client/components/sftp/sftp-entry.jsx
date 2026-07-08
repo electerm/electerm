@@ -1027,6 +1027,11 @@ export default class Sftp extends Component {
     let np = await this.parsePath(type, this.state[nt])
     if (type === typeMap.remote) {
       np = normalizeRemotePath(np)
+    } else if (np.length > 1 && np.endsWith('/')) {
+      // Strip trailing slash except for root path and Windows drive roots
+      if (!/^[a-zA-Z]:\/$/.test(np)) {
+        np = np.replace(/\/+$/, '')
+      }
     }
     if (!isValidPath(np)) {
       return notification.warning({
