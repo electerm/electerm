@@ -36,6 +36,7 @@ export default function ConnectionHoppingForm (props) {
     isEdit
   } = props
   const [authType, setAuthType] = useState(initialValues.authType || authTypeMap.password)
+  const [dirty, setDirty] = useState(false)
 
   function onChangeAuthType (e) {
     setAuthType(e.target.value)
@@ -45,6 +46,17 @@ export default function ConnectionHoppingForm (props) {
     formChild.submit()
   }
 
+  // mark the form as edited so the add/save button can flash as a reminder
+  function handleValuesChange () {
+    setDirty(true)
+  }
+
+  // called on a successful (validated) submit; clears the flash
+  function onFinishLocal (data) {
+    setDirty(false)
+    onFinish(data)
+  }
+
   const authTypes = authTypesProp || Object.keys(authTypeMap).map(k => k)
 
   const treeProps = {
@@ -52,13 +64,14 @@ export default function ConnectionHoppingForm (props) {
       return d.host && d.port && d.username
     }),
     bookmarkGroups: store.bookmarkGroups,
-    onSelect: onFinish
+    onSelect: onFinishLocal
   }
 
   return (
     <Form
       form={formChild}
-      onFinish={onFinish}
+      onFinish={onFinishLocal}
+      onValuesChange={handleValuesChange}
       initialValues={initialValues}
       component='div'
     >
@@ -144,6 +157,7 @@ export default function ConnectionHoppingForm (props) {
           htmlType='button'
           icon={isEdit ? <SaveOutlined /> : <PlusOutlined />}
           onClick={onSubmit}
+          className={dirty ? 'btn-flash' : ''}
         >
           {isEdit ? e('save') : e('connectionHopping')}
         </Button>

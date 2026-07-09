@@ -34,6 +34,7 @@ export default function SshTunnelForm (props) {
   const [isDynamic, setIsDynamic] = useState(
     (initialValues?.sshTunnel || 'forwardRemoteToLocal') === 'dynamicForward'
   )
+  const [dirty, setDirty] = useState(false)
 
   function onChange (ev) {
     setIsDynamic(ev.target.value === 'dynamicForward')
@@ -41,6 +42,17 @@ export default function SshTunnelForm (props) {
 
   function onSubmit () {
     formChild.submit()
+  }
+
+  // mark the form as edited so the add/save button can flash as a reminder
+  function handleValuesChange () {
+    setDirty(true)
+  }
+
+  // called on a successful (validated) submit; clears the flash
+  function onFinishLocal (data) {
+    setDirty(false)
+    onFinish(data)
   }
 
   function renderSshTunnelFlow (direction) {
@@ -101,7 +113,8 @@ export default function SshTunnelForm (props) {
   return (
     <Form
       form={formChild}
-      onFinish={onFinish}
+      onFinish={onFinishLocal}
+      onValuesChange={handleValuesChange}
       initialValues={initialValues}
       component='div'
     >
@@ -174,6 +187,7 @@ export default function SshTunnelForm (props) {
           htmlType='button'
           icon={isEdit ? <SaveOutlined /> : <PlusOutlined />}
           onClick={onSubmit}
+          className={dirty ? 'btn-flash' : ''}
         >
           {isEdit ? e('save') : e('sshTunnel')}
         </Button>

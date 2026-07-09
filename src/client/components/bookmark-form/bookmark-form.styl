@@ -36,3 +36,20 @@
   overflow auto
   font-size 12px
   font-family monospace
+
+// Flash the add/save button when the form has unsaved edits,
+// so users remember to click it instead of losing their input.
+.btn-flash
+  animation add-btn-flash 1.1s ease-in-out infinite
+
+@keyframes add-btn-flash
+  0%, 100%
+    box-shadow 0 0 0 0 var(--primary)
+    transform scale(1)
+  50%
+    box-shadow 0 0 8px 2px var(--primary)
+    transform scale(1.04)
+
+@media (prefers-reduced-motion: reduce)
+  .btn-flash
+    animation none
