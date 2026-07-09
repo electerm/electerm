@@ -547,6 +547,7 @@ export default class SettingCommon extends Component {
 
         <div className='pd2b'>
           <span className='inline-title mg1r'>{e('customCss')}</span>
+          <HelpIcon link='https://github.com/electerm/electerm/wiki/Custom-CSS-examples' />
           <TextareaConfirm
             onChange={this.handleCustomCss}
             value={customCss}
