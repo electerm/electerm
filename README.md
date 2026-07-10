@@ -214,4 +214,14 @@ MIT
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=electerm/electerm&type=Date)](https://www.star-history.com/#electerm/electerm&Date)
+<p>
+ <a href="https://www.star-history.com/electerm/electerm"><img src="https://api.star-history.com/badge?repo=electerm/electerm" alt="Star History Rank" /></a>
+</p>
+
+<a href="https://www.star-history.com/?repos=electerm%2Felecterm&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=electerm/electerm&type=date&legend=top-left&sealed_token=DvPlttPaLtq6RPIWRANYX08-8ZJyrJalhombrkDcg1IwWOMPMIplgi85q0FiwrbhE3lRIi_yxvOWdell731CGQvzlfJMt2Sa6VfCvQ80BwEtQ6RpPchEiw" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=electerm/electerm&type=date&legend=top-left&sealed_token=DvPlttPaLtq6RPIWRANYX08-8ZJyrJalhombrkDcg1IwWOMPMIplgi85q0FiwrbhE3lRIi_yxvOWdell731CGQvzlfJMt2Sa6VfCvQ80BwEtQ6RpPchEiw" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=electerm/electerm&type=date&legend=top-left&sealed_token=DvPlttPaLtq6RPIWRANYX08-8ZJyrJalhombrkDcg1IwWOMPMIplgi85q0FiwrbhE3lRIi_yxvOWdell731CGQvzlfJMt2Sa6VfCvQ80BwEtQ6RpPchEiw" />
+ </picture>
+</a>
