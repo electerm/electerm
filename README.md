@@ -140,6 +140,12 @@ wechat donate
 
 [![wechat donate](https://electerm.org/electerm-wechat-donate.png)](https://github.com/electerm)
 
+TRON TRN20
+
+[![TRN20 donate](https://github.com/electerm/electerm-resource/blob/master/static/images/trn20.png?raw=true)]
+
+Address: TXk3pQNmQu1vihH76RaEFnK9wg13x4LLCZ
+
 ## Dev
 
 ```bash
