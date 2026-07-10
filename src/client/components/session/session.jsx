@@ -56,7 +56,9 @@ export default class SessionWrapper extends Component {
       broadcastInput: false,
       keepaliveEnabled: false
     }
-    props.tab.sshSftpSplitView = !!props.config.sshSftpSplitView
+    if (props.tab.sshSftpSplitView === undefined) {
+      props.tab.sshSftpSplitView = !!props.config.sshSftpSplitView
+    }
   }
 
   minWithForSplit = 640

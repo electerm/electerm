@@ -25,7 +25,8 @@ export default Store => {
       // Store srcId (bookmark id) if available, otherwise store basic connection info
       if (tab.srcId) {
         tabsByBatch[batch].push({
-          srcId: tab.srcId
+          srcId: tab.srcId,
+          sshSftpSplitView: tab.sshSftpSplitView
         })
       }
     }
@@ -82,6 +83,12 @@ export default Store => {
           // Open from bookmark
           window.openTabBatch = batch
           store.onSelectBookmark(tabInfo.srcId)
+          // Apply saved sshSftpSplitView state to the newly created tab
+          if (tabInfo.sshSftpSplitView !== undefined) {
+            store.updateTab(store.activeTabId, {
+              sshSftpSplitView: tabInfo.sshSftpSplitView
+            })
+          }
         }
       }
     }
