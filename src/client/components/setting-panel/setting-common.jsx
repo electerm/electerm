@@ -11,7 +11,6 @@ import {
   Select,
   Switch,
   Button,
-  Table,
   Space,
   Tag
 } from 'antd'
@@ -320,56 +319,23 @@ export default class SettingCommon extends Component {
     const {
       enableGlobalProxy
     } = this.props.config
-    const helps = `http# http://proxy-server-over-tcp.com:3128
-      https#https://proxy-server-over-tls.com:3129
-      socks(v5)#socks://username:password@some-socks-proxy.com:9050 (username & password are optional)
-      socks5#socks5://username:password@some-socks-proxy.com:9050 (username & password are optional)
-      socks5h#socks5h://username:password@some-socks-proxy.com:9050 (username & password are optional)
-      socks4#socks4://some-socks-proxy.com:9050
-      socks4a#socks4a://some-socks-proxy.com:9050`
-      .split('\n')
-      .filter(d => d.trim())
-      .map(d => {
-        const [protocol, example] = d.split('#')
-        return {
-          protocol, example
-        }
-      })
-    const cols = Object.keys(helps[0]).map(k => {
-      return {
-        title: k,
-        dataIndex: k,
-        key: k,
-        render: (k) => k || ''
-      }
-    })
-    const table = (
+    const proxyTip = (
       <div>
-        <Table
-          columns={cols}
-          dataSource={helps}
-          bordered
-          pagination={false}
-          size='small'
-          rowKey='protocol'
-        />
-        <div>
+        <div className='pd1b'>
           <Link to={proxyHelpLink}>{proxyHelpLink}</Link>
+        </div>
+        <div>
+          <Link to='https://sx.org'>get proxy service from sx.org</Link>
         </div>
       </div>
     )
-    const style = {
-      height: '414px',
-      width: '500px'
-    }
     return (
       <div className='pd1b'>
         <div className='pd1b'>
           <span className='pd1r'>
             {e('global')} {e('proxy')}
             <HelpIcon
-              title={table}
-              style={{ body: { style } }}
+              title={proxyTip}
             />
           </span>
           <Switch
