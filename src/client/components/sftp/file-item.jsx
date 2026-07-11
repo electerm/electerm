@@ -1020,7 +1020,7 @@ export default class FileSection extends React.Component {
       res.push({
         func: 'doTransferSelected',
         icon: iconType,
-        text: `${e('selected')}(${len})`
+        text: `${transferText}:${e('selected')}(${len})`
       })
     }
     if (
