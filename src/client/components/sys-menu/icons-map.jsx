@@ -28,7 +28,8 @@ import {
   SaveOutlined,
   PlayCircleFilled,
   StopOutlined,
-  DownloadOutlined
+  DownloadOutlined,
+  SwapOutlined
 } from '@ant-design/icons'
 import IconHolder from './icon-holder'
 
@@ -60,5 +61,6 @@ export default {
   SaveOutlined,
   PlayCircleFilled,
   StopOutlined,
-  DownloadOutlined
+  DownloadOutlined,
+  SwapOutlined
 }
