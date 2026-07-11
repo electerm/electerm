@@ -170,6 +170,41 @@ jobs:
           Add-Content -Path $env:MSSTORE_LOG_FILE -Value $message
         }
 
+        # Retry wrapper for Invoke-RestMethod with exponential backoff.
+        # The Partner Center Ingestion API is behind Azure Front Door and can
+        # return transient 504 / 502 / 503 responses under load.
+        function Invoke-WithRetry {
+          param(
+            [Parameter(Mandatory=$true)] [scriptblock] $Action,
+            [string] $Description = 'API call',
+            [int] $MaxRetries = 5,
+            [int] $BaseDelaySec = 10
+          )
+          for ($i = 0; $i -lt $MaxRetries; $i++) {
+            try {
+              return & $Action
+            } catch {
+              $statusCode = $null
+              if ($_.Exception.Response) {
+                $statusCode = [int]$_.Exception.Response.StatusCode
+              }
+              $isTransient = $false
+              if ($statusCode -in 408, 429, 500, 502, 503, 504) { $isTransient = $true }
+              if ($_.Exception.Message -match 'timed?\s*out|gateway|service unavailable|connection was closed|unable to connect') { $isTransient = $true }
+              $attempt = $i + 1
+              if ($isTransient -and $attempt -lt $MaxRetries) {
+                $delay = $BaseDelaySec * [Math]::Pow(2, $i)
+                Write-Host "  ⚠ $Description: transient error (HTTP $statusCode) on attempt $attempt/$MaxRetries — retrying in ${delay}s..."
+                Write-StoreLog "$Description: transient error (HTTP $statusCode) attempt $attempt/$MaxRetries, retry in ${delay}s. $($_.Exception.Message)"
+                Start-Sleep -Seconds $delay
+              } else {
+                Write-StoreLog "$Description: FAILED on attempt $attempt (HTTP $statusCode). $($_.Exception.Message)"
+                throw
+              }
+            }
+          }
+        }
+
         function Get-VisibleProductIds([string] $appsListOutput) {
           $cleanOutput = [regex]::Replace($appsListOutput, '\x1B\[[0-9;?]*[ -/]*[@-~]', '')
           return @(
@@ -261,10 +296,12 @@ jobs:
             "client_secret=$([uri]::EscapeDataString($env:MS_CLIENT_SECRET))",
             "scope=$([uri]::EscapeDataString('https://manage.devcenter.microsoft.com/.default'))"
           )
-          $tokenResp = Invoke-RestMethod `
-            -Uri "https://login.microsoftonline.com/$env:MS_TENANT_ID/oauth2/v2.0/token" `
-            -Method Post -ContentType 'application/x-www-form-urlencoded' `
-            -Body ($tokenParts -join '&')
+          $tokenResp = Invoke-WithRetry -Description 'Get OAuth token' {
+            Invoke-RestMethod `
+              -Uri "https://login.microsoftonline.com/$env:MS_TENANT_ID/oauth2/v2.0/token" `
+              -Method Post -ContentType 'application/x-www-form-urlencoded' `
+              -Body ($tokenParts -join '&')
+          }
           $token = $tokenResp.access_token
           Write-StoreLog "OAuth token acquired."
           $h = @{ Authorization = "Bearer $token" }
@@ -272,13 +309,13 @@ jobs:
 
           # 2. Get app info; delete any pending submission
           Write-Host "Getting app info..."
-          $appInfo = Invoke-RestMethod -Uri $apiBase -Headers $h
+          $appInfo = Invoke-WithRetry -Description 'Get app info' { Invoke-RestMethod -Uri $apiBase -Headers $h }
           Write-StoreLog "App info fetched. lastPublishedSubmission: $($appInfo.lastPublishedApplicationSubmission.id)"
           if ($appInfo.pendingApplicationSubmission.id) {
             $pendingId = $appInfo.pendingApplicationSubmission.id
             Write-Host "Deleting pending submission $pendingId ..."
             Write-StoreLog "Deleting pending submission: $pendingId"
-            Invoke-RestMethod -Uri "$apiBase/submissions/$pendingId" -Method Delete -Headers $h | Out-Null
+            Invoke-WithRetry -Description 'Delete pending submission' { Invoke-RestMethod -Uri "$apiBase/submissions/$pendingId" -Method Delete -Headers $h } | Out-Null
             Write-Host "Deleted pending submission."
             Write-StoreLog "Deleted pending submission."
           }
@@ -289,20 +326,20 @@ jobs:
           if (-not $lastPubSubId) { throw 'No published submission found to clone from.' }
           Write-Host "Fetching published submission $lastPubSubId as template..."
           Write-StoreLog "Fetching published submission: $lastPubSubId"
-          $pubSub = Invoke-RestMethod -Uri "$apiBase/submissions/$lastPubSubId" -Headers $h
+          $pubSub = Invoke-WithRetry -Description 'Fetch published submission template' { Invoke-RestMethod -Uri "$apiBase/submissions/$lastPubSubId" -Headers $h }
 
           # 4. Create new submission using the published submission data as the request body
           Write-Host "Creating new submission..."
           Write-StoreLog "Creating new submission (POST with published data as body)..."
           $pubSubBytes = [System.Text.Encoding]::UTF8.GetBytes(($pubSub | ConvertTo-Json -Depth 30 -Compress))
-          $newSub = Invoke-RestMethod -Uri "$apiBase/submissions" -Method Post -Headers $h -ContentType 'application/json' -Body $pubSubBytes
+          $newSub = Invoke-WithRetry -Description 'Create new submission' { Invoke-RestMethod -Uri "$apiBase/submissions" -Method Post -Headers $h -ContentType 'application/json' -Body $pubSubBytes }
           $subId         = $newSub.id
           $fileUploadUrl = $newSub.fileUploadUrl
           Write-Host "Submission ID: $subId"
           Write-StoreLog "Submission ID: $subId"
 
           # 5. Get full data for the new submission
-          $subData = Invoke-RestMethod -Uri "$apiBase/submissions/$subId" -Headers $h
+          $subData = Invoke-WithRetry -Description 'Get new submission data' { Invoke-RestMethod -Uri "$apiBase/submissions/$subId" -Headers $h }
 
           # 6. Replace packages: mark existing for deletion, add new one as PendingUpload
           $newPackages = @()
@@ -321,8 +358,10 @@ jobs:
           Write-Host "Updating submission metadata..."
           Write-StoreLog "PUT submission metadata..."
           $updateBodyBytes = [System.Text.Encoding]::UTF8.GetBytes(($subData | ConvertTo-Json -Depth 30 -Compress))
-          Invoke-RestMethod -Uri "$apiBase/submissions/$subId" -Method Put -Headers $h `
-            -ContentType 'application/json' -Body $updateBodyBytes | Out-Null
+          Invoke-WithRetry -Description 'PUT submission metadata' {
+            Invoke-RestMethod -Uri "$apiBase/submissions/$subId" -Method Put -Headers $h `
+              -ContentType 'application/json' -Body $updateBodyBytes
+          } | Out-Null
           Write-Host "Submission metadata updated."
           Write-StoreLog "Submission metadata updated."
 
@@ -335,7 +374,7 @@ jobs:
           Write-Host "Uploading package ZIP ($zipSizeMB MB)..."
           Write-StoreLog "Uploading package ZIP ($zipSizeMB MB) to Azure Blob SAS URL..."
           $blobHeaders = @{ 'x-ms-blob-type' = 'BlockBlob'; 'Content-Type' = 'application/octet-stream' }
-          Invoke-RestMethod -Uri $fileUploadUrl -Method Put -Headers $blobHeaders -InFile $zipPath | Out-Null
+          Invoke-WithRetry -Description 'Upload package ZIP to Azure Blob' { Invoke-RestMethod -Uri $fileUploadUrl -Method Put -Headers $blobHeaders -InFile $zipPath } | Out-Null
           Write-Host "Package uploaded."
           Write-StoreLog "Package uploaded."
 
@@ -343,7 +382,7 @@ jobs:
           #    targetPublishMode = 'Immediate' means it will go live automatically after passing certification.
           Write-Host "Committing submission to trigger certification..."
           Write-StoreLog "Committing submission (Immediate publish mode)..."
-          Invoke-RestMethod -Uri "$apiBase/submissions/$subId/commit" -Method Post -Headers $h -ContentType 'application/json' | Out-Null
+          Invoke-WithRetry -Description 'Commit submission' { Invoke-RestMethod -Uri "$apiBase/submissions/$subId/commit" -Method Post -Headers $h -ContentType 'application/json' } | Out-Null
           Write-Host "Submission committed. Certification will start shortly."
           Write-StoreLog "Done (committed, Immediate mode). SubmissionId: $subId"
 
