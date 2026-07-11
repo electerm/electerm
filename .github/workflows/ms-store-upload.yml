@@ -382,9 +382,38 @@ jobs:
           #    targetPublishMode = 'Immediate' means it will go live automatically after passing certification.
           Write-Host "Committing submission to trigger certification..."
           Write-StoreLog "Committing submission (Immediate publish mode)..."
-          Invoke-WithRetry -Description 'Commit submission' { Invoke-RestMethod -Uri "$apiBase/submissions/$subId/commit" -Method Post -Headers $h -ContentType 'application/json' } | Out-Null
+          $commitResp = Invoke-WithRetry -Description 'Commit submission' { Invoke-RestMethod -Uri "$apiBase/submissions/$subId/commit" -Method Post -Headers $h -ContentType 'application/json' }
           Write-Host "Submission committed. Certification will start shortly."
+          Write-StoreLog "Commit response status: $($commitResp.status)"
+          if ($commitResp.statusDetails) {
+            $errors = @($commitResp.statusDetails.errors)
+            $warnings = @($commitResp.statusDetails.warnings)
+            if ($errors.Count -gt 0) {
+              foreach ($e in $errors) {
+                Write-Host "  ERROR: $($e.code) - $($e.details)"
+                Write-StoreLog "  Commit error: $($e.code) - $($e.details)"
+              }
+              throw "Submission commit returned $($errors.Count) error(s)."
+            }
+            if ($warnings.Count -gt 0) {
+              foreach ($w in $warnings) {
+                Write-Host "  WARNING: $($w.code) - $($w.details)"
+                Write-StoreLog "  Commit warning: $($w.code) - $($w.details)"
+              }
+            }
+          }
           Write-StoreLog "Done (committed, Immediate mode). SubmissionId: $subId"
+
+          # 10. Verify submission status after commit
+          Write-Host "Verifying submission status..."
+          Start-Sleep -Seconds 10
+          $subStatus = Invoke-WithRetry -Description 'Check submission status' { Invoke-RestMethod -Uri "$apiBase/submissions/$subId" -Headers $h }
+          Write-Host "Submission status: $($subStatus.status)"
+          Write-StoreLog "Post-commit submission status: $($subStatus.status)"
+          if ($subStatus.status -eq 'CommitFailed') {
+            $errDetails = if ($subStatus.statusDetails.errors) { $subStatus.statusDetails.errors | ForEach-Object { "$($_.code): $($_.details)" } | Out-String } else { 'no details' }
+            throw "Submission commit failed. Status: $($subStatus.status). Details: $errDetails"
+          }
 
         } catch {
           $errMsg    = $_.ToString()
