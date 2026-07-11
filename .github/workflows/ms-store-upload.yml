@@ -23,8 +23,9 @@ jobs:
       with:
         node-version: 24.x
 
-    - name: Install R2 dependency for log upload
-      run: npm install @aws-sdk/client-s3 --no-save
+    - name: Install R2 dependencies if store upload may run
+      if: ${{ contains(github.event.head_commit.message, '[r2]') }}
+      run: npm i -D @aws-sdk/client-s3
 
     - name: Determine release tag
       id: tag
