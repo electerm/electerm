@@ -1,6 +1,6 @@
 # Upload APPX to Microsoft Store after a new release is published.
 # Downloads the .appx artifact from the GitHub release and submits
-# a new Store submission via the Partner Center Ingestion API.
+# a new Store submission via the Partner Center Ingestion API. 
 
 name: ms-store-upload
 
@@ -328,11 +328,66 @@ jobs:
           Write-StoreLog "Fetching published submission: $lastPubSubId"
           $pubSub = Invoke-WithRetry -Description 'Fetch published submission template' { Invoke-RestMethod -Uri "$apiBase/submissions/$lastPubSubId" -Headers $h }
 
-          # 4. Create new submission using the published submission data as the request body
+          # 4. Create new submission using the published submission data as the request body.
+          #    A 504/502 gateway timeout can still result in the submission being created
+          #    server-side.  A naive retry would then fail with HTTP 409 Conflict
+          #    (InvalidState) because the Ingestion API only allows one pending
+          #    submission at a time.  After any failure we re-fetch app info and reuse
+          #    the pending submission if one now exists instead of blindly retrying.
           Write-Host "Creating new submission..."
           Write-StoreLog "Creating new submission (POST with published data as body)..."
           $pubSubBytes = [System.Text.Encoding]::UTF8.GetBytes(($pubSub | ConvertTo-Json -Depth 30 -Compress))
-          $newSub = Invoke-WithRetry -Description 'Create new submission' { Invoke-RestMethod -Uri "$apiBase/submissions" -Method Post -Headers $h -ContentType 'application/json' -Body $pubSubBytes }
+          $newSub = $null
+          $maxCreateRetries = 5
+          $submissionReady = $false
+          for ($i = 0; $i -lt $maxCreateRetries -and -not $submissionReady; $i++) {
+            try {
+              $newSub = Invoke-RestMethod -Uri "$apiBase/submissions" -Method Post -Headers $h -ContentType 'application/json' -Body $pubSubBytes
+              $submissionReady = $true
+            } catch {
+              $statusCode = $null
+              if ($_.Exception.Response) {
+                $statusCode = [int]$_.Exception.Response.StatusCode
+              }
+              $errBody = ''
+              if ($_.ErrorDetails -and $_.ErrorDetails.Message) {
+                $errBody = $_.ErrorDetails.Message
+              }
+              $attempt = $i + 1
+              $isRecoverable = ($statusCode -in 409, 502, 503, 504) -or
+                               ($errBody -match 'Conflict|InvalidState') -or
+                               ($_.Exception.Message -match 'timed?\s*out|gateway|service unavailable|connection was closed')
+              if ($isRecoverable -and $attempt -lt $maxCreateRetries) {
+                $delay = 10 * [Math]::Pow(2, $i)
+                Write-Host "  ⚠ Create new submission: HTTP $statusCode on attempt $attempt/$maxCreateRetries — checking for pending submission in ${delay}s..."
+                Write-StoreLog "Create new submission: HTTP $statusCode attempt $attempt/$maxCreateRetries, retry in ${delay}s. $errBody"
+                Start-Sleep -Seconds $delay
+                # Re-fetch app info — the failed POST may have created a pending submission.
+                # Use Invoke-WithRetry because the API may be experiencing widespread 504s.
+                try {
+                  $appInfoRetry = Invoke-WithRetry -Description 'Re-fetch app info for pending submission' { Invoke-RestMethod -Uri $apiBase -Headers $h }
+                  if ($appInfoRetry.pendingApplicationSubmission.id) {
+                    $pendingSubId = $appInfoRetry.pendingApplicationSubmission.id
+                    Write-Host "  Found pending submission $pendingSubId — reusing it."
+                    Write-StoreLog "Reusing existing pending submission: $pendingSubId"
+                    $pendingSub = Invoke-WithRetry -Description 'Fetch pending submission details' { Invoke-RestMethod -Uri "$apiBase/submissions/$pendingSubId" -Headers $h }
+                    $newSub = [PSCustomObject]@{
+                      id            = $pendingSubId
+                      fileUploadUrl = $pendingSub.fileUploadUrl
+                    }
+                    $submissionReady = $true
+                  }
+                } catch {
+                  Write-Host "  Could not re-fetch app info or submission: $($_.Exception.Message)"
+                  Write-StoreLog "Re-fetch failed: $($_.Exception.Message)"
+                }
+              } else {
+                Write-StoreLog "Create new submission: FAILED on attempt $attempt (HTTP $statusCode). $errBody"
+                throw
+              }
+            }
+          }
+          if (-not $newSub) { throw 'Failed to create new submission after retries.' }
           $subId         = $newSub.id
           $fileUploadUrl = $newSub.fileUploadUrl
           Write-Host "Submission ID: $subId"
