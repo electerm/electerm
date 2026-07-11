@@ -10,6 +10,7 @@ import {
   getFolderFromFilePath
 } from '../sftp/file-read'
 import resolve from '../../common/resolve'
+import sanitizeFilename from '../../common/sanitize-filename'
 import { refsTransfers, refsStatic, refs } from '../common/ref'
 import {
   zipCmd,
@@ -672,7 +673,7 @@ export default class TransportAction extends Component {
         }
 
         const fromItemPath = resolve(fromPath, file.name)
-        const toItemPath = resolve(toPath, file.name)
+        const toItemPath = resolve(toPath, sanitizeFilename(file.name))
 
         const itemTransfer = {
           ...transfer,
@@ -711,7 +712,7 @@ export default class TransportAction extends Component {
 
       const batchFolders = folders.slice(i, i + batch)
       const createFolderPromises = batchFolders.map(folder => {
-        const toItemPath = resolve(toPath, folder.name)
+        const toItemPath = resolve(toPath, sanitizeFilename(folder.name))
 
         // Create folder itself (don't process contents)
         const createTransfer = {
@@ -734,7 +735,7 @@ export default class TransportAction extends Component {
       }
 
       const fromItemPath = resolve(fromPath, folder.name)
-      const toItemPath = resolve(toPath, folder.name)
+      const toItemPath = resolve(toPath, sanitizeFilename(folder.name))
 
       const itemTransfer = {
         ...transfer,
