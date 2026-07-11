@@ -1,6 +1,6 @@
 # Upload APPX to Microsoft Store after a new release is published.
 # Downloads the .appx artifact from the GitHub release and submits
-# a new Store submission via the Partner Center Ingestion API.
+# a new Store submission via the Partner Center Ingestion API. 
 
 name: ms-store-upload
 
