@@ -194,11 +194,11 @@ jobs:
               $attempt = $i + 1
               if ($isTransient -and $attempt -lt $MaxRetries) {
                 $delay = $BaseDelaySec * [Math]::Pow(2, $i)
-                Write-Host "  ⚠ $Description: transient error (HTTP $statusCode) on attempt $attempt/$MaxRetries — retrying in ${delay}s..."
-                Write-StoreLog "$Description: transient error (HTTP $statusCode) attempt $attempt/$MaxRetries, retry in ${delay}s. $($_.Exception.Message)"
+                Write-Host "  ⚠ ${Description}: transient error (HTTP $statusCode) on attempt $attempt/$MaxRetries — retrying in ${delay}s..."
+                Write-StoreLog "${Description}: transient error (HTTP $statusCode) attempt $attempt/$MaxRetries, retry in ${delay}s. $($_.Exception.Message)"
                 Start-Sleep -Seconds $delay
               } else {
-                Write-StoreLog "$Description: FAILED on attempt $attempt (HTTP $statusCode). $($_.Exception.Message)"
+                Write-StoreLog "${Description}: FAILED on attempt $attempt (HTTP $statusCode). $($_.Exception.Message)"
                 throw
               }
             }
