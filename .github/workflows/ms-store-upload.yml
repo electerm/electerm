@@ -29,10 +29,16 @@ jobs:
 
     - name: Determine release tag
       id: tag
+      env:
+        GH_TOKEN: ${{ github.token }}
       shell: pwsh
       run: |
-        $tag = "${{ github.event.release.tag_name || github.event.inputs.tag_name }}"
-        if (-not $tag) { throw 'Could not determine release tag.' }
+        $tag = "${{ github.event.release.tag_name }}"
+        if (-not $tag) {
+          Write-Host "No release tag from event, fetching latest release..."
+          $tag = (gh release view --repo "${{ github.repository }}" --json tagName -q '.tagName')
+          if (-not $tag) { throw 'Could not determine release tag.' }
+        }
         Write-Host "Release tag: $tag"
         "tag_name=$tag" >> $env:GITHUB_OUTPUT
 
