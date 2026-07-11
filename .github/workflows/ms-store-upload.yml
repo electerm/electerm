@@ -362,14 +362,15 @@ jobs:
                 Write-Host "  ⚠ Create new submission: HTTP $statusCode on attempt $attempt/$maxCreateRetries — checking for pending submission in ${delay}s..."
                 Write-StoreLog "Create new submission: HTTP $statusCode attempt $attempt/$maxCreateRetries, retry in ${delay}s. $errBody"
                 Start-Sleep -Seconds $delay
-                # Re-fetch app info — the failed POST may have created a pending submission
+                # Re-fetch app info — the failed POST may have created a pending submission.
+                # Use Invoke-WithRetry because the API may be experiencing widespread 504s.
                 try {
-                  $appInfoRetry = Invoke-RestMethod -Uri $apiBase -Headers $h
+                  $appInfoRetry = Invoke-WithRetry -Description 'Re-fetch app info for pending submission' { Invoke-RestMethod -Uri $apiBase -Headers $h }
                   if ($appInfoRetry.pendingApplicationSubmission.id) {
                     $pendingSubId = $appInfoRetry.pendingApplicationSubmission.id
                     Write-Host "  Found pending submission $pendingSubId — reusing it."
                     Write-StoreLog "Reusing existing pending submission: $pendingSubId"
-                    $pendingSub = Invoke-RestMethod -Uri "$apiBase/submissions/$pendingSubId" -Headers $h
+                    $pendingSub = Invoke-WithRetry -Description 'Fetch pending submission details' { Invoke-RestMethod -Uri "$apiBase/submissions/$pendingSubId" -Headers $h }
                     $newSub = [PSCustomObject]@{
                       id            = $pendingSubId
                       fileUploadUrl = $pendingSub.fileUploadUrl
@@ -377,8 +378,8 @@ jobs:
                     $submissionReady = $true
                   }
                 } catch {
-                  Write-Host "  Could not re-fetch app info: $($_.Exception.Message)"
-                  Write-StoreLog "Re-fetch app info failed: $($_.Exception.Message)"
+                  Write-Host "  Could not re-fetch app info or submission: $($_.Exception.Message)"
+                  Write-StoreLog "Re-fetch failed: $($_.Exception.Message)"
                 }
               } else {
                 Write-StoreLog "Create new submission: FAILED on attempt $attempt (HTTP $statusCode). $errBody"
