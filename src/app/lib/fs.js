@@ -93,9 +93,28 @@ function spawnDetachedCommand (command, args, options = {}) {
   })
 }
 
+/**
+ * Escape a string for safe use inside POSIX single quotes.
+ * Within single quotes the only special character is the single quote itself;
+ * escape it by closing the quote, inserting an escaped quote, and reopening:
+ *   '  ->  '\''
+ */
+function escapePosixShellArg (value) {
+  return String(value).replace(/'/g, "'\\''")
+}
+
+/**
+ * Escape a string for safe use inside PowerShell single-quoted strings.
+ * Single quotes are escaped by doubling them:  '  ->  ''
+ */
+function escapePowerShellArg (value) {
+  return String(value).replace(/'/g, "''")
+}
+
 function getFolderSizeWin (folderPath) {
+  const safePath = escapePowerShellArg(folderPath)
   return runWinCmd(
-    `Get-ChildItem -Path "${folderPath}" -Recurse | Where-Object { ! $_.PSIsContainer } | Measure-Object -Property Length -Sum`
+    `Get-ChildItem -Path '${safePath}' -Recurse | Where-Object { ! $_.PSIsContainer } | Measure-Object -Property Length -Sum`
   ).then(res => getSizeCountWin(res.stdout))
 }
 
@@ -103,7 +122,8 @@ function getFolderSize (folderPath) {
   if (isWin) {
     return getFolderSizeWin(folderPath)
   }
-  return run(`du -sh "${folderPath}" && find "${folderPath}" -type f | wc -l`)
+  const safePath = escapePosixShellArg(folderPath)
+  return run(`du -sh '${safePath}' && find '${safePath}' -type f | wc -l`)
     .then(getSizeCount)
 }
 
