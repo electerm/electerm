@@ -339,10 +339,11 @@ jobs:
           $pubSubBytes = [System.Text.Encoding]::UTF8.GetBytes(($pubSub | ConvertTo-Json -Depth 30 -Compress))
           $newSub = $null
           $maxCreateRetries = 5
-          for ($i = 0; $i -lt $maxCreateRetries; $i++) {
+          $submissionReady = $false
+          for ($i = 0; $i -lt $maxCreateRetries -and -not $submissionReady; $i++) {
             try {
               $newSub = Invoke-RestMethod -Uri "$apiBase/submissions" -Method Post -Headers $h -ContentType 'application/json' -Body $pubSubBytes
-              break
+              $submissionReady = $true
             } catch {
               $statusCode = $null
               if ($_.Exception.Response) {
@@ -373,19 +374,16 @@ jobs:
                       id            = $pendingSubId
                       fileUploadUrl = $pendingSub.fileUploadUrl
                     }
-                    break
+                    $submissionReady = $true
                   }
                 } catch {
                   Write-Host "  Could not re-fetch app info: $($_.Exception.Message)"
                   Write-StoreLog "Re-fetch app info failed: $($_.Exception.Message)"
                 }
-                # No pending submission found — retry the POST
-                Write-Host "  No pending submission found — will retry POST."
-                Write-StoreLog "No pending submission found — will retry POST."
-                continue
+              } else {
+                Write-StoreLog "Create new submission: FAILED on attempt $attempt (HTTP $statusCode). $errBody"
+                throw
               }
-              Write-StoreLog "Create new submission: FAILED on attempt $attempt (HTTP $statusCode). $errBody"
-              throw
             }
           }
           if (-not $newSub) { throw 'Failed to create new submission after retries.' }
