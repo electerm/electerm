@@ -6,6 +6,7 @@
 import { getLocalFileInfo } from '../sftp/file-read'
 import { osResolve } from '../../common/resolve'
 import { filesize } from 'filesize'
+import sanitizeFilename from '../../common/sanitize-filename'
 
 const LOG_PREFIX = '[RDP-FILE-TRANSFER]'
 
@@ -245,7 +246,8 @@ export class FileTransferManager {
         return
       }
 
-      const fullPath = osResolve(savePath[0], fileInfo.name)
+      const safeName = sanitizeFilename(fileInfo.name)
+      const fullPath = osResolve(savePath[0], safeName)
 
       const fd = await new Promise((resolve, reject) => {
         window.fs.open(fullPath, O_WRONLY | O_CREAT | O_TRUNC, (err, fd) => {
@@ -272,12 +274,12 @@ export class FileTransferManager {
         })
       })
 
-      this.log(`Downloaded ${fileInfo.name} (${filesize(fileInfo._totalSize)}) to ${fullPath}`, 'success')
+      this.log(`Downloaded ${safeName} (${filesize(fileInfo._totalSize)}) to ${fullPath}`, 'success')
       this.hasRemoteFiles = false
       this.pendingDownloads.clear()
       this.notifyStateChange()
       if (this.onDownloadComplete) {
-        this.onDownloadComplete(fullPath, fileInfo.name, fileInfo._totalSize)
+        this.onDownloadComplete(fullPath, safeName, fileInfo._totalSize)
       }
     } catch (e) {
       this.log(`Failed to save file: ${e.message}`, 'error')
