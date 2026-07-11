@@ -38,6 +38,7 @@ import generate from '../../common/uid'
 import sanitizeFilename from '../../common/sanitize-filename'
 import { refsStatic, refs, filesRef } from '../common/ref'
 import iconsMap from '../sys-menu/icons-map'
+import message from '../common/message'
 
 const e = window.translate
 
@@ -657,9 +658,15 @@ export default class FileSection extends React.Component {
       tempPath = window.pre.resolve(path, name)
     } else {
       const id = generate()
+      const safeName = sanitizeFilename(name)
       tempPath = window.pre.resolve(
-        window.pre.tempDir, `electerm-temp-${id}-${name}`
+        window.pre.tempDir, `electerm-temp-${id}-${safeName}`
       )
+      // Defense-in-depth: verify the resolved path stays within tempDir
+      if (!tempPath.startsWith(window.pre.tempDir + window.pre.sep)) {
+        message.error(e('invalidTempFilePath'))
+        return
+      }
       await window.fs.writeFile(tempPath, text)
     }
     this.watchingFile = tempPath
@@ -677,9 +684,15 @@ export default class FileSection extends React.Component {
       tempPath = window.pre.resolve(path, name)
     } else {
       const id = generate()
+      const safeName = sanitizeFilename(name)
       tempPath = window.pre.resolve(
-        window.pre.tempDir, `electerm-temp-${id}-${name}`
+        window.pre.tempDir, `electerm-temp-${id}-${safeName}`
       )
+      // Defense-in-depth: verify the resolved path stays within tempDir
+      if (!tempPath.startsWith(window.pre.tempDir + window.pre.sep)) {
+        message.error(e('invalidTempFilePath'))
+        return
+      }
       await window.fs.writeFile(tempPath, text)
     }
     this.watchingFile = tempPath
