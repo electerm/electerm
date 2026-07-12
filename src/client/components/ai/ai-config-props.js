@@ -112,11 +112,7 @@ export const defaultAIPresets = [
 export function getAIPresets () {
   const presets = [...defaultAIPresets]
   if (window.et?.defaultAIPreset) {
-    presets.unshift({
-      ...window.et.defaultAIPreset,
-      id: 'default',
-      nameAI: window.translate('default')
-    })
+    presets.unshift(window.et.defaultAIPreset)
   }
   return presets
 }
