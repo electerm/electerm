@@ -105,7 +105,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   }
 
   function handleSelectPreset (preset) {
-    const fields = ['nameAI', 'baseURLAI', 'apiPathAI', 'modelAI', 'authHeaderNameAI', 'modelAI']
+    const fields = ['nameAI', 'baseURLAI', 'apiPathAI', 'modelAI', 'authHeaderNameAI', 'modelAI', 'apiKeyAI']
     const values = {}
     fields.forEach(f => {
       if (preset[f] !== undefined) {
