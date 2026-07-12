@@ -4,9 +4,11 @@ import {
   Button,
   AutoComplete,
   Alert,
-  Space
+  Space,
+  Dropdown
 } from 'antd'
 import { useEffect, useState } from 'react'
+import { DownOutlined } from '@ant-design/icons'
 import Link from '../common/external-link'
 import AiCache from './ai-cache'
 import {
@@ -15,6 +17,7 @@ import {
 import Password from '../common/password'
 import AiHistory, { addHistoryItem } from './ai-history'
 import message from '../common/message'
+import { getAIPresets } from './ai-config-props'
 
 const STORAGE_KEY_CONFIG = 'ai_config_history'
 const EVENT_NAME_CONFIG = 'ai-config-history-update'
@@ -101,6 +104,33 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     }
   }
 
+  function handleSelectPreset (preset) {
+    const fields = ['nameAI', 'baseURLAI', 'apiPathAI', 'modelAI', 'authHeaderNameAI', 'modelAI']
+    const values = {}
+    fields.forEach(f => {
+      if (preset[f] !== undefined) {
+        values[f] = preset[f]
+      }
+    })
+    form.setFieldsValue(values)
+  }
+
+  function renderPresetMenu () {
+    const presets = getAIPresets()
+    const items = presets.map(p => ({
+      key: p.id,
+      label: p.nameAI,
+      onClick: () => handleSelectPreset(p)
+    }))
+    return (
+      <Dropdown menu={{ items }} trigger={['click']}>
+        <Button>
+          {e('presets') || 'Presets'} <DownOutlined />
+        </Button>
+      </Dropdown>
+    )
+  }
+
   function renderHistoryItem (item) {
     if (!item || typeof item !== 'object') return { label: 'Unknown', title: 'Unknown' }
     const name = item.nameAI || ''
@@ -133,6 +163,9 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         type='info'
         className='mg2y'
       />
+      <div className='mg1b alignright'>
+        {renderPresetMenu()}
+      </div>
       <p>
         Full Url: {initialValues?.baseURLAI}{initialValues?.apiPathAI}
       </p>
