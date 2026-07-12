@@ -143,14 +143,14 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     return { label, title }
   }
 
-  function renderApiUrlLabel () {
-    if (baseURLAI === 'https://ai.electerm.org/api/ai') {
-      return <span>API URL (<Link to='https://ai.electerm.org?utm=electerm'>electerm AI</Link>)</span>
-    }
+  function renderApiKeyLabel () {
     if (baseURLAI === 'https://api.atlascloud.ai/v1') {
-      return <span>API URL (<Link to='https://www.atlascloud.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'>AtlasCloud</Link>)</span>
+      return <span>API Key (<Link to='https://www.atlascloud.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'>get API key from atlascloud</Link>)</span>
     }
-    return 'API URL'
+    if (baseURLAI === 'https://ai.electerm.org/api/ai') {
+      return <span>API Key (<Link to='https://ai.electerm.org?utm=electerm'>get API key from ai.electerm.org(free)</Link>)</span>
+    }
+    return 'API Key'
   }
 
   if (!showAIConfig) {
@@ -187,7 +187,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
             placeholder='e.g. DeepSeek Relay, Local Ollama (optional)'
           />
         </Form.Item>
-        <Form.Item label={renderApiUrlLabel()} required>
+        <Form.Item label='API URL' required>
           <Space.Compact className='width-100'>
             <Form.Item
               label='API URL'
@@ -229,7 +229,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         </Form.Item>
 
         <Form.Item
-          label='API Key'
+          label={renderApiKeyLabel()}
           name='apiKeyAI'
         >
           <Password placeholder='Enter your API key' />

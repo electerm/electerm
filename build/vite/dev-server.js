@@ -12,10 +12,20 @@ import multer from 'multer'
 const devPort = env.DEV_PORT || 5570
 const host = env.DEV_HOST || '127.0.0.1'
 const h = `http://${host}:${devPort}`
+const defaultAIPreset = {
+  baseURLAI: 'https://ai.electerm.org/api/ai',
+  apiPathAI: '/chat/completions',
+  modelAI: 'mistral-small-latest',
+  authHeaderNameAI: 'Authorization: Bearer',
+  id: 'ai.electerm.org',
+  nameAI: 'ai.electerm.org(default free)'
+}
+
 const base = {
   version: pack.version,
   isDev: !isProd,
-  siteName: pack.name
+  siteName: pack.name,
+  defaultAIPreset
 }
 
 function handleIndex (req, res) {
