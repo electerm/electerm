@@ -25,7 +25,7 @@ import {
   fileOperationsMap,
   isWin, transferTypeMap, typeMap,
   paneMap,
-  isMac, maxEditFileSize, ctrlOrCmd
+  isMacJs, maxEditFileSize, ctrlOrCmd
 } from '../../common/constants'
 import sorter from '../../common/index-sorter'
 import { getFolderFromFilePath, getLocalFileInfo } from './file-read'
@@ -508,8 +508,8 @@ export default class FileSection extends React.Component {
     let selectedFiles = [file]
     if (isSameSide) {
       if (
-        (e.ctrlKey && !isMac) ||
-        (e.metaKey && isMac)
+        (e.ctrlKey && !isMacJs) ||
+        (e.metaKey && isMacJs)
       ) {
         const isSelected = some(
           selectedFilesOld,

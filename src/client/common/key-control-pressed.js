@@ -2,12 +2,12 @@
  * check event if control/meta key pressed
  */
 
-import { isMac } from './constants'
+import { isMacJs } from './constants'
 export default e => {
   if (e.metaKey && e.ctrlKey) {
     return false
   }
-  return isMac
+  return isMacJs
     ? e.metaKey
     : e.ctrlKey
 }
