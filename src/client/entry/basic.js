@@ -46,7 +46,10 @@ async function load () {
     }
     document.body.appendChild(rcs)
   }
-  window.getLang = (lang = window.store?.config.language || 'en_us') => {
+  const initLocale = window.pre.runSync('getInitLocale') || {}
+  window.langMap = initLocale.langMap
+  window.initLanguage = initLocale.language
+  window.getLang = (lang = window.store?.config.language || window.initLanguage || 'en_us') => {
     return _get(window.langMap, `[${lang}].lang`)
   }
   window.translate = txt => {
