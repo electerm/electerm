@@ -144,8 +144,11 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   }
 
   function renderApiUrlLabel () {
+    if (baseURLAI === 'https://ai.electerm.org/api/ai') {
+      return <span>API URL (<Link to='https://ai.electerm.org?utm=electerm'>electerm AI</Link>)</span>
+    }
     if (baseURLAI === 'https://api.atlascloud.ai/v1') {
-      return <span>API URL (<Link to='https://atlascloud.ai'>AtlasCloud</Link>)</span>
+      return <span>API URL (<Link to='https://www.atlascloud.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'>AtlasCloud</Link>)</span>
     }
     return 'API URL'
   }
