@@ -224,7 +224,12 @@ export default class AttachAddonCustom {
 
     if (typeof data === 'string') {
       term?.parent?.notifyOnData()
-      return term.write(data)
+      term.write(data)
+      // Notify parent that the terminal buffer has been updated (echo received).
+      // This allows the suggestion dropdown to refresh after the buffer reflects
+      // the latest server-side state (e.g., after backspace echo).
+      term?.parent?.onTerminalWrite?.()
+      return
     }
     data = new Uint8Array(data)
     const fileReader = new FileReader()
@@ -238,6 +243,7 @@ export default class AttachAddonCustom {
     term?.parent?.notifyOnData()
     const str = this.decoder.decode(data)
     term?.write(str)
+    term?.parent?.onTerminalWrite?.()
   }
 
   sendToServer = (data) => {

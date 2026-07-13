@@ -1081,15 +1081,42 @@ class Term extends Component {
       return
     }
     if (this.props.config.showCmdSuggestions) {
-      const data = this.getCurrentInput()
-      if (data && d !== '\r' && d !== '\n') {
-        const cursorPos = this.getCursorPosition()
-        this.openSuggestions(cursorPos, data)
-      } else {
+      if (d === '\r' || d === '\n') {
         this.closeSuggestions()
+        return
       }
+      // Debounce the suggestion opening to avoid expensive work
+      // (buffer read + getBoundingClientRect + React re-render) on every keystroke
+      this._debouncedOpenSuggestions()
     } else {
       this.closeSuggestions()
+    }
+  }
+
+  _debouncedOpenSuggestions = debounce(function () {
+    const data = this.getCurrentInput()
+    if (!data) {
+      this.closeSuggestions()
+      return
+    }
+    const cursorPos = this.getCursorPosition()
+    this.openSuggestions(cursorPos, data)
+  }, 80)
+
+  /**
+   * Called by AttachAddonCustom after data is written to the terminal buffer.
+   * This fires after server echo arrives, so getCurrentInput() reflects the
+   * latest state. We trigger a debounced suggestion refresh so the dropdown
+   * updates correctly after backspace, delete, and other edits that rely on
+   * server-side echo to update the buffer.
+   */
+  onTerminalWrite = () => {
+    if (!this.props.config.showCmdSuggestions) {
+      return
+    }
+    const suggestions = refsStatic.get('terminal-suggestions')
+    if (suggestions?.state?.showSuggestions && !suggestions?.state?.passwordMode) {
+      this._debouncedOpenSuggestions()
     }
   }
 
