@@ -167,18 +167,26 @@ class TerminalSshBase extends TerminalBase {
     })
   }
 
-  onKeyboardEvent (options) {
-    if (options?.mode !== 'confirm' && this.initOptions.interactiveValues) {
+  onKeyboardEvent (options, passwordOverride) {
+    if (options?.mode !== 'confirm' && this.initOptions?.interactiveValues) {
       return Promise.resolve(this.initOptions.interactiveValues.split('\n'))
     }
     // Auto-fill password prompt if we have a saved password
+    // passwordOverride is used during SSH connection hopping, where
+    // this.initOptions.password is the jump host's password (after
+    // adjustConnectionOrder swaps the options), not the target's.
+    // The caller passes connectOptions.password which is correct for
+    // the current connection being established.
     const { prompts } = options
-    if (prompts && prompts.length === 1 && this.initOptions.password) {
+    const savedPassword = passwordOverride !== undefined
+      ? passwordOverride
+      : this.initOptions?.password
+    if (prompts && prompts.length === 1 && savedPassword) {
       const prompt = prompts[0]
       const promptText = (prompt.prompt || '').toLowerCase()
       // Check if this is a password prompt (hidden input, contains "password" or is empty)
       if (!prompt.echo && (promptText.includes('password') || promptText === '')) {
-        return Promise.resolve([this.initOptions.password])
+        return Promise.resolve([savedPassword])
       }
     }
 
@@ -606,7 +614,7 @@ class TerminalSshBase extends TerminalBase {
           instructionsLang,
           prompts
         }
-        this.onKeyboardEvent(options)
+        this.onKeyboardEvent(options, connectOptions.password ?? this.initOptions?.password ?? null)
           .then(finish)
           .catch(reject)
       })
