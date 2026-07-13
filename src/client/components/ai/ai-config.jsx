@@ -145,10 +145,10 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
 
   function renderApiKeyLabel () {
     if (baseURLAI === 'https://api.atlascloud.ai/v1') {
-      return <span>API Key (<Link to='https://www.atlascloud.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'>get API key from atlascloud</Link>)</span>
+      return <span className='bold'>API Key (<Link to='https://www.atlascloud.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'>get API key from atlascloud</Link>)</span>
     }
     if (baseURLAI === 'https://ai.electerm.org/api/ai') {
-      return <span>API Key (<Link to='https://ai.electerm.org?utm=electerm'>get API key from ai.electerm.org(free)</Link>)</span>
+      return <span className='bold'>API Key (<Link to='https://ai.electerm.org?utm=electerm'>get API key from ai.electerm.org(free)</Link>)</span>
     }
     return 'API Key'
   }
