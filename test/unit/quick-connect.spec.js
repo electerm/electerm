@@ -115,6 +115,23 @@ describe('parseQuickConnect', function () {
     assert.strictEqual(result.username, 'user')
   })
 
+  test('should parse user:password@host (shortcut)', () => {
+    const result = parseQuickConnect('zxd:zxd27@192.168.2.27')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.2.27')
+    assert.strictEqual(result.username, 'zxd')
+    assert.strictEqual(result.password, 'zxd27')
+  })
+
+  test('should parse user:password@host:port (shortcut)', () => {
+    const result = parseQuickConnect('zxd:zxd27@192.168.2.27:2222')
+    assert.strictEqual(result.type, 'ssh')
+    assert.strictEqual(result.host, '192.168.2.27')
+    assert.strictEqual(result.username, 'zxd')
+    assert.strictEqual(result.password, 'zxd27')
+    assert.strictEqual(result.port, 2222)
+  })
+
   // Test Telnet protocol
   test('should parse telnet://user@host', () => {
     const result = parseQuickConnect('telnet://user@192.168.1.1:23')
@@ -319,13 +336,14 @@ describe('parseQuickConnect', function () {
     assert.strictEqual(result.connectionHoppings[0].username, 'jumper')
   })
 
-  // Test SSH default values (enableSsh, enableSftp, useSshAgent, term, encode, envLang)
+  // Test SSH default values (enableSsh, enableSftp, useSshAgent, authType, term, encode, envLang)
   test('should add default values for SSH type', () => {
     const result = parseQuickConnect('ssh://user@192.168.1.100')
     assert.strictEqual(result.type, 'ssh')
     assert.strictEqual(result.enableSsh, true)
     assert.strictEqual(result.enableSftp, true)
     assert.strictEqual(result.useSshAgent, true)
+    assert.strictEqual(result.authType, 'password')
     assert.strictEqual(result.term, 'xterm-256color')
     assert.strictEqual(result.encode, 'utf-8')
     assert.strictEqual(result.envLang, 'en_US.UTF-8')

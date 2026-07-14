@@ -144,35 +144,14 @@ function setupDeepLinkHandlers () {
     })
   }
 
-  // Handle deep links via second-instance (when app is already running)
-  // (already handled in create-app.js, but we can add additional parsing here)
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    log.info('second-instance event:', commandLine)
-
-    // Look for protocol URLs in command line arguments
-    const protocolUrl = commandLine.find(arg =>
-      /^(ssh|telnet|rdp|vnc|serial|spice|ftp|electerm):\/\//i.test(arg)
-    )
-
-    if (protocolUrl) {
-      handleDeepLink(protocolUrl)
-    }
-  })
-
-  // Handle protocol URLs passed as command line arguments at startup (all platforms)
-  // Note: macOS also fires 'open-url' event when using `open` command or clicking links,
-  // but when running `electerm ssh://...` directly in terminal, it comes through argv
-  if (process.argv.length >= 2) {
-    const protocolUrl = process.argv.find(arg =>
-      /^(ssh|telnet|rdp|vnc|serial|spice|ftp|electerm):\/\//i.test(arg)
-    )
-
-    if (protocolUrl) {
-      log.info('Startup with protocol URL:', protocolUrl)
-      // Store it to be handled after window is ready
-      globalState.set('pendingDeepLink', parseQuickConnect(protocolUrl))
-    }
-  }
+  // Note: second-instance and process.argv protocol URL handling is done by
+  // single-instance.js (socket-based IPC → add-tab-from-command-line) and
+  // command-line.js (initCommandLine → addTabFromCommandLine) respectively.
+  // Handling them here too would cause duplicate tabs to open.
+  //
+  // The 'open-url' event below (macOS only) is the only handler needed here,
+  // as it covers the case where the app is opened via a clicked link or
+  // `open -a electerm ssh://...` command, which does NOT go through argv.
 }
 
 module.exports = {

@@ -53,6 +53,7 @@ const TYPE_DEFAULT_VALUES = {
     enableSsh: true,
     enableSftp: true,
     useSshAgent: true,
+    authType: 'password',
     term: 'xterm-256color',
     encode: 'utf-8',
     envLang: 'en_US.UTF-8'
@@ -137,8 +138,8 @@ function parseQuickConnect (str) {
       // Shortcut format - default to SSH
       // Match user@host or user@host:port or just host or host:port
       // Use last colon to determine port for host:port format
-      if (/^[\w.-]+@[\w.-]+/.test(input)) {
-        // user@host or user@host:port
+      if (/^[\w.-]+(?::[^@]+)?@[\w.-]+/.test(input)) {
+        // user@host, user:password@host, or user@host:port
         protocol = 'ssh'
         connectionString = input
       } else if (/^[\w.-]+:.*:[\d]+$/.test(input)) {

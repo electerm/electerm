@@ -114,12 +114,52 @@ export async function addTabFromCommandLine (store, opts) {
     conf.fromCmdLine
   ) {
     store.ipcOpenTab(conf)
-  } else if (
-    options.initFolder &&
-    !(store.config.onStartSessions || []).length &&
-    store.config.initDefaultTabOnStart
-  ) {
-    window.initFolder = options.initFolder
+  } else {
+    // getHost didn't find a match, try parseQuickConnect for shortcut formats
+    // that getHost doesn't support (e.g., user:password@host)
+    let parsedFallback = null
+    if (argv && argv.length) {
+      for (const arg of argv) {
+        if (/^-/.test(arg)) continue
+        const result = parseQuickConnect(arg)
+        if (result && result.host) {
+          parsedFallback = result
+          break
+        }
+      }
+    }
+    if (parsedFallback) {
+      // Apply command-line options on top of parsed result
+      if (options.password) parsedFallback.password = options.password
+      if (options.passphrase) parsedFallback.passphrase = options.passphrase
+      if (options.user) parsedFallback.username = options.user
+      if (options.port && parseInt10(options.port)) parsedFallback.port = parseInt10(options.port)
+      if (options.title) parsedFallback.title = options.title
+      if (options.setEnv) parsedFallback.setEnv = options.setEnv
+      if (options.sftpOnly) parsedFallback.enableSsh = false
+      if (options.initFolder) parsedFallback.startDirectoryLocal = options.initFolder
+      if (options.opts) {
+        const optsParsed = safeParse(options.opts)
+        if (optsParsed !== options.opts) {
+          Object.assign(parsedFallback, optsParsed)
+          parsedFallback.fromCmdLine = true
+        }
+      }
+      if (options.tp) {
+        parsedFallback.type = options.tp
+        parsedFallback.fromCmdLine = true
+      }
+      if (options.privateKeyPath) {
+        parsedFallback.privateKey = await window.fs.readFile(options.privateKeyPath)
+      }
+      store.ipcOpenTab(parsedFallback)
+    } else if (
+      options.initFolder &&
+      !(store.config.onStartSessions || []).length &&
+      store.config.initDefaultTabOnStart
+    ) {
+      window.initFolder = options.initFolder
+    }
   }
   if (options.batchOp) {
     refsStatic.get('batch-op-runner')?.runBatchOpFromFile(options.batchOp)
