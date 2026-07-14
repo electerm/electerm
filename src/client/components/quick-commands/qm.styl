@@ -33,9 +33,42 @@
   border-top 2px solid var(--primary)
 .qm-label-select
   min-width 120px
+.qm-name-input
+  max-width 160px
+  min-width 80px
 
 .qm-flex
   gap 8px
+
+.qm-tooltip-content
+  max-width 360px
+  .qm-tooltip-title
+    font-weight 600
+    margin-bottom 4px
+    word-break break-word
+  .qm-tooltip-cmd-list
+    margin 0
+    padding 0
+    list-style none
+    .qm-tooltip-cmd-item
+      padding 4px 0
+      border-top 1px solid rgba(255,255,255,0.15)
+      &:first-child
+        border-top none
+      .qm-tooltip-label
+        opacity 0.65
+        margin-right 4px
+      .qm-tooltip-value
+        word-break break-word
+      code
+        font-family monospace
+  .qm-tooltip-meta
+    margin-top 4px
+    padding-top 4px
+    border-top 1px solid rgba(255,255,255,0.15)
+    .qm-tooltip-label
+      opacity 0.65
+      margin-right 4px
 
 @media (max-width: 768px)
   .qm-flex
