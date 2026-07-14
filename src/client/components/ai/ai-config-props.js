@@ -76,6 +76,38 @@ export const defaultAIPresets = [
     authHeaderNameAI: 'Authorization: Bearer'
   },
   {
+    id: 'minimax-global-m3',
+    nameAI: 'MiniMax (Global, MiniMax-M3)',
+    baseURLAI: 'https://api.minimax.io/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'MiniMax-M3',
+    authHeaderNameAI: 'Authorization: Bearer'
+  },
+  {
+    id: 'minimax-global-m27',
+    nameAI: 'MiniMax (Global, MiniMax-M2.7)',
+    baseURLAI: 'https://api.minimax.io/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'MiniMax-M2.7',
+    authHeaderNameAI: 'Authorization: Bearer'
+  },
+  {
+    id: 'minimax-cn-m3',
+    nameAI: 'MiniMax (China, MiniMax-M3)',
+    baseURLAI: 'https://api.minimaxi.com/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'MiniMax-M3',
+    authHeaderNameAI: 'Authorization: Bearer'
+  },
+  {
+    id: 'minimax-cn-m27',
+    nameAI: 'MiniMax (China, MiniMax-M2.7)',
+    baseURLAI: 'https://api.minimaxi.com/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'MiniMax-M2.7',
+    authHeaderNameAI: 'Authorization: Bearer'
+  },
+  {
     id: 'xai',
     nameAI: 'xAI (Grok)',
     baseURLAI: 'https://api.x.ai/v1',
