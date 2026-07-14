@@ -52,13 +52,38 @@ export default function AIChatHistoryItem ({ item }) {
     const sessionEntries = window.store.aiChatHistory
       .filter(h => h.chatSessionId === chatSessionId && h.timestamp <= item.timestamp)
       .sort((a, b) => a.timestamp - b.timestamp)
+
+    // Find the last compress entry
+    let lastCompressIndex = -1
+    for (let i = sessionEntries.length - 1; i >= 0; i--) {
+      if (sessionEntries[i].compressed) {
+        lastCompressIndex = i
+        break
+      }
+    }
+
     const messages = [
       { role: 'system', content: buildRole() }
     ]
-    for (const entry of sessionEntries) {
-      messages.push({ role: 'user', content: entry.prompt })
-      if (entry.response && entry.id !== item.id) {
-        messages.push({ role: 'assistant', content: entry.response })
+
+    // Start from the last compress entry (if any), skip older history
+    const startIndex = lastCompressIndex >= 0 ? lastCompressIndex : 0
+    for (let i = startIndex; i < sessionEntries.length; i++) {
+      const entry = sessionEntries[i]
+      if (entry.compressed) {
+        messages.push({
+          role: 'user',
+          content: `Here is a summary of our previous conversation for context:\n\n${entry.response}`
+        })
+        messages.push({
+          role: 'assistant',
+          content: 'Understood. I will use this context as we continue.'
+        })
+      } else {
+        messages.push({ role: 'user', content: entry.prompt })
+        if (entry.response && entry.id !== item.id) {
+          messages.push({ role: 'assistant', content: entry.response })
+        }
       }
     }
     return messages

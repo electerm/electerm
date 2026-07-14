@@ -9,7 +9,8 @@ import {
   SettingOutlined,
   SendOutlined,
   PlusOutlined,
-  HistoryOutlined
+  HistoryOutlined,
+  CompressOutlined
 } from '@ant-design/icons'
 import {
   aiConfigWikiLink,
@@ -25,6 +26,7 @@ const MAX_HISTORY = 500
 
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
+  const [compressing, setCompressing] = useState(false)
   const [mode, setMode] = useState(() => getItem(aiChatModeLsKey) || 'ask')
   const isAgent = mode === 'agent'
   const submitDisabled = isAgent && props.agentRunning
@@ -117,6 +119,15 @@ export default function AIChat (props) {
     window.store.startNewChat()
   }
 
+  async function handleCompressSession () {
+    setCompressing(true)
+    try {
+      await window.store.compressChatSession(currentChatSessionId)
+    } finally {
+      setCompressing(false)
+    }
+  }
+
   function handleShowHistory () {
     window.store.toggleChatSessions()
   }
@@ -194,6 +205,17 @@ export default function AIChat (props) {
           >
             {e('new')}
           </Button>
+          {sessionHistory.length >= 2 && (
+            <Button
+              size='small'
+              icon={<CompressOutlined />}
+              onClick={handleCompressSession}
+              loading={compressing}
+              className='mg1r'
+            >
+              {e('compress')}
+            </Button>
+          )}
           <Button
             size='small'
             icon={<HistoryOutlined />}

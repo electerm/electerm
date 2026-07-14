@@ -287,6 +287,105 @@ export default Store => {
     store.startNewChat()
   })
 
+  Store.prototype.compressChatSession = async function (sessionId) {
+    const { store } = window
+    const sessionEntries = store.aiChatHistory
+      .filter(h => h.chatSessionId === sessionId)
+      .sort((a, b) => a.timestamp - b.timestamp)
+
+    // Find the last compress entry
+    let lastCompressIndex = -1
+    for (let i = sessionEntries.length - 1; i >= 0; i--) {
+      if (sessionEntries[i].compressed) {
+        lastCompressIndex = i
+        break
+      }
+    }
+
+    // Need at least 2 non-compress entries since the last compress
+    const entriesAfterCompress = lastCompressIndex >= 0
+      ? sessionEntries.slice(lastCompressIndex + 1)
+      : sessionEntries
+    if (entriesAfterCompress.length < 2) {
+      return
+    }
+
+    const firstEntry = sessionEntries[0]
+    const lang = firstEntry.languageAI || store.getLangName()
+    const messages = [
+      { role: 'system', content: firstEntry.roleAI + `;用[${lang}]回复` }
+    ]
+
+    // Start from the last compress entry to include its summary as context
+    const startIndex = lastCompressIndex >= 0 ? lastCompressIndex : 0
+    for (let i = startIndex; i < sessionEntries.length; i++) {
+      const entry = sessionEntries[i]
+      if (entry.compressed) {
+        messages.push({
+          role: 'user',
+          content: `Here is a summary of our previous conversation for context:\n\n${entry.response}`
+        })
+        messages.push({
+          role: 'assistant',
+          content: 'Understood. I will use this context as we continue.'
+        })
+      } else {
+        messages.push({ role: 'user', content: entry.prompt })
+        if (entry.response) {
+          messages.push({ role: 'assistant', content: entry.response })
+        }
+      }
+    }
+
+    const summaryPrompt = 'Please summarize the above conversation concisely. Include key information, decisions, context, and any important details that would be needed to continue this conversation effectively.'
+    messages.push({ role: 'user', content: summaryPrompt })
+
+    const aiResponse = await window.pre.runGlobalAsync(
+      'AIchat',
+      summaryPrompt,
+      firstEntry.modelAI,
+      firstEntry.roleAI,
+      firstEntry.baseURLAI,
+      firstEntry.apiPathAI,
+      firstEntry.apiKeyAI,
+      firstEntry.proxyAI,
+      false,
+      firstEntry.authHeaderNameAI,
+      messages
+    )
+
+    if (aiResponse && aiResponse.error) {
+      return store.onError(new Error(aiResponse.error))
+    }
+
+    const summary = aiResponse.response || ''
+    const compressedEntry = {
+      id: uid(),
+      prompt: '*Compressed session summary*',
+      response: summary,
+      isStreaming: false,
+      pending: false,
+      sessionId: null,
+      chatSessionId: sessionId,
+      mode: firstEntry.mode,
+      toolCalls: [],
+      nameAI: firstEntry.nameAI,
+      modelAI: firstEntry.modelAI,
+      roleAI: firstEntry.roleAI,
+      baseURLAI: firstEntry.baseURLAI,
+      apiPathAI: firstEntry.apiPathAI,
+      apiKeyAI: firstEntry.apiKeyAI,
+      proxyAI: firstEntry.proxyAI,
+      languageAI: firstEntry.languageAI,
+      authHeaderNameAI: firstEntry.authHeaderNameAI,
+      timestamp: Date.now(),
+      compressed: true
+    }
+
+    // Append compress entry, preserve existing history
+    store.aiChatHistory.push(compressedEntry)
+  }
+
   Store.prototype.toggleChatSessions = action(function () {
     const { store } = window
     store.showChatSessions = !store.showChatSessions
