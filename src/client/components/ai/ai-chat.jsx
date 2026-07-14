@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Flex, Input, Segmented, Button, Tooltip } from 'antd'
+import { Flex, Input, Segmented, Button } from 'antd'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
 import AiChatSessions from './ai-chat-sessions'
@@ -177,7 +177,7 @@ export default function AIChat (props) {
       }
     }
   }
-
+  const e = window.translate
   return (
     <Flex vertical className='ai-chat-container'>
       <Flex className='ai-chat-history' flex='auto'>
@@ -185,27 +185,23 @@ export default function AIChat (props) {
       </Flex>
 
       <Flex vertical className='ai-chat-input'>
-        <Flex className='ai-chat-toolbar' align='center'>
-          <Tooltip title='Start a new chat session'>
-            <Button
-              size='small'
-              icon={<PlusOutlined />}
-              onClick={handleNewChat}
-              className='mg1r'
-            >
-              New Chat
-            </Button>
-          </Tooltip>
-          <Tooltip title='Show chat history'>
-            <Button
-              size='small'
-              icon={<HistoryOutlined />}
-              onClick={handleShowHistory}
-              type={props.showChatSessions ? 'primary' : 'default'}
-            >
-              History
-            </Button>
-          </Tooltip>
+        <Flex className='ai-chat-toolbar mg1b' align='left' gap={4}>
+          <Button
+            size='small'
+            icon={<PlusOutlined />}
+            onClick={handleNewChat}
+            className='mg1r'
+          >
+            {e('new')}
+          </Button>
+          <Button
+            size='small'
+            icon={<HistoryOutlined />}
+            onClick={handleShowHistory}
+            type={props.showChatSessions ? 'primary' : 'default'}
+          >
+            {e('history')}
+          </Button>
         </Flex>
         <TextArea
           value={prompt}

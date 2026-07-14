@@ -1,5 +1,6 @@
 import { Flex, Button, Popconfirm, Empty } from 'antd'
-import { DeleteOutlined, MessageOutlined, ClearOutlined } from '@ant-design/icons'
+import { ClearOutlined } from '@ant-design/icons'
+import AiChatSession from './ai-chat-session'
 
 const e = window.translate
 
@@ -44,50 +45,15 @@ export default function AiChatSessions ({
           </Button>
         </Popconfirm>
       </Flex>
-      {sessions.map(session => {
-        const isActive = session.sessionId === currentChatSessionId
-        const time = new Date(session.timestamp).toLocaleString()
-        const preview = session.firstPrompt.length > 80
-          ? session.firstPrompt.substring(0, 80) + '...'
-          : session.firstPrompt
-        return (
-          <div
-            key={session.sessionId}
-            className={`ai-chat-session-item${isActive ? ' active' : ''}`}
-            onClick={() => onLoadSession(session.sessionId)}
-          >
-            <Flex vertical className='ai-chat-session-content'>
-              <Flex align='center' className='ai-chat-session-header'>
-                <MessageOutlined className='mg1r' />
-                <span className='ai-chat-session-preview'>{preview}</span>
-              </Flex>
-              <Flex justify='space-between' align='center' className='ai-chat-session-meta'>
-                <span className='ai-chat-session-time'>{time}</span>
-                <span className='ai-chat-session-count'>{session.messageCount} messages</span>
-              </Flex>
-            </Flex>
-            <Popconfirm
-              title='Delete this chat session?'
-              okText='Delete'
-              cancelText='Cancel'
-              onConfirm={(e) => {
-                e?.stopPropagation()
-                onDeleteSession(session.sessionId)
-              }}
-              onCancel={(e) => e?.stopPropagation()}
-            >
-              <Button
-                size='small'
-                type='text'
-                danger
-                icon={<DeleteOutlined />}
-                onClick={(e) => e.stopPropagation()}
-                className='ai-chat-session-delete'
-              />
-            </Popconfirm>
-          </div>
-        )
-      })}
+      {sessions.map(session => (
+        <AiChatSession
+          key={session.sessionId}
+          session={session}
+          isActive={session.sessionId === currentChatSessionId}
+          onLoadSession={onLoadSession}
+          onDeleteSession={onDeleteSession}
+        />
+      ))}
     </div>
   )
 }
