@@ -235,7 +235,9 @@ export default auto(function Index (props) {
     activeTabId: store.activeTabId,
     showAIConfig: store.showAIConfig,
     rightPanelTab,
-    agentRunning: store.agentRunning
+    agentRunning: store.agentRunning,
+    currentChatSessionId: store.currentChatSessionId,
+    showChatSessions: store.showChatSessions
   }
   const cmdSuggestionsProps = {
     suggestions: store.terminalCommandSuggestions

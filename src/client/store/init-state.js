@@ -22,7 +22,8 @@ import {
   qmSortByFrequencyKey,
   resolutionsLsKey,
   syncServerDataKey,
-  splitMap
+  splitMap,
+  lastAiChatSessionIdKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { exclude } from 'manate'
@@ -89,6 +90,8 @@ export default () => {
     _batchInputSelectedTabIds: new Set(),
     aiChatHistory: [],
     agentRunning: false,
+    currentChatSessionId: window.localStorage.getItem(lastAiChatSessionIdKey) || '',
+    showChatSessions: false,
 
     // sftp
     fileOperation: fileOperationsMap.cp, // cp or mv

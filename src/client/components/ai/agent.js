@@ -46,13 +46,22 @@ async function callBackendAIchatWithTools (messages, config) {
   )
 }
 
-export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming) {
+export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming, conversationMessages = null) {
   window.store.agentRunning = true
   try {
-    const messages = [
-      { role: 'system', content: buildAgentSystemPrompt(config) },
-      { role: 'user', content: chatEntry.prompt }
-    ]
+    let messages
+    if (conversationMessages && conversationMessages.length > 1) {
+      // Replace system message with agent system prompt, keep conversation history
+      messages = [
+        { role: 'system', content: buildAgentSystemPrompt(config) },
+        ...conversationMessages.filter(m => m.role !== 'system')
+      ]
+    } else {
+      messages = [
+        { role: 'system', content: buildAgentSystemPrompt(config) },
+        { role: 'user', content: chatEntry.prompt }
+      ]
+    }
     const toolCallsLog = []
     let accumulatedContent = ''
 

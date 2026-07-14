@@ -86,7 +86,8 @@ exports.AIchat = async (
   apiKey,
   proxy = defaultSettings.proxyAI,
   stream = true,
-  authHeaderName = defaultSettings.authHeaderNameAI
+  authHeaderName = defaultSettings.authHeaderNameAI,
+  messages = null
 ) => {
   try {
     const client = createAIClient(baseURL, apiKey, proxy, authHeaderName)
@@ -96,18 +97,21 @@ exports.AIchat = async (
     const isCommandSuggestion = prompt.includes('give me max 5 command suggestions')
     const useStream = stream && !isCommandSuggestion
 
+    // Use provided conversation messages if available, otherwise build from prompt and role
+    const requestMessages = messages || [
+      {
+        role: 'system',
+        content: role
+      },
+      {
+        role: 'user',
+        content: prompt
+      }
+    ]
+
     const requestData = {
       model,
-      messages: [
-        {
-          role: 'system',
-          content: role
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
+      messages: requestMessages,
       stream: useStream
     }
 

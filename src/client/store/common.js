@@ -10,7 +10,8 @@ import {
   rightSidebarWidthKey,
   addPanelWidthLsKey,
   dismissDelKeyTipLsKey,
-  connectionMap
+  connectionMap,
+  lastAiChatSessionIdKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { refs, refsStatic } from '../components/common/ref'
@@ -254,6 +255,67 @@ export default Store => {
       return
     }
     window.store.aiChatHistory.splice(index, 1)
+  }
+
+  Store.prototype.startNewChat = action(function () {
+    const { store } = window
+    store.currentChatSessionId = uid()
+    store.showChatSessions = false
+    window.localStorage.setItem(lastAiChatSessionIdKey, store.currentChatSessionId)
+  })
+
+  Store.prototype.loadChatSession = action(function (sessionId) {
+    const { store } = window
+    store.currentChatSessionId = sessionId
+    store.showChatSessions = false
+    window.localStorage.setItem(lastAiChatSessionIdKey, sessionId)
+  })
+
+  Store.prototype.deleteChatSession = action(function (sessionId) {
+    const { store } = window
+    const remaining = store.aiChatHistory.filter(d => d.chatSessionId !== sessionId)
+    store.aiChatHistory = remaining
+    if (store.currentChatSessionId === sessionId) {
+      store.startNewChat()
+    }
+  })
+
+  Store.prototype.clearAllChatSessions = action(function () {
+    const { store } = window
+    store.aiChatHistory = []
+    store.showChatSessions = false
+    store.startNewChat()
+  })
+
+  Store.prototype.toggleChatSessions = action(function () {
+    const { store } = window
+    store.showChatSessions = !store.showChatSessions
+  })
+
+  Store.prototype.getChatSessions = function () {
+    const { aiChatHistory } = window.store
+    const sessionMap = new Map()
+    for (const entry of aiChatHistory) {
+      const sid = entry.chatSessionId
+      if (!sid) continue
+      if (!sessionMap.has(sid)) {
+        sessionMap.set(sid, {
+          sessionId: sid,
+          firstPrompt: entry.prompt || '',
+          timestamp: entry.timestamp,
+          messageCount: 1,
+          entries: [entry]
+        })
+      } else {
+        const session = sessionMap.get(sid)
+        session.messageCount++
+        session.entries.push(entry)
+        if (entry.timestamp > session.timestamp) {
+          session.timestamp = entry.timestamp
+        }
+      }
+    }
+    return Array.from(sessionMap.values()).sort((a, b) => b.timestamp - a.timestamp)
   }
 
   Store.prototype.getLangName = function (

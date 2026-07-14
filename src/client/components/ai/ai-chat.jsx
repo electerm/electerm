@@ -1,13 +1,15 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Flex, Input, Popconfirm, Segmented } from 'antd'
+import { Flex, Input, Segmented, Button, Tooltip } from 'antd'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
+import AiChatSessions from './ai-chat-sessions'
 import uid from '../../common/uid'
 import { pick } from 'lodash-es'
 import {
   SettingOutlined,
   SendOutlined,
-  UnorderedListOutlined
+  PlusOutlined,
+  HistoryOutlined
 } from '@ant-design/icons'
 import {
   aiConfigWikiLink,
@@ -19,13 +21,25 @@ import { refsStatic } from '../common/ref'
 import './ai.styl'
 
 const { TextArea } = Input
-const MAX_HISTORY = 100
+const MAX_HISTORY = 500
 
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
   const [mode, setMode] = useState(() => getItem(aiChatModeLsKey) || 'ask')
   const isAgent = mode === 'agent'
   const submitDisabled = isAgent && props.agentRunning
+
+  const currentChatSessionId = props.currentChatSessionId || ''
+
+  useEffect(() => {
+    if (!currentChatSessionId && props.rightPanelTab === 'ai') {
+      window.store.startNewChat()
+    }
+  }, [currentChatSessionId, props.rightPanelTab])
+
+  const sessionHistory = (props.aiChatHistory || []).filter(
+    h => h.chatSessionId === currentChatSessionId
+  )
 
   function handlePromptChange (e) {
     setPrompt(e.target.value)
@@ -50,6 +64,7 @@ export default function AIChat (props) {
       isStreaming: false,
       pending: true,
       sessionId: null,
+      chatSessionId: currentChatSessionId,
       mode,
       toolCalls: [],
       ...pick(props.config, [
@@ -60,7 +75,8 @@ export default function AIChat (props) {
         'apiPathAI',
         'apiKeyAI',
         'proxyAI',
-        'languageAI'
+        'languageAI',
+        'authHeaderNameAI'
       ]),
       timestamp: Date.now(),
       id: chatId
@@ -72,12 +88,23 @@ export default function AIChat (props) {
     if (window.store.aiChatHistory.length > MAX_HISTORY) {
       window.store.aiChatHistory.splice(MAX_HISTORY)
     }
-  }, [prompt, mode])
+  }, [prompt, mode, currentChatSessionId])
 
   function renderHistory () {
+    if (props.showChatSessions) {
+      return (
+        <AiChatSessions
+          sessions={window.store.getChatSessions()}
+          currentChatSessionId={currentChatSessionId}
+          onLoadSession={(sid) => window.store.loadChatSession(sid)}
+          onDeleteSession={(sid) => window.store.deleteChatSession(sid)}
+          onClearAll={() => window.store.clearAllChatSessions()}
+        />
+      )
+    }
     return (
       <AiChatHistory
-        history={props.aiChatHistory}
+        history={sessionHistory}
       />
     )
   }
@@ -86,8 +113,12 @@ export default function AIChat (props) {
     window.store.toggleAIConfig()
   }
 
-  function clearHistory () {
-    window.store.aiChatHistory = []
+  function handleNewChat () {
+    window.store.startNewChat()
+  }
+
+  function handleShowHistory () {
+    window.store.toggleChatSessions()
   }
 
   function renderTabSelect () {
@@ -153,7 +184,29 @@ export default function AIChat (props) {
         {renderHistory()}
       </Flex>
 
-      <Flex className='ai-chat-input'>
+      <Flex vertical className='ai-chat-input'>
+        <Flex className='ai-chat-toolbar' align='center'>
+          <Tooltip title='Start a new chat session'>
+            <Button
+              size='small'
+              icon={<PlusOutlined />}
+              onClick={handleNewChat}
+              className='mg1r'
+            >
+              New Chat
+            </Button>
+          </Tooltip>
+          <Tooltip title='Show chat history'>
+            <Button
+              size='small'
+              icon={<HistoryOutlined />}
+              onClick={handleShowHistory}
+              type={props.showChatSessions ? 'primary' : 'default'}
+            >
+              History
+            </Button>
+          </Tooltip>
+        </Flex>
         <TextArea
           value={prompt}
           onChange={handlePromptChange}
@@ -175,17 +228,6 @@ export default function AIChat (props) {
               onClick={toggleConfig}
               className='mg1l pointer icon-hover toggle-ai-setting-icon'
             />
-            <Popconfirm
-              title={window.translate('clear') + ' AI ' + window.translate('history') + '?'}
-              okText={window.translate('ok')}
-              cancelText={window.translate('cancel')}
-              onConfirm={clearHistory}
-            >
-              <UnorderedListOutlined
-                className='mg2x pointer clear-ai-icon icon-hover'
-                title='Clear AI chat history'
-              />
-            </Popconfirm>
             <HelpIcon
               link={aiConfigWikiLink}
             />

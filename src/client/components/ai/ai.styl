@@ -67,15 +67,74 @@
   opacity 0.4
   cursor not-allowed
 
-.clear-ai-icon
-  position relative
-  &::after
-    content '×'
-    position absolute
-    font-size 12px
-    top 8px
-    right -4px
-    font-weight bold
+.ai-chat-toolbar
+  margin-bottom 8px
+  display flex
+  align-items center
+  gap 4px
+
+.ai-chat-sessions-wrap
+  width 100%
+  overflow-y auto
+  overflow-x hidden
+  padding 4px 0
+
+.ai-chat-sessions-toolbar
+  padding 0 4px 8px
+
+.ai-chat-session-item
+  display flex
+  align-items center
+  padding 8px 10px
+  margin-bottom 6px
+  border 1px solid var(--main-darker)
+  border-radius 4px
+  cursor pointer
+  transition all 0.2s
+  &:hover
+    border-color #1890ff
+    background var(--main-dark)
+    .ai-chat-session-delete
+      opacity 1
+  &.active
+    border-color #1890ff
+    background rgba(24, 144, 255, 0.06)
+
+.ai-chat-session-content
+  flex 1
+  min-width 0
+  overflow hidden
+
+.ai-chat-session-header
+  margin-bottom 4px
+
+.ai-chat-session-preview
+  font-size 13px
+  font-weight 500
+  white-space nowrap
+  overflow hidden
+  text-overflow ellipsis
+
+.ai-chat-session-meta
+  font-size 12px
+  color var(--text-color-2)
+
+.ai-chat-session-time
+  flex-shrink 0
+
+.ai-chat-session-count
+  flex-shrink 0
+  margin-left 8px
+
+.ai-chat-session-delete
+  opacity 0
+  flex-shrink 0
+  margin-left 8px
+  transition opacity 0.2s
+
+.ai-chat-sessions-empty
+  height 100%
+  min-height 200px
 
 .ai-stop-icon-square
   width 20px
