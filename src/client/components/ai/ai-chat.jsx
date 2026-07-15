@@ -201,7 +201,7 @@ export default function AIChat (props) {
             size='small'
             icon={<PlusOutlined />}
             onClick={handleNewChat}
-            className='mg1r'
+            className='mg1r new-chat-btn'
           >
             {e('new')}
           </Button>

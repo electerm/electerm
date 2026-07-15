@@ -69,10 +69,8 @@ describe('AI Config and Suggestions', function () {
     const promptContent = await lastChatItem.locator('.ant-alert-title').textContent()
     expect(promptContent).toContain(testPrompt)
 
-    // Test clear history functionality
-    await client.click('.ai-chat-terminals .clear-ai-icon')
-    await delay(500)
-    await client.click('.ant-popover .ant-btn-primary')
+    // Test new chat functionality (clears the current conversation)
+    await client.click('.ai-chat-toolbar .new-chat-btn')
     await delay(1000)
 
     // Verify that the chat history is now empty
