@@ -78,6 +78,29 @@ module.exports = (client, app) => {
     await s.waitFor({ state: 'visible', timeout: 10000 })
     await s.dblclick()
   }
+  // Right-click to open an Ant Design context menu (trigger: ['contextMenu'])
+  // and wait for the dropdown to actually become visible. Retries the
+  // right-click when the menu fails to open, which hardens against the
+  // intermittent race where the contextmenu event is missed during a
+  // re-render / open animation.
+  client.openContextMenu = async function (sel, x = 30, y = 20, retries = 3) {
+    const dropdownSel = '.ant-dropdown:not(.ant-dropdown-hidden)'
+    for (let i = 0; i < retries; i++) {
+      await client.rightClick(sel, x, y)
+      try {
+        await client.locator(dropdownSel).first().waitFor({
+          state: 'visible',
+          timeout: 2000
+        })
+        return
+      } catch (e) {
+        // The context menu did not open in time; retry the right click.
+      }
+    }
+    // Final attempt: let the caller's menu-item click surface a clear error
+    // if the dropdown still fails to appear.
+    await client.rightClick(sel, x, y)
+  }
   client.readClipboard = async () => {
     return app.evaluate(async ({ clipboard }) => clipboard.readText())
   }
