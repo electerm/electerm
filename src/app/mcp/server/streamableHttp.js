@@ -139,6 +139,25 @@ class StreamableHTTPServerTransport {
       if (req.method === 'DELETE') {
         this.close()
         res.status(200).end()
+      } else if (req.method === 'GET') {
+        // Open a no-op SSE listening stream per MCP Streamable HTTP spec.
+        // The server does not currently push server-initiated messages,
+        // but keeping the stream alive with heartbeats satisfies strict
+        // clients (e.g. Claude Agent SDK) that require a valid SSE stream.
+        res.setHeader('Content-Type', 'text/event-stream')
+        res.setHeader('Cache-Control', 'no-cache')
+        res.setHeader('Connection', 'keep-alive')
+        res.status(200)
+        // Send an initial SSE comment to flush headers
+        res.write(': ping\n\n')
+        // Heartbeat every 15s to keep the connection alive
+        const heartbeat = setInterval(() => {
+          res.write(': ping\n\n')
+        }, 15000)
+        // Clean up when the client disconnects
+        req.on('close', () => {
+          clearInterval(heartbeat)
+        })
       } else {
         res.status(200).end()
       }
