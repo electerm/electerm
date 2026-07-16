@@ -1,8 +1,59 @@
 const { test, describe, before } = require('node:test')
 const assert = require('assert/strict')
 const axios = require('axios')
+const http = require('http')
 
 const serverUrl = 'http://127.0.0.1:30837/mcp'
+
+// Helper: make a GET request to a streaming SSE endpoint, collect headers and
+// initial data, then destroy the connection (since the stream stays open).
+async function makeStreamGetRequest (urlStr, headers = {}, timeoutMs = 5000) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlStr)
+    const req = http.request({
+      hostname: url.hostname,
+      port: url.port,
+      path: url.pathname,
+      method: 'GET',
+      headers
+    }, (res) => {
+      let data = ''
+      let settled = false
+
+      const finish = () => {
+        if (!settled) {
+          settled = true
+          res.destroy()
+          resolve({
+            status: res.statusCode,
+            headers: res.headers,
+            data
+          })
+        }
+      }
+
+      res.on('data', (chunk) => {
+        data += chunk.toString()
+        // Once we receive the initial SSE comment, resolve immediately
+        if (data.includes(': ping')) {
+          finish()
+        }
+      })
+
+      res.on('end', finish)
+      // Safety timeout
+      setTimeout(finish, timeoutMs)
+    })
+
+    req.on('error', reject)
+    req.setTimeout(timeoutMs, () => {
+      req.destroy()
+      reject(new Error('Stream request timed out'))
+    })
+
+    req.end()
+  })
+}
 
 // Helper function to make HTTP requests
 async function makeHttpRequest (method, urlStr, data = null, headers = {}) {
@@ -197,6 +248,52 @@ describe('mcp-widget', function () {
     assert.ok(toolNames.includes('get_electerm_background_task_status'))
     assert.ok(toolNames.includes('get_electerm_background_task_log'))
     assert.ok(toolNames.includes('cancel_electerm_background_task'))
+  })
+
+  // ─── GET /mcp SSE listening stream tests (Issue #4431) ───────────────
+
+  test('GET /mcp with valid session should return SSE stream with correct headers', { timeout: 100000 }, async function () {
+    assert.ok(sessionId, 'Need a valid session for this test')
+
+    const streamRes = await makeStreamGetRequest(serverUrl, {
+      Accept: 'text/event-stream',
+      'Mcp-Session-Id': sessionId
+    })
+
+    assert.equal(streamRes.status, 200)
+    assert.equal(streamRes.headers['content-type'], 'text/event-stream')
+    assert.equal(streamRes.headers['cache-control'], 'no-cache')
+    assert.equal(streamRes.headers.connection, 'keep-alive')
+    // The server should send an initial SSE comment to flush headers
+    assert.ok(
+      streamRes.data.includes(': ping'),
+      `Expected SSE comment ': ping' in initial data, got: ${streamRes.data}`
+    )
+  })
+
+  test('GET /mcp without session ID should return 400', { timeout: 100000 }, async function () {
+    try {
+      await makeHttpRequest('get', serverUrl, null, {
+        Accept: 'text/event-stream'
+      })
+      assert.fail('Expected GET /mcp without session to fail with 400')
+    } catch (err) {
+      assert.ok(err.response, 'Expected an error response')
+      assert.equal(err.response.status, 400)
+    }
+  })
+
+  test('GET /mcp with invalid session ID should return 400', { timeout: 100000 }, async function () {
+    try {
+      await makeHttpRequest('get', serverUrl, null, {
+        Accept: 'text/event-stream',
+        'Mcp-Session-Id': 'invalid-session-id-12345'
+      })
+      assert.fail('Expected GET /mcp with invalid session to fail with 400')
+    } catch (err) {
+      assert.ok(err.response, 'Expected an error response')
+      assert.equal(err.response.status, 400)
+    }
   })
 
   // ─── Tool call protocol tests ───────────────────────────────────────────
