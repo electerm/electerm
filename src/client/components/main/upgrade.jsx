@@ -40,7 +40,7 @@ export default class Upgrade extends PureComponent {
   downloadTimer = null
 
   componentDidMount () {
-    if (window.et.isWebApp) {
+    if (window.et.disableUpgradeCheck) {
       return
     }
     this.id = 'upgrade'
