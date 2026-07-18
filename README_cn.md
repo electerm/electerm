@@ -23,6 +23,7 @@
 - [electerm online](https://cloud.electerm.org): 公共免费在线electerm应用
 - [electerm demo](https://demo.electerm.org): 在线演示
 - [electerm AI](https://ai.electerm.org): 免费为 electerm 用户提供 AI
+- [electerm Android](https://github.com/electerm/electerm-android): electerm for Android
 - [electerm deb repo](https://repos.electerm.org/deb): Debian repo of electerm
 - [electerm rpm repo](https://repos.electerm.org/rpm): RPM repo of electerm
 
