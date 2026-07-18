@@ -197,6 +197,7 @@ export const commonLineEndings = commonTxLineEndings
 
 export const maxBatchInput = 30
 export const windowControlWidth = 94
+export const mobileBreakpoint = 800
 export const baseUpdateCheckUrls = [
   packInfo.homepage,
   'https://gitee.com/github-zxdong262/electerm/raw/gh-pages'

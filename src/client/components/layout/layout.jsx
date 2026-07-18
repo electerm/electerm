@@ -118,7 +118,8 @@ export default auto(function Layout (props) {
           'leftSidebarWidth',
           'addPanelWidth',
           'pinned',
-          'openedSideBar'
+          'openedSideBar',
+          'isMobile'
         ])
       }
       return (

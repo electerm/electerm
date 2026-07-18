@@ -11,7 +11,9 @@ import {
   addPanelWidthLsKey,
   dismissDelKeyTipLsKey,
   connectionMap,
-  lastAiChatSessionIdKey
+  lastAiChatSessionIdKey,
+  mobileBreakpoint,
+  splitMap
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { refs, refsStatic } from '../components/common/ref'
@@ -58,14 +60,21 @@ export default Store => {
   Store.prototype.onResize = debounce(async function () {
     const { width, height } = await window.pre.runGlobalAsync('getScreenSize')
     const isMaximized = window.pre.runSync('isMaximized')
+    const w = window.innerWidth
+    const isMobile = w <= mobileBreakpoint
     const update = {
       height: window.innerHeight,
-      innerWidth: window.innerWidth,
+      innerWidth: w,
       screenWidth: width,
       screenHeight: height,
-      isMaximized
+      isMaximized,
+      isMobile
     }
     window.store.storeAssign(update)
+    // Force single-column layout on mobile
+    if (isMobile && window.store.layout !== splitMap.c1) {
+      window.store.setLayout(splitMap.c1)
+    }
     window.pre.runGlobalAsync('setWindowSize', {
       ...update,
       height: window.outerHeight

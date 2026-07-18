@@ -1,14 +1,23 @@
 /**
  * batch input module
+ *
+ * Unified click-to-open behavior for mobile and desktop:
+ *   - click the compact trigger -> expand the textarea + tab-select panel
+ *   - click outside the panel    -> collapse it
+ *   - press Enter in the textarea -> send `cmd` to all selected tabs
+ *
+ * On desktop the compact trigger is rendered as a read-only Input that only
+ * serves as a clickable affordance — it is never a real input. On mobile it
+ * is a small "B" button to save horizontal space. The open/close logic is
+ * identical for both.
  */
 
-import { Component } from 'react'
+import { Component, createRef } from 'react'
 import {
-  AutoComplete,
+  Button,
   Input
 } from 'antd'
 import {
-  batchInputLsKey,
   terminalWebType,
   terminalRdpType,
   terminalVncType
@@ -24,17 +33,52 @@ export default class BatchInput extends Component {
     super(props)
     this.state = {
       cmd: '',
-      open: false,
-      enter: false
+      open: false
     }
+    this.outerRef = createRef()
+    this.textAreaRef = createRef()
+  }
+
+  componentDidMount () {
+    document.addEventListener('mousedown', this.handleDocClick)
   }
 
   componentWillUnmount () {
-    clearTimeout(this.timer)
+    document.removeEventListener('mousedown', this.handleDocClick)
   }
 
-  handleEnter = (e) => {
-    const { batchInputSelectedTabIds } = window.store
+  // Collapse the panel when the user clicks anywhere outside of it.
+  // Clicks inside an antd Popover (e.g. the tab-select popover, which renders
+  // in a portal outside this node) are treated as "inside" so interacting with
+  // tab selection does not collapse the panel.
+  handleDocClick = (ev) => {
+    if (!this.state.open) {
+      return
+    }
+    const node = this.outerRef.current
+    if (node && node.contains(ev.target)) {
+      return
+    }
+    if (ev.target && ev.target.closest && ev.target.closest('.ant-popover')) {
+      return
+    }
+    this.setState({ open: false })
+  }
+
+  handleToggle = () => {
+    const willOpen = !this.state.open
+    if (willOpen) {
+      window.store.filterBatchInputSelectedTabIds()
+    }
+    this.setState({ open: willOpen }, () => {
+      if (willOpen && this.textAreaRef.current) {
+        this.textAreaRef.current.focus()
+      }
+    })
+  }
+
+  handleSubmit = (ev) => {
+    const { batchInputSelectedTabIds } = this.props
     const { cmd } = this.state
     if (!cmd.trim()) {
       return
@@ -45,74 +89,13 @@ export default class BatchInput extends Component {
       cmd: '',
       open: false
     })
-    e.stopPropagation()
+    ev?.stopPropagation()
   }
 
-  handleChange = (v = '') => {
-    let vv = v.replace(/^\d+:/, '').replace(/\n$/, '')
-    if (vv === batchInputLsKey) {
-      window.store.clearBatchInput()
-      vv = ''
-    }
+  handleChange = (ev) => {
     this.setState({
-      cmd: vv,
-      open: false
+      cmd: ev.target.value
     })
-  }
-
-  handleClick = () => {
-    this.setState({
-      open: true
-    })
-    window.store.filterBatchInputSelectedTabIds()
-  }
-
-  handleBlur = () => {
-    this.setState({
-      open: false
-    })
-  }
-
-  mapper = (v, i) => {
-    return {
-      value: `${i}:${v}`,
-      label: v
-    }
-  }
-
-  renderClear = () => {
-    return {
-      value: batchInputLsKey,
-      label: e('clear')
-    }
-  }
-
-  buildOptions = () => {
-    const arr = this.props.batchInputs.map(this.mapper)
-    if (arr.length) {
-      return [
-        ...arr,
-        this.renderClear()
-      ]
-    }
-    return []
-  }
-
-  handleMouseEnter = () => {
-    clearTimeout(this.timer)
-    this.setState({
-      enter: true
-    })
-  }
-
-  leave = () => {
-    this.setState({
-      enter: false
-    })
-  }
-
-  handleMouseLeave = () => {
-    this.timer = setTimeout(this.leave, 5000)
   }
 
   getTabs = () => {
@@ -122,43 +105,54 @@ export default class BatchInput extends Component {
         tab.type !== terminalRdpType &&
         tab.type !== terminalVncType
     })).sort((a, b) => {
-      // Current tab goes first
+      // current tab goes first
       if (a.id === activeTabId) return -1
       if (b.id === activeTabId) return 1
       return 0
     })
   }
 
-  render () {
-    const { cmd, open, enter } = this.state
-    const {
-      batchInputSelectedTabIds
-    } = this.props
-    const opts = {
-      options: this.buildOptions(),
-      value: cmd,
-      onChange: this.handleChange,
-      defaultOpen: false,
-      open,
-      className: 'batch-input-wrap'
+  renderTrigger () {
+    const { isMobile } = this.props
+    if (isMobile) {
+      return (
+        <Button
+          size='small'
+          type='text'
+          onClick={this.handleToggle}
+        >
+          B
+        </Button>
+      )
     }
+    // Desktop: an input-shaped, read-only affordance. It is NOT a real input —
+    // clicking it expands the panel where the user actually types.
+    return (
+      <Input
+        size='small'
+        readOnly
+        placeholder={e('batchInput')}
+        className='batch-input-holder'
+        style={{ cursor: 'pointer' }}
+        onClick={this.handleToggle}
+      />
+    )
+  }
+
+  render () {
+    const { open } = this.state
+    const { batchInputSelectedTabIds } = this.props
     const cls = classNames(
       'batch-input-outer',
-      {
-        'bi-show': open || enter
-      }
+      { 'bi-show': open }
     )
-    const inputProps = {
-      size: 'small',
-      placeholder: e('batchInput'),
-      className: 'batch-input-holder'
-    }
     const textAreaProps = {
-      onPressEnter: this.handleEnter,
-      onClick: this.handleClick,
-      onBlur: this.handleBlur,
+      ref: this.textAreaRef,
+      onPressEnter: this.handleSubmit,
+      onChange: this.handleChange,
+      value: this.state.cmd,
       size: 'small',
-      autoSize: { minRows: 1 },
+      autoSize: { minRows: 2, maxRows: 6 },
       placeholder: e('batchInput'),
       allowClear: true
     }
@@ -173,22 +167,15 @@ export default class BatchInput extends Component {
     return (
       <span
         className={cls}
-        onMouseEnter={this.handleMouseEnter}
-        onMouseLeave={this.handleMouseLeave}
+        ref={this.outerRef}
       >
         <span className='bi-compact'>
-          <Input
-            {...inputProps}
-          />
+          {this.renderTrigger()}
         </span>
         <span className='bi-full'>
-          <AutoComplete
-            {...opts}
-          >
-            <Input.TextArea
-              {...textAreaProps}
-            />
-          </AutoComplete>
+          <Input.TextArea
+            {...textAreaProps}
+          />
           <TabSelect {...tabSelectProps} />
         </span>
       </span>

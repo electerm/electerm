@@ -83,6 +83,9 @@ export default class Tabs extends Component {
   }
 
   isOverflow = () => {
+    if (this.props.isMobile || !this.domRef.current) {
+      return false
+    }
     const { tabs = [] } = this.props
     const len = tabs.length
     const addBtnWidth = 22
@@ -120,6 +123,9 @@ export default class Tabs extends Component {
   }
 
   adjustScroll = () => {
+    if (this.props.isMobile || !this.domRef.current) {
+      return
+    }
     const { tabs, currentBatchTabId, batch } = this.props
     const index = tabs.findIndex(t => t.id === currentBatchTabId)
     const tabsDomWith = Array.from(
@@ -139,6 +145,9 @@ export default class Tabs extends Component {
   }
 
   handleScrollLeft = () => {
+    if (!this.domRef.current) {
+      return
+    }
     let { scrollLeft } = this.domRef.current
     scrollLeft = scrollLeft - tabMargin - tabWidth
     if (scrollLeft < 0) {
@@ -148,6 +157,9 @@ export default class Tabs extends Component {
   }
 
   handleScrollRight = () => {
+    if (!this.domRef.current) {
+      return
+    }
     let { scrollLeft } = this.domRef.current
     scrollLeft = scrollLeft + tabMargin + tabWidth
     if (scrollLeft < 0) {
@@ -349,8 +361,69 @@ export default class Tabs extends Component {
     return null
   }
 
+  renderMobileTabsDropdown (items) {
+    return (
+      <Dropdown
+        menu={{ items }}
+        placement='bottomRight'
+        trigger={['click']}
+      >
+        <DownOutlined className='tabs-dd-icon' />
+      </Dropdown>
+    )
+  }
+
+  renderMobileTabsExtra (items) {
+    return (
+      <div className='mobile-tabs-extra'>
+        {this.renderAddBtn()}
+        {
+          items && items.length
+            ? this.renderMobileTabsDropdown(items)
+            : null
+        }
+      </div>
+    )
+  }
+
+  renderMobileTabs () {
+    const { tabs = [], currentBatchTabId } = this.props
+    const currentTab = tabs.find(t => t.id === currentBatchTabId)
+    const items = tabs.map((t, i) => {
+      return {
+        key: i + '##' + t.id,
+        label: (
+          <span><TabTitle tab={t} /></span>
+        ),
+        onClick: () => this.handleClickMenu({ key: i + '##' + t.id })
+      }
+    })
+    const tabProps = {
+      ...this.props,
+      tab: currentTab,
+      isLast: true,
+      addTab: this.handleTabAdd,
+      tabIndex: 0
+    }
+    const currentTabEl = currentTab
+      ? <Tab {...tabProps} key={currentTab.id} />
+      : null
+    return (
+      <div className='tabs mobile-tabs' ref={this.tabsRef}>
+        <div className='tabs-inner mobile-tabs-inner'>
+          {currentTabEl}
+        </div>
+        {this.renderMobileTabsExtra(items)}
+        {this.renderWindowControl()}
+      </div>
+    )
+  }
+
   renderTabs () {
     const { overflow } = this.state
+    if (this.props.isMobile) {
+      return this.renderMobileTabs()
+    }
     return (
       <div className='tabs' ref={this.tabsRef}>
         {this.renderContent()}

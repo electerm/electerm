@@ -1,8 +1,9 @@
 import { auto } from 'manate/react'
 import {
-  Select
+  Select,
+  Dropdown
 } from 'antd'
-import { InfoCircleOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, TranslationOutlined } from '@ant-design/icons'
 import './footer.styl'
 import { statusMap } from '../../common/constants'
 import BatchInput from './batch-input'
@@ -54,9 +55,9 @@ export default auto(function FooterEntry (props) {
     const batchProps = {
       input: batchInput,
       tabs: store.tabs,
-      batchInputs: store.batchInputs,
       batchInputSelectedTabIds: store.batchInputSelectedTabIds,
-      activeTabId: store.activeTabId
+      activeTabId: store.activeTabId,
+      isMobile: store.isMobile
     }
     return (
       <div className='terminal-footer-unit terminal-footer-center'>
@@ -95,6 +96,28 @@ export default auto(function FooterEntry (props) {
       onSelect: handleSwitchEncoding,
       size: 'small',
       popupMatchSelectWidth: false
+    }
+    if (props.store.isMobile) {
+      const items = encodes.map(k => {
+        return {
+          key: k,
+          label: k.toUpperCase(),
+          onClick: () => handleSwitchEncoding(k)
+        }
+      })
+      return (
+        <div className='terminal-footer-unit terminal-footer-info'>
+          <Dropdown
+            menu={{ items }}
+            placement='topRight'
+            trigger={['click']}
+          >
+            <TranslationOutlined
+              className='pointer font18 mobile-encode-trigger'
+            />
+          </Dropdown>
+        </div>
+      )
     }
     return (
       <div className='terminal-footer-unit terminal-footer-info'>

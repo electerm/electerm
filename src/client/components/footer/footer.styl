@@ -39,22 +39,26 @@
   // margin so the history icon stays roughly equidistant from AI and Q
   margin-left 3px
 .batch-input-outer
+  position relative
   .bi-full
     display none
   &.bi-show
-    line-height 20px
-    .bi-full
-      display inline
+    // hide the trigger while the popup is open so we don't show two
+    // "batch input" fields at once (desktop trigger is an input-shaped affordance)
     .bi-compact
       display none
+    .bi-full
+      display flex
+      flex-direction column
+      gap 6px
+      position absolute
+      bottom 100%
+      left 0
+      z-index 1000
+      background var(--main)
+      padding 8px 10px
+      box-shadow 0 -2px 8px rgba(0, 0, 0, 0.2)
+      border-radius 4px 4px 0 0
+      min-width 360px
 .batch-input-holder
   width 100px
-@media (max-width: 500px)
-  .batch-input-outer
-    &.bi-show
-      position fixed
-      left 100px
-      right 0
-      bottom 0
-      z-index 100
-      background var(--main)

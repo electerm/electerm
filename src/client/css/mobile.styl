@@ -1,8 +1,102 @@
-.l500
+.l800
   display none !important
 
-@media (max-width: 500px)
-  .w500
+@media (max-width: 800px)
+  .w800
     display none !important
-  .l500
+  .l800
     display inline !important
+
+// ---------------------------------------------------------------------------
+// Mobile UI driven by store.isMobile (is-mobile class on root)
+// Breakpoint: 800px (see mobileBreakpoint in constants.js)
+// ---------------------------------------------------------------------------
+.is-mobile
+  // ---- 1. Tabs: show only current tab + dropdown, close icon always visible
+  .tabs.mobile-tabs
+    display flex
+    align-items center
+    overflow hidden
+  // leave room for window controls on desktop platforms resized narrow
+  &.not-system-ui.not-mac.not-webapp
+    .tabs.mobile-tabs
+      padding-right 94px
+  .mobile-tabs-inner
+    flex 1
+    min-width 0
+    overflow hidden
+    display flex
+    align-items center
+    margin-left 0 !important
+    width auto !important
+    .tab
+      flex 1
+      max-width none
+      min-width 0
+      width auto
+      text-align left
+      // close icon always visible on mobile
+      .tab-close
+        display block
+  .mobile-tabs-extra
+    flex-shrink 0
+    display flex
+    align-items center
+    padding 0 10px
+    line-height 36px
+    z-index 20
+    .tabs-add-btn
+      margin 0
+      &.empty
+        font-size 20px
+        margin 0
+    .tabs-dd-icon
+      margin-left 8px
+      font-size 14px
+      color var(--text)
+      &:hover
+        color var(--text-light)
+  // tabs-extra must not render on mobile (defensive css too)
+  .tabs-extra
+    display none !important
+
+  // ---- 2. Footer batch input: show "B" button, click to expand
+  // match the quick-commands "Q" button: no flex-grow, same small margin
+  .terminal-footer-center
+    flex-grow 0
+    margin-left 3px
+  .batch-input-outer
+    &.bi-show
+      .bi-full
+        // full-width fixed popup above the footer (mobile is narrow)
+        position fixed
+        left 0
+        right 0
+        bottom 36px
+        z-index 200
+        background var(--main)
+        padding 8px 10px
+        box-shadow 0 -2px 8px rgba(0, 0, 0, 0.2)
+        width auto
+        min-width 0
+        border-radius 0
+
+  // ---- 3. Footer encode select: show icon, click to open dropdown
+  //        match antd Button small icon size (~14px) used by sibling icons
+  .mobile-encode-trigger,
+  .terminal-info-icon
+    font-size 14px !important
+    line-height 36px
+    padding 0 4px
+    &:hover
+      color var(--text-light)
+
+  // ---- 4. Modal: full width / full bleed on mobile
+  .custom-modal-container
+    padding 0
+  .custom-modal-content
+    width 100% !important
+    max-width 100vw
+    margin-top 0
+    min-height 100vh
+    border-radius 0

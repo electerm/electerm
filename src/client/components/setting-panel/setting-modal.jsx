@@ -182,6 +182,7 @@ export default auto(function SettingModalWrap (props) {
       visible={show}
       useSystemTitleBar={useSystemTitleBar}
       innerWidth={innerWidth}
+      isMobile={props.store.isMobile}
     >
       {renderTabs()}
     </SettingModal>

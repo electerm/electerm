@@ -594,6 +594,9 @@ export default class SessionWrapper extends Component {
   }
 
   renderSplitToggle = () => {
+    if (window.store.isMobile) {
+      return null
+    }
     if (!this.canSplitView() || this.isNotTerminalType()) {
       return null
     }
@@ -673,8 +676,8 @@ export default class SessionWrapper extends Component {
                 onClick={() => this.onChangePane(types[i])}
               >
                 <span className='type-tab-txt'>
-                  <span className='w500'>{e(type)}</span>
-                  <span className='l500'>{simpleMapper[type]}</span>
+                  <span className='w800'>{e(type)}</span>
+                  <span className='l800'>{simpleMapper[type]}</span>
                   <span className='type-tab-line' />
                 </span>
               </span>

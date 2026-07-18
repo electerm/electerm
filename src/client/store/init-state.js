@@ -23,7 +23,8 @@ import {
   resolutionsLsKey,
   syncServerDataKey,
   splitMap,
-  lastAiChatSessionIdKey
+  lastAiChatSessionIdKey,
+  mobileBreakpoint
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { exclude } from 'manate'
@@ -200,6 +201,7 @@ export default () => {
     height: 500,
     isMaximized: window.pre.runSync('isMaximized'),
     hasNodePty: window.pre.runSync('nodePtyCheck'),
+    isMobile: window.innerWidth <= mobileBreakpoint,
     fullscreen: false,
     hideDelKeyTip: ls.getItem(dismissDelKeyTipLsKey) === 'y',
     tabsHeight: 36,

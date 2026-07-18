@@ -37,7 +37,7 @@ export default memo(function TransferList (props) {
   const popProps = {
     placement: 'right',
     destroyOnHidden: true,
-    overlayClassName: 'transfer-list-card',
+    classNames: { root: 'transfer-list-card' },
     content: <TransferModal {...transferModalProps} />
   }
   return (

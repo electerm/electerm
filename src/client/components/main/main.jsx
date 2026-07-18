@@ -113,7 +113,9 @@ export default auto(function Index (props) {
     'not-win': !isWin,
     'qm-pinned': pinnedQuickCommandBar,
     fullscreen,
-    'is-main': !isSecondInstance
+    'is-main': !isSecondInstance,
+    'is-mobile': store.isMobile,
+    'is-desktop': !store.isMobile
   })
   const ext1 = {
     className: cls

@@ -16,6 +16,18 @@ export default class SettingWrap extends Component {
     )
   }
 
+  renderRightClose () {
+    if (this.props.isMobile) {
+      return null
+    }
+    return (
+      <CloseCircleOutlined
+        className='close-setting-wrap-icon close-setting-wrap'
+        onClick={this.props.onCancel}
+      />
+    )
+  }
+
   render () {
     const pops = {
       open: this.props.visible,
@@ -29,10 +41,7 @@ export default class SettingWrap extends Component {
       <Drawer
         {...pops}
       >
-        <CloseCircleOutlined
-          className='close-setting-wrap-icon close-setting-wrap'
-          onClick={this.props.onCancel}
-        />
+        {this.renderRightClose()}
         <CloseCircleOutlined
           className='close-setting-wrap alt-close-setting-wrap'
           onClick={this.props.onCancel}

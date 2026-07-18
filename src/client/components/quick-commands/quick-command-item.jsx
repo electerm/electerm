@@ -111,7 +111,7 @@ export default class QuickCommandsItem extends PureComponent {
         title={this.renderTooltip()}
         placement='top'
         mouseEnterDelay={0.5}
-        overlayClassName='qm-tooltip-overlay'
+        classNames={{ root: 'qm-tooltip-overlay' }}
       >
         <Button
           key={id}
