@@ -65,7 +65,7 @@ export default function DataTransport (props) {
   }
 
   return (
-    <div className='pd2 fix'>
+    <div className='pd2 fix sync-data-transport'>
       <div className='fleft'>
         <Button
           icon={<ExportOutlined />}

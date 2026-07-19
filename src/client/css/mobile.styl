@@ -100,3 +100,18 @@
     margin-top 0
     min-height 100vh
     border-radius 0
+
+  // ---- 5. Sync panel data transport: stack export/import and auto-sync
+  //        vertically with a gap. On narrow screens the right-floated
+  //        auto-sync block wraps under the import button with no vertical
+  //        gap — left-align it and add breathing room.
+  .sync-data-transport
+    .fleft,
+    .fright
+      float none
+    .fright
+      margin-top 8px
+      // the switch carries mg3l (32px left margin) to separate it from the
+      // import button on desktop — reset it when stacked so it left-aligns
+      .ant-switch
+        margin-left 0
