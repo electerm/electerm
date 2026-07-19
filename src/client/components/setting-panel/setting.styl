@@ -15,3 +15,26 @@
   display flex
   flex-wrap wrap
   gap 8px
+
+// passwords list — replaces the old table so content wraps
+// instead of forcing horizontal scroll on narrow/mobile screens
+.setting-passwords-item
+  .setting-passwords-item-inner
+    display flex
+    flex-wrap wrap
+    align-items center
+    gap 8px
+    width 100%
+  .setting-passwords-pwd-cell
+    flex-shrink 0
+  .setting-passwords-count-cell
+    flex-shrink 0
+    margin 0
+  .setting-passwords-host-cell
+    flex 1 1 120px
+    min-width 120px
+    word-break break-all
+    line-height 1.5
+  .setting-passwords-actions-cell
+    flex-shrink 0
+    margin-left auto

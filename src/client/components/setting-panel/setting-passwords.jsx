@@ -11,9 +11,9 @@ import {
 } from '@ant-design/icons'
 import {
   Button,
+  List,
   Modal,
   Space,
-  Table,
   Tag,
   Tooltip,
   Typography,
@@ -126,8 +126,10 @@ export default class SettingPasswords extends Component {
     })
   }
 
-  handleTableChange = (pagination) => {
-    this.setState({ pagination })
+  handlePageChange = (page, pageSize) => {
+    this.setState({
+      pagination: { current: page, pageSize }
+    })
   }
 
   getFilteredData = () => {
@@ -143,84 +145,43 @@ export default class SettingPasswords extends Component {
     })
   }
 
-  getColumns = () => {
-    const columns = [
-      {
-        title: e('password'),
-        dataIndex: 'password',
-        key: 'password',
-        render: () => {
-          const props0 = {
-            children: [
-              <KeyOutlined key='icon' />,
-              <TextAnt keyboard key='text'>********</TextAnt>
-            ]
-          }
-          return <Space>{props0.children}</Space>
-        }
-      },
-      {
-        title: e('count'),
-        dataIndex: 'count',
-        key: 'count',
-        width: 80,
-        render: (count) => {
-          const props0 = {
-            color: 'blue',
-            children: count
-          }
-          return <Tag {...props0} />
-        }
-      },
-      {
-        title: e('host'),
-        dataIndex: 'titles',
-        key: 'host',
-        render: (titles) => {
-          const display = titles.length > 2
-            ? `${titles.slice(0, 2).join(', ')}... (+${titles.length - 2})`
-            : titles.join(', ')
-          const props0 = {
-            title: titles.join('\n'),
-            children: <span>{display}</span>
-          }
-          return <Tooltip {...props0} />
-        }
-      },
-      {
-        title: e('actions'),
-        key: 'actions',
-        width: 80,
-        render: (_, record) => {
-          const copyProps0 = {
-            type: 'text',
-            icon: <CopyOutlined />,
-            onClick: () => this.handleCopyPassword(record.password)
-          }
-          const editProps0 = {
-            type: 'text',
-            icon: <EditOutlined />,
-            onClick: () => this.showEditModal(record)
-          }
-          const copyTooltipProps = {
-            title: e('copy'),
-            children: <Button {...copyProps0} />
-          }
-          const editTooltipProps = {
-            title: e('changePassword'),
-            children: <Button {...editProps0} />
-          }
-          const spaceProps0 = {
-            children: [
-              <Tooltip key='copy' {...copyTooltipProps} />,
-              <Tooltip key='edit' {...editTooltipProps} />
-            ]
-          }
-          return <Space>{spaceProps0.children}</Space>
-        }
-      }
-    ]
-    return columns
+  renderItem = (record) => {
+    const { password, count, titles } = record
+    const display = titles.length > 2
+      ? `${titles.slice(0, 2).join(', ')}... (+${titles.length - 2})`
+      : titles.join(', ')
+    const copyProps = {
+      type: 'text',
+      icon: <CopyOutlined />,
+      onClick: () => this.handleCopyPassword(password)
+    }
+    const editProps = {
+      type: 'text',
+      icon: <EditOutlined />,
+      onClick: () => this.showEditModal(record)
+    }
+    return (
+      <List.Item className='setting-passwords-item' key={password}>
+        <div className='setting-passwords-item-inner'>
+          <Space className='setting-passwords-pwd-cell'>
+            <KeyOutlined />
+            <TextAnt keyboard>********</TextAnt>
+          </Space>
+          <Tag color='blue' className='setting-passwords-count-cell'>{count}</Tag>
+          <Tooltip title={titles.join('\n')}>
+            <span className='setting-passwords-host-cell'>{display}</span>
+          </Tooltip>
+          <Space className='setting-passwords-actions-cell'>
+            <Tooltip title={e('copy')}>
+              <Button {...copyProps} />
+            </Tooltip>
+            <Tooltip title={e('changePassword')}>
+              <Button {...editProps} />
+            </Tooltip>
+          </Space>
+        </div>
+      </List.Item>
+    )
   }
 
   renderContent () {
@@ -241,19 +202,22 @@ export default class SettingPasswords extends Component {
       onChange: this.handleSearchChange,
       placeholder: e('search')
     }
-    const tableProps0 = {
+    const listProps0 = {
       dataSource: data,
-      columns: this.getColumns(),
-      rowKey: 'password',
-      pagination: { ...pagination, showSizeChanger: true },
-      onChange: this.handleTableChange,
+      renderItem: this.renderItem,
+      pagination: {
+        ...pagination,
+        showSizeChanger: true,
+        onChange: this.handlePageChange,
+        onShowSizeChange: this.handlePageChange
+      },
       size: 'small'
     }
 
     return (
       <div>
         <Search {...searchProps0} />
-        <Table {...tableProps0} />
+        <List {...listProps0} />
       </div>
     )
   }
