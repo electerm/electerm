@@ -18,7 +18,7 @@ export default function renderRunScripts () {
       <>
         <Space
           align='baseline'
-          className='width-100'
+          className='width-100 run-scripts-space'
           key={field.key}
         >
           <FormItem

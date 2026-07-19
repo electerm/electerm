@@ -16,6 +16,15 @@
 .number-input
   min-width 210px
 
+// On mobile, stack loginScriptDelay and loginScript vertically instead of
+// horizontally (the antd Space renders them side by side by default).
+.is-mobile
+  .run-scripts-space.ant-space
+    flex-direction column
+    align-items stretch
+    .ant-space-item
+      width 100%
+
 .tree-select-wrapper
   display flex
   flex-direction column
