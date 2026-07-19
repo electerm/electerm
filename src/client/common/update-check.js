@@ -55,11 +55,11 @@ export async function getLatestReleaseVersion (n) {
       return p + pre + k + '=' + encodeURIComponent(info[k])
     }, '')
   }
-
-  let url = `${baseUpdateCheckUrls[0]}/version.html${q}`
+  const versionFile = window.et.versionFile || 'version.html'
+  let url = `${baseUpdateCheckUrls[0]}/${versionFile}${q}`
   let tagName = await getInfo(url)
   if (!tagName) {
-    url = `${baseUpdateCheckUrls[1]}/version.html${q}`
+    url = `${baseUpdateCheckUrls[1]}/${versionFile}${q}`
     tagName = await getInfo(url)
   }
   if (tagName) {
