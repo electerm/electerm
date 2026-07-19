@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons'
 import {
   Button,
-  List,
+  Pagination,
   Modal,
   Space,
   Tag,
@@ -161,7 +161,7 @@ export default class SettingPasswords extends Component {
       onClick: () => this.showEditModal(record)
     }
     return (
-      <List.Item className='setting-passwords-item' key={password}>
+      <div className='setting-passwords-item' key={password}>
         <div className='setting-passwords-item-inner'>
           <Space className='setting-passwords-pwd-cell'>
             <KeyOutlined />
@@ -180,12 +180,13 @@ export default class SettingPasswords extends Component {
             </Tooltip>
           </Space>
         </div>
-      </List.Item>
+      </div>
     )
   }
 
   renderContent () {
     const { search, pagination } = this.state
+    const { current, pageSize } = pagination
     const data = this.getFilteredData()
 
     if (data.length === 0) {
@@ -202,22 +203,29 @@ export default class SettingPasswords extends Component {
       onChange: this.handleSearchChange,
       placeholder: e('search')
     }
-    const listProps0 = {
-      dataSource: data,
-      renderItem: this.renderItem,
-      pagination: {
-        ...pagination,
-        showSizeChanger: true,
-        onChange: this.handlePageChange,
-        onShowSizeChange: this.handlePageChange
-      },
+
+    // clamp current page when filtering shrinks the data set
+    const pageCount = Math.ceil(data.length / pageSize)
+    const safePage = Math.min(current, Math.max(pageCount, 1))
+    const pagedData = data.slice((safePage - 1) * pageSize, safePage * pageSize)
+
+    const paginationProps0 = {
+      total: data.length,
+      current: safePage,
+      pageSize,
+      showSizeChanger: true,
+      onChange: this.handlePageChange,
+      onShowSizeChange: this.handlePageChange,
       size: 'small'
     }
 
     return (
       <div>
         <Search {...searchProps0} />
-        <List {...listProps0} />
+        <div className='setting-passwords-list'>
+          {pagedData.map(item => this.renderItem(item))}
+        </div>
+        <Pagination {...paginationProps0} />
       </div>
     )
   }
