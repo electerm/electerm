@@ -69,7 +69,7 @@
     "@xterm/addon-web-links": "0.13.0-beta.288",
     "@xterm/addon-webgl": "0.20.0-beta.287",
     "@xterm/xterm": "6.1.0-beta.288",
-    "antd": "6.4.5",
+    "antd": "6.5.1",
     "classnames": "2.5.1",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",

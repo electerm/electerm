@@ -656,7 +656,8 @@ export default class SessionWrapper extends Component {
     const simpleMapper = {
       [paneMap.terminal]: 'T',
       [paneMap.fileManager]: 'F',
-      [paneMap.ssh]: 'T'
+      [paneMap.ssh]: 'T',
+      [paneMap.sftp]: 'S'
     }
     return (
       <div className='term-sftp-tabs fleft'>
