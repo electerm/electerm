@@ -115,3 +115,20 @@
       // import button on desktop — reset it when stacked so it left-aligns
       .ant-switch
         margin-left 0
+
+  // ---- 6. Solid Radio.Button groups (e.g. SSH auth type selector, session
+  //        type selector): on narrow screens the connected button row wraps,
+  //        but antd styles it as a single horizontal strip — adjacent buttons
+  //        share borders via -1px margin and border-radius is only applied to
+  //        the first/last child. When the row wraps, radius/borders break and
+  //        the UI looks messed up. Convert each button to a standalone pill so
+  //        wrapping stays tidy.
+  .ant-radio-group.ant-radio-group-solid
+    display flex
+    flex-wrap wrap
+    gap 6px
+    .ant-radio-button-wrapper
+      border-radius 3px
+      margin-inline-end 0
+      &::before
+        display none
