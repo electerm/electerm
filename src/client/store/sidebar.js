@@ -29,6 +29,15 @@ export default Store => {
     }
   }
 
+  Store.prototype.handleCloseSidebar = function () {
+    const { store } = window
+    if (store.pinned) {
+      ls.setItem(sidebarPinnedKey, 'false')
+      store.pinned = false
+    }
+    store.setOpenedSideBar('')
+  }
+
   Store.prototype.handleSidebarPanelTab = function (tab) {
     window.store.sidebarPanelTab = tab
   }

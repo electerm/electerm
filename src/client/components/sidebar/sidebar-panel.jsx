@@ -9,6 +9,7 @@ import { Tabs, Tooltip } from 'antd'
 import MultiSelectModal from '../common/multi-select-modal'
 import {
   ArrowsAltOutlined,
+  CloseOutlined,
   EditOutlined,
   PlusCircleOutlined,
   ShrinkOutlined,
@@ -105,6 +106,10 @@ export default memo(function SidebarPanel (props) {
               onClick={store.handlePin}
             />
           </Tooltip>
+          <CloseOutlined
+            {...prps}
+            onClick={store.handleCloseSidebar}
+          />
         </div>
         <div className='pd1y pd2x'>
           <Tabs {...tabsProps} />
