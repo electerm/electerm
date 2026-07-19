@@ -79,3 +79,26 @@
     width 100%
   .qm-label-select
     width 100%
+
+// On mobile, stack the quick-command row (name / delay / command / remove)
+// vertically instead of side by side — the horizontal Space.Compact layout
+// is too cramped on narrow screens.
+.is-mobile
+  .qm-cmd-row.ant-space-compact
+    display flex
+    flex-direction column
+    align-items stretch
+    gap 8px
+    .ant-space-compact-item
+      width 100%
+    // reset the constrained widths so inputs fill the row when stacked
+    .qm-name-input
+      max-width none
+      width 100%
+    .ant-input-number
+      width 100% !important
+    // keep the drag handle + remove button on a tidy line of their own
+    > .drag
+      align-self flex-start
+    > button:last-child
+      align-self flex-end

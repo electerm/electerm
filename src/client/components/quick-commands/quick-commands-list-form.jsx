@@ -67,7 +67,7 @@ export default function renderQm (form) {
     return (
       <Space.Compact
         align='center'
-        className='width-100 mg2b'
+        className='width-100 mg2b qm-cmd-row'
         key={field.key}
         draggable
         onDragStart={(e) => handleDragStart(e, i)}
