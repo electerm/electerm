@@ -110,7 +110,7 @@ export default function DeepLinkControl () {
       <Tooltip
         title={renderTooltipContent()}
       >
-        <Space>
+        <div className='deep-link-btns'>
           {
             !isAllRegistered && (
               <Button
@@ -134,7 +134,7 @@ export default function DeepLinkControl () {
               </Button>
             )
           }
-        </Space>
+        </div>
       </Tooltip>
     </div>
   )
