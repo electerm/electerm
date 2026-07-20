@@ -30,12 +30,14 @@ try running electerm with one of these flags:
   4. --disable-hardware-acceleration
 
 Or set environment variable:
-  set DISABLE_GPU=1
+  DISABLE_GPU=1         (Disable GPU)
+  DISABLE_GPU_SANDBOX=1 (Disable GPU + sandbox, use SwiftShader)
+  ENABLE_GPU=1          (Linux only: force-enable hardware GPU)
 
 Example:
-  electerm.exe --no-sandbox
+  electerm --no-sandbox
   or
-  set DISABLE_GPU=1 && electerm.exe
+  DISABLE_GPU=1 electerm
 ================================================================================
 `
 
@@ -76,25 +78,34 @@ exports.createApp = async function () {
     app.setDesktopName(packInfo.name)
   }
   // Handle GPU issues on Linux
-  // On Linux, disable GPU for compatibility
-  if (process.platform === 'linux' || process.env.DISABLE_GPU) {
-    app.commandLine.appendSwitch('--disable-gpu')
+  // On Linux, disable GPU for compatibility (many systems lack proper EGL/GL
+  // drivers — servers, containers, VMs, minimal desktops, etc.).
+  // Set ENABLE_GPU=1 to opt out and use hardware GPU acceleration on Linux.
+  if (process.env.ENABLE_GPU !== '1' && (process.platform === 'linux' || process.env.DISABLE_GPU)) {
+    app.commandLine.appendSwitch('disable-gpu')
+    app.commandLine.appendSwitch('disable-gpu-compositing')
+    app.commandLine.appendSwitch('disable-gpu-rasterization')
+    // Use SwiftShader (software GL) to bypass EGL/DRM initialisation entirely.
+    // Without this, the GPU process still tries EGL and spams errors like:
+    //   "Unsupported flags 0x0", "fourcc format invalid",
+    //   "Couldn't allocate DRM buffer", "Invalid format", etc.
+    app.commandLine.appendSwitch('use-gl', 'swiftshader')
   }
   if (process.platform === 'linux') {
-    app.commandLine.appendSwitch('--enable-transparent-visuals')
-    app.commandLine.appendSwitch('--in-process-gpu')
+    app.commandLine.appendSwitch('enable-transparent-visuals')
+    app.commandLine.appendSwitch('in-process-gpu')
   }
   if (process.platform === 'linux' || process.env.DISABLE_HARDWARE_ACCELERATION) {
     app.disableHardwareAcceleration()
   }
   if (process.env.DISABLE_GPU_SANDBOX) {
     app.disableHardwareAcceleration()
-    app.commandLine.appendSwitch('--disable-gpu')
-    app.commandLine.appendSwitch('--disable-gpu-compositing')
-    app.commandLine.appendSwitch('--disable-gpu-rasterization')
-    app.commandLine.appendSwitch('--disable-gpu-sandbox')
-    app.commandLine.appendSwitch('--disable-software-rasterizer')
-    app.commandLine.appendSwitch('--use-gl', 'swiftshader')
+    app.commandLine.appendSwitch('disable-gpu')
+    app.commandLine.appendSwitch('disable-gpu-compositing')
+    app.commandLine.appendSwitch('disable-gpu-rasterization')
+    app.commandLine.appendSwitch('disable-gpu-sandbox')
+    app.commandLine.appendSwitch('disable-software-rasterizer')
+    app.commandLine.appendSwitch('use-gl', 'swiftshader')
   }
   // Handle proxy-related command-line arguments
   if (process.env.NO_PROXY_SERVER) {
