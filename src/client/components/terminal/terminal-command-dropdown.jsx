@@ -2,6 +2,7 @@ import { Component } from 'manate/react/class-components'
 import { refsStatic, refs } from '../common/ref'
 import SuggestionItem from './cmd-item'
 import { aiSuggestionsCache } from '../../common/cache'
+import { appendMandatoryGuardrails } from '../ai/ai-guardrails'
 import classnames from 'classnames'
 import {
   LoadingOutlined
@@ -67,7 +68,7 @@ export default class TerminalCmdSuggestions extends Component {
       'AIchat',
       prompt,
       config.modelAI,
-      config.roleAI,
+      appendMandatoryGuardrails(config.roleAI),
       config.baseURLAI,
       config.apiPathAI,
       config.apiKeyAI,

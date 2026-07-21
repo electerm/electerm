@@ -1,11 +1,12 @@
 import { agentTools, executeToolCall } from './agent-tools'
+import { appendMandatoryGuardrails } from './ai-guardrails'
 
 const MAX_ITERATIONS = 150
 
 function buildAgentSystemPrompt (config) {
   const lang = config.languageAI || window.store.getLangName()
   const baseRole = config.roleAI || 'You are a helpful assistant.'
-  return `${baseRole}
+  return appendMandatoryGuardrails(`${baseRole}
 
 You are operating inside electerm, a terminal/SSH client. You have access to tools that let you:
 - Run commands in terminal tabs and read their output
@@ -21,7 +22,7 @@ Prefer using the active terminal unless the user specifies otherwise.
 For SSH connections, prefer using open_tab to connect directly, or create a bookmark with add_bookmark and open it with open_bookmark if the user wants to save the connection.
 For file transfers, use the sftp_upload and sftp_download tools. The tab must be an SSH/FTP connection with SFTP initialized.
 
-Reply in ${lang} language.`
+Reply in ${lang} language.`)
 }
 
 function updateChatEntry (chatEntry, updates) {

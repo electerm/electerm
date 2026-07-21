@@ -18,6 +18,7 @@ import {
 import SimpleEditor from '../text-editor/simple-editor'
 import { copy } from '../../common/clipboard'
 import download from '../../common/download'
+import { appendMandatoryGuardrails } from '../ai/ai-guardrails'
 import AICategorySelect from './common/ai-category-select.jsx'
 import HelpIcon from '../common/help-icon'
 import Modal from '../common/modal.jsx'
@@ -77,7 +78,7 @@ export default function AIBookmarkForm (props) {
         'AIchat',
         prompt,
         config.modelAI,
-        'You are a helpful assistant that generates bookmark configurations in JSON format.',
+        appendMandatoryGuardrails('You are a helpful assistant that generates bookmark configurations in JSON format.'),
         config.baseURLAI,
         config.apiPathAI,
         config.apiKeyAI,

@@ -3,6 +3,7 @@ import AIOutput from './ai-output'
 import AIStopIcon from './ai-stop-icon'
 import AgentToolCallCard from './agent-tool-call-card'
 import { runAgentLoop } from './agent'
+import { appendMandatoryGuardrails } from './ai-guardrails'
 import {
   Alert,
   Tooltip
@@ -42,7 +43,7 @@ export default function AIChatHistoryItem ({ item }) {
 
   function buildRole () {
     const lang = languageAI || window.store.getLangName()
-    return roleAI + `;用[${lang}]回复`
+    return appendMandatoryGuardrails(roleAI + `;用[${lang}]回复`)
   }
 
   const conversationMessages = useMemo(() => {

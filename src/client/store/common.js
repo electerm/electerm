@@ -4,6 +4,7 @@
 
 import handleError from '../common/error-handler'
 import Modal from '../components/common/modal'
+import { appendMandatoryGuardrails } from '../components/ai/ai-guardrails'
 import { debounce, some, get, pickBy } from 'lodash-es'
 import {
   leftSidebarWidthKey,
@@ -322,7 +323,7 @@ export default Store => {
     const firstEntry = sessionEntries[0]
     const lang = firstEntry.languageAI || store.getLangName()
     const messages = [
-      { role: 'system', content: firstEntry.roleAI + `;用[${lang}]回复` }
+      { role: 'system', content: appendMandatoryGuardrails(firstEntry.roleAI + `;用[${lang}]回复`) }
     ]
 
     // Start from the last compress entry to include its summary as context
