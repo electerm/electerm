@@ -35,6 +35,8 @@
 .ai-stream-output
   max-height 400px
   overflow-y auto
+  &::-webkit-scrollbar-thumb
+    background var(--main-dark)
 
 .ai-chat-input
   position relative
@@ -72,6 +74,7 @@
 
 .ai-chat-sessions-wrap
   width 100%
+  height 100%
   overflow-y auto
   overflow-x hidden
   padding 4px 0
