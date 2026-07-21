@@ -33,10 +33,17 @@
     //     display block
 
 .ai-stream-output
+  position relative
   max-height 400px
   overflow-y auto
   &::-webkit-scrollbar-thumb
     background var(--main-dark)
+.ai-stream-output-flag
+  position absolute
+  top 13px
+  right 10px
+  z-index 10
+
 
 .ai-chat-input
   position relative

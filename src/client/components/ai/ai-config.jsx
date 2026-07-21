@@ -165,7 +165,14 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           <Link to={aiConfigWikiLink}>WIKI: {aiConfigWikiLink}</Link>
         }
         type='info'
-        className='mg2y'
+        className='mg2t mg1b'
+      />
+      <Alert
+        title={
+          window.translate('aiWarn')
+        }
+        type='warning'
+        className='mg2b'
       />
       <div className='mg1b alignright'>
         {renderPresetMenu()}
