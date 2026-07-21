@@ -21,6 +21,8 @@ const defaultAIPreset = {
   nameAI: 'ai.electerm.org(default free)'
 }
 
+// const AIDisclamer = 'AI-generated terminal commands can be inaccurate or unsafe, be careful'
+
 const base = {
   version: pack.version,
   isDev: !isProd,

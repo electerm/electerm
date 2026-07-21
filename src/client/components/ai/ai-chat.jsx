@@ -253,6 +253,9 @@ export default function AIChat (props) {
           {renderSendIcon()}
         </Flex>
       </Flex>
+      {window.et.AIDisclamer && (
+        <div className='ai-disclamer mg1t'>{window.et.AIDisclamer}</div>
+      )}
     </Flex>
   )
 }
