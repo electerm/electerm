@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import {
   ArrowUpOutlined,
   EyeInvisibleFilled,
@@ -7,11 +7,13 @@ import {
   ArrowRightOutlined,
   LoadingOutlined,
   HomeOutlined,
-  PlusOutlined
+  PlusOutlined,
+  MenuOutlined
 } from '@ant-design/icons'
 import {
   Input,
-  Tooltip
+  Tooltip,
+  Popover
 } from 'antd'
 import {
   typeMap
@@ -22,10 +24,11 @@ import KeywordFilter from './keyword-filter'
 
 const e = window.translate
 
-function renderAddonBefore (props, realPath) {
+function AddressPrefixIcons (props) {
   const {
     type,
-    host
+    host,
+    realPath
   } = props
   const isShow = props[`${type}ShowHiddenFile`]
   const title = `${isShow ? e('hide') : e('show')} ${e('hfd')}`
@@ -72,6 +75,37 @@ function renderAddonBefore (props, realPath) {
         onClickHistory={props.onClickHistory}
       />
     </>
+  )
+}
+
+function MobileAddressPrefix (props) {
+  const [open, setOpen] = useState(false)
+  const content = (
+    <div className='sftp-addr-menu-content'>
+      <AddressPrefixIcons {...props} />
+    </div>
+  )
+  return (
+    <Popover
+      content={content}
+      trigger='click'
+      placement='bottomLeft'
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <MenuOutlined className='sftp-addr-menu-icon' />
+    </Popover>
+  )
+}
+
+function renderAddonBefore (props, realPath) {
+  if (window.store.isMobile) {
+    return (
+      <MobileAddressPrefix {...props} realPath={realPath} />
+    )
+  }
+  return (
+    <AddressPrefixIcons {...props} realPath={realPath} />
   )
 }
 
