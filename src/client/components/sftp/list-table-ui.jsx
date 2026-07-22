@@ -137,6 +137,23 @@ export default class FileListTable extends Component {
     ]
   }
 
+  /**
+   * In mobile mode, only show the file name to save horizontal space.
+   * Returns the effective properties used for rendering both the
+   * table header and individual file items.
+   */
+  getRenderProperties = () => {
+    if (window.store.isMobile) {
+      return [{
+        id: 'name',
+        max: 98,
+        min: 2,
+        size: 100
+      }]
+    }
+    return this.state.properties
+  }
+
   getPropsAll = () => {
     return [
       'name',
@@ -179,7 +196,7 @@ export default class FileListTable extends Component {
       onContextMenu: this.onContextMenu,
       onClickName: this.onClickName,
       onResize: this.onResize,
-      properties: this.state.properties,
+      properties: this.getRenderProperties(),
       sortDirection: this.props.sortDirection,
       sortProp: this.props.sortProp,
       maxWidth: this.props.width
@@ -274,7 +291,7 @@ export default class FileListTable extends Component {
     const fileProps = {
       ...this.props.getFileProps(item, type),
       cls,
-      properties: this.state.properties,
+      properties: this.getRenderProperties(),
       setClickFileId: this.setClickFileId
     }
     return (

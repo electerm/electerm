@@ -1211,7 +1211,7 @@ export default class Sftp extends Component {
   renderSftpPanelTitle (type, username, host) {
     if (type === typeMap.remote) {
       return (
-        <div className='sftp-panel-title pd1t pd1b pd1x alignright'>
+        <div className='sftp-panel-title pd1t pd1b pd1x alignright elli'>
           <ReloadOutlined
             className='mg1r pointer'
             onClick={this.handleReloadRemoteSftp}
