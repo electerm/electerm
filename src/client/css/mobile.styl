@@ -145,3 +145,9 @@
       .ant-btn
         border-radius 3px
         margin-right 0
+
+  // ---- 8. Upgrade panel: fixed 440px width overflows narrow mobile screens.
+  //        Constrain it to the viewport minus the right offset (10px) and a
+  //        matching left gap so it never extends past the screen edge.
+  .upgrade-panel
+    max-width calc(100vw - 20px)
