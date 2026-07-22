@@ -37,7 +37,8 @@ import {
   terminalSshConfigType,
   paneMap,
   staticNewItemTabs,
-  isWin
+  isWin,
+  sidebarWidth
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import createTitle from '../common/create-title'
@@ -56,6 +57,22 @@ class Store {
 
   get width () {
     return window.store.innerWidth
+  }
+
+  get leftSidebarWidth () {
+    const { store } = window
+    if (store.isMobile) {
+      return Math.min(store.innerWidth - sidebarWidth, 500)
+    }
+    return store._leftSidebarWidth
+  }
+
+  get rightPanelWidth () {
+    const { store } = window
+    if (store.isMobile) {
+      return Math.min(store.innerWidth, 500)
+    }
+    return store._rightPanelWidth
   }
 
   get config () {

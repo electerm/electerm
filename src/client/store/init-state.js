@@ -123,7 +123,7 @@ export default () => {
     rightPanelVisible: false,
     rightPanelTab: 'info',
     rightPanelPinned: false,
-    rightPanelWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
+    _rightPanelWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
     showAIConfigModal: false,
 
     // for settings related
@@ -164,7 +164,7 @@ export default () => {
 
     // sidebar
     openedSideBar: ls.getItem(openedSidebarKey) || '',
-    leftSidebarWidth: parseInt(ls.getItem(leftSidebarWidthKey), 10) || 300,
+    _leftSidebarWidth: parseInt(ls.getItem(leftSidebarWidthKey), 10) || 300,
     addPanelWidth: parseInt(ls.getItem(addPanelWidthLsKey), 10) || 300,
     menuOpened: false,
     pinned: ls.getItem(sidebarPinnedKey) === 'true',
