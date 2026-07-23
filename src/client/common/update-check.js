@@ -69,6 +69,23 @@ export async function getLatestReleaseVersion (n) {
   }
 }
 
+export function getDownloadUrl (browserDownloadUrl, mirror) {
+  if (!browserDownloadUrl) {
+    return ''
+  }
+  if (mirror === 'gh-proxy') {
+    return `https://electerm-mirror.html5beta.com/${browserDownloadUrl}`
+  } if (mirror === 'sourceforge') {
+    const arr = browserDownloadUrl.split('/')
+    const len = arr.length
+    return `https://master.dl.sourceforge.net/project/electerm.mirror/${arr[len - 2]}/${arr[len - 1]}?viasf=1`
+  } else if (mirror === 'r2') {
+    return `https://electerm-store.html5beta.com/r/${browserDownloadUrl.split('/').pop()}`
+  } else {
+    return browserDownloadUrl
+  }
+}
+
 export async function getLatestReleaseInfo () {
   let url = `${baseUpdateCheckUrls[0]}/data/electerm-github-release.json`
   let res = await getInfo(url)
@@ -76,10 +93,14 @@ export async function getLatestReleaseInfo () {
     url = `${baseUpdateCheckUrls[1]}/data/electerm-github-release.json`
     res = await getInfo(url)
   }
-  return res && res.release
-    ? {
-        body: res.release.body,
-        date: dayjs(res.release.published_at).format('YYYY-MM-DD')
-      }
-    : undefined
+  if (!res || !res.release) {
+    return undefined
+  }
+  const { installSrc } = window.store
+  const asset = (res.release.assets || []).find(r => r.name.includes(installSrc))
+  return {
+    body: res.release.body,
+    date: dayjs(res.release.published_at).format('YYYY-MM-DD'),
+    browserDownloadUrl: asset ? asset.browser_download_url : ''
+  }
 }

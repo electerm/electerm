@@ -9,8 +9,10 @@ import { uniq, filter, pick } from 'lodash-es'
 import {
   maxBookmarkGroupTitleLength,
   defaultBookmarkGroupId,
-  settingMap
+  settingMap,
+  treeSortLsKey
 } from '../../common/constants'
+import { getItemJSON, setItemJSON } from '../../common/safe-local-storage'
 import findParentBySel from '../../common/find-parent'
 import copy from 'json-deep-copy'
 import NewButtonsGroup from './bookmark-toolbar'
@@ -45,7 +47,7 @@ export default class ItemListTree extends Component {
       categoryColor: '',
       categoryId: '',
       searchSelectedRowKey: '',
-      sort: null
+      sort: getItemJSON(treeSortLsKey, null)
     }
     this.listRef = React.createRef()
   }
@@ -111,6 +113,7 @@ export default class ItemListTree extends Component {
   }
 
   handleSortChange = sort => {
+    setItemJSON(treeSortLsKey, sort)
     this.setState({ sort })
   }
 

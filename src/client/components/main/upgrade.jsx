@@ -1,7 +1,7 @@
 import { PureComponent } from 'react'
 import { CloseOutlined, MinusSquareOutlined, UpCircleOutlined } from '@ant-design/icons'
 import { Button, Select, Space } from 'antd'
-import { getLatestReleaseInfo, getLatestReleaseVersion } from '../../common/update-check'
+import { getLatestReleaseInfo, getLatestReleaseVersion, getDownloadUrl } from '../../common/update-check'
 import upgrade from '../../common/upgrade'
 import compare from '../../common/version-compare'
 import Link from '../common/external-link'
@@ -135,6 +135,14 @@ export default class Upgrade extends PureComponent {
           ]
         }
       )
+    }
+    if (window.et.downloadUpgradeFromBrowser) {
+      const { releaseInfo } = this.props.upgradeInfo
+      const downloadUrl = getDownloadUrl(releaseInfo?.browserDownloadUrl, this.state.mirror)
+      if (downloadUrl) {
+        window.openLink(downloadUrl)
+      }
+      return
     }
     this.changeProps({
       upgrading: true
