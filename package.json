@@ -100,7 +100,7 @@
     "@electerm/electerm-themes": "^1.0.1",
     "@electerm/ftp-srv": "1.0.5",
     "@electerm/nedb": "2.0.0",
-    "@electerm/ssh2": "1.19.0",
+    "@electerm/ssh2": "1.21.0",
     "@xterm/headless": "6.1.0-beta.288",
     "axios": "1.18.1",
     "basic-ftp": "6.0.1",
@@ -128,7 +128,7 @@
     "socksv5-server": "^1.0.2",
     "ssh-config-loader": "1.1.2",
     "ssh2-scp": "3.2.0",
-    "tar": "7.5.17",
+    "tar": "7.5.21",
     "trzsz2": "1.2.0",
     "zmodem2": "1.4.0"
   },
