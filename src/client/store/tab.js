@@ -333,7 +333,7 @@ export default Store => {
       !newTab.host &&
       !window.store.hasNodePty
     ) {
-      if (window.et.isWebApp) {
+      if (window.et.isWebApp || window.et.hideLocalTerminal) {
         return
       }
       return message.warning(
