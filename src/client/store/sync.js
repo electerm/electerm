@@ -18,6 +18,32 @@ const {
   version: packVer
 } = packInfo
 
+// Server-managed config keys that must never be overwritten by an
+// imported/synced config, because they are specific to the running
+// server instance.  Overwriting tokenElecterm in particular breaks
+// every subsequent WebSocket connection (terminals, sftp, transfers)
+// because the token no longer matches the server's JWT secret, causing
+// connections to silently fail verification — the terminal appears to
+// connect but input never works until the app is restarted.
+const serverManagedConfigKeys = [
+  'tokenElecterm',
+  'host',
+  'port',
+  'server',
+  'wsHost',
+  'wsPort',
+  'useSystemTitleBar'
+]
+
+function stripServerManagedKeys (conf) {
+  if (!conf || typeof conf !== 'object') return conf
+  const safe = { ...conf }
+  for (const k of serverManagedConfigKeys) {
+    delete safe[k]
+  }
+  return safe
+}
+
 function isJSON (str = '') {
   return str.startsWith('[')
 }
@@ -515,7 +541,7 @@ export default (Store) => {
             get(gist, 'files["userConfig.json"].content')
           )
           if (userConfig) {
-            store.setConfig(userConfig)
+            store.setConfig(stripServerManagedKeys(userConfig))
           }
           if (userConfig && userConfig.theme) {
             store.setTheme(userConfig.theme)
@@ -582,7 +608,7 @@ export default (Store) => {
         get(gist, 'files["userConfig.json"].content')
       )
       if (userConfig) {
-        store.setConfig(userConfig)
+        store.setConfig(stripServerManagedKeys(userConfig))
       }
       if (userConfig && userConfig.theme) {
         store.setTheme(userConfig.theme)
@@ -677,8 +703,10 @@ export default (Store) => {
       }
       store.setItems(n, objs[n])
     }
-    store.updateConfig(objs.config)
-    store.setTheme(objs.config.theme)
+    store.updateConfig(stripServerManagedKeys(objs.config))
+    if (objs.config?.theme) {
+      store.setTheme(objs.config.theme)
+    }
   }
 
   Store.prototype.handleAutoSync = function (v) {

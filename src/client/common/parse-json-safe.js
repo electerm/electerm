@@ -2,6 +2,9 @@
  * safe parse json
  */
 export default str => {
+  if (str === '' || str == null) {
+    return str
+  }
   try {
     return JSON.parse(str)
   } catch (e) {
