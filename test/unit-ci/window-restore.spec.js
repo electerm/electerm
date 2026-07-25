@@ -1,7 +1,8 @@
 const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 const {
-  restoreWindowBounds
+  restoreWindowBounds,
+  isBoundsVisibleOnAnyDisplay
 } = require('../../src/app/lib/window-restore')
 
 const minWindowWidth = 590
@@ -18,11 +19,17 @@ function distanceFromRange (value, start, size) {
   return 0
 }
 
-function createScreen (displays) {
+function createScreen (displays, options = {}) {
   const calls = {
     matching: [],
-    nearestPoint: []
+    nearestPoint: [],
+    allDisplays: 0,
+    primaryDisplay: 0
   }
+  // When simulating a stale display, getDisplayNearestPoint returns a
+  // display that is no longer in the active displays list returned by
+  // getAllDisplays.
+  const staleDisplay = options.staleDisplay
   return {
     calls,
     getDisplayMatching (rect) {
@@ -44,6 +51,9 @@ function createScreen (displays) {
     },
     getDisplayNearestPoint (point) {
       calls.nearestPoint.push(point)
+      if (staleDisplay) {
+        return staleDisplay
+      }
       return displays.reduce((best, display) => {
         const xDistance = distanceFromRange(
           point.x,
@@ -60,6 +70,14 @@ function createScreen (displays) {
           ? { display, distance }
           : best
       }, null).display
+    },
+    getAllDisplays () {
+      calls.allDisplays++
+      return displays
+    },
+    getPrimaryDisplay () {
+      calls.primaryDisplay++
+      return displays[0]
     }
   }
 }
@@ -97,9 +115,10 @@ function restore ({
   displays,
   windowSizeLastState,
   windowPosLastState,
-  isDev = false
+  isDev = false,
+  staleDisplay
 }) {
-  const screen = createScreen(displays)
+  const screen = createScreen(displays, { staleDisplay })
   const bounds = restoreWindowBounds({
     screen,
     windowSizeLastState,
@@ -353,5 +372,127 @@ describe('window bounds restoration', () => {
       x: 100,
       y: 80
     })
+  })
+
+  it('falls back to the primary display when the nearest display is stale', () => {
+    // Simulate: window was on an external display that has been
+    // disconnected. getDisplayNearestPoint still returns the stale
+    // display, but getAllDisplays only reports the primary display.
+    const primary = display({ x: 0, y: 0, width: 1920, height: 1080 })
+    const disconnected = display({
+      x: 1920,
+      y: 0,
+      width: 1920,
+      height: 1080,
+      workArea: { x: 1920, y: 0, width: 1920, height: 1040 }
+    })
+
+    const { bounds, screen } = restore({
+      displays: [primary],
+      staleDisplay: disconnected,
+      windowSizeLastState: savedSize({
+        screenWidth: 1920,
+        screenHeight: 1040
+      }),
+      windowPosLastState: { x: 2100, y: 120 }
+    })
+
+    // The computed bounds would be on the disconnected display, so the
+    // safety check should fall back to the primary display's work area.
+    assert.deepEqual(bounds, {
+      width: 1000,
+      height: 700,
+      x: 0,
+      y: 0
+    })
+    assert.equal(screen.calls.allDisplays, 1)
+    assert.equal(screen.calls.primaryDisplay, 1)
+  })
+
+  it('falls back to the primary display when the work area has shrunk since the display was queried', () => {
+    // Simulate a race condition: getDisplayNearestPoint returns a display
+    // with a large work area (e.g. before the dock was resized), but
+    // getAllDisplays reports the same display with a tiny work area.
+    // The clamped bounds are visible in the large work area but not in
+    // the shrunk one, so the safety net must kick in.
+    const largeWorkArea = display({
+      x: 0,
+      y: 0,
+      width: 1920,
+      height: 1080,
+      workArea: { x: 0, y: 0, width: 1920, height: 1080 }
+    })
+    const shrunkWorkArea = display({
+      x: 0,
+      y: 0,
+      width: 1920,
+      height: 1080,
+      workArea: { x: 0, y: 0, width: 50, height: 50 }
+    })
+
+    const customScreen = {
+      getDisplayMatching: () => largeWorkArea,
+      getDisplayNearestPoint: () => largeWorkArea,
+      getAllDisplays: () => [shrunkWorkArea],
+      getPrimaryDisplay: () => shrunkWorkArea
+    }
+
+    const bounds = restoreWindowBounds({
+      screen: customScreen,
+      windowSizeLastState: savedSize({
+        screenWidth: 1920,
+        screenHeight: 1080
+      }),
+      windowPosLastState: { x: 500, y: 500 },
+      isDev: false,
+      minWindowWidth,
+      minWindowHeight
+    })
+
+    // The computed bounds (1000x700) are visible in the large work area
+    // but not in the shrunk one (50x50). The safety net falls back to
+    // the primary display's (shrunk) work area.
+    assert.deepEqual(bounds, {
+      width: 50,
+      height: 50,
+      x: 0,
+      y: 0
+    })
+  })
+
+  it('isBoundsVisibleOnAnyDisplay returns true for a fully visible window', () => {
+    const primary = display({ x: 0, y: 0, width: 1920, height: 1080 })
+    assert.equal(
+      isBoundsVisibleOnAnyDisplay(
+        { x: 100, y: 100, width: 800, height: 600 },
+        [primary]
+      ),
+      true
+    )
+  })
+
+  it('isBoundsVisibleOnAnyDisplay returns false for an off-screen window', () => {
+    const primary = display({ x: 0, y: 0, width: 1920, height: 1080 })
+    assert.equal(
+      isBoundsVisibleOnAnyDisplay(
+        { x: 3000, y: 3000, width: 800, height: 600 },
+        [primary]
+      ),
+      false
+    )
+  })
+
+  it('isBoundsVisibleOnAnyDisplay returns true when visible on the second display', () => {
+    const displays = [
+      display({ x: 0, y: 0, width: 1920, height: 1080 }),
+      display({ x: 1920, y: 0, width: 1920, height: 1080 })
+    ]
+    assert.equal(
+      isBoundsVisibleOnAnyDisplay(
+        { x: 2100, y: 100, width: 800, height: 600 },
+        displays
+      ),
+      true
+    )
   })
 })

@@ -11,6 +11,7 @@ const {
   getWindowSize,
   setWindowPos
 } = require('./window-control')
+const { isBoundsVisibleOnAnyDisplay } = require('./window-restore')
 const { onClose } = require('./on-close')
 const { initIpc, initAppServer } = require('./ipc')
 const { disableShortCuts } = require('./key-bind')
@@ -48,6 +49,26 @@ exports.createWindow = async function (userConfig) {
     titleBarStyle: useSystemTitleBar ? 'default' : 'hidden',
     icon: iconPath
   })
+  // Safety net: after the window is created, verify it is actually
+  // visible on at least one currently-connected display. Electron may
+  // adjust the requested bounds, or the display configuration may have
+  // changed between getWindowSize() and window creation. If the window
+  // ends up off-screen (e.g. saved position was on a monitor that has
+  // since been unplugged), move it to the primary display so the user
+  // can always see and interact with the app.
+  {
+    const { screen } = require('electron')
+    const actualBounds = win.getBounds()
+    if (!isBoundsVisibleOnAnyDisplay(actualBounds, screen.getAllDisplays())) {
+      const { workArea } = screen.getPrimaryDisplay()
+      win.setBounds({
+        x: workArea.x,
+        y: workArea.y,
+        width: Math.min(actualBounds.width, workArea.width),
+        height: Math.min(actualBounds.height, workArea.height)
+      })
+    }
+  }
   // hides the traffic lights
   if (isMac) {
     win.setWindowButtonVisibility(true)

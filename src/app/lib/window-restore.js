@@ -23,6 +23,20 @@ function limitWindowPosition (position, workAreaPosition, workAreaSize, windowSi
   return clamp(position, min, max)
 }
 
+function isBoundsVisibleOnAnyDisplay (bounds, displays) {
+  return displays.some(display => {
+    const { workArea } = display
+    const visibleLeft = Math.max(bounds.x, workArea.x)
+    const visibleRight = Math.min(bounds.x + bounds.width, workArea.x + workArea.width)
+    const visibleTop = Math.max(bounds.y, workArea.y)
+    const visibleBottom = Math.min(bounds.y + bounds.height, workArea.y + workArea.height)
+    return visibleRight - visibleLeft >= minVisibleSize &&
+      visibleBottom - visibleTop >= minVisibleSize
+  })
+}
+
+exports.isBoundsVisibleOnAnyDisplay = isBoundsVisibleOnAnyDisplay
+
 exports.restoreWindowBounds = ({
   screen,
   windowSizeLastState,
@@ -67,7 +81,7 @@ exports.restoreWindowBounds = ({
     minWindowHeight
   )
 
-  return {
+  const bounds = {
     width,
     height,
     x: limitWindowPosition(
@@ -83,4 +97,25 @@ exports.restoreWindowBounds = ({
       height
     )
   }
+
+  // Safety net: verify the computed bounds are actually visible on at
+  // least one currently-connected display. This catches edge cases where
+  // the display returned by getDisplayNearestPoint is stale — for example
+  // an external monitor was disconnected but Electron has not yet updated
+  // its internal display list — or where the workArea has changed since
+  // the display was queried. Without this check the window could end up
+  // on a non-existent display and be completely invisible to the user.
+  const allDisplays = screen.getAllDisplays()
+  if (!isBoundsVisibleOnAnyDisplay(bounds, allDisplays)) {
+    const primary = screen.getPrimaryDisplay()
+    const { workArea: primaryWorkArea } = primary
+    return {
+      width: Math.min(width, primaryWorkArea.width),
+      height: Math.min(height, primaryWorkArea.height),
+      x: primaryWorkArea.x,
+      y: primaryWorkArea.y
+    }
+  }
+
+  return bounds
 }
