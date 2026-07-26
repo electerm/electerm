@@ -246,10 +246,6 @@ class Term extends Component {
       }
     }
 
-    if (prevProps.config.zoom !== props.config.zoom) {
-      this.handleZoomChange()
-    }
-
     // Check for shell integration related config changes
     const prevShowSuggestions = prevProps.config.showCmdSuggestions
     const currShowSuggestions = props.config.showCmdSuggestions
@@ -1197,31 +1193,6 @@ class Term extends Component {
       .finally(() => {
         this.webglRecovering = false
       })
-  }
-
-  handleZoomChange = () => {
-    // On some platforms (e.g., AltLinux), the ScreenDprMonitor inside xterm
-    // does not fire after setZoomFactor, leaving the WebGL renderer with
-    // stale cell dimensions and breaking copy/paste selection.
-    // The store's zoom function detects this and sets window.et.webglDprBroken.
-    // When the flag is set, reload the WebGL renderer to force a re-measurement.
-    // On normal platforms the flag is never set, so we skip the timer entirely.
-    const { config } = this.props
-    const needReload = window.et.webglDprBroken &&
-      config.rendererType === rendererTypes.webGL &&
-      this.webglAddon
-    if (!needReload) {
-      this.onResize()
-      return
-    }
-    clearTimeout(this.timers.zoomTimer)
-    this.timers.zoomTimer = setTimeout(() => {
-      if (!this.term || this.onClose) {
-        return
-      }
-      this.reloadWebglRenderer('stale dpr after zoom')
-        .then(() => this.onResize())
-    }, 300)
   }
 
   terminalColorQueryDisposables = []
