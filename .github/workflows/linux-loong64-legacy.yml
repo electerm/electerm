@@ -1,7 +1,7 @@
 # Build electerm for loong64 (LoongArch64) Linux - Legacy (old world)
 #
 # This workflow:
-# 1. Downloads GCC 8 cross-compiler from Loongnix for old-world ABI
+# 1. Installs GCC 8 cross-compiler (old-world ABI) from loongson-community GitHub mirror
 # 2. Builds x64 version with legacy deps to get the asar
 # 3. Downloads electron loong64 from Loongnix
 # 4. Cross-compile native modules for loong64 with legacy deps
@@ -31,7 +31,7 @@ jobs:
       with:
         node-version: 20.x
 
-    - name: Install loong64 cross-compiler and GCC 8 from Loongnix
+    - name: Install loong64 cross-compiler and GCC 8 toolchain
       run: |
         sudo add-apt-repository -y universe
         sudo apt-get update
@@ -40,18 +40,24 @@ jobs:
         which loongarch64-linux-gnu-gcc 2>/dev/null || sudo ln -sf /usr/bin/loongarch64-linux-gnu-gcc-14 /usr/bin/loongarch64-linux-gnu-gcc || true
         which loongarch64-linux-gnu-g++ 2>/dev/null || sudo ln -sf /usr/bin/loongarch64-linux-gnu-g++-14 /usr/bin/loongarch64-linux-gnu-g++ || true
 
-        # Download GCC 8 from Loongnix for old-world ABI support
-        # The Loongnix FTP server is unreliable and drops connections, so we retry with resume
-        echo "Downloading GCC 8 cross-compiler from Loongnix..."
-        URL="https://ftp.loongnix.cn/toolchain/gcc/release/loongarch/gcc8/loongson-gnu-toolchain-8.3-x86_64-loongarch64-linux-gnu-rc1.6.tar.xz"
-        for i in 1 2 3 4 5; do
-          echo "Attempt $i..."
-          curl -L --retry 3 --retry-delay 5 -C - -o /tmp/gcc8-loong64.tar.xz "$URL" && break
-          echo "Attempt $i failed, retrying..."
-          sleep 10
-        done
-        sudo mkdir -p /opt/gcc8-loong64
-        sudo tar xJf /tmp/gcc8-loong64.tar.xz -C /opt/gcc8-loong64 --strip-components=1
+        # Install GCC 8 cross-compiler (old-world ABI) from the loongson-community
+        # GitHub mirror. The Loongnix FTP server is unreliable (drops connections),
+        # so we use this mirror which hosts the same gcc-8.3.0 toolchain
+        # (x86_64 host -> loongarch64-linux-gnu, glibc-2.28, binutils-2.31.1)
+        # via Git LFS. Layout matches the FTP tarball (bin/, libexec/, lib/,
+        # loongarch64-linux-gnu/sysroot/, share/, include/).
+        echo "Installing git-lfs..."
+        sudo apt-get install -y git-lfs
+        sudo git lfs install
+
+        echo "Cloning GCC 8 cross-compiler from loongson-community/toolchain-loongarch64..."
+        sudo git clone --depth 1 https://github.com/loongson-community/toolchain-loongarch64.git /opt/gcc8-loong64
+
+        if [ ! -x /opt/gcc8-loong64/bin/loongarch64-linux-gnu-gcc ]; then
+          echo "ERROR: GCC 8 cross-compiler not found at /opt/gcc8-loong64/bin"
+          exit 1
+        fi
+
         echo "/opt/gcc8-loong64/bin" >> $GITHUB_PATH
         export PATH="/opt/gcc8-loong64/bin:$PATH"
         loongarch64-linux-gnu-gcc --version

@@ -75,7 +75,7 @@ install_prerequisites() {
 
     # Check for GCC 8 from Loongnix
     if [ -d "$GCC8_PREFIX/bin" ]; then
-        log_info "Using GCC 8 from Loongnix at $GCC8_PREFIX"
+        log_info "Using GCC 8 (old-world ABI) at $GCC8_PREFIX"
         export PATH="$GCC8_PREFIX/bin:$PATH"
         loongarch64-linux-gnu-gcc --version | head -1
     fi
