@@ -3,14 +3,14 @@
 #
 # Strategy:
 # 1. Build x64 version with legacy deps to get the asar
-# 2. Download electron loong64 from Loongnix FTP
+# 2. Download electron loong64 (old-world) from msojocs GitHub mirror
 # 3. Cross-compile native modules for loong64 (node-pty@0.10.1, serialport@10.5.0)
 # 4. Merge x64 asar with loong64 electron and native modules
 # 5. Upload tar.gz to GitHub release draft
 # 6. Build deb package and upload to GitHub release draft
 #
 # Prerequisites:
-# - loongarch64-linux-gnu-g++ (cross-compiler, preferably GCC 8 from Loongnix)
+# - loongarch64-linux-gnu-g++ (cross-compiler, GCC 8 for old-world ABI)
 # - curl, tar, unzip
 
 set -euo pipefail
@@ -19,8 +19,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 WORK_DIR="$PROJECT_ROOT/work-loong64-legacy"
 ELECTRON_VERSION="22.3.27"
-# Loongnix FTP electron download URL - update version as needed
-ELECTRON_LOONG64_URL="https://ftp.loongnix.cn/electron/LoongArch/v${ELECTRON_VERSION}/electron-v${ELECTRON_VERSION}-linux-loong64.zip"
+# Electron loong64 download URLs (old-world ABI)
+# Primary: msojocs/electron-loongarch GitHub mirror (reliable)
+# Note: old-world binary is named "loongarch64", not "loong64" on this mirror
+ELECTRON_LOONG64_URL="https://github.com/msojocs/electron-loongarch/releases/download/v${ELECTRON_VERSION}/electron-v${ELECTRON_VERSION}-linux-loongarch64.zip"
+# Fallback: Loongnix FTP (may be unreliable)
+ELECTRON_LOONG64_URL_FALLBACK="https://ftp.loongnix.cn/electron/LoongArch/v${ELECTRON_VERSION}/electron-v${ELECTRON_VERSION}-linux-loong64.zip"
 OUTPUT_DIR="$PROJECT_ROOT/dist-loong64-legacy"
 SKIP_NATIVE="${SKIP_NATIVE:-0}"
 WORKFLOW_NAME="${WORKFLOW_NAME:-linux-loong64-legacy}"
@@ -29,7 +33,7 @@ WORKFLOW_NAME="${WORKFLOW_NAME:-linux-loong64-legacy}"
 NODE_PTY_VERSION="1.1.0"
 SERIALPORT_VERSION="10.5.0"
 
-# GCC 8 from Loongnix (old-world ABI)
+# GCC 8 (old-world ABI, installed by workflow from loongson-community mirror)
 GCC8_PREFIX="${GCC8_PREFIX:-/opt/gcc8-loong64}"
 
 RED='\033[0;31m'
@@ -157,13 +161,31 @@ build_x64() {
 # Step 2: Download electron loong64 from Loongnix
 # ============================================================================
 download_electron_loong64() {
-    log_info "Step 2: Downloading electron v${ELECTRON_VERSION} for loong64 from Loongnix..."
+    log_info "Step 2: Downloading electron v${ELECTRON_VERSION} for loong64 (old-world ABI)..."
 
     mkdir -p "$WORK_DIR/electron-loong64"
     local zip_file="$WORK_DIR/electron-loong64.zip"
 
     if [ ! -f "$zip_file" ]; then
-        curl -L -o "$zip_file" "$ELECTRON_LOONG64_URL"
+        # Try GitHub mirror first (reliable), then fall back to Loongnix FTP
+        log_info "Downloading from GitHub mirror (msojocs/electron-loongarch)..."
+        if curl -L --retry 3 --retry-delay 5 -o "$zip_file" "$ELECTRON_LOONG64_URL"; then
+            log_info "Downloaded from GitHub mirror."
+        else
+            log_warn "GitHub mirror download failed, trying Loongnix FTP fallback..."
+            rm -f "$zip_file"
+            for i in 1 2 3; do
+                log_info "FTP attempt $i..."
+                curl -L --retry 3 --retry-delay 5 -C - -o "$zip_file" "$ELECTRON_LOONG64_URL_FALLBACK" && break
+                log_warn "FTP attempt $i failed, retrying..."
+                sleep 10
+            done
+        fi
+    fi
+
+    if [ ! -s "$zip_file" ]; then
+        log_error "Failed to download Electron loong64 from all sources"
+        exit 1
     fi
 
     # Try to unzip, the archive may contain electron directly or in a subdirectory
