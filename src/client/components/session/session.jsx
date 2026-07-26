@@ -677,8 +677,8 @@ export default class SessionWrapper extends Component {
                 onClick={() => this.onChangePane(types[i])}
               >
                 <span className='type-tab-txt'>
-                  <span className='w800'>{e(type)}</span>
-                  <span className='l800'>{simpleMapper[type]}</span>
+                  <span className='type-tab-full'>{e(type)}</span>
+                  <span className='type-tab-short'>{simpleMapper[type]}</span>
                   <span className='type-tab-line' />
                 </span>
               </span>
