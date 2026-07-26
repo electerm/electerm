@@ -5,6 +5,7 @@
 import Modal from '../components/common/modal'
 import { isString } from 'lodash-es'
 import getInitItem from '../common/init-setting-item'
+import { refs } from '../components/common/ref'
 import {
   settingMap,
   maxZoom,
@@ -12,6 +13,37 @@ import {
 } from '../common/constants'
 
 const e = window.translate
+
+/**
+ * Detect whether the WebGL renderer's internal devicePixelRatio is stale
+ * after a zoom factor change. On some platforms (e.g., AltLinux), xterm's
+ * ScreenDprMonitor does not fire after setZoomFactor, leaving the renderer
+ * with stale cell dimensions and breaking copy/paste selection.
+ *
+ * Sets window.et.webglDprBroken to a tri-state value:
+ *   undefined — not yet checked (first zoom)
+ *   true      — platform is affected, WebGL renderer needs reload after zoom
+ *   false     — platform is fine, skip detection on subsequent zooms
+ */
+function detectWebglDprIssue () {
+  if (window.et.webglDprBroken !== undefined) {
+    return
+  }
+  setTimeout(() => {
+    const termRef = refs.get('term-' + window.store.activeTabId)
+    const canvas = termRef?.term?.element?.querySelector('canvas')
+    if (!canvas || !canvas.width) {
+      return
+    }
+    const cssWidth = canvas.getBoundingClientRect().width
+    if (!cssWidth) {
+      return
+    }
+    const canvasDpr = canvas.width / cssWidth
+    const windowDpr = window.devicePixelRatio
+    window.et.webglDprBroken = Math.abs(canvasDpr - windowDpr) > 0.01
+  }, 300)
+}
 
 export default Store => {
   Store.prototype.zoom = function (level = 1, plus = false, zoomOnly) {
@@ -24,6 +56,7 @@ export default Store => {
       nl = minZoom
     }
     window.pre.setZoomFactor(nl)
+    detectWebglDprIssue()
     if (zoomOnly) {
       return
     }

@@ -246,6 +246,10 @@ class Term extends Component {
       }
     }
 
+    if (prevProps.config.zoom !== props.config.zoom) {
+      this.handleZoomChange()
+    }
+
     // Check for shell integration related config changes
     const prevShowSuggestions = prevProps.config.showCmdSuggestions
     const currShowSuggestions = props.config.showCmdSuggestions
@@ -1148,15 +1152,8 @@ class Term extends Component {
     }
   }
 
-  handleWebglContextLoss = (webglAddon = this.webglAddon) => {
-    if (this.webglRecovering) {
-      return
-    }
-    if (!webglAddon) {
-      return
-    }
-    this.webglRecovering = true
-    console.warn('webgl context lost, rebuilding webgl renderer')
+  reloadWebglRenderer = (reason = 'reload') => {
+    console.warn(`webgl renderer ${reason}, rebuilding`)
     try {
       this.webglContextLossDisposable?.dispose?.()
       this.webglContextLossDisposable = null
@@ -1164,24 +1161,56 @@ class Term extends Component {
       console.error(e)
     }
     try {
-      webglAddon.dispose()
+      this.webglAddon?.dispose?.()
     } catch (e) {
       console.error(e)
     }
     this.webglAddon = null
     const { term } = this
     const { config } = this.props
-    this.loadRenderer(term, config)
+    return this.loadRenderer(term, config)
       .then(() => {
-        // Repaint with the buffer content so recovered terminals are not blank.
         term.refresh(0, term.rows - 1)
       })
       .catch(e => {
-        console.error('rebuild webgl renderer failed', e)
+        console.error(`webgl renderer ${reason} failed`, e)
       })
+  }
+
+  handleWebglContextLoss = (webglAddon = this.webglAddon) => {
+    if (this.webglRecovering || !webglAddon) {
+      return
+    }
+    this.webglRecovering = true
+    this.reloadWebglRenderer('context loss')
       .finally(() => {
         this.webglRecovering = false
       })
+  }
+
+  handleZoomChange = () => {
+    // On some platforms (e.g., AltLinux), the ScreenDprMonitor inside xterm
+    // does not fire after setZoomFactor, leaving the WebGL renderer with
+    // stale cell dimensions and breaking copy/paste selection.
+    // The store's zoom function detects this and sets window.et.webglDprBroken.
+    // When the flag is set, reload the WebGL renderer to force a re-measurement.
+    // On normal platforms the flag is never set, so we skip the timer entirely.
+    const { config } = this.props
+    const needReload = window.et.webglDprBroken &&
+      config.rendererType === rendererTypes.webGL &&
+      this.webglAddon
+    if (!needReload) {
+      this.onResize()
+      return
+    }
+    clearTimeout(this.timers.zoomTimer)
+    this.timers.zoomTimer = setTimeout(() => {
+      if (!this.term || this.onClose) {
+        return
+      }
+      this.reloadWebglRenderer('stale dpr after zoom')
+        .then(() => this.onResize())
+    }, 300)
   }
 
   terminalColorQueryDisposables = []
