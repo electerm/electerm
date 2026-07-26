@@ -164,7 +164,6 @@ class Term extends Component {
     if (window.store.activeTerminalId === this.props.tab.id) {
       window.store.activeTerminalId = ''
     }
-    this.domRef.current?.removeEventListener('paste', this.handlePasteEvent, true)
     if (this.term) {
       this.term.parent = null
     }
@@ -429,13 +428,6 @@ class Term extends Component {
       return false
     }
     return true
-  }
-
-  handlePasteEvent = (e) => {
-    if (this.term && this.term.buffer.active.type === 'alternate') {
-      e.preventDefault()
-      e.stopPropagation()
-    }
   }
 
   showNormalBufferShortcut = (e) => {
@@ -1358,12 +1350,6 @@ class Term extends Component {
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
-    // The Electron menu accelerator for Ctrl+V (role:'paste') triggers
-    // webContents.paste() which fires a paste event regardless of the
-    // terminal's buffer mode. In alternate buffer (vim, less, etc.),
-    // block it so apps like vim can use Ctrl+V for their own purposes
-    // (e.g. visual-block mode).
-    this.domRef.current?.addEventListener('paste', this.handlePasteEvent, true)
     this.fitAddon.fit()
     await this.remoteInit(term)
   }
