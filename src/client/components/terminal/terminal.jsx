@@ -406,13 +406,24 @@ class Term extends Component {
     if (isMac) {
       return true
     }
-    if (!this.isRemote()) {
+    if (!this.term) {
       return true
     }
-    if (this.term.buffer.active.type !== 'alternate') {
-      return false
+    // In alternate screen buffer (vim, less, etc.) let the keystroke
+    // pass through to the terminal so apps like vim can use Ctrl+V
+    // for visual-block mode.
+    if (this.term.buffer.active.type === 'alternate') {
+      return true
     }
-    return true
+    // Normal buffer (shell prompt): explicitly paste clipboard content.
+    // We call onPaste() directly instead of relying on the browser's
+    // native Ctrl+V paste event, because the Electron menu accelerator
+    // for paste is intentionally omitted on Windows/Linux to avoid
+    // intercepting Ctrl+V before xterm's alternate-buffer check runs.
+    e.preventDefault()
+    e.stopPropagation()
+    this.onPaste(true)
+    return false
   }
 
   showNormalBufferShortcut = (e) => {

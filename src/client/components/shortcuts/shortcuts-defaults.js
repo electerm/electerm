@@ -92,7 +92,7 @@ export default () => {
     },
     {
       name: 'terminal_paste',
-      shortcut: 'ctrl+shift+v',
+      shortcut: 'ctrl+v,ctrl+shift+v',
       shortcutMac: 'meta+v',
       readonly: true
     },
