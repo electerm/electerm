@@ -3,7 +3,7 @@
 # This workflow:
 # 1. Installs GCC 8 cross-compiler (old-world ABI) from loongson-community GitHub mirror
 # 2. Builds x64 version with legacy deps to get the asar
-# 3. Downloads electron loong64 from Loongnix
+# 3. Downloads electron loong64 (old-world) from msojocs GitHub mirror
 # 4. Cross-compile native modules for loong64 with legacy deps
 # 5. Merges x64 asar with loong64 electron and native modules
 # 6. Uploads tar.gz to GitHub release draft
