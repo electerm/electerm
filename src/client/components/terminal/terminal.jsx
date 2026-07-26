@@ -1268,13 +1268,15 @@ class Term extends Component {
    * When `deferred` is true (WebGL mode), a second repaint is scheduled on
    * the next animation frame so the theme picks up CSS --main changes that
    * UiTheme's useEffect applies asynchronously after componentDidUpdate.
+   * The optional `term` parameter is used during initTerminal, where
+   * this.term hasn't been assigned yet.
    */
-  applyTerminalTheme = (deferred = false) => {
-    if (!this.term || this.onClose) {
+  applyTerminalTheme = (deferred = false, term = this.term) => {
+    if (!term || this.onClose) {
       return
     }
-    this.term.options.theme = this.getRendererThemeConfig(this.props.themeConfig)
-    this.term.refresh(0, this.term.rows - 1)
+    term.options.theme = this.getRendererThemeConfig(this.props.themeConfig)
+    term.refresh(0, term.rows - 1)
     if (deferred && this.props.config.rendererType === rendererTypes.webGL) {
       window.cancelAnimationFrame(this.timers.themeRaf)
       this.timers.themeRaf = window.requestAnimationFrame(() => {
@@ -1310,12 +1312,13 @@ class Term extends Component {
     term.open(this.domRef.current, true)
     this.registerTerminalColorQueryHandlers(term, themeConfig)
     await this.loadRenderer(term, config)
-    // Re-apply the theme after the renderer is loaded. By this point the
-    // UiTheme component has likely applied the --main CSS variable, so
-    // getVisibleTerminalBackground() returns a more accurate value than
-    // it did when the Terminal was constructed (before useEffect ran).
+    // Re-apply the theme after the renderer is loaded. The Terminal was
+    // constructed before UiTheme's useEffect ran, so the initial theme
+    // may have a stale background. Pass `term` directly because this.term
+    // is not assigned yet. Use deferred=true so a second repaint picks up
+    // any CSS --main changes applied by UiTheme's useEffect.
     if (config.rendererType === rendererTypes.webGL) {
-      this.applyTerminalTheme()
+      this.applyTerminalTheme(true, term)
     }
 
     const FitAddon = await loadFitAddon()
