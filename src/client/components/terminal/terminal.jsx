@@ -185,6 +185,8 @@ class Term extends Component {
     this.fitAddon = null
     this.cmdAddon = null
     this.imageAddon = null
+    this.webglContextLossDisposable?.dispose?.()
+    this.webglContextLossDisposable = null
     this.webglAddon = null
     this.webglRecovering = false
   }
@@ -1135,12 +1137,13 @@ class Term extends Component {
         // the window migrates across Spaces. Without a listener xterm keeps
         // drawing into a dead context and every terminal goes black while the
         // rest of the UI stays alive. Rebuild the addon to recover.
-        webglAddon.onContextLoss(this.handleWebglContextLoss)
+        this.webglContextLossDisposable = webglAddon.onContextLoss(this.handleWebglContextLoss)
         term.loadAddon(webglAddon)
       } catch (e) {
         console.error('render with webgl failed, fallback to dom renderer')
         console.error(e)
         // built-in DOM renderer is used (no addon loaded)
+        this.webglAddon = null
       }
     }
   }
@@ -1149,8 +1152,17 @@ class Term extends Component {
     if (this.webglRecovering) {
       return
     }
+    if (!webglAddon) {
+      return
+    }
     this.webglRecovering = true
     console.warn('webgl context lost, rebuilding webgl renderer')
+    try {
+      this.webglContextLossDisposable?.dispose?.()
+      this.webglContextLossDisposable = null
+    } catch (e) {
+      console.error(e)
+    }
     try {
       webglAddon.dispose()
     } catch (e) {
