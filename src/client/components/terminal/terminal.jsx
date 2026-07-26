@@ -1130,15 +1130,13 @@ class Term extends Component {
       try {
         const WebglAddon = await loadWebglAddon()
         const webglAddon = new WebglAddon()
+        this.webglAddon = webglAddon
         // On macOS native fullscreen the GPU/WebGL context can be lost when
         // the window migrates across Spaces. Without a listener xterm keeps
         // drawing into a dead context and every terminal goes black while the
         // rest of the UI stays alive. Rebuild the addon to recover.
-        webglAddon.onContextLoss(() => {
-          this.handleWebglContextLoss(webglAddon)
-        })
+        webglAddon.onContextLoss(this.handleWebglContextLoss)
         term.loadAddon(webglAddon)
-        this.webglAddon = webglAddon
       } catch (e) {
         console.error('render with webgl failed, fallback to dom renderer')
         console.error(e)
@@ -1147,7 +1145,7 @@ class Term extends Component {
     }
   }
 
-  handleWebglContextLoss = (webglAddon) => {
+  handleWebglContextLoss = (webglAddon = this.webglAddon) => {
     if (this.webglRecovering) {
       return
     }
@@ -1159,10 +1157,9 @@ class Term extends Component {
       console.error(e)
     }
     this.webglAddon = null
-    const term = this.term
-    const config = this.props.config
-    Promise.resolve()
-      .then(() => this.loadRenderer(term, config))
+    const { term } = this
+    const { config } = this.props
+    this.loadRenderer(term, config)
       .then(() => {
         // Repaint with the buffer content so recovered terminals are not blank.
         term.refresh(0, term.rows - 1)
