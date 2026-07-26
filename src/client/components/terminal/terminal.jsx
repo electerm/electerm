@@ -412,10 +412,8 @@ class Term extends Component {
       return true
     }
     // Normal buffer (shell prompt): explicitly paste clipboard content.
-    // We call onPaste() directly instead of relying on the browser's
-    // native Ctrl+V paste event, because the Electron menu accelerator
-    // for paste is intentionally omitted on Windows/Linux to avoid
-    // intercepting Ctrl+V before xterm's alternate-buffer check runs.
+    // On Windows/Linux the menu has no Ctrl+V accelerator (no role:'paste'),
+    // so the terminal shortcut system is the only handler — no double paste.
     e.preventDefault()
     e.stopPropagation()
     this.onPaste(true)

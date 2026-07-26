@@ -57,6 +57,7 @@ export default auto(function Index (props) {
     ipcOnEvent('open-tab', (e, parsed) => store.ipcOpenTab(parsed))
     ipcOnEvent('openSettings', store.openSetting)
     ipcOnEvent('selectall', store.selectall)
+    ipcOnEvent('paste', store.paste)
     ipcOnEvent('focused', store.focus)
     ipcOnEvent('blur', store.onBlur)
     ipcOnEvent('zoom-reset', store.onZoomReset)

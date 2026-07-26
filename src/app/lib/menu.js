@@ -43,15 +43,16 @@ function buildMenu () {
           accelerator: 'CmdOrCtrl+C'
         },
         {
-          role: 'paste',
-          label: e('paste'),
-          // Only register the accelerator on macOS.
-          // On Windows/Linux, Ctrl+V is handled by the terminal shortcut
-          // system (shortcuts-defaults.js) which checks the alternate buffer
-          // to avoid conflicting with vim's visual-block mode (Ctrl+V).
-          // The Electron menu accelerator fires before xterm's custom key
-          // handler, so it would paste even inside vim.
-          ...(process.platform === 'darwin' ? { accelerator: 'CmdOrCtrl+V' } : {})
+          // On macOS, use the native role + accelerator (Cmd+V).
+          // On Windows/Linux, do NOT use role:'paste' because Electron
+          // assigns it a default accelerator (CmdOrCtrl+V) that fires
+          // before xterm's custom key handler, causing paste even inside
+          // vim (alternate buffer). Instead, use a plain menu item with a
+          // click handler and let the terminal shortcut system handle Ctrl+V.
+          ...(process.platform === 'darwin'
+            ? { role: 'paste', accelerator: 'CmdOrCtrl+V' }
+            : { click () { globalState.get('win').webContents.send('paste', null) } }),
+          label: e('paste')
         },
         {
           role: 'pasteandmatchstyle',
