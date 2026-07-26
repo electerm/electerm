@@ -286,7 +286,7 @@ describe('window bounds restoration', () => {
     })
   })
 
-  it('brings a window back with 100 pixels visible after display removal', () => {
+  it('centres the window on the primary display when the saved position is off-screen', () => {
     const primary = display({ x: 0, y: 0, width: 1920, height: 1080 })
     const { bounds } = restore({
       displays: [primary],
@@ -300,8 +300,8 @@ describe('window bounds restoration', () => {
     assert.deepEqual(bounds, {
       width: 1000,
       height: 700,
-      x: 1820,
-      y: 980
+      x: 460,
+      y: 190
     })
   })
 
@@ -375,30 +375,31 @@ describe('window bounds restoration', () => {
   })
 
   it('falls back to the primary display when the nearest display is stale', () => {
-    // Simulate: window was on an external display that has been
-    // disconnected. getDisplayNearestPoint still returns the stale
-    // display, but getAllDisplays only reports the primary display.
+    // Simulate a race condition: the saved window position is on the
+    // primary display, but getDisplayNearestPoint returns a stale
+    // display that has since been disconnected and is far off-screen.
+    // The clamped bounds end up off-screen, so the safety net must
+    // fall back to the primary display.
     const primary = display({ x: 0, y: 0, width: 1920, height: 1080 })
-    const disconnected = display({
-      x: 1920,
-      y: 0,
+    const stale = display({
+      x: 5000,
+      y: 5000,
       width: 1920,
-      height: 1080,
-      workArea: { x: 1920, y: 0, width: 1920, height: 1040 }
+      height: 1080
     })
 
     const { bounds, screen } = restore({
       displays: [primary],
-      staleDisplay: disconnected,
+      staleDisplay: stale,
       windowSizeLastState: savedSize({
         screenWidth: 1920,
-        screenHeight: 1040
+        screenHeight: 1080
       }),
-      windowPosLastState: { x: 2100, y: 120 }
+      windowPosLastState: { x: 100, y: 100 }
     })
 
-    // The computed bounds would be on the disconnected display, so the
-    // safety check should fall back to the primary display's work area.
+    // The computed bounds would be on the stale (disconnected) display,
+    // so the safety check should fall back to the primary display's work area.
     assert.deepEqual(bounds, {
       width: 1000,
       height: 700,
