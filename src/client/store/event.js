@@ -32,12 +32,6 @@ export default Store => {
     refs.get('term-' + window.store.activeTabId)?.term?.selectAll()
   }
 
-  // Triggered by the "Edit > Paste" menu item on Windows/Linux.
-  // (On macOS, role:'paste' handles it natively.)
-  Store.prototype.paste = function () {
-    refs.get('term-' + window.store.activeTabId)?.onPaste?.()
-  }
-
   Store.prototype.triggerResize = function () {
     window.store.resizeTrigger = window.store.resizeTrigger ? 0 : 1
     window.dispatchEvent(new Event('resize'))

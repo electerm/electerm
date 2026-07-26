@@ -43,16 +43,9 @@ function buildMenu () {
           accelerator: 'CmdOrCtrl+C'
         },
         {
-          // On macOS, use the native role + accelerator (Cmd+V).
-          // On Windows/Linux, do NOT use role:'paste' because Electron
-          // assigns it a default accelerator (CmdOrCtrl+V) that fires
-          // before xterm's custom key handler, causing paste even inside
-          // vim (alternate buffer). Instead, use a plain menu item with a
-          // click handler and let the terminal shortcut system handle Ctrl+V.
-          ...(process.platform === 'darwin'
-            ? { role: 'paste', accelerator: 'CmdOrCtrl+V' }
-            : { click () { globalState.get('win').webContents.send('paste', null) } }),
-          label: e('paste')
+          role: 'paste',
+          label: e('paste'),
+          accelerator: 'CmdOrCtrl+V'
         },
         {
           role: 'pasteandmatchstyle',
