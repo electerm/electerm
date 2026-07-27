@@ -25,7 +25,7 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
     ? (
       <Button
         onClick={onNewTab}
-        className='mg1r mg1b add-new-tab-btn'
+        className='add-new-tab-btn'
       >
         {e('newTab')}
       </Button>
@@ -33,17 +33,15 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
     : null
   return (
     <div className='no-sessions electerm-logo-bg' {...props}>
-      <div className='pd1b'>
+      <div className='no-session-btns'>
         {newTabDom}
         <Button
           onClick={onNewSsh}
-          className='mg1r mg1b'
         >
           {e('newBookmark')}
         </Button>
         <Button
           onClick={handleCreateAIBookmark}
-          className='mg1r mg1b'
           icon={<RobotOutlined />}
         >
           {e('createBookmarkByAI')}
