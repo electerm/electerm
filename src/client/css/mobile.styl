@@ -152,3 +152,22 @@
     display none
   .type-tab-short
     display inline
+
+// ---------------------------------------------------------------------------
+// Touch-primary devices only (feature-detected via pointer media query, not
+// UA sniffing or viewport width). iOS Safari and Android Chrome auto-zoom the
+// page when focusing an input with font-size < 16px, and never zoom back out
+// on blur, leaving the page stuck zoomed. Desktop browsers (even with
+// touchscreens or narrow windows) report pointer: fine and never force-zoom,
+// so this never matches them. Force 16px on all focusable form fields (antd
+// inputs default to 14px) to prevent the zoom.
+// ---------------------------------------------------------------------------
+@media (pointer: coarse)
+  input,
+  textarea,
+  select,
+  .ant-input,
+  .ant-input-affix-wrapper .ant-input,
+  .ant-input-number-input,
+  .ant-select-selection-search-input
+    font-size 16px !important
