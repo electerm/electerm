@@ -7,6 +7,11 @@
   .main-footer
   .session-v-info
     display none
+  // Mobile tabs carry the extra .mobile-tabs class, and mobile.styl uses
+  // .is-mobile .tabs.mobile-tabs (specificity 0,3,0) which overrides the
+  // .fullscreen .tabs rule above (0,2,0). This ensures they stay hidden.
+  .tabs.mobile-tabs
+    display none
   // Hide all sessions first
   .session-wrap
     display none
