@@ -214,6 +214,26 @@ export function shortcutExtend (Cls) {
       this.term.buffer.active.type === 'alternate'
     ) {
       return true
+    } else if (
+      (key === 'ArrowLeft' || key === 'ArrowRight') &&
+      type === 'keydown' &&
+      altKey &&
+      !ctrlKey &&
+      !shiftKey &&
+      !metaKey
+    ) {
+      // Restore xterm 5.5.0 behavior: convert Alt/Option + Left/Right into
+      // readline-compatible word-movement sequences.
+      // xterm 6.x dropped the platform-specific override in evaluateKeyboardEvent,
+      // which now sends CSI modifier sequences (e.g. ESC[1;3D) that old shells
+      // do not bind to backward-word / forward-word, causing trailing chars
+      // ("D", ";3D") to leak as literal input.
+      const seq = key === 'ArrowLeft'
+        ? (isMacJs ? '\x1bb' : '\x1b[1;5D')
+        : (isMacJs ? '\x1bf' : '\x1b[1;5C')
+      sendInputData(this, seq)
+      this.term?.scrollToBottom()
+      return false
     }
 
     if (
