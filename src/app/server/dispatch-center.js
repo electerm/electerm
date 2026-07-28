@@ -6,6 +6,7 @@
 const fs = require('./fs')
 const log = require('../common/log')
 const { Upgrade } = require('./download-upgrade')
+const { transferKeys } = require('./transfer')
 const fetch = require('./fetch')
 const sync = require('./sync')
 const {
@@ -59,7 +60,15 @@ const initWs = function (app) {
         await inst.init()
       } else if (action === 'upgrade-func') {
         const { id, func, args } = msg
-        globalState.getUpgradeInst(id)[func](...args)
+        const inst = globalState.getUpgradeInst(id)
+        if (!inst) {
+          return
+        }
+        if (!transferKeys.includes(func) || typeof inst[func] !== 'function') {
+          log.error('invalid upgrade function:', func)
+          return
+        }
+        inst[func](...args)
       }
     })
   })
