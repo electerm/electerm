@@ -106,7 +106,7 @@
     "basic-ftp": "6.0.1",
     "commander": "12.1.0",
     "diffie-hellman": "^5.0.3",
-    "electerm-sync": "2.0.0",
+    "electerm-sync": "2.0.1",
     "electron-log": "4.3.5",
     "express": "5.2.1",
     "express-ws": "5.0.2",
