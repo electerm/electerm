@@ -8,7 +8,8 @@ import {
   PaperClipOutlined,
   CloseOutlined,
   ApartmentOutlined,
-  MoreOutlined
+  MoreOutlined,
+  ColumnWidthOutlined
 } from '@ant-design/icons'
 import { Tooltip, Popover } from 'antd'
 import classnames from 'classnames'
@@ -33,6 +34,7 @@ export default function SessionControl (props) {
     sftpPathFollowSsh,
     keepaliveEnabled,
     broadcastInput,
+    wrapDisabled,
     delKeyPressed,
     hideDelKeyTip,
     onChangePane,
@@ -40,6 +42,7 @@ export default function SessionControl (props) {
     onSshSftpSplitView,
     toggleKeepalive,
     toggleBroadcastInput,
+    toggleWrap,
     onFullscreen,
     onOpenSearch,
     onDismissDelKeyTip
@@ -217,6 +220,21 @@ export default function SessionControl (props) {
     )
   }
 
+  function renderWrapIcon () {
+    const title = e(wrapDisabled ? 'enableWrap' : 'disableWrap')
+    const iconProps = {
+      className: classnames('sess-icon pointer wrap-toggle-icon', {
+        active: wrapDisabled
+      }),
+      onClick: toggleWrap
+    }
+    return (
+      <Tooltip title={title}>
+        <ColumnWidthOutlined {...iconProps} />
+      </Tooltip>
+    )
+  }
+
   function renderSearchIcon () {
     const title = e('search')
     return (
@@ -262,6 +280,7 @@ export default function SessionControl (props) {
         {renderSftpPathFollowControl()}
         {renderKeepaliveIcon()}
         {renderBroadcastIcon()}
+        {renderWrapIcon()}
         {renderTermControls()}
       </div>
     )
@@ -287,6 +306,7 @@ export default function SessionControl (props) {
       {renderSplitToggle()}
       {renderKeepaliveIcon()}
       {renderBroadcastIcon()}
+      {renderWrapIcon()}
       {renderTermControls()}
     </div>
   )

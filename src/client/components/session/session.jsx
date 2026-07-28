@@ -48,7 +48,8 @@ export default class SessionWrapper extends Component {
       sessionOptions: null,
       delKeyPressed: false,
       broadcastInput: false,
-      keepaliveEnabled: false
+      keepaliveEnabled: false,
+      wrapDisabled: false
     }
     if (props.tab.sshSftpSplitView === undefined) {
       props.tab.sshSftpSplitView = !!props.config.sshSftpSplitView
@@ -493,6 +494,17 @@ export default class SessionWrapper extends Component {
     refs.get('term-' + this.props.tab.id)?.toggleSearch()
   }
 
+  toggleWrap = () => {
+    const termRef = refs.get('term-' + this.props.tab.id)
+    if (!termRef?.term) {
+      return
+    }
+    const next = !this.state.wrapDisabled
+    // DECAWM escape sequence: ?7l = disable wrap, ?7h = enable wrap
+    termRef.term.write(next ? '\x1b[?7l' : '\x1b[?7h')
+    this.setState({ wrapDisabled: next })
+  }
+
   fullscreenIcon = () => {
     const title = e('fullscreen')
     return (
@@ -616,6 +628,7 @@ export default class SessionWrapper extends Component {
           sftpPathFollowSsh={this.state.sftpPathFollowSsh}
           keepaliveEnabled={this.state.keepaliveEnabled}
           broadcastInput={this.state.broadcastInput}
+          wrapDisabled={this.state.wrapDisabled}
           delKeyPressed={this.state.delKeyPressed}
           hideDelKeyTip={this.props.hideDelKeyTip}
           onChangePane={(pane) => this.onChangePane(pane)}
@@ -623,6 +636,7 @@ export default class SessionWrapper extends Component {
           onSshSftpSplitView={this.handleSshSftpSplitView}
           toggleKeepalive={this.toggleKeepalive}
           toggleBroadcastInput={this.toggleBroadcastInput}
+          toggleWrap={this.toggleWrap}
           onFullscreen={this.handleFullscreen}
           onOpenSearch={this.handleOpenSearch}
           onDismissDelKeyTip={this.handleDismissDelKeyTip}
