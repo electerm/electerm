@@ -1,7 +1,3 @@
-// Session pane tab label: show full name by default, short label on mobile
-.type-tab-short
-  display none
-
 // ---------------------------------------------------------------------------
 // Mobile UI driven by store.isMobile (is-mobile class on root)
 // Breakpoint: 600px (see mobileBreakpoint in constants.js)
@@ -146,12 +142,6 @@
   //        matching left gap so it never extends past the screen edge.
   .upgrade-panel
     max-width calc(100vw - 20px)
-
-  // ---- 9. Session pane tab label: hide full name, show short label
-  .type-tab-full
-    display none
-  .type-tab-short
-    display inline
 
 // ---------------------------------------------------------------------------
 // Touch-primary devices only (feature-detected via pointer media query, not

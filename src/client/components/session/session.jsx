@@ -10,11 +10,7 @@ import VncSession from '../vnc/vnc-session'
 import WebSession from '../web/web-session.jsx'
 import SpiceSession from '../spice/spice-session'
 import {
-  SearchOutlined,
-  FullscreenOutlined,
-  PaperClipOutlined,
-  CloseOutlined,
-  ApartmentOutlined
+  FullscreenOutlined
 } from '@ant-design/icons'
 import {
   Tooltip,
@@ -25,7 +21,6 @@ import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
   paneMap,
-  connectionMap,
   terminalRdpType,
   terminalVncType,
   terminalWebType,
@@ -33,10 +28,9 @@ import {
   terminalFtpType,
   terminalSpiceType
 } from '../../common/constants'
-import { SplitViewIcon } from '../icons/split-view'
 import { refs } from '../common/ref'
 import sanitizeFilename from '../../common/sanitize-filename.js'
-import { HeartbeatIcon } from '../icons/heartbeat'
+import SessionControl from './session-control'
 import './session.styl'
 
 const e = window.translate
@@ -499,18 +493,6 @@ export default class SessionWrapper extends Component {
     refs.get('term-' + this.props.tab.id)?.toggleSearch()
   }
 
-  renderSearchIcon = () => {
-    const title = e('search')
-    return (
-      <Tooltip title={title} placement='bottomLeft'>
-        <SearchOutlined
-          className='mg1r icon-info iblock pointer spliter'
-          onClick={this.handleOpenSearch}
-        />
-      </Tooltip>
-    )
-  }
-
   fullscreenIcon = () => {
     const title = e('fullscreen')
     return (
@@ -523,235 +505,9 @@ export default class SessionWrapper extends Component {
     )
   }
 
-  renderDelTip = (isSsh) => {
-    if (!isSsh || this.props.hideDelKeyTip || !this.state.delKeyPressed) {
-      return null
-    }
-    return (
-      <div className='type-tab'>
-        <span className='mg1r'>Try <b>Shift + Backspace</b>?</span>
-        <CloseOutlined
-          onClick={this.handleDismissDelKeyTip}
-          className='pointer'
-        />
-      </div>
-    )
-  }
-
-  renderKeepaliveIcon = () => {
-    if (this.isSshDisabled()) {
-      return null
-    }
-    const { keepaliveEnabled } = this.state
-    const title = e('keepalive')
-    const iconProps = {
-      className: classnames('sess-icon pointer keepalive-icon', {
-        active: keepaliveEnabled
-      }),
-      onClick: this.toggleKeepalive
-    }
-    return (
-      <Tooltip title={title}>
-        <HeartbeatIcon {...iconProps} />
-      </Tooltip>
-    )
-  }
-
-  renderBroadcastIcon = () => {
-    if (
-      this.isSshDisabled()
-    ) {
-      return null
-    }
-    const { broadcastInput } = this.state
-    const title = e('broadcastInput')
-    const iconProps = {
-      className: classnames('sess-icon pointer broadcast-icon', {
-        active: broadcastInput
-      }),
-      onClick: this.toggleBroadcastInput
-    }
-
-    return (
-      <Tooltip title={title}>
-        <ApartmentOutlined {...iconProps} />
-      </Tooltip>
-    )
-  }
-
-  renderTermControls = () => {
-    const { props } = this
-    const { pane } = props.tab
-    if (pane !== paneMap.terminal) {
-      return null
-    }
-    return (
-      <div className='fright term-controls'>
-        {this.fullscreenIcon()}
-        {this.renderSearchIcon()}
-      </div>
-    )
-  }
-
-  renderSplitToggle = () => {
-    if (window.store.isMobile) {
-      return null
-    }
-    if (!this.canSplitView() || this.isNotTerminalType()) {
-      return null
-    }
-    const title = e('sshSftpSplitView')
-    const {
-      sshSftpSplitView
-    } = this.props.tab
-    const cls = classnames(
-      'pointer sess-icon split-view-toggle',
-      {
-        active: sshSftpSplitView
-      }
-    )
-    return (
-      <Tooltip title={title} placement='bottomLeft'>
-        <span
-          className={cls}
-          onClick={this.handleSshSftpSplitView}
-        >
-          <SplitViewIcon />
-        </span>
-      </Tooltip>
-    )
-  }
-
   isSsh = () => {
     const { tab } = this.props
     return tab.authType
-  }
-
-  renderPaneControl = () => {
-    const {
-      sshSftpSplitView
-    } = this.props.tab
-    if (this.isDisabled()) {
-      return null
-    }
-    if (sshSftpSplitView && this.canSplitView()) {
-      return null
-    }
-    const { props } = this
-    const { tab } = props
-    const { pane } = tab
-    const termType = tab?.type
-    const isSsh = tab.authType
-    const isLocal = !isSsh && (termType === connectionMap.local || !termType)
-    const types = [
-      paneMap.terminal,
-      paneMap.fileManager
-    ]
-    const controls = [
-      isSsh ? paneMap.ssh : paneMap.terminal
-    ]
-    if (isSsh || isLocal) {
-      controls.push(isSsh ? paneMap.sftp : paneMap.fileManager)
-    }
-    const simpleMapper = {
-      [paneMap.terminal]: 'T',
-      [paneMap.fileManager]: 'F',
-      [paneMap.ssh]: 'T',
-      [paneMap.sftp]: 'S'
-    }
-    return (
-      <div className='term-sftp-tabs fleft'>
-        {
-          controls.map((type, i) => {
-            const cls = classnames(
-              'type-tab',
-              type,
-              {
-                active: types[i] === pane
-              }
-            )
-            return (
-              <span
-                className={cls}
-                key={type + '_' + i}
-                onClick={() => this.onChangePane(types[i])}
-              >
-                <span className='type-tab-txt'>
-                  <span className='type-tab-full'>{e(type)}</span>
-                  <span className='type-tab-short'>{simpleMapper[type]}</span>
-                  <span className='type-tab-line' />
-                </span>
-              </span>
-            )
-          })
-        }
-      </div>
-    )
-  }
-
-  renderSftpPathFollowControl = () => {
-    if (this.isDisabled()) {
-      return null
-    }
-    const {
-      sftpPathFollowSsh
-    } = this.state
-    const { props } = this
-    const { tab } = props
-    const { pane, enableSsh, sshSftpSplitView } = tab
-    const termType = tab?.type
-    const isSsh = tab.authType
-    const isLocal = !isSsh && (termType === connectionMap.local || !termType)
-    const checkTxt = e('sftpPathFollowSsh')
-    const checkProps = {
-      onClick: this.toggleCheckSftpPathFollowSsh,
-      className: classnames(
-        'sftp-follow-ssh-icon sess-icon pointer',
-        {
-          active: sftpPathFollowSsh
-        }
-      )
-    }
-    const isS = pane === paneMap.terminal ||
-      sshSftpSplitView
-    return (
-      <>
-        {
-          (isSsh && enableSsh) || isLocal
-            ? (
-              <Tooltip title={checkTxt}>
-                <span {...checkProps}>
-                  <PaperClipOutlined />
-                </span>
-              </Tooltip>
-              )
-            : null
-        }
-        {
-          this.renderDelTip(isS)
-        }
-      </>
-    )
-  }
-
-  renderControl = () => {
-    if (
-      this.isNotTerminalType()
-    ) {
-      return null
-    }
-    return (
-      <div
-        className='terminal-control fix'
-      >
-        {this.renderPaneControl()}
-        {this.renderSftpPathFollowControl()}
-        {this.renderSplitToggle()}
-        {this.renderKeepaliveIcon()}
-        {this.renderBroadcastIcon()}
-        {this.renderTermControls()}
-      </div>
-    )
   }
 
   onSplitResize = (sizes) => {
@@ -850,7 +606,27 @@ export default class SessionWrapper extends Component {
         ref={this.domRef}
         {...divProps}
       >
-        {this.renderControl()}
+        <SessionControl
+          tab={this.props.tab}
+          isMobile={window.store.isMobile}
+          isDisabled={this.isDisabled()}
+          isSshDisabled={this.isSshDisabled()}
+          isNotTerminalType={this.isNotTerminalType()}
+          canSplitView={this.canSplitView()}
+          sftpPathFollowSsh={this.state.sftpPathFollowSsh}
+          keepaliveEnabled={this.state.keepaliveEnabled}
+          broadcastInput={this.state.broadcastInput}
+          delKeyPressed={this.state.delKeyPressed}
+          hideDelKeyTip={this.props.hideDelKeyTip}
+          onChangePane={(pane) => this.onChangePane(pane)}
+          toggleCheckSftpPathFollowSsh={this.toggleCheckSftpPathFollowSsh}
+          onSshSftpSplitView={this.handleSshSftpSplitView}
+          toggleKeepalive={this.toggleKeepalive}
+          toggleBroadcastInput={this.toggleBroadcastInput}
+          onFullscreen={this.handleFullscreen}
+          onOpenSearch={this.handleOpenSearch}
+          onDismissDelKeyTip={this.handleDismissDelKeyTip}
+        />
         {this.renderViews()}
       </div>
     )

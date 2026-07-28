@@ -1,0 +1,38 @@
+// Mobile session control: pane tabs always visible,
+// other icons shown in a floating Popover overlay
+.mobile-session-control
+  background var(--main)
+  line-height 32px
+  padding 0 10px
+  display flex
+  align-items center
+  // pane tabs take available space, menu icon sits at the end
+  .term-sftp-tabs
+    float none
+    display flex
+    align-items center
+    flex 1
+    min-width 0
+.mobile-control-toggle
+  font-size 16px
+  line-height 32px
+  color var(--text)
+  flex-shrink 0
+  &:hover
+    color var(--text-light)
+
+// Popover content — icons laid out in a row, wrapping as needed
+.mobile-control-icons
+  display flex
+  flex-wrap wrap
+  align-items center
+  gap 4px 8px
+  max-width 280px
+  line-height 30px
+  .term-controls
+    float none
+    display flex
+    align-items center
+    margin-left 0
+  .sess-icon
+    margin-right 0
