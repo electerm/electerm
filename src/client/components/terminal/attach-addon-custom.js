@@ -23,6 +23,32 @@ export default class AttachAddonCustom {
     this._passwordPromptDetected = false
     this._pendingEchoCheck = null
     this._echoCheckTimer = null
+    // Write coalescing: terminal output is buffered and flushed on a short
+    // timer so that heavy bursts (e.g. `yum install` download progress, which
+    // rewrites the same line with \r + clear-line thousands of times per
+    // second) collapse into a few term.write() calls per frame instead of
+    // blocking the main thread on every WebSocket message.
+    this._writeBuffer = []
+    this._bufferBytes = 0
+    this._flushScheduled = false
+    this._flushTimer = null
+    // Coalescing window. Output is flushed at most once per interval.
+    // 16ms ~= one frame; low enough that interactive echo feels instant,
+    // high enough to merge a multi-MB/s flood into ~60 writes/s.
+    this._flushIntervalMs = 16
+    // Time of the last actual flush. Drives the interactive fast path in
+    // _enqueueWrite: output arriving after an idle gap (keystroke echo,
+    // command result) is flushed immediately instead of paying the
+    // coalescing delay. 0 = the first chunk ever flushes immediately.
+    this._lastFlushTime = 0
+    // Soft cap on buffered-but-unflushed bytes. Under a sustained flood the
+    // producer outruns the renderer; once pending output exceeds this we drop
+    // the OLDEST data (preserving the newest, visible tail and the line
+    // currently being rewritten). Normal interactive output is many orders of
+    // magnitude smaller and is never dropped.
+    this._maxBufferBytes = 256 * 1024
+    this._droppedBytes = 0
+    this._droppedWarned = false
   }
 
   _initBase = async () => {
@@ -182,27 +208,11 @@ export default class AttachAddonCustom {
       }
     }
 
-    if (this.outputSuppressed) {
-      let str = data
-      if (typeof data !== 'string') {
-        const decoder = this.decoder || new TextDecoder('utf-8')
-        try {
-          str = decoder.decode(data instanceof ArrayBuffer ? data : new Uint8Array(data))
-        } catch (e) {
-          str = ''
-        }
-      }
-
-      if (this.checkForShellIntegration(str)) {
-        this.onShellIntegrationDetected()
-        return
-      }
-
-      this.suppressedData.push(data)
-      return
-    }
-
-    // Password prompt detection on output
+    // Decode once, synchronously. The previous implementation routed binary
+    // chunks through `new Blob()` + `FileReader.readAsArrayBuffer()` and decoded
+    // in an async `onRead` callback; that async round-trip (plus a per-chunk
+    // Blob allocation) showed up in the profile and fragmented main-thread work.
+    // We already hold a TextDecoder, so decode inline like the suppression path.
     let str = data
     if (typeof data !== 'string') {
       try {
@@ -213,6 +223,18 @@ export default class AttachAddonCustom {
         str = ''
       }
     }
+
+    if (this.outputSuppressed) {
+      if (this.checkForShellIntegration(str)) {
+        this.onShellIntegrationDetected()
+        return
+      }
+      this.suppressedData.push(data)
+      return
+    }
+
+    // Prompt/echo detection runs per chunk (cheap) so password prompts and
+    // shell integration are still detected promptly.
     this._handleEchoDetection(str)
     if (this._checkPasswordPrompt(str) && !this._passwordPromptDetected) {
       this._passwordPromptDetected = true
@@ -222,27 +244,109 @@ export default class AttachAddonCustom {
       }, 100)
     }
 
-    if (typeof data === 'string') {
-      term?.parent?.notifyOnData()
-      term.write(data)
-      // Notify parent that the terminal buffer has been updated (echo received).
-      // This allows the suggestion dropdown to refresh after the buffer reflects
-      // the latest server-side state (e.g., after backspace echo).
-      term?.parent?.onTerminalWrite?.()
-      return
-    }
-    data = new Uint8Array(data)
-    const fileReader = new FileReader()
-    fileReader.addEventListener('load', this.onRead)
-    fileReader.readAsArrayBuffer(new window.Blob([data]))
+    // Coalesce the actual write (see _enqueueWrite). notifyOnData /
+    // onTerminalWrite fire once per flush instead of once per chunk.
+    this._enqueueWrite(str)
   }
 
-  onRead = (ev) => {
-    const data = ev.target.result
+  // Buffer decoded output and flush it on a short timer so a burst of messages
+  // becomes a single (size-capped) term.write() call, keeping the main thread
+  // free to handle UI events and input between flushes.
+  _enqueueWrite = (str) => {
+    if (!this.term || !str) {
+      return
+    }
+    this._writeBuffer.push(str)
+    this._bufferBytes += str.length
+    if (this._bufferBytes > this._maxBufferBytes) {
+      this._dropOldestUntil()
+    }
+    // A hidden window gets its timers throttled by Chromium (Electron's
+    // backgroundThrottling defaults to true), which would stall the flush
+    // timer and force the byte cap to drop real output. Nothing is painted
+    // while hidden, so coalescing buys nothing — flush synchronously.
+    if (document.hidden) {
+      clearTimeout(this._flushTimer)
+      this._flushWrites()
+      return
+    }
+    // Interactive fast path: if the last flush was longer ago than the
+    // coalescing window (keystroke echo, command result after idle), flush
+    // immediately so typing adds zero latency. Only output arriving inside
+    // a burst window pays the coalescing delay — which is exactly the flood
+    // case coalescing exists for.
+    const elapsed = Date.now() - this._lastFlushTime
+    if (elapsed >= this._flushIntervalMs) {
+      clearTimeout(this._flushTimer)
+      this._flushWrites()
+      return
+    }
+    if (!this._flushScheduled) {
+      this._flushScheduled = true
+      this._flushTimer = setTimeout(this._flushWrites, this._flushIntervalMs - elapsed)
+    }
+  }
+
+  // Under heavy flood the producer outruns the renderer; once pending output
+  // exceeds the cap we drop the OLDEST chunks (preserving the newest, visible
+  // tail and the line currently being rewritten). The first kept chunk is
+  // trimmed to the next newline so we never render a half line / broken escape.
+  _dropOldestUntil = () => {
+    const buf = this._writeBuffer
+    let kept = 0
+    let cutIdx = buf.length
+    for (let i = buf.length - 1; i >= 0; i--) {
+      if (kept + buf[i].length > this._maxBufferBytes) {
+        cutIdx = i + 1
+        break
+      }
+      kept += buf[i].length
+    }
+    if (cutIdx <= 0) {
+      return
+    }
+    let dropped = 0
+    for (let i = 0; i < cutIdx; i++) {
+      dropped += buf[i].length
+    }
+    if (cutIdx < buf.length) {
+      const first = buf[cutIdx]
+      const nl = first.indexOf('\n')
+      if (nl >= 0 && nl < first.length - 1) {
+        dropped += nl + 1
+        buf[cutIdx] = first.slice(nl + 1)
+      } else {
+        dropped += buf[cutIdx].length
+        cutIdx += 1
+      }
+    }
+    this._writeBuffer = buf.slice(cutIdx)
+    this._bufferBytes -= dropped
+    this._droppedBytes += dropped
+    if (!this._droppedWarned) {
+      this._droppedWarned = true
+      console.warn('[AttachAddon] Heavy output detected; coalescing writes and dropping intermediate output to keep the UI responsive.')
+    }
+  }
+
+  _flushWrites = () => {
+    this._flushScheduled = false
+    this._flushTimer = null
+    const buf = this._writeBuffer
+    if (!buf.length || !this.term) {
+      this._writeBuffer = []
+      this._bufferBytes = 0
+      return
+    }
+    this._writeBuffer = []
+    this._bufferBytes = 0
+    const data = buf.length === 1 ? buf[0] : buf.join('')
     const { term } = this
+    this._lastFlushTime = Date.now()
+    term.write(data)
+    // Notify parent that the terminal buffer has been updated (echo received),
+    // once per flush instead of once per chunk.
     term?.parent?.notifyOnData()
-    const str = this.decoder.decode(data)
-    term?.write(str)
     term?.parent?.onTerminalWrite?.()
   }
 
@@ -324,6 +428,13 @@ export default class AttachAddonCustom {
     this._stopKeepalive()
     clearTimeout(this._echoCheckTimer)
     this._echoCheckTimer = null
+    if (this._flushTimer) {
+      clearTimeout(this._flushTimer)
+      this._flushTimer = null
+    }
+    this._flushScheduled = false
+    this._writeBuffer = []
+    this._bufferBytes = 0
     this.term = null
     this._disposables.forEach(d => d.dispose())
     this._disposables.length = 0

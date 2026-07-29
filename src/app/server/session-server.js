@@ -112,12 +112,19 @@ if (type === 'rdp') {
 
     const dataBuffer = []
     let sendTimeout = null
+    // Time of the last actual flush. Lets a chunk arriving after an idle gap
+    // (keystroke echo, command result) skip the coalescing delay entirely,
+    // so only chunks arriving inside an active burst (floods) pay the 10ms
+    // wait. Mirrors the client-side coalescing fast path.
+    let lastFlushTime = 0
+    const flushIntervalMs = 10
 
     const flushBufferedData = () => {
       if (!dataBuffer.length) {
         sendTimeout = null
         return
       }
+      lastFlushTime = Date.now()
       const combinedData = Buffer.concat(dataBuffer.splice(0).map(d => Buffer.isBuffer(d) ? d : Buffer.from(d)))
 
       // Write to log (keep this)
@@ -247,9 +254,24 @@ if (type === 'rdp') {
       // Buffer incoming data instead of sending immediately for normal text workload
       dataBuffer.push(chunk)
 
+      // Idle fast path: if nothing has been flushed within the coalescing
+      // window, this is the start of a new burst (or a lone interactive
+      // echo) rather than a continuation of a flood - send it right away
+      // instead of paying the fixed delay. Only chunks arriving while a
+      // burst is already in flight (elapsed < flushIntervalMs) get batched.
+      const elapsed = Date.now() - lastFlushTime
+      if (elapsed >= flushIntervalMs) {
+        if (sendTimeout) {
+          clearTimeout(sendTimeout)
+          sendTimeout = null
+        }
+        flushBufferedData()
+        return
+      }
+
       // If no timeout is pending, schedule a batched send
       if (!sendTimeout) {
-        sendTimeout = setTimeout(flushBufferedData, 10) // Small delay (10ms) to throttle; adjust based on testing
+        sendTimeout = setTimeout(flushBufferedData, flushIntervalMs - elapsed)
       }
     })
 

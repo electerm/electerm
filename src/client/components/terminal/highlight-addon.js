@@ -2,6 +2,18 @@ export class KeywordHighlighterAddon {
   constructor (keywords) {
     this.keywords = keywords || []
     this.compiledPatterns = this.compilePatterns()
+    // Writes larger than this bypass keyword highlighting. Highlighting is meant
+    // for interactive command output; a large chunk is a command flood or
+    // download progress where scanning every byte (and rebuilding the result
+    // string) is pure overhead. Coupled with write coalescing in the attach
+    // addon, flood output skips this path entirely.
+    this.maxHighlightLength = 4096
+    // Compile the ANSI/OSC splitter once instead of allocating a new RegExp on
+    // every write (this was the #1 allocation in the hot path under load).
+    const ESC = String.fromCharCode(27) // \x1b
+    const BEL = String.fromCharCode(7) // \x07
+    // eslint-disable-next-line no-control-regex
+    this._ansiPattern = new RegExp('(' + ESC + '\\][^' + BEL + ESC + ']*(?:' + BEL + '|' + ESC + '\\\\)|' + ESC + '\\[\\??[0-9;]*[A-Za-z])', 'g')
   }
 
   // Pre-compile all regex patterns once for better performance
@@ -54,11 +66,8 @@ export class KeywordHighlighterAddon {
 
     // Split text into segments: ANSI/OSC sequences vs plain text
     // Match OSC sequences (ESC ] ... BEL or ESC ] ... ESC \) and CSI sequences (ESC [ ... letter)
-    // Use String.fromCharCode to avoid lint warnings about control characters
-    const ESC = String.fromCharCode(27) // \x1b
-    const BEL = String.fromCharCode(7) // \x07
-    // eslint-disable-next-line no-control-regex
-    const ansiPattern = new RegExp('(' + ESC + '\\][^' + BEL + ESC + ']*(?:' + BEL + '|' + ESC + '\\\\)|' + ESC + '\\[\\??[0-9;]*[A-Za-z])', 'g')
+    const ansiPattern = this._ansiPattern
+    ansiPattern.lastIndex = 0
 
     const segments = []
     let lastIndex = 0
@@ -142,9 +151,18 @@ export class KeywordHighlighterAddon {
       if (self.containsDcsSequence(data)) {
         return self.originalWrite(data)
       }
-      self.originalWrite(
-        terminal.displayRaw ? self.escape(data) : self.highlightKeywords(data)
-      )
+      // displayRaw applies to every write regardless of size: raw mode shows
+      // escape sequences as text, so skipping escape() for large chunks would
+      // let raw ESC bytes be interpreted by xterm instead of displayed.
+      if (terminal.displayRaw) {
+        return self.originalWrite(self.escape(data))
+      }
+      // Skip keyword highlighting for large writes (command floods, download
+      // progress). Highlighting targets interactive command output.
+      if (data.length > self.maxHighlightLength) {
+        return self.originalWrite(data)
+      }
+      self.originalWrite(self.highlightKeywords(data))
     }
   }
 
