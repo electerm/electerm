@@ -86,6 +86,7 @@
     "multer": "^2.2.0",
     "pug": "3.0.4",
     "react": "19.2.7",
+    "react-diff-viewer-continued": "4.4.0",
     "react-dom": "19.2.7",
     "react-markdown": "9.0.1",
     "replace-in-file": "6.3.5",

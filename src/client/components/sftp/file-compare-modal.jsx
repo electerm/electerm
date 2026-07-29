@@ -1,8 +1,10 @@
 /**
  * file compare modal - shows side by side comparison of two files' attributes
+ * and an optional code/content diff tab for text files
  */
 
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
+import { Spin, Tabs } from 'antd'
 import Modal from '../common/modal'
 import resolve from '../../common/resolve'
 import time from '../../common/time'
@@ -15,6 +17,15 @@ import './file-compare-modal.styl'
 const e = window.translate
 const formatTime = time
 
+// lazy load the code compare component so it is only bundled when needed
+const CodeCompare = lazy(() => import('./code-compare'))
+
+const Loading = () => (
+  <div style={{ padding: 40, textAlign: 'center' }}>
+    <Spin />
+  </div>
+)
+
 export default class FileCompareModal extends React.PureComponent {
   state = {
     visible: false,
@@ -22,7 +33,8 @@ export default class FileCompareModal extends React.PureComponent {
     file2: {},
     tab: null,
     uidTree: {},
-    gidTree: {}
+    gidTree: {},
+    activeTab: 'info'
   }
 
   componentDidMount () {
@@ -32,7 +44,8 @@ export default class FileCompareModal extends React.PureComponent {
   showFileCompareModal (data) {
     this.setState({
       ...data,
-      visible: true
+      visible: true,
+      activeTab: 'info'
     })
   }
 
@@ -40,36 +53,17 @@ export default class FileCompareModal extends React.PureComponent {
     this.setState({
       file1: {},
       file2: {},
-      visible: false
+      visible: false,
+      activeTab: 'info'
     })
   }
 
-  render () {
-    const {
-      visible,
-      file1,
-      file2,
-      tab = {},
-      uidTree = {},
-      gidTree = {}
-    } = this.state
-    if (!visible) {
-      return null
-    }
+  renderInfo (file1, file2, tab, uidTree, gidTree) {
     const {
       host,
       port,
       username
     } = tab
-    const title = e('compare')
-    const ps = {
-      open: visible,
-      width: 800,
-      title,
-      footer: null,
-      onCancel: this.onClose
-    }
-
     const fp1 = resolve(file1.path, file1.name)
     const fp2 = resolve(file2.path, file2.name)
     const ffp1 = file1.type === 'local'
@@ -123,22 +117,73 @@ export default class FileCompareModal extends React.PureComponent {
     ]
 
     return (
+      <table className='file-compare-table'>
+        <tbody>
+          {rows.map(([label, v1, v2], i) => {
+            const same = String(v1 ?? '') === String(v2 ?? '')
+            const cls = same ? '' : 'file-compare-diff'
+            return (
+              <tr key={i}>
+                <td className='bold file-compare-label'>{label}</td>
+                <td className={cls}>{v1}</td>
+                <td className={cls}>{v2}</td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    )
+  }
+
+  render () {
+    const {
+      visible,
+      file1,
+      file2,
+      tab = {},
+      uidTree = {},
+      gidTree = {},
+      activeTab
+    } = this.state
+    if (!visible) {
+      return null
+    }
+    const title = e('compare')
+    const isCodeTab = activeTab === 'code'
+    const width = isCodeTab ? '90%' : 800
+    const ps = {
+      open: visible,
+      width,
+      title,
+      footer: null,
+      onCancel: this.onClose
+    }
+
+    const tabItems = [
+      {
+        key: 'info',
+        label: e('info'),
+        children: this.renderInfo(file1, file2, tab, uidTree, gidTree)
+      },
+      {
+        key: 'code',
+        label: e('code'),
+        children: (
+          <Suspense fallback={<Loading />}>
+            <CodeCompare file1={file1} file2={file2} tab={tab} />
+          </Suspense>
+        )
+      }
+    ]
+
+    return (
       <Modal {...ps}>
-        <table className='file-compare-table'>
-          <tbody>
-            {rows.map(([label, v1, v2], i) => {
-              const same = String(v1 ?? '') === String(v2 ?? '')
-              const cls = same ? '' : 'file-compare-diff'
-              return (
-                <tr key={i}>
-                  <td className='bold file-compare-label'>{label}</td>
-                  <td className={cls}>{v1}</td>
-                  <td className={cls}>{v2}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+        <Tabs
+          activeKey={activeTab}
+          onChange={key => this.setState({ activeTab: key })}
+          items={tabItems}
+          destroyInactiveTabPane={false}
+        />
       </Modal>
     )
   }
