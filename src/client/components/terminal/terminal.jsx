@@ -161,6 +161,9 @@ class Term extends Component {
 
   componentWillUnmount () {
     refs.remove(this.id)
+    clearTimeout(this.longPressTimer)
+    this.longPressTimer = null
+    this.touchStartPos = null
     if (window.store.activeTerminalId === this.props.tab.id) {
       window.store.activeTerminalId = ''
     }
@@ -622,6 +625,131 @@ class Term extends Component {
     }
     if (keyControlPressed(event)) {
       window.openLink(url, '_blank')
+    }
+  }
+
+  // ---- Mobile touch support ----
+  // On touch devices, long-press should (1) select the word under the finger
+  // and (2) open the context menu — mirroring desktop right-click behaviour.
+  // xterm.js only uses touch events for scrolling, so we add explicit
+  // long-press detection here.
+  longPressTimer = null
+  touchStartPos = null
+  longPressThreshold = 500 // ms
+  longPressMoveTolerance = 10 // px
+
+  onTouchStart = (e) => {
+    if (e.touches.length !== 1) {
+      return
+    }
+    const touch = e.touches[0]
+    this.touchStartPos = {
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+      target: e.currentTarget
+    }
+    clearTimeout(this.longPressTimer)
+    this.longPressTimer = setTimeout(() => {
+      this.handleLongPress()
+    }, this.longPressThreshold)
+  }
+
+  onTouchMove = (e) => {
+    if (!this.touchStartPos) {
+      return
+    }
+    const touch = e.touches[0]
+    const dx = touch.clientX - this.touchStartPos.clientX
+    const dy = touch.clientY - this.touchStartPos.clientY
+    if (Math.sqrt(dx * dx + dy * dy) > this.longPressMoveTolerance) {
+      clearTimeout(this.longPressTimer)
+      this.longPressTimer = null
+      this.touchStartPos = null
+    }
+  }
+
+  onTouchEnd = () => {
+    clearTimeout(this.longPressTimer)
+    this.longPressTimer = null
+    this.touchStartPos = null
+  }
+
+  handleLongPress = () => {
+    if (!this.touchStartPos || this.state.loading) {
+      return
+    }
+    const { clientX, clientY, target } = this.touchStartPos
+
+    // Select the word at the touch position (same as desktop right-click word
+    // select) so the user can immediately copy or act on it.
+    this.selectWordAt(clientX, clientY)
+
+    // Respect pasteWhenContextMenu: when enabled, long-press pastes instead
+    // of showing the menu (same as desktop right-click).
+    if (this.props.config.pasteWhenContextMenu) {
+      this.onPaste()
+      return
+    }
+
+    // Dispatch a synthetic contextmenu event so antd Dropdown's contextMenu
+    // trigger opens the menu at the exact finger position.
+    const event = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+      clientX,
+      clientY
+    })
+    target.dispatchEvent(event)
+  }
+
+  selectWordAt = (clientX, clientY) => {
+    if (!this.term) {
+      return
+    }
+    const termElement = this.term.element
+    if (!termElement) {
+      return
+    }
+    const rect = termElement.getBoundingClientRect()
+    const x = clientX - rect.left
+    const y = clientY - rect.top
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
+      return
+    }
+
+    const cellWidth = rect.width / this.term.cols
+    const cellHeight = rect.height / this.term.rows
+    const col = Math.floor(x / cellWidth)
+    const row = Math.floor(y / cellHeight)
+
+    const buffer = this.term.buffer.active
+    const line = buffer.getLine(row)
+    if (!line) {
+      return
+    }
+
+    const text = line.translateToString(true)
+    const wordSeparator = this.props.config.terminalWordSeparator ||
+      ' ./\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~ ?'
+
+    // If the touched cell is empty or a separator, nothing to select
+    if (col >= text.length || wordSeparator.includes(text[col])) {
+      return
+    }
+
+    // Find word start
+    let start = col
+    while (start > 0 && !wordSeparator.includes(text[start - 1])) {
+      start--
+    }
+    // Find word end
+    let end = col
+    while (end < text.length && !wordSeparator.includes(text[end])) {
+      end++
+    }
+
+    if (end > start) {
+      this.term.select(start, row, end - start)
     }
   }
 
@@ -1926,7 +2054,10 @@ class Term extends Component {
         zIndex: 10
       },
       onDrop: this.onDrop,
-      onContextMenu: this.onContextMenuInner
+      onContextMenu: this.onContextMenuInner,
+      onTouchStart: this.onTouchStart,
+      onTouchMove: this.onTouchMove,
+      onTouchEnd: this.onTouchEnd
     }
     // const fileProps = {
     //   type: 'file',
