@@ -42,6 +42,20 @@ a
 .cap
   text-transform capitalize
 
+// shared drag-and-drop reorder indicators (vertical lists)
+// first half of the target  => insert before => top edge
+// second half of the target => insert after  => bottom edge
+// (tabs use their own horizontal left/right line indicators)
+.dnd-before
+  box-shadow inset 0 2px 0 0 var(--primary)
+.dnd-after
+  box-shadow inset 0 -2px 0 0 var(--primary)
+// antd table rows: box-shadow on <tr> is not rendered, apply on cells
+tr.dnd-before > td
+  box-shadow inset 0 2px 0 0 var(--primary)
+tr.dnd-after > td
+  box-shadow inset 0 -2px 0 0 var(--primary)
+
 .sync-data-compare
   .sync-suggest-action
     color var(--success)

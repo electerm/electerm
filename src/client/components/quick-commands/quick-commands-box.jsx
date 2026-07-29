@@ -15,6 +15,7 @@ import {
 } from '@ant-design/icons'
 import classNames from 'classnames'
 import onDropFunc from './on-drop'
+import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../common/drop-position'
 import './qm.styl'
 
 const e = window.translate
@@ -81,6 +82,10 @@ export default function QuickCommandsFooterBox (props) {
 
   function onDragOver (e) {
     e.preventDefault()
+    const el = e.target.closest('.qm-item')
+    if (el) {
+      setDropIndicator(el, isDropAfterHalf(e, el))
+    }
   }
 
   function onDragStart (e) {
@@ -88,14 +93,25 @@ export default function QuickCommandsFooterBox (props) {
   }
 
   function onDragEnter (e) {
-    e.target.closest('.qm-item')?.classList.add('qm-item-dragover')
+    e.preventDefault()
+    const el = e.target.closest('.qm-item')
+    if (el) {
+      setDropIndicator(el, isDropAfterHalf(e, el))
+    }
   }
 
   function onDragLeave (e) {
-    e.target.closest('.qm-item')?.classList.remove('qm-item-dragover')
+    const el = e.target.closest('.qm-item')
+    if (el) {
+      clearDropIndicator(el)
+    }
   }
 
   function onDrop (e) {
+    const el = e.target.closest('.qm-item')
+    if (el) {
+      clearDropIndicator(el)
+    }
     onDropFunc(e, '.qm-item')
   }
 

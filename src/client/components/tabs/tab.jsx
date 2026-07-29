@@ -25,10 +25,12 @@ import isDark from '../../common/is-color-dark'
 import { action } from 'manate'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
+import { isDropAfterHalf } from '../../common/drop-position'
 
 const e = window.translate
 const onDragCls = 'ondrag-tab'
 const onDragOverCls = 'dragover-tab'
+const onDragOverAfterCls = 'dragover-tab-after'
 
 class Tab extends Component {
   constructor (props) {
@@ -110,6 +112,9 @@ class Tab extends Component {
     document.querySelectorAll('.' + onDragOverCls).forEach((d) => {
       removeClass(d, onDragOverCls)
     })
+    document.querySelectorAll('.' + onDragOverAfterCls).forEach((d) => {
+      removeClass(d, onDragOverAfterCls)
+    })
   }
 
   handleClick = (e) => {
@@ -120,9 +125,8 @@ class Tab extends Component {
     addClass(this.tabRef.current, onDragCls)
   }
 
-  onDragEnter = () => {
-    this.clearCls()
-    addClass(this.tabRef.current, onDragOverCls)
+  onDragEnter = (e) => {
+    this.applyDragOverCls(e)
   }
 
   onDragExit = () => {
@@ -135,13 +139,22 @@ class Tab extends Component {
     // debug('ondragleave')
     const { target } = e
     removeClass(target, onDragOverCls)
+    removeClass(target, onDragOverAfterCls)
+  }
+
+  // Pick the before/after indicator based on which half of the tab
+  // the pointer is in, so the drop line shows where it will actually go.
+  applyDragOverCls = e => {
+    this.clearCls()
+    const insertAfter = isDropAfterHalf(e, this.tabRef.current, true)
+    addClass(this.tabRef.current, insertAfter ? onDragOverAfterCls : onDragOverCls)
   }
 
   onDragOver = e => {
     // debug('ondragover')
     // debug(e.target)
-    // removeClass(this.tabRef.current, 'sftp-dragover')
     e.preventDefault()
+    this.applyDragOverCls(e)
   }
 
   onDragStart = e => {
@@ -178,7 +191,9 @@ class Tab extends Component {
     const { id } = fromTab
     const storeTabs = window.store.tabs
     const indexFrom = storeTabs.findIndex(t => t.id === id)
-    let indexDrop = storeTabs.findIndex(t => t.id === dropId)
+    const indexDrop = storeTabs.findIndex(t => t.id === dropId)
+    // tabs are laid out horizontally: right half of the target => insert after
+    const insertAfter = isDropAfterHalf(e, onDropTab, true)
 
     if (indexFrom >= 0 && indexDrop >= 0) {
       const targetTab = storeTabs[indexDrop]
@@ -197,10 +212,13 @@ class Tab extends Component {
       action(function () {
         const [tab] = storeTabs.splice(indexFrom, 1)
         tab.batch = targetTab.batch // Update the batch to match target tab's batch
-        if (indexFrom < indexDrop) {
-          indexDrop = indexDrop - 1
+        // insertAfter lets a tab land after the target, so the last tab
+        // can receive a drop (insertIndex can reach storeTabs.length).
+        let insertIndex = insertAfter ? indexDrop + 1 : indexDrop
+        if (indexFrom < insertIndex) {
+          insertIndex = insertIndex - 1
         }
-        storeTabs.splice(indexDrop, 0, tab)
+        storeTabs.splice(insertIndex, 0, tab)
       })()
       window.store.focus()
     }
@@ -216,6 +234,7 @@ class Tab extends Component {
 
   onDragEnd = e => {
     removeClass(this.tabRef.current, onDragCls)
+    removeClass(this.tabRef.current, onDragOverAfterCls)
     this.clearCls()
     e && e.dataTransfer && e.dataTransfer.clearData()
   }

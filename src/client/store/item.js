@@ -82,18 +82,22 @@ export default Store => {
     window.store[type] = arr
   }
 
-  Store.prototype.adjustOrder = function (type, fromId, toId) {
+  Store.prototype.adjustOrder = function (type, fromId, toId, insertAfter = false) {
     const { store } = window
     const items = store.getItems(type)
     const fromIndex = items.findIndex(t => t.id === fromId)
-    let toIndex = items.findIndex(t => t.id === toId)
+    const toIndex = items.findIndex(t => t.id === toId)
     if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
       return
     }
-    if (fromIndex < toIndex) {
-      toIndex = toIndex - 1
-    }
+    // insertAfter lets the item land after the target, so the last
+    // item can receive a drop (insertIndex can reach items.length).
+    let insertIndex = insertAfter ? toIndex + 1 : toIndex
     const [removed] = items.splice(fromIndex, 1)
-    items.splice(toIndex, 0, removed)
+    // account for the index shift caused by the removal above
+    if (fromIndex < insertIndex) {
+      insertIndex = insertIndex - 1
+    }
+    items.splice(insertIndex, 0, removed)
   }
 }

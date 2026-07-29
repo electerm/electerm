@@ -13,6 +13,7 @@ import {
 import { action } from 'manate'
 import { addClass, removeClass } from '../../common/class'
 import { refsStatic } from '../common/ref'
+import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../common/drop-position'
 import './transfer.styl'
 
 const e = window.translate
@@ -70,28 +71,28 @@ export default function Transporter (props) {
     addClass(dom.current, onDragCls)
   }
 
-  function onDragEnter () {
+  function updateDropIndicator (e) {
     clearCls()
-    addClass(dom.current, onDragOverCls)
+    setDropIndicator(dom.current, isDropAfterHalf(e, dom.current))
+  }
+
+  function onDragEnter (e) {
+    e.preventDefault()
+    updateDropIndicator(e)
   }
 
   function onDragExit () {
     // debug('ondragexit')
-    // let {target} = e
-    // removeClass(target, 'sftp-dragover')
   }
 
-  function onDragLeave (e) {
-    // debug('ondragleave')
-    const { target } = e
-    removeClass(target, onDragOverCls)
+  function onDragLeave () {
+    clearDropIndicator(dom.current)
   }
 
   function onDragOver (e) {
     // debug('ondragover')
-    // debug(e.target)
-    // removeClass(dom.current, 'sftp-dragover')
     e.preventDefault()
+    updateDropIndicator(e)
   }
 
   function onDragStart (e) {
@@ -103,6 +104,7 @@ export default function Transporter (props) {
 
   function onDrop (e) {
     e.preventDefault()
+    clearDropIndicator(dom.current)
     const { target } = e
     if (!target) {
       return
@@ -126,15 +128,19 @@ export default function Transporter (props) {
 
     const arr = window.store.fileTransfers
     const indexFrom = arr.findIndex(t => t.id === fromId)
-    let indexDrop = arr.findIndex(t => t.id === dropId)
+    const indexDrop = arr.findIndex(t => t.id === dropId)
+    // bottom half of the target row => insert after it, so the last
+    // transfer can receive a drop (append to the end of the queue).
+    const insertAfter = isDropAfterHalf(e, onDropTab)
     if (indexFrom >= 0 && indexDrop >= 0) {
       // Reorder tabs and update batch
       action(function () {
         const [tr] = arr.splice(indexFrom, 1)
-        if (indexFrom < indexDrop) {
-          indexDrop = indexDrop - 1
+        let insertIndex = insertAfter ? indexDrop + 1 : indexDrop
+        if (indexFrom < insertIndex) {
+          insertIndex = insertIndex - 1
         }
-        arr.splice(indexDrop, 0, tr)
+        arr.splice(insertIndex, 0, tr)
       })()
     }
   }
@@ -142,6 +148,7 @@ export default function Transporter (props) {
   function onDragEnd (e) {
     removeClass(dom.current, onDragCls)
     clearCls()
+    clearDropIndicator(dom.current)
     e && e.dataTransfer && e.dataTransfer.clearData()
   }
   const isTransfer = typeTo !== typeFrom

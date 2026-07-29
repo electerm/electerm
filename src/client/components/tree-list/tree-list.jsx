@@ -14,6 +14,7 @@ import {
 } from '../../common/constants'
 import { getItemJSON, setItemJSON } from '../../common/safe-local-storage'
 import findParentBySel from '../../common/find-parent'
+import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../common/drop-position'
 import copy from 'json-deep-copy'
 import NewButtonsGroup from './bookmark-toolbar'
 import findBookmarkGroupId from '../../common/find-bookmark-group-id'
@@ -479,8 +480,10 @@ export default class ItemListTree extends Component {
       )
   }
 
-  onDragEnter = e => {
-    e.preventDefault()
+  // resolve the .tree-item under the pointer and show a directional
+  // drop indicator (top edge = before, bottom edge = after).
+  // NOTE: preventDefault on dragover is required for onDrop to fire.
+  updateDropIndicator = e => {
     let {
       target
     } = e
@@ -488,7 +491,12 @@ export default class ItemListTree extends Component {
     if (tar) {
       target = tar
     }
-    target.classList.add('item-dragover-top')
+    setDropIndicator(target, isDropAfterHalf(e, target))
+  }
+
+  onDragEnter = e => {
+    e.preventDefault()
+    this.updateDropIndicator(e)
   }
 
   onDragLeave = e => {
@@ -500,25 +508,21 @@ export default class ItemListTree extends Component {
     if (tar) {
       target = tar
     }
-    target.classList.remove('item-dragover-top')
+    clearDropIndicator(target)
   }
 
   onDragOver = e => {
-    let {
-      target
-    } = e
-    const tar = findParentBySel(target, '.tree-item')
-    if (tar) {
-      target = tar
-    }
-    target.classList.add('item-dragover-top')
+    e.preventDefault()
+    this.updateDropIndicator(e)
   }
 
   onDrop = action(e => {
     e.preventDefault()
-    const elems = document.querySelectorAll('.tree-item.item-dragover-top')
+    const elems = document.querySelectorAll(
+      '.tree-item.dnd-before, .tree-item.dnd-after'
+    )
     elems.forEach(elem => {
-      elem.classList.remove('item-dragover-top')
+      clearDropIndicator(elem)
     })
     let {
       target
@@ -537,6 +541,9 @@ export default class ItemListTree extends Component {
     const pidDrops = target.getAttribute('data-parent-id') || ''
     const pidDropsArr = pidDrops.split('#')
     const pidDrop = pidDropsArr[pidDropsArr.length - 1]
+    // bottom half of the target row => insert after it, so the last
+    // item/group in a list can receive a drop (append to the end).
+    const insertAfter = isDropAfterHalf(e, target)
     // can not drag item to its own children
     if (
       (idDragged === 'default' &&
@@ -566,8 +573,9 @@ export default class ItemListTree extends Component {
       if (indexDrop < 0) {
         return
       }
+      const insertIndex = insertAfter ? indexDrop + 1 : indexDrop
       bookmarkGroups.splice(
-        indexDrop,
+        insertIndex,
         0,
         dragItem
       )
@@ -580,9 +588,13 @@ export default class ItemListTree extends Component {
         )
         : false
       if (parentDrag) {
-        parentDrag.bookmarkGroupIds = (parentDrag.bookmarkGroupIds || []).filter(
-          id => id !== idDragged
-        )
+        // remove from old parent IN PLACE: manate only reacts to in-place
+        // array mutations (the delete inside splice), not reassignment.
+        const fromArr = parentDrag.bookmarkGroupIds || []
+        const fromIdx = fromArr.indexOf(idDragged)
+        if (fromIdx >= 0) {
+          fromArr.splice(fromIdx, 1)
+        }
       }
       const parentDrop = pidDrop
         ? bookmarkGroups.find(
@@ -594,20 +606,18 @@ export default class ItemListTree extends Component {
       if (!parentDrop) {
         return
       }
+      const dropArr = parentDrop.bookmarkGroupIds || []
       if (!pidDrop) {
-        parentDrop.bookmarkGroupIds = uniq(
-          [
-            ...(parentDrop.bookmarkGroupIds || []),
-            idDragged
-          ]
-        )
+        if (!dropArr.includes(idDragged)) {
+          dropArr.push(idDragged)
+        }
       } else {
-        const arr = parentDrop.bookmarkGroupIds || []
-        let index = arr.findIndex(item => item === idDrop)
+        let index = dropArr.findIndex(item => item === idDrop)
         if (index < 0) {
           index = 0
         }
-        arr.splice(index, 0, idDragged)
+        const insertIndex = insertAfter ? index + 1 : index
+        dropArr.splice(insertIndex, 0, idDragged)
       }
     } else {
       const parentDrag = bookmarkGroups.find(
@@ -616,9 +626,13 @@ export default class ItemListTree extends Component {
       if (!parentDrag) {
         return
       }
-      parentDrag.bookmarkIds = (parentDrag.bookmarkIds || []).filter(
-        id => id !== idDragged
-      )
+      // remove from old parent IN PLACE: manate only reacts to in-place
+      // array mutations (the delete inside splice), not reassignment.
+      const fromArr = parentDrag.bookmarkIds || []
+      const fromIdx = fromArr.indexOf(idDragged)
+      if (fromIdx >= 0) {
+        fromArr.splice(fromIdx, 1)
+      }
       const parentDrop = isGroupDrop
         ? bookmarkGroups.find(
           item => item.id === idDrop
@@ -629,21 +643,25 @@ export default class ItemListTree extends Component {
       if (!parentDrop) {
         return
       }
+      const dropArr = parentDrop.bookmarkIds || []
       if (isGroupDrop) {
-        parentDrop.bookmarkIds = uniq(
-          [
-            ...(parentDrop.bookmarkIds || []),
-            idDragged
-          ]
-        )
+        if (!dropArr.includes(idDragged)) {
+          dropArr.push(idDragged)
+        }
       } else {
-        const arr = parentDrop.bookmarkIds || []
-        let index = arr.findIndex(item => item === idDrop)
+        let index = dropArr.findIndex(item => item === idDrop)
         if (index < 0) {
           index = 0
         }
-        arr.splice(index, 0, idDragged)
+        const insertIndex = insertAfter ? index + 1 : index
+        dropArr.splice(insertIndex, 0, idDragged)
       }
+      // a manual bookmark reorder overrides any active sort, otherwise
+      // buildVisibleTreeRows would re-sort bookmarks and hide this order.
+      setItemJSON(treeSortLsKey, null)
+      this.setState({
+        sort: null
+      })
     }
     if (
       isGroupDrag &&

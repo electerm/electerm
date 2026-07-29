@@ -8,6 +8,7 @@ import {
 import { MinusCircleOutlined, PlusOutlined, HolderOutlined } from '@ant-design/icons'
 import HelpIcon from '../common/help-icon'
 import { copy } from '../../common/clipboard'
+import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../common/drop-position'
 import { useRef } from 'react'
 
 const FormItem = Form.Item
@@ -30,28 +31,38 @@ export default function renderQm (form) {
     e.dataTransfer.dropEffect = 'move'
     const el = e.target.closest('.ant-space-compact')
     if (dragIndexRef.current !== index && el) {
-      el.classList.add('qm-field-dragover')
+      setDropIndicator(el, isDropAfterHalf(e, el))
     }
   }
 
   function handleDragLeave (e) {
-    e.target.closest('.ant-space-compact')?.classList.remove('qm-field-dragover')
+    const el = e.target.closest('.ant-space-compact')
+    if (el) {
+      clearDropIndicator(el)
+    }
   }
 
   function handleDrop (e, index, form) {
     e.preventDefault()
     const el = e.target.closest('.ant-space-compact')
-    el?.classList.remove('qm-field-dragover')
+    clearDropIndicator(el)
     const dragIndex = dragIndexRef.current
     if (dragIndex === null || dragIndex === index) {
       dragIndexRef.current = null
       return
     }
+    // bottom half of the row => insert after it, so the last
+    // sub-command can receive a drop (append to the end).
+    const insertAfter = isDropAfterHalf(e, el)
     const commands = form.getFieldValue('commands') || []
     const item = commands[dragIndex]
     const newCommands = [...commands]
     newCommands.splice(dragIndex, 1)
-    newCommands.splice(index, 0, item)
+    let insertIndex = insertAfter ? index + 1 : index
+    if (dragIndex < insertIndex) {
+      insertIndex = insertIndex - 1
+    }
+    newCommands.splice(insertIndex, 0, item)
     form.setFieldValue('commands', newCommands)
     dragIndexRef.current = null
   }

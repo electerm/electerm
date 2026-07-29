@@ -9,6 +9,7 @@ import classnames from 'classnames'
 import highlight from '../common/highlight'
 import QmTransport from './quick-command-transport'
 import onDrop from './on-drop'
+import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../common/drop-position'
 import copy from 'json-deep-copy'
 import uid from '../../common/uid'
 
@@ -37,6 +38,10 @@ export default class QuickCommandsList extends List {
 
   handleDragOver = e => {
     e.preventDefault()
+    const el = e.target.closest('.item-list-unit')
+    if (el) {
+      setDropIndicator(el, isDropAfterHalf(e, el))
+    }
   }
 
   handleDragStart = e => {
@@ -47,14 +52,25 @@ export default class QuickCommandsList extends List {
   }
 
   handleDragEnter = e => {
-    e.target.closest('.item-list-unit').classList.add('qm-field-dragover')
+    e.preventDefault()
+    const el = e.target.closest('.item-list-unit')
+    if (el) {
+      setDropIndicator(el, isDropAfterHalf(e, el))
+    }
   }
 
   handleDragLeave = e => {
-    e.target.closest('.item-list-unit').classList.remove('qm-field-dragover')
+    const el = e.target.closest('.item-list-unit')
+    if (el) {
+      clearDropIndicator(el)
+    }
   }
 
   handleDrop = e => {
+    const el = e.target.closest('.item-list-unit')
+    if (el) {
+      clearDropIndicator(el)
+    }
     onDrop(e, '.item-list-unit')
   }
 

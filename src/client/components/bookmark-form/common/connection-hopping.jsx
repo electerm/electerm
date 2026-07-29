@@ -17,6 +17,7 @@ import {
   connectionHoppingWarnKey
 } from '../../../common/constants'
 import { useState, useRef, useCallback } from 'react'
+import { isDropAfterHalf } from '../../../common/drop-position'
 import ConnectionHoppingWarningText from '../../common/connection-hopping-warning-text'
 import * as ls from '../../../common/safe-local-storage'
 import Modal from '../../common/modal'
@@ -49,33 +50,56 @@ export default function renderConnectionHopping (props) {
   const [list, setList] = useState(formData.connectionHoppings || [])
   const dragItem = useRef(null)
   const dragOverItem = useRef(null)
+  // tracks whether the pointer is in the bottom half of the hovered row,
+  // so a drop can land after the target (including after the last row).
+  const dragOverAfter = useRef(false)
+  // { index, after } of the row currently hovered, or null. Drives the
+  // directional drop indicator on the antd table row via a className.
+  const [overRow, setOverRow] = useState(null)
 
   const handleDragStart = useCallback((index) => {
     dragItem.current = index
   }, [])
 
-  const handleDragEnter = useCallback((index) => {
+  // track target index + before/after half on every drag-over pass,
+  // because onDragEnter only fires once per row and cannot detect
+  // moving between the top and bottom half of the same row.
+  const handleDragOver = useCallback((e, index) => {
+    e.preventDefault()
+    const after = isDropAfterHalf(e, e.currentTarget)
     dragOverItem.current = index
+    dragOverAfter.current = after
+    setOverRow({ index, after })
   }, [])
 
   const handleDragEnd = useCallback(() => {
+    setOverRow(null)
     if (dragItem.current === null || dragOverItem.current === null) {
       return
     }
     if (dragItem.current === dragOverItem.current) {
       dragItem.current = null
       dragOverItem.current = null
+      dragOverAfter.current = false
       return
     }
     setList(old => {
       const newList = [...old]
-      const [removed] = newList.splice(dragItem.current, 1)
-      newList.splice(dragOverItem.current, 0, removed)
+      const fromIndex = dragItem.current
+      let insertIndex = dragOverAfter.current
+        ? dragOverItem.current + 1
+        : dragOverItem.current
+      const [removed] = newList.splice(fromIndex, 1)
+      if (fromIndex < insertIndex) {
+        insertIndex = insertIndex - 1
+      }
+      newList.splice(insertIndex, 0, removed)
       form.setFieldsValue({
         connectionHoppings: newList
       })
       dragItem.current = null
       dragOverItem.current = null
+      dragOverAfter.current = false
       return newList
     })
   }, [form])
@@ -205,15 +229,17 @@ export default function renderConnectionHopping (props) {
       <FormItem {...tailFormItemLayout}>
         <Table
           columns={cols}
-          className='mg3b'
+          className='mg3b connection-hopping-table'
           pagination={false}
           size='small'
           onRow={(record, index) => ({
             draggable: true,
+            className: overRow && overRow.index === index
+              ? (overRow.after ? 'dnd-after' : 'dnd-before')
+              : '',
             onDragStart: () => handleDragStart(index),
-            onDragEnter: () => handleDragEnter(index),
-            onDragEnd: handleDragEnd,
-            onDragOver: (e) => e.preventDefault()
+            onDragOver: (e) => handleDragOver(e, index),
+            onDragEnd: handleDragEnd
           })}
           dataSource={list.map((d, i) => {
             return {
