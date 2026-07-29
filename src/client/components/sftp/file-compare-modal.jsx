@@ -105,8 +105,8 @@ export default class FileCompareModal extends React.PureComponent {
       ],
       [
         e('size'),
-        file1.isDirectory ? '-' : filesize(file1.size || 0),
-        file2.isDirectory ? '-' : filesize(file2.size || 0)
+        file1.isDirectory ? '-' : `${filesize(file1.size || 0)}(${file1.size || 0}byte)`,
+        file2.isDirectory ? '-' : `${filesize(file2.size || 0)}(${file2.size || 0}byte)`
       ],
       [e('mode'), permission1, permission2],
       [e('fullPath'), ffp1, ffp2],
