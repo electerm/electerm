@@ -9,13 +9,15 @@ import {
   CloseOutlined,
   ApartmentOutlined,
   MoreOutlined,
-  ColumnWidthOutlined
+  ColumnWidthOutlined,
+  LogoutOutlined
 } from '@ant-design/icons'
 import { Tooltip, Popover } from 'antd'
 import classnames from 'classnames'
 import {
   paneMap,
-  connectionMap
+  connectionMap,
+  terminalSerialType
 } from '../../common/constants'
 import { SplitViewIcon } from '../icons/split-view'
 import { HeartbeatIcon } from '../icons/heartbeat'
@@ -45,12 +47,17 @@ export default function SessionControl (props) {
     toggleWrap,
     onFullscreen,
     onOpenSearch,
-    onDismissDelKeyTip
+    onDismissDelKeyTip,
+    onExitGracefully
   } = props
 
   if (isNotTerminalType) {
     return null
   }
+
+  const isSsh = !!tab.authType
+  const isLocal = !isSsh && (tab.type === connectionMap.local || !tab.type)
+  const showSshFeatures = isSsh || isLocal
 
   // ---- sub-renderers ----
 
@@ -62,9 +69,6 @@ export default function SessionControl (props) {
     if (sshSftpSplitView && canSplitView) {
       return null
     }
-    const termType = tab?.type
-    const isSsh = tab.authType
-    const isLocal = !isSsh && (termType === connectionMap.local || !termType)
     const types = [
       paneMap.terminal,
       paneMap.fileManager
@@ -124,9 +128,6 @@ export default function SessionControl (props) {
       return null
     }
     const { pane, enableSsh, sshSftpSplitView } = tab
-    const termType = tab?.type
-    const isSsh = tab.authType
-    const isLocal = !isSsh && (termType === connectionMap.local || !termType)
     const checkTxt = e('sftpPathFollowSsh')
     const checkProps = {
       onClick: toggleCheckSftpPathFollowSsh,
@@ -161,7 +162,7 @@ export default function SessionControl (props) {
     if (isMobile) {
       return null
     }
-    if (!canSplitView || isNotTerminalType) {
+    if (!canSplitView || isNotTerminalType || !showSshFeatures) {
       return null
     }
     const title = e('sshSftpSplitView')
@@ -185,7 +186,7 @@ export default function SessionControl (props) {
   }
 
   function renderKeepaliveIcon () {
-    if (isSshDisabled) {
+    if (isSshDisabled || !showSshFeatures) {
       return null
     }
     const title = e('keepalive')
@@ -203,7 +204,7 @@ export default function SessionControl (props) {
   }
 
   function renderBroadcastIcon () {
-    if (isSshDisabled) {
+    if (isSshDisabled || !showSshFeatures) {
       return null
     }
     const title = e('broadcastInput')
@@ -231,6 +232,21 @@ export default function SessionControl (props) {
     return (
       <Tooltip title={title}>
         <ColumnWidthOutlined {...iconProps} />
+      </Tooltip>
+    )
+  }
+
+  function renderExitGracefullyIcon () {
+    if (tab.type !== terminalSerialType) {
+      return null
+    }
+    const title = e('exitGracefully')
+    return (
+      <Tooltip title={title}>
+        <LogoutOutlined
+          className='sess-icon pointer exit-gracefully-icon'
+          onClick={onExitGracefully}
+        />
       </Tooltip>
     )
   }
@@ -281,6 +297,7 @@ export default function SessionControl (props) {
         {renderKeepaliveIcon()}
         {renderBroadcastIcon()}
         {renderWrapIcon()}
+        {renderExitGracefullyIcon()}
         {renderTermControls()}
       </div>
     )
@@ -307,6 +324,7 @@ export default function SessionControl (props) {
       {renderKeepaliveIcon()}
       {renderBroadcastIcon()}
       {renderWrapIcon()}
+      {renderExitGracefullyIcon()}
       {renderTermControls()}
     </div>
   )

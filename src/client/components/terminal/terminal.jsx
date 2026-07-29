@@ -21,7 +21,8 @@ import {
   rendererTypes,
   isMac,
   isMacJs,
-  connectionMap
+  connectionMap,
+  terminalSerialType
 } from '../../common/constants.js'
 import deepCopy from 'json-deep-copy'
 import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
@@ -73,6 +74,38 @@ import {
 } from './terminal-color-query.mjs'
 
 const e = window.translate
+
+// Expands \n \t \r \\ and \xHH hex byte escapes, used to let users type
+// control bytes (e.g. \x01 = Ctrl+A) in the serial "closeSequence" field.
+function expandCloseSequence (text) {
+  let result = ''
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '\\' && i + 1 < text.length) {
+      const next = text[i + 1]
+      if (next === 'n') {
+        result += '\n'
+        i++
+      } else if (next === 't') {
+        result += '\t'
+        i++
+      } else if (next === 'r') {
+        result += '\r'
+        i++
+      } else if (next === '\\') {
+        result += '\\'
+        i++
+      } else if (next === 'x' && /^[0-9a-fA-F]{2}$/.test(text.slice(i + 2, i + 4))) {
+        result += String.fromCharCode(parseInt(text.slice(i + 2, i + 4), 16))
+        i += 3
+      } else {
+        result += text[i]
+      }
+    } else {
+      result += text[i]
+    }
+  }
+  return result
+}
 
 class Term extends Component {
   constructor (props) {
@@ -1982,6 +2015,33 @@ class Term extends Component {
   handleCancel = () => {
     const { id } = this.props.tab
     this.props.delTab(id)
+  }
+
+  /**
+   * Manually triggered from the "exit gracefully" control in
+   * session-control.jsx (serial tabs only). Writes the configured key
+   * sequence (default \x01ky = Ctrl+A, k, y to kill a GNU screen window) to
+   * the socket, waits a bit so the remote end (e.g. a Bluetooth console
+   * adapter) can release cleanly, then closes the tab.
+   */
+  exitGracefully = async () => {
+    const { tab } = this.props
+    if (tab.type !== terminalSerialType) {
+      return
+    }
+    if (!this.onClose && this.attachAddon?._sendData) {
+      try {
+        const data = expandCloseSequence(tab.closeSequence || '\\x01ky')
+        if (data) {
+          this.attachAddon._sendData(data)
+        }
+      } catch (err) {
+        console.error('send close sequence failed', err)
+      }
+      const delay = Number(tab.closeSequenceDelay)
+      await new Promise(resolve => setTimeout(resolve, Number.isFinite(delay) && delay >= 0 ? delay : 500))
+    }
+    this.props.delTab(tab.id)
   }
 
   handleShowInfo = () => {

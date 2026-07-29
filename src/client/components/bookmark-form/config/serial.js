@@ -20,6 +20,8 @@ const serialConfig = {
       xon: false,
       xoff: false,
       xany: false,
+      closeSequence: '\\x01ky',
+      closeSequenceDelay: 500,
       term: defaultSettings.terminalType,
       displayRaw: false,
       runScripts: [{}],
@@ -59,6 +61,18 @@ const serialConfig = {
         { type: 'switch', name: 'xany', label: 'xany', valuePropName: 'checked' },
         { type: 'select', name: 'txLineEnding', label: 'txLineEnding', options: commonTxLineEndings.map(d => ({ value: d.value, label: d.label })) },
         { type: 'select', name: 'rxLineEnding', label: 'rxLineEnding', options: commonRxLineEndings.map(d => ({ value: d.value, label: d.label })) },
+        {
+          type: 'input',
+          name: 'closeSequence',
+          label: e('closeSequence'),
+          props: { placeholder: '\\x01ky' }
+        },
+        {
+          type: 'number',
+          name: 'closeSequenceDelay',
+          label: e('closeSequenceDelay'),
+          props: { min: 0, max: 10000, step: 100 }
+        },
         commonFields.runScripts,
         commonFields.description,
         { type: 'input', name: 'type', label: 'type', hidden: true }

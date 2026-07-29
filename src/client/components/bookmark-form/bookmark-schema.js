@@ -84,6 +84,8 @@ const bookmarkSchema = {
     xany: 'boolean - enable XANY flow control, default is false',
     txLineEnding: 'string - TX line ending on Enter: "\\r" (CR, default), "\\n" (LF), "\\r\\n" (CR+LF)',
     rxLineEnding: 'string - RX line ending conversion: "none" (default), "lf_to_crlf" (for LF-only devices), "cr_to_crlf" (for CR-only devices)',
+    closeSequence: 'string - key sequence sent to the serial port when the user clicks "exit gracefully" in the terminal controls, supports \\n \\t \\r \\\\ and \\xHH hex bytes, default "\\x01ky" (Ctrl+A, k, y - GNU screen kill-window confirm)',
+    closeSequenceDelay: 'number - ms to wait after sending closeSequence before closing the port, default 500',
     runScripts: 'array - run scripts after connected ({delay,script})',
     description: 'string - bookmark description'
   },

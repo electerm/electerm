@@ -99,6 +99,8 @@ export const serialBookmarkSchema = {
   xany: z.boolean().optional().describe('XANY flow control'),
   txLineEnding: z.enum(['\r', '\n', '\r\n']).optional().describe('TX line ending appended on Enter: "\\r" (CR, default), "\\n" (LF), "\\r\\n" (CR+LF)'),
   rxLineEnding: z.enum(['none', 'lf_to_crlf', 'cr_to_crlf']).optional().describe('RX line ending conversion: "none" (pass-through, default), "lf_to_crlf" (LF→CRLF for LF-only devices), "cr_to_crlf" (CR→CRLF for CR-only devices)'),
+  closeSequence: z.string().optional().describe('Key sequence sent to the serial port when the user clicks "exit gracefully" in the terminal controls (e.g. to cleanly exit GNU screen before disconnecting a Bluetooth serial console). Supports \\n \\t \\r \\\\ and \\xHH hex bytes, default "\\x01ky" (Ctrl+A, k, y - GNU screen kill-window confirm)'),
+  closeSequenceDelay: z.number().optional().describe('Milliseconds to wait after sending closeSequence before actually closing the port, default 500'),
   description: z.string().optional().describe('Bookmark description')
 }
 

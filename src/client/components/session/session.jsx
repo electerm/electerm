@@ -490,6 +490,10 @@ export default class SessionWrapper extends Component {
     this.setState({ keepaliveEnabled: enabled })
   }
 
+  handleExitGracefully = () => {
+    refs.get('term-' + this.props.tab.id)?.exitGracefully()
+  }
+
   handleOpenSearch = () => {
     refs.get('term-' + this.props.tab.id)?.toggleSearch()
   }
@@ -640,6 +644,7 @@ export default class SessionWrapper extends Component {
           onFullscreen={this.handleFullscreen}
           onOpenSearch={this.handleOpenSearch}
           onDismissDelKeyTip={this.handleDismissDelKeyTip}
+          onExitGracefully={this.handleExitGracefully}
         />
         {this.renderViews()}
       </div>
