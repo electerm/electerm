@@ -27,6 +27,8 @@ class Transfer {
     const isd = type === 'download'
     this.src = isd ? sftp : fs
     this.dst = isd ? fs : sftp
+    this.sftp = sftp
+    this.ownsSftp = false
     this.sftpId = sftpId
     this.srcPath = isd ? remotePath : localPath
     this.dstPath = !isd ? remotePath : localPath
@@ -60,6 +62,34 @@ class Transfer {
   }
 
   initTransfer = async (type) => {
+    // For regular file transfers (not folder transfers, not SSH FS fallback),
+    // create a separate SFTP channel on the same SSH connection so that
+    // directory listing and other SFTP operations remain responsive.
+    // Each transfer gets its own dedicated channel and closes it when done.
+    if (
+      !this.isDirectory &&
+      this.conn &&
+      !this.shouldUseSsh2ScpTransfer()
+    ) {
+      try {
+        const separateSftp = await new Promise((resolve, reject) => {
+          this.conn.sftp((err, sftp) => {
+            if (err) {
+              return reject(err)
+            }
+            resolve(sftp)
+          })
+        })
+        this.sftp = separateSftp
+        this.ownsSftp = true
+        const isd = type === 'download'
+        this.src = isd ? separateSftp : fs
+        this.dst = isd ? fs : separateSftp
+      } catch (e) {
+        // Fallback to the shared SFTP channel (src/dst already set in constructor)
+      }
+    }
+
     if (this.shouldUseFolderTransfer(type)) {
       return this.ssh2ScpFolderTransfer(type)
     }
@@ -406,6 +436,10 @@ class Transfer {
     }
     if (this.dst && this.dstHandle && this.dst.close) {
       this.dst.close(this.dstHandle, log.error)
+    }
+    // Close the transfer-specific SFTP channel if we created one
+    if (this.ownsSftp && this.sftp && this.sftp.end) {
+      this.sftp.end()
     }
     this.src = null
     this.dst = null
