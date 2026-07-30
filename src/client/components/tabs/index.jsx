@@ -386,6 +386,23 @@ export default class Tabs extends Component {
     )
   }
 
+  renderMobileTabsInner (currentTabEl) {
+    const inner = (
+      <div className='tabs-inner mobile-tabs-inner'>
+        {currentTabEl}
+      </div>
+    )
+    const { config } = this.props
+    if (config.useSystemTitleBar) {
+      return inner
+    }
+    return (
+      <AppDrag>
+        {inner}
+      </AppDrag>
+    )
+  }
+
   renderMobileTabs () {
     const { tabs = [], currentBatchTabId } = this.props
     const currentTab = tabs.find(t => t.id === currentBatchTabId)
@@ -410,9 +427,7 @@ export default class Tabs extends Component {
       : null
     return (
       <div className='tabs mobile-tabs' ref={this.tabsRef}>
-        <div className='tabs-inner mobile-tabs-inner'>
-          {currentTabEl}
-        </div>
+        {this.renderMobileTabsInner(currentTabEl)}
         {this.renderMobileTabsExtra(items)}
         {this.renderWindowControl()}
       </div>

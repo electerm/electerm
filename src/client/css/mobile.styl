@@ -29,6 +29,24 @@
       // close icon always visible on mobile
       .tab-close
         display block
+  // keep a left drag grip for the custom title bar (not webapp, not system-ui),
+  // so the empty area left of the tab is draggable. mac needs extra room for
+  // the traffic-light window controls in the top-left.
+  &.not-system-ui.not-webapp
+    .mobile-tabs-inner
+      margin-left 20px !important
+    &.is-mac
+      .mobile-tabs-inner
+        margin-left 72px !important
+  // AppDrag wraps .mobile-tabs-inner under a custom title bar; make it the flex
+  // item so the tab layout is unchanged and the inner's left drag grip stays
+  // inside the draggable .app-drag box.
+  .tabs.mobile-tabs > .app-drag
+    flex 1
+    min-width 0
+    display flex
+    align-items center
+    overflow hidden
   .mobile-tabs-extra
     flex-shrink 0
     display flex
