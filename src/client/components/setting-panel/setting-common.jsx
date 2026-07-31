@@ -204,6 +204,8 @@ export default class SettingCommon extends Component {
     )
   }
 
+  renderToggleBound = (name) => this.renderToggle(name)
+
   renderNumber = (name, options, title = '') => {
     let value = this.props.config[name]
     if (options.valueParser) {
@@ -605,7 +607,7 @@ export default class SettingCommon extends Component {
             'allowMultiInstance',
             'disableDeveloperTool',
             'debug'
-          ].map(this.renderToggle)
+          ].map(this.renderToggleBound)
         }
         {
           // 鼠标悬停标签页时自动切换（外部语言包未内置此 key，使用双语文案）
