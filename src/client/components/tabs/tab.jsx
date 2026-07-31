@@ -121,6 +121,28 @@ class Tab extends Component {
     window.store.clickTab(this.props.tab.id, this.props.batch)
   }
 
+  // 开启“鼠标悬停自动切换标签”时，悬停到标签即切换显示该标签
+  onMouseEnter = () => {
+    const {
+      config,
+      tab,
+      batch,
+      currentBatchTabId
+    } = this.props
+    if (!config || !config.switchTabOnHover) {
+      return
+    }
+    // 正在拖拽标签时不触发自动切换
+    if (document.querySelector('.' + onDragCls)) {
+      return
+    }
+    // 当前已显示该标签则无需切换
+    if (tab.id === currentBatchTabId) {
+      return
+    }
+    window.store.clickTab(tab.id, batch)
+  }
+
   onDrag = () => {
     addClass(this.tabRef.current, onDragCls)
   }
@@ -499,6 +521,7 @@ class Tab extends Component {
           data-id={id}
           {...pick(this, [
             'onDrag',
+            'onMouseEnter',
             'onDragEnter',
             'onDragExit',
             'onDragLeave',
