@@ -36,6 +36,14 @@ export default function SshTunnelForm (props) {
   )
   const [dirty, setDirty] = useState(false)
 
+  // watch host/port fields so the tooltip examples reflect what the user typed
+  const localHost = Form.useWatch('sshTunnelLocalHost', formChild) || '127.0.0.1'
+  const localPort = Form.useWatch('sshTunnelLocalPort', formChild) || '12200'
+  const remoteHost = Form.useWatch('sshTunnelRemoteHost', formChild) || '127.0.0.1'
+  const remotePort = Form.useWatch('sshTunnelRemotePort', formChild) || '12300'
+  const localAddr = `${localHost}:${localPort}`
+  const remoteAddr = `${remoteHost}:${remotePort}`
+
   function onChange (ev) {
     setIsDynamic(ev.target.value === 'dynamicForward')
   }
@@ -63,13 +71,23 @@ export default function SshTunnelForm (props) {
       <div>
         <p>{e(direction)}</p>
         <p><UserOutlined /> → {middle} → {last}</p>
+        {localToRemote
+          ? (
+            <p>Connect to <b>{localAddr}</b> on your machine to reach <b>{remoteAddr}</b> on the remote server (e.g. open <b>http://{localAddr}</b> in a browser).</p>
+            )
+          : (
+            <p>Connect to <b>{remoteAddr}</b> on the remote server to reach <b>{localAddr}</b> on your machine.</p>
+            )}
       </div>
     )
   }
 
   function renderDynamicForward () {
     return (
-      <p><UserOutlined /> → socks proxy → url</p>
+      <div>
+        <p><UserOutlined /> → socks proxy → url</p>
+        <p>Point your app's SOCKS5 proxy at <b>{localAddr}</b> to reach any host through the remote server.</p>
+      </div>
     )
   }
 
