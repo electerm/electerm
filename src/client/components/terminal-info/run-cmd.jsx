@@ -6,6 +6,7 @@ import { runCmd } from '../terminal/terminal-apis'
 import { useEffect } from 'react'
 import wait from '../../common/wait'
 import parseInt10 from '../../common/parse-int10'
+import formatDisks from './format-disks'
 
 function formatActivities (str) {
   if (!str) {
@@ -28,31 +29,6 @@ function formatActivities (str) {
     }).filter(d => d.pid)
   return {
     activities: r
-  }
-}
-
-function formatDisks (str) {
-  if (!str) {
-    return {
-      disks: []
-    }
-  }
-  const r = str.split('\n')
-    .slice(1)
-    .map(s => {
-      const arr = s.split(/ +/)
-      return {
-        filesystem: arr[0],
-        size: arr[1],
-        used: arr[2],
-        avail: arr[3],
-        usedPercent: arr[4],
-        mount: arr[5]
-      }
-    })
-    .filter(d => d.filesystem)
-  return {
-    disks: r
   }
 }
 
