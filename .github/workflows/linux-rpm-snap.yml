@@ -63,8 +63,3 @@ jobs:
 
       run: node build/bin/build-linux-rpm-snap
 
-    - name: upload to snap store
-      env:
-        SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAP_TOKEN }}
-      run: snapcraft upload --release=edge dist/*.snap
-

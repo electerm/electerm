@@ -1,0 +1,54 @@
+# Upload the snap asset to the Snap Store after a new release is published.
+# Downloads the .snap built by linux-rpm-snap from the GitHub release and
+# publishes it to both the edge and stable channels.
+
+name: snap-store-upload
+
+on:
+  release:
+    types: [released]
+  push:
+    branches: [ snap ]
+
+jobs:
+  upload-to-snap-store:
+    runs-on: ubuntu-24.04
+    environment: build
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Determine release tag
+      id: tag
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        tag="${{ github.event.release.tag_name }}"
+        if [ -z "$tag" ]; then
+          echo "No release tag from event, fetching latest release..."
+          tag=$(gh release view --repo "${{ github.repository }}" --json tagName -q '.tagName')
+          if [ -z "$tag" ]; then
+            echo "Could not determine release tag." >&2
+            exit 1
+          fi
+        fi
+        echo "Release tag: $tag"
+        echo "tag_name=$tag" >> "$GITHUB_OUTPUT"
+
+    - name: Download snap from release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        tag="${{ steps.tag.outputs.tag_name }}"
+        mkdir -p dist
+        gh release download "$tag" --repo "${{ github.repository }}" --pattern '*.snap' -D dist
+        echo 'Downloaded snap files:'
+        ls -la dist
+
+    - name: Install Snapcraft
+      uses: samuelmeuli/action-snapcraft@master
+
+    - name: Upload to Snap Store (edge + stable)
+      env:
+        SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAP_TOKEN }}
+      run: snapcraft upload --release=edge,stable dist/*.snap
