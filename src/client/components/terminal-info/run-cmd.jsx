@@ -206,7 +206,7 @@ export default (props) => {
     },
     {
       name: 'disks',
-      cmd: 'df -h',
+      cmd: 'df -hP',
       interval: 10000,
       delay: 1600,
       formatter: formatDisks
