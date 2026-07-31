@@ -14,7 +14,7 @@ const FormItem = Form.Item
 const e = window.translate
 
 const defaultInitialValues = {
-  sshTunnel: 'forwardRemoteToLocal',
+  sshTunnel: 'forwardLocalToRemote',
   sshTunnelLocalPort: 12200,
   sshTunnelLocalHost: '127.0.0.1',
   sshTunnelRemotePort: 12300,

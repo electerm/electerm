@@ -32,7 +32,7 @@ export default function SshTunnelForm (props) {
   } = props
 
   const [isDynamic, setIsDynamic] = useState(
-    (initialValues?.sshTunnel || 'forwardRemoteToLocal') === 'dynamicForward'
+    (initialValues?.sshTunnel || 'forwardLocalToRemote') === 'dynamicForward'
   )
   const [dirty, setDirty] = useState(false)
 
@@ -125,14 +125,14 @@ export default function SshTunnelForm (props) {
         required
       >
         <RadioGroup onChange={onChange}>
-          <RadioButton value='forwardRemoteToLocal'>
-            <Tooltip title={renderSshTunnelFlow('remoteToLocal')}>
-              <span>R→L <QuestionCircleOutlined /></span>
-            </Tooltip>
-          </RadioButton>
           <RadioButton value='forwardLocalToRemote'>
             <Tooltip title={renderSshTunnelFlow('localToRemote')}>
               <span>L→R <QuestionCircleOutlined /></span>
+            </Tooltip>
+          </RadioButton>
+          <RadioButton value='forwardRemoteToLocal'>
+            <Tooltip title={renderSshTunnelFlow('remoteToLocal')}>
+              <span>R→L <QuestionCircleOutlined /></span>
             </Tooltip>
           </RadioButton>
           <RadioButton value='dynamicForward'>
