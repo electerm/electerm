@@ -188,23 +188,20 @@ export default class SettingCommon extends Component {
     this.props.store.setConfig(ext)
   }
 
-  renderToggle = (name, extra = null, label) => {
+  renderToggle = (name, extra = null) => {
     const checked = !!this.props.config[name]
-    const txt = label || e(name)
     return (
       <div className='pd2b' key={'rt' + name}>
         <Switch
           checked={checked}
-          checkedChildren={txt}
-          unCheckedChildren={txt}
+          checkedChildren={e(name)}
+          unCheckedChildren={e(name)}
           onChange={v => this.onChangeValue(v, name)}
         />
         {isNumber(extra) ? null : extra}
       </div>
     )
   }
-
-  renderToggleBound = (name) => this.renderToggle(name)
 
   renderNumber = (name, options, title = '') => {
     let value = this.props.config[name]
@@ -606,18 +603,9 @@ export default class SettingCommon extends Component {
             'hideIP',
             'allowMultiInstance',
             'disableDeveloperTool',
-            'debug'
-          ].map(this.renderToggleBound)
-        }
-        {
-          // 鼠标悬停标签页时自动切换（外部语言包未内置此 key，使用双语文案）
-          this.renderToggle(
             'switchTabOnHover',
-            null,
-            props.config.language === 'zh_cn'
-              ? '鼠标悬停自动切换标签'
-              : 'Auto switch tab on hover'
-          )
+            'debug'
+          ].map(this.renderToggle)
         }
         {
           window.et.isWebApp ? null : <DeepLinkControl />
