@@ -78,5 +78,7 @@ export default {
   startDirectoryLocal: '',
   allowMultiInstance: false,
   disableDeveloperTool: false,
-  dragDropBehavior: 'ask'
+  dragDropBehavior: 'ask',
+  // 鼠标悬停到标签页时自动切换显示该标签
+  switchTabOnHover: false
 }
