@@ -668,6 +668,7 @@ class Term extends Component {
   // long-press detection here.
   longPressTimer = null
   touchStartPos = null
+  longPressFired = false
   longPressThreshold = 500 // ms
   longPressMoveTolerance = 10 // px
 
@@ -681,6 +682,7 @@ class Term extends Component {
       clientY: touch.clientY,
       target: e.currentTarget
     }
+    this.longPressFired = false
     clearTimeout(this.longPressTimer)
     this.longPressTimer = setTimeout(() => {
       this.handleLongPress()
@@ -702,15 +704,27 @@ class Term extends Component {
   }
 
   onTouchEnd = () => {
+    const wasTap = this.touchStartPos && !this.longPressFired
     clearTimeout(this.longPressTimer)
     this.longPressTimer = null
     this.touchStartPos = null
+    // xterm's own touch (Gesture) handler calls preventDefault()/stopPropagation()
+    // on touchstart/touchend, which suppresses the synthesised mousedown xterm
+    // relies on to focus its hidden helper textarea. As a result a tap never
+    // focuses the terminal on touch devices, so the soft keyboard never opens
+    // and you cannot type. Focus explicitly on a clean tap (not a long-press,
+    // not a scroll) so mobile input works. The focus() runs synchronously inside
+    // this user-gesture handler, so iOS/Android will show the keyboard.
+    if (wasTap && this.term) {
+      this.term.focus()
+    }
   }
 
   handleLongPress = () => {
     if (!this.touchStartPos || this.state.loading) {
       return
     }
+    this.longPressFired = true
     const { clientX, clientY, target } = this.touchStartPos
 
     // Select the word at the touch position (same as desktop right-click word
