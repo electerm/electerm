@@ -1,5 +1,10 @@
 import { useRef, useState } from 'react'
-import { Button, Input, Form, Space } from 'antd'
+import { Button, Input, Form, Tabs, Flex } from 'antd'
+import {
+  BgColorsOutlined,
+  FontSizeOutlined,
+  RobotOutlined
+} from '@ant-design/icons'
 import message from '../common/message'
 import {
   convertTheme,
@@ -13,6 +18,7 @@ import generate from '../../common/uid'
 import Link from '../common/external-link'
 import InputAutoFocus from '../common/input-auto-focus'
 import ThemePicker from './theme-editor'
+import ThemeAiEditor from './theme-ai-editor'
 import Upload from '../common/upload'
 // import './theme-form.styl'
 
@@ -48,8 +54,8 @@ export default function ThemeForm (props) {
     // A regex to test the hex color format
     const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
 
-    // A regex to test the rgba color format
-    const rgbaColorRegex = /^rgba\(\d{1,3}, +\d{1,3}, +\d{1,3}, +(0|0?\.\d+|1)\)$/
+    // A regex to test the rgba color format (whitespace after commas is optional)
+    const rgbaColorRegex = /^rgba\(\d{1,3},\s*\d{1,3},\s*\d{1,3},\s*(0|0?\.\d+|1)\)$/
 
     // A message to store the error message
     let message = ''
@@ -168,9 +174,13 @@ export default function ThemeForm (props) {
     setTxt(tt)
   }
 
-  function handleSwitchEditor (e) {
-    e.preventDefault()
-    setEditor(editor === 'theme-editor-txt' ? 'theme-editor-color-picker' : 'theme-editor-txt')
+  function handleAiGenerated (text) {
+    form.setFieldsValue({
+      themeText: text
+    })
+    setTxt(text)
+    // jump to the text editor so the user can review/adjust the result
+    setEditor('theme-editor-txt')
   }
 
   function renderFuncs (id) {
@@ -238,11 +248,45 @@ export default function ThemeForm (props) {
   }
   const isDefaultTheme = id === defaultTheme().id || id === defaultThemeLight().id
   const disabled = readonly || isDefaultTheme
-  const switchTxt = editor === 'theme-editor-txt' ? e('editWithColorPicker') : e('editWithTextEditor')
   const pickerProps = {
     onChange: onPickerChange,
     themeText: txt,
     disabled
+  }
+  const tabItems = [
+    {
+      key: 'theme-editor-color-picker',
+      label: (
+        <span>
+          <BgColorsOutlined className='mg1r' />
+          {e('editWithColorPicker')}
+        </span>
+      )
+    },
+    {
+      key: 'theme-editor-txt',
+      label: (
+        <span>
+          <FontSizeOutlined className='mg1r' />
+          {e('editWithTextEditor')}
+        </span>
+      )
+    },
+    {
+      key: 'theme-editor-ai',
+      label: (
+        <span>
+          <RobotOutlined className='mg1r' />
+          AI
+        </span>
+      )
+    }
+  ]
+  const tabsProps = {
+    activeKey: editor,
+    onChange: setEditor,
+    size: 'small',
+    items: tabItems
   }
   return (
     <Form
@@ -269,43 +313,43 @@ export default function ThemeForm (props) {
           disabled={disabled}
         />
       </FormItem>
-      <FormItem
-        label={e('themeConfig')}
-      >
-        <div className='mg1b fix'>
-          <span className='fleft'>
-            <Space>
-              <Button
-                type='dashed'
-                onClick={handleSwitchEditor}
-              >
-                {switchTxt}
-              </Button>
-            </Space>
-          </span>
-          <span className='fright'>
-            <Upload
-              beforeUpload={beforeUpload}
-              fileList={[]}
-              className='mg1b'
+      <FormItem>
+        <Flex
+          className='mg1b'
+          justify='space-between'
+          align='center'
+          wrap='wrap'
+          gap={8}
+        >
+          <span>{e('themeConfig')}</span>
+          <Upload
+            beforeUpload={beforeUpload}
+            fileList={[]}
+          >
+            <Button
+              type='dashed'
+              disabled={disabled}
             >
-              <Button
-                type='dashed'
-                disabled={disabled}
-              >
-                {e('importFromFile')}
-              </Button>
-            </Upload>
-          </span>
-        </div>
+              {e('importFromFile')}
+            </Button>
+          </Upload>
+        </Flex>
+        <Tabs {...tabsProps} />
         {
           editor === 'theme-editor-txt'
             ? renderTxt()
-            : (
-              <ThemePicker
-                {...pickerProps}
-              />
-              )
+            : editor === 'theme-editor-ai'
+              ? (
+                <ThemeAiEditor
+                  onChange={handleAiGenerated}
+                  disabled={disabled}
+                />
+                )
+              : (
+                <ThemePicker
+                  {...pickerProps}
+                />
+                )
         }
       </FormItem>
       {

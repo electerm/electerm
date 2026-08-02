@@ -64,7 +64,7 @@ Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(linux,
 - UI/terminal theme
 - Sync bookmarks/themes/quick commands to github/gitee secret gist/webdav/custom server/electerm cloud
 - Quick input to one or all terminals.
-- AI assistant integration (supporting [DeepSeek](https://www.deepseek.com), OpenAI, and any other AI APIs) to help with command suggestions, script writing, and explaining selected terminal content, create bookmarks
+- AI assistant integration (supporting [DeepSeek](https://www.deepseek.com), OpenAI, and any other AI APIs) to help with command suggestions, script writing, and explaining selected terminal content, create bookmarks/themes
 - MCP (Model Context Protocol) widget for AI assistants and external tools integration - see [MCP Widget Usage Guide](https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide)
 - Deep link support: Open connections with URLs like `telnet://192.168.2.31:34554` or `ssh://user@host:22` - see [Deep link support wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
