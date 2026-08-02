@@ -22,6 +22,7 @@ Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(linux,
 - [electerm online](https://cloud.electerm.org): Public free online electerm app
 - [electerm demo](https://demo.electerm.org): Online demo of electerm
 - [electerm AI](https://ai.electerm.org): Free AI for electerm users
+- [electerm theme](https://theme.electerm.org): Create/share theme site with live preview and AI creation
 - [electerm Android](https://github.com/electerm/electerm-android): electerm for Android
 - [electerm deb repo](https://repos.electerm.org/deb): Debian repo of electerm
 - [electerm rpm repo](https://repos.electerm.org/rpm): RPM repo of electerm
