@@ -17,6 +17,15 @@ async function runCmd (body) {
   return txt
 }
 
+async function execCmd (body) {
+  const { pid, cmd, timeoutMs } = body
+  const term = terminals(pid)
+  if (!term || typeof term.execCommand !== 'function') {
+    throw new Error('Exec channel not supported for this session type')
+  }
+  return term.execCommand(cmd, { timeoutMs })
+}
+
 async function resize (body) {
   const { pid, cols, rows } = body
   const term = terminals(pid)
@@ -80,6 +89,7 @@ exports.createTerm = createTerm
 exports.testTerm = testTerm
 exports.resize = resize
 exports.runCmd = runCmd
+exports.execCmd = execCmd
 exports.toggleTerminalLog = toggleTerminalLog
 exports.toggleTerminalLogTimestamp = toggleTerminalLogTimestamp
 exports.setTerminalLogPath = setTerminalLogPath

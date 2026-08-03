@@ -14,6 +14,7 @@ const {
   testTerm,
   resize,
   runCmd,
+  execCmd,
   toggleTerminalLog,
   toggleTerminalLogTimestamp,
   setTerminalLogPath,
@@ -103,6 +104,8 @@ const initWs = function (app) {
           startTerminalLogFile(ws, msg)
         } else if (action === 'run-cmd') {
           runCmd(ws, msg)
+        } else if (action === 'exec-cmd') {
+          execCmd(ws, msg)
         }
       } catch (err) {
         log.error('common ws error', err)

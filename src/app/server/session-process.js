@@ -213,6 +213,13 @@ exports.terminals = function (pid) {
         body: { cmd, pid }
       })
     },
+    execCommand: async (cmd, timeoutMs, id) => {
+      return sendMsgToChildProcess(pid, {
+        id,
+        action: 'exec-cmd',
+        body: { cmd, pid, timeoutMs }
+      })
+    },
     resize: (cols, rows, id) => {
       sendMsgToChildProcess(pid, {
         id,

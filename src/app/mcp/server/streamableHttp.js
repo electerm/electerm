@@ -37,6 +37,9 @@ class StreamableHTTPServerTransport {
     this.server = null
     this.sessionId = null
     this.initialized = false
+    // Whether the client advertised the io.modelcontextprotocol/tasks
+    // extension — via initialize capabilities or per-request _meta.
+    this.clientSupportsTasks = false
   }
 
   async connect (server) {
@@ -56,21 +59,113 @@ class StreamableHTTPServerTransport {
     res.end()
   }
 
+  // Detect tasks-extension support from request params. Accepts both the
+  // initialize-time capabilities.extensions and the SEP-2663 per-request
+  // _meta["io.modelcontextprotocol/clientCapabilities"].extensions form.
+  _captureClientCaps (params) {
+    if (!params || typeof params !== 'object') {
+      return
+    }
+    const initExt = params.capabilities && params.capabilities.extensions
+    const metaExt = params._meta &&
+      params._meta['io.modelcontextprotocol/clientCapabilities'] &&
+      params._meta['io.modelcontextprotocol/clientCapabilities'].extensions
+    for (const ext of [initExt, metaExt]) {
+      if (ext && typeof ext === 'object' && 'io.modelcontextprotocol/tasks' in ext) {
+        this.clientSupportsTasks = true
+      }
+    }
+  }
+
+  async _handleTasksGet (request) {
+    if (!this.server.taskManager) {
+      return {
+        jsonrpc: '2.0',
+        id: request.id,
+        error: { code: -32601, message: 'Tasks extension not enabled' }
+      }
+    }
+    const taskId = request.params && request.params.taskId
+    if (!taskId) {
+      return {
+        jsonrpc: '2.0',
+        id: request.id,
+        error: { code: -32602, message: 'Missing required param: taskId' }
+      }
+    }
+    try {
+      const task = await this.server.taskManager.get(taskId)
+      return {
+        jsonrpc: '2.0',
+        id: request.id,
+        result: task
+      }
+    } catch (error) {
+      return {
+        jsonrpc: '2.0',
+        id: request.id,
+        error: { code: -32602, message: error.message }
+      }
+    }
+  }
+
+  async _handleTasksCancel (request) {
+    if (!this.server.taskManager) {
+      return {
+        jsonrpc: '2.0',
+        id: request.id,
+        error: { code: -32601, message: 'Tasks extension not enabled' }
+      }
+    }
+    const taskId = request.params && request.params.taskId
+    if (!taskId) {
+      return {
+        jsonrpc: '2.0',
+        id: request.id,
+        error: { code: -32602, message: 'Missing required param: taskId' }
+      }
+    }
+    try {
+      const task = await this.server.taskManager.cancel(taskId)
+      return {
+        jsonrpc: '2.0',
+        id: request.id,
+        result: task
+      }
+    } catch (error) {
+      return {
+        jsonrpc: '2.0',
+        id: request.id,
+        error: { code: -32602, message: error.message }
+      }
+    }
+  }
+
   async handleRequest (req, res, body) {
     if (body) {
       const request = body
       let result
       if (request.method === 'initialize') {
+        this._captureClientCaps(request.params)
+        const versions = this.server.supportedProtocolVersions || ['2024-11-05']
+        const requested = request.params && request.params.protocolVersion
+        const protocolVersion = versions.includes(requested) ? requested : versions[0]
+        const capabilities = {
+          tools: {
+            listChanged: false
+          }
+        }
+        if (this.server.taskManager) {
+          capabilities.extensions = {
+            'io.modelcontextprotocol/tasks': {}
+          }
+        }
         result = {
           jsonrpc: '2.0',
           id: request.id,
           result: {
-            protocolVersion: '2024-11-05',
-            capabilities: {
-              tools: {
-                listChanged: false
-              }
-            },
+            protocolVersion,
+            capabilities,
             serverInfo: {
               name: this.server.name,
               version: this.server.version
@@ -94,11 +189,15 @@ class StreamableHTTPServerTransport {
           result: { tools }
         }
       } else if (request.method === 'tools/call') {
+        this._captureClientCaps(request.params)
         const { name, arguments: args } = request.params
         const tool = this.server.tools.get(name)
         if (tool) {
           try {
-            const toolResult = await tool.handler(args)
+            const toolResult = await tool.handler(args, {
+              clientSupportsTasks: this.clientSupportsTasks && !!this.server.taskManager,
+              taskManager: this.server.taskManager
+            })
             result = {
               jsonrpc: '2.0',
               id: request.id,
@@ -120,6 +219,19 @@ class StreamableHTTPServerTransport {
             id: request.id,
             error: { code: -32601, message: `Tool not found: ${name}` }
           }
+        }
+      } else if (request.method === 'tasks/get') {
+        result = await this._handleTasksGet(request)
+      } else if (request.method === 'tasks/cancel') {
+        result = await this._handleTasksCancel(request)
+      } else if (request.method === 'tasks/list' || request.method === 'tasks/update' || request.method === 'tasks/result') {
+        // tasks/list is unsafe without an authorization context, and
+        // tasks/update / tasks/result are only needed for input_required
+        // flows — intentionally not implemented (SEP-2663).
+        result = {
+          jsonrpc: '2.0',
+          id: request.id,
+          error: { code: -32601, message: `Method not implemented: ${request.method}` }
         }
       } else if (request.method === 'ping') {
         result = {

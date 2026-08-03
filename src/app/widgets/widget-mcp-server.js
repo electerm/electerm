@@ -8,6 +8,7 @@
 const { ipcMain } = require('electron')
 const { McpServer } = require('../mcp/server/mcp.js')
 const { StreamableHTTPServerTransport } = require('../mcp/server/streamableHttp.js')
+const { TaskManager } = require('../mcp/server/tasks.js')
 const { z } = require('../lib/zod')
 const express = require('express')
 const uid = require('../common/uid')
@@ -95,6 +96,30 @@ const widgetInfo = {
       type: 'textarea',
       default: '',
       description: 'Newline-separated list of regex patterns. When non-empty, only commands matching at least one pattern are allowed (whitelist mode).'
+    },
+    {
+      name: 'execTimeoutMs',
+      type: 'number',
+      default: 120000,
+      description: 'Default timeout (ms) for execute_electerm_command. Commands exceeding it return partial output with timedOut=true.'
+    },
+    {
+      name: 'execMaxOutputBytes',
+      type: 'number',
+      default: 204800,
+      description: 'Max characters of stdout/stderr returned by execute_electerm_command. Longer output is tail-truncated with truncated=true.'
+    },
+    {
+      name: 'enableTasks',
+      type: 'boolean',
+      default: true,
+      description: 'Enable the MCP Tasks extension (io.modelcontextprotocol/tasks, SEP-2663). Lets supporting clients run long commands as pollable tasks via execute_electerm_command with wait=false.'
+    },
+    {
+      name: 'taskTtlMs',
+      type: 'number',
+      default: 3600000,
+      description: 'How long (ms) a finished MCP task is retained for tasks/get before being swept. Also triggers remote temp-file cleanup.'
     }
   ]
 }
@@ -116,6 +141,7 @@ class ElectermMCPServer {
     this.ipcHandler = null
     this.pendingRequests = new Map()
     this.transports = {}
+    this.taskManager = null
   }
 
   // Built-in blacklist: patterns that are always blocked regardless of user config.
@@ -212,6 +238,91 @@ class ElectermMCPServer {
         data
       })
     })
+  }
+
+  // ==================== MCP Tasks lifecycle (SEP-2663) ====================
+  // Tasks wrap the renderer's background-command engine (nohup + pid/exit/
+  // log files). These methods map renderer background states onto the MCP
+  // task state machine.
+
+  // onGet hook: refresh a working task from the renderer before tasks/get
+  // returns it. Terminal renderer states move the task to a terminal status.
+  async refreshTask (task) {
+    const { bgTaskId, startedAt } = task.meta || {}
+    if (!bgTaskId) {
+      return
+    }
+    try {
+      const status = await this.sendToRenderer('tool-call', {
+        toolName: 'get_background_task_status',
+        args: { taskId: bgTaskId }
+      })
+      if (status.status === 'completed') {
+        const log = await this.sendToRenderer('tool-call', {
+          toolName: 'get_background_task_log',
+          args: { taskId: bgTaskId, lines: 200 }
+        })
+        const maxOut = this.config.execMaxOutputBytes || 204800
+        let stdout = log.output || ''
+        let truncated = false
+        if (stdout.length > maxOut) {
+          stdout = stdout.slice(-maxOut)
+          truncated = true
+        }
+        this.taskManager.complete(task.taskId, {
+          stdout,
+          stderr: '',
+          stderrMerged: true,
+          exitCode: typeof status.exitCode === 'number' ? status.exitCode : null,
+          durationMs: (status.endTime || Date.now()) - (startedAt || Date.now()),
+          truncated,
+          mode: 'background',
+          tabId: task.meta.tabId
+        })
+      } else if (status.status === 'cancelled') {
+        this.taskManager.cancelLocal(task.taskId)
+      } else if (status.status === 'unknown') {
+        this.taskManager.fail(task.taskId, status.message || 'Background task state unknown')
+      } else {
+        // still running — surface elapsed time for polling clients
+        const elapsed = Math.round((Date.now() - (startedAt || Date.now())) / 1000)
+        task.statusMessage = `Running (${elapsed}s elapsed)`
+      }
+    } catch (e) {
+      this.taskManager.fail(task.taskId, e.message)
+    }
+  }
+
+  // onCancel hook: kill the underlying background process.
+  async cancelTaskRemote (task) {
+    const { bgTaskId } = task.meta || {}
+    if (!bgTaskId) {
+      return
+    }
+    try {
+      await this.sendToRenderer('tool-call', {
+        toolName: 'cancel_background_task',
+        args: { taskId: bgTaskId }
+      })
+    } catch (_) {
+      // best-effort kill — the task is marked cancelled regardless
+    }
+  }
+
+  // onSweep hook: remove remote temp files (log/pid/exit) for swept tasks.
+  async sweepTaskRemote (task) {
+    const { bgTaskId } = task.meta || {}
+    if (!bgTaskId) {
+      return
+    }
+    try {
+      await this.sendToRenderer('tool-call', {
+        toolName: 'cleanup_background_task',
+        args: { taskId: bgTaskId }
+      }, 10000)
+    } catch (_) {
+      // best-effort cleanup
+    }
   }
 
   // Register all tools on the MCP server
@@ -317,7 +428,7 @@ class ElectermMCPServer {
     server.registerTool(
       'send_electerm_terminal_command',
       {
-        description: 'Send a command to the active electerm terminal',
+        description: 'Send a command to the active electerm terminal. For non-interactive commands, prefer execute_electerm_command — it returns structured stdout/stderr/exitCode in one call instead of requiring send + wait + read.',
         inputSchema: {
           command: z.string().describe('Command to send'),
           tabId: z.string().optional().describe('Optional: specific tab ID'),
@@ -428,70 +539,80 @@ class ElectermMCPServer {
       }
     )
 
-    // ==================== Background Task APIs ====================
-
     server.registerTool(
-      'run_electerm_background_command',
+      'execute_electerm_command',
       {
-        description: 'Run a command in the background using nohup. The command runs independently of the terminal session — the terminal is freed immediately. Returns a taskId for monitoring. Use get_electerm_background_task_status and get_electerm_background_task_log to check progress. Works best with SSH sessions where monitoring uses a separate exec channel.',
+        description: 'Execute a non-interactive shell command and return a structured result: { stdout, stderr, exitCode, durationMs, timedOut, truncated, mode, tabId }. ' +
+          'On SSH tabs this uses a dedicated exec channel (mode="exec") with real stdout/stderr/exit code capture — no terminal buffer parsing needed. ' +
+          'On other tabs it falls back to sentinel-based PTY capture (mode="pty", stderr merged into stdout). ' +
+          'Prefer this over send_electerm_terminal_command + wait_for_electerm_terminal_idle for regular commands like git status, docker ps, npm test. ' +
+          'For interactive programs (vim, top, ssh) use the terminal send/read tools instead. ' +
+          'For long-running commands pass wait=false: runs in the background and returns an MCP task handle (poll with tasks/get, stop with tasks/cancel). Requires the MCP Tasks extension.',
         inputSchema: {
-          command: z.string().describe('The shell command to run in the background'),
-          tabId: z.string().optional().describe('Tab ID to run on (default: active tab)')
+          command: z.string().describe('The shell command to execute'),
+          tabId: z.string().optional().describe('Tab ID to run on (default: active tab)'),
+          timeoutMs: z.number().optional().describe('Max execution time in ms (default: 120000, max: 600000). On timeout returns partial output with timedOut=true.'),
+          wait: z.boolean().optional().describe('Wait for completion and return the structured result (default: true). Set false for long-running commands to get a task handle instead.'),
+          mode: z.enum(['exec', 'pty']).optional().describe('Execution mode: "exec" (default) uses the SSH exec channel with PTY fallback; "pty" forces execution in the visible terminal (for commands needing a TTY: colors, sudo prompts, TTY-aware tools). Ignored when wait=false.')
         }
       },
-      async (args) => {
-        const result = await self.sendToRenderer('tool-call', {
-          toolName: 'run_background_command', args
-        })
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-      }
-    )
-
-    server.registerTool(
-      'get_electerm_background_task_status',
-      {
-        description: 'Check the status of a background task. Returns whether it is still running, has completed (with exit code), or is unknown. For SSH sessions, this uses a separate exec channel and does not interfere with the terminal.',
-        inputSchema: {
-          taskId: z.string().describe('Task ID returned by run_electerm_background_command')
+      async (args, ctx) => {
+        const check = self.validateCommand(args?.command || '')
+        if (!check.allowed) {
+          return { content: [{ type: 'text', text: JSON.stringify({ error: check.reason }, null, 2) }], isError: true }
         }
-      },
-      async (args) => {
-        const result = await self.sendToRenderer('tool-call', {
-          toolName: 'get_background_task_status', args
-        })
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-      }
-    )
 
-    server.registerTool(
-      'get_electerm_background_task_log',
-      {
-        description: 'Read the output log of a background task. Returns the last N lines of output. Useful for monitoring progress of long-running commands like builds, deployments, or installations.',
-        inputSchema: {
-          taskId: z.string().describe('Task ID returned by run_electerm_background_command'),
-          lines: z.number().optional().describe('Number of recent log lines to return (default: 100)')
+        // Async path: run in background, return a task handle instead of the result
+        if (args?.wait === false) {
+          // Requires the MCP Tasks extension — there is no non-task way to
+          // poll or cancel an async run (legacy background tools were removed).
+          if (!ctx?.clientSupportsTasks || !self.taskManager) {
+            return {
+              content: [{
+                type: 'text',
+                text: JSON.stringify({
+                  error: 'wait=false requires the MCP Tasks extension (io.modelcontextprotocol/tasks). ' +
+                    'Declare the extension in client capabilities, or call with wait=true (default) to run synchronously.'
+                }, null, 2)
+              }],
+              isError: true
+            }
+          }
+          const bg = await self.sendToRenderer('tool-call', {
+            toolName: 'run_background_command',
+            args: { command: args.command, tabId: args.tabId }
+          })
+          const task = self.taskManager.create({
+            toolName: 'execute_electerm_command',
+            meta: {
+              bgTaskId: bg.taskId,
+              tabId: bg.tabId,
+              command: args.command,
+              startedAt: Date.now()
+            }
+          })
+          return {
+            resultType: 'task',
+            task: self.taskManager.toWire(task)
+          }
         }
-      },
-      async (args) => {
-        const result = await self.sendToRenderer('tool-call', {
-          toolName: 'get_background_task_log', args
-        })
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-      }
-    )
 
-    server.registerTool(
-      'cancel_electerm_background_task',
-      {
-        description: 'Cancel a running background task by killing its process. The task status will be set to cancelled.',
-        inputSchema: {
-          taskId: z.string().describe('Task ID returned by run_electerm_background_command')
-        }
-      },
-      async (args) => {
-        const result = await self.sendToRenderer('tool-call', {
-          toolName: 'cancel_background_task', args
-        })
+        // Sync path: wait for completion, return structured result
+        const timeoutMs = Math.min(Math.max(args?.timeoutMs || self.config.execTimeoutMs || 120000, 1000), 600000)
+        const result = await self.sendToRenderer(
+          'tool-call',
+          {
+            toolName: 'execute_command',
+            args: {
+              command: args.command,
+              tabId: args.tabId,
+              timeoutMs,
+              maxOutputBytes: self.config.execMaxOutputBytes || 204800,
+              mode: args.mode
+            }
+          },
+          timeoutMs + 15000
+        )
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
       }
     )
@@ -915,10 +1036,21 @@ class ElectermMCPServer {
     }
     ipcMain.on('mcp-response', this.ipcHandler)
 
+    // Create MCP task manager (SEP-2663) when the tasks extension is enabled
+    if (this.config.enableTasks) {
+      this.taskManager = new TaskManager({
+        ttl: this.config.taskTtlMs > 0 ? this.config.taskTtlMs : 3600000
+      })
+      this.taskManager.onGet = (task) => this.refreshTask(task)
+      this.taskManager.onCancel = (task) => this.cancelTaskRemote(task)
+      this.taskManager.onSweep = (task) => this.sweepTaskRemote(task)
+    }
+
     // Create MCP server
     this.mcpServer = new McpServer({
       name: 'electerm-mcp-server',
-      version: widgetInfo.version
+      version: widgetInfo.version,
+      taskManager: this.taskManager
     })
 
     // Register all tools
@@ -1044,7 +1176,7 @@ class ElectermMCPServer {
         const serverInfo = {
           url: `http://${host}:${port}/mcp`,
           protocol: 'mcp',
-          version: '2024-11-05',
+          version: self.mcpServer.supportedProtocolVersions[0],
           apiKey: self.config.apiKey
         }
         const authNote = self.config.apiKey ? '(API key required)' : '(no auth required)'
@@ -1069,6 +1201,12 @@ class ElectermMCPServer {
     if (this.ipcHandler) {
       ipcMain.removeListener('mcp-response', this.ipcHandler)
       this.ipcHandler = null
+    }
+
+    // Destroy task manager (stops the TTL sweep timer)
+    if (this.taskManager) {
+      this.taskManager.destroy()
+      this.taskManager = null
     }
 
     // Clear pending requests

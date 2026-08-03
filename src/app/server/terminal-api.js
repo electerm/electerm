@@ -17,6 +17,35 @@ async function runCmd (ws, msg) {
   })
 }
 
+async function execCmd (ws, msg) {
+  const { id, pid, cmd, timeoutMs } = msg
+  const term = terminals(pid)
+  if (!term || typeof term.execCommand !== 'function') {
+    ws.s({
+      id,
+      error: {
+        message: 'Exec channel not supported for this session type'
+      }
+    })
+    return
+  }
+  try {
+    const result = await term.execCommand(cmd, timeoutMs, id)
+    ws.s({
+      id,
+      data: result
+    })
+  } catch (err) {
+    ws.s({
+      id,
+      error: {
+        message: err.message,
+        stack: err.stack
+      }
+    })
+  }
+}
+
 function resize (ws, msg) {
   const { id, pid, cols, rows } = msg
   const term = terminals(pid)
@@ -131,6 +160,7 @@ exports.createTerm = createTerm
 exports.testTerm = testTerm
 exports.resize = resize
 exports.runCmd = runCmd
+exports.execCmd = execCmd
 exports.toggleTerminalLog = toggleTerminalLog
 exports.toggleTerminalLogTimestamp = toggleTerminalLogTimestamp
 exports.setTerminalLogPath = setTerminalLogPath

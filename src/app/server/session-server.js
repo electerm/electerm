@@ -20,6 +20,7 @@ const {
   testTerm,
   resize,
   runCmd,
+  execCmd,
   toggleTerminalLog,
   toggleTerminalLogTimestamp,
   setTerminalLogPath,
@@ -508,6 +509,8 @@ process.on('message', async (message) => {
       promise = startTerminalLogFile(body)
     } else if (action === 'run-cmd') {
       promise = runCmd(body)
+    } else if (action === 'exec-cmd') {
+      promise = execCmd(body)
     }
 
     const result = await promise

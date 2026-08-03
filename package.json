@@ -21,6 +21,7 @@
     "fix": "./node_modules/.bin/standard --fix",
     "test": "npm run test1 && npm run test2",
     "test-unit-ci": "node --test test/unit-ci/*.spec.js",
+    "test-integration": "node --test test/integration/*.spec.js",
     "test1": "./node_modules/.bin/playwright test test/e2e/00*.js --workers=1",
     "test2": "./node_modules/.bin/playwright test test/e2e/01*.js --workers=1",
     "test3": "./node_modules/.bin/playwright test test/e2e/02*.js --workers=1 && npm run test-unit-ci",

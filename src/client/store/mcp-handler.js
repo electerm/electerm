@@ -6,7 +6,7 @@
 import uid from '../common/uid'
 import { settingMap } from '../common/constants'
 import { refs, refsTabs } from '../components/common/ref'
-import { runCmd } from '../components/terminal/terminal-apis'
+import { runCmd, execCmd } from '../components/terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
 import {
   getLocalFileInfo,
@@ -125,6 +125,9 @@ export default Store => {
         case 'cancel_terminal_command':
           result = store.mcpCancelTerminalCommand(args)
           break
+        case 'execute_command':
+          result = await store.mcpExecuteCommand(args)
+          break
 
         // Background task operations
         case 'run_background_command':
@@ -138,6 +141,9 @@ export default Store => {
           break
         case 'cancel_background_task':
           result = await store.mcpCancelBackgroundTask(args)
+          break
+        case 'cleanup_background_task':
+          result = await store.mcpCleanupBackgroundTask(args)
           break
 
         // SFTP operations
@@ -738,6 +744,173 @@ export default Store => {
     }
   }
 
+  // ==================== Structured Command Execution ====================
+
+  // Keep at most maxChars of a string, favoring the tail (most recent output).
+  function truncateTail (str, maxChars) {
+    if (!str || !maxChars || str.length <= maxChars) {
+      return { text: str || '', truncated: false }
+    }
+    return { text: str.slice(-maxChars), truncated: true }
+  }
+
+  // Read up to maxLines lines from the active terminal buffer.
+  function collectBufferLines (tabId, maxLines = 800) {
+    const term = refs.get('term-' + tabId)
+    if (!term || !term.term) return []
+    const buffer = term.term.buffer.active
+    if (!buffer) return []
+    const cursorY = buffer.cursorY || 0
+    const baseY = buffer.baseY || 0
+    const totalLines = buffer.length || 0
+    const end = Math.min(totalLines, baseY + cursorY + 1)
+    const start = Math.max(0, end - maxLines)
+    const lines = []
+    for (let i = start; i < end; i++) {
+      const line = buffer.getLine(i)
+      lines.push(line ? line.translateToString(true) : '')
+    }
+    return lines
+  }
+
+  // PTY fallback for non-SSH tabs: wrap the command with unique begin/end
+  // sentinels, then poll the terminal buffer for the end sentinel carrying
+  // the exit code. stderr cannot be separated in a PTY — it is merged into
+  // stdout and flagged via stderrMerged.
+  Store.prototype.mcpExecuteCommandPty = async function (args) {
+    const { store } = window
+    const { command, tabId, timeoutMs } = args
+    const marker = `__ET_EXEC_${uid()}__`
+    const startLine = `${marker}S`
+    const wrapped = `echo "${startLine}"; ${command}; echo "${marker}E$?"`
+
+    store.runQuickCommand(wrapped, false, tabId)
+
+    const start = Date.now()
+    const pollInterval = 300
+    const endRe = new RegExp(`^${marker}E(\\d+)$`)
+
+    while (Date.now() - start < timeoutMs) {
+      const lines = collectBufferLines(tabId)
+      let endIdx = -1
+      let exitCode = null
+      for (let i = lines.length - 1; i >= 0; i--) {
+        const m = lines[i].trim().match(endRe)
+        if (m) {
+          endIdx = i
+          exitCode = parseInt(m[1], 10)
+          break
+        }
+      }
+      if (endIdx >= 0) {
+        let startIdx = -1
+        for (let i = endIdx - 1; i >= 0; i--) {
+          if (lines[i].trim() === startLine) {
+            startIdx = i
+            break
+          }
+        }
+        const outLines = lines.slice(startIdx + 1, endIdx)
+        return {
+          stdout: outLines.join('\n').replace(/\n+$/, ''),
+          stderr: '',
+          stderrMerged: true,
+          exitCode,
+          durationMs: Date.now() - start,
+          timedOut: false
+        }
+      }
+      await new Promise(resolve => setTimeout(resolve, pollInterval))
+    }
+
+    // Timeout: return whatever followed the start sentinel (if it appeared)
+    const lines = collectBufferLines(tabId)
+    let startIdx = -1
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (lines[i].trim() === startLine) {
+        startIdx = i
+        break
+      }
+    }
+    const outLines = startIdx >= 0 ? lines.slice(startIdx + 1) : []
+    return {
+      stdout: outLines.join('\n').replace(/\n+$/, ''),
+      stderr: '',
+      stderrMerged: true,
+      exitCode: null,
+      durationMs: Date.now() - start,
+      timedOut: true
+    }
+  }
+
+  Store.prototype.mcpExecuteCommand = async function (args) {
+    const { store } = window
+    const { command } = args
+    const tabId = args.tabId || store.activeTabId
+    const timeoutMs = Math.min(Math.max(args.timeoutMs || 120000, 1000), 600000)
+    const maxOutputBytes = args.maxOutputBytes || 204800
+    // 'exec' (default): SSH exec channel with sentinel-PTY fallback.
+    // 'pty': force sentinel capture in the visible terminal — for commands
+    // that need a TTY (color output, sudo prompts, TTY-dependent tools).
+    const requestedMode = args.mode === 'pty' ? 'pty' : 'exec'
+
+    if (!tabId) {
+      throw new Error('No active terminal')
+    }
+    if (!command) {
+      throw new Error('No command provided')
+    }
+
+    const tab = store.tabs.find(t => t.id === tabId)
+    if (!tab) {
+      throw new Error(`Tab not found: ${tabId}`)
+    }
+
+    const isSsh = tab.type === 'ssh' || (!tab.type && !!tab.host)
+    const start = Date.now()
+    let result = null
+    let mode = 'pty'
+
+    if (requestedMode === 'exec' && isSsh) {
+      try {
+        const r = await execCmd(tabId, command, timeoutMs)
+        result = {
+          stdout: r.stdout || '',
+          stderr: r.stderr || '',
+          stderrMerged: false,
+          exitCode: typeof r.exitCode === 'number' ? r.exitCode : null,
+          durationMs: Date.now() - start,
+          timedOut: !!r.timedOut
+        }
+        mode = 'exec'
+      } catch (e) {
+        // Exec channel unavailable (e.g. connection dropped) — fall back to PTY
+        if (!/not supported/i.test(e.message || '')) {
+          throw e
+        }
+      }
+    }
+
+    if (!result) {
+      result = await store.mcpExecuteCommandPty({ command, tabId, timeoutMs })
+    }
+
+    const out = truncateTail(result.stdout, maxOutputBytes)
+    const err = truncateTail(result.stderr, maxOutputBytes)
+
+    return {
+      stdout: out.text,
+      stderr: err.text,
+      stderrMerged: result.stderrMerged,
+      exitCode: result.exitCode,
+      durationMs: result.durationMs,
+      timedOut: result.timedOut,
+      truncated: out.truncated || err.truncated,
+      mode,
+      tabId
+    }
+  }
+
   // ==================== Background Task Management ====================
 
   const backgroundTasks = new Map()
@@ -814,6 +987,18 @@ export default Store => {
     const pid = pidOutput.trim()
 
     if (!pid) {
+      // PID file is gone. The wrapper removes it when the command finishes,
+      // so a missing PID file usually means COMPLETED — check the exit file
+      // before reporting unknown.
+      const exitOutput = await runMonitorCmd(task.tabId,
+        `cat ${task.exitFile} 2>/dev/null`)
+      const exitCode = exitOutput.trim()
+      if (exitCode !== '') {
+        task.status = 'completed'
+        task.exitCode = parseInt(exitCode, 10)
+        task.endTime = Date.now()
+        return { ...task, status: 'completed', exitCode: task.exitCode }
+      }
       return { ...task, status: 'unknown', message: 'PID file not found' }
     }
 
@@ -881,6 +1066,23 @@ export default Store => {
       status: 'unknown',
       message: 'PID not found, task may have already finished'
     }
+  }
+
+  // Remove remote temp files (log/pid/exit) and untrack the task.
+  // Used by the MCP Tasks TTL sweep; safe to call on unknown tasks.
+  Store.prototype.mcpCleanupBackgroundTask = async function (args) {
+    const task = backgroundTasks.get(args.taskId)
+    if (!task) {
+      return { success: true, message: 'Task not tracked (already cleaned)' }
+    }
+    try {
+      await runMonitorCmd(task.tabId,
+        `rm -f ${task.logFile} ${task.pidFile} ${task.exitFile}`)
+    } catch (_) {
+      // best-effort remote cleanup
+    }
+    backgroundTasks.delete(args.taskId)
+    return { success: true, taskId: args.taskId }
   }
 
   // ==================== Settings APIs ====================

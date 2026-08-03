@@ -19,6 +19,15 @@ export function runCmd (pid, cmd) {
   })
 }
 
+export function execCmd (pid, cmd, timeoutMs) {
+  return fetch({
+    pid,
+    cmd,
+    timeoutMs,
+    action: 'exec-cmd'
+  })
+}
+
 export function resizeTerm (pid, cols, rows) {
   return fetch({
     pid,
