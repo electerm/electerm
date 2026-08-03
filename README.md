@@ -16,6 +16,8 @@
 
 Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(linux, mac, win).
 
+Besides mainstream Windows/macOS/Linux/Android, electerm also supports older systems — Ubuntu 18, Windows 7, macOS 10+, and special Chinese Linux distributions such as UOS, Kylin, and LoongArch (both old-world and new-world).
+
 - [electerm.org](https://electerm.org): Homepage, downloads, videos, etc
 - [electerm-web](https://github.com/electerm/electerm-web): Web app version running in browser(including mobile device)
 - [electerm-web-docker](https://github.com/electerm/electerm-web-docker): Docker image for electerm-web
