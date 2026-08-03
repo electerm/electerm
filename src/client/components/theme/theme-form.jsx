@@ -3,7 +3,8 @@ import { Button, Input, Form, Tabs, Flex } from 'antd'
 import {
   BgColorsOutlined,
   FontSizeOutlined,
-  RobotOutlined
+  RobotOutlined,
+  SkinOutlined
 } from '@ant-design/icons'
 import message from '../common/message'
 import {
@@ -297,6 +298,11 @@ export default function ThemeForm (props) {
       name='terminal-theme-form'
       layout='vertical'
     >
+      <div className='mg1b alignright'>
+        <Link to='https://theme.electerm.org'>
+          <SkinOutlined className='mg1r' />https://theme.electerm.org
+        </Link>
+      </div>
       {renderFuncs(id)}
       <FormItem
         label={e('themeName')}
