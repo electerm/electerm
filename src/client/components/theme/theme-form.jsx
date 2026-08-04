@@ -16,6 +16,7 @@ import {
 } from '../../common/terminal-theme'
 import { defaultTheme, defaultThemeLight } from '../../common/theme-defaults'
 import generate from '../../common/uid'
+import { isAIDisabled } from '../../common/ai-feature'
 import Link from '../common/external-link'
 import InputAutoFocus from '../common/input-auto-focus'
 import ThemePicker from './theme-editor'
@@ -273,15 +274,17 @@ export default function ThemeForm (props) {
         </span>
       )
     },
-    {
-      key: 'theme-editor-ai',
-      label: (
-        <span>
-          <RobotOutlined className='mg1r' />
-          AI
-        </span>
-      )
-    }
+    ...(!isAIDisabled()
+      ? [{
+          key: 'theme-editor-ai',
+          label: (
+            <span>
+              <RobotOutlined className='mg1r' />
+              AI
+            </span>
+          )
+        }]
+      : [])
   ]
   const tabsProps = {
     activeKey: editor,

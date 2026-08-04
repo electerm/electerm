@@ -10,6 +10,7 @@ import {
   maxZoom,
   minZoom
 } from '../common/constants'
+import { isAIDisabled } from '../common/ai-feature'
 
 const e = window.translate
 
@@ -63,6 +64,9 @@ export default Store => {
 
   Store.prototype.onNewSshAI = function () {
     const { store } = window
+    if (isAIDisabled()) {
+      return
+    }
     if (store.aiConfigMissing()) {
       store.toggleAIConfig()
       return

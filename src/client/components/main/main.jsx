@@ -20,6 +20,7 @@ import TransportsActionStore from '../file-transfer/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
 import { isMac, isWin, textTerminalBgValue } from '../../common/constants'
+import { isAIDisabled } from '../../common/ai-feature'
 import { ConfigProvider } from 'antd'
 import { NotificationContainer } from '../common/notification'
 import InfoModal from '../sidebar/info-modal.jsx'
@@ -290,7 +291,7 @@ export default auto(function Index (props) {
         <Resolutions {...resProps} />
         <InfoModal {...infoModalProps} />
         <RightSidePanel {...rightPanelProps}>
-          <AIChat {...aiChatProps} />
+          {!isAIDisabled() && <AIChat {...aiChatProps} />}
           <TerminalInfo key={store.activeTabId} {...terminalInfoProps} />
         </RightSidePanel>
         <SshConfigLoadNotify {...sshConfigProps} />
@@ -306,7 +307,7 @@ export default auto(function Index (props) {
         <BookmarkFromHistoryModal />
         <NotificationContainer />
         <BatchOpRunner />
-        <AIConfigModal store={store} />
+        {!isAIDisabled() && <AIConfigModal store={store} />}
         <UnixTimestampTooltip />
       </div>
     </ConfigProvider>

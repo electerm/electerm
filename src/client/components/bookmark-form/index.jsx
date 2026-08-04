@@ -21,6 +21,7 @@ import { LoadingOutlined, BookOutlined, RobotOutlined } from '@ant-design/icons'
 import sessionConfig from './config/session-config'
 import renderForm from './render-form'
 import AIBookmarkForm from './ai-bookmark-form'
+import { isAIDisabled } from '../../common/ai-feature'
 import './bookmark-form.styl'
 
 const e = window.translate
@@ -61,6 +62,9 @@ export default class BookmarkIndex2 extends PureComponent {
   }
 
   getInitAiModeState () {
+    if (isAIDisabled()) {
+      return false
+    }
     const v = window.et.openBookmarkWithAIMode
     if (v !== true) {
       return false
@@ -120,7 +124,7 @@ export default class BookmarkIndex2 extends PureComponent {
   }
 
   renderAIButton (isNew) {
-    if (!isNew || this.state.aiMode) {
+    if (!isNew || this.state.aiMode || isAIDisabled()) {
       return null
     }
     return (

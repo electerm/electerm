@@ -42,6 +42,7 @@ import { getFolderFromFilePath } from '../sftp/file-read.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
 import { Osc52Addon } from './osc52-addon.js'
 import AIIcon from '../icons/ai-icon.jsx'
+import { isAIDisabled } from '../../common/ai-feature.js'
 import {
   AimOutlined
 } from '@ant-design/icons'
@@ -1043,12 +1044,16 @@ class Term extends Component {
         label: e('selectall'),
         extra: selectAllShortcut
       },
-      {
-        key: 'explainWithAi',
-        icon: <AIIcon />,
-        label: e('explainWithAi'),
-        disabled: !hasSelection
-      },
+      ...(
+        isAIDisabled()
+          ? []
+          : [{
+              key: 'explainWithAi',
+              icon: <AIIcon />,
+              label: e('explainWithAi'),
+              disabled: !hasSelection
+            }]
+      ),
       {
         key: 'onClear',
         icon: <iconsMap.ReloadOutlined />,

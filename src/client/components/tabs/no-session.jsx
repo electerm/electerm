@@ -3,6 +3,7 @@ import { RobotOutlined } from '@ant-design/icons'
 import LogoElem from '../common/logo-elem.jsx'
 import HistoryPanel from '../sidebar/history'
 import QuickConnect from './quick-connect'
+import { isAIDisabled } from '../../common/ai-feature'
 import './no-session.styl'
 
 const e = window.translate
@@ -40,12 +41,14 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
         >
           {e('newBookmark')}
         </Button>
-        <Button
-          onClick={handleCreateAIBookmark}
-          icon={<RobotOutlined />}
-        >
-          {e('createBookmarkByAI')}
-        </Button>
+        {!isAIDisabled() && (
+          <Button
+            onClick={handleCreateAIBookmark}
+            icon={<RobotOutlined />}
+          >
+            {e('createBookmarkByAI')}
+          </Button>
+        )}
         <QuickConnect batch={batch} />
       </div>
       <div className='pd3'>

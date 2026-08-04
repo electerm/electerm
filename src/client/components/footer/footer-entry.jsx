@@ -11,6 +11,7 @@ import encodes from '../bookmark-form/common/encodes'
 import { refs } from '../common/ref'
 import Qm from '../quick-commands/quick-commands-select'
 import AIIcon from '../icons/ai-icon'
+import { isAIDisabled } from '../../common/ai-feature'
 import CmdHistory from './cmd-history'
 
 const {
@@ -189,7 +190,7 @@ export default auto(function FooterEntry (props) {
   return (
     <div {...sideProps}>
       <div className='terminal-footer-flex'>
-        {renderAIIcon()}
+        {!isAIDisabled() && renderAIIcon()}
         {renderCmdHistory()}
         {renderQuickCommands()}
         {renderBatchInputs()}

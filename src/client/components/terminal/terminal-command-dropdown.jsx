@@ -3,6 +3,7 @@ import { refsStatic, refs } from '../common/ref'
 import SuggestionItem from './cmd-item'
 import { aiSuggestionsCache } from '../../common/cache'
 import { appendMandatoryGuardrails } from '../ai/ai-guardrails'
+import { isAIDisabled } from '../../common/ai-feature'
 import classnames from 'classnames'
 import {
   LoadingOutlined
@@ -354,6 +355,9 @@ export default class TerminalCmdSuggestions extends Component {
     const {
       reverse
     } = this.state
+    if (isAIDisabled()) {
+      return null
+    }
     if (
       (pos === 'top' && !reverse) ||
       (pos === 'bottom' && reverse)

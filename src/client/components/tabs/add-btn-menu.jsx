@@ -13,6 +13,7 @@ import BookmarksList from '../sidebar/bookmark-select'
 import History from '../sidebar/history'
 import DragHandle from '../common/drag-handle'
 import QuickConnect from './quick-connect'
+import { isAIDisabled } from '../../common/ai-feature'
 
 const e = window.translate
 
@@ -103,12 +104,14 @@ export default function AddBtnMenu ({
           <CodeFilled /> {e('newBookmark')}
         </div>
         {addTabBtn}
-        <div
-          className={cls}
-          onClick={onNewSshAI}
-        >
-          <RobotOutlined /> {e('createBookmarkByAI')}
-        </div>
+        {!isAIDisabled() && (
+          <div
+            className={cls}
+            onClick={onNewSshAI}
+          >
+            <RobotOutlined /> {e('createBookmarkByAI')}
+          </div>
+        )}
         <QuickConnect batch={batch} inputOnly />
         <Tabs
           activeKey={activeTab}
