@@ -452,9 +452,7 @@ export default class Sftp extends Component {
     }
     const type = files[0]?.type || _type
     const func = this[type + 'Del']
-    for (const f of files) {
-      await func(f)
-    }
+    await Promise.all(files.map(f => func(f)))
     if (type === typeMap.remote) {
       await wait(500)
     }
@@ -557,8 +555,10 @@ export default class Sftp extends Component {
   }
 
   initRemoteAll = async () => {
-    await this.remoteList()
-    this.remoteListOwner()
+    await Promise.all([
+      this.remoteList(),
+      this.remoteListOwner().catch(e => console.debug('remoteListOwner error:', e))
+    ])
   }
 
   modifier = (...args) => {
@@ -644,12 +644,10 @@ export default class Sftp extends Component {
   }
 
   remoteListOwner = async () => {
-    const remoteUidTree = await owner.remoteListUsers(
-      this.props.pid
-    )
-    const remoteGidTree = await owner.remoteListGroups(
-      this.props.pid
-    )
+    const [remoteUidTree, remoteGidTree] = await Promise.all([
+      owner.remoteListUsers(this.props.pid),
+      owner.remoteListGroups(this.props.pid)
+    ])
     this.setState({
       remoteGidTree,
       remoteUidTree
@@ -657,8 +655,10 @@ export default class Sftp extends Component {
   }
 
   localListOwner = async () => {
-    const localUidTree = await owner.localListUsers()
-    const localGidTree = await owner.localListGroups()
+    const [localUidTree, localGidTree] = await Promise.all([
+      owner.localListUsers(),
+      owner.localListGroups()
+    ])
     this.setState({
       localGidTree,
       localUidTree
@@ -874,14 +874,13 @@ export default class Sftp extends Component {
         this.getCwdLocal() ||
         this.getLocalHome()
       const locals = await window.fs.readdirAsync(localPath)
-      const local = []
-      for (const name of locals) {
-        const p = resolve(localPath, name)
-        const fileObj = await getLocalFileInfo(p).catch(console.log)
-        if (fileObj) {
-          local.push(fileObj)
-        }
-      }
+      const results = await Promise.all(
+        locals.map(name => {
+          const p = resolve(localPath, name)
+          return getLocalFileInfo(p).catch(console.log)
+        })
+      )
+      const local = results.filter(Boolean)
       const update = {
         local,
         inited: true,
