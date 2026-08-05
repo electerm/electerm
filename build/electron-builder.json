@@ -107,10 +107,11 @@
   },
   "linux": {
     "category": "Development;System;TerminalEmulator",
-    "icon": "node_modules/@electerm/electerm-resource/res/imgs",
+    "icon": "node_modules/@electerm/electerm-resource/build-res/linux",
     "target": [
       "rpm",
       "deb",
+      "AppImage",
       "tar.gz",
       "snap"
     ],
