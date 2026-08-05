@@ -9,7 +9,16 @@ const {
   isMac
 } = require('../common/runtime-constants')
 const globalState = require('./glob-state')
-const { parseQuickConnect, SUPPORTED_PROTOCOLS } = require('../common/parse-quick-connect')
+const { parseQuickConnect } = require('../common/parse-quick-connect')
+
+/**
+ * Protocols registered as OS-level deep link handlers.
+ * http/https are intentionally excluded: registering them would make electerm
+ * the handler for every clicked web link, hijacking the user's default browser.
+ * They remain parseable via quick-connect (normalized to type "web").
+ */
+const DEEP_LINK_PROTOCOLS = ['ssh', 'telnet', 'vnc', 'rdp', 'spice', 'serial', 'ftp', 'electerm']
+
 /**
  * Register electerm as a handler for supported protocols
  * Note: This makes electerm available as a handler but doesn't force it as default.
@@ -19,7 +28,7 @@ const { parseQuickConnect, SUPPORTED_PROTOCOLS } = require('../common/parse-quic
  * @returns {object} - Status of registration for each protocol
  */
 function registerDeepLink (force = false) {
-  const protocols = SUPPORTED_PROTOCOLS
+  const protocols = DEEP_LINK_PROTOCOLS
   const results = {}
 
   // Only register in packaged app or when explicitly requested
@@ -60,7 +69,7 @@ function registerDeepLink (force = false) {
  * @returns {object} - Status of each protocol
  */
 function checkProtocolRegistration () {
-  const protocols = SUPPORTED_PROTOCOLS
+  const protocols = DEEP_LINK_PROTOCOLS
   const status = {}
 
   protocols.forEach(protocol => {
@@ -75,7 +84,7 @@ function checkProtocolRegistration () {
  * @param {Array<string>} protocols - Optional array of specific protocols to unregister
  * @returns {object} - Status of unregistration
  */
-function unregisterDeepLink (protocols = SUPPORTED_PROTOCOLS) {
+function unregisterDeepLink (protocols = DEEP_LINK_PROTOCOLS) {
   const results = {}
 
   protocols.forEach(protocol => {
