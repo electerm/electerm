@@ -17,7 +17,7 @@
 
 开源终端/ssh/telnet/serialport/RDP/VNC/Spice/sftp/ftp客户端(linux, mac, win)。
 
-除了主流的 Windows/macOS/Linux/Android，electerm 还支持老旧系统——如 Ubuntu 18、Windows 7、macOS 10+，以及国产特殊 Linux 发行版如 UOS、麒麟(Kylin)、龙芯(LoongArch，含旧世界与新世界)。
+除了主流的 Windows/macOS/Linux/Android，electerm 还支持鸿蒙(HarmonyOS)，以及老旧系统——如 Ubuntu 18、Windows 7、macOS 10+，以及国产特殊 Linux 发行版如 UOS、麒麟(Kylin)、龙芯(LoongArch，含旧世界与新世界)。
 
 - [electerm.org](https://electerm.org): 主页，下载，视频等
 - [electerm-web](https://github.com/electerm/electerm-web): 运行于浏览器(支持移动设备)的web app版本
@@ -27,6 +27,7 @@
 - [electerm AI](https://ai.electerm.org): 免费为 electerm 用户提供 AI
 - [electerm theme](https://theme.electerm.org): 创建/分享主题站点，支持实时预览与 AI 创建
 - [electerm Android](https://github.com/electerm/electerm-android): electerm for Android
+- [electerm Harmony](https://github.com/electerm/electerm-harmony): electerm 鸿蒙版（可从[华为应用市场](https://appgallery.huawei.com/app/detail?id=org.electerm.electerm)获取）
 - [electerm deb repo](https://repos.electerm.org/deb): Debian repo of electerm
 - [electerm rpm repo](https://repos.electerm.org/rpm): RPM repo of electerm
 
@@ -51,7 +52,7 @@
 ## 功能特性
 
 - 支持ssh,telnet,serialport,RDP,VNC,Spice,本地和远程文件管理，sftp/ftp文件传输，以及作为本地终端使用
-- 支持Window 7+(X64/ARM64), Mac OS 10.15+(x64/arm64), Linux(x64/arm64/Loong64), 以及Linux with glibc 2.17+ like UOS/Kylin/Ubuntu 18.04 etc
+- 支持Window 7+(X64/ARM64), 鸿蒙, 安卓, Mac OS 10.15+(x64/arm64), Linux(x64/arm64/Loong64), 以及Linux with glibc 2.17+ like UOS/Kylin/Ubuntu 18.04 etc
 - 全局快捷键切换隐藏显示窗口(类似guake, 默认快捷键`ctrl + 2`)
 - 多平台支持(linux, mac, win)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 🇮🇩 🇵🇱 多国语言支持([electerm-locales](https://github.com/electerm/electerm-locales), 欢迎提交代码)

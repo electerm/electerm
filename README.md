@@ -16,7 +16,7 @@
 
 Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(linux, mac, win).
 
-Besides mainstream Windows/macOS/Linux/Android, electerm also supports older systems — Ubuntu 18, Windows 7, macOS 10+, and special Chinese Linux distributions such as UOS, Kylin, and LoongArch (both old-world and new-world).
+Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS, and older systems — Ubuntu 18, Windows 7, macOS 10+, and special Chinese Linux distributions such as UOS, Kylin, and LoongArch (both old-world and new-world).
 
 - [electerm.org](https://electerm.org): Homepage, downloads, videos, etc
 - [electerm-web](https://github.com/electerm/electerm-web): Web app version running in browser(including mobile device)
@@ -26,6 +26,7 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports older sys
 - [electerm AI](https://ai.electerm.org): Free AI for electerm users
 - [electerm theme](https://theme.electerm.org): Create/share theme site with live preview and AI creation
 - [electerm Android](https://github.com/electerm/electerm-android): electerm for Android
+- [electerm Harmony](https://github.com/electerm/electerm-harmony): electerm for HarmonyOS (available on [Huawei AppGallery](https://appgallery.huawei.com/app/detail?id=org.electerm.electerm))
 - [electerm deb repo](https://repos.electerm.org/deb): Debian repo of electerm
 - [electerm rpm repo](https://repos.electerm.org/rpm): RPM repo of electerm
 
@@ -50,7 +51,7 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports older sys
 ## Features
 
 - Works as a terminal/file manager or ssh/sftp/ftp/telnet/serialport/RDP/VNC/Spice client
-- Support Window 7+(X64/ARM64), Mac OS 10.15+(x64/arm64), Linux(x64/arm64/Loong64), even old Linux with glibc 2.17+ like UOS/Kylin/Ubuntu 18.04 etc
+- Support Window 7+(X64/ARM64), HarmonyOS，Android, Mac OS 10.15+(x64/arm64), Linux(x64/arm64/Loong64 new world & old world), even old Linux with glibc 2.17+ like UOS/Kylin/Ubuntu 18.04 etc
 - Global hotkey to toggle window visibility (similar to guake, default is `ctrl + 2`)
 - Multi platform(linux, mac, win)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 🇮🇩 🇵🇱 Multi-language support([electerm-locales](https://github.com/electerm/electerm-locales), contributions/fixes welcome)
