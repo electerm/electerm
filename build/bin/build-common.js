@@ -323,20 +323,43 @@ exports.patchNsisKeepShortcuts = function patchNsisKeepShortcuts () {
 exports.patchSnapClassicSandbox = function patchSnapClassicSandbox () {
   const fs = require('fs')
   const path = require('path')
-  const targetPath = path.join(
+  // electron-builder >= 26 split the single `snap.js` into `snap/coreLegacy.js`,
+  // `snap/core24.js` and `snap/coreCustom.js`. Patch whichever layout is present
+  // so classic-confinement builds keep the Chromium sandbox and do not get
+  // --no-sandbox forced into the generated launcher.
+  const targetsDir = path.join(
     require.resolve('app-builder-lib/package.json'),
-    '../out/targets/snap.js'
+    '../out/targets'
   )
-  const original = fs.readFileSync(targetPath, 'utf-8')
-  const patched = original.replace(
-    '        if (this.isElectronVersionGreaterOrEqualThan("5.0.0") && !isBrowserSandboxAllowed(snap)) {',
-    '        if (this.isElectronVersionGreaterOrEqualThan("5.0.0") && snap.confinement !== "classic" && !isBrowserSandboxAllowed(snap)) {'
-  )
-
-  if (patched === original) {
-    console.log('Snap classic sandbox patch: already applied or pattern not found, skipping')
-  } else {
-    fs.writeFileSync(targetPath, patched, 'utf-8')
-    console.log('Snap classic sandbox patch: applied successfully')
+  const patches = [
+    {
+      file: 'snap/coreLegacy.js',
+      from: 'this.helper.isElectronVersionGreaterOrEqualThan("5.0.0") && !this.isBrowserSandboxAllowed(snap)',
+      to: 'this.helper.isElectronVersionGreaterOrEqualThan("5.0.0") && snap.confinement !== "classic" && !this.isBrowserSandboxAllowed(snap)'
+    },
+    {
+      file: 'snap/core24.js',
+      from: 'this.helper.isElectronVersionGreaterOrEqualThan("5.0.0") && !this.isBrowserSandboxAllowed(rootPlugs)',
+      to: 'this.helper.isElectronVersionGreaterOrEqualThan("5.0.0") && options.confinement !== "classic" && !this.isBrowserSandboxAllowed(rootPlugs)'
+    },
+    {
+      // Older electron-builder shipped a single snap.js with the legacy pattern.
+      file: 'snap.js',
+      from: 'this.isElectronVersionGreaterOrEqualThan("5.0.0") && !isBrowserSandboxAllowed(snap)',
+      to: 'this.isElectronVersionGreaterOrEqualThan("5.0.0") && snap.confinement !== "classic" && !isBrowserSandboxAllowed(snap)'
+    }
+  ]
+  for (const { file, from, to } of patches) {
+    const targetPath = path.join(targetsDir, file)
+    if (!fs.existsSync(targetPath)) {
+      continue
+    }
+    const original = fs.readFileSync(targetPath, 'utf-8')
+    if (!original.includes(from)) {
+      console.log(`Snap classic sandbox patch (${file}): already applied or pattern not found, skipping`)
+      continue
+    }
+    fs.writeFileSync(targetPath, original.replace(from, to), 'utf-8')
+    console.log(`Snap classic sandbox patch (${file}): applied successfully`)
   }
 }
