@@ -15,7 +15,7 @@ import {
 } from '@ant-design/icons'
 import message from '../common/message'
 import Modal from '../common/modal'
-import { copy } from '../../common/clipboard'
+import { copy, readClipboard } from '../../common/clipboard'
 import VncForm from './vnc-form'
 import RemoteFloatControl from '../common/remote-float-control'
 import './vnc.styl'
@@ -49,11 +49,16 @@ export default class VncSession extends PureComponent {
 
   domRef = createRef()
 
+  // clipboard sync state (local -> remote direction)
+  lastClip = null
+  vncViewOnly = false
+
   componentDidMount () {
     this.remoteInit()
   }
 
   componentWillUnmount () {
+    this._detachClipboardSync()
     this.rfb && this.rfb.disconnect()
     delete this.rfb
     clearTimeout(this.timer)
@@ -379,6 +384,7 @@ export default class VncSession extends PureComponent {
     rfb.compressionLevel = compressionLevel
     rfb.viewOnly = viewOnly
     rfb.showDotCursor = showDotCursor
+    this.vncViewOnly = viewOnly
     this.rfb = rfb
   }
 
@@ -388,12 +394,14 @@ export default class VncSession extends PureComponent {
     this.setState({
       loading: false
     })
+    this._attachClipboardSync()
   }
 
   onDesktopsize = (event) => {
   }
 
   onDisconnect = () => {
+    this._detachClipboardSync()
     this.setStatus(statusMap.error)
   }
 
@@ -433,7 +441,61 @@ export default class VncSession extends PureComponent {
   }
 
   onClipboard = (event) => {
-    copy(event.detail.text)
+    const text = event?.detail?.text
+    if (!text || text === this.lastClip) {
+      return
+    }
+    // Track so our click-driven sync won't echo this same text back to the
+    // server (some servers re-broadcast what they receive).
+    this.lastClip = text
+    copy(text)
+  }
+
+  // Push the current local clipboard to the remote when it has changed.
+  // This implements the local -> remote direction that noVNC cannot do itself.
+  // Triggered on view click instead of polling, so it only runs right when the
+  // user is about to interact with the remote desktop (e.g. before pasting).
+  handleViewMouseDown = () => {
+    const rfb = this.rfb
+    if (!rfb || this.vncViewOnly) {
+      return
+    }
+    let text
+    try {
+      text = readClipboard()
+    } catch (e) {
+      return
+    }
+    if (!text || text === this.lastClip) {
+      return
+    }
+    this.lastClip = text
+    try {
+      rfb.clipboardPasteFrom(text)
+    } catch (e) {
+      // clipboardPasteFrom can throw if the socket is in a bad state; ignore
+    }
+  }
+
+  // noVNC calls stopPropagation() on canvas mouse events in the bubble phase,
+  // so React's delegated onClick (or any bubble-phase listener) never fires.
+  // We attach a CAPTURE-phase mousedown listener on the wrapper so it runs
+  // before noVNC can stop propagation. mousedown also fires earlier than click,
+  // giving the remote clipboard time to update before the user pastes.
+  _attachClipboardSync = () => {
+    this._detachClipboardSync()
+    const el = this.domRef.current
+    if (!el) {
+      return
+    }
+    el.addEventListener('mousedown', this.handleViewMouseDown, true)
+  }
+
+  _detachClipboardSync = () => {
+    const el = this.domRef.current
+    if (el) {
+      el.removeEventListener('mousedown', this.handleViewMouseDown, true)
+    }
   }
 
   onBell = (event) => {
@@ -542,6 +604,7 @@ export default class VncSession extends PureComponent {
   }
 
   handleReInit = () => {
+    this._detachClipboardSync()
     this.rfb?.disconnect()
     delete this.rfb
     this.remoteInit()
