@@ -166,13 +166,21 @@ class Term extends Component {
       !isEqual(
         pick(this.props, names),
         pick(prevProps, names)
-      ) ||
-      shouldChange
+      )
     ) {
       this.onResize()
     }
     if (shouldChange && this.term) {
       this.term.focus()
+      // 标签从 display:none 变为可见时，延迟到下一动画帧再 fit，读取正确布局
+      // 尺寸纠正列数；并用 refresh 强制重绘，清除快速连续打开多个连接时隐藏
+      // 标签被 0 列 fit 导致的虚假/重复提示符。
+      requestAnimationFrame(() => {
+        if (this.term && !this.onClose) {
+          this.fitAndRefresh()
+          setTimeout(() => this.fitAndRefresh(), 80)
+        }
+      })
     }
     this.checkConfigChange(
       prevProps,
@@ -1530,7 +1538,11 @@ class Term extends Component {
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
-    this.fitAddon.fit()
+    // 容器不可见（隐藏标签 display:none）时不 fit，避免算出 0 列把 shell
+    // 提示符逐字符错误换行；待标签激活可见后由 fitAndRefresh 重新适配。
+    if (this.isElementVisible()) {
+      this.fitAddon.fit()
+    }
     await this.remoteInit(term)
   }
 
@@ -1888,7 +1900,10 @@ class Term extends Component {
     this.trzszClient.init(socket)
     this.xmodemClient = new XmodemClient(this)
     this.xmodemClient.init(socket)
-    this.fitAddon.fit()
+    // 仅在可见时 fit，隐藏标签跳过，避免 0 列损坏提示符。
+    if (this.isElementVisible()) {
+      this.fitAddon.fit()
+    }
     term.displayRaw = displayRaw
     term.loadAddon(
       new KeywordHighlighterAddon(keywords)
@@ -1952,20 +1967,38 @@ class Term extends Component {
     })
   }
 
-  onResize = throttle(() => {
-    const cid = this.props.currentBatchTabId
-    const tid = this.props.tab?.id
-    if (
-      this.props.tab.status === statusMap.success &&
-      cid === tid &&
-      this.term
-    ) {
-      try {
-        this.fitAddon.fit()
-      } catch (e) {
-        console.info('resize failed')
-      }
+  // 判断终端挂载容器当前是否真实可见（非 display:none）。
+  // 隐藏标签的 clientWidth/clientHeight 为 0，此时不应 fit，否则会算出 0 列。
+  isElementVisible = () => {
+    const el = this.domRef.current
+    if (!el) {
+      return false
     }
+    return el.clientWidth > 0 && el.clientHeight > 0
+  }
+
+  // 重新适配终端尺寸并强制重绘可见区域。
+  // 仅当容器真正可见时才 fit：隐藏标签(display:none)下 clientWidth 为 0，
+  // 若在此时 fit 会算出 0/极小列数，使 shell 提示符被逐字符错误换行，
+  // 出现快速连续打开多个连接时的虚假/重复提示符。因此隐藏态跳过 fit，
+  // 保留 xterm 默认 80x24，待标签激活可见后再 fit 重绘，从根上避免换行损坏。
+  fitAndRefresh = () => {
+    if (!this.term || !this.fitAddon || this.onClose) {
+      return
+    }
+    if (!this.isElementVisible()) {
+      return
+    }
+    try {
+      this.fitAddon.fit()
+      this.term.refresh(0, this.term.rows - 1)
+    } catch (e) {
+      console.info('resize failed', e)
+    }
+  }
+
+  onResize = throttle(() => {
+    this.fitAndRefresh()
   }, 200)
 
   onerrorSocket = err => {
