@@ -73,6 +73,7 @@ export default class TerminalCmdSuggestions extends Component {
       config.baseURLAI,
       config.apiPathAI,
       config.apiKeyAI,
+      config.proxyAI,
       false,
       config.authHeaderNameAI
     ).catch(
