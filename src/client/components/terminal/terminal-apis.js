@@ -11,21 +11,21 @@ export function createTerm (body) {
   })
 }
 
-export function runCmd (pid, cmd) {
+export function runCmd (pid, cmd, options) {
   return fetch({
     pid,
     cmd,
     action: 'run-cmd'
-  })
+  }, options)
 }
 
-export function execCmd (pid, cmd, timeoutMs) {
+export function execCmd (pid, cmd, timeoutMs, options) {
   return fetch({
     pid,
     cmd,
     timeoutMs,
     action: 'exec-cmd'
-  })
+  }, options)
 }
 
 export function resizeTerm (pid, cols, rows) {

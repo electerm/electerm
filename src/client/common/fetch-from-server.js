@@ -27,7 +27,8 @@ export const initWsCommon = async () => {
 
 window.pre.ipcOnEvent('power-resume', initWsCommon)
 
-const wsFetch = async (data) => {
+const wsFetch = async (data, options = {}) => {
+  const { silent = false } = options
   if (!window.et.wsOpened) {
     await initWsCommon()
   }
@@ -35,7 +36,16 @@ const wsFetch = async (data) => {
   return new NewPromise((resolve, reject) => {
     window.et.commonWs.once((arg) => {
       if (arg.error) {
-        console.error('fetch error', arg.error)
+        // Rejections are propagated to the caller via the returned promise, so
+        // callers decide severity. Many fetches (shell detection, owner lookup,
+        // folder size) are best-effort and catch gracefully; logging every one
+        // at error level with a stack dump surfaces scary-but-harmless failures
+        // (e.g. an SSH server rejecting an auxiliary exec channel). Default to a
+        // low-key warning carrying only the message; best-effort probes pass
+        // { silent: true } to suppress this and log their own clearer message.
+        if (!silent) {
+          console.warn('fetch error:', arg.error.message || arg.error)
+        }
         return reject(new Error(arg.error.message))
       }
       resolve(arg.data)
