@@ -33,7 +33,8 @@ export default auto(function Layout (props) {
       height,
       pinnedQuickCommandBar,
       // tabsHeight,
-      leftSidebarWidth,
+      leftSidePanelWidth,
+      leftSideBarWidth,
       // infoPanelPinned,
       pinned,
       rightPanelVisible,
@@ -43,7 +44,7 @@ export default auto(function Layout (props) {
       inActiveTerminal
     } = props.store
     const h = height - footerHeight - (inActiveTerminal && pinnedQuickCommandBar ? quickCommandBoxHeight : 0) + resizeTrigger
-    const l = pinned ? 43 + leftSidebarWidth : 43
+    const l = pinned ? leftSideBarWidth + leftSidePanelWidth : leftSideBarWidth
     const r = rightPanelVisible && rightPanelPinned ? rightPanelWidth : 0
     return {
       height: h,
@@ -59,15 +60,18 @@ export default auto(function Layout (props) {
       height,
       width,
       pinnedQuickCommandBar,
-      leftSidebarWidth,
+      leftSidePanelWidth,
+      leftSideBarWidth,
       rightPanelVisible,
       rightPanelPinned,
       rightPanelWidth,
       pinned
     } = props.store
-    const l = pinned ? leftSidebarWidth : 0
+    const l = pinned ? leftSidePanelWidth : 0
     const r = rightPanelPinned && rightPanelVisible ? rightPanelWidth : 0
-    const w = width - l - r - 42
+    // account for the far-left icon bar (sidebarWidth - 1px border on desktop;
+    // 0 when the bar is hidden on mobile)
+    const w = width - l - r - (leftSideBarWidth > 0 ? leftSideBarWidth - 1 : 0)
     const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
     return layoutAlg(layout, w, h)
   }
@@ -115,7 +119,7 @@ export default auto(function Layout (props) {
           'pinnedQuickCommandBar',
           'tabsHeight',
           'appPath',
-          'leftSidebarWidth',
+          'leftSidePanelWidth',
           'addPanelWidth',
           'pinned',
           'openedSideBar',
@@ -153,7 +157,8 @@ export default auto(function Layout (props) {
     'pinnedQuickCommandBar',
     'qmSortByFrequency',
     'inActiveTerminal',
-    'leftSidebarWidth',
+    'leftSidePanelWidth',
+    'leftSideBarWidth',
     'openedSideBar',
     'currentQuickCommands'
   ])
@@ -177,7 +182,7 @@ export default auto(function Layout (props) {
       'pinnedQuickCommandBar',
       'tabsHeight',
       'appPath',
-      'leftSidebarWidth',
+      'leftSidePanelWidth',
       'pinned',
       'openedSideBar',
       'config',

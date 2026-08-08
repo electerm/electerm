@@ -15,13 +15,13 @@ export default function SidePanel (props) {
     }
     const el1 = document.querySelector('.sessions')
     if (el1) {
-      el1.style.left = (nw + 43) + 'px'
+      el1.style.left = (nw + props.leftSideBarWidth) + 'px'
     }
-  }, [props.leftSidebarWidth])
+  }, [props.leftSidePanelWidth, props.leftSideBarWidth])
   const dragProps = {
     min: 343,
     max: 600,
-    width: props.leftSidebarWidth,
+    width: props.leftSidePanelWidth,
     onDragEnd,
     onDragMove,
     left: true

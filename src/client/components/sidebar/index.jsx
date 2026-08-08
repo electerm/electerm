@@ -8,7 +8,8 @@ import {
   UpCircleOutlined,
   AppstoreOutlined,
   ThunderboltOutlined,
-  AimOutlined
+  AimOutlined,
+  MenuFoldOutlined
 } from '@ant-design/icons'
 import { Tooltip, Popover } from 'antd'
 import SideBarPanel from './sidebar-panel'
@@ -16,7 +17,6 @@ import TransferList from './transfer-list'
 import MenuBtn from '../sys-menu/menu-btn'
 import QuickConnect from '../tabs/quick-connect'
 import {
-  sidebarWidth,
   settingMap,
   modals
 } from '../../common/constants'
@@ -34,7 +34,10 @@ export default function Sidebar (props) {
     settingTab,
     settingItem,
     isSyncingSetting,
-    leftSidebarWidth,
+    // expandable bookmarks/history panel
+    leftSidePanelWidth,
+    // far-left icon bar (43px; 0 when hidden)
+    leftSideBarWidth,
     pinned,
     fileTransfers,
     openedSideBar,
@@ -91,6 +94,10 @@ export default function Sidebar (props) {
     store.onZoomReset()
   }
 
+  const handleToggleSidebar = () => {
+    store.toggleLeftSideBar()
+  }
+
   const {
     onNewSsh,
     openSetting,
@@ -115,16 +122,16 @@ export default function Sidebar (props) {
     ? {
         className: 'sidebar-list',
         style: {
-          width: `${leftSidebarWidth}px`
+          width: `${leftSidePanelWidth}px`
         }
       }
     : {
         className: 'sidebar-list'
       }
   const sidebarProps = {
-    className: `sidebar type-${openedSideBar}`,
+    className: `sidebar type-${openedSideBar}${leftSideBarWidth === 0 ? ' collapsed' : ''}`,
     style: {
-      width: sidebarWidth,
+      width: leftSideBarWidth,
       height
     }
   }
@@ -209,6 +216,14 @@ export default function Sidebar (props) {
             onClick={openAbout}
           />
         </SideIcon>
+        <SideIcon
+          title={e('hide')}
+        >
+          <MenuFoldOutlined
+            className='iblock font16 control-icon hide-sidebar-icon'
+            onClick={handleToggleSidebar}
+          />
+        </SideIcon>
         {
           Math.round((zoom ?? 1) * 100) !== 100
             ? (
@@ -246,7 +261,8 @@ export default function Sidebar (props) {
       <SidePanel
         sideProps={sideProps}
         setLeftSidePanelWidth={setLeftSidePanelWidth}
-        leftSidebarWidth={leftSidebarWidth}
+        leftSidePanelWidth={leftSidePanelWidth}
+        leftSideBarWidth={leftSideBarWidth}
       >
         <SideBarPanel
           pinned={pinned}

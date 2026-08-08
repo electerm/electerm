@@ -176,7 +176,8 @@ export default function QuickCommandsFooterBox (props) {
     pinnedQuickCommandBar,
     qmSortByFrequency,
     inActiveTerminal,
-    leftSidebarWidth,
+    leftSidePanelWidth,
+    leftSideBarWidth,
     openedSideBar
   } = props
   if ((!openQuickCommandBar && !pinnedQuickCommandBar) || !inActiveTerminal) {
@@ -203,7 +204,7 @@ export default function QuickCommandsFooterBox (props) {
     : 'text'
   const cls = classNames('qm-list-wrap')
   const type = qmSortByFrequency ? 'primary' : 'default'
-  const w = openedSideBar ? 43 + leftSidebarWidth : 43
+  const w = openedSideBar ? leftSideBarWidth + leftSidePanelWidth : leftSideBarWidth
   const qmProps = {
     className: 'qm-wrap-tooltip',
     style: {

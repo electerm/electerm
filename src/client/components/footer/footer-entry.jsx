@@ -3,7 +3,7 @@ import {
   Select,
   Dropdown
 } from 'antd'
-import { InfoCircleOutlined, TranslationOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, TranslationOutlined, DoubleRightOutlined } from '@ant-design/icons'
 import './footer.styl'
 import { statusMap } from '../../common/constants'
 import BatchInput from './batch-input'
@@ -164,12 +164,29 @@ export default auto(function FooterEntry (props) {
     )
   }
 
+  function handleShowSidebar () {
+    window.store.toggleLeftSideBar()
+  }
+
   const {
-    leftSidebarWidth,
+    leftSidePanelWidth,
+    leftSideBarWidth,
     openedSideBar,
     inActiveTerminal
   } = props.store
-  const w = 43 + leftSidebarWidth
+  const w = leftSideBarWidth + leftSidePanelWidth
+  // icon bar hidden: show a control on the left of the footer to bring the
+  // sidebar back
+  const showSidebarIcon = leftSideBarWidth === 0
+    ? (
+      <div className='terminal-footer-unit terminal-footer-show-sidebar'>
+        <DoubleRightOutlined
+          className='pointer font18 show-sidebar-icon'
+          onClick={handleShowSidebar}
+        />
+      </div>
+      )
+    : null
   const sideProps = openedSideBar
     ? {
         className: 'main-footer',
@@ -184,12 +201,15 @@ export default auto(function FooterEntry (props) {
     !inActiveTerminal
   ) {
     return (
-      <div className='main-footer' {...sideProps} />
+      <div className='main-footer' {...sideProps}>
+        {showSidebarIcon}
+      </div>
     )
   }
   return (
     <div {...sideProps}>
       <div className='terminal-footer-flex'>
+        {showSidebarIcon}
         {!isAIDisabled() && renderAIIcon()}
         {renderCmdHistory()}
         {renderQuickCommands()}

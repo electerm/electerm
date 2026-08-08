@@ -7,7 +7,8 @@ import Modal from '../components/common/modal'
 import { appendMandatoryGuardrails } from '../components/ai/ai-guardrails'
 import { debounce, some, get, pickBy } from 'lodash-es'
 import {
-  leftSidebarWidthKey,
+  leftSidePanelWidthKey,
+  leftSideBarOpenKey,
   rightSidebarWidthKey,
   addPanelWidthLsKey,
   dismissDelKeyTipLsKey,
@@ -106,8 +107,19 @@ export default Store => {
   }
 
   Store.prototype.setLeftSidePanelWidth = function (v) {
-    ls.setItem(leftSidebarWidthKey, v)
-    window.store._leftSidebarWidth = v
+    ls.setItem(leftSidePanelWidthKey, v)
+    window.store._leftSidePanelWidth = v
+  }
+
+  Store.prototype.toggleLeftSideBar = function () {
+    const { store } = window
+    const willOpen = !store._leftSideBarOpen
+    store._leftSideBarOpen = willOpen
+    ls.setItem(leftSideBarOpenKey, willOpen ? 'true' : 'false')
+    if (!willOpen) {
+      // hiding the bar also closes/unpins the side panel so no space is reserved
+      store.handleCloseSidebar()
+    }
   }
 
   Store.prototype.setAddPanelWidth = function (v) {

@@ -10,7 +10,7 @@ export default auto(function BookmarkSelect (props) {
   const {
     listStyle,
     openedSideBar,
-    leftSidebarWidth,
+    leftSidePanelWidth,
     expandedKeys,
     bookmarks,
     bookmarksMap,
@@ -38,7 +38,7 @@ export default auto(function BookmarkSelect (props) {
     bookmarksMap,
     bookmarkGroups: store.getBookmarkGroupsTotal(),
     expandedKeys,
-    leftSidebarWidth,
+    leftSidePanelWidth,
     bookmarkGroupTree: store.bookmarkGroupTree,
     autoFocus,
     initLoadingData

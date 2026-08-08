@@ -9,13 +9,14 @@ import {
   infoTabs,
   openedSidebarKey,
   sidebarPinnedKey,
+  leftSideBarOpenKey,
   pinnedQuickCommandBarKey,
   sftpDefaultSortSettingKey,
   batchInputLsKey,
   expandedKeysLsKey,
   checkedKeysLsKey,
   localAddrBookmarkLsKey,
-  leftSidebarWidthKey,
+  leftSidePanelWidthKey,
   rightSidebarWidthKey,
   addPanelWidthLsKey,
   dismissDelKeyTipLsKey,
@@ -46,6 +47,10 @@ function getDefaultBookmarkGroups (bookmarks) {
 
 export default () => {
   const layout = ls.getItem('layout') || splitMap.c1
+  // far-left icon bar is open by default; once the user toggles it, honor the
+  // saved preference ('true'/'false') from localStorage.
+  const storedSideBarOpen = ls.getItem(leftSideBarOpenKey)
+  const leftSideBarOpen = storedSideBarOpen === '' ? true : storedSideBarOpen === 'true'
   return {
     // common
     wsInited: false,
@@ -164,7 +169,9 @@ export default () => {
 
     // sidebar
     openedSideBar: ls.getItem(openedSidebarKey) || '',
-    _leftSidebarWidth: parseInt(ls.getItem(leftSidebarWidthKey), 10) || 300,
+    _leftSidePanelWidth: parseInt(ls.getItem(leftSidePanelWidthKey), 10) || 300,
+    // whether the far-left icon bar is open (hide/show works on every platform)
+    _leftSideBarOpen: leftSideBarOpen,
     addPanelWidth: parseInt(ls.getItem(addPanelWidthLsKey), 10) || 300,
     menuOpened: false,
     pinned: ls.getItem(sidebarPinnedKey) === 'true',

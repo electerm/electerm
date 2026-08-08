@@ -748,7 +748,7 @@ export default class ItemListTree extends Component {
         activeItemId={this.props.activeItemId}
         searchSelectedRowKey={this.state.searchSelectedRowKey}
         staticList={this.props.staticList}
-        leftSidebarWidth={this.props.leftSidebarWidth}
+        leftSidePanelWidth={this.props.leftSidePanelWidth}
         {...pick(
           this,
           [

@@ -70,7 +70,7 @@ export default auto(function SettingModalWrap (props) {
         'config',
         'checkedKeys',
         'expandedKeys',
-        'leftSidebarWidth',
+        'leftSidePanelWidth',
         'initLoadingData'
       ])
     }

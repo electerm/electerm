@@ -278,7 +278,7 @@ export default class SessionWrapper extends Component {
           'height',
           'width',
           'tabsHeight',
-          'leftSidebarWidth',
+          'leftSidePanelWidth',
           'pinned',
           'openedSideBar',
           'delTab',

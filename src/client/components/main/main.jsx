@@ -119,7 +119,10 @@ export default auto(function Index (props) {
     'is-desktop': !store.isMobile
   })
   const ext1 = {
-    className: cls
+    className: cls,
+    style: {
+      '--left-side-bar-width': store.leftSideBarWidth + 'px'
+    }
   }
   // Get active tab IDs
   const activeTabIds = [
@@ -168,7 +171,8 @@ export default auto(function Index (props) {
       'settingTab',
       'settingItem',
       'isSyncingSetting',
-      'leftSidebarWidth',
+      'leftSidePanelWidth',
+      'leftSideBarWidth',
       'transferTab',
       'sidebarPanelTab',
       'openWidgetsModal'

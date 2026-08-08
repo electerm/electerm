@@ -59,12 +59,21 @@ class Store {
     return window.store.innerWidth
   }
 
-  get leftSidebarWidth () {
+  get leftSidePanelWidth () {
     const { store } = window
     if (store.isMobile) {
-      return Math.min(store.innerWidth - sidebarWidth, 500)
+      return Math.min(store.innerWidth - store.leftSideBarWidth, 500)
     }
-    return store._leftSidebarWidth
+    return store._leftSidePanelWidth
+  }
+
+  // width of the far-left icon bar (the ~43px vertical strip with the menu
+  // / bookmarks / settings icons). Distinct from leftSidePanelWidth, which is
+  // the expandable bookmarks/history panel. Controlled by _leftSideBarOpen on
+  // every platform: sidebarWidth when open, 0 when hidden.
+  get leftSideBarWidth () {
+    const { store } = window
+    return store._leftSideBarOpen ? sidebarWidth : 0
   }
 
   get rightPanelWidth () {
