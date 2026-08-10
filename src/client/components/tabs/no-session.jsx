@@ -51,7 +51,7 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
         )}
         <QuickConnect batch={batch} />
       </div>
-      <div className='pd3'>
+      <div className='no-session-logo'>
         <LogoElem />
       </div>
       <div className='no-session-history' onClick={handleClick}>
