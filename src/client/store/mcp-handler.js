@@ -18,6 +18,30 @@ import {
 } from '../components/bookmark-form/fix-bookmark-default'
 import newTerm from '../common/new-terminal'
 
+// Dangerous props that must not be accepted from MCP/AI tool calls.
+// Mirrors the blocklist in src/client/store/tab.js (dangerousTabProps).
+// These allow arbitrary command execution if set (e.g. execLinux/execLinuxArgs
+// override the shell binary, setEnv injects environment variables, runScripts
+// executes scripts, interactiveValues injects interactive prompts).
+const dangerousTabProps = [
+  'execLinux',
+  'execMac',
+  'execWindows',
+  'execWindowsArgs',
+  'execMacArgs',
+  'execLinuxArgs',
+  'setEnv',
+  'runScripts',
+  'interactiveValues'
+]
+
+// Strip dangerous props from an object, returning a safe copy.
+function stripDangerousTabProps (obj) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key]) => !dangerousTabProps.includes(key))
+  )
+}
+
 export default Store => {
   // Initialize MCP handler - called when MCP widget is started
   Store.prototype.initMcpHandler = function () {
@@ -497,7 +521,11 @@ export default Store => {
 
   Store.prototype.mcpOpenTab = function (args) {
     const { store } = window
-    const data = fixBookmarkData({ ...args })
+    // Strip dangerous execution-related props before any processing.
+    // This prevents MCP/AI callers from injecting execLinux/execLinuxArgs,
+    // setEnv, runScripts, etc. to spawn arbitrary local processes.
+    const safeArgs = stripDangerousTabProps({ ...args })
+    const data = fixBookmarkData(safeArgs)
 
     const { valid, errors } = validateBookmarkData(data)
     if (!valid) {
