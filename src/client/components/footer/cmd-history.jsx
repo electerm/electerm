@@ -111,13 +111,19 @@ export default auto(function CmdHistory (props) {
     }
     return (
       <div className='cmd-history-header pd2b'>
-        <Switch
-          checkedChildren={e('sortByFrequency')}
-          unCheckedChildren={e('sortByFrequency')}
-          checked={sortByFrequency}
-          onChange={handleSortByFrequencyChange}
-          size='small'
-        />
+        <div className='cmd-history-sort'>
+          <Switch
+            checked={sortByFrequency}
+            onChange={handleSortByFrequencyChange}
+            size='small'
+          />
+          <span
+            className='cmd-history-sort-label pointer'
+            onClick={() => handleSortByFrequencyChange(!sortByFrequency)}
+          >
+            {e('sortByFrequency')}
+          </span>
+        </div>
         <UnorderedListOutlined
           className='cmd-history-clear-icon pointer clear-ai-icon icon-hover'
           title={e('clear')}

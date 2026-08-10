@@ -178,12 +178,21 @@
 
 // ---------------------------------------------------------------------------
 // Touch-primary devices only (feature-detected via pointer media query, not
-// UA sniffing or viewport width). iOS Safari and Android Chrome auto-zoom the
-// page when focusing an input with font-size < 16px, and never zoom back out
-// on blur, leaving the page stuck zoomed. Desktop browsers (even with
-// touchscreens or narrow windows) report pointer: fine and never force-zoom,
-// so this never matches them. Force 16px on all focusable form fields (antd
-// inputs default to 14px) to prevent the zoom.
+// UA sniffing or viewport width). Desktop browsers (even with touchscreens or
+// narrow windows) report pointer: fine, so this never matches them.
+//
+// 1. iOS Safari and Android Chrome auto-zoom the page when focusing an input
+//    with font-size < 16px, and never zoom back out on blur, leaving the page
+//    stuck zoomed. Force 16px on all focusable form fields (antd inputs default
+//    to 14px) to prevent the zoom.
+//
+// 2. Mobile browsers also inflate text to improve readability
+//    (-webkit-text-size-adjust defaults to auto). Inside a fixed-size container
+//    this makes the text taller than its wrapper, so it gets clipped — the
+//    clearest victim is the antd small Switch, whose track is only 16px tall /
+//    28px wide with overflow:hidden; the "sort by frequency" label gets blown
+//    past the track and chopped. Pin to 100% so the declared font-size is
+//    honored.
 // ---------------------------------------------------------------------------
 @media (pointer: coarse)
   input,
@@ -194,3 +203,6 @@
   .ant-input-number-input,
   .ant-select-selection-search-input
     font-size 16px !important
+  html
+    -webkit-text-size-adjust 100%
+    text-size-adjust 100%

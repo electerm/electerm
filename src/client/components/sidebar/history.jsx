@@ -44,21 +44,24 @@ export default auto(function HistoryPanel (props) {
     }
     return (
       <div className='history-header pd2x pd2b'>
-        <Switch
-          {...switchProps}
-        />
+        <div className='history-sort'>
+          <Switch
+            checked={sortByFrequency}
+            onChange={handleSortByFrequencyChange}
+            size='small'
+          />
+          <span
+            className='history-sort-label pointer'
+            onClick={() => handleSortByFrequencyChange(!sortByFrequency)}
+          >
+            {e('sortByFrequency')}
+          </span>
+        </div>
         <UnorderedListOutlined
           {...clearIconProps}
         />
       </div>
     )
-  }
-  const switchProps = {
-    checkedChildren: e('sortByFrequency'),
-    unCheckedChildren: e('sortByFrequency'),
-    checked: sortByFrequency,
-    onChange: handleSortByFrequencyChange,
-    size: 'small'
   }
   const clearIconProps = {
     className: 'history-clear-icon pointer clear-ai-icon icon-hover',
