@@ -1,5 +1,10 @@
 /**
  * quick commands footer selection
+ *
+ * Click to toggle the quick-command bar. Click-based so it works identically
+ * on touch (mobile) and mouse (desktop) — the old hover-to-open model was
+ * unreliable on Android, where a tap synthesizes mouseleave and cancels the
+ * open timer.
  */
 
 import { PureComponent } from 'react'
@@ -7,33 +12,18 @@ import { Button } from 'antd'
 import './qm.styl'
 
 export default class QuickCommandsFooter extends PureComponent {
-  componentWillUnmount () {
-    clearTimeout(this.timer)
-    this.timer = null
-  }
-
-  handleOpen = () => {
-    this.timer = setTimeout(this.act, 500)
-  }
-
-  act = () => {
-    window.store.openQuickCommandBar = true
-  }
-
-  handleMouseLeave = () => {
-    clearTimeout(this.timer)
+  handleClick = () => {
+    const { store } = window
+    store.openQuickCommandBar = !store.openQuickCommandBar
   }
 
   render () {
     return (
-      <div
-        className='fleft relative quick-command-trigger-wrap'
-        onMouseEnter={this.handleOpen}
-        onMouseLeave={this.handleMouseLeave}
-      >
+      <div className='fleft relative quick-command-trigger-wrap'>
         <Button
           size='small'
           type='text'
+          onClick={this.handleClick}
         >
           Q
         </Button>

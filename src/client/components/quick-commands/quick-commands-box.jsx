@@ -2,7 +2,7 @@
  * quick commands footer selection wrap
  */
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { quickCommandLabelsLsKey, pinnedQuickCommandBarKey } from '../../common/constants'
 import { sortBy } from 'lodash-es'
 import { Button, Input, Select, Space, Flex } from 'antd'
@@ -25,21 +25,6 @@ const { Option } = Select
 export default function QuickCommandsFooterBox (props) {
   const [keyword, setKeyword] = useState('')
   const [label, setLabel] = useState(ls.getItem(quickCommandLabelsLsKey, ''))
-  const timer = useRef(null)
-
-  function handleMouseLeave () {
-    timer.current = setTimeout(() => {
-      toggle(false)
-    }, 500)
-  }
-
-  function handleMouseEnter () {
-    clearTimeout(timer.current)
-  }
-
-  function toggle (openQuickCommandBar) {
-    window.store.openQuickCommandBar = openQuickCommandBar
-  }
 
   function handleTogglePinned () {
     const current = !window.store.pinnedQuickCommandBar
@@ -209,9 +194,7 @@ export default function QuickCommandsFooterBox (props) {
     className: 'qm-wrap-tooltip',
     style: {
       left: w
-    },
-    onMouseLeave: handleMouseLeave,
-    onMouseEnter: handleMouseEnter
+    }
   }
   return (
     <div
