@@ -1,0 +1,186 @@
+// shortcut-bar
+// sits in reserved space at the bottom of the viewport (see layout.jsx +
+// .shortcut-bar-on rule below). Height tracks --shortcut-bar-h which the
+// component sets from the shortcutBarHeight constant.
+
+.shortcut-bar
+  position fixed
+  left 0
+  right 0
+  bottom 0
+  height var(--shortcut-bar-h, 44px)
+  z-index 400
+  display flex
+  align-items stretch
+  background var(--main)
+  border-top 1px solid var(--main-lighter)
+  user-select none
+  -webkit-user-select none
+
+.shortcut-bar-fixed
+  display flex
+  align-items stretch
+  flex-shrink 0
+  border-right 1px solid var(--main-lighter)
+
+.shortcut-bar-icon-btn
+  width 44px
+  display flex
+  align-items center
+  justify-content center
+  background transparent
+  border none
+  color var(--text)
+  cursor pointer
+  font-size 16px
+  &:active
+    background var(--main-lighter)
+  &:hover
+    color var(--text-light)
+
+.shortcut-bar-scroll
+  flex 1
+  display flex
+  align-items center
+  gap 6px
+  padding 0 8px
+  overflow-x auto
+  overflow-y hidden
+  scrollbar-width none
+  -webkit-overflow-scrolling touch
+  &::-webkit-scrollbar
+    display none
+
+.shortcut-bar-btn
+  flex-shrink 0
+  height 32px
+  min-width 32px
+  padding 0 10px
+  display inline-flex
+  align-items center
+  justify-content center
+  border-radius 6px
+  border 1px solid var(--main-lighter)
+  background var(--main-light)
+  color var(--text)
+  font-size 13px
+  cursor pointer
+  white-space nowrap
+  &:active
+    background var(--primary)
+    color var(--primary-contrast)
+  &:hover
+    color var(--text-light)
+
+// while the bar is visible, lift the footer + reserve space so nothing is
+// covered (terminal area is shrunk by layout.jsx via store.shortcutBarVisible)
+.shortcut-bar-on
+  .main-footer
+    bottom var(--shortcut-bar-h, 44px)
+
+// --- edit modal -----------------------------------------------------------
+
+.shortcut-edit-wrap
+  .custom-modal-content
+    max-width 92vw
+.shortcut-edit-section
+  margin-bottom 16px
+  &:last-child
+    margin-bottom 0
+.shortcut-edit-section-title
+  margin-bottom 8px
+  color var(--text)
+  font-weight bold
+  font-size 13px
+
+.shortcut-active-list
+  display flex
+  flex-wrap wrap
+  gap 6px
+  min-height 48px
+  padding 8px
+  border 1px dashed var(--main-lighter)
+  border-radius 6px
+  background var(--main-dark)
+.shortcut-active-empty
+  color var(--text-dark)
+  font-size 12px
+  width 100%
+  text-align center
+  line-height 32px
+
+.shortcut-active-item
+  display inline-flex
+  align-items center
+  gap 4px
+  height 30px
+  padding 0 4px 0 10px
+  border-radius 6px
+  background var(--main-light)
+  border 1px solid var(--main-lighter)
+  color var(--text)
+  font-size 13px
+.shortcut-active-label
+  white-space nowrap
+.shortcut-active-remove
+  display flex
+  align-items center
+  justify-content center
+  width 20px
+  height 20px
+  border none
+  background transparent
+  color var(--text-dark)
+  border-radius 4px
+  cursor pointer
+  font-size 11px
+  &:hover
+    color var(--error)
+    background var(--main-lighter)
+
+.shortcut-candidate-list
+  display flex
+  flex-wrap wrap
+  gap 6px
+  max-height 180px
+  overflow-y auto
+  padding 4px
+.shortcut-candidate-item
+  height 30px
+  min-width 34px
+  padding 0 10px
+  display inline-flex
+  align-items center
+  justify-content center
+  border-radius 6px
+  border 1px solid var(--main-lighter)
+  background var(--main)
+  color var(--text)
+  font-size 13px
+  cursor pointer
+  &:active
+    background var(--main-lighter)
+  &:hover
+    color var(--text-light)
+  &.added
+    opacity 0.45
+    cursor default
+
+.shortcut-custom-form
+  display flex
+  gap 8px
+  align-items center
+  flex-wrap wrap
+.shortcut-search-input
+  flex 1
+  min-width 160px
+.shortcut-custom-input
+  flex 1
+  min-width 120px
+.shortcut-custom-add
+  height 32px
+  white-space nowrap
+
+.shortcut-edit-footer
+  justify-content space-between
+  width 100%

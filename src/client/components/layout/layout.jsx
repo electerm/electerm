@@ -4,7 +4,8 @@ import TabsWrap from '../tabs/index'
 import {
   splitConfig,
   quickCommandBoxHeight,
-  footerHeight
+  footerHeight,
+  shortcutBarHeight
 } from '../../common/constants'
 import layoutAlg from './layout-alg'
 import calcSessionSize from './session-size-alg'
@@ -41,9 +42,10 @@ export default auto(function Layout (props) {
       rightPanelPinned,
       rightPanelWidth,
       resizeTrigger,
-      inActiveTerminal
+      inActiveTerminal,
+      shortcutBarVisible
     } = props.store
-    const h = height - footerHeight - (inActiveTerminal && pinnedQuickCommandBar ? quickCommandBoxHeight : 0) + resizeTrigger
+    const h = height - footerHeight - (inActiveTerminal && pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight : 0) + resizeTrigger
     const l = pinned ? leftSideBarWidth + leftSidePanelWidth : leftSideBarWidth
     const r = rightPanelVisible && rightPanelPinned ? rightPanelWidth : 0
     return {
@@ -65,14 +67,15 @@ export default auto(function Layout (props) {
       rightPanelVisible,
       rightPanelPinned,
       rightPanelWidth,
-      pinned
+      pinned,
+      shortcutBarVisible
     } = props.store
     const l = pinned ? leftSidePanelWidth : 0
     const r = rightPanelPinned && rightPanelVisible ? rightPanelWidth : 0
     // account for the far-left icon bar (sidebarWidth - 1px border on desktop;
     // 0 when the bar is hidden on mobile)
     const w = width - l - r - (leftSideBarWidth > 0 ? leftSideBarWidth - 1 : 0)
-    const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
+    const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight : 0)
     return layoutAlg(layout, w, h)
   }
   const layoutSize = calcLayoutStyle()

@@ -167,6 +167,9 @@ export default () => {
     pinnedQuickCommandBar: ls.getItem(pinnedQuickCommandBarKey) === 'y',
     qmSortByFrequency: ls.getItem(qmSortByFrequencyKey) === 'yes',
 
+    // touch-only shortcut bar (see components/terminal/shortcut-bar-entry.jsx)
+    shortcutBarVisible: false,
+
     // sidebar
     openedSideBar: ls.getItem(openedSidebarKey) || '',
     _leftSidePanelWidth: parseInt(ls.getItem(leftSidePanelWidthKey), 10) || 300,
