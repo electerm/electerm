@@ -16,7 +16,7 @@ import {
   SettingOutlined,
   ThunderboltOutlined
 } from '@ant-design/icons'
-import { Popover } from 'antd'
+import { Badge, Popover } from 'antd'
 import SideIcon from './side-icon'
 import QuickConnect from '../tabs/quick-connect'
 import { settingMap } from '../../common/constants'
@@ -38,7 +38,8 @@ export default function LeftSidebarIcons (props) {
     settingActive,
     syncActive,
     widgetsActive,
-    isSyncingSetting
+    isSyncingSetting,
+    widgetInstancesLength
   } = props
 
   const ids = Array.isArray(iconIds) && iconIds.length
@@ -127,10 +128,18 @@ export default function LeftSidebarIcons (props) {
         title={e('widgets')}
         active={widgetsActive}
       >
-        <AppstoreOutlined
-          className='iblock font20 control-icon'
-          onClick={openWidgetsModal}
-        />
+        <Badge
+          count={widgetInstancesLength}
+          size='small'
+          offset={[0, 0]}
+          color='green'
+          overflowCount={99}
+        >
+          <AppstoreOutlined
+            className='iblock font20 control-icon'
+            onClick={openWidgetsModal}
+          />
+        </Badge>
       </SideIcon>
     )
   }

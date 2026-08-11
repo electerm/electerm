@@ -100,7 +100,8 @@ export default auto(function Index (props) {
     transferToConfirm,
     openResolutionEdit,
     rightPanelTitle,
-    rightPanelTab
+    rightPanelTab,
+    widgetInstances
   } = store
   const upgradeInfo = deepCopy(store.upgradeInfo)
   const cls = classnames({
@@ -183,7 +184,8 @@ export default auto(function Index (props) {
     transferHistory: copiedHistory,
     upgradeInfo,
     pinned,
-    leftSideBarIcons: config.leftSideBarIcons
+    leftSideBarIcons: config.leftSideBarIcons,
+    widgetInstancesLength: widgetInstances.length
   }
 
   const infoModalProps = {

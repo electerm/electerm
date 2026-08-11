@@ -41,7 +41,8 @@ export default function Sidebar (props) {
     sidebarPanelTab,
     openWidgetsModal,
     zoom,
-    leftSideBarIcons
+    leftSideBarIcons,
+    widgetInstancesLength
   } = props
 
   const { store } = window
@@ -154,6 +155,7 @@ export default function Sidebar (props) {
           syncActive={syncActive}
           widgetsActive={widgetsActive}
           isSyncingSetting={isSyncingSetting}
+          widgetInstancesLength={widgetInstancesLength}
         />
         <TransferList {...transferProps} />
         <SideIcon
