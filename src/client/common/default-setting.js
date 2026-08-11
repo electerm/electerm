@@ -84,7 +84,6 @@ export default {
     'newBookmark',
     'quickConnect',
     'bookmarks',
-    'transferList',
     'terminalThemes',
     'setting',
     'settingSync',

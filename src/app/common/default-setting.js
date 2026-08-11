@@ -78,7 +78,6 @@ module.exports = exports.default = {
     'newBookmark',
     'quickConnect',
     'bookmarks',
-    'transferList',
     'terminalThemes',
     'setting',
     'settingSync',

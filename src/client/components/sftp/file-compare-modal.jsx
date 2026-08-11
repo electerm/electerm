@@ -21,7 +21,7 @@ const formatTime = time
 const CodeCompare = lazy(() => import('./code-compare'))
 
 const Loading = () => (
-  <div style={{ padding: 40, textAlign: 'center' }}>
+  <div className='aligncenter pd3'>
     <Spin />
   </div>
 )

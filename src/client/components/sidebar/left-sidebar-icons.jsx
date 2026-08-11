@@ -2,8 +2,9 @@
  * renders the customizable far-left sidebar icons.
  *
  * which icons appear, and in what order, is driven by `iconIds`
- * (from config.leftSideBarIcons). The "about" and "hide sidebar" icons are
- * not customizable and stay rendered by the parent (sidebar/index.jsx).
+ * (from config.leftSideBarIcons). The "about", "hide sidebar" and
+ * "file transfer" icons are not customizable — they are rendered
+ * directly by the parent (sidebar/index.jsx).
  */
 
 import {
@@ -17,7 +18,6 @@ import {
 } from '@ant-design/icons'
 import { Popover } from 'antd'
 import SideIcon from './side-icon'
-import TransferList from './transfer-list'
 import QuickConnect from '../tabs/quick-connect'
 import { settingMap } from '../../common/constants'
 import { defaultLeftSideBarIcons } from '../../common/left-sidebar-icon-defs'
@@ -38,8 +38,7 @@ export default function LeftSidebarIcons (props) {
     settingActive,
     syncActive,
     widgetsActive,
-    isSyncingSetting,
-    transferProps
+    isSyncingSetting
   } = props
 
   const ids = Array.isArray(iconIds) && iconIds.length
@@ -84,12 +83,6 @@ export default function LeftSidebarIcons (props) {
           className='font20 iblock control-icon'
         />
       </SideIcon>
-    ),
-    transferList: (
-      <TransferList
-        key='transferList'
-        {...transferProps}
-      />
     ),
     terminalThemes: (
       <SideIcon

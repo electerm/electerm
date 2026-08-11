@@ -14,6 +14,7 @@ import {
 import SideIcon from './side-icon'
 import SidePanel from './side-panel'
 import LeftSidebarIcons from './left-sidebar-icons'
+import TransferList from './transfer-list'
 import hasActiveInput from '../../common/has-active-input'
 import './sidebar.styl'
 
@@ -153,8 +154,8 @@ export default function Sidebar (props) {
           syncActive={syncActive}
           widgetsActive={widgetsActive}
           isSyncingSetting={isSyncingSetting}
-          transferProps={transferProps}
         />
+        <TransferList {...transferProps} />
         <SideIcon
           title={e('about')}
           active={showInfoModal}
