@@ -2,11 +2,11 @@
  * bookmark form
  */
 import {
-  Switch,
   Form,
   Button,
   Select
 } from 'antd'
+import SwitchLabel from '../../common/switch'
 import { formItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
@@ -153,7 +153,7 @@ export default function renderX11 ({ form }) {
         name='x11'
         valuePropName='checked'
       >
-        <Switch />
+        <SwitchLabel />
       </FormItem>
     </>
   )

@@ -3,9 +3,10 @@
  * Maps field types to React components
  */
 import React from 'react'
-import { Form, Input, InputNumber, Switch, Select, AutoComplete, Alert, Radio } from 'antd'
+import { Form, Input, InputNumber, Select, AutoComplete, Alert, Radio } from 'antd'
 import { ColorPickerItem } from './color-picker-item.jsx'
 import Password from '../../common/password.jsx'
+import SwitchLabel from '../../common/switch.jsx'
 import InputAutoFocus from '../../common/input-auto-focus.jsx'
 import ProxyField from './proxy.jsx'
 import X11Field from './x11.jsx'
@@ -66,7 +67,7 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
         control = <InputNumber min={1} max={65535} step={1} {...item.props} />
         break
       case 'switch':
-        control = <Switch {...item.props} />
+        control = <SwitchLabel {...item.props} />
         break
       case 'select':
         control = <Select options={item.options} {...item.props} />

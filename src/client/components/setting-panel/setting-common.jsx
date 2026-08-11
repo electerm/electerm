@@ -7,9 +7,9 @@ import {
 } from '@ant-design/icons'
 import message from '../common/message'
 import { notification } from '../common/notification'
+import SwitchLabel from '../common/switch'
 import {
   Select,
-  Switch,
   Button,
   Table,
   Space,
@@ -193,10 +193,9 @@ export default class SettingCommon extends Component {
     const checked = !!this.props.config[name]
     return (
       <div className='pd2b' key={'rt' + name}>
-        <Switch
+        <SwitchLabel
           checked={checked}
-          checkedChildren={e(name)}
-          unCheckedChildren={e(name)}
+          label={e(name)}
           onChange={v => this.onChangeValue(v, name)}
         />
         {isNumber(extra) ? null : extra}
@@ -373,7 +372,7 @@ export default class SettingCommon extends Component {
               style={{ body: { style } }}
             />
           </span>
-          <Switch
+          <SwitchLabel
             checked={enableGlobalProxy}
             onChange={v => {
               this.onChangeValue(v, 'enableGlobalProxy')

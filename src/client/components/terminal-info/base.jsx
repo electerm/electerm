@@ -3,10 +3,10 @@
  */
 import { Component } from 'react'
 import {
-  Switch,
   Space,
   Button
 } from 'antd'
+import SwitchLabel from '../common/switch'
 import defaults from '../../common/default-setting'
 import { toggleTerminalLog, toggleTerminalLogTimestamp } from '../terminal/terminal-apis'
 import {
@@ -123,9 +123,8 @@ export default class TerminalInfoBase extends Component {
     }
     const name = e('addTimeStampToTermLog')
     return (
-      <Switch
-        checkedChildren={name}
-        unCheckedChildren={name}
+      <SwitchLabel
+        label={name}
         checked={addTimeStampToTermLog}
         onChange={this.handleToggleTimestamp}
         className='mg1b'
@@ -176,9 +175,8 @@ export default class TerminalInfoBase extends Component {
           <b>ID:</b> {id}
         </div>
         <div className='pd1b'>
-          <Switch
-            checkedChildren={name}
-            unCheckedChildren={name}
+          <SwitchLabel
+            label={name}
             checked={saveTerminalLogToFile}
             onChange={this.handleToggle}
             className='mg1r mg1b'

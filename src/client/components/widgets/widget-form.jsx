@@ -2,8 +2,9 @@
  * Widget form component
  */
 import React, { useState, useEffect } from 'react'
-import { Form, Input, InputNumber, Switch, Select, Button, Tooltip, Alert, Space } from 'antd'
+import { Form, Input, InputNumber, Select, Button, Tooltip, Alert, Space } from 'antd'
 import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
+import SwitchLabel from '../common/switch'
 import HelpIcon from '../common/help-icon'
 import { nanoid } from 'nanoid'
 import BatchOpEditor from '../batch-op/batch-op-editor'
@@ -91,7 +92,7 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
             valuePropName='checked'
             tooltip={description}
           >
-            <Switch />
+            <SwitchLabel />
           </Form.Item>
         )
       default:

@@ -4,7 +4,6 @@
 
 import {
   Button,
-  Switch,
   Select,
   Space
 } from 'antd'
@@ -13,6 +12,7 @@ import {
   ExportOutlined
 } from '@ant-design/icons'
 import Upload from '../common/upload'
+import SwitchLabel from '../common/switch'
 import HelpIcon from '../common/help-icon'
 
 const e = window.translate
@@ -87,11 +87,10 @@ export default function DataTransport (props) {
         </Upload>
       </div>
       <div className='fright'>
-        <Switch
+        <SwitchLabel
           checked={autoSyncEnabled}
-          checkedChildren={txt}
+          label={txt}
           onChange={handleAutoSync}
-          unCheckedChildren={txt}
           className='mg3l mg1r'
         />
         {autoSyncEnabled && (

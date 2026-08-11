@@ -3,8 +3,9 @@
  */
 
 import { useState, useEffect } from 'react'
-import { Button, Empty, Popover, Switch } from 'antd'
+import { Button, Empty, Popover } from 'antd'
 import { auto } from 'manate/react'
+import SwitchLabel from '../common/switch'
 import { copy } from '../../common/clipboard'
 import { HistoryOutlined, DeleteOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons'
 import InputAutoFocus from '../common/input-auto-focus'
@@ -112,17 +113,12 @@ export default auto(function CmdHistory (props) {
     return (
       <div className='cmd-history-header pd2b'>
         <div className='cmd-history-sort'>
-          <Switch
+          <SwitchLabel
             checked={sortByFrequency}
             onChange={handleSortByFrequencyChange}
             size='small'
+            label={e('sortByFrequency')}
           />
-          <span
-            className='cmd-history-sort-label pointer'
-            onClick={() => handleSortByFrequencyChange(!sortByFrequency)}
-          >
-            {e('sortByFrequency')}
-          </span>
         </div>
         <UnorderedListOutlined
           className='cmd-history-clear-icon pointer clear-ai-icon icon-hover'

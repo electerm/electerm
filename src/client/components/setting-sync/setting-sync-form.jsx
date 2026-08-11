@@ -7,8 +7,9 @@
  */
 import { useEffect, useRef } from 'react'
 import { ArrowDownOutlined, ArrowUpOutlined, SaveOutlined, ClearOutlined } from '@ant-design/icons'
-import { Button, Input, Form, Alert, Switch } from 'antd'
+import { Button, Input, Form, Alert } from 'antd'
 import { notification } from '../common/notification'
+import SwitchLabel from '../common/switch'
 import Link from '../common/external-link'
 import dayjs from 'dayjs'
 import eq from 'fast-deep-equal'
@@ -253,7 +254,7 @@ export default function SyncForm (props) {
           name='skipVerify'
           valuePropName='checked'
         >
-          <Switch />
+          <SwitchLabel />
         </FormItem>
         <FormItem
           label={createLabel(e('password'))}

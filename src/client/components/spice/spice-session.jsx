@@ -10,11 +10,11 @@ import {
   ReloadOutlined
 } from '@ant-design/icons'
 import {
-  Spin,
-  Switch
+  Spin
 } from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import RemoteFloatControl from '../common/remote-float-control'
+import SwitchLabel from '../common/switch'
 import './spice.styl'
 
 async function loadSpiceModule () {
@@ -132,8 +132,7 @@ export default class SpiceSession extends PureComponent {
     const scaleProps = {
       checked: this.state.scaleViewport,
       onChange: this.handleScaleViewChange,
-      unCheckedChildren: window.translate('scaleViewport'),
-      checkedChildren: window.translate('scaleViewport'),
+      label: window.translate('scaleViewport'),
       className: 'mg1l'
     }
     return (
@@ -144,7 +143,7 @@ export default class SpiceSession extends PureComponent {
             className='mg2r mg1l pointer'
           />
           {this.renderInfo()}
-          <Switch
+          <SwitchLabel
             {...scaleProps}
           />
         </div>

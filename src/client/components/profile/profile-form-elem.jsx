@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import {
   Form,
-  Switch,
   Button
 } from 'antd'
 import message from '../common/message'
+import SwitchLabel from '../common/switch'
 import InputAutoFocus from '../common/input-auto-focus'
 import { formItemLayout } from '../../common/form-layout'
 import HelpIcon from '../common/help-icon'
@@ -90,7 +90,7 @@ export default function ProfileFormElem (props) {
         name='isDefault'
         valuePropName='checked'
       >
-        <Switch />
+        <SwitchLabel />
       </FormItem>
       <ProfileTabs {...tabsProps} />
       <FormItem>

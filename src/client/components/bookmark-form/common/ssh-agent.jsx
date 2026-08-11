@@ -1,5 +1,6 @@
 import React from 'react'
-import { Form, Input, Switch, Space } from 'antd'
+import { Form, Input, Space } from 'antd'
+import SwitchLabel from '../../common/switch'
 import HelpIcon from '../../common/help-icon'
 import { formItemLayout } from '../../../common/form-layout'
 
@@ -18,7 +19,7 @@ export default function SshAgent () {
           valuePropName='checked'
           noStyle
         >
-          <Switch />
+          <SwitchLabel />
         </FormItem>
         <FormItem
           name='sshAgent'

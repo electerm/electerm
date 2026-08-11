@@ -4,9 +4,9 @@ import {
   LoadingOutlined
 } from '@ant-design/icons'
 import message from '../common/message'
+import SwitchLabel from '../common/switch'
 import {
   Select,
-  Switch,
   Button,
   AutoComplete,
   Tooltip,
@@ -123,10 +123,9 @@ export default class SettingTerminal extends Component {
     const txt = label || e(name)
     return (
       <div className={cls} key={'rt' + name}>
-        <Switch
+        <SwitchLabel
           checked={checked}
-          checkedChildren={txt}
-          unCheckedChildren={txt}
+          label={txt}
           onChange={v => this.onChangeValue(v, name)}
         />
       </div>

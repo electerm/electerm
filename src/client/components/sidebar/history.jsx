@@ -4,8 +4,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { auto } from 'manate/react'
-import { Switch } from 'antd'
 import { UnorderedListOutlined } from '@ant-design/icons'
+import SwitchLabel from '../common/switch'
 import HistoryItem from './history-item'
 import { getItemJSON, setItemJSON } from '../../common/safe-local-storage.js'
 import '../setting-panel/list.styl'
@@ -45,17 +45,12 @@ export default auto(function HistoryPanel (props) {
     return (
       <div className='history-header pd2x pd2b'>
         <div className='history-sort'>
-          <Switch
+          <SwitchLabel
             checked={sortByFrequency}
             onChange={handleSortByFrequencyChange}
             size='small'
+            label={e('sortByFrequency')}
           />
-          <span
-            className='history-sort-label pointer'
-            onClick={() => handleSortByFrequencyChange(!sortByFrequency)}
-          >
-            {e('sortByFrequency')}
-          </span>
         </div>
         <UnorderedListOutlined
           {...clearIconProps}

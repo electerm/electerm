@@ -1,11 +1,11 @@
 import {
   Button,
-  Switch,
   Form,
   Select,
   Input
 } from 'antd'
 import message from '../common/message'
+import SwitchLabel from '../common/switch'
 import { useState } from 'react'
 import generate from '../../common/uid'
 import InputAutoFocus from '../common/input-auto-focus'
@@ -162,7 +162,7 @@ export default function QuickCommandForm (props) {
           name='inputOnly'
           valuePropName='checked'
         >
-          <Switch />
+          <SwitchLabel />
         </FormItem>
         <FormItem>
           <p>

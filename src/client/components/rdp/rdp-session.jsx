@@ -15,7 +15,6 @@ import {
 import {
   Spin,
   Select,
-  Switch,
   Tooltip
 } from 'antd'
 import * as ls from '../../common/safe-local-storage'
@@ -23,6 +22,7 @@ import scanCode from './code-scan'
 import resolutions from './resolutions'
 import { readClipboardAsync } from '../../common/clipboard'
 import RemoteFloatControl from '../common/remote-float-control'
+import SwitchLabel from '../common/switch'
 import HelpIcon from '../common/help-icon'
 import { FileTransferManager, createFileLogger } from './file-transfer'
 import { notification } from '../common/notification'
@@ -634,8 +634,7 @@ export default class RdpSession extends PureComponent {
     const scaleProps = {
       checked: this.state.scaleViewport,
       onChange: this.handleScaleViewChange,
-      unCheckedChildren: window.translate('scaleViewport'),
-      checkedChildren: window.translate('scaleViewport'),
+      label: window.translate('scaleViewport'),
       className: 'mg1l'
     }
     const uploadTitle = window.translate('upload') || 'Upload files to remote'
@@ -671,7 +670,7 @@ export default class RdpSession extends PureComponent {
             className='mg2r mg1l pointer'
           />
           {this.renderInfo()}
-          <Switch
+          <SwitchLabel
             {...scaleProps}
           />
           <Tooltip title={uploadTitle}>
