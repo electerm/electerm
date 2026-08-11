@@ -1,27 +1,19 @@
 import {
-  BookOutlined,
-  CloudSyncOutlined,
   InfoCircleOutlined,
-  PictureOutlined,
-  PlusCircleOutlined,
-  SettingOutlined,
   UpCircleOutlined,
-  AppstoreOutlined,
-  ThunderboltOutlined,
   AimOutlined,
   MenuFoldOutlined
 } from '@ant-design/icons'
-import { Tooltip, Popover } from 'antd'
+import { Tooltip } from 'antd'
 import SideBarPanel from './sidebar-panel'
-import TransferList from './transfer-list'
 import MenuBtn from '../sys-menu/menu-btn'
-import QuickConnect from '../tabs/quick-connect'
 import {
   settingMap,
   modals
 } from '../../common/constants'
 import SideIcon from './side-icon'
 import SidePanel from './side-panel'
+import LeftSidebarIcons from './left-sidebar-icons'
 import hasActiveInput from '../../common/has-active-input'
 import './sidebar.styl'
 
@@ -47,7 +39,8 @@ export default function Sidebar (props) {
     showInfoModal,
     sidebarPanelTab,
     openWidgetsModal,
-    zoom
+    zoom,
+    leftSideBarIcons
   } = props
 
   const { store } = window
@@ -146,67 +139,22 @@ export default function Sidebar (props) {
         <div className='control-icon-wrap'>
           <MenuBtn store={store} config={store.config} />
         </div>
-        <SideIcon
-          title={e('newBookmark')}
-        >
-          <PlusCircleOutlined
-            className='font22 iblock control-icon'
-            onClick={onNewSsh}
-          />
-        </SideIcon>
-        <Popover
-          content={<QuickConnect inputOnly />}
-          trigger='click'
-          placement='right'
-        >
-          <div className='control-icon-wrap' title={e('quickConnect')}>
-            <ThunderboltOutlined
-              className='font20 iblock control-icon'
-            />
-          </div>
-        </Popover>
-        <SideIcon
-          title={e(settingMap.bookmarks)}
-          active={bookmarksActive}
-        >
-          <BookOutlined
-            onClick={handleClickBookmark}
-            className='font20 iblock control-icon'
-          />
-        </SideIcon>
-        <TransferList {...transferProps} />
-        <SideIcon
-          title={e(settingMap.terminalThemes)}
-          active={themeActive}
-        >
-          <PictureOutlined
-            className='font20 iblock pointer control-icon'
-            onClick={openTerminalThemes}
-          />
-        </SideIcon>
-        <SideIcon
-          title={e(settingMap.setting)}
-          active={settingActive}
-        >
-          <SettingOutlined className='iblock font20 control-icon' onClick={openSetting} />
-        </SideIcon>
-        <SideIcon
-          title={e('settingSync')}
-          active={syncActive}
-        >
-          <CloudSyncOutlined
-            className='iblock font20 control-icon'
-            onClick={openSettingSync}
-            spin={isSyncingSetting}
-          />
-        </SideIcon>
-        <SideIcon
-          title={e('widgets')}
-          active={widgetsActive}
-        >
-          <AppstoreOutlined className='iblock font20 control-icon' onClick={openWidgetsModal} />
-        </SideIcon>
-
+        <LeftSidebarIcons
+          iconIds={leftSideBarIcons}
+          handleClickBookmark={handleClickBookmark}
+          onNewSsh={onNewSsh}
+          openSetting={openSetting}
+          openSettingSync={openSettingSync}
+          openTerminalThemes={openTerminalThemes}
+          openWidgetsModal={openWidgetsModal}
+          bookmarksActive={bookmarksActive}
+          themeActive={themeActive}
+          settingActive={settingActive}
+          syncActive={syncActive}
+          widgetsActive={widgetsActive}
+          isSyncingSetting={isSyncingSetting}
+          transferProps={transferProps}
+        />
         <SideIcon
           title={e('about')}
           active={showInfoModal}

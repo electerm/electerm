@@ -34,6 +34,7 @@ import delay from '../../common/wait.js'
 import isColorDark from '../../common/is-color-dark'
 import DeepLinkControl from './deep-link-control'
 import HotkeySetting from './hotkey'
+import SettingLeftSidebarIcons from './setting-left-sidebar-icons'
 import './setting.styl'
 
 const { Option } = Select
@@ -471,6 +472,10 @@ export default class SettingCommon extends Component {
     return (
       <div className='form-wrap pd1y pd2x'>
         <h2>{e('settings')}</h2>
+        <SettingLeftSidebarIcons
+          config={props.config}
+          store={props.store}
+        />
         <HotkeySetting
           {...hotkeyProps}
         />

@@ -182,7 +182,8 @@ export default auto(function Index (props) {
     fileTransfers: copiedTransfer,
     transferHistory: copiedHistory,
     upgradeInfo,
-    pinned
+    pinned,
+    leftSideBarIcons: config.leftSideBarIcons
   }
 
   const infoModalProps = {

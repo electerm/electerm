@@ -79,5 +79,15 @@ export default {
   allowMultiInstance: false,
   disableDeveloperTool: false,
   dragDropBehavior: 'ask',
-  switchTabOnHover: false
+  switchTabOnHover: false,
+  leftSideBarIcons: [
+    'newBookmark',
+    'quickConnect',
+    'bookmarks',
+    'transferList',
+    'terminalThemes',
+    'setting',
+    'settingSync',
+    'widgets'
+  ]
 }
