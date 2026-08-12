@@ -3,6 +3,7 @@
 // we persist cache to local storage, so we can keep cache after restart
 
 import { safeGetItem, safeSetItem } from './safe-local-storage.js'
+import safeParse from './parse-json-safe.js'
 
 class MapCache {
   constructor (limit, key) {
@@ -15,7 +16,7 @@ class MapCache {
   load () {
     const data = safeGetItem(this.key)
     if (data) {
-      const arr = JSON.parse(data)
+      const arr = safeParse(data, [])
       for (const item of arr) {
         this.cache.set(item.key, item.value)
       }
