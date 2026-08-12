@@ -71,7 +71,8 @@ import {
 } from './xterm-loader.js'
 import {
   createRendererThemeConfig,
-  handleTerminalColorQuery
+  handleTerminalColorQuery,
+  blendSelectionOverBackground
 } from './terminal-color-query.mjs'
 
 const e = window.translate
@@ -1456,6 +1457,7 @@ class Term extends Component {
       return
     }
     term.options.theme = this.getRendererThemeConfig(this.props.themeConfig)
+    this.fixSelectionColors(term)
     term.refresh(0, term.rows - 1)
     if (deferred && this.props.config.rendererType === rendererTypes.webGL) {
       window.cancelAnimationFrame(this.timers.themeRaf)
@@ -1464,9 +1466,44 @@ class Term extends Component {
           return
         }
         this.term.options.theme = this.getRendererThemeConfig(this.props.themeConfig)
+        this.fixSelectionColors(this.term)
         this.term.refresh(0, this.term.rows - 1)
       })
     }
+  }
+
+  /**
+   * xterm computes its DOM selection colour as blend(theme.background,
+   * selectionBackground). The DOM renderer keeps the terminal background
+   * transparent (rgba(0,0,0,0)) so electerm's own CSS background / image
+   * shows through, which makes a light selection blend over transparent-black
+   * and render as dark gray. Recompute the selection over the real visible
+   * background so terminal:selectionBackground=rgba(...) is applied as the
+   * configured semi-transparent colour.
+   */
+  fixSelectionColors = (term) => {
+    const themeService = term?._core?._themeService
+    if (!themeService?.modifyColors) {
+      return
+    }
+    const visibleBackground = this.getVisibleTerminalBackground()
+    const colors = themeService.colors
+    themeService.modifyColors((c) => {
+      const active = blendSelectionOverBackground(
+        visibleBackground,
+        colors.selectionBackgroundTransparent
+      )
+      if (active) {
+        c.selectionBackgroundOpaque = active
+      }
+      const inactive = blendSelectionOverBackground(
+        visibleBackground,
+        colors.selectionInactiveBackgroundTransparent
+      )
+      if (inactive) {
+        c.selectionInactiveBackgroundOpaque = inactive
+      }
+    })
   }
 
   initTerminal = async () => {
@@ -1492,6 +1529,7 @@ class Term extends Component {
     term.open(this.domRef.current, true)
     this.registerTerminalColorQueryHandlers(term, themeConfig)
     await this.loadRenderer(term, config)
+    this.fixSelectionColors(term)
     // Re-apply the theme after the renderer is loaded. The Terminal was
     // constructed before UiTheme's useEffect ran, so the initial theme
     // may have a stale background. Pass `term` directly because this.term

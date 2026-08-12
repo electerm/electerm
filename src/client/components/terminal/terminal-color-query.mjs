@@ -104,6 +104,53 @@ export function colorToOscRgb (color) {
   return `rgb:${rgb.map(toHexByte).join('/')}`
 }
 
+/**
+ * Blend a (possibly translucent) selection color over an opaque background,
+ * producing the colour in xterm's internal format ({ css, rgba } where
+ * rgba = r<<24 | g<<16 | b<<8 | a).
+ *
+ * xterm derives its DOM selection colour as blend(theme.background,
+ * selectionBackground). When the terminal background is forced transparent
+ * (DOM renderer keeps the real background behind via CSS), that blend runs
+ * over transparent-black and a light selection turns into dark gray. This
+ * helper recomputes it over the real visible background instead.
+ *
+ * `selectionColor` is an xterm color object ({ css, rgba }) e.g.
+ * colors.selectionBackgroundTransparent; `visibleBackground` is an opaque
+ * colour string.
+ */
+export function blendSelectionOverBackground (visibleBackground, selectionColor) {
+  const bgRgb = parseColorToRgb(visibleBackground)
+  const sel = selectionColor?.rgba
+  if (!bgRgb || typeof sel !== 'number') {
+    return null
+  }
+  const [br, bg, bb] = bgRgb
+  const a = (sel & 255) / 255
+  if (a <= 0) {
+    return null
+  }
+  const toCss = (r, g, b, alpha) =>
+    `#${[r, g, b, alpha].map(toHexByte).join('')}`
+  const sr = sel >> 24 & 255
+  const sg = sel >> 16 & 255
+  const sb = sel >> 8 & 255
+  if (a >= 1) {
+    return {
+      css: toCss(sr, sg, sb, 255),
+      rgba: ((sel & 0xffffff) | 0xff000000) >>> 0
+    }
+  }
+  const r = br + Math.round((sr - br) * a)
+  const g = bg + Math.round((sg - bg) * a)
+  const b = bb + Math.round((sb - bb) * a)
+  const alpha = Math.round(a * 255)
+  return {
+    css: toCss(r, g, b, alpha),
+    rgba: (r << 24 | g << 16 | b << 8 | alpha) >>> 0
+  }
+}
+
 export function buildOscColorResponse (identifier, color, fallbackColor) {
   const oscColor = colorToOscRgb(color) || colorToOscRgb(fallbackColor)
   return oscColor
