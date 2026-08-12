@@ -38,7 +38,7 @@ describe('quick commands execution', function () {
 
     // Open quick command box by hovering the trigger
     log('open quick command box')
-    await client.hover('.quick-command-trigger-wrap .ant-btn')
+    await client.click('.quick-command-trigger-wrap .ant-btn')
     await delay(1000)
 
     // Verify quick command box is visible
