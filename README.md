@@ -34,11 +34,19 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS
 
 <div align="center">
   <a href="https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/atlas-cloud.png?raw=true" alt="Atlas Cloud" width="200" />
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/atlas-cloud.png?raw=true" alt="Atlas Cloud" height="200" />
   </a>
 </div>
 
 [Atlas Cloud](https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm) provides OpenAI-compatible AI APIs and model access for AI-powered workflows in electerm.
+
+<div align="center">
+  <a href="https://www.apismart.ai">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apismart400x400.png?raw=true" alt="ApiSmart" width="200" />
+  </a>
+</div>
+
+[ApiSmart](https://www.apismart.ai) provides unified access to leading AI models through a single API. Use one API key to connect with LLM, image, and video models through an OpenAI-compatible interface, without managing multiple providers separately. Switch models easily, simplify billing, and improve reliability with intelligent routing and automatic failover. Build and scale AI applications faster with one streamlined API platform.
 
 [![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
 

@@ -41,6 +41,14 @@
 
 [Atlas Cloud](https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm) 提供与 OpenAI 兼容的 AI API 和模型访问，用于在 electerm 中实现 AI 驱动的工作流程。
 
+<div align="center">
+  <a href="https://www.apismart.ai">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apismart400x400.png?raw=true" alt="ApiSmart" width="200" />
+  </a>
+</div>
+
+[ApiSmart](https://www.apismart.ai) 提供统一访问领先 AI 模型的途径 through a single API. 使用一个 API key 连接 LLM、image 和 video 模型，通过 OpenAI 兼容接口，无需管理多个提供方。切换模型轻松，简化计费，提高可靠性与智能路由和自动故障转移。构建和扩展 AI 应用程序更快。
+
 [![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
 
 [![Vercel OSS Program](https://github.com/electerm/electerm-resource/blob/master/static/images/vercel-oss-2005.png?raw=true)](https://oss-directory.vercel.app)

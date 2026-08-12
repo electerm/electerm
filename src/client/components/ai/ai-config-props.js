@@ -20,6 +20,14 @@ export const defaultAIPresets = [
     authHeaderNameAI: 'Authorization: Bearer'
   },
   {
+    id: 'ApiSmart',
+    nameAI: 'ApiSmart',
+    baseURLAI: 'https://api.apismart.ai/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'DEEPSEEK_V4_FLASH',
+    authHeaderNameAI: 'Authorization: Bearer'
+  },
+  {
     id: 'deepseek',
     nameAI: 'DeepSeek',
     baseURLAI: 'https://api.deepseek.com/v1',
