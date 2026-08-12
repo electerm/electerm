@@ -62,4 +62,25 @@ describe('terminal OSC color query helpers', () => {
       }
     )
   })
+
+  test('blends a translucent selection over the real visible background', async () => {
+    const { blendSelectionOverBackground } = await import('../../src/client/components/terminal/terminal-color-query.mjs')
+    const color = (r, g, b, a) => ({ css: '', rgba: (r << 24 | g << 16 | b << 8 | a) >>> 0 })
+
+    // white rgba(255,255,255,0.3) over #20111b -> light semi-transparent highlight
+    assert.equal(
+      blendSelectionOverBackground('#20111b', color(255, 255, 255, 76))?.css,
+      '#62585f4c'
+    )
+
+    // an opaque selection stays opaque
+    assert.equal(
+      blendSelectionOverBackground('#20111b', color(0x57, 0x52, 0x56, 255))?.css,
+      '#575256ff'
+    )
+
+    // invalid background / fully transparent selection yield null
+    assert.equal(blendSelectionOverBackground('nope', color(255, 255, 255, 76)), null)
+    assert.equal(blendSelectionOverBackground('#20111b', color(255, 255, 255, 0)), null)
+  })
 })
