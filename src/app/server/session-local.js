@@ -50,7 +50,14 @@ class TerminalLocal extends TerminalBase {
       cols: cols || 80,
       rows: rows || 24,
       cwd,
-      env
+      env,
+      // Use the OpenConsole conpty.dll shipped with node-pty instead of the
+      // legacy Windows Console Host (kernel32 CreatePseudoConsole) conpty.
+      // The legacy console-host conpty can stall output and deliver Ctrl+C to
+      // the whole process group (killing the shell too) after a full-screen
+      // TUI like opencode exits, leaving the terminal tab unresponsive.
+      // The OpenConsole conpty.dll does not have this problem.
+      useConptyDll: true
     })
     this.term.termType = termType
     globalState.setSession(this.pid, this)
