@@ -34,16 +34,14 @@
     background transparent
   .xterm-viewport
     background-color transparent !important
-  // xterm's DOM renderer paints the background of *selected* cells directly on
-  // the text <span> as an opaque 6-digit hex (dropping the alpha channel),
-  // while empty cells use the translucent .xterm-selection overlay. To keep the
-  // selection highlight uniformly semi-transparent over text too, neutralise
-  // that opaque inline background when a selection overlay is present so the
-  // overlay renders the highlight consistently.
-  .xterm:has(.xterm-selection div)
-    .xterm-rows
-      span[style*='background-color']
-        background-color transparent !important
+  // xterm's DOM renderer paints the background of selected text cells directly
+  // on the <span> as an opaque 6-digit hex (dropping alpha), while empty cells
+  // use the translucent .xterm-selection overlay behind the rows. xterm marks
+  // those spans with .xterm-decoration-top ("rendered above the selection"),
+  // so neutralise that inline background to let the corrected selection overlay
+  // show through uniformly across both empty and text cells.
+  .xterm-decoration-top
+    background-color transparent !important
   .xterm-screen::before
     content ''
     position absolute
