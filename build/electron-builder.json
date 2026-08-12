@@ -9,6 +9,9 @@
     "en-US"
   ],
   "asar": true,
+  "asarUnpack": [
+    "node_modules/node-pty/build/Release/**"
+  ],
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
     "target": [
