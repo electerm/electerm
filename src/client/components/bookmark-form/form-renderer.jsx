@@ -315,17 +315,23 @@ export default function FormRenderer ({ config, props }) {
   return (
     <Form
       form={form}
+      layout='vertical'
       onFinish={handleFinish}
       initialValues={initialValues}
       name={formName}
+      className='bookmark-form-detail'
     >
-      {content}
-      <SubmitButtons
-        onSave={save}
-        onSaveAndCreateNew={saveAndCreateNew}
-        onConnect={connect}
-        onTestConnection={testConnection}
-      />
+      <div className='bookmark-form-scroll'>
+        {content}
+      </div>
+      <div className='bookmark-form-foot'>
+        <SubmitButtons
+          onSave={save}
+          onSaveAndCreateNew={saveAndCreateNew}
+          onConnect={connect}
+          onTestConnection={testConnection}
+        />
+      </div>
     </Form>
   )
 }

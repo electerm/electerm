@@ -5,6 +5,14 @@
 import { auto } from 'manate/react'
 import { pick } from 'lodash-es'
 import { Tabs, Spin } from 'antd'
+import {
+  AppstoreOutlined,
+  BookOutlined,
+  CodeOutlined,
+  PictureOutlined,
+  SettingOutlined,
+  UserOutlined
+} from '@ant-design/icons'
 import { lazy, Suspense } from 'react'
 import SettingModal from './setting-wrap'
 import {
@@ -74,35 +82,44 @@ export default auto(function SettingModalWrap (props) {
         'initLoadingData'
       ])
     }
+    // Icons match the left sidebar rail where an equivalent exists
+    // (bookmarks/setting/terminalThemes/widgets). Quick commands and Profiles
+    // have no rail icon, so they take the repo's usual icon for that concept.
     const items = [
       {
         key: settingMap.bookmarks,
         label: e(settingMap.bookmarks),
+        icon: <BookOutlined />,
         children: null
       },
       {
         key: settingMap.setting,
         label: e(settingMap.setting),
+        icon: <SettingOutlined />,
         children: null
       },
       {
         key: settingMap.terminalThemes,
         label: e('uiThemes'),
+        icon: <PictureOutlined />,
         children: null
       },
       {
         key: settingMap.quickCommands,
         label: e(settingMap.quickCommands),
+        icon: <CodeOutlined />,
         children: null
       },
       {
         key: settingMap.profiles,
         label: e(settingMap.profiles),
+        icon: <UserOutlined />,
         children: null
       },
       {
         key: settingMap.widgets,
         label: <>{e(settingMap.widgets)} <sup>Beta</sup></>,
+        icon: <AppstoreOutlined />,
         children: null
       }
     ]

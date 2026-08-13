@@ -268,7 +268,11 @@ class Store {
         colorWarning: themeConf.warn,
         colorTextBase: themeConf.text,
         colorLink: themeConf['text-light'],
-        motion: false
+        fontSize: 13,
+        controlHeight: 34,
+        motionDurationFast: '0.1s',
+        motionDurationMid: '0.14s',
+        motionDurationSlow: '0.2s'
       },
       algorithm: isColorDark(themeConf.main) ? theme.darkAlgorithm : theme.defaultAlgorithm
     }

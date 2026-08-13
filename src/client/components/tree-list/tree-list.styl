@@ -16,19 +16,32 @@
   overflow hidden
   white-space nowrap
   text-overflow ellipsis
+  // Folder headers read as quieter, smaller labels than the bookmarks they
+  // contain, so the hierarchy is legible without indentation alone.
   &.is-category
     .tree-item-title
-      font-weight bold
-      font-size 14px
+      font-weight 600
+      font-size 12px
+      letter-spacing .02em
+      color var(--text-dark)
 
   &.search-selected
     outline 1px dashed var(--primary)
+  // Hover is a faint wash; selection is a soft tint plus a 2px accent edge,
+  // instead of the previous full-bleed solid bar.
+  &:hover
+    background rgba(255, 255, 255, .055)
+    color var(--text-light)
+    cursor pointer
   &.selected
   &.item-dragover
-  &:hover
-    background #000
-    color #eee
+    background unquote('color-mix(in srgb, var(--primary) 14%, transparent)')
+    box-shadow inset 2px 0 0 var(--primary)
+    color var(--text-light)
     cursor pointer
+  &.selected.is-category
+    .tree-item-title
+      color var(--text-light)
   &.item-dragover-top
     border 2px solid var(--primary)
 .tree-item-title

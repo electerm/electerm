@@ -1,3 +1,119 @@
+// Detail pane: the field list scrolls, the action buttons stay pinned to the
+// bottom. Previously Save sat at the end of a ~1300px scroll.
+// The detail column has to be an unbroken flex chain from the scroll host down
+// to the form, or the footer has no fixed bottom to pin against. Scoped with
+// :has() so the other setting tabs keep scrolling exactly as before.
+.setting-col-content:has(.bookmark-form-detail)
+  display flex
+  flex-direction column
+  overflow hidden
+  .form-wrap
+    flex 1
+    min-height 0
+    display flex
+    flex-direction column
+
+.bookmark-form-detail
+  display flex
+  flex-direction column
+  min-height 0
+  flex 1
+
+.bookmark-form-scroll
+  position relative
+  flex 1
+  min-height 0
+  overflow-y auto
+  overflow-x hidden
+  // Line length cap: beyond this, scanning a label/value pair gets harder.
+  max-width 760px
+
+  // When the form is tabbed, the tab bar stays put and only the field list
+  // under it scrolls -- so you can switch tab without scrolling back up.
+  &:has(> .ant-tabs)
+    display flex
+    flex-direction column
+    overflow hidden
+    > .ant-tabs
+      flex 1
+      min-height 0
+      display flex
+      flex-direction column
+      > .ant-tabs-nav
+        flex-shrink 0
+        margin-bottom 8px
+      // antd 6 names this body-holder; antd 5 called it content-holder.
+      > .ant-tabs-body-holder
+      > .ant-tabs-content-holder
+        flex 1
+        min-height 0
+        overflow-y auto
+        padding-bottom 18px
+        // The panel hides scrollbars globally, which is exactly why there was
+        // no sign that more fields existed below. Put one back, here only.
+        &::-webkit-scrollbar
+          width 8px
+        &::-webkit-scrollbar-thumb
+          background var(--main-light)
+          border-radius 4px
+        &::-webkit-scrollbar-track
+          background transparent
+
+
+.bookmark-form-foot
+  flex-shrink 0
+  max-width 760px
+  padding-top 12px
+  border-top 1px solid var(--main-light)
+
+// All five actions on one line: save cluster left, connect cluster right.
+.bookmark-form-actions
+  margin-bottom 0
+  .bookmark-form-actions-row
+    display flex
+    align-items center
+    gap 8px
+    flex-wrap wrap
+  // Pushes this button and everything after it to the right edge.
+  .bookmark-form-actions-gap
+    margin-left auto
+
+// A paired row carries ONE label across its full width; the children inside
+// drop their own labels so the controls share a single line beneath it.
+.bookmark-form-row
+  margin-bottom 24px
+  .bookmark-form-row-label
+    padding-bottom 8px
+    color var(--text)
+  .ant-form-item-label
+    display none
+  .ant-form-item
+    margin-bottom 0
+
+// Section heading: a label plus a hairline. No collapsing, no persisted state.
+.bookmark-form-section
+  margin 26px 0 14px
+  padding-bottom 6px
+  border-bottom 1px solid var(--main-light)
+  color var(--text-dark)
+  font-size 12px
+  font-weight 600
+  letter-spacing .05em
+  text-transform uppercase
+  &:first-child
+    margin-top 0
+
+// Below this width the whole settings pane scrolls as one column, so the
+// inner scroller and the fixed height have to stand down.
+@media (max-width: 1100px)
+  .bookmark-form-detail
+    height auto
+  .bookmark-form-scroll
+    overflow visible
+    max-width none
+  .bookmark-form-foot
+    max-width none
+
 .mg24b
   margin-bottom 24px
 .mg60b

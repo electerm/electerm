@@ -27,14 +27,19 @@
   margin-bottom 1px
   cursor pointer
   line-height 1.8
+  // Selected rows read as a soft tint plus an accent edge instead of a
+  // full-bleed saturated bar. color-mix keeps this correct for every theme
+  // rather than hardcoding one tint.
+  // unquote() because stylus parses the `in` of color-mix as a unary operator.
   &.active
-    background var(--primary)
-    color var(--primary-contrast)
+    background unquote('color-mix(in srgb, var(--primary) 14%, transparent)')
+    box-shadow inset 2px 0 0 var(--primary)
+    color var(--text-light)
   &.current
     font-weight bold
   &:hover
-    background var(--primary)
-    color var(--primary-contrast)
+    background unquote('color-mix(in srgb, var(--primary) 22%, transparent)')
+    color var(--text-light)
     .list-item-apply
     .list-item-edit
     .list-item-remove

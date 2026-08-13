@@ -4,6 +4,7 @@
  */
 import React from 'react'
 import { Button, Form } from 'antd'
+import { CaretRightOutlined } from '@ant-design/icons'
 import { tailFormItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
@@ -17,26 +18,36 @@ export default function SubmitButtons ({
   onSaveAndConnect
 }) {
   return (
-    <FormItem {...tailFormItemLayout}>
-      <p>
-        <Button type='primary' htmlType='submit' className='mg1r mg1b'>
+    <FormItem {...tailFormItemLayout} className='bookmark-form-actions'>
+      <div className='bookmark-form-actions-row'>
+        {/* Save cluster, left. Only one filled button: submitting the form is
+            the action you want almost every time. */}
+        <Button type='primary' htmlType='submit'>
           {e('saveAndConnect')}
         </Button>
-        <Button type='primary' className='mg1r mg1b' onClick={onSaveAndCreateNew}>
+        <Button onClick={onSaveAndCreateNew}>
           {e('saveAndCreateNew')}
         </Button>
-        <Button type='dashed' className='mg1r mg1b' onClick={onSave}>
+        <Button onClick={onSave}>
           {e('save')}
         </Button>
-      </p>
-      <p>
-        <Button type='dashed' onClick={onConnect} className='mg1r mg1b'>
-          {e('connect')}
-        </Button>
-        <Button type='dashed' onClick={onTestConnection} className='mg1r mg1b'>
+        {/* Connect cluster, pushed right. Test connection is a diagnostic, so
+            it carries the least weight of anything here. */}
+        <Button
+          type='text'
+          className='bookmark-form-actions-gap'
+          onClick={onTestConnection}
+        >
           {e('testConnection')}
         </Button>
-      </p>
+        <Button
+          type='primary'
+          icon={<CaretRightOutlined />}
+          onClick={onConnect}
+        >
+          {e('connect')}
+        </Button>
+      </div>
     </FormItem>
   )
 }

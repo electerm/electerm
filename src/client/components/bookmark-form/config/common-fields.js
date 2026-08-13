@@ -297,27 +297,45 @@ export const basicAuthFields = [
   commonFields.type
 ]
 
+// Grouped into four sections. No field is added, removed or renamed here --
+// the list is only reordered so related fields sit together under a heading.
 export const sshAuthFields = [
+  { type: 'section', name: '__sec_identity__', label: () => e('identity') },
   commonFields.category,
   commonFields.title,
-  { ...commonFields.host, type: 'sshHostSelector' },
+  // host and port share a line: port is 5 characters wide and does not
+  // deserve a row of its own.
+  {
+    type: 'row',
+    name: '__row_host_port__',
+    label: () => e('host'),
+    children: [
+      { ...commonFields.host, type: 'sshHostSelector', span: 18 },
+      { ...commonFields.port, span: 6 }
+    ]
+  },
   commonFields.username,
+
+  { type: 'section', name: '__sec_auth__', label: () => e('auth') },
   { type: 'sshAuthTypeSelector', name: 'authType', label: '' },
   { type: 'sshAuthSelector', name: '__auth__', label: '', formItemName: 'password' },
-  commonFields.port,
   {
     type: 'sshAgent',
     name: 'useSshAgent'
   },
   { type: 'switch', name: 'isMFA', label: () => e('MFA/OTP'), valuePropName: 'checked' },
+  commonFields.interactiveValues,
+
+  { type: 'section', name: '__sec_onconnect__', label: () => e('onConnect') },
   commonFields.runScripts,
-  commonFields.description,
-  commonFields.setEnv,
   commonFields.startDirectoryLocal,
   commonFields.startDirectory,
-  commonFields.interactiveValues,
+
+  { type: 'section', name: '__sec_env__', label: () => e('environment') },
+  commonFields.setEnv,
   commonFields.envLang,
   commonFields.encode,
+  commonFields.description,
   commonFields.type
 ]
 

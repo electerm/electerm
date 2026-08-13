@@ -594,23 +594,42 @@ export default class SettingCommon extends Component {
           this.renderText('keyword2FA')
         }
         {
+          // Same fourteen toggles, same order within each group -- only
+          // grouped under headings so the wall of switches is scannable.
           [
-            'autoRefreshWhenSwitchToSftp',
-            'showHiddenFilesOnSftpStart',
-            'screenReaderMode',
-            'initDefaultTabOnStart',
-            'disableConnectionHistory',
-            'disableTransferHistory',
-            'checkUpdateOnStart',
-            'useSystemTitleBar',
-            'confirmBeforeExit',
-            'hideIP',
-            'allowMultiInstance',
-            'disableDeveloperTool',
-            'switchTabOnHover',
-            'disableShortcutBar',
-            'debug'
-          ].map(this.renderToggle)
+            {
+              title: e('start'),
+              keys: ['initDefaultTabOnStart', 'checkUpdateOnStart']
+            },
+            {
+              title: 'SFTP',
+              keys: ['autoRefreshWhenSwitchToSftp', 'showHiddenFilesOnSftpStart']
+            },
+            {
+              title: e('privacy'),
+              keys: ['disableConnectionHistory', 'disableTransferHistory', 'hideIP']
+            },
+            {
+              title: e('window'),
+              keys: [
+                'useSystemTitleBar',
+                'confirmBeforeExit',
+                'allowMultiInstance',
+                'switchTabOnHover',
+                'disableShortcutBar',
+                'screenReaderMode'
+              ]
+            },
+            {
+              title: e('development'),
+              keys: ['disableDeveloperTool', 'debug']
+            }
+          ].map(group => (
+            <div key={group.title}>
+              <div className='setting-section'>{group.title}</div>
+              {group.keys.map(this.renderToggle)}
+            </div>
+          ))
         }
         {
           window.et.isWebApp ? null : <DeepLinkControl />

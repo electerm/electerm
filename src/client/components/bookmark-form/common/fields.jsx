@@ -3,7 +3,7 @@
  * Maps field types to React components
  */
 import React from 'react'
-import { Form, Input, InputNumber, Select, AutoComplete, Alert, Radio } from 'antd'
+import { Form, Input, InputNumber, Select, AutoComplete, Alert, Radio, Row, Col } from 'antd'
 import { ColorPickerItem } from './color-picker-item.jsx'
 import Password from '../../common/password.jsx'
 import SwitchLabel from '../../common/switch.jsx'
@@ -117,6 +117,42 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
 
   // Render complex/custom components directly (no extra wrapper component)
   switch (type) {
+    // Puts short fields side by side instead of each on its own line.
+    // Purely presentational: every child is the same field it was before.
+    case 'row':
+      return (
+        <div className='bookmark-form-row' key={name}>
+          {
+            label
+              ? (
+                <div className='bookmark-form-row-label'>
+                  {typeof label === 'function' ? label() : label}
+                </div>
+                )
+              : null
+          }
+          {/* align='bottom' so the controls line up even when one child
+              carries an extra caption line above its input. */}
+          <Row gutter={12} align='bottom'>
+            {
+              (item.children || []).map((child, i) => (
+                <Col key={child.name || i} span={child.span || 12}>
+                  {renderFormItem(child, formItemLayout, form, ctxProps, i)}
+                </Col>
+              ))
+            }
+          </Row>
+        </div>
+      )
+    // A section is only a heading plus a hairline rule: it groups the fields
+    // that follow it without collapsing, persisting state or changing any
+    // field itself.
+    case 'section':
+      return (
+        <div className='bookmark-form-section' key={name}>
+          {typeof label === 'function' ? label() : label}
+        </div>
+      )
     case 'wiki':
       return (
         <Alert
