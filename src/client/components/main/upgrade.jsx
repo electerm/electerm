@@ -361,7 +361,7 @@ export default class Upgrade extends PureComponent {
       <div className={cls}>
         <div className='upgrade-panel-title fix'>
           <span className='fleft'>
-            {e('newVersion')} <b>{remoteVersion} [{releaseInfo.date}]</b>
+            {e('newVersion')} <b>{remoteVersion}{releaseInfo?.date ? ` [${releaseInfo.date}]` : ''}</b>
           </span>
           <span className='fright'>
             <MinusSquareOutlined className='pointer font16 close-upgrade-panel' onClick={this.handleMinimize} />
