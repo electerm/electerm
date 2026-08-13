@@ -20,7 +20,6 @@
 <p align="center">
   <a href="https://electerm.org">主页 / 下载</a> ·
   <a href="https://theme.electerm.org">主题</a> ·
-  <a href="https://github.com/electerm/electerm-web">Web 版</a> ·
   <a href="https://github.com/electerm/electerm-web-docker">Docker</a> ·
   <a href="https://demo.electerm.org">在线演示</a> ·
   <a href="https://github.com/electerm/electerm-android">Android</a> ·

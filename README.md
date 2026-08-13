@@ -19,7 +19,6 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS
 <p align="center">
   <a href="https://electerm.org">Homepage / Downloads</a> ·
   <a href="https://theme.electerm.org">Theme</a> ·
-  <a href="https://github.com/electerm/electerm-web">Web app</a> ·
   <a href="https://github.com/electerm/electerm-web-docker">Docker</a> ·
   <a href="https://demo.electerm.org">Online demo</a> ·
   <a href="https://github.com/electerm/electerm-android">Android</a> ·
