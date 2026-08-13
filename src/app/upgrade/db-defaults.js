@@ -72,7 +72,7 @@ const defaultThemeTerminal = {
   background: '#141314',
   cursor: '#b5bd68',
   cursorAccent: '#1d1f21',
-  selectionBackground: 'rgba(255, 255, 255, 0.3)',
+  selectionBackground: 'rgba(200, 200, 200, 0.6)',
   black: '#575757',
   red: '#FF2C6D',
   green: '#19f9d8',
