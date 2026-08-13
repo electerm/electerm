@@ -101,7 +101,6 @@ export default class BookmarkIndex2 extends PureComponent {
       <Radio.Group
         buttonStyle='solid'
         size='small'
-        className='mg1l'
         value={bookmarkType}
         disabled={!isNew}
         onChange={this.handleChange}
@@ -130,7 +129,9 @@ export default class BookmarkIndex2 extends PureComponent {
     return (
       <Button
         size='small'
-        className='mg2l create-ai-btn'
+        variant='text'
+        color='default'
+        className='create-ai-btn'
         icon={<RobotOutlined />}
         onClick={this.handleToggleAIMode}
       >
@@ -172,14 +173,19 @@ export default class BookmarkIndex2 extends PureComponent {
     const keys = Object.keys(sessionConfig)
     return (
       <div className='form-wrap pd1x'>
-        <div className='form-title pd1t pd1x pd2b bold'>
+        {/* Two rows: what you are editing on top, how to connect underneath.
+            Nine protocol buttons and a title competing on one line left none
+            of them room to read. */}
+        <div className='form-title pd1t pd1x bold'>
           <BookOutlined className='mg1r' />
           <span>
             {((!isNew ? e('edit') : e('new')) + ' ' + e(settingMap.bookmarks))}
           </span>
           {this.renderTitle(formData, isNew)}
-          {this.renderTypes(bookmarkType, isNew, keys)}
           {this.renderAIButton(isNew)}
+        </div>
+        <div className='form-types pd1x pd2b'>
+          {this.renderTypes(bookmarkType, isNew, keys)}
         </div>
         {this.renderForm()}
       </div>

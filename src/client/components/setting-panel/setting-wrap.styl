@@ -15,9 +15,15 @@
 .batch-op-wrap .close-setting-wrap
   top 40px
   right 30px
+// The tab strip ends at 97px. Ant gives its nav a 16px bottom margin which is
+// dead space here, so it is removed and both columns start just under the
+// strip -- and at the SAME y, which they previously did not (127 vs 129).
+.setting-tabs > .ant-tabs-nav
+  margin-bottom 0
+
 .setting-row
   position absolute
-  top 127px
+  top 105px
   overflow-y scroll
 .setting-row-left
   left 0
@@ -39,7 +45,7 @@
   left 340px
   right 0
   bottom 0
-  top 129px
+  top 105px
   padding 20px
   display flex
   flex-direction column
@@ -71,6 +77,11 @@
   ::-webkit-scrollbar
     width 0
 @media (max-width: 1100px)
+  // The six tab icons add ~130px to the nav strip, which is exactly enough to
+  // push the last tabs off screen on a narrow window. The label is the
+  // function; the icon is decoration, so the icon is what gives way.
+  .setting-tabs .ant-tabs-tab-icon
+    display none
   .setting-col
     position fixed
     top 128px

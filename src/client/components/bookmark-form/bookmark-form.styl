@@ -78,6 +78,32 @@
   .bookmark-form-actions-gap
     margin-left auto
 
+// Header row one: title, with the AI alternative sitting quietly next to it.
+// Ghost styling keeps it available without competing with the selected type.
+.form-title
+  display flex
+  align-items center
+  min-width 0
+  // The edited bookmark's name is unbounded user input on a nowrap row, so it
+  // has to be the thing that gives way rather than pushing the row off screen.
+  > b
+    min-width 0
+    overflow hidden
+    white-space nowrap
+    text-overflow ellipsis
+
+.create-ai-btn
+  margin-left 14px
+  font-weight normal
+
+// Header row two: the protocol selector, on its own line so nine buttons are
+// not fighting the title for horizontal room, and with air above it so the
+// two rows read as separate decisions.
+.form-types
+  display flex
+  flex-wrap wrap
+  margin-top 14px
+
 // A paired row carries ONE label across its full width; the children inside
 // drop their own labels so the controls share a single line beneath it.
 .bookmark-form-row
@@ -85,7 +111,9 @@
   .bookmark-form-row-label
     padding-bottom 8px
     color var(--text)
-  .ant-form-item-label
+  // Only children flagged hideLabel drop their label; the rest keep theirs so
+  // a required field keeps its asterisk.
+  .hide-own-label .ant-form-item-label
     display none
   .ant-form-item
     margin-bottom 0
@@ -106,13 +134,34 @@
 // Below this width the whole settings pane scrolls as one column, so the
 // inner scroller and the fixed height have to stand down.
 @media (max-width: 1100px)
+  // The :has() flex chain further up outranks the plain .setting-col-content
+  // rule in setting-wrap.styl, so a media query alone does not undo it. Left
+  // standing it keeps overflow:hidden on a 1890px-tall box, which clips the
+  // pane AND gives the sticky footer a non-scrolling container to stick in.
+  .setting-col-content:has(.bookmark-form-detail)
+    display block
+    overflow visible
+    .form-wrap
+      display block
+      flex none
+      min-height auto
+
   .bookmark-form-detail
+    display block
     height auto
   .bookmark-form-scroll
     overflow visible
     max-width none
+  // The pane scrolls as one column here, so the flex footer cannot pin. Sticky
+  // keeps Save reachable without fighting the stacked layout; it needs an
+  // opaque background or the fields scroll through it.
   .bookmark-form-foot
     max-width none
+    position sticky
+    bottom 0
+    z-index 3
+    background var(--main)
+    padding-bottom 8px
 
 .mg24b
   margin-bottom 24px

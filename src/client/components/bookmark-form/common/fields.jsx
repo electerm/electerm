@@ -136,7 +136,11 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
           <Row gutter={12} align='bottom'>
             {
               (item.children || []).map((child, i) => (
-                <Col key={child.name || i} span={child.span || 12}>
+                <Col
+                  key={child.name || i}
+                  span={child.span || 12}
+                  className={child.hideLabel ? 'hide-own-label' : undefined}
+                >
                   {renderFormItem(child, formItemLayout, form, ctxProps, i)}
                 </Col>
               ))

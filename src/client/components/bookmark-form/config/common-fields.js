@@ -310,7 +310,9 @@ export const sshAuthFields = [
     name: '__row_host_port__',
     label: () => e('host'),
     children: [
-      { ...commonFields.host, type: 'sshHostSelector', span: 18 },
+      // Only the host drops its own label -- the row heading already says
+      // "Host". Port keeps its label so its required asterisk stays visible.
+      { ...commonFields.host, type: 'sshHostSelector', span: 18, hideLabel: true },
       { ...commonFields.port, span: 6 }
     ]
   },
@@ -326,7 +328,9 @@ export const sshAuthFields = [
   { type: 'switch', name: 'isMFA', label: () => e('MFA/OTP'), valuePropName: 'checked' },
   commonFields.interactiveValues,
 
-  { type: 'section', name: '__sec_onconnect__', label: () => e('onConnect') },
+  // Space-separated so the missing-key fallback reads as words. translate()
+  // returns the key itself when absent, so 'onConnect' rendered as ONCONNECT.
+  { type: 'section', name: '__sec_onconnect__', label: () => e('on connect') },
   commonFields.runScripts,
   commonFields.startDirectoryLocal,
   commonFields.startDirectory,

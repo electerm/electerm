@@ -13,7 +13,16 @@
 
 .color-picker-defaults
   width 200px
+// Without a border this is a bare coloured rectangle sitting inside a text
+// input, which reads as a rendering artifact rather than a control. The border
+// and radius give it an edge, and it stays visible when no colour is set.
 .color-picker-choose
   width 18px
   height 18px
   cursor pointer
+  border-radius 3px
+  border 1px solid var(--main-light)
+  box-sizing border-box
+  flex-shrink 0
+  &:hover
+    border-color var(--primary)

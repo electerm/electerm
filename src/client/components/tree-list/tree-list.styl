@@ -44,6 +44,12 @@
       color var(--text-light)
   &.item-dragover-top
     border 2px solid var(--primary)
+// A folder with no children renders no expander. The missing caret alone is
+// too quiet a signal, so an empty folder also reads dimmer.
+.tree-list-row:not(:has(.tree-expander))
+  .tree-item.is-category .tree-item-title
+    opacity .5
+
 .tree-item-title
   flex-grow 1
   line-height 26px
@@ -107,6 +113,20 @@
 
 .tree-list-header
   flex-shrink 0
+  // The search row is an inline-block, so it collapsed to its content width
+  // and left roughly half the column unused. Let it fill the pane instead.
+  .tree-sort-wrap
+    display block
+    .ant-space-compact
+      width 100%
+      align-items stretch
+      // The search wrapper renders 4px taller than the buttons beside it, so
+      // the row had two different bottom edges. Pin every child to the theme's
+      // control height instead of hardcoding a number.
+      > *
+        height var(--ant-control-height)
+      .ant-input-affix-wrapper, .ant-input-wrapper, .ant-input
+        height 100%
 
 .item-list-wrap
   flex 1

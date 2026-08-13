@@ -40,8 +40,12 @@ export default function SubmitButtons ({
         >
           {e('testConnection')}
         </Button>
+        {/* Outlined, not filled: it stays in the primary colour family so it
+            reads as an exit, but only one button on the row is allowed to be
+            solid or the eye cannot tell which action is the default. */}
         <Button
-          type='primary'
+          color='primary'
+          variant='outlined'
           icon={<CaretRightOutlined />}
           onClick={onConnect}
         >

@@ -55,7 +55,12 @@ export function ColorPicker ({ value, onChange, ref, disabled, isRgba }) {
   }
 
   const inner = (
-    <div ref={ref} className='color-picker-choose' style={{ backgroundColor: value }} />
+    <div
+      ref={ref}
+      className='color-picker-choose'
+      title={window.translate('color')}
+      style={{ backgroundColor: value }}
+    />
   )
 
   if (disabled) return inner
