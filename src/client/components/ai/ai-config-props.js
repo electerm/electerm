@@ -52,6 +52,14 @@ export const defaultAIPresets = [
     authHeaderNameAI: 'Authorization: Bearer'
   },
   {
+    id: 'orcarouter',
+    nameAI: 'OrcaRouter',
+    baseURLAI: 'https://api.orcarouter.ai/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'deepseek/deepseek-v4-flash',
+    authHeaderNameAI: 'Authorization: Bearer'
+  },
+  {
     id: 'google',
     nameAI: 'Google Gemini',
     baseURLAI: 'https://generativelanguage.googleapis.com/v1beta/openai',
