@@ -7,8 +7,6 @@
 [![GitHub version](https://badgers.space/github/release/electerm/electerm?corner_radius=m)](https://github.com/electerm/electerm/releases)
 [![Build Status](https://github.com/electerm/electerm/actions/workflows/mac-test-1.yml/badge.svg)](https://github.com/electerm/electerm/actions)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/electerm/electerm/blob/master/LICENSE)
-[![Get it from the Snap Store](https://img.shields.io/badge/Snap-Store-green)](https://snapcraft.io/electerm)
-[![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft-Store-blue)](https://www.microsoft.com/store/apps/9NCN7272GTFF)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
 [![star](https://atomgit.com/electerm/electerm/star/badge.svg)](https://atomgit.com/electerm/electerm)
 
@@ -18,17 +16,24 @@ Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(Linux,
 
 Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS, and older systems — Ubuntu 18, Windows 7, macOS 10+, and special Chinese Linux distributions such as UOS, Kylin, and LoongArch (both old-world and new-world).
 
-- [electerm.org](https://electerm.org): Homepage, downloads, videos, etc
-- [electerm-web](https://github.com/electerm/electerm-web): Web app version running in browser(including mobile device)
-- [electerm-web-docker](https://github.com/electerm/electerm-web-docker): Docker image for electerm-web
-- [electerm online](https://cloud.electerm.org): Public free online electerm app
-- [electerm demo](https://demo.electerm.org): Online demo of electerm
-- [electerm AI](https://ai.electerm.org): Free AI for electerm users
-- [electerm theme](https://theme.electerm.org): Create/share theme site with live preview and AI creation
-- [electerm Android](https://github.com/electerm/electerm-android): electerm for Android
-- [electerm Harmony](https://github.com/electerm/electerm-harmony): electerm for HarmonyOS (available on [Huawei AppGallery](https://appgallery.huawei.com/app/detail?id=org.electerm.electerm))
-- [electerm deb repo](https://repos.electerm.org/deb): Debian repo of electerm
-- [electerm rpm repo](https://repos.electerm.org/rpm): RPM repo of electerm
+<p align="center">
+  <a href="https://electerm.org">Homepage / Downloads</a> ·
+  <a href="https://theme.electerm.org">Theme</a> ·
+  <a href="https://github.com/electerm/electerm-web">Web app</a> ·
+  <a href="https://github.com/electerm/electerm-web-docker">Docker</a> ·
+  <a href="https://demo.electerm.org">Online demo</a> ·
+  <a href="https://github.com/electerm/electerm-android">Android</a> ·
+  <a href="https://github.com/electerm/electerm-harmony">HarmonyOS</a> ·
+  <a href="https://appgallery.huawei.com/app/detail?id=org.electerm.electerm">Huawei AppGallery</a> ·
+  <a href="https://www.microsoft.com/store/apps/9NCN7272GTFF">Microsoft Store</a> ·
+  <a href="https://snapcraft.io/electerm">Snap Store</a> ·
+  <a href="https://repos.electerm.org/deb">deb repo</a> ·
+  <a href="https://repos.electerm.org/rpm">rpm repo</a>
+</p>
+
+- 🌐 **[electerm online](https://cloud.electerm.org)** — Public free online electerm app
+- 🤖 **[electerm AI](https://ai.electerm.org)** — Free AI for electerm users
+- 💻 **[electerm-web](https://github.com/electerm/electerm-web)** — Web app version running in browser (including mobile device)
 
 ## Atlas Cloud
 
