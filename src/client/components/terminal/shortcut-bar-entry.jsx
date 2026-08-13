@@ -53,9 +53,14 @@ export default function ShortcutBarEntry (props) {
   // so its code (and antd/icon deps) stays out of the main bundle on devices
   // that never show one (desktops, remote-control clients mis-reported as
   // touch, etc.).
+  //
+  // opt out entirely when the user has disabled the shortcut bar in common
+  // settings — bail before any listener is attached or component imported.
+  const { store } = props
+  const disabled = store.config.disableShortcutBar
   const [keyboardSeen, setKeyboardSeen] = useState(() => {
-    if (typeof window === 'undefined' || !window.visualViewport) {
-      return isTouchDevice()
+    if (disabled || typeof window === 'undefined' || !window.visualViewport) {
+      return disabled ? false : isTouchDevice()
     }
     return false
   })
@@ -104,7 +109,7 @@ export default function ShortcutBarEntry (props) {
     }
   }, [])
 
-  if (!keyboardSeen) {
+  if (disabled || !keyboardSeen) {
     return null
   }
   return (

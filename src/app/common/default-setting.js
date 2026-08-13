@@ -74,6 +74,7 @@ module.exports = exports.default = {
   disableDeveloperTool: false,
   dragDropBehavior: 'ask',
   switchTabOnHover: false,
+  disableShortcutBar: false,
   leftSideBarIcons: [
     'newBookmark',
     'quickConnect',
