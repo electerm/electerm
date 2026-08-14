@@ -13,7 +13,7 @@
 
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Input } from 'antd'
+import { Input, Select } from 'antd'
 import {
   CloseOutlined,
   PlusOutlined,
@@ -22,7 +22,13 @@ import {
 } from '@ant-design/icons'
 import classnames from 'classnames'
 import Modal from '../common/modal'
-import { defaultActive } from './shortcut-bar-defs'
+import {
+  defaultActive,
+  keyOptions,
+  modifierOptions,
+  buildComboData,
+  buildComboLabel
+} from './shortcut-bar-defs'
 
 const e = window.translate
 
@@ -35,42 +41,51 @@ export default function ShortcutBarEdit (props) {
     onSave
   } = props
 
-  const [draft, setDraft] = useState(() => active.map(b => ({ ...b })))
   const [keyword, setKeyword] = useState('')
-  const [customLabel, setCustomLabel] = useState('')
-  const [customData, setCustomData] = useState('')
+  const [customMod1, setCustomMod1] = useState(undefined)
+  const [customMod2, setCustomMod2] = useState(undefined)
+  const [customKey, setCustomKey] = useState(undefined)
 
-  const activeIds = new Set(draft.map(b => b.id))
+  // antd Select portals its dropdown to document.body by default (~z-index
+  // 1050), which renders BEHIND this modal (z-index 1100). Anchor each popup
+  // to its trigger's parent so it stays inside the modal's stacking context.
+  const popupContainer = trigger => trigger.parentElement
+
+  // edits persist immediately — there is no Save/Cancel, so every change calls
+  // onSave to push it live.
+  const activeIds = new Set(active.map(b => b.id))
 
   function handleAddCandidate (btn) {
     if (activeIds.has(btn.id)) {
       return
     }
-    setDraft(prev => [...prev, { ...btn }])
+    onSave([...active, { ...btn }])
   }
 
   function handleRemoveActive (id) {
-    setDraft(prev => prev.filter(b => b.id !== id))
+    onSave(active.filter(b => b.id !== id))
   }
 
   function handleAddCustom () {
-    const label = customLabel.trim()
-    const data = customData
-    if (!label) {
+    if (!customKey) {
       return
     }
+    const mods = [customMod1, customMod2].filter(Boolean)
+    const key = keyOptions.find(k => k.id === customKey)
+    if (!key) {
+      return
+    }
+    const label = buildComboLabel(mods, key)
+    const data = buildComboData(mods, key)
     const id = 'custom-' + label + '-' + Date.now()
-    setDraft(prev => [...prev, { id, label, data, custom: true }])
-    setCustomLabel('')
-    setCustomData('')
+    onSave([...active, { id, label, data, custom: true }])
+    setCustomMod1(undefined)
+    setCustomMod2(undefined)
+    setCustomKey(undefined)
   }
 
   function handleReset () {
-    setDraft(defaultActive())
-  }
-
-  function handleSave () {
-    onSave(draft)
+    onSave(defaultActive())
   }
 
   const kw = keyword.trim().toLowerCase()
@@ -122,20 +137,6 @@ export default function ShortcutBarEdit (props) {
       >
         <ReloadOutlined /> {e('reset')}
       </button>
-      <button
-        type='button'
-        className='custom-modal-cancel-btn'
-        onClick={onCancel}
-      >
-        {e('cancel')}
-      </button>
-      <button
-        type='button'
-        className='custom-modal-ok-btn'
-        onClick={handleSave}
-      >
-        {e('save')}
-      </button>
     </div>
   )
   const sst = e('keyboardShortcuts')
@@ -152,10 +153,10 @@ export default function ShortcutBarEdit (props) {
       <div className='shortcut-edit-section'>
         <div className='shortcut-edit-section-title'>{sst}</div>
         <div className='shortcut-active-list'>
-          {draft.length === 0 && (
+          {active.length === 0 && (
             <div className='shortcut-active-empty'>0 {sst}</div>
           )}
-          {draft.map(renderActive)}
+          {active.map(renderActive)}
         </div>
       </div>
 
@@ -178,21 +179,49 @@ export default function ShortcutBarEdit (props) {
       <div className='shortcut-edit-section'>
         <div className='shortcut-edit-section-title'>+ {sst}</div>
         <div className='shortcut-custom-form'>
-          <Input
-            value={customLabel}
-            onChange={ev => setCustomLabel(ev.target.value)}
-            placeholder={e('label')}
-            className='shortcut-custom-input'
+          <Select
+            value={customMod1}
+            onChange={setCustomMod1}
+            placeholder={e('modifier') + ' (' + e('optional') + ')'}
+            className='shortcut-custom-select'
+            allowClear
+            getPopupContainer={popupContainer}
+            options={modifierOptions.map(m => ({
+              value: m.id,
+              label: m.label,
+              disabled: m.id === customMod2
+            }))}
           />
-          <Input
-            value={customData}
-            onChange={ev => setCustomData(ev.target.value)}
-            placeholder={e('edit')}
-            className='shortcut-custom-input'
+          <Select
+            value={customMod2}
+            onChange={setCustomMod2}
+            placeholder={e('modifier') + ' (' + e('optional') + ')'}
+            className='shortcut-custom-select'
+            allowClear
+            getPopupContainer={popupContainer}
+            options={modifierOptions.map(m => ({
+              value: m.id,
+              label: m.label,
+              disabled: m.id === customMod1
+            }))}
+          />
+          <Select
+            value={customKey}
+            onChange={setCustomKey}
+            placeholder={e('key')}
+            className='shortcut-custom-select shortcut-custom-key'
+            allowClear
+            showSearch
+            getPopupContainer={popupContainer}
+            options={keyOptions.map(k => ({
+              value: k.id,
+              label: k.label
+            }))}
           />
           <button
             type='button'
             className='custom-modal-ok-btn shortcut-custom-add'
+            disabled={!customKey}
             onClick={handleAddCustom}
           >
             <PlusOutlined /> {e('add')}

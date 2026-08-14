@@ -111,10 +111,10 @@ function ShortcutBar (props) {
     store.shortcutBarVisible = false
   }
 
+  // edits inside the modal persist live; the modal closes via its own X button.
   function handleSave (next) {
     setButtons(next)
     saveActive(next)
-    setEditing(false)
   }
 
   function renderButton (b, i) {

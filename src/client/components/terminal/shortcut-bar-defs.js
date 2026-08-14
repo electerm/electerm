@@ -61,6 +61,69 @@ const punctButtons = punctChars.split('').map(ch => ({
   data: ch
 }))
 
+// --- custom combo builder data ---------------------------------------------
+// Bare keys + modifiers for the edit modal's custom combo builder
+// (shortcut-bar-edit.jsx). Unlike `candidates`, keyOptions holds raw keys
+// (letters, digits, nav, f-keys, punctuation) with no pre-applied modifier —
+// the modal composes Ctrl/Alt/Shift/Meta onto them, so the user can build
+// combos like Ctrl+Shift+C or Alt+Up without typing escape sequences.
+
+// letters carry a precomputed control byte so Ctrl+letter maps to the right
+// control byte (charCode - 96) without recomputing at click time.
+const letterKeys = 'abcdefghijklmnopqrstuvwxyz'.split('').map(ch => ({
+  id: 'key-' + ch,
+  label: ch.toUpperCase(),
+  data: ch,
+  ctrl: String.fromCharCode(ch.charCodeAt(0) - 96)
+}))
+
+const digitKeys = '0123456789'.split('').map(ch => ({
+  id: 'key-' + ch,
+  label: ch,
+  data: ch
+}))
+
+// bare keys (no Ctrl pre-applied) for the combo builder
+const keyOptions = [
+  ...navButtons,
+  ...letterKeys,
+  ...digitKeys,
+  ...fKeys,
+  ...punctButtons
+]
+
+// modifier picklist for the two optional modifier slots in the builder
+const modifierOptions = [
+  { id: 'ctrl', label: 'Ctrl' },
+  { id: 'alt', label: 'Alt' },
+  { id: 'shift', label: 'Shift' },
+  { id: 'meta', label: 'Meta' }
+]
+
+// compose the bytes to send for a (mods, key) combo.
+// Ctrl+letter -> the control byte; Alt -> ESC prefix; Shift+letter -> uppercase
+function buildComboData (mods, key) {
+  const ctrl = mods.includes('ctrl')
+  const alt = mods.includes('alt')
+  const shift = mods.includes('shift')
+  let data = key.data
+  if (ctrl && key.ctrl) {
+    data = key.ctrl
+  } else if (shift && /^[a-z]$/.test(data)) {
+    data = data.toUpperCase()
+  }
+  if (alt) {
+    data = ESC + data
+  }
+  return data
+}
+
+// human-readable label, e.g. mods ['ctrl','shift'] + key A -> "Ctrl+Shift+A"
+function buildComboLabel (mods, key) {
+  const byId = new Map(modifierOptions.map(m => [m.id, m.label]))
+  return [...mods.map(m => byId.get(m) || m), key.label].join('+')
+}
+
 // full library, de-duplicated by id
 const candidates = []
 const seenIds = new Set()
@@ -129,4 +192,10 @@ export function saveActive (arr) {
   ls.setItemJSON(shortcutBarLsKey, arr)
 }
 
-export { candidates }
+export {
+  candidates,
+  keyOptions,
+  modifierOptions,
+  buildComboData,
+  buildComboLabel
+}
