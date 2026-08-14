@@ -64,6 +64,20 @@
   flex 1
   overflow-y auto
   min-height 0
+  // Each tab wraps its content in a helper that carries its own inset -- pd1x
+  // is 5px, pd2x is 16px, some bring none -- so the distance from the divider
+  // to the first control changed from tab to tab, and so did the distance
+  // from the top. The pane's own padding is the only one that should count.
+  > .form-wrap
+  > .ant-form
+  > .item-list
+    padding-left 0
+    padding-right 0
+    padding-top 0
+  > .form-wrap > .form-title
+    padding-left 0
+    padding-right 0
+    padding-top 0
 .setting-col-placeholder
   flex-shrink 0
   display flex
