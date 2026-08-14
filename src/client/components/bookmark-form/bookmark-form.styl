@@ -31,8 +31,6 @@
   min-height 0
   overflow-y auto
   overflow-x hidden
-  // Line length cap: beyond this, scanning a label/value pair gets harder.
-  max-width 760px
 
   // When the form is tabbed, the tab bar stays put and only the field list
   // under it scrolls -- so you can switch tab without scrolling back up.
@@ -48,6 +46,9 @@
       > .ant-tabs-nav
         flex-shrink 0
         margin-bottom 8px
+        // The nav sits outside the scroller, so its underline would run 28px
+        // past the fields and the section hairlines below it.
+        margin-right 28px
       // antd 6 names this body-holder; antd 5 called it content-holder.
       > .ant-tabs-body-holder
       > .ant-tabs-content-holder
@@ -59,6 +60,9 @@
         // across the bottom of the field list. Nothing here scrolls sideways.
         overflow-x hidden
         padding-bottom 18px
+        // Keep the fields off the scrollbar: without this the inputs run
+        // right up against it.
+        padding-right 20px
         // The panel hides scrollbars globally, which is exactly why there was
         // no sign that more fields existed below. Put one back, here only.
         &::-webkit-scrollbar
@@ -72,8 +76,11 @@
 
 .bookmark-form-foot
   flex-shrink 0
-  max-width 760px
   padding-top 12px
+  // The footer sits outside the scroller, so it gets neither the field list's
+  // 20px gutter nor the 8px the scrollbar occupies. Match both, or the
+  // buttons overhang the inputs above them on the right.
+  padding-right 28px
   border-top 1px solid var(--main-light)
 
 // All five actions on one line: save cluster left, connect cluster right.
