@@ -58,6 +58,7 @@ export default class ItemList extends React.PureComponent {
         <Search
           onChange={this.handleChange}
           value={this.state.keyword}
+          placeholder={`${e('search')} ${e(this.props.type)}`}
         />
       </div>
     )

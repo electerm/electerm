@@ -3,9 +3,9 @@
  */
 import React, { useState, useEffect } from 'react'
 import {
-  Input,
   Tabs
 } from 'antd'
+import Search from '../common/search'
 import WidgetInstances from './widget-instances'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
@@ -90,9 +90,9 @@ export default auto(function WidgetsList ({ activeItemId, store }) {
     return (
       <div className='item-list item-type-widgets'>
         <div className='pd1y'>
-          <Input.Search
+          <Search
             type='text'
-            placeholder='Search widgets...'
+            placeholder={`${e('search')} ${e('widgets')}`}
             value={keyword}
             onChange={handleSearch}
             className='form-control'

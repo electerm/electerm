@@ -1,10 +1,10 @@
 import {
   Tree,
   Button,
-  Space,
-  Input
+  Space
 } from 'antd'
 import { useState, useMemo } from 'react'
+import Search from '../common/search'
 import { defaultBookmarkGroupId, settingMap } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import createTitle, { createTitleWithTag } from '../../common/create-title'
@@ -164,7 +164,7 @@ export default function BookmarkTreeSelect (props) {
     <div className='tree-select-wrapper pd2'>
       <div className='tree-select-header'>
         <Space.Compact className='mg2b'>
-          <Input.Search
+          <Search
             placeholder={e('search') || 'Search...'}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}

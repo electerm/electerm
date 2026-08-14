@@ -5,7 +5,8 @@
 import { useState } from 'react'
 import { quickCommandLabelsLsKey, pinnedQuickCommandBarKey } from '../../common/constants'
 import { sortBy } from 'lodash-es'
-import { Button, Input, Select, Space, Flex } from 'antd'
+import { Button, Select, Space, Flex } from 'antd'
+import Search from '../common/search'
 import * as ls from '../../common/safe-local-storage'
 import CmdItem from './quick-command-item'
 import {
@@ -202,10 +203,10 @@ export default function QuickCommandsFooterBox (props) {
     >
       <div className='pd2'>
         <Flex justify='space-between' className='qm-flex'>
-          <Input.Search
+          <Search
             value={keyword}
             onChange={handleChange}
-            placeholder=''
+            placeholder={`${e('search')} ${e('quickCommands')}`}
             className='qm-search-input'
           />
           <Flex gap='small'>

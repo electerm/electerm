@@ -82,6 +82,7 @@ export default memo(function TreeSearchComponent ({
           value={searchTerm}
           allowClear
           autoFocus={autoFocus}
+          placeholder={`${window.translate('search')} ${window.translate('bookmarks')}`}
         />
         <Button
           className={`tree-sort-trigger pointer${isSortActive ? ' active' : ''}`}
