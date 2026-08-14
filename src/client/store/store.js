@@ -270,9 +270,7 @@ class Store {
         colorLink: themeConf['text-light'],
         fontSize: 13,
         controlHeight: 34,
-        motionDurationFast: '0.1s',
-        motionDurationMid: '0.14s',
-        motionDurationSlow: '0.2s'
+        motion: false
       },
       algorithm: isColorDark(themeConf.main) ? theme.darkAlgorithm : theme.defaultAlgorithm
     }
