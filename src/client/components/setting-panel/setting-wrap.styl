@@ -39,6 +39,11 @@
   left 0
   width var(--list-col-width)
   bottom 0
+  // .drag-handle ships hidden by default; this column is resizable, so show
+  // its grip and put the resize cursor on the divider.
+  .drag-handle
+    display block
+    cursor col-resize
   padding 20px 20px 20px 20px
   display flex
   flex-direction column
@@ -84,9 +89,8 @@
   justify-content flex-end
   .carbonads-wrap
     margin 8px 0 0
-// Bookmarks needs a wider list column: it shows a nested tree, not a flat list.
-.setting-tabs-bookmarks
-  --list-col-width 440px
+// No per-tab width override: the column is user-resizable and the chosen
+// width is global, so every tab shares it.
 .setting-tabs
   position absolute
   z-index 4
