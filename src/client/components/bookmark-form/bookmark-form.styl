@@ -152,6 +152,24 @@
   .bookmark-form-scroll
     overflow visible
     max-width none
+
+  // Same specificity trap one level down: the pinned-tab block above is also
+  // written with :has(), so it outranks the plain rule here and keeps an inner
+  // scroller alive. With the pane stacked into one column there is nothing to
+  // pin the tab bar against, and the inner scroller is what stopped the sticky
+  // footer from ever reaching its scrollport.
+  .bookmark-form-scroll:has(> .ant-tabs)
+    display block
+    overflow visible
+    > .ant-tabs
+      display block
+      flex none
+      > .ant-tabs-body-holder
+      > .ant-tabs-content-holder
+        flex none
+        min-height auto
+        overflow visible
+        padding-bottom 0
   // The pane scrolls as one column here, so the flex footer cannot pin. Sticky
   // keeps Save reachable without fighting the stacked layout; it needs an
   // opaque background or the fields scroll through it.

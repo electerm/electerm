@@ -84,7 +84,9 @@
     display none
   .setting-col
     position fixed
-    top 128px
+    // Matches the desktop columns. The tab strip ends at 97px, and this pane
+    // already clears it -- the old 128px predates removing antd's nav margin.
+    top 105px
     bottom 0
     left var(--left-side-bar-width, 43px)
     right 0
@@ -96,7 +98,9 @@
     left auto
     width auto
     bottom auto
-    padding 138px 10px 10px 10px
+    // .setting-col is already offset below the tab strip, so this top padding
+    // was clearing it a second time -- ~160px of dead space above the tree.
+    padding 10px
   .setting-row-right
     left auto
     right auto
