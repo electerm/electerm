@@ -22,17 +22,43 @@ import { DownOutlined, EditOutlined } from '@ant-design/icons'
 import { refs } from '../common/ref'
 import { shortcutBarHeight } from '../../common/constants'
 import ShortcutBarEdit from './shortcut-bar-edit'
-import { candidates, loadActive, saveActive } from './shortcut-bar-defs'
+import { candidates, loadActive, saveActive, ESC } from './shortcut-bar-defs'
 import './shortcut-bar.styl'
 
 const e = window.translate
+
+// Arrow / Home / End keys have two wire forms: the normal CSI form (ESC [ x)
+// and the application SS3 form (ESC O x). Which one a keypress should produce
+// is decided by the terminal's DECCKM (Application Cursor Keys) state, which
+// the remote program sets. Some shells accept both forms (bash/readline), but
+// stricter line editors such as OpenWrt's busybox ash only recognize the form
+// matching the current mode — so always sending the CSI form breaks arrow
+// keys there. A real keyboard switches on the mode; this does the same.
+const appCursorMap = {
+  [ESC + '[A']: ESC + 'OA', // ↑
+  [ESC + '[B']: ESC + 'OB', // ↓
+  [ESC + '[C']: ESC + 'OC', // →
+  [ESC + '[D']: ESC + 'OD', // ←
+  [ESC + '[H']: ESC + 'OH', // Home
+  [ESC + '[F']: ESC + 'OF' // End
+}
 
 function sendToTerminal (data) {
   const { store } = window
   const term = refs.get('term-' + store.activeTabId)
   if (term && typeof term.runQuickCommand === 'function') {
-    term.runQuickCommand(data, true)
+    const resolved = resolveCursorMode(data, term)
+    term.runQuickCommand(resolved, true)
   }
+}
+
+// honor the active terminal's DECCKM state for the cursor / Home / End keys
+function resolveCursorMode (data, term) {
+  const app = appCursorMap[data]
+  if (app && term?.term?.modes?.applicationCursorKeysMode) {
+    return app
+  }
+  return data
 }
 
 function ShortcutBar (props) {

@@ -8,7 +8,8 @@ import * as ls from '../../common/safe-local-storage'
 import { shortcutBarLsKey } from '../../common/constants'
 
 // build control bytes at runtime — keeps source free of literal control chars
-const ESC = String.fromCharCode(0x1b)
+// exported so shortcut-bar.jsx can honor DECCKM for arrow / Home / End keys.
+export const ESC = String.fromCharCode(0x1b)
 const DEL = String.fromCharCode(0x7f)
 
 // --- candidate library -----------------------------------------------------
