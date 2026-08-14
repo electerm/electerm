@@ -9,13 +9,20 @@ import * as ls from '../../common/safe-local-storage'
 
 const widthKey = 'setting-list-col-width'
 const defaultWidth = 340
-const minWidth = 240
+// Below this the toolbar icons above the list start getting clipped.
+const minWidth = 300
 const maxWidth = 700
 
 export default function SettingCol (props) {
-  const [width, setWidth] = useState(
-    () => parseInt(ls.getItem(widthKey), 10) || defaultWidth
-  )
+  // Clamp on read too, not just on write: a width stored before the bounds
+  // changed would otherwise come back out of range.
+  const [width, setWidth] = useState(() => {
+    const stored = parseInt(ls.getItem(widthKey), 10)
+    if (!stored) {
+      return defaultWidth
+    }
+    return Math.min(maxWidth, Math.max(minWidth, stored))
+  })
 
   // antd's Splitter fires onResize during its initial layout, and DragHandle
   // forwards that to onDragEnd -- which would persist a width the user never
