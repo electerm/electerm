@@ -4,9 +4,25 @@
 
 import { memo } from 'react'
 import { createTitleTag } from '../../common/create-title'
+import { terminalLocalType } from '../../common/constants'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
 import uid from '../../common/uid'
+
+const e = window.translate
+
+function buildSubtitle (item) {
+  if (item.host) {
+    return item.port ? `${item.host}:${item.port}` : item.host
+  }
+  if (item.path) {
+    return item.path
+  }
+  if (item.url) {
+    return item.url
+  }
+  return ''
+}
 
 function areEqual (prevProps, nextProps) {
   const prevSelected = prevProps.selectedItemId === prevProps.item.id
@@ -83,12 +99,15 @@ function TreeListItem (props) {
     ? item.title
     : props.itemLabel
   const titleAll = title + (item.description ? ' - ' + item.description : '')
-  const titleHighlight = isGroup
-    ? item.title || 'no title'
-    : highlight(
-      title,
-      props.keyword
-    )
+  const subtitleRaw = isGroup ? '' : buildSubtitle(item)
+  const primaryText = isGroup
+    ? (item.title || 'no title')
+    : (item.title || subtitleRaw || e(terminalLocalType))
+  const showSubtitle = !isGroup && subtitleRaw && item.title
+  const titleHighlight = highlight(primaryText, props.keyword)
+  const subtitleHighlight = showSubtitle
+    ? highlight(subtitleRaw, props.keyword)
+    : null
   const propsAll = {
     className: cls,
     title: titleAll,
@@ -103,7 +122,7 @@ function TreeListItem (props) {
     onDrop
   }
   const titleProps = {
-    className: 'tree-item-title elli',
+    className: classnames('tree-item-title', 'elli', { 'has-subtitle': showSubtitle }),
     onClick: onSelect,
     'data-item-id': item.id,
     'data-is-group': isGroup ? 'true' : 'false',
@@ -118,7 +137,20 @@ function TreeListItem (props) {
       <div
         {...titleProps}
       >
-        {colorTag}{tag}{titleHighlight}
+        {colorTag}{tag}
+        <span className='tree-item-text'>
+          <span className='tree-item-title-main elli'>{titleHighlight}</span>
+          {
+            showSubtitle
+              ? <span className='tree-item-subtitle elli'>{subtitleHighlight}</span>
+              : null
+          }
+        </span>
+        {
+          isGroup && item.bookmarkIds
+            ? <span className='tree-item-count'>{item.bookmarkIds.length}</span>
+            : null
+        }
       </div>
     </div>
   )

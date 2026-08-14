@@ -44,10 +44,11 @@ export default Store => {
     window.store.delItem({ id }, settingMap.terminalThemes)
   }
 
-  Store.prototype.getThemeConfig = function () {
+  Store.prototype.getThemeConfig = function (themeId) {
     const { store } = window
     const all = store.getSidebarList(settingMap.terminalThemes)
-    return (all.find(d => d.id === store.config.theme) || {}).themeConfig || {}
+    const id = themeId || store.config.theme
+    return (all.find(d => d.id === id) || {}).themeConfig || {}
   }
 
   Store.prototype.fixThemes = function (themes) {

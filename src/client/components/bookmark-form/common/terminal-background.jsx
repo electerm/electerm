@@ -4,7 +4,7 @@
 import React from 'react'
 import { Form } from 'antd'
 import TerminalBackgroundConfig from '../../setting-panel/terminal-bg-config'
-import { formItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
 
@@ -40,7 +40,7 @@ const TerminalBgControl = ({ value, onChange }) => {
 
 export default function renderTermBg () {
   const formProps = {
-    ...formItemLayout,
+    ...verticalFormItemLayout,
     name: 'terminalBackground',
     label: e('terminalBackgroundImage')
   }

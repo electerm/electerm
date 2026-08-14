@@ -13,7 +13,7 @@ import {
   Space,
   Button
 } from 'antd'
-import { formItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout } from '../../../common/form-layout'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
 const FormItem = Form.Item
@@ -51,7 +51,7 @@ export default function useQuickCmds (form, formData) {
   }
   return (
     <FormList
-      {...formItemLayout}
+      {...verticalFormItemLayout}
       label={e('quickCommands')}
       name='quickCommands'
     >

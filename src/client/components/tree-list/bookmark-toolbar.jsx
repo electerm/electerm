@@ -4,7 +4,8 @@ import {
   ImportOutlined,
   ExportOutlined,
   CodeOutlined,
-  MenuOutlined,
+  MoreOutlined,
+  PlusOutlined,
   EditOutlined
 } from '@ant-design/icons'
 import { Button, Space, Dropdown, Flex } from 'antd'
@@ -86,47 +87,39 @@ export default function BookmarkToolbar (props) {
 
   return (
 
-    <div className='pd1b pd1r'>
-      <Flex justify='space-between' align='center'>
-        <div>
-          <Space.Compact>
-            <Button onClick={onNewBookmark}>
-              <BookOutlined className='with-plus' />
-            </Button>
-            <Button onClick={onNewBookmarkGroup}>
-              <FolderOutlined className='with-plus' />
-            </Button>
-            <Button
-              icon={<EditOutlined />}
-              onClick={handleToggleEdit}
-              title={e('edit')}
-            />
-            <Button
-              icon={<ExportOutlined />}
-              onClick={handleDownload}
-              title={e('export')}
-              className='download-bookmark-icon'
-            />
-            <Upload
-              beforeUpload={beforeUpload}
-              fileList={[]}
-              className='upload-bookmark-icon'
-            >
-              <Button
-                icon={<ImportOutlined />}
-                title={e('importFromFile')}
-              />
-            </Upload>
-            <Button onClick={onSshConfigs}>
-              <CodeOutlined />
-            </Button>
-          </Space.Compact>
-        </div>
-        <div>
+    <div className='pd1b pd1r bookmark-toolbar'>
+      <Flex justify='space-between' align='center' gap={6}>
+        <Button
+          type='primary'
+          icon={<PlusOutlined />}
+          onClick={onNewBookmark}
+          className='new-bookmark-btn'
+        >
+          {titleNew}
+        </Button>
+        <Space size={4}>
+          <Button
+            icon={<FolderOutlined />}
+            onClick={onNewBookmarkGroup}
+            title={titleEdit}
+          />
+          <Button
+            icon={<ExportOutlined />}
+            onClick={handleDownload}
+            title={e('export')}
+            className='download-bookmark-icon'
+          />
+          <Upload
+            beforeUpload={beforeUpload}
+            fileList={[]}
+            className='upload-bookmark-icon hide'
+          >
+            <span />
+          </Upload>
           <Dropdown {...ddProps}>
-            <MenuOutlined />
+            <Button icon={<MoreOutlined />} />
           </Dropdown>
-        </div>
+        </Space>
       </Flex>
     </div>
   )

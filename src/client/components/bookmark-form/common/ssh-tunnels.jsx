@@ -5,7 +5,7 @@ import {
 } from 'antd'
 import { useState } from 'react'
 import { MinusCircleFilled, EditOutlined } from '@ant-design/icons'
-import { tailFormItemLayout } from '../../../common/form-layout'
+import { verticalTailFormItemLayout } from '../../../common/form-layout'
 import uid from '../../../common/uid'
 import Modal from '../../common/modal'
 import SshTunnelForm from './ssh-tunnel-form'
@@ -153,7 +153,7 @@ export default function renderSshTunnels (props) {
 
   function renderList () {
     return (
-      <FormItem {...tailFormItemLayout}>
+      <FormItem {...verticalTailFormItemLayout}>
         <Table
           columns={cols}
           className='mg3b'

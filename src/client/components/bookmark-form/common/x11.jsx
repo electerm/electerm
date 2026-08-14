@@ -7,7 +7,7 @@ import {
   Select
 } from 'antd'
 import SwitchLabel from '../../common/switch'
-import { formItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
 const { Option } = Select
@@ -92,7 +92,7 @@ export default function renderX11 ({ form }) {
   return (
     <>
       <FormItem
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         label='cipher'
         name='cipher'
       >
@@ -106,7 +106,7 @@ export default function renderX11 ({ form }) {
         </Select>
       </FormItem>
       <FormItem
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         label='compress'
         name='compress'
       >
@@ -120,11 +120,11 @@ export default function renderX11 ({ form }) {
         </Select>
       </FormItem>
       <FormItem
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         label='serverHostKey'
       >
         <FormItem
-          {...formItemLayout}
+          {...verticalFormItemLayout}
           noStyle
           name='serverHostKey'
         >
@@ -148,7 +148,7 @@ export default function renderX11 ({ form }) {
         </div>
       </FormItem>
       <FormItem
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         label='x11'
         name='x11'
         valuePropName='checked'

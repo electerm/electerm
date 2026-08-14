@@ -1,4 +1,4 @@
-import { formItemLayout } from '../../../common/form-layout.js'
+import { verticalFormItemLayout } from '../../../common/form-layout.js'
 import { terminalRdpType } from '../../../common/constants.js'
 import { createBaseInitValues, getAuthTypeDefault } from '../common/init-values.js'
 import { isEmpty } from 'lodash-es'
@@ -16,7 +16,7 @@ const rdpConfig = {
       ...getAuthTypeDefault(props)
     })
   },
-  layout: formItemLayout,
+  layout: verticalFormItemLayout,
   tabs: () => [
     {
       key: 'auth',
@@ -27,15 +27,20 @@ const rdpConfig = {
           name: 'rdp-limitation-warning',
           link: 'https://github.com/electerm/electerm/wiki/RDP-limitation'
         },
-        commonFields.category,
+        { type: 'sectionHeader', title: 'Connection', description: 'Where to connect and how to label it' },
         commonFields.colorTitle,
-        { type: 'input', name: 'host', label: () => e('host'), rules: [{ required: true, message: e('host') + ' required' }] },
-        commonFields.port,
+        commonFields.category,
+        { type: 'input', name: 'host', label: () => e('host'), half: true, rules: [{ required: true, message: e('host') + ' required' }] },
+        { ...commonFields.port, half: true },
+
+        { type: 'sectionHeader', title: 'Authentication', description: 'Credentials used for this session' },
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.rdp) },
-        { ...commonFields.username, rules: [{ required: true, message: e('username') + ' required' }] },
-        commonFields.password,
+        { ...commonFields.username, half: true, rules: [{ required: true, message: e('username') + ' required' }] },
+        { ...commonFields.password, half: true },
+        { type: 'input', name: 'domain', label: () => e('domain'), half: true },
+
+        { type: 'sectionHeader', title: 'On connect', description: 'Notes and connection proxy' },
         commonFields.description,
-        { type: 'input', name: 'domain', label: () => e('domain') },
         commonFields.proxy,
         commonFields.type
       ]

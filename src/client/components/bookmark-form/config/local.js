@@ -1,4 +1,4 @@
-import { formItemLayout } from '../../../common/form-layout.js'
+import { verticalFormItemLayout } from '../../../common/form-layout.js'
 import { terminalLocalType } from '../../../common/constants.js'
 import {
   createBaseInitValues,
@@ -22,17 +22,20 @@ const localConfig = {
       ...getTerminalBackgroundDefaults(defaultSettings)
     })
   },
-  layout: formItemLayout,
+  layout: verticalFormItemLayout,
   tabs: () => [
     {
       key: 'auth',
       label: e('auth'),
       fields: [
-        commonFields.category,
+        { type: 'sectionHeader', title: 'Connection', description: 'How to label this session' },
         commonFields.colorTitle,
-        commonFields.description,
+        commonFields.category,
+
+        { type: 'sectionHeader', title: 'On connect', description: 'Scripts and notes' },
         commonFields.enableTerminalImage,
         commonFields.runScripts,
+        commonFields.description,
         { type: 'input', name: 'type', label: 'type', hidden: true }
       ]
     },

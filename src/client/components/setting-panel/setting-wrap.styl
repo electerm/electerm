@@ -20,12 +20,16 @@
   top 127px
   overflow-y scroll
 .setting-row-left
-  left 0
+  left 16px
   width 340px
-  bottom 0
-  padding 20px 0 20px 20px
+  bottom 16px
+  padding 16px
   display flex
   flex-direction column
+  background var(--main-darker)
+  border 1px solid var(--border-color)
+  border-radius var(--radius)
+  box-shadow 0 2px 12px rgba(0, 0, 0, .2)
   .model-bookmark-tree-wrap
     flex 1
     display flex
@@ -33,15 +37,19 @@
     overflow hidden
     min-height 0
 .setting-row-right
-  left 340px
-  right 0
-  bottom 0
+  left 376px
+  right 16px
+  bottom 16px
   top 129px
   padding 20px
   display flex
   flex-direction column
   overflow hidden
   min-height 400px
+  background var(--main-darker)
+  border 1px solid var(--border-color)
+  border-radius var(--radius)
+  box-shadow 0 2px 12px rgba(0, 0, 0, .2)
 .setting-col-content
   flex 1
   overflow-y auto
@@ -56,14 +64,40 @@
   .setting-row-left
     width 440px
   .setting-row-right
-    left 483px
+    left 476px
 .setting-tabs
   position absolute
   z-index 4
   left 0
   top 0
   right 0
-  padding 55px 20px 0 50px
+  padding 55px 20px 12px 50px
+  border-bottom 1px solid var(--border-color)
+  .ant-tabs-nav::before
+    display none
+  .ant-tabs-nav-list
+    background var(--main-darker)
+    border 1px solid var(--border-color)
+    border-radius 999px
+    padding 4px
+    gap 2px
+  .ant-tabs-tab
+    border-radius 999px !important
+    border none !important
+    background transparent !important
+    margin 0 !important
+    padding 6px 16px !important
+    transition background-color .15s ease, color .15s ease
+    .ant-tabs-tab-btn
+      color var(--text-dark)
+    &:hover .ant-tabs-tab-btn
+      color var(--text)
+  .ant-tabs-tab-active
+    background var(--text-light) !important
+    .ant-tabs-tab-btn
+      color var(--main) !important
+  .ant-tabs-ink-bar
+    display none
 .setting-col
   ::-webkit-scrollbar
     width 0
@@ -83,6 +117,10 @@
     width auto
     bottom auto
     padding 138px 10px 10px 10px
+    background none
+    border none
+    border-radius 0
+    box-shadow none
   .setting-row-right
     left auto
     right auto
@@ -91,6 +129,10 @@
     padding 10px
     position static
     overflow visible
+    background none
+    border none
+    border-radius 0
+    box-shadow none
   .setting-col-content
     overflow visible
   .setting-tabs-bookmarks

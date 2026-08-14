@@ -21,8 +21,9 @@ import Link from '../common/external-link'
 import InputAutoFocus from '../common/input-auto-focus'
 import ThemePicker from './theme-editor'
 import ThemeAiEditor from './theme-ai-editor'
+import ThemeTerminalPreview from './theme-terminal-preview'
 import Upload from '../common/upload'
-// import './theme-form.styl'
+import './theme-form.styl'
 
 const { TextArea } = Input
 const FormItem = Form.Item
@@ -218,6 +219,19 @@ export default function ThemeForm (props) {
     setTxt(convertThemeToText(obj))
   }
 
+  function duplicateAndEdit () {
+    const { formData, store } = props
+    const duplicate = {
+      ...formData,
+      id: generate(),
+      name: `${formData.name} copy`,
+      readonly: false
+    }
+    store.addTheme(duplicate)
+    store.setSettingItem(duplicate)
+    message.success(e('duplicated'))
+  }
+
   function renderTxt () {
     return (
       <FormItem
@@ -253,7 +267,8 @@ export default function ThemeForm (props) {
   const pickerProps = {
     onChange: onPickerChange,
     themeText: txt,
-    disabled
+    disabled,
+    onLockedClick: disabled ? duplicateAndEdit : undefined
   }
   const tabItems = [
     {
@@ -297,57 +312,56 @@ export default function ThemeForm (props) {
       onFinish={handleSubmit}
       form={form}
       initialValues={initialValues}
-      className={editor}
+      className={editor + ' theme-form-scroll-wrap'}
       name='terminal-theme-form'
       layout='vertical'
     >
-      <div className='mg1b alignright'>
-        <Link to='https://theme.electerm.org'>
-          <SkinOutlined className='mg1r' />https://theme.electerm.org
-        </Link>
-      </div>
-      {renderFuncs(id)}
-      <FormItem
-        label={e('themeName')}
-        hasFeedback
-        name='themeName'
-        rules={[{
-          max: 30, message: '30 chars max'
-        }, {
-          required: true, message: 'theme name required'
-        }]}
-      >
-        <InputAutoFocus
-          selectall='yes'
-          disabled={disabled}
-        />
-      </FormItem>
-      <FormItem>
-        <Flex
-          className='mg1b'
-          justify='space-between'
-          align='center'
-          wrap='wrap'
-          gap={8}
+      <div className='theme-form-scroll-body'>
+        <div className='mg1b alignright'>
+          <Link to='https://theme.electerm.org'>
+            <SkinOutlined className='mg1r' />https://theme.electerm.org
+          </Link>
+        </div>
+        {renderFuncs(id)}
+        <FormItem
+          label={e('themeName')}
+          hasFeedback
+          name='themeName'
+          rules={[{
+            max: 30, message: '30 chars max'
+          }, {
+            required: true, message: 'theme name required'
+          }]}
         >
-          <span>{e('themeConfig')}</span>
-          <Upload
-            beforeUpload={beforeUpload}
-            fileList={[]}
+          <InputAutoFocus
+            selectall='yes'
+            disabled={disabled}
+          />
+        </FormItem>
+        <FormItem>
+          <Flex
+            className='mg1b'
+            justify='space-between'
+            align='center'
+            wrap='wrap'
+            gap={8}
           >
-            <Button
-              type='dashed'
-              disabled={disabled}
+            <span>{e('themeConfig')}</span>
+            <Upload
+              beforeUpload={beforeUpload}
+              fileList={[]}
             >
-              {e('importFromFile')}
-            </Button>
-          </Upload>
-        </Flex>
-        <Tabs {...tabsProps} />
-        {
-          editor === 'theme-editor-txt'
-            ? renderTxt()
-            : editor === 'theme-editor-ai'
+              <Button
+                type='dashed'
+                disabled={disabled}
+              >
+                {e('importFromFile')}
+              </Button>
+            </Upload>
+          </Flex>
+          <Tabs {...tabsProps} />
+          {
+            editor === 'theme-editor-ai'
               ? (
                 <ThemeAiEditor
                   onChange={handleAiGenerated}
@@ -355,36 +369,42 @@ export default function ThemeForm (props) {
                 />
                 )
               : (
-                <ThemePicker
-                  {...pickerProps}
-                />
+                <Flex gap={16} align='flex-start' wrap='wrap'>
+                  <div className='theme-editor-main'>
+                    {
+                      editor === 'theme-editor-txt'
+                        ? renderTxt()
+                        : <ThemePicker {...pickerProps} />
+                    }
+                  </div>
+                  <ThemeTerminalPreview themeConfig={convertTheme(txt).themeConfig} />
+                </Flex>
                 )
+          }
+        </FormItem>
+        {
+          renderSrc(type)
         }
-      </FormItem>
+      </div>
       {
         disabled
           ? null
           : (
-            <FormItem>
-              <p>
-                <Button
-                  type='primary'
-                  htmlType='submit'
-                  className='mg1r mg1b'
-                >{e('saveAndApply')}
-                </Button>
-                <Button
-                  type='dashed'
-                  className='mg1r mg1b'
-                  onClick={saveOnly}
-                >{e('save')}
-                </Button>
-              </p>
+            <FormItem className='theme-form-footer'>
+              <Button
+                type='primary'
+                htmlType='submit'
+                className='mg1r mg1b'
+              >{e('saveAndApply')}
+              </Button>
+              <Button
+                type='dashed'
+                className='mg1r mg1b'
+                onClick={saveOnly}
+              >{e('save')}
+              </Button>
             </FormItem>
             )
-      }
-      {
-        renderSrc(type)
       }
     </Form>
   )

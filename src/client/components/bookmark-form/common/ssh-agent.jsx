@@ -2,7 +2,7 @@ import React from 'react'
 import { Form, Input, Space } from 'antd'
 import SwitchLabel from '../../common/switch'
 import HelpIcon from '../../common/help-icon'
-import { formItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -10,7 +10,7 @@ const e = window.translate
 export default function SshAgent () {
   return (
     <FormItem
-      {...formItemLayout}
+      {...verticalFormItemLayout}
       label={e('useSshAgent')}
     >
       <Space align='center'>

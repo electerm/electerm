@@ -1,4 +1,4 @@
-import { formItemLayout } from '../../../common/form-layout.js'
+import { verticalFormItemLayout } from '../../../common/form-layout.js'
 import { terminalVncType } from '../../../common/constants.js'
 import { createBaseInitValues, getAuthTypeDefault } from '../common/init-values.js'
 import { isEmpty } from 'lodash-es'
@@ -22,24 +22,31 @@ const vncConfig = {
       ...getAuthTypeDefault(props)
     })
   },
-  layout: formItemLayout,
+  layout: verticalFormItemLayout,
   tabs: () => [
     {
       key: 'auth',
       label: e('auth'),
       fields: [
-        commonFields.category,
+        { type: 'sectionHeader', title: 'Connection', description: 'Where to connect and how to label it' },
         commonFields.colorTitle,
-        { type: 'input', name: 'host', label: () => e('host'), rules: [{ required: true, message: e('host') + ' required' }] },
-        commonFields.port,
+        commonFields.category,
+        { type: 'input', name: 'host', label: () => e('host'), half: true, rules: [{ required: true, message: e('host') + ' required' }] },
+        { ...commonFields.port, half: true },
+
+        { type: 'sectionHeader', title: 'Authentication', description: 'Credentials used for this session' },
+        { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.vnc) },
+        { ...commonFields.username, half: true },
+        { ...commonFields.password, half: true },
+
+        { type: 'sectionHeader', title: 'Display', description: 'Viewport and image quality options' },
         { type: 'switch', name: 'viewOnly', label: () => e('viewOnly'), valuePropName: 'checked' },
         { type: 'switch', name: 'clipViewport', label: () => e('clipViewport'), valuePropName: 'checked' },
         { type: 'switch', name: 'scaleViewport', label: () => e('scaleViewport'), valuePropName: 'checked' },
-        { type: 'number', name: 'qualityLevel', label: () => e('qualityLevel') + ' (0-9)', min: 0, max: 9, step: 1 },
-        { type: 'number', name: 'compressionLevel', label: () => e('compressionLevel') + ' (0-9)', min: 0, max: 9, step: 1 },
-        { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.vnc) },
-        commonFields.username,
-        commonFields.password,
+        { type: 'number', name: 'qualityLevel', label: () => e('qualityLevel') + ' (0-9)', half: true, min: 0, max: 9, step: 1 },
+        { type: 'number', name: 'compressionLevel', label: () => e('compressionLevel') + ' (0-9)', half: true, min: 0, max: 9, step: 1 },
+
+        { type: 'sectionHeader', title: 'On connect', description: 'Notes and connection proxy' },
         commonFields.description,
         commonFields.proxy,
         commonFields.type

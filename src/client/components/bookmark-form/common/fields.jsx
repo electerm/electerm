@@ -24,10 +24,18 @@ import SshAuthTypeSelector from './ssh-auth-type-selector.jsx'
 import SshAuthSelector from './ssh-auth-selector.jsx'
 import CategorySelect from './category-select.jsx'
 import ExternalLink from '../../common/external-link.jsx'
+import ToggleRow from './toggle-row.jsx'
+import BookmarkThemePicker from './bookmark-theme-picker.jsx'
+import BookmarkThemePreview from './bookmark-theme-preview.jsx'
 const Fragment = React.Fragment
 const FormItem = Form.Item
 
 const { TextArea } = Input
+
+function resolveOptions (options) {
+  return typeof options === 'function' ? options() : options
+}
+
 const commonRenderTypes = new Set([
   'input',
   'textarea',
@@ -70,10 +78,10 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
         control = <SwitchLabel {...item.props} />
         break
       case 'select':
-        control = <Select options={item.options} {...item.props} />
+        control = <Select options={resolveOptions(item.options)} {...item.props} />
         break
       case 'autocomplete':
-        control = <AutoComplete options={item.options} {...item.props} />
+        control = <AutoComplete options={resolveOptions(item.options)} {...item.props} />
         break
       case 'radio':
         control = (
@@ -218,6 +226,22 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
           {...item.props}
         />
       )
+    case 'toggleRow':
+      return (
+        <ToggleRow
+          key={name}
+          name={name}
+          form={form}
+          valuePropName={valuePropName}
+          title={typeof item.title === 'function' ? item.title() : item.title}
+          description={typeof item.description === 'function' ? item.description() : item.description}
+          badge={item.badge}
+        />
+      )
+    case 'bookmarkThemePicker':
+      return <BookmarkThemePicker key={name} name={name} form={form} store={ctxProps.store} />
+    case 'bookmarkThemePreview':
+      return <BookmarkThemePreview key={name} form={form} store={ctxProps.store} />
     default:
       console.warn(`Unknown field type: ${type}`)
       return null

@@ -5,7 +5,7 @@
 import { useEffect } from 'react'
 import { TreeSelect, Form } from 'antd'
 import formatBookmarkGroups from './bookmark-group-tree-format'
-import { formItemLayout as defaultFormItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout as defaultFormItemLayout } from '../../../common/form-layout'
 import { newBookmarkIdPrefix } from '../../../common/constants'
 
 const FormItem = Form.Item
@@ -14,7 +14,7 @@ const e = window.translate
 export default function BookmarkCategorySelect ({
   bookmarkGroups = [],
   form,
-  formItemLayout = defaultFormItemLayout,
+  verticalFormItemLayout = defaultFormItemLayout,
   name = 'category',
   onChange,
   formData = {} // Add formData prop to access bookmark ID
@@ -69,7 +69,7 @@ export default function BookmarkCategorySelect ({
 
   return (
     <FormItem
-      {...formItemLayout}
+      {...verticalFormItemLayout}
       label={e('bookmarkCategory')}
       name={name}
     >

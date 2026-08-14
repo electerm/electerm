@@ -1,4 +1,4 @@
-import { formItemLayout } from '../../../common/form-layout.js'
+import { verticalFormItemLayout } from '../../../common/form-layout.js'
 import { terminalWebType } from '../../../common/constants.js'
 import { createBaseInitValues } from '../common/init-values.js'
 import { commonFields } from './common-fields.js'
@@ -11,14 +11,15 @@ const webConfig = {
   initValues: (props) => {
     return createBaseInitValues(props, terminalWebType)
   },
-  layout: formItemLayout,
+  layout: verticalFormItemLayout,
   tabs: () => [
     {
       key: 'main',
       label: e('auth'),
       fields: [
-        commonFields.category,
+        { type: 'sectionHeader', title: 'Connection', description: 'Where to connect and how to label it' },
         commonFields.colorTitle,
+        commonFields.category,
         {
           type: 'input',
           name: 'url',
@@ -33,9 +34,11 @@ const webConfig = {
             }
           ]
         },
-        commonFields.description,
+
+        { type: 'sectionHeader', title: 'On connect', description: 'Browser behavior and notes' },
         { type: 'input', name: 'useragent', label: () => e('useragent') },
         { type: 'switch', name: 'hideAddressBar', label: 'hideAddressBar', valuePropName: 'checked' },
+        commonFields.description,
         commonFields.type
       ]
     }

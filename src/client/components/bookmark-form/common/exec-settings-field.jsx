@@ -4,7 +4,7 @@
  */
 import React from 'react'
 import { Form, Input, Select, Space } from 'antd'
-import { formItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
 
@@ -16,7 +16,7 @@ export default function ExecSettingsField () {
     return (
       <React.Fragment key={platform}>
         <FormItem
-          {...formItemLayout}
+          {...verticalFormItemLayout}
           label={label}
         >
           <Space.Compact className='width-100'>

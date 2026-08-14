@@ -4,7 +4,7 @@ import {
   Table
 } from 'antd'
 import {
-  tailFormItemLayout
+  verticalTailFormItemLayout
 } from '../../../common/form-layout'
 import {
   MinusCircleFilled,
@@ -226,7 +226,7 @@ export default function renderConnectionHopping (props) {
 
   function renderList () {
     return (
-      <FormItem {...tailFormItemLayout}>
+      <FormItem {...verticalTailFormItemLayout}>
         <Table
           columns={cols}
           className='mg3b connection-hopping-table'
@@ -257,7 +257,7 @@ export default function renderConnectionHopping (props) {
       return null
     }
     return (
-      <FormItem {...tailFormItemLayout}>
+      <FormItem {...verticalTailFormItemLayout}>
         <ConnectionHoppingWarningText closeWarn={closeWarn} />
       </FormItem>
     )

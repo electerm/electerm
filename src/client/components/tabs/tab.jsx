@@ -496,7 +496,7 @@ class Tab extends Component {
       },
       trigger: ['contextMenu']
     }
-    const { tabCount, color = '#0088cc' } = tab
+    const { tabCount, color } = tab
     const styleTag = color
       ? {
           background: color,
@@ -542,7 +542,7 @@ class Tab extends Component {
               }
               <span className='tab-title'>
                 <span className='iblock mg1r tab-count' style={styleTag}>{tabCount}</span>
-                <span className='mg1r'>{title}</span>
+                <span className='mg1r tab-label'>{title}</span>
               </span>
             </div>
           </Dropdown>

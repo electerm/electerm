@@ -1,9 +1,9 @@
 // SSH config using common fields
-import { formItemLayout } from '../../../common/form-layout.js'
+import { verticalFormItemLayout } from '../../../common/form-layout.js'
 import { connectionMap, authTypeMap, defaultEnvLang } from '../../../common/constants.js'
 import defaultSetting from '../../../common/default-setting.js'
 import { createBaseInitValues, getTerminalDefaults, getSshDefaults, getTerminalBackgroundDefaults, getAuthTypeDefault } from '../common/init-values.js'
-import { sshAuthFields, sshSettings, quickCommandsTab, sshTunnelTab, connectionHoppingTab } from './common-fields.js'
+import { sshAuthFields, sshSettings, sshUiThemeFields, quickCommandsTab, sshTunnelTab, connectionHoppingTab } from './common-fields.js'
 
 const e = window.translate
 
@@ -31,7 +31,7 @@ const sshConfig = {
       ...getAuthTypeDefault(props)
     })
   },
-  layout: formItemLayout,
+  layout: verticalFormItemLayout,
   tabs: () => [
     {
       key: 'auth',
@@ -42,6 +42,11 @@ const sshConfig = {
       key: 'settings',
       label: e('settings'),
       fields: sshSettings
+    },
+    {
+      key: 'uiTheme',
+      label: 'UI Theme',
+      fields: sshUiThemeFields
     },
     quickCommandsTab(),
     sshTunnelTab(),

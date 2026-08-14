@@ -8,7 +8,7 @@ import {
   Form,
   Select
 } from 'antd'
-import { formItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout } from '../../../common/form-layout'
 import { uniqBy } from 'lodash-es'
 import Password from '../../common/password'
 import Upload from '../../common/upload'
@@ -35,7 +35,7 @@ export default function renderAuth (props) {
   }
   const renderKeyField = (key, label, desc) => (
     <FormItem
-      {...formItemLayout}
+      {...verticalFormItemLayout}
       label={e(label)}
       hasFeedback
       key={key}
@@ -81,7 +81,7 @@ export default function renderAuth (props) {
     }
     return (
       <FormItem
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         label={e('password')}
         name={formItemName}
         hasFeedback
@@ -112,7 +112,7 @@ export default function renderAuth (props) {
     }
     return (
       <FormItem
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         label={e('profiles')}
         name='profile'
         hasFeedback
@@ -127,7 +127,7 @@ export default function renderAuth (props) {
     renderKeyField('privateKey', 'privateKey', 'privateKeyDesc'),
     <FormItem
       key='passphrase'
-      {...formItemLayout}
+      {...verticalFormItemLayout}
       label={e('passphrase')}
       name='passphrase'
       hasFeedback

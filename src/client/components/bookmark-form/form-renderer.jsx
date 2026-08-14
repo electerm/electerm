@@ -22,6 +22,51 @@ import newTerm from '../../common/new-terminal'
 import { isValidIP } from '../../common/is-ip'
 import { action as manateAction } from 'manate'
 
+// Groups a flat field list into titled section cards. A field with
+// type 'sectionHeader' starts a new card; fields before the first
+// sectionHeader render ungrouped (unchanged legacy behavior for tabs
+// that don't opt into sectioning, e.g. Settings/Quick commands/Ssh tunnel).
+function renderFieldList (fields, layout, form, ctxProps) {
+  const nodes = []
+  let section = null
+  fields.forEach((f, index) => {
+    if (f.type === 'sectionHeader') {
+      section = {
+        title: typeof f.title === 'function' ? f.title() : f.title,
+        description: typeof f.description === 'function' ? f.description() : f.description,
+        items: []
+      }
+      nodes.push(section)
+      return
+    }
+    if (section) {
+      section.items.push({ f, index })
+    } else {
+      nodes.push({ f, index })
+    }
+  })
+  return nodes.map((n, i) => {
+    if (!n.items) {
+      return renderFormItem(n.f, layout, form, ctxProps, n.index)
+    }
+    return (
+      <div className='bookmark-form-section' key={`section-${i}`}>
+        <div className='bookmark-form-section-head'>
+          <div className='bookmark-form-section-title'>{n.title}</div>
+          {n.description ? <div className='bookmark-form-section-desc'>{n.description}</div> : null}
+        </div>
+        <div className='bookmark-form-section-body'>
+          {n.items.map(({ f, index }) => (
+            <div className={f.half ? 'bookmark-field-half' : 'bookmark-field-full'} key={f.name || index}>
+              {renderFormItem(f, layout, form, ctxProps, index)}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  })
+}
+
 export default function FormRenderer ({ config, props }) {
   const initialValues = config.initValues(props)
   const [form] = Form.useForm()
@@ -295,7 +340,7 @@ export default function FormRenderer ({ config, props }) {
       : (config.fields || [])
     content = (
       <div className='pd1x'>
-        {fields.map((f, index) => renderFormItem(f, config.layout, form, ctxProps, index))}
+        {renderFieldList(fields, config.layout, form, ctxProps)}
       </div>
     )
   } else {
@@ -305,21 +350,25 @@ export default function FormRenderer ({ config, props }) {
       forceRender: true,
       children: (
         <div className='pd1x'>
-          {(tab.fields || []).map((f, index) => renderFormItem(f, config.layout, form, ctxProps, index))}
+          {renderFieldList(tab.fields || [], config.layout, form, ctxProps)}
         </div>
       )
     }))
-    content = <Tabs items={items} />
+    content = <Tabs items={items} className='bookmark-form-tabs' />
   }
   const formName = `${config.key}-form`
   return (
     <Form
       form={form}
+      layout='vertical'
       onFinish={handleFinish}
       initialValues={initialValues}
       name={formName}
+      className='bookmark-form-scroll-wrap'
     >
-      {content}
+      <div className='bookmark-form-scroll-body'>
+        {content}
+      </div>
       <SubmitButtons
         onSave={save}
         onSaveAndCreateNew={saveAndCreateNew}

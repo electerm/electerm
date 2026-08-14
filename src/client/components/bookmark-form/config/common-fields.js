@@ -5,6 +5,7 @@
 import { terminalTypes } from '../../../common/constants'
 import defaultSettings from '../../../common/default-setting'
 import encodes from '../common/encodes'
+import { buildFontFamilyOptions } from '../../../common/google-fonts'
 import { isEmpty } from 'lodash-es'
 
 const e = window.translate
@@ -168,11 +169,16 @@ export const commonFields = {
   },
 
   fontFamily: {
-    type: 'input',
+    type: 'autocomplete',
     name: 'fontFamily',
     label: () => e('fontFamily'),
     rules: [{ max: 130, message: '130 chars max' }],
-    props: { placeholder: defaultSettings.fontFamily }
+    options: buildFontFamilyOptions,
+    props: {
+      placeholder: defaultSettings.fontFamily,
+      filterOption: (input, option) =>
+        (option?.value ?? '').toLowerCase().includes(input.toLowerCase())
+    }
   },
 
   fontSize: {
@@ -261,28 +267,31 @@ export const terminalSettings = [
 ]
 
 export const sshSettings = [
-  {
-    type: 'switch',
-    name: 'enableSsh',
-    label: 'SSH',
-    valuePropName: 'checked'
-  },
-  {
-    type: 'switch',
-    name: 'enableSftp',
-    label: 'SFTP',
-    valuePropName: 'checked'
-  },
-  {
-    type: 'switch',
-    name: 'ignoreKeyboardInteractive',
-    label: () => e('ignoreKeyboardInteractive'),
-    valuePropName: 'checked'
-  },
-  commonFields.enableTerminalImage,
-  ...terminalSettings.slice(0, -1), // All except terminalBackground
+  { type: 'sectionHeader', title: 'Protocols', description: 'Which channels this bookmark opens' },
+  { type: 'toggleRow', name: 'enableSsh', title: 'SSH', description: 'Interactive shell over port 22', badge: true, valuePropName: 'checked' },
+  { type: 'toggleRow', name: 'enableSftp', title: 'SFTP', description: 'File transfer pane alongside the terminal', badge: true, valuePropName: 'checked' },
+
+  { type: 'sectionHeader', title: 'Terminal', description: 'How the session renders' },
+  { ...commonFields.terminalType, half: true },
+  { ...commonFields.proxy, half: true },
+  { ...commonFields.keepaliveInterval, half: true },
   commonFields.x11,
-  commonFields.terminalBackground
+  commonFields.terminalBackground,
+
+  { type: 'sectionHeader', title: 'Behavior', description: 'Edge cases and compatibility' },
+  { type: 'toggleRow', name: 'ignoreKeyboardInteractive', title: () => e('ignoreKeyboardInteractive'), description: 'Skip challenge-response prompts during auth', valuePropName: 'checked' },
+  { type: 'toggleRow', name: 'enableTerminalImage', title: () => e('enableTerminalImage'), description: 'Render inline images with the iTerm2 protocol', valuePropName: 'checked' },
+  { type: 'toggleRow', name: 'displayRaw', title: () => e('displayRaw'), description: 'Print escape sequences instead of interpreting them', valuePropName: 'checked' }
+]
+
+export const sshUiThemeFields = [
+  { type: 'sectionHeader', title: 'Appearance', description: 'Font used for this session' },
+  { ...commonFields.fontFamily, half: true },
+  { ...commonFields.fontSize, half: true },
+  { type: 'bookmarkThemePreview', name: '__themePreview__' },
+
+  { type: 'sectionHeader', title: 'Theme', description: 'Overrides the global UI theme for this bookmark only' },
+  { type: 'bookmarkThemePicker', name: 'themeId' }
 ]
 
 // Common auth fields
@@ -298,23 +307,28 @@ export const basicAuthFields = [
 ]
 
 export const sshAuthFields = [
-  commonFields.category,
+  { type: 'sectionHeader', title: 'Connection', description: 'Where to connect and how to label it' },
   commonFields.title,
+  commonFields.category,
   { ...commonFields.host, type: 'sshHostSelector' },
-  commonFields.username,
-  { type: 'sshAuthTypeSelector', name: 'authType', label: '' },
+  { ...commonFields.port, half: true },
+
+  { type: 'sectionHeader', title: 'Authentication', description: 'Credentials used for this session' },
+  { ...commonFields.username, half: true },
+  { type: 'sshAuthTypeSelector', name: 'authType', label: '', half: true, props: { label: 'Method' } },
   { type: 'sshAuthSelector', name: '__auth__', label: '', formItemName: 'password' },
-  commonFields.port,
   {
     type: 'sshAgent',
     name: 'useSshAgent'
   },
   { type: 'switch', name: 'isMFA', label: () => e('MFA/OTP'), valuePropName: 'checked' },
+
+  { type: 'sectionHeader', title: 'On connect', description: 'Scripts and working directories' },
   commonFields.runScripts,
   commonFields.description,
   commonFields.setEnv,
-  commonFields.startDirectoryLocal,
-  commonFields.startDirectory,
+  { ...commonFields.startDirectoryLocal, half: true },
+  { ...commonFields.startDirectory, half: true },
   commonFields.interactiveValues,
   commonFields.envLang,
   commonFields.encode,
@@ -323,20 +337,25 @@ export const sshAuthFields = [
 
 // Telnet auth fields - similar to SSH but with filtered auth types (no privateKey)
 export const telnetAuthFields = [
-  commonFields.category,
+  { type: 'sectionHeader', title: 'Connection', description: 'Where to connect and how to label it' },
   commonFields.title,
-  commonFields.host,
-  commonFields.username,
-  commonFields.password,
-  commonFields.loginPrompt,
-  commonFields.passwordPrompt,
+  commonFields.category,
+  { ...commonFields.host, half: true },
+  { ...commonFields.port, half: true },
+
+  { type: 'sectionHeader', title: 'Authentication', description: 'Credentials used for this session' },
   { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.telnet) },
-  commonFields.port,
+  { ...commonFields.username, half: true },
+  { ...commonFields.password, half: true },
+  { ...commonFields.loginPrompt, half: true },
+  { ...commonFields.passwordPrompt, half: true },
+
+  { type: 'sectionHeader', title: 'On connect', description: 'Scripts and working directories' },
   commonFields.runScripts,
   commonFields.description,
   commonFields.setEnv,
-  commonFields.startDirectoryLocal,
-  commonFields.startDirectory,
+  { ...commonFields.startDirectoryLocal, half: true },
+  { ...commonFields.startDirectory, half: true },
   commonFields.interactiveValues,
   commonFields.encode,
   commonFields.type

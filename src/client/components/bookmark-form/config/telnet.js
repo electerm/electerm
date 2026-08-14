@@ -1,4 +1,4 @@
-import { formItemLayout } from '../../../common/form-layout.js'
+import { verticalFormItemLayout } from '../../../common/form-layout.js'
 import { terminalTelnetType, authTypeMap } from '../../../common/constants.js'
 import defaultSettings from '../../../common/default-setting.js'
 import {
@@ -27,7 +27,7 @@ const telnetConfig = {
       ...getAuthTypeDefault(props)
     })
   },
-  layout: formItemLayout,
+  layout: verticalFormItemLayout,
   tabs: () => [
     {
       key: 'auth',

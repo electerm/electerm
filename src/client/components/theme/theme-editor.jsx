@@ -2,7 +2,7 @@
 import ThemeEditSlot from './theme-edit-slot'
 
 export default function ThemeEditor (props) {
-  const { themeText, disabled } = props
+  const { themeText, disabled, onLockedClick } = props
   const obj = themeText.split('\n').reduce((prev, line) => {
     let [key = '', value = ''] = line.split('=')
     key = key.trim()
@@ -28,6 +28,7 @@ export default function ThemeEditor (props) {
               value={obj[k]}
               disabled={disabled}
               onChange={onChange}
+              onLockedClick={onLockedClick}
             />
           )
         })

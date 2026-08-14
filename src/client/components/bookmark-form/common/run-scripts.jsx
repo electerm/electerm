@@ -6,7 +6,7 @@ import {
   Input
 } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
-import { formItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
 const FormList = Form.List
@@ -61,7 +61,7 @@ export default function renderRunScripts () {
   }
 
   return [
-    <FormItem {...formItemLayout} key='runScripts' label={e('loginScript')}>
+    <FormItem {...verticalFormItemLayout} key='runScripts' label={e('loginScript')}>
       <FormList
         name='runScripts'
       >

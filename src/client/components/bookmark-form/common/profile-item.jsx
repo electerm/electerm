@@ -4,7 +4,7 @@
  */
 import React from 'react'
 import { Form, Select } from 'antd'
-import { formItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -23,7 +23,7 @@ export default function ProfileItem ({ store, profileFilter = (d) => d }) {
 
   return (
     <FormItem
-      {...formItemLayout}
+      {...verticalFormItemLayout}
       label={e('profiles')}
       name='profile'
       hasFeedback

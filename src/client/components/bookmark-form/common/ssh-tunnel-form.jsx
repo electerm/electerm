@@ -13,7 +13,7 @@ import {
   SaveOutlined,
   UserOutlined
 } from '@ant-design/icons'
-import { formItemLayout, tailFormItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout, verticalTailFormItemLayout } from '../../../common/form-layout'
 import { useState } from 'react'
 
 const FormItem = Form.Item
@@ -98,7 +98,7 @@ export default function SshTunnelForm (props) {
     return (
       <FormItem
         label={e('remote')}
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         required
         className='ssh-tunnels-host'
       >
@@ -139,7 +139,7 @@ export default function SshTunnelForm (props) {
       <FormItem
         label={e('sshTunnel')}
         name='sshTunnel'
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         required
       >
         <RadioGroup onChange={onChange}>
@@ -163,7 +163,7 @@ export default function SshTunnelForm (props) {
       {renderRemote()}
       <FormItem
         label={e('local')}
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         required
         className='ssh-tunnels-host'
       >
@@ -193,13 +193,13 @@ export default function SshTunnelForm (props) {
       <FormItem
         name='name'
         label={e('name')}
-        {...formItemLayout}
+        {...verticalFormItemLayout}
       >
         <Input
           placeholder={e('name')}
         />
       </FormItem>
-      <FormItem {...tailFormItemLayout} className='mg60b'>
+      <FormItem {...verticalTailFormItemLayout} className='mg60b'>
         <Button
           type='default'
           htmlType='button'

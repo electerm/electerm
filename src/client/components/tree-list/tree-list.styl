@@ -1,4 +1,9 @@
 
+.new-bookmark-btn.ant-btn
+  border-radius 999px
+  font-weight 600
+  flex-shrink 0
+
 .tree-control-btn
   display inline-flex
   align-items center
@@ -7,36 +12,90 @@
   width 16px
   line-height 30px
   height 26px
+  border-radius 4px
+  color var(--text-dark)
+  transition background-color .12s ease, color .12s ease
+  &:hover
+    background var(--hover-bg)
+    color var(--primary)
 .tree-item
   display flex
+  align-items center
+  height 100%
   position relative
-  line-height 26px
   padding-left 5px
-  border-radius 3px
+  border-radius 4px
   overflow hidden
-  white-space nowrap
-  text-overflow ellipsis
+  transition background-color .12s ease, color .12s ease
   &.is-category
-    .tree-item-title
+    .tree-item-title-main
       font-weight bold
       font-size 14px
 
   &.search-selected
     outline 1px dashed var(--primary)
-  &.selected
   &.item-dragover
+    outline 2px dashed var(--primary)
   &:hover
-    background #000
-    color #eee
+    background var(--hover-bg)
     cursor pointer
+  &.selected
+    background var(--primary)
+    color var(--primary-contrast)
+    .tree-item-subtitle
+      color inherit
+      opacity .75
   &.item-dragover-top
     border 2px solid var(--primary)
 .tree-item-title
+  display flex
+  align-items center
+  gap 6px
   flex-grow 1
-  line-height 26px
+  min-width 0
   overflow hidden
   white-space nowrap
   text-overflow ellipsis
+
+.tree-item-text
+  display flex
+  flex-direction column
+  min-width 0
+  overflow hidden
+  line-height 1.4
+  .has-subtitle &
+    line-height 1.3
+
+.tree-item-title-main
+  overflow hidden
+  white-space nowrap
+  text-overflow ellipsis
+
+.tree-item-subtitle
+  overflow hidden
+  white-space nowrap
+  text-overflow ellipsis
+  font-size 11px
+  color var(--text-dark)
+  font-family 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
+
+.tree-item-count
+  font-family 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
+  flex-shrink 0
+  margin-left auto
+  padding 0 7px
+  min-width 18px
+  height 18px
+  line-height 18px
+  text-align center
+  font-size 11px
+  font-weight 600
+  border-radius 999px
+  background var(--hover-bg)
+  color var(--text-dark)
+  .selected &
+    background rgba(255, 255, 255, .25)
+    color inherit
 
 .sidebar-panel .tree-item-title
    max-width 100%
@@ -68,9 +127,11 @@
   position absolute
   left 0
   top 0
+  bottom 0
   width 12px
   font-size 11px
-  line-height 30px
+  display flex
+  align-items center
 
 .category-color-tag
   display inline-block
@@ -94,6 +155,9 @@
 
 .tree-list-header
   flex-shrink 0
+  padding-bottom 8px
+  margin-bottom 6px
+  border-bottom 1px solid var(--border-color)
 
 .item-list-wrap
   flex 1
@@ -109,12 +173,12 @@
   right 0
   top 100%
   margin-top 4px
-  background var(--main-dark)
-  border 1px solid var(--main)
-  border-radius 4px
+  background var(--main-light)
+  border 1px solid var(--border-color)
+  border-radius var(--radius-sm)
   padding 4px
   z-index 100
-  box-shadow 0 2px 8px rgba(0,0,0,.1)
+  box-shadow 0 4px 16px rgba(0,0,0,.35)
 &.open
   .tree-sort-dropdown
     display block
@@ -128,12 +192,12 @@
 
 .tree-sort-popover-item
   padding 4px 8px
-  border-radius 3px
+  border-radius var(--radius-sm)
   cursor pointer
   white-space nowrap
   font-size 12px
   &:hover
-    background var(--hover-bg, rgba(0,0,0,.04))
+    background var(--hover-bg)
   &.active
     color var(--primary)
 
@@ -149,6 +213,7 @@
 .tree-list-row
   box-sizing border-box
   width 100%
+  height 100%
   position relative
   &.is-hidden
     visibility hidden
@@ -167,6 +232,7 @@
 
 .tree-list-row-group
   position relative
+  height 100%
   padding-left 12px
 
 .tree-list-editor-overlay

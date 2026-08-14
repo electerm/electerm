@@ -17,7 +17,7 @@ import {
   terminalSpiceType
 } from '../../common/constants'
 import { createTitleWithTag } from '../../common/create-title'
-import { LoadingOutlined, BookOutlined, RobotOutlined } from '@ant-design/icons'
+import { LoadingOutlined, RobotOutlined } from '@ant-design/icons'
 import sessionConfig from './config/session-config'
 import renderForm from './render-form'
 import AIBookmarkForm from './ai-bookmark-form'
@@ -101,7 +101,7 @@ export default class BookmarkIndex2 extends PureComponent {
       <Radio.Group
         buttonStyle='solid'
         size='small'
-        className='mg1l'
+        className='pill-radio-group'
         value={bookmarkType}
         disabled={!isNew}
         onChange={this.handleChange}
@@ -115,11 +115,15 @@ export default class BookmarkIndex2 extends PureComponent {
   }
 
   renderTitle (formData, isNew) {
-    if (isNew) return null
+    if (isNew) {
+      return (
+        <span className='form-title-main'>Untitled connection</span>
+      )
+    }
     return (
-      <b className='mg1x'>
+      <span className='form-title-main'>
         {createTitleWithTag(formData)}
-      </b>
+      </span>
     )
   }
 
@@ -172,14 +176,15 @@ export default class BookmarkIndex2 extends PureComponent {
     const keys = Object.keys(sessionConfig)
     return (
       <div className='form-wrap pd1x'>
-        <div className='form-title pd1t pd1x pd2b bold'>
-          <BookOutlined className='mg1r' />
-          <span>
+        <div className='form-title pd1t pd1x pd2b'>
+          <div className='form-title-eyebrow'>
             {((!isNew ? e('edit') : e('new')) + ' ' + e(settingMap.bookmarks))}
-          </span>
-          {this.renderTitle(formData, isNew)}
+          </div>
+          <div className='form-title-row'>
+            {this.renderTitle(formData, isNew)}
+            {this.renderAIButton(isNew)}
+          </div>
           {this.renderTypes(bookmarkType, isNew, keys)}
-          {this.renderAIButton(isNew)}
         </div>
         {this.renderForm()}
       </div>

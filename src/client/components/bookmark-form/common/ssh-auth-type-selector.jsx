@@ -1,6 +1,6 @@
 import { Radio, Form } from 'antd'
 import { authTypeMap } from '../../../common/constants'
-import { tailFormItemLayout } from '../../../common/form-layout'
+import { verticalTailFormItemLayout } from '../../../common/form-layout'
 
 const authTypes = Object.keys(authTypeMap).map(k => {
   return k
@@ -10,16 +10,18 @@ const RadioGroup = Radio.Group
 const e = window.translate
 const FormItem = Form.Item
 
-export default function SshAuthTypeSelector ({ handleChangeAuthType, filterAuthType = a => a, value, ...props }) {
+export default function SshAuthTypeSelector ({ handleChangeAuthType, filterAuthType = a => a, value, label, ...props }) {
   const authTypesFiltered = authTypes.filter(filterAuthType)
   return (
     <FormItem
-      {...tailFormItemLayout}
+      {...verticalTailFormItemLayout}
       className='mg1b'
+      label={label}
       name='authType'
     >
       <RadioGroup
         size='small'
+        className='pill-radio-group'
         onChange={handleChangeAuthType}
         buttonStyle='solid'
       >

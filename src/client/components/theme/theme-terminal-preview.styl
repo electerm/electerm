@@ -1,0 +1,63 @@
+.theme-editor-main
+  flex 1
+  min-width 260px
+
+.theme-terminal-preview
+  width 340px
+  position sticky
+  top 0
+  flex-shrink 0
+  border-radius var(--radius)
+  border 1px solid var(--border-color)
+  overflow hidden
+  font-family 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
+  font-size 12px
+  line-height 1.7
+
+.theme-terminal-preview-dots
+  padding 10px 12px
+  background rgba(0, 0, 0, .18)
+  span
+    display inline-block
+    width 8px
+    height 8px
+    border-radius 50%
+    background currentColor
+    opacity .35
+    margin-right 6px
+
+.theme-terminal-preview-body
+  padding 4px 14px 14px
+
+.theme-terminal-preview-selection
+  padding 0 2px
+  border-radius 2px
+
+.theme-terminal-preview-cursor
+  display inline-block
+  width 7px
+  padding 0 1px
+
+.theme-terminal-preview-swatches
+  padding 10px 14px 14px
+  border-top 1px solid rgba(255, 255, 255, .08)
+
+.theme-terminal-preview-swatch-row
+  display flex
+  flex-wrap wrap
+  gap 8px 12px
+  margin-bottom 6px
+  &:last-child
+    margin-bottom 0
+
+.theme-terminal-preview-swatch
+  display inline-flex
+  align-items center
+  gap 5px
+  font-size 11px
+
+.theme-terminal-preview-swatch-dot
+  width 8px
+  height 8px
+  border-radius 2px
+  flex-shrink 0

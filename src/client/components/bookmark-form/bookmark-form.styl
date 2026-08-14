@@ -1,3 +1,274 @@
+.bookmark-theme-picker
+  display flex
+  flex-direction column
+  gap 10px
+
+.bookmark-theme-picker-item
+  display flex
+  align-items center
+  gap 8px
+  padding 8px 10px
+  border-radius var(--radius-sm)
+  border 1px solid var(--border-color)
+  cursor pointer
+  color var(--text)
+  transition border-color .12s ease, background-color .12s ease
+  &:hover
+    border-color var(--primary)
+  &.is-selected
+    border-color var(--primary)
+    background rgba(240, 66, 110, .12)
+    color var(--primary)
+
+.bookmark-theme-picker-global
+  justify-content space-between
+  font-weight 600
+  font-size 13px
+
+.bookmark-theme-picker-grid
+  display grid
+  grid-template-columns repeat(auto-fill, minmax(150px, 1fr))
+  gap 8px
+  max-height 320px
+  overflow-y auto
+  padding-right 4px
+
+.bookmark-theme-picker-swatches
+  display flex
+  flex-shrink 0
+  span
+    width 10px
+    height 10px
+    border-radius 2px
+    margin-right -3px
+    border 1px solid rgba(0, 0, 0, .4)
+    &:first-child
+      border-radius 3px 0 0 3px
+    &:last-child
+      border-radius 0 3px 3px 0
+      margin-right 0
+
+.bookmark-theme-picker-mode
+  flex-shrink 0
+  font-size 11px
+  color var(--text-dark)
+
+.bookmark-theme-picker-name
+  flex 1
+  min-width 0
+  font-size 12px
+  overflow hidden
+  white-space nowrap
+  text-overflow ellipsis
+
+.bookmark-theme-picker-check
+  flex-shrink 0
+  font-size 12px
+  color var(--primary)
+
+.settings-toggle-row
+  display flex
+  align-items flex-start
+  gap 14px
+  padding 14px 0
+  &:not(:last-child)
+    border-bottom 1px solid var(--border-color)
+
+.settings-toggle-text
+  flex 1
+  min-width 0
+
+.settings-toggle-title
+  font-weight 600
+  font-size 13px
+  color var(--text)
+
+.settings-toggle-desc
+  font-size 12px
+  color var(--text-dark)
+  margin-top 2px
+
+.settings-toggle-badge
+  flex-shrink 0
+  align-self center
+  padding 3px 10px
+  border-radius 999px
+  font-size 11px
+  font-weight 600
+  background var(--hover-bg)
+  color var(--text-dark)
+  &.is-on
+    background rgba(6, 214, 160, .14)
+    color var(--success)
+
+.form-wrap
+  height 100%
+  display flex
+  flex-direction column
+  overflow hidden
+
+.form-title
+  flex-shrink 0
+  display flex
+  flex-direction column
+  font-size 15px
+  border-bottom 1px solid var(--border-color)
+  padding-bottom 14px
+  margin-bottom 16px
+
+.bookmark-form-scroll-wrap.ant-form
+  flex 1
+  min-height 0
+  display flex
+  flex-direction column
+  overflow hidden
+
+.bookmark-form-scroll-body
+  flex 1
+  min-height 0
+  overflow-y auto
+
+.bookmark-form-tabs.ant-tabs
+  > .ant-tabs-nav
+    margin-bottom 16px
+    .ant-tabs-tab
+      font-weight 600
+
+// Technical values (hosts, ports, paths, commands) get the monospace
+// face. antd auto-generates input ids as "{formName}_{fieldName}" for
+// registered Form.Item fields, and unprefixed "{fieldName}" ids for
+// fields in nested modals (ssh tunnel / connection hopping forms, which
+// render through an antd Modal portal - outside .form-wrap - so these
+// selectors are intentionally unscoped rather than ancestor-qualified.
+input[id$="_host"]
+input#host
+input[id$="_port"]
+input#port
+input[id$="_path"]
+input[id$="_startDirectoryLocal"]
+input[id$="_startDirectory"]
+input[id$="_setEnv"]
+input[id$="_closeSequence"]
+input[id*="_script"]
+#sshTunnelRemoteHost
+#sshTunnelRemotePort
+#sshTunnelLocalHost
+#sshTunnelLocalPort
+  font-family 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
+
+.bookmark-submit-footer.ant-form-item
+  flex-shrink 0
+  margin 16px 0 0
+  padding 12px 0 2px
+  background var(--main-darker)
+  border-top 1px solid var(--border-color)
+  .ant-form-item-control-input
+    min-height 0
+  .ant-form-item-control-input-content
+    display flex
+    flex-wrap wrap
+    justify-content flex-end
+
+.form-title-eyebrow
+  font-size 11px
+  font-weight 700
+  letter-spacing .06em
+  text-transform uppercase
+  color var(--primary)
+  margin-bottom 4px
+
+.form-title-row
+  display flex
+  align-items center
+  flex-wrap wrap
+  gap 10px
+
+.form-title-main
+  font-size 22px
+  font-weight 700
+  line-height 1.3
+
+.pill-radio-group.ant-radio-group
+  display inline-flex
+  flex-wrap wrap
+  gap 8px
+  margin-top 12px
+  .ant-radio-button-wrapper
+    height 30px !important
+    line-height 28px !important
+    padding 0 13px !important
+    border-radius 8px !important
+    border 1px solid #242a33 !important
+    background transparent !important
+    color #8b95a5 !important
+    font-size 12.5px !important
+    font-weight 500 !important
+    letter-spacing .01em
+    &::before
+      display none
+    &:not(.ant-radio-button-wrapper-checked):hover
+      color var(--primary)
+      border-color var(--primary) !important
+    &.ant-radio-button-wrapper-checked
+      background rgba(224, 86, 122, .14) !important
+      border-color #e0567a !important
+      color #f3899f !important
+      font-weight 600 !important
+
+.bookmark-form-section
+  background #10141A
+  border 1px solid var(--border-color)
+  border-radius var(--radius)
+  box-shadow 0 2px 10px rgba(0, 0, 0, .3)
+  padding 16px 20px 6px
+  margin-bottom 16px
+
+.bookmark-form-section-head
+  display flex
+  align-items baseline
+  flex-wrap wrap
+  gap 4px 10px
+  margin-bottom 14px
+  padding-bottom 12px
+  border-bottom 1px solid var(--border-color)
+
+.bookmark-form-section-title
+  font-weight 600
+  font-size 13px
+  color var(--text)
+
+.bookmark-form-section-desc
+  font-size 12px
+  color var(--text-dark)
+
+.bookmark-form-section-body
+  display grid
+  grid-template-columns 1fr 1fr
+  gap 0 20px
+  align-items start
+  .ant-form-item
+    margin-bottom 12px
+
+.bookmark-field-full
+  grid-column 1 / -1
+  min-width 0
+
+.bookmark-field-half
+  grid-column auto
+  min-width 0
+
+.is-mobile
+  .bookmark-form-section-body
+    grid-template-columns 1fr
+  .bookmark-field-half
+    grid-column 1 / -1
+
+@media (max-width: 700px)
+  .bookmark-form-section-body
+    grid-template-columns 1fr
+  .bookmark-field-half
+    grid-column 1 / -1
+
 .mg24b
   margin-bottom 24px
 .mg60b

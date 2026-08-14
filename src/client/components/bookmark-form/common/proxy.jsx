@@ -3,7 +3,7 @@ import {
   Form,
   AutoComplete
 } from 'antd'
-import { formItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -26,7 +26,7 @@ export default function renderProxy (props) {
     })
   return (
     <FormItem
-      {...formItemLayout}
+      {...verticalFormItemLayout}
       label={e('proxy')}
       hasFeedback
       name='proxy'

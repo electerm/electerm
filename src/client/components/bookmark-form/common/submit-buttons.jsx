@@ -4,7 +4,7 @@
  */
 import React from 'react'
 import { Button, Form } from 'antd'
-import { tailFormItemLayout } from '../../../common/form-layout'
+import { verticalTailFormItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -17,26 +17,22 @@ export default function SubmitButtons ({
   onSaveAndConnect
 }) {
   return (
-    <FormItem {...tailFormItemLayout}>
-      <p>
-        <Button type='primary' htmlType='submit' className='mg1r mg1b'>
-          {e('saveAndConnect')}
-        </Button>
-        <Button type='primary' className='mg1r mg1b' onClick={onSaveAndCreateNew}>
-          {e('saveAndCreateNew')}
-        </Button>
-        <Button type='dashed' className='mg1r mg1b' onClick={onSave}>
-          {e('save')}
-        </Button>
-      </p>
-      <p>
-        <Button type='dashed' onClick={onConnect} className='mg1r mg1b'>
-          {e('connect')}
-        </Button>
-        <Button type='dashed' onClick={onTestConnection} className='mg1r mg1b'>
-          {e('testConnection')}
-        </Button>
-      </p>
+    <FormItem {...verticalTailFormItemLayout} className='bookmark-submit-footer'>
+      <Button type='dashed' onClick={onTestConnection} className='mg1r mg1b'>
+        {e('testConnection')}
+      </Button>
+      <Button type='dashed' onClick={onConnect} className='mg1r mg1b'>
+        {e('connect')}
+      </Button>
+      <Button type='dashed' className='mg1r mg1b' onClick={onSave}>
+        {e('save')}
+      </Button>
+      <Button type='primary' className='mg1r mg1b' onClick={onSaveAndCreateNew}>
+        {e('saveAndCreateNew')}
+      </Button>
+      <Button type='primary' htmlType='submit' className='mg1b'>
+        {e('saveAndConnect')}
+      </Button>
     </FormItem>
   )
 }

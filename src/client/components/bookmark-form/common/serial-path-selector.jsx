@@ -1,6 +1,6 @@
 import { ReloadOutlined } from '@ant-design/icons'
 import { AutoComplete, Spin, Form } from 'antd'
-import { formItemLayout } from '../../../common/form-layout'
+import { verticalFormItemLayout } from '../../../common/form-layout'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -13,7 +13,7 @@ export default function SerialPathSelector ({
 }) {
   return (
     <FormItem
-      {...formItemLayout}
+      {...verticalFormItemLayout}
       label='path'
       rules={[{
         required: true, message: 'path required'

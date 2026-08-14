@@ -259,7 +259,8 @@ class Store {
     const themeConf = store.getUiThemeConfig()
     return {
       token: {
-        borderRadius: 3,
+        borderRadius: 7,
+        fontFamily: "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif",
         colorPrimary: themeConf.primary,
         colorBgBase: themeConf.main,
         colorError: themeConf.error,

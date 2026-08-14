@@ -6,8 +6,8 @@ import {
   Button
 } from 'antd'
 import {
-  formItemLayout,
-  tailFormItemLayout
+  verticalFormItemLayout,
+  verticalTailFormItemLayout
 } from '../../../common/form-layout'
 import {
   PlusOutlined,
@@ -76,7 +76,7 @@ export default function ConnectionHoppingForm (props) {
       component='div'
     >
       <FormItem
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         label={e('chooseFromBookmarks')}
         className='mg60b'
         style={{ display: isEdit ? 'none' : '' }}
@@ -84,7 +84,7 @@ export default function ConnectionHoppingForm (props) {
         <BookmarkSelect {...treeProps} />
       </FormItem>
       <FormItem
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         label={e('host')}
         hasFeedback
         rules={[{
@@ -98,7 +98,7 @@ export default function ConnectionHoppingForm (props) {
         <Input />
       </FormItem>
       <FormItem
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         label={e('port')}
         hasFeedback
         name='port'
@@ -114,7 +114,7 @@ export default function ConnectionHoppingForm (props) {
         />
       </FormItem>
       <FormItem
-        {...formItemLayout}
+        {...verticalFormItemLayout}
         label={e('username')}
         hasFeedback
         name='username'
@@ -126,7 +126,7 @@ export default function ConnectionHoppingForm (props) {
         <Input />
       </FormItem>
       <FormItem
-        {...tailFormItemLayout}
+        {...verticalTailFormItemLayout}
         className='mg1b'
         name='authType'
       >
@@ -151,7 +151,7 @@ export default function ConnectionHoppingForm (props) {
         store={store}
         authType={authType}
       />
-      <FormItem {...tailFormItemLayout} className='mg60b'>
+      <FormItem {...verticalTailFormItemLayout} className='mg60b'>
         <Button
           type='default'
           htmlType='button'

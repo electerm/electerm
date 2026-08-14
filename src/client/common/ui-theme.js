@@ -10,7 +10,7 @@ const defaultUiThemeStylus = `
   --text-light #fff
   --text-dark #888
   --text-disabled #777
-  --primary #08c
+  --primary #f0426e
   --info #FFD166
   --success #06D6A0
   --error #EF476F

@@ -1,19 +1,55 @@
-.color-picker-unit
-  display inline-block
-  padding 5px
-  margin-right 5px
-  margin-bottom 5px
-  border 1px solid #ccc
-  border-radius 5px
-  cursor pointer
-  background #fff
-  width 92px
 .color-picker-box
-  width 420px
+  width 220px
 
-.color-picker-defaults
-  width 200px
-.color-picker-choose
-  width 18px
-  height 18px
+.color-picker-swatches
+  display grid
+  grid-template-columns repeat(5, 1fr)
+  gap 8px
+  margin-bottom 12px
+
+.color-picker-swatch
+  width 32px
+  height 32px
+  padding 0
+  border 2px solid var(--border-color)
+  border-radius 999px
   cursor pointer
+  display flex
+  align-items center
+  justify-content center
+  color #fff
+  font-size 14px
+  transition transform .1s ease, border-color .15s ease
+  &:hover
+    transform scale(1.12)
+    border-color var(--text-light)
+  &.is-selected
+    border-color var(--text-light)
+    box-shadow 0 0 0 2px var(--primary)
+
+.color-picker-swatch-random
+  background var(--main-light)
+  font-size 15px
+
+.color-picker-advanced
+  display flex
+  align-items center
+  gap 10px
+  padding-top 10px
+  border-top 1px solid var(--border-color)
+  .ant-color-picker-trigger
+    flex-shrink 0
+
+.color-picker-choose
+  width 20px
+  height 20px
+  border-radius 5px
+  border 1px solid var(--border-color)
+  cursor pointer
+  transition transform .1s ease
+  &:hover
+    transform scale(1.1)
+  &.color-picker-choose-locked
+    border-style dashed
+    &:hover
+      border-color var(--primary)

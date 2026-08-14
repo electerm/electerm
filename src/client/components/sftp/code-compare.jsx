@@ -100,7 +100,7 @@ export default function CodeCompare (props) {
       emptyLineBackground: themeConf['main-dark'] || (dark ? '#1a1a1a' : '#fafafa'),
       diffViewerTitleBackground: themeConf['main-dark'] || (dark ? '#2a2a2a' : '#f0f0f0'),
       diffViewerTitleColor: themeConf.text || (dark ? '#ddd' : '#333'),
-      diffViewerTitleBorderColor: themeConf.primary || '#08c'
+      diffViewerTitleBorderColor: themeConf.primary || '#f0426e'
     }
     return {
       useDarkTheme: dark,

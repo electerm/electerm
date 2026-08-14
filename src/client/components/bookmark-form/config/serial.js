@@ -1,4 +1,4 @@
-import { formItemLayout } from '../../../common/form-layout.js'
+import { verticalFormItemLayout } from '../../../common/form-layout.js'
 import { terminalSerialType, commonBaudRates, commonDataBits, commonStopBits, commonParities, commonTxLineEndings, commonRxLineEndings } from '../../../common/constants.js'
 import defaultSettings from '../../../common/default-setting.js'
 import { createBaseInitValues, getTerminalBackgroundDefaults } from '../common/init-values.js'
@@ -29,19 +29,21 @@ const serialConfig = {
       ...getTerminalBackgroundDefaults(defaultSettings)
     })
   },
-  layout: formItemLayout,
+  layout: verticalFormItemLayout,
   tabs: () => [
     {
       key: 'auth',
       label: e('auth'),
       fields: [
-        commonFields.category,
+        { type: 'sectionHeader', title: 'Connection', description: 'Where to connect and how to label it' },
         commonFields.colorTitle,
-        { type: 'serialPathSelector', name: 'path', label: 'path', rules: [{ required: true, message: 'path required' }] },
+        commonFields.category,
+        { type: 'serialPathSelector', name: 'path', label: 'path', half: true, rules: [{ required: true, message: 'path required' }] },
         {
           type: 'autocomplete',
           name: 'baudRate',
           label: 'baudRate',
+          half: true,
           options: commonBaudRates.map(d => ({ value: d.toString(), label: d.toString() })),
           normalize: (value) => {
             if (value === '' || value == null) {
@@ -51,28 +53,34 @@ const serialConfig = {
             return isNaN(numValue) ? undefined : numValue
           }
         },
-        { type: 'select', name: 'dataBits', label: 'dataBits', options: commonDataBits.map(d => ({ value: d, label: d })) },
-        { type: 'select', name: 'stopBits', label: 'stopBits', options: commonStopBits.map(d => ({ value: d, label: d })) },
-        { type: 'select', name: 'parity', label: 'parity', options: commonParities.map(d => ({ value: d, label: d })) },
-        { type: 'switch', name: 'lock', label: 'lock', valuePropName: 'checked' },
-        { type: 'switch', name: 'rtscts', label: 'rtscts', valuePropName: 'checked' },
-        { type: 'switch', name: 'xon', label: 'xon', valuePropName: 'checked' },
-        { type: 'switch', name: 'xoff', label: 'xoff', valuePropName: 'checked' },
-        { type: 'switch', name: 'xany', label: 'xany', valuePropName: 'checked' },
-        { type: 'select', name: 'txLineEnding', label: 'txLineEnding', options: commonTxLineEndings.map(d => ({ value: d.value, label: d.label })) },
-        { type: 'select', name: 'rxLineEnding', label: 'rxLineEnding', options: commonRxLineEndings.map(d => ({ value: d.value, label: d.label })) },
+
+        { type: 'sectionHeader', title: 'Port settings', description: 'Data framing and flow control' },
+        { type: 'select', name: 'dataBits', label: 'dataBits', half: true, options: commonDataBits.map(d => ({ value: d, label: d })) },
+        { type: 'select', name: 'stopBits', label: 'stopBits', half: true, options: commonStopBits.map(d => ({ value: d, label: d })) },
+        { type: 'select', name: 'parity', label: 'parity', half: true, options: commonParities.map(d => ({ value: d, label: d })) },
+        { type: 'switch', name: 'lock', label: 'lock', half: true, valuePropName: 'checked' },
+        { type: 'switch', name: 'rtscts', label: 'rtscts', half: true, valuePropName: 'checked' },
+        { type: 'switch', name: 'xon', label: 'xon', half: true, valuePropName: 'checked' },
+        { type: 'switch', name: 'xoff', label: 'xoff', half: true, valuePropName: 'checked' },
+        { type: 'switch', name: 'xany', label: 'xany', half: true, valuePropName: 'checked' },
+        { type: 'select', name: 'txLineEnding', label: 'txLineEnding', half: true, options: commonTxLineEndings.map(d => ({ value: d.value, label: d.label })) },
+        { type: 'select', name: 'rxLineEnding', label: 'rxLineEnding', half: true, options: commonRxLineEndings.map(d => ({ value: d.value, label: d.label })) },
         {
           type: 'input',
           name: 'closeSequence',
           label: e('closeSequence'),
+          half: true,
           props: { placeholder: '\\x01ky' }
         },
         {
           type: 'number',
           name: 'closeSequenceDelay',
           label: e('closeSequenceDelay'),
+          half: true,
           props: { min: 0, max: 10000, step: 100 }
         },
+
+        { type: 'sectionHeader', title: 'On connect', description: 'Scripts and notes' },
         commonFields.runScripts,
         commonFields.description,
         { type: 'input', name: 'type', label: 'type', hidden: true }

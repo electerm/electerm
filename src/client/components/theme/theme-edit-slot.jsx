@@ -4,7 +4,8 @@ export default function ThemeEditSlot (props) {
   const {
     name,
     value,
-    disabled
+    disabled,
+    onLockedClick
   } = props
   function onChange (v) {
     props.onChange(v, name)
@@ -13,7 +14,8 @@ export default function ThemeEditSlot (props) {
     value,
     onChange,
     isRgba: value.startsWith('rgba'),
-    disabled
+    disabled,
+    onLockedClick
   }
   return (
     <div className='theme-edit-slot'>

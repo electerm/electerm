@@ -1,10 +1,17 @@
-.theme-editor-txt
-  .editor-u-textarea
-    display block !important
-  .editor-u-picker
-    display none !important
-.theme-editor-color-picker
-  .editor-u-textarea
-    display none !important
-  .editor-u-picker
-    display block !important
+.theme-form-scroll-wrap.ant-form
+  height 100%
+  display flex
+  flex-direction column
+  overflow hidden
+
+.theme-form-scroll-body
+  flex 1
+  min-height 0
+  overflow-y auto
+
+.theme-form-footer.ant-form-item
+  flex-shrink 0
+  margin 16px 0 0
+  padding 12px 0 2px
+  background var(--main-darker)
+  border-top 1px solid var(--border-color)

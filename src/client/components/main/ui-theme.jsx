@@ -25,7 +25,7 @@ function darker (color, amount = 0.1) {
   let g = (num & 0x0000FF) - Math.round(255 * amount)
   if (g < 0) g = 0
 
-  return (usePound ? '#' : '') + (g | (b << 8) | (r << 16)).toString(16)
+  return (usePound ? '#' : '') + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0')
 }
 
 function buildTheme (themeConfig) {

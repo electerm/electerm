@@ -339,7 +339,7 @@ export default class SessionWrapper extends Component {
       width,
       height
     } = this.calcTermWidthHeight()
-    const themeConfig = copy(window.store.getThemeConfig())
+    const themeConfig = copy(window.store.getThemeConfig(tab.themeId))
     const logName = sanitizeFilename(`${tab.title ? tab.title + '_' : ''}${tab.host ? tab.host + '_' : ''}${tab.id}`)
     const pops = {
       ...this.props,

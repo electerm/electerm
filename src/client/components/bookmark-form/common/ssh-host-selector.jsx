@@ -1,7 +1,7 @@
 import { Form } from 'antd'
 import InputAutoFocus from '../../common/input-auto-focus.jsx'
 import { ColorPickerItem } from './color-picker-item.jsx'
-import { formItemLayout } from '../../../common/form-layout.js'
+import { verticalFormItemLayout } from '../../../common/form-layout.js'
 
 const FormItem = Form.Item
 const e = window.translate
@@ -29,7 +29,7 @@ export default function SshHostSelector ({ ips = [], useIp, form, onBlur, onPast
 
   return (
     <FormItem
-      {...formItemLayout}
+      {...verticalFormItemLayout}
       label={e('host')}
       hasFeedback
       rules={[{
@@ -42,15 +42,12 @@ export default function SshHostSelector ({ ips = [], useIp, form, onBlur, onPast
       {
         ips.length
           ? renderIps()
-          : (
-            <div className='dns-section'>
-              hostname or ip
-            </div>
-            )
+          : null
       }
       <FormItem noStyle name='host'>
         <InputAutoFocus
           name='host'
+          placeholder='hostname or ip'
           onBlur={props.onBlur}
           onPaste={e => onPaste(e, form)}
           prefix={<ColorPickerItem />}
