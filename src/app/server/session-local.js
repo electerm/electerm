@@ -44,6 +44,10 @@ class TerminalLocal extends TerminalBase {
     delete env.ELECTRON_RUN_AS_NODE
     delete env.NODE_OPTIONS
     delete env.ELECTRON_NO_ATTACH_CONSOLE
+    // temp PEM of system CAs for the server process (WebDAV sync, #4347) —
+    // not meant for user shells, and a bad keychain cert makes any Node/bun
+    // tool in the terminal print "ignoring extra certs ... load failed"
+    delete env.NODE_EXTRA_CA_CERTS
     this.term = pty.spawn(exec, argv, {
       name: term,
       encoding: null,
