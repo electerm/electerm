@@ -54,6 +54,43 @@ function verify (req) {
   }
 }
 
+// True when the buffered data ends mid-way through a multi-byte UTF-8
+// sequence (CJK chars are 3 bytes). Slow SSH servers (embedded router CLIs)
+// often deliver one char split across TCP segments; flushing such a buffer
+// right away would push a partial char to the client. Only the tail of the
+// last buffer is inspected (at most 4 bytes), so this is O(1).
+function hasIncompleteTrailingUtf8 (bufs) {
+  const last = bufs[bufs.length - 1]
+  if (!last) {
+    return false
+  }
+  const buf = Buffer.isBuffer(last) ? last : Buffer.from(last)
+  const len = buf.length
+  if (!len) {
+    return false
+  }
+  // Count trailing continuation bytes (10xxxxxx), at most 3
+  let cont = 0
+  while (cont < 3 && cont < len && (buf[len - 1 - cont] & 0xc0) === 0x80) {
+    cont++
+  }
+  const leadIdx = len - 1 - cont
+  if (leadIdx < 0) {
+    // Whole buffer is continuation bytes; the lead byte was in a chunk that
+    // was already flushed, so holding can not reassemble anything.
+    return false
+  }
+  const lead = buf[leadIdx]
+  if (lead < 0xc0) {
+    // ASCII last byte, or stray continuations after ASCII: nothing to wait for
+    return false
+  }
+  // Expected continuation count for this lead byte:
+  // 110xxxxx -> 1, 1110xxxx -> 2, 11110xxx -> 3
+  const needed = lead < 0xe0 ? 1 : lead < 0xf0 ? 2 : 3
+  return cont < needed
+}
+
 appDec(app)
 
 if (type === 'rdp') {
@@ -262,6 +299,18 @@ if (type === 'rdp') {
       // burst is already in flight (elapsed < flushIntervalMs) get batched.
       const elapsed = Date.now() - lastFlushTime
       if (elapsed >= flushIntervalMs) {
+        // Never fast-flush a buffer that ends mid-way through a multi-byte
+        // UTF-8 char: a slow peer (router CLI) may deliver one char split
+        // across TCP segments, and the remaining bytes usually land within a
+        // few ms. Hold one coalescing window so they get concatenated first
+        // (the completing chunk then flushes immediately via this same fast
+        // path). Bounded by the timeout, so it can not stick.
+        if (hasIncompleteTrailingUtf8(dataBuffer)) {
+          if (!sendTimeout) {
+            sendTimeout = setTimeout(flushBufferedData, flushIntervalMs)
+          }
+          return
+        }
         if (sendTimeout) {
           clearTimeout(sendTimeout)
           sendTimeout = null

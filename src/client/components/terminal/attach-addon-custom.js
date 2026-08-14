@@ -216,8 +216,15 @@ export default class AttachAddonCustom {
     let str = data
     if (typeof data !== 'string') {
       try {
+        // Decode in streaming mode: slow SSH servers (e.g. embedded router
+        // CLIs) often deliver a multi-byte UTF-8 char (CJK = 3 bytes) split
+        // across TCP segments, and the server-side idle fast path may forward
+        // the first segment immediately. Without { stream: true } the decoder
+        // would turn each partial fragment into U+FFFD instead of carrying the
+        // trailing bytes over to the next chunk and reassembling the char.
         str = this.decoder.decode(
-          data instanceof ArrayBuffer ? data : new Uint8Array(data)
+          data instanceof ArrayBuffer ? data : new Uint8Array(data),
+          { stream: true }
         )
       } catch (e) {
         str = ''
@@ -435,6 +442,9 @@ export default class AttachAddonCustom {
     this._flushScheduled = false
     this._writeBuffer = []
     this._bufferBytes = 0
+    // Reset the streaming decoder so any partial multi-byte sequence held
+    // over from this connection can not leak into a reused instance.
+    this.decoder = new TextDecoder('utf-8')
     this.term = null
     this._disposables.forEach(d => d.dispose())
     this._disposables.length = 0
