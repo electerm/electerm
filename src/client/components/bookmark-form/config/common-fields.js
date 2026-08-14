@@ -328,9 +328,7 @@ export const sshAuthFields = [
   { type: 'switch', name: 'isMFA', label: () => e('MFA/OTP'), valuePropName: 'checked' },
   commonFields.interactiveValues,
 
-  // Space-separated so the missing-key fallback reads as words. translate()
-  // returns the key itself when absent, so 'onConnect' rendered as ONCONNECT.
-  { type: 'section', name: '__sec_onconnect__', label: () => e('on connect') },
+  { type: 'section', name: '__sec_onconnect__', label: () => e('onConnect') },
   commonFields.runScripts,
   commonFields.startDirectoryLocal,
   commonFields.startDirectory,
