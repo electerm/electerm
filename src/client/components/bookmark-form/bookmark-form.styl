@@ -48,6 +48,10 @@
         flex 1
         min-height 0
         overflow-y auto
+        // Setting only overflow-y makes overflow-x compute to auto, so any
+        // element a few px wider than the pane raises a horizontal scrollbar
+        // across the bottom of the field list. Nothing here scrolls sideways.
+        overflow-x hidden
         padding-bottom 18px
         // The panel hides scrollbars globally, which is exactly why there was
         // no sign that more fields existed below. Put one back, here only.
@@ -108,6 +112,10 @@
 // drop their own labels so the controls share a single line beneath it.
 .bookmark-form-row
   margin-bottom 24px
+  // antd's gutter gives the Row margin -6px on each side, which the Cols'
+  // padding cancels out for the content but not for the Row's own box: it
+  // ends up 12px wider than its container. The gap is empty, so clip it.
+  overflow-x hidden
   .bookmark-form-row-label
     padding-bottom 8px
     color var(--text)
