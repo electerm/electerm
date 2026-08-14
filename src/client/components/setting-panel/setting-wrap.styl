@@ -21,13 +21,23 @@
 .setting-tabs > .ant-tabs-nav
   margin-bottom 0
 
+// The list column's width and the detail column's left offset have to be the
+// same number. They were two hardcoded values kept in sync by hand, and they
+// had drifted: the bookmarks override said 483px, which is 440 + 43, adding
+// the icon rail a second time even though .setting-col is already offset by
+// it. That left a 43px gap between the divider and the detail column in
+// Bookmarks and none anywhere else. One variable now feeds both, so they
+// cannot disagree again.
+.setting-wrap
+  --list-col-width 340px
+
 .setting-row
   position absolute
   top 105px
   overflow-y scroll
 .setting-row-left
   left 0
-  width 340px
+  width var(--list-col-width)
   bottom 0
   padding 20px 20px 20px 20px
   display flex
@@ -42,10 +52,9 @@
     overflow hidden
     min-height 0
 .setting-row-right
-  left 340px
+  left var(--list-col-width)
   right 0
   bottom 0
-  top 105px
   padding 20px
   display flex
   flex-direction column
@@ -61,11 +70,9 @@
   justify-content flex-end
   .carbonads-wrap
     margin 8px 0 0
+// Bookmarks needs a wider list column: it shows a nested tree, not a flat list.
 .setting-tabs-bookmarks
-  .setting-row-left
-    width 440px
-  .setting-row-right
-    left 483px
+  --list-col-width 440px
 .setting-tabs
   position absolute
   z-index 4
