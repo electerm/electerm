@@ -189,7 +189,7 @@ npm run fix
 ```bash
 npm run b
 npm run prepare-test
-cp .sample.env .env
+cp ./build/.sample.env ./.env
 
 # .env を編集して、テスト用のホスト/ユーザー名/パスワードを入力してください。mac OS でのみ動作する可能性があります
 npm run test

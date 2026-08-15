@@ -190,7 +190,7 @@ npm run fix
 ```bash
 npm run b
 npm run prepare-test
-cp .sample.env .env
+cp ./build/.sample.env ./.env
 
 # edit .env, fill your test host/username/password, may only works in mac OS
 npm run test

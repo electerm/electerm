@@ -18,7 +18,7 @@ if (!TEST_HOST || !TEST_PASS || !TEST_USER) {
   throw new Error(`
     basic sftp test need TEST_HOST TEST_PASS TEST_USER env set,
     TEST_PORT is optional (default 22)
-    you can run "cp .sample.env .env" to create env file, then edit .env, fill all required field
+    you can run "cp ./build/.sample.env ./.env" to create env file, then edit .env, fill all required field
   `)
 }
 
