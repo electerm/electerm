@@ -126,7 +126,7 @@ export default auto(function InfoModal (props) {
     // description,
     devDependencies,
     dependencies,
-    langugeRepo,
+    languageRepo,
     author: {
       name: authorName,
       email,
@@ -193,8 +193,8 @@ export default auto(function InfoModal (props) {
           </p>
           <p className='mg1b'>
             <GlobalOutlined /> <b className='mg1r'>{e('language')} repo ➾</b>
-            <Link to={langugeRepo} className='mg1l'>
-              {langugeRepo}
+            <Link to={languageRepo} className='mg1l'>
+              {languageRepo}
             </Link>
           </p>
           <p className='mg1b'>

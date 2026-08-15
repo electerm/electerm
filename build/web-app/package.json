@@ -4,7 +4,7 @@
   "description": "react components src for electerm",
   "main": "./client/components/main/main.jsx",
   "license": "MIT",
-  "langugeRepo": "https://github.com/electerm/electerm-locales",
+  "languageRepo": "https://github.com/electerm/electerm-locales",
   "privacyNoticeLink": "https://github.com/electerm/electerm/wiki/privacy-notice",
   "knownIssuesLink": "https://github.com/electerm/electerm/wiki/Know-issues",
   "sponsorLink": "https://electerm.org/sponsor-electerm.html",

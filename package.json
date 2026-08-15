@@ -33,7 +33,7 @@
     "lock": "npm i --package-lock-only"
   },
   "license": "MIT",
-  "langugeRepo": "https://github.com/electerm/electerm-locales",
+  "languageRepo": "https://github.com/electerm/electerm-locales",
   "privacyNoticeLink": "https://github.com/electerm/electerm/wiki/privacy-notice",
   "knownIssuesLink": "https://github.com/electerm/electerm/wiki/Know-issues",
   "sponsorLink": "https://electerm.org/sponsor-electerm",

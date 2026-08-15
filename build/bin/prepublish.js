@@ -15,7 +15,7 @@ pack.scripts = {
   postinstall: 'node npm/install.js',
   postpublish: 'node bin/postpublish.js'
 }
-delete pack.langugeRepo
+delete pack.languageRepo
 delete pack.privacyNoticeLink
 delete pack.knownIssuesLink
 delete pack.sponsorLink
