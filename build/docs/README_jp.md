@@ -63,7 +63,7 @@
 </div>
 
 <div align="center">
-  <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
+  <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm-banner-1.jpg", alt="" />
 </div>
 
 ## 機能
