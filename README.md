@@ -10,7 +10,7 @@
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
 [![star](https://atomgit.com/electerm/electerm/star/badge.svg)](https://atomgit.com/electerm/electerm)
 
-[English](README.md) | [中文](README_cn.md) | [日本語](README_jp.md)
+[English](README.md) | [中文](build/docs/README_cn.md) | [日本語](build/docs/README_jp.md)
 
 Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(Linux, Mac, Windows, Android, HarmonyOS).
 
