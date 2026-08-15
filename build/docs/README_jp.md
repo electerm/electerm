@@ -44,6 +44,8 @@
 
 [Atlas Cloud](https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm) は、electerm での AI 活用ワークフロー向けに、OpenAI 互換の AI API とモデルへのアクセスを提供しています。
 
+----
+
 <div align="center">
   <a href="https://www.apismart.ai">
     <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apismart400x400.png?raw=true" alt="ApiSmart" width="200" />
@@ -52,9 +54,14 @@
 
 [ApiSmart](https://www.apismart.ai) は、単一の API を通じて主要な AI モデルへ統一的にアクセスできるサービスです。1 つの API キーで、OpenAI 互換のインターフェースから LLM・画像・動画モデルを利用でき、複数のプロバイダーを個別に管理する必要がありません。モデルの切り替えが簡単になり、請求もシンプルになるうえ、インテリジェントなルーティングと自動フェイルオーバーによって信頼性も向上します。1 つの統合された API プラットフォームで、AI アプリケーションの構築とスケールをより速く実現できます。
 
-[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+----
 
+<div align="center">
+
+[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
 [![Vercel OSS Program](https://github.com/electerm/electerm-resource/blob/master/static/images/vercel-oss-2005.png?raw=true)](https://oss-directory.vercel.app)
+
+</div>
 
 <div align="center">
   <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
