@@ -96,6 +96,7 @@ export default auto(function FooterEntry (props) {
       defaultValue: props.store.currentTab?.encode,
       onSelect: handleSwitchEncoding,
       size: 'small',
+      variant: 'borderless',
       popupMatchSelectWidth: false
     }
     if (props.store.isMobile) {
