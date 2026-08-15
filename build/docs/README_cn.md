@@ -59,8 +59,7 @@
 
 <div align="center">
 
-[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg)](https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
-[![Vercel OSS Program](https://github.com/electerm/electerm-resource/blob/master/static/images/vercel-oss-2005.png?raw=true)](https://oss-directory.vercel.app)
+<a href="https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img align="middle" src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg" alt="DigitalOcean Referral Badge" /></a>&nbsp;&nbsp;&nbsp;<a href="https://oss-directory.vercel.app"><img align="middle" src="https://github.com/electerm/electerm-resource/blob/master/static/images/vercel-oss-2005.png?raw=true" alt="Vercel OSS Program" /></a>
 
 </div>
 
