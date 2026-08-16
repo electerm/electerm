@@ -31,7 +31,9 @@ const ShortcutBar = lazy(() => import('./shortcut-bar'))
 // minimum height (px) the visual viewport must lose for us to treat it as
 // "the soft keyboard is now covering part of the screen". A soft keyboard is
 // typically ≥150px; a browser address-bar show/hide is well under this.
-const KEYBOARD_HEIGHT = 120
+// Shared with shortcut-bar.jsx, which uses it to decide how far to lift the
+// bar above a keyboard that overlays the page (iOS / HarmonyOS).
+export const KEYBOARD_MIN = 120
 
 // kept as a coarse capability fallback for engines without visualViewport.
 // Modern Chromium (Electron) always exposes window.visualViewport, so this is
@@ -87,7 +89,7 @@ export default function ShortcutBarEntry (props) {
       // ignore viewport changes that also changed width (rotation / split) —
       // a keyboard changes height only.
       const sameWidth = Math.abs(vv.width - baseline.width) < 20
-      if (sameWidth && baseline.height - vv.height > KEYBOARD_HEIGHT) {
+      if (sameWidth && baseline.height - vv.height > KEYBOARD_MIN) {
         setKeyboardSeen(true)
         // The user is focused in a terminal with the keyboard up — they need
         // the bar right now. Set visibility here rather than waiting for the

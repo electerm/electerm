@@ -10,18 +10,22 @@
  *   - first (fixed) button collapses the bar
  *   - second (fixed) button opens the edit modal (shortcut-bar-edit.jsx)
  *   - tapping a shortcut sends it to the active terminal via runQuickCommand
+ *   - while the system input panel overlays the page without resizing the
+ *     layout viewport (iOS / HarmonyOS do this, Android resizes instead), the
+ *     bar lifts itself above the panel — see the visualViewport effect below
  *
  * Only loaded on touch devices — see shortcut-bar-entry.jsx.
  * Data + persistence live in shortcut-bar-defs.js.
  */
 
 import { auto } from 'manate/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { DownOutlined, EditOutlined } from '@ant-design/icons'
 import { refs } from '../common/ref'
 import { shortcutBarHeight } from '../../common/constants'
 import ShortcutBarEdit from './shortcut-bar-edit'
+import { KEYBOARD_MIN } from './shortcut-bar-entry'
 import { candidates, loadActive, saveActive, ESC } from './shortcut-bar-defs'
 import './shortcut-bar.styl'
 
@@ -89,6 +93,55 @@ function ShortcutBar (props) {
     }
   }, [])
 
+  // On Android the soft keyboard resizes the layout viewport, so a
+  // `position: fixed; bottom: 0` bar is pushed up automatically. iOS and
+  // HarmonyOS instead keep the layout viewport full-size and let the keyboard
+  // overlay it — there the bar sits underneath the keyboard. visualViewport
+  // always tracks the *visible* area on every platform, so the gap between it
+  // and the layout viewport is exactly the covered height: lift the bar by
+  // that much so it rides just above the keyboard.
+  const [kbOffset, setKbOffset] = useState(0)
+  const kbBaselineRef = useRef({ height: 0, width: 0 })
+
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) {
+      return
+    }
+    // while no keyboard is up, layout viewport == visual viewport (offsetTop
+    // 0); keep refreshing the baseline so a later comparison is accurate.
+    function sync () {
+      if (vv.offsetTop <= 1) {
+        kbBaselineRef.current = { height: window.innerHeight, width: vv.width }
+      }
+      const { height, width } = kbBaselineRef.current
+      // a keyboard changes height only — ignore rotation / pinch-zoom, which
+      // change width too.
+      const sameWidth = Math.abs(vv.width - width) < 20
+      const covered = sameWidth ? height - vv.height - vv.offsetTop : 0
+      setKbOffset(covered > KEYBOARD_MIN ? Math.ceil(covered) : 0)
+    }
+    sync()
+    vv.addEventListener('resize', sync)
+    vv.addEventListener('scroll', sync)
+    window.addEventListener('resize', sync)
+    return () => {
+      vv.removeEventListener('resize', sync)
+      vv.removeEventListener('scroll', sync)
+      window.removeEventListener('resize', sync)
+    }
+  }, [])
+
+  // keep the offset in a CSS var consumed by shortcut-bar.styl, and expose the
+  // lifted height so layout.jsx can shrink the terminal accordingly.
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      '--shortcut-bar-kb-offset',
+      kbOffset ? kbOffset + 'px' : '0px'
+    )
+    store.shortcutBarKbOffset = kbOffset
+  }, [kbOffset])
+
   // reserve layout space + lift the footer while the bar is shown.
   // expose the bar height as a CSS var so the .styl + footer-lift rule stay
   // in sync with the shortcutBarHeight constant consumed by layout.jsx.
@@ -135,7 +188,11 @@ function ShortcutBar (props) {
   }
 
   return createPortal(
-    <div className='shortcut-bar' role='toolbar'>
+    <div
+      className='shortcut-bar'
+      role='toolbar'
+      style={kbOffset ? { bottom: kbOffset + 'px' } : undefined}
+    >
       <div className='shortcut-bar-fixed'>
         <button
           type='button'

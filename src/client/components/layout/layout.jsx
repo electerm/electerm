@@ -43,9 +43,10 @@ export default auto(function Layout (props) {
       rightPanelWidth,
       resizeTrigger,
       inActiveTerminal,
-      shortcutBarVisible
+      shortcutBarVisible,
+      shortcutBarKbOffset
     } = props.store
-    const h = height - footerHeight - (inActiveTerminal && pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight : 0) + resizeTrigger
+    const h = height - footerHeight - (inActiveTerminal && pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight + shortcutBarKbOffset : 0) + resizeTrigger
     const l = pinned ? leftSideBarWidth + leftSidePanelWidth : leftSideBarWidth
     const r = rightPanelVisible && rightPanelPinned ? rightPanelWidth : 0
     return {
@@ -68,14 +69,15 @@ export default auto(function Layout (props) {
       rightPanelPinned,
       rightPanelWidth,
       pinned,
-      shortcutBarVisible
+      shortcutBarVisible,
+      shortcutBarKbOffset
     } = props.store
     const l = pinned ? leftSidePanelWidth : 0
     const r = rightPanelPinned && rightPanelVisible ? rightPanelWidth : 0
     // account for the far-left icon bar (sidebarWidth - 1px border on desktop;
     // 0 when the bar is hidden on mobile)
     const w = width - l - r - (leftSideBarWidth > 0 ? leftSideBarWidth - 1 : 0)
-    const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight : 0)
+    const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight + shortcutBarKbOffset : 0)
     return layoutAlg(layout, w, h)
   }
   const layoutSize = calcLayoutStyle()

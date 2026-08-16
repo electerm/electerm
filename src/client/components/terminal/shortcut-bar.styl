@@ -73,10 +73,12 @@
     color var(--text-light)
 
 // while the bar is visible, lift the footer + reserve space so nothing is
-// covered (terminal area is shrunk by layout.jsx via store.shortcutBarVisible)
+// covered (terminal area is shrunk by layout.jsx via store.shortcutBarVisible;
+// --shortcut-bar-kb-offset raises both bar + footer above a page-overlaying
+// system input panel on iOS / HarmonyOS)
 .shortcut-bar-on
   .main-footer
-    bottom var(--shortcut-bar-h, 44px)
+    bottom calc(var(--shortcut-bar-h, 44px) + var(--shortcut-bar-kb-offset, 0px))
 
 // --- edit modal -----------------------------------------------------------
 

@@ -169,6 +169,9 @@ export default () => {
 
     // touch-only shortcut bar (see components/terminal/shortcut-bar-entry.jsx)
     shortcutBarVisible: false,
+    // px the bar is lifted above a page-overlaying system input panel
+    // (iOS / HarmonyOS) — see shortcut-bar.jsx
+    shortcutBarKbOffset: 0,
 
     // sidebar
     openedSideBar: ls.getItem(openedSidebarKey) || '',
