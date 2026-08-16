@@ -116,6 +116,9 @@ export default auto(function Index (props) {
     'not-win': !isWin,
     'qm-pinned': pinnedQuickCommandBar,
     fullscreen,
+    // terminal fullscreen keeps the footer visible (rdp/vnc/spice fullscreen
+    // does not — the footer would be an empty bar there)
+    'fs-with-footer': fullscreen && store.inActiveTerminal,
     'is-main': !isSecondInstance,
     'is-mobile': store.isMobile,
     'is-desktop': !store.isMobile
