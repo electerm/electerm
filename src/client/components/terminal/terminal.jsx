@@ -137,6 +137,8 @@ class Term extends Component {
     this.currentInput = ''
     this.shellInjected = false
     this.shellType = null
+    // dpr 基线：跨屏全屏时用于检测 dpr 变化，见 onResize。
+    this._lastDpr = window.devicePixelRatio
   }
 
   domRef = createRef()
@@ -2036,6 +2038,25 @@ class Term extends Component {
   }
 
   onResize = throttle(() => {
+    const dpr = window.devicePixelRatio
+    // 跨屏全屏（外接屏 dpr=1 ↔ 内建 Retina dpr=2）时，Electron 的
+    // window.devicePixelRatio 更新与 xterm 内部 ScreenDprMonitor
+    // （matchMedia resolution 监听）存在时序竞态：若全屏切换先触发
+    // resize 事件、后更新 dpr，ScreenDprMonitor 会把旧 dpr 记为
+    // current，之后真正的 dpr 变化被 miss。渲染器内部 _devicePixelRatio
+    // 停在旧值，gl.viewport 只覆盖部分画布，表现为终端只渲染一部分
+    // 区域（canvas 其余透明露出主题背景）。
+    // 检测到 dpr 变化即重建 WebGL renderer，强制用新 dpr 重建 viewport
+    // 与字符 atlas，从根上消除该竞态。
+    if (this._lastDpr !== dpr) {
+      this._lastDpr = dpr
+      if (
+        this.props.config.rendererType === rendererTypes.webGL &&
+        this.webglAddon
+      ) {
+        this.reloadWebglRenderer('dpr change')
+      }
+    }
     this.fitAndRefresh()
   }, 200)
 
