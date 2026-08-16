@@ -1,6 +1,7 @@
 import { PureComponent, createRef } from 'react'
 import { createTerm } from '../terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
+import { pick } from 'lodash-es'
 import clone from '../../common/to-simple-obj'
 import { handleErr } from '../../common/fetch'
 import {
@@ -24,6 +25,8 @@ import { readClipboardAsync } from '../../common/clipboard'
 import RemoteFloatControl from '../common/remote-float-control'
 import SwitchLabel from '../common/switch'
 import HelpIcon from '../common/help-icon'
+import Modal from '../common/modal'
+import RdpCredForm from './rdp-cred-form'
 import { FileTransferManager, createFileLogger } from './file-transfer'
 import { notification } from '../common/notification'
 import message from '../common/message'
@@ -65,7 +68,8 @@ export default class RdpSession extends PureComponent {
       ...resObj,
       hasRemoteFiles: false,
       downloadBtnDisabled: true,
-      uploadReady: false
+      uploadReady: false,
+      showCredPrompt: false
     }
     this.session = null
     this.fileTransfer = null
@@ -121,13 +125,25 @@ export default class RdpSession extends PureComponent {
     return `ws://${host}:${port}/${type}/${id}?token=${tokenElecterm}${extra}`
   }
 
-  remoteInit = async () => {
+  remoteInit = async (credOverride) => {
     this.setState({
       loading: true
     })
     const { config } = this.props
     const { id } = this.props
-    const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
+    const tab = {
+      ...window.store.applyProfile(deepCopy(this.props.tab || {})),
+      ...credOverride
+    }
+    // keep resolved credentials for the connect-time prompt
+    this.tab = tab
+    if (!tab.username || !tab.password) {
+      this.setState({
+        loading: false,
+        showCredPrompt: true
+      })
+      return
+    }
     const {
       type,
       term: terminalType
@@ -192,6 +208,9 @@ export default class RdpSession extends PureComponent {
       const builder = new window.ironRdp.SessionBuilder()
       builder.username(username)
       builder.password(password)
+      if (tab.domain) {
+        builder.serverDomain(tab.domain)
+      }
       builder.destination(destination)
       builder.proxyAddress(proxyAddress)
       builder.authToken('none')
@@ -277,12 +296,16 @@ export default class RdpSession extends PureComponent {
         this.log(`Session ended: ${info.reason()}`, 'info')
         this.onSessionEnd()
       }).catch((e) => {
-        this.log(`Session error: ${this.formatError(e)}`, 'error')
+        this.showError(e)
         this.onSessionEnd()
       })
     } catch (e) {
-      this.log(`Connection failed: ${this.formatError(e)}`, 'error')
-      this.setState({ loading: false })
+      this.showError(e)
+      this.setState({
+        loading: false,
+        // let the user retry with different credentials on auth failure
+        showCredPrompt: this.isAuthError(e) ? true : this.state.showCredPrompt
+      })
       this.setStatus(statusMap.error)
     }
   }
@@ -305,6 +328,73 @@ export default class RdpSession extends PureComponent {
       } catch (_) { }
     }
     return e?.message || e?.toString() || String(e)
+  }
+
+  // WrongPassword(1) / LogonFailure(2)
+  isAuthError = (err) => {
+    if (err && typeof err === 'object' && '__wbg_ptr' in err && err.kind) {
+      try {
+        const kind = err.kind()
+        return kind === 1 || kind === 2
+      } catch (_) { }
+    }
+    return false
+  }
+
+  // map known IronErrorKind codes to a user-friendly message
+  errText = (err) => {
+    if (this.isAuthError(err)) {
+      return window.translate('loginFail') + ` (${this.formatError(err)})`
+    }
+    return this.formatError(err)
+  }
+
+  showError = (err) => {
+    const text = this.errText(err)
+    this.log(`Connection failed: ${this.formatError(err)}`, 'error')
+    message.error(text, 10)
+  }
+
+  onCredSubmit = (res) => {
+    this.setState({
+      showCredPrompt: false
+    })
+    // tear down the failed attempt before reconnecting
+    this.cleanup()
+    // reconnect with the provided credentials, not persisted to the bookmark
+    this.remoteInit(res)
+  }
+
+  onCredCancel = () => {
+    this.setState({
+      showCredPrompt: false
+    })
+    this.setStatus(statusMap.error)
+  }
+
+  renderCredPrompt = () => {
+    const {
+      showCredPrompt
+    } = this.state
+    if (!showCredPrompt) {
+      return null
+    }
+    const confirmProps = {
+      title: window.translate('credentialsRequired'),
+      footer: null,
+      open: true,
+      onCancel: this.onCredCancel
+    }
+    return (
+      <Modal
+        {...confirmProps}
+      >
+        <RdpCredForm
+          initialValues={pick(this.tab, ['username', 'password'])}
+          handleFinish={this.onCredSubmit}
+        />
+      </Modal>
+    )
   }
 
   syncLocalToRemote = async () => {
@@ -751,6 +841,7 @@ export default class RdpSession extends PureComponent {
               ref={this.canvasRef}
             />
           </div>
+          {this.renderCredPrompt()}
         </div>
       </Spin>
     )

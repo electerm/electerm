@@ -193,7 +193,13 @@ export default Store => {
       type,
       authType
     } = tab
-    if (!profile || authType !== 'profiles') {
+    // SSH picks auth type explicitly (password/privateKey/profiles radio),
+    // other types only have the profile dropdown, so a selected profile
+    // always means profile auth for them
+    const useProfile = type === connectionMap.ssh
+      ? authType === 'profiles'
+      : true
+    if (!profile || !useProfile) {
       return tab
     }
     let p = window.store.profiles.find(x => x.id === profile)
@@ -224,10 +230,17 @@ export default Store => {
         ...tab,
         ...filtered
       }
+    } else if (type === connectionMap.ftp) {
+      const filtered = pickBy(p.ftp, (value) => value !== undefined && value !== '')
+      return {
+        ...tab,
+        ...filtered
+      }
     }
     delete p.rdp
     delete p.vnc
     delete p.telnet
+    delete p.ftp
     const filtered = pickBy(p, (value) => value !== undefined && value !== '')
     return {
       ...tab,
@@ -455,6 +468,11 @@ export default Store => {
     let i = len - 1
     for (;i >= 0; i--) {
       const f = profiles[i]
+      // migrate old rdp profile key userName -> username
+      if (f.rdp?.userName !== undefined) {
+        f.rdp.username = f.rdp.userName
+        delete f.rdp.userName
+      }
       if (f.name) {
         continue
       }

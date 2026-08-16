@@ -170,7 +170,7 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
     case 'execSettings':
       return <ExecSettingsField key={name} />
     case 'profileItem':
-      return <ProfileItem key={name} store={ctxProps.store} profileFilter={item.profileFilter} />
+      return <ProfileItem key={name} store={ctxProps.store} form={form} profileFilter={item.profileFilter} />
     case 'quickCommands':
       return <Fragment key={name}>{useQuickCmds(form, ctxProps.formData || {})}</Fragment>
     case 'runScripts':
