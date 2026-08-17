@@ -3,6 +3,7 @@
  */
 
 import { dbNames, getData, fetchInitData } from '../common/db'
+import deepCopy from 'json-deep-copy'
 import parseInt10 from '../common/parse-int10'
 import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
 import generate from '../common/id-with-stamp'
@@ -237,7 +238,11 @@ export default (Store) => {
         .then(arr => {
           for (const { name, data } of arr) {
             const dt = JSON.parse(data || '[]')
-            refsStatic.add('oldState-' + name, dt)
+            // seed the watcher snapshot with a *copy* - manate wraps the exact
+            // array assigned into the store, so seeding with `dt` itself would
+            // alias snapshot and store to one backing array; the watcher's
+            // no-change early-return would then skip DB writes forever
+            refsStatic.add('oldState-' + name, deepCopy(dt))
             if (name === 'bookmarks') {
               ext.bookmarksMap = new Map(
                 dt.map(d => [d.id, d])
