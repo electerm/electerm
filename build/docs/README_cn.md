@@ -17,7 +17,7 @@
 
 除了主流的 Windows/macOS/Linux/Android，electerm 还支持鸿蒙(HarmonyOS)，以及老旧系统——如 Ubuntu 18、Windows 7、macOS 10+，以及国产特殊 Linux 发行版如 UOS、麒麟(Kylin)、龙芯(LoongArch，含旧世界与新世界)。
 
-<p align="center">
+<p>
   <a href="https://electerm.org">主页 / 下载</a> ·
   <a href="https://theme.electerm.org">主题</a> ·
   <a href="https://github.com/electerm/electerm-web-docker">Docker</a> ·
@@ -31,9 +31,9 @@
   <a href="https://repos.electerm.org/rpm">rpm 仓库</a>
 </p>
 
-- 🌐 **[electerm 在线版](https://cloud.electerm.org)** — 公共免费在线 electerm 应用
-- 🤖 **[electerm AI](https://ai.electerm.org)** — 免费为 electerm 用户提供 AI
-- 💻 **[electerm-web](https://github.com/electerm/electerm-web)** — 运行于浏览器(支持移动设备)的 web app 版本
+<div>🌐 <strong><a href="https://cloud.electerm.org">electerm 在线版</a></strong> — 公共免费在线 electerm 应用</div>
+<div>🤖 <strong><a href="https://ai.electerm.org">electerm AI</a></strong> — 免费为 electerm 用户提供 AI</div>
+<div>💻 <strong><a href="https://github.com/electerm/electerm-web">electerm-web</a></strong> — 运行于浏览器(支持移动设备)的 web app 版本</div>
 
 ## Atlas Cloud
 

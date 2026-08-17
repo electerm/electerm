@@ -16,7 +16,7 @@
 
 主流の Windows/macOS/Linux/Android に加えて、electerm は HarmonyOS や、Ubuntu 18、Windows 7、macOS 10 以降といった古いシステム、さらに UOS、Kylin(麒麟)、LoongArch(龍芯、old-world / new-world の両方)などの中国製 Linux ディストリビューションにも対応しています。
 
-<p align="center">
+<p>
   <a href="https://electerm.org">ホームページ / ダウンロード</a> ·
   <a href="https://theme.electerm.org">テーマ</a> ·
   <a href="https://github.com/electerm/electerm-web-docker">Docker</a> ·
@@ -30,9 +30,9 @@
   <a href="https://repos.electerm.org/rpm">rpm リポジトリ</a>
 </p>
 
-- 🌐 **[electerm online](https://cloud.electerm.org)** — 無料で使える公開オンライン版 electerm
-- 🤖 **[electerm AI](https://ai.electerm.org)** — electerm ユーザー向けの無料 AI
-- 💻 **[electerm-web](https://github.com/electerm/electerm-web)** — ブラウザ(モバイル端末を含む)で動作する Web アプリ版
+<div>🌐 <strong><a href="https://cloud.electerm.org">electerm online</a></strong> — 無料で使える公開オンライン版 electerm</div>
+<div>🤖 <strong><a href="https://ai.electerm.org">electerm AI</a></strong> — electerm ユーザー向けの無料 AI</div>
+<div>💻 <strong><a href="https://github.com/electerm/electerm-web">electerm-web</a></strong> — ブラウザ(モバイル端末を含む)で動作する Web アプリ版</div>
 
 ## Atlas Cloud
 

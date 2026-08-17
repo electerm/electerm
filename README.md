@@ -16,7 +16,7 @@ Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(Linux,
 
 Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS, and older systems — Ubuntu 18, Windows 7, macOS 10+, and special Chinese Linux distributions such as UOS, Kylin, and LoongArch (both old-world and new-world).
 
-<p align="center">
+<p>
   <a href="https://electerm.org">Homepage / Downloads</a> ·
   <a href="https://theme.electerm.org">Theme</a> ·
   <a href="https://github.com/electerm/electerm-web-docker">Docker</a> ·
@@ -30,9 +30,9 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS
   <a href="https://repos.electerm.org/rpm">rpm repo</a>
 </p>
 
-- 🌐 **[electerm online](https://cloud.electerm.org)** — Public free online electerm app
-- 🤖 **[electerm AI](https://ai.electerm.org)** — Free AI for electerm users
-- 💻 **[electerm-web](https://github.com/electerm/electerm-web)** — Web app version running in browser (including mobile device)
+<div>🌐 <strong><a href="https://cloud.electerm.org">electerm online</a></strong> — Public free online electerm app</div>
+<div>🤖 <strong><a href="https://ai.electerm.org">electerm AI</a></strong> — Free AI for electerm users</div>
+<div>💻 <strong><a href="https://github.com/electerm/electerm-web">electerm-web</a></strong> — Web app version running in browser (including mobile device)</div>
 
 ## Atlas Cloud
 
