@@ -1,10 +1,13 @@
 import BookmarkTransport from '../tree-list/bookmark-transport'
 import download from '../../common/download'
 import time from '../../common/time'
-import copy from 'json-deep-copy'
+import { runImportTask } from '../../common/import-task'
+
+const e = window.translate
 
 export default class QmTransport extends BookmarkTransport {
   name = 'quickCommands'
+
   beforeUpload = async (file) => {
     const { store } = this.props
     const txt = file.fileContent !== undefined
@@ -13,26 +16,29 @@ export default class QmTransport extends BookmarkTransport {
     try {
       const arr = JSON.parse(txt)
       const state = store[this.name]
-      const arrOld = copy(state)
-      const bmTreeOld = arrOld.reduce((p, v) => {
-        return {
-          ...p,
-          [v.id]: v
-        }
-      }, {})
-      arr.forEach(bg => {
-        if (!bmTreeOld[bg.id]) {
-          state.push(bg)
-        }
+      const existing = new Set(state.map(v => v.id))
+      const fresh = arr.filter(bg => !existing.has(bg.id))
+      if (!fresh.length) {
+        return false
+      }
+      await runImportTask({
+        title: e('import'),
+        batch: 200,
+        stopWatchers: [this.name],
+        steps: [
+          {
+            label: e('quickCommands'),
+            items: fresh,
+            process: (chunk) => {
+              state.push(...chunk)
+            }
+          }
+        ]
       })
-    } catch (e) {
-      store.onError(e)
+    } catch (err) {
+      store.onError(err)
     }
     return false
-  }
-
-  renderEdit () {
-    return null
   }
 
   handleDownload = () => {

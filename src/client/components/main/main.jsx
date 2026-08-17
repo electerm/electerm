@@ -38,6 +38,7 @@ import BookmarkFromHistoryModal from '../bookmark-form/bookmark-from-history-mod
 import AutoSync from '../setting-sync/auto-sync'
 import BatchOpRunner from '../batch-op/batch-op-runner'
 import UnixTimestampTooltip from '../terminal/unix-timestamp-tooltip'
+import ImportProgress from '../common/import-progress.jsx'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
@@ -318,6 +319,7 @@ export default auto(function Index (props) {
         <BookmarkFromHistoryModal />
         <NotificationContainer />
         <BatchOpRunner />
+        <ImportProgress />
         <ShortcutBarEntry store={store} />
         {!isAIDisabled() && <AIConfigModal store={store} />}
         <UnixTimestampTooltip />

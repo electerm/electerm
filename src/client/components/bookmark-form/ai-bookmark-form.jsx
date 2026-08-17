@@ -27,22 +27,13 @@ import { fixBookmarkData } from './fix-bookmark-default.js'
 import generate from '../../common/id-with-stamp'
 import AiHistory, { addHistoryItem } from '../ai/ai-history.jsx'
 import { getItem, setItem } from '../../common/safe-local-storage'
+import { runImportTask } from '../../common/import-task'
 
 const STORAGE_KEY_DESC = 'ai_bookmark_description'
 const STORAGE_KEY_HISTORY = 'ai_bookmark_history'
 const EVENT_NAME_HISTORY = 'ai-bookmark-history-update'
 const { TextArea } = Input
 const e = window.translate
-
-function yieldToUI () {
-  return new Promise(resolve => {
-    if (typeof requestAnimationFrame === 'function') {
-      requestAnimationFrame(() => resolve())
-      return
-    }
-    setTimeout(resolve, 0)
-  })
-}
 
 export default function AIBookmarkForm (props) {
   const { onCancel } = props
@@ -183,11 +174,23 @@ export default function AIBookmarkForm (props) {
     setConfirmProgress({ current: 0, total: parsed.length })
 
     try {
-      for (let i = 0; i < parsed.length; i++) {
-        // Yield between synchronous store mutations so large imports stay responsive.
-        await yieldToUI()
-        createBookmark(parsed[i])
-        setConfirmProgress({ current: i + 1, total: parsed.length })
+      const { error } = await runImportTask({
+        useModal: false,
+        batch: 50,
+        steps: [
+          {
+            items: parsed,
+            process: (chunk) => {
+              chunk.forEach(createBookmark)
+            }
+          }
+        ],
+        onProgress: (current, total) => {
+          setConfirmProgress({ current, total })
+        }
+      })
+      if (error) {
+        throw error
       }
 
       setShowConfirm(false)

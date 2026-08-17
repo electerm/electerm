@@ -10,11 +10,12 @@ import {
 } from '@ant-design/icons'
 import { Button, Space } from 'antd'
 import Upload from '../common/upload'
+import { beforeBookmarkUpload } from './bookmark-upload'
 
 const e = window.translate
 
 export default class BookmarkTransport extends PureComponent {
-  beforeUpload = async (file) => {}
+  beforeUpload = beforeBookmarkUpload
 
   handleDownload = () => {}
 

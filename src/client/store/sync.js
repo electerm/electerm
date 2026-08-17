@@ -4,6 +4,7 @@
 
 import { get, pick, debounce } from 'lodash-es'
 import copy from 'json-deep-copy'
+import { action } from 'manate'
 import {
   settingMap, packInfo, syncTypes, syncDataMaps
 } from '../common/constants'
@@ -13,6 +14,9 @@ import download from '../common/download'
 import { fixBookmarks } from '../common/db-fix'
 import dayjs from 'dayjs'
 import parseJsonSafe from '../common/parse-json-safe'
+import { runImportTask } from '../common/import-task'
+
+const e = window.translate
 
 const {
   version: packVer
@@ -694,15 +698,40 @@ export default (Store) => {
     const { store } = window
     const objs = JSON.parse(txt)
     const { names } = store.getDataSyncNames(true)
+    const fixed = {}
     for (const n of names) {
-      let arr = objs[n]
+      let arr = objs[n] || []
       if (n === settingMap.terminalThemes) {
         arr = store.fixThemes(arr)
       } else if (n === settingMap.bookmarks) {
         arr = fixBookmarks(arr)
       }
-      store.setItems(n, objs[n])
+      fixed[n] = arr
     }
+    // clear all targets first - importAll replaces data sets, not appends.
+    // watchers are stopped inside runImportTask, so this is silent until restart
+    action(() => {
+      for (const n of names) {
+        store.setItems(n, [])
+      }
+    })()
+    await runImportTask({
+      title: e('import'),
+      batch: 200,
+      stopWatchers: names,
+      // one chunked step per data set (bookmarks, groups, themes, ...),
+      // so the progress bar advances per batch instead of per data set
+      steps: names.map((n) => {
+        const arr = fixed[n]
+        return {
+          label: n,
+          items: arr,
+          process: (chunk) => {
+            store[n].push(...chunk)
+          }
+        }
+      })
+    })
     store.updateConfig(stripServerManagedKeys(objs.config))
     if (objs.config?.theme) {
       store.setTheme(objs.config.theme)
