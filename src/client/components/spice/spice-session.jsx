@@ -44,10 +44,50 @@ export default class SpiceSession extends PureComponent {
 
   componentDidMount () {
     this.remoteInit()
+    this.attachMouseScaleFix()
   }
 
   componentWillUnmount () {
+    this.detachMouseScaleFix()
     this.cleanup()
+  }
+
+  // The spice client sends event.offsetX/offsetY to the remote as-is, but when
+  // the canvas is CSS-scaled (scaleViewport or the lib's maxWidth/maxHeight),
+  // those are display pixels instead of remote surface pixels. On high
+  // resolution remote screens the pointer then only reaches the top-left
+  // region. Convert display coords to surface coords (the canvas box is
+  // letterboxed by object-fit: contain) before the lib's handlers run.
+  handleMouseScaleFix = (e) => {
+    const canvas = this.domRef.current?.querySelector('canvas')
+    if (!canvas || !canvas.width || !canvas.height) return
+    const rect = canvas.getBoundingClientRect()
+    if (!rect.width || !rect.height) return
+    const scale = Math.min(rect.width / canvas.width, rect.height / canvas.height)
+    const x = (e.clientX - rect.left - (rect.width - canvas.width * scale) / 2) / scale
+    const y = (e.clientY - rect.top - (rect.height - canvas.height * scale) / 2) / scale
+    Object.defineProperty(e, 'offsetX', {
+      value: Math.max(0, Math.min(x, canvas.width - 1))
+    })
+    Object.defineProperty(e, 'offsetY', {
+      value: Math.max(0, Math.min(y, canvas.height - 1))
+    })
+  }
+
+  attachMouseScaleFix = () => {
+    this.domRef.current?.addEventListener(
+      'mousemove',
+      this.handleMouseScaleFix,
+      true
+    )
+  }
+
+  detachMouseScaleFix = () => {
+    this.domRef.current?.removeEventListener(
+      'mousemove',
+      this.handleMouseScaleFix,
+      true
+    )
   }
 
   cleanup = () => {
