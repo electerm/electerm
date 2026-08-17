@@ -1474,31 +1474,35 @@ class Term extends Component {
 
   /**
    * xterm computes its DOM selection colour as blend(theme.background,
-   * selectionBackground). The DOM renderer keeps the terminal background
-   * transparent (rgba(0,0,0,0)) so electerm's own CSS background / image
-   * shows through, which makes a light selection blend over transparent-black
-   * and render as dark gray. Recompute the selection over the real visible
-   * background so terminal:selectionBackground=rgba(...) is applied as the
-   * configured semi-transparent colour.
+   * selectionBackground). The terminal background is forced transparent
+   * (rgba(0,0,0,0)) so electerm's own CSS background / image shows through,
+   * which makes the blend run over transparent-black. Recompute the selection
+   * colours over the real visible background, from the *configured* theme
+   * colours — xterm's internal selectionBackgroundTransparent forces opaque
+   * colours down to 0.3 alpha (xterm#2737), which would make every selection
+   * translucent even when the user configured an opaque one.
    */
   fixSelectionColors = (term) => {
+    const themeConfig = this.props.themeConfig || {}
     const themeService = term?._core?._themeService
     if (!themeService?.modifyColors) {
       return
     }
     const visibleBackground = this.getVisibleTerminalBackground()
-    const colors = themeService.colors
+    // xterm's DEFAULT_SELECTION, used when the theme omits a selection color
+    const selectionFallback = 'rgba(255, 255, 255, 0.3)'
+    const inactiveFallback = themeConfig.selectionBackground || selectionFallback
     themeService.modifyColors((c) => {
       const active = blendSelectionOverBackground(
         visibleBackground,
-        colors.selectionBackgroundTransparent
+        themeConfig.selectionBackground || selectionFallback
       )
       if (active) {
         c.selectionBackgroundOpaque = active
       }
       const inactive = blendSelectionOverBackground(
         visibleBackground,
-        colors.selectionInactiveBackgroundTransparent
+        themeConfig.selectionInactiveBackground || inactiveFallback
       )
       if (inactive) {
         c.selectionInactiveBackgroundOpaque = inactive

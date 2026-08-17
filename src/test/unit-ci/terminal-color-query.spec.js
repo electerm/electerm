@@ -65,22 +65,26 @@ describe('terminal OSC color query helpers', () => {
 
   test('blends a translucent selection over the real visible background', async () => {
     const { blendSelectionOverBackground } = await import('../../../src/client/components/terminal/terminal-color-query.mjs')
-    const color = (r, g, b, a) => ({ css: '', rgba: (r << 24 | g << 16 | b << 8 | a) >>> 0 })
 
     // white rgba(255,255,255,0.3) over #20111b -> light semi-transparent highlight
     assert.equal(
-      blendSelectionOverBackground('#20111b', color(255, 255, 255, 76))?.css,
-      '#62585f4c'
+      blendSelectionOverBackground('#20111b', 'rgba(255, 255, 255, 0.3)')?.css,
+      '#63585f4d'
     )
 
-    // an opaque selection stays opaque
+    // an opaque selection stays fully opaque — never xterm's forced 0.3 alpha
     assert.equal(
-      blendSelectionOverBackground('#20111b', color(0x57, 0x52, 0x56, 255))?.css,
+      blendSelectionOverBackground('#20111b', '#575256')?.css,
       '#575256ff'
     )
+    assert.equal(
+      blendSelectionOverBackground('#20111b', '#575256')?.rgba & 0xff,
+      0xff
+    )
 
-    // invalid background / fully transparent selection yield null
-    assert.equal(blendSelectionOverBackground('nope', color(255, 255, 255, 76)), null)
-    assert.equal(blendSelectionOverBackground('#20111b', color(255, 255, 255, 0)), null)
+    // invalid background / unparseable or fully transparent selection yield null
+    assert.equal(blendSelectionOverBackground('nope', 'rgba(255,255,255,0.3)'), null)
+    assert.equal(blendSelectionOverBackground('#20111b', 'nope'), null)
+    assert.equal(blendSelectionOverBackground('#20111b', 'rgba(255, 255, 255, 0)'), null)
   })
 })
