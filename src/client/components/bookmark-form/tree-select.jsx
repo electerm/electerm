@@ -8,26 +8,15 @@ import { useState, useMemo } from 'react'
 import { defaultBookmarkGroupId, settingMap } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import createTitle, { createTitleWithTag } from '../../common/create-title'
+import buildMap from '../../common/build-map'
 
 const e = window.translate
 
 function buildData (bookmarks, bookmarkGroups, searchText = '') {
   const searchLower = searchText.toLowerCase()
   const cats = bookmarkGroups
-  const tree = bookmarks
-    .reduce((p, k) => {
-      return {
-        ...p,
-        [k.id]: k
-      }
-    }, {})
-  const btree = cats
-    .reduce((p, k) => {
-      return {
-        ...p,
-        [k.id]: k
-      }
-    }, {})
+  const tree = buildMap(bookmarks)
+  const btree = buildMap(cats)
 
   // Helper to check if a node matches the search
   function matchesSearch (text) {
@@ -37,7 +26,7 @@ function buildData (bookmarks, bookmarkGroups, searchText = '') {
   }
 
   function buildSubCats (id) {
-    const x = btree[id]
+    const x = btree.get(id)
     if (!x) {
       return ''
     }
@@ -64,7 +53,7 @@ function buildData (bookmarks, bookmarkGroups, searchText = '') {
     return y
   }
   function buildLeaf (id) {
-    const x = tree[id]
+    const x = tree.get(id)
     if (!x) {
       return ''
     }

@@ -42,6 +42,7 @@ import {
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import createTitle from '../common/create-title'
+import buildMap from '../common/build-map'
 import {
   theme
 } from 'antd'
@@ -278,12 +279,7 @@ class Store {
     const {
       bookmarks
     } = window.store
-    return bookmarks.reduce((p, v) => {
-      return {
-        ...p,
-        [v.id]: v
-      }
-    }, {})
+    return buildMap(bookmarks)
   }
 
   hasSshConfig () {
@@ -296,12 +292,7 @@ class Store {
     const {
       bookmarkGroups
     } = window.store
-    return bookmarkGroups.reduce((p, v) => {
-      return {
-        ...p,
-        [v.id]: v
-      }
-    }, {})
+    return buildMap(bookmarkGroups)
   }
 
   get hasOldConnectionHoppingBookmark () {

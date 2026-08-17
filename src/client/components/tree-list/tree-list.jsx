@@ -740,11 +740,13 @@ export default class ItemListTree extends Component {
   }
 
   renderVirtualRow = (row, editor) => {
+    const { keyword } = this.state
+    const { expandedKeys } = this.props
     return (
       <TreeListRow
         row={row}
-        keyword={this.state.keyword}
-        expandedKeys={this.props.expandedKeys}
+        keyword={keyword}
+        expanded={Boolean(keyword) || expandedKeys.includes(row.item.id)}
         activeItemId={this.props.activeItemId}
         searchSelectedRowKey={this.state.searchSelectedRowKey}
         staticList={this.props.staticList}

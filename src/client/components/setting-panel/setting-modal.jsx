@@ -33,14 +33,20 @@ export default auto(function SettingModalWrap (props) {
       settingMap.bookmarks,
       settingMap.terminalThemes
     ]
-    const { settingTab, settingItem, settingSidebarList, bookmarkSelectMode } = store
+    const { settingTab, settingItem, bookmarkSelectMode } = store
+    // settingSidebarList deep-copies the whole collection; the bookmarks tab
+    // ignores `list` (it renders from treeProps), so skip it there — with
+    // thousands of bookmarks that copy is the most expensive part of the render
+    const list = settingTab === settingMap.bookmarks
+      ? []
+      : store.settingSidebarList
     const props0 = {
       store,
       activeItemId: settingItem.id,
       type: settingTab,
       onClickItem: selectItem,
       shouldConfirmDel: tabsShouldConfirmDel.includes(settingTab),
-      list: settingSidebarList
+      list
     }
     const { bookmarks, bookmarkGroups, widgetInstances } = store
     const formProps = {

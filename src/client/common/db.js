@@ -161,11 +161,13 @@ export async function fetchInitData (dbName) {
   const res = await find(dbName)
   const order = await getData(`${dbName}:order`)
   if (order && order.length) {
-    res.sort((a, b) => {
-      const ai = order.findIndex(r => r === a.id)
-      const bi = order.findIndex(r => r === b.id)
-      return ai - bi
-    })
+    // index map instead of findIndex inside the comparator:
+    // comparator sort is O(n²) with findIndex, O(n log n) with a map
+    const orderMap = new Map(order.map((id, i) => [id, i]))
+    res.sort((a, b) =>
+      (orderMap.get(a.id) ?? -1) -
+      (orderMap.get(b.id) ?? -1)
+    )
   }
   return JSON.stringify(res)
 }

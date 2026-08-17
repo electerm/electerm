@@ -7,6 +7,7 @@ import {
   BookOutlined
 } from '@ant-design/icons'
 import HelpIcon from '../common/help-icon'
+import buildMap from '../../common/build-map'
 
 const e = window.translate
 const { SHOW_CHILD } = TreeSelect
@@ -21,22 +22,10 @@ function BookmarkSelect (props) {
 
   const buildData = () => {
     const cats = bookmarkGroups
-    const tree = bookmarks
-      .reduce((p, k) => {
-        return {
-          ...p,
-          [k.id]: k
-        }
-      }, {})
-    const btree = cats
-      .reduce((p, k) => {
-        return {
-          ...p,
-          [k.id]: k
-        }
-      }, {})
+    const tree = buildMap(bookmarks)
+    const btree = buildMap(cats)
     function buildSubCats (id) {
-      const x = btree[id]
+      const x = btree.get(id)
       if (!x) {
         return ''
       }
@@ -55,7 +44,7 @@ function BookmarkSelect (props) {
       return y
     }
     function buildLeaf (id) {
-      const x = tree[id]
+      const x = tree.get(id)
       if (!x) {
         return ''
       }
