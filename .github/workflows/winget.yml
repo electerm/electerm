@@ -3,9 +3,10 @@ on:
   release:
     types: [released]
   push:
-    branches: [ test-winget ]
+    branches: [test-winget]
 jobs:
   publish:
+    if: github.event_name == 'release'
     runs-on: ubuntu-24.04
     environment: build
     steps:
@@ -14,4 +15,22 @@ jobs:
           identifier: electerm.electerm
           installers-regex: 'win-(x64|arm64)-installer\.exe$'
           max-versions-to-keep: 30
+          token: ${{ secrets.WINGET_TOKEN }}
+
+  publish-test:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    environment: build
+    steps:
+      - id: tag
+        name: Resolve latest release tag
+        run: echo "tag=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: vedantmgoyal9/winget-releaser@main
+        with:
+          identifier: electerm.electerm
+          installers-regex: 'win-(x64|arm64)-installer\.exe$'
+          max-versions-to-keep: 30
+          release-tag: ${{ steps.tag.outputs.tag }}
           token: ${{ secrets.WINGET_TOKEN }}
