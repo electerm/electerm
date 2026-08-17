@@ -12,6 +12,6 @@ jobs:
       - uses: vedantmgoyal9/winget-releaser@main
         with:
           identifier: electerm.electerm
-          installers-regex: 'win-x64-installer.exe$'
+          installers-regex: 'win-(x64|arm64)-installer\.exe$'
           max-versions-to-keep: 30
           token: ${{ secrets.WINGET_TOKEN }}
