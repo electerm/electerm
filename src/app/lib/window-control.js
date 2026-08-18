@@ -50,6 +50,24 @@ exports.unmaximize = () => {
   globalState.get('win').setBounds(oldRectangle)
 }
 
+// Content area geometry straight from the main process. On macOS native
+// fullscreen the renderer's window.innerHeight can lag behind (or get stuck
+// at an intermediate size from the Spaces transition animation), so the
+// terminal layout must not trust it while fullscreen.
+exports.getWindowGeometry = () => {
+  const win = globalState.get('win')
+  if (!win) {
+    return null
+  }
+  const { width, height } = win.getContentBounds()
+  return {
+    width,
+    height,
+    isFullScreen: win.isFullScreen(),
+    isMaximized: win.isMaximized()
+  }
+}
+
 exports.getWindowSize = async () => {
   return exports.getWindowSizeDep()
 }
