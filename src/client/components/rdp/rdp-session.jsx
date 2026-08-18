@@ -137,7 +137,7 @@ export default class RdpSession extends PureComponent {
     }
     // keep resolved credentials for the connect-time prompt
     this.tab = tab
-    if (!tab.username || !tab.password) {
+    if (!tab.username) {
       this.setState({
         loading: false,
         showCredPrompt: true
