@@ -61,12 +61,38 @@ export default Store => {
 
   Store.prototype.onResize = debounce(async function () {
     const { width, height } = await window.pre.runGlobalAsync('getScreenSize')
-    const isMaximized = window.pre.runSync('isMaximized')
-    const w = window.innerWidth
-    const isMobile = w <= mobileBreakpoint
+    // In desktop (Electron) mode, prefer the content bounds reported by the
+    // main process: on macOS native fullscreen the Spaces transition can
+    // leave window.innerHeight at a stale intermediate value (terminal then
+    // only renders in the top half after switching between apps). The web app
+    // has no main process and falls back to the DOM values, which are
+    // reliable there since the browser manages the viewport.
+    let viewHeight = window.innerHeight
+    let viewWidth = window.innerWidth
+    let isMaximized = false
+    let geometry = null
+    if (!window.et.isWebApp) {
+      try {
+        geometry = await window.pre.runGlobalAsync('getWindowGeometry')
+      } catch (e) {
+        geometry = null
+      }
+    }
+    if (geometry) {
+      // getContentBounds reports DIPs; the layout consumes CSS pixels, which
+      // are the DIP size divided by the zoom factor (what innerWidth/innerHeight
+      // would report when they are not stale).
+      const zoomFactor = window.pre.getZoomFactor() || 1
+      viewHeight = geometry.height / zoomFactor
+      viewWidth = geometry.width / zoomFactor
+      isMaximized = geometry.isMaximized
+    } else {
+      isMaximized = window.pre.runSync('isMaximized')
+    }
+    const isMobile = viewWidth <= mobileBreakpoint
     const update = {
-      height: window.innerHeight,
-      innerWidth: w,
+      height: viewHeight,
+      innerWidth: viewWidth,
       screenWidth: width,
       screenHeight: height,
       isMaximized,
@@ -77,10 +103,14 @@ export default Store => {
     if (isMobile && window.store.layout !== splitMap.c1) {
       window.store.setLayout(splitMap.c1)
     }
-    window.pre.runGlobalAsync('setWindowSize', {
-      ...update,
-      height: window.outerHeight
-    })
+    // Skip persisting window size while fullscreen — the fullscreen bounds
+    // (or a transitional half-size) must not be restored as the windowed size.
+    if (!geometry?.isFullScreen) {
+      window.pre.runGlobalAsync('setWindowSize', {
+        ...update,
+        height: window.outerHeight
+      })
+    }
   }, 100, {
     leading: true
   })

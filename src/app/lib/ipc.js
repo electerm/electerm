@@ -56,6 +56,7 @@ const {
 } = require('../common/app-props')
 const {
   getScreenSize,
+  getWindowGeometry,
   maximize,
   unmaximize
 } = require('./window-control')
@@ -176,6 +177,7 @@ function initIpc () {
     safeDecrypt: (str) => safeDecrypt(str),
     dbAction,
     getScreenSize,
+    getWindowGeometry,
     closeApp: (closeAction = '') => {
       globalState.set('closeAction', closeAction)
       const win = globalState.get('win')
