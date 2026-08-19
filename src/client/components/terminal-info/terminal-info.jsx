@@ -9,6 +9,7 @@ import TerminalInfoNetwork from './network'
 import TerminalInfoResource from './resource'
 import TerminalInfoActivities from './activity'
 import TerminalInfoDisk from './disk'
+import TerminalInfoSys from './sys-info'
 import RunCmd from './run-cmd'
 import { runCmd } from '../terminal/terminal-apis'
 import './terminal-info.styl'
@@ -21,7 +22,8 @@ export default class TerminalInfoContent extends PureComponent {
     swap: {},
     activities: [],
     disks: [],
-    network: {}
+    network: {},
+    sysInfo: null
   }
 
   setStateRef = (...args) => {
@@ -44,6 +46,7 @@ export default class TerminalInfoContent extends PureComponent {
     return (
       <>
         <TerminalInfoBase {...props} {...state} />
+        <TerminalInfoSys {...props} {...state} />
         <TerminalInfoUp {...props} {...state} />
         <TerminalInfoResource
           {...props} {...state}

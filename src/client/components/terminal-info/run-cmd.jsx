@@ -32,6 +32,33 @@ function formatActivities (str) {
   }
 }
 
+function formatSysInfo (unameStr, prettyName) {
+  if (!unameStr) {
+    return {}
+  }
+  const parts = unameStr.trim().split(/\s+/)
+  if (parts.length < 4) {
+    return {}
+  }
+  const [sysname, hostname, kernel, arch] = parts
+  let os = sysname
+  const m = (prettyName || '').match(/PRETTY_NAME="?([^"\r\n]+)"?/)
+  if (m) {
+    os = m[1].trim()
+  } else if (sysname === 'Darwin') {
+    os = 'macOS'
+  }
+  return {
+    sysInfo: {
+      os,
+      sysname,
+      hostname,
+      kernel,
+      arch
+    }
+  }
+}
+
 function formatCpu (str) {
   if (!str) {
     return {
@@ -153,9 +180,11 @@ function InfoGetter (props) {
       props.setState(update)
     }
     run()
-    const ref = setInterval(run, interval)
-    return () => {
-      clearInterval(ref)
+    if (interval > 0) {
+      const ref = setInterval(run, interval)
+      return () => {
+        clearInterval(ref)
+      }
     }
   }, [pid])
   return null
@@ -166,6 +195,16 @@ export default (props) => {
     return null
   }
   const cmds = [
+    {
+      name: 'sysinfo',
+      cmds: [
+        'uname -s -n -r -m',
+        'grep PRETTY_NAME= /etc/os-release 2>/dev/null || echo'
+      ],
+      interval: 0,
+      delay: 0,
+      formatter: formatSysInfo
+    },
     {
       name: 'uptime',
       cmd: 'uptime -p',

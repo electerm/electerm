@@ -30,7 +30,11 @@ export default function TerminalInfoDisk (props) {
     bordered: true,
     columns: col,
     size: 'small',
-    pagination: false
+    pagination: false,
+    scroll: {
+      y: 180,
+      x: 'max-content'
+    }
   }
   return (
     <div className='terminal-info-section terminal-info-disk'>

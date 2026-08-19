@@ -1,4 +1,3 @@
-
 .terminal-info-icon
   color var(--text-dark)
   &:hover
@@ -23,11 +22,27 @@
     display block
 .terminal-info-section
   padding 10px 0
-.terminal-info-act
-.terminal-info-disk
-.terminal-info-network
-  max-height 260px
-  overflow-y scroll
+.terminal-info-sys
+  border-bottom 1px solid var(--main-darker)
+  .terminal-info-sys-rows
+    display flex
+    flex-direction column
+    gap 4px
+  .terminal-info-sys-row
+    display flex
+    gap 8px
+    align-items baseline
+    font-size 12px
+  .terminal-info-sys-key
+    flex none
+    width 80px
+    color var(--text-dark)
+    text-transform capitalize
+  .terminal-info-sys-val
+    flex 1
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
 .activity-item
   max-height 1.6em
   line-height 1.6

@@ -3,8 +3,8 @@
  */
 import { Component } from 'react'
 import {
-  Space,
-  Button
+  Button,
+  Dropdown
 } from 'antd'
 import SwitchLabel from '../common/switch'
 import defaults from '../../common/default-setting'
@@ -15,7 +15,9 @@ import {
   DatabaseOutlined,
   BarsOutlined,
   ApiOutlined,
-  PartitionOutlined
+  PartitionOutlined,
+  FilterOutlined,
+  CheckOutlined
 } from '@ant-design/icons'
 import { refs } from '../common/ref'
 import ShowItem from '../common/show-item'
@@ -136,26 +138,39 @@ export default class TerminalInfoBase extends Component {
     const {
       terminalInfos
     } = this.props
+    const items = defaults.terminalInfos.map(f => {
+      const checked = terminalInfos.includes(f)
+      return {
+        key: f,
+        label: (
+          <span
+            className='term-info-filter-label'
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <span style={{ width: '14px' }}>{checked ? <CheckOutlined /> : null}</span>
+            {mapper[f]} {f}
+          </span>
+        ),
+        onClick: () => this.toggleTerminalLogInfo(f)
+      }
+    })
     return (
-      <Space.Compact className='width-100'>
-        {
-          defaults.terminalInfos.map(f => {
-            const type = terminalInfos.includes(f) ? 'primary' : 'default'
-            return (
-              <Button
-                key={f + 'term-info-sel'}
-                type={type}
-                size='small'
-                onClick={() => this.toggleTerminalLogInfo(f)}
-                className='cap'
-                icon={mapper[f]}
-              >
-                {f}
-              </Button>
-            )
-          })
-        }
-      </Space.Compact>
+      <Dropdown
+        menu={{ items }}
+        trigger={['click']}
+        placement='bottomRight'
+      >
+        <Button
+          size='small'
+          icon={<FilterOutlined />}
+        >
+          {e('filter')}({terminalInfos.length}/{defaults.terminalInfos.length})
+        </Button>
+      </Dropdown>
     )
   }
 
