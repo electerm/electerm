@@ -127,6 +127,7 @@ export default auto(function InfoModal (props) {
     devDependencies,
     dependencies,
     languageRepo,
+    privacyNoticeLink,
     author: {
       name: authorName,
       email,
@@ -201,6 +202,12 @@ export default auto(function InfoModal (props) {
             <BugOutlined /> <b className='mg1r'>{e('bugReport')} ➾</b>
             <Link to={bugReportLink} className='mg1l'>
               {bugReportLink}
+            </Link>
+          </p>
+          <p className='mg1b'>
+            <InfoCircleOutlined /> <b className='mg1r'>{e('privacyNotice')} ➾</b>
+            <Link to={privacyNoticeLink} className='mg1l'>
+              {privacyNoticeLink}
             </Link>
           </p>
           <p className='mg1b'>
