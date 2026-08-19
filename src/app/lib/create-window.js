@@ -9,7 +9,8 @@ const {
 const defaults = require('../common/default-setting')
 const {
   getWindowSize,
-  setWindowPos
+  setWindowPos,
+  repairFullScreenGeometry
 } = require('./window-control')
 const { ensureWindowVisible } = require('./window-restore')
 const { onClose } = require('./on-close')
@@ -109,21 +110,27 @@ exports.createWindow = async function (userConfig) {
     win.on('blur', () => {
       win.webContents.send('blur', null)
     })
-    // On macOS the native fullscreen Spaces transition can leave the
-    // renderer's innerHeight stuck at an intermediate value, and the final
-    // size does not always fire a window resize event. Ask the renderer to
-    // re-measure (against main-process geometry) after these transitions.
-    const resyncGeometry = () => {
-      win.webContents.send('geometry-resync', null)
+    // macOS only: in native fullscreen, switching between apps goes through
+    // the Spaces transition, which can leave the window frame stuck at an
+    // intermediate (about half height) size — no resize event follows. Check
+    // (and repair) the fullscreen bounds after the transitions settle; if the
+    // frame was repaired, the resize event recovers the renderer with its
+    // normal logic.
+    if (isMac) {
+      const repairGeometry = () => repairFullScreenGeometry()
+      win.on('focus', () => {
+        if (win.isFullScreen()) {
+          setTimeout(repairGeometry, 300)
+          setTimeout(repairGeometry, 800)
+          setTimeout(repairGeometry, 1500)
+        }
+      })
+      win.on('enter-full-screen', () => {
+        setTimeout(repairGeometry, 300)
+        setTimeout(repairGeometry, 800)
+        setTimeout(repairGeometry, 1500)
+      })
     }
-    win.on('enter-full-screen', () => {
-      setTimeout(resyncGeometry, 300)
-      setTimeout(resyncGeometry, 800)
-    })
-    win.on('leave-full-screen', () => {
-      setTimeout(resyncGeometry, 300)
-      setTimeout(resyncGeometry, 800)
-    })
     disableShortCuts(win)
   })
   win.on('close', onClose)

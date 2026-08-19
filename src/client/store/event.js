@@ -8,16 +8,6 @@ export default Store => {
   Store.prototype.focus = function () {
     window.focused = true
     refs.get('term-' + window.store.activeTabId)?.term?.focus()
-    // Coming back from another app/Space: the window size did not change, so
-    // no resize event fires, yet on macOS fullscreen the stored height may be
-    // a stale intermediate value from the Spaces transition. Re-measure.
-    window.store.onResize()
-  }
-
-  // Sent by the main process after native fullscreen transitions, where the
-  // final window size does not reliably fire a resize event.
-  Store.prototype.onGeometryResync = function () {
-    window.store.onResize()
   }
 
   Store.prototype.blur = function () {

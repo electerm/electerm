@@ -61,7 +61,6 @@ export default auto(function Index (props) {
     ipcOnEvent('openSettings', store.openSetting)
     ipcOnEvent('selectall', store.selectall)
     ipcOnEvent('focused', store.focus)
-    ipcOnEvent('geometry-resync', store.onGeometryResync)
     ipcOnEvent('blur', store.onBlur)
     ipcOnEvent('zoom-reset', store.onZoomReset)
     ipcOnEvent('zoomin', store.onZoomIn)
