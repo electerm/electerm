@@ -151,7 +151,7 @@ export default auto(function FooterEntry (props) {
       <div className='terminal-footer-unit terminal-footer-info'>
         <InfoCircleOutlined
           onClick={handleInfoPanel}
-          className='pointer font18 terminal-info-icon'
+          className='pointer font14 terminal-info-icon'
         />
       </div>
     )
