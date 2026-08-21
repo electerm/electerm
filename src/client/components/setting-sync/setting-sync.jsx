@@ -3,8 +3,9 @@
  */
 
 import { Tabs, Spin } from 'antd'
+import { useEffect } from 'react'
 import SyncForm from './setting-sync-form'
-import { syncTypes, syncDataMaps } from '../../common/constants'
+import { allowedSyncTypes, syncDataMaps } from '../../common/constants'
 import DataTransport from './data-import'
 import DataSelect from './data-select'
 import { pick } from 'lodash-es'
@@ -24,6 +25,15 @@ export default auto(function SyncSettingEntry (props) {
   const {
     store
   } = window
+  const types = allowedSyncTypes()
+  const type = types.includes(props.syncType)
+    ? props.syncType
+    : types[0]
+  useEffect(() => {
+    if (store.syncType !== type) {
+      store.syncType = type
+    }
+  }, [type])
   function renderForm () {
     const syncProps = {
       ...syncSetting,
@@ -31,12 +41,11 @@ export default auto(function SyncSettingEntry (props) {
         'isSyncingSetting',
         'isSyncDownload',
         'isSyncUpload',
-        'syncType',
         'serverStatus'
       ]),
-      serverStatus: deepCopy(store.syncServerStatus[props.syncType])
+      syncType: type,
+      serverStatus: deepCopy(store.syncServerStatus[type])
     }
-    const type = props.syncType
     const formData = {
       gistId: syncSetting[type + 'GistId'],
       token: syncSetting[type + 'AccessToken'],
@@ -59,8 +68,7 @@ export default auto(function SyncSettingEntry (props) {
       />
     )
   }
-
-  const syncItems = Object.keys(syncTypes).map(type => {
+  const syncItems = types.map(type => {
     return {
       key: type,
       label: type,
@@ -84,7 +92,7 @@ export default auto(function SyncSettingEntry (props) {
       <DataTransport {...dataImportProps} />
       <Spin spinning={store.isSyncingSetting}>
         <Tabs
-          activeKey={store.syncType}
+          activeKey={type}
           onChange={handleChange}
           items={syncItems}
         />

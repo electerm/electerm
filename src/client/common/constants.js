@@ -212,6 +212,16 @@ export const syncTypes = buildConst([
   'cloud',
   'webdav'
 ])
+export const allowedSyncTypes = () => {
+  const custom = window.et.syncTypes
+  if (!Array.isArray(custom)) {
+    return Object.keys(syncTypes)
+  }
+  const list = custom.filter(type => syncTypes[type])
+  return list.length
+    ? list
+    : Object.keys(syncTypes)
+}
 export const syncTokenCreateUrls = {
   gitee: 'https://gitee.com/github-zxdong262/electerm/wikis/Create%20personal%20access%20token?sort_id=3028409',
   github: 'https://github.com/electerm/electerm/wiki/Create-personal-access-token',
