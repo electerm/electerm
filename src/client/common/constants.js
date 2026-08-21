@@ -272,6 +272,8 @@ export const connectionHoppingWikiLink = 'https://github.com/electerm/electerm/w
 export const aiConfigWikiLink = 'https://github.com/electerm/electerm/wiki/AI-model-config-guide'
 export const aiChatModeLsKey = 'ai-chat-mode'
 export const lastAiChatSessionIdKey = 'last-ai-chat-session-id'
+export const aiTermOfUseConfirmedLsKey = 'ai-term-of-use-confirmed'
+export const syncTermOfUseConfirmedLsKey = 'sync-term-of-use-confirmed'
 export const modals = {
   hide: 0,
   setting: 1

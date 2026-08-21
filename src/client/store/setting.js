@@ -14,6 +14,7 @@ import { buildNewTheme } from '../common/terminal-theme'
 import getInitItem from '../common/init-setting-item'
 import newTerm from '../common/new-terminal'
 import settingList from '../common/setting-list'
+import { requireTermOfUse } from '../common/term-of-use'
 
 const e = window.translate
 
@@ -103,11 +104,13 @@ export default Store => {
     ) {
       return store.hideSettingModal()
     }
-    store.storeAssign({
-      settingTab: settingMap.setting
+    requireTermOfUse('sync', () => {
+      store.storeAssign({
+        settingTab: settingMap.setting
+      })
+      store.setSettingItem(settingList().find(d => d.id === settingSyncId))
+      store.openSettingModal()
     })
-    store.setSettingItem(settingList().find(d => d.id === settingSyncId))
-    store.openSettingModal()
   }
 
   Store.prototype.openTerminalThemes = function () {

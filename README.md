@@ -47,6 +47,16 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS
 ----
 
 <div align="center">
+  <a href="https://go.apimart.ai/gh-electerm">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apimart.png?raw=true" alt="ApiMart" width="200" />
+  </a>
+</div>
+
+Thanks to APIMart for sponsoring electerm! APIMart is a low-cost API platform for AI image & video generation — GPT-Image-2 from $0.006/image, 160+ images per dollar. One async API covers both image and video: submit a task, get an ID, fetch results via polling or callback. Batch tens of thousands of images without timeouts, switch models without changing code. Pay-as-you-go with no monthly fee — [sign up here to get started](https://go.apimart.ai/gh-electerm).
+
+----
+
+<div align="center">
   <a href="https://www.apismart.ai">
     <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apismart400x400.png?raw=true" alt="ApiSmart" width="200" />
   </a>

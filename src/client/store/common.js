@@ -15,10 +15,13 @@ import {
   connectionMap,
   lastAiChatSessionIdKey,
   mobileBreakpoint,
-  splitMap
+  splitMap,
+  settingAiId,
+  settingSyncId
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { refs, refsStatic } from '../components/common/ref'
+import { requireTermOfUse } from '../common/term-of-use'
 import { action } from 'manate'
 import uid from '../common/uid'
 import deepCopy from 'json-deep-copy'
@@ -56,7 +59,9 @@ export default Store => {
   }
 
   Store.prototype.toggleAIConfig = function () {
-    window.store.showAIConfigModal = true
+    requireTermOfUse('ai', () => {
+      window.store.showAIConfigModal = true
+    })
   }
 
   Store.prototype.onResize = debounce(async function () {
@@ -99,6 +104,18 @@ export default Store => {
   }
 
   Store.prototype.setSettingItem = function (v) {
+    // entering the AI / sync setting page requires the term of use
+    // confirmation first (when the term is defined)
+    if (
+      v && (
+        v.id === settingAiId || v.id === settingSyncId
+      )
+    ) {
+      const type = v.id === settingAiId ? 'ai' : 'sync'
+      return requireTermOfUse(type, () => {
+        window.store.settingItem = v
+      })
+    }
     window.store.settingItem = v
   }
 
