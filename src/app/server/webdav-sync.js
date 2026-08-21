@@ -22,12 +22,16 @@ function createClient (serverUrl, username, password, proxy, skipVerify = false)
       const Cls = proxy.startsWith('http')
         ? require('https-proxy-agent').HttpsProxyAgent
         : require('socks-proxy-agent').SocksProxyAgent
-      conf = { httpsAgent: new Cls(proxy, { keepAlive: true, rejectUnauthorized: false }) }
+      const agent = new Cls(proxy, { keepAlive: true, rejectUnauthorized: false })
+      conf = { httpAgent: agent, httpsAgent: agent }
     } else {
-      conf = { httpsAgent: proxyAgent }
+      conf = { httpAgent: proxyAgent, httpsAgent: proxyAgent }
     }
   } else if (skipVerify) {
-    conf = { httpsAgent: new https.Agent({ rejectUnauthorized: false }) }
+    conf = {
+      httpAgent: new https.Agent({ rejectUnauthorized: false }),
+      httpsAgent: new https.Agent({ rejectUnauthorized: false })
+    }
   } else {
     conf = { proxy: false }
   }

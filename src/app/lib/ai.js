@@ -48,6 +48,7 @@ const createAIClient = (baseURL, apiKey, proxy, authHeaderName) => {
   // Add proxy agent if proxy is provided
   const agent = proxy ? createProxyAgent(proxy) : null
   if (agent) {
+    config.httpAgent = agent
     config.httpsAgent = agent
     config.proxy = false // Disable default proxy behavior when using agent
   }

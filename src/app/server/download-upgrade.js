@@ -38,6 +38,7 @@ function getReleaseInfo (
     timeout: 15000
   }
   if (agent) {
+    conf.httpAgent = agent
     conf.httpsAgent = agent
   }
   return rp(conf)
@@ -90,6 +91,7 @@ class Upgrade {
     this.localPath = localPath
     const readSteam = await rp({
       url: remotePath,
+      httpAgent: agent,
       httpsAgent: agent,
       responseType: 'stream'
     })
