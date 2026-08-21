@@ -22,6 +22,18 @@
  *     visualViewport.height against a baseline captured at the moment the
  *     terminal input is focused (i.e. before the keyboard opens), which holds
  *     the full pre-keyboard height on both platforms.
+ *
+ * Telling a keyboard from a desktop window resize (pure size heuristics
+ * fail — dragging a window's top/bottom edge is also a height-only shrink)
+ * needs one of two extra signals, checked in onResize:
+ *   - an overlay-style keyboard (iOS / HarmonyOS) shrinks the visual
+ *     viewport but keeps the layout viewport (window.innerHeight) full —
+ *     a window resize shrinks both.
+ *   - an Android-style keyboard resizes both viewports, but a soft keyboard
+ *     only ever opens in response to a *touch* into the terminal — a window
+ *     resized with a mouse never shows one.
+ * Tablets running the desktop program still get the bar; mouse-driven
+ * desktops never do.
  */
 
 import { lazy, Suspense, useEffect, useState } from 'react'
@@ -34,6 +46,11 @@ const ShortcutBar = lazy(() => import('./shortcut-bar'))
 // Shared with shortcut-bar.jsx, which uses it to decide how far to lift the
 // bar above a keyboard that overlays the page (iOS / HarmonyOS).
 export const KEYBOARD_MIN = 120
+
+// how long (ms) after an in-page touch an Android-style (layout-resizing)
+// keyboard is expected to be up. Bounds the touch signal used to tell that
+// keyboard from a mouse-driven window resize on touch-capable desktops.
+const TOUCH_GRACE_MS = 3000
 
 // kept as a coarse capability fallback for engines without visualViewport.
 // Modern Chromium (Electron) always exposes window.visualViewport, so this is
@@ -77,6 +94,12 @@ export default function ShortcutBarEntry (props) {
     // the pre-keyboard (full) size, and the subsequent resize lets us measure
     // exactly how much the keyboard took — on both iOS and Android.
     let baseline = { height: vv.height, width: vv.width }
+    // when the last in-page touch happened (0 = never). An Android-style
+    // keyboard resizes the layout viewport exactly like a window resize does,
+    // so size alone can't separate them there — but a keyboard only ever
+    // opens right after a *touch*, while a window drag doesn't fire in-page
+    // pointer events at all, so an old touch must not count forever.
+    let lastTouchAt = 0
 
     function onFocusIn (ev) {
       const el = ev.target
@@ -85,11 +108,25 @@ export default function ShortcutBarEntry (props) {
       }
     }
 
+    function onPointerDown (ev) {
+      // touch or stylus — both tap like a finger and can raise the keyboard
+      if (ev.pointerType === 'touch' || ev.pointerType === 'pen') {
+        lastTouchAt = Date.now()
+      }
+    }
+
     function onResize () {
       // ignore viewport changes that also changed width (rotation / split) —
       // a keyboard changes height only.
       const sameWidth = Math.abs(vv.width - baseline.width) < 20
-      if (sameWidth && baseline.height - vv.height > KEYBOARD_MIN) {
+      if (!sameWidth || baseline.height - vv.height <= KEYBOARD_MIN) {
+        return
+      }
+      // overlay keyboard (iOS / HarmonyOS): the layout viewport stays full
+      // while the visual one shrinks. A window resize shrinks both — this is
+      // what rules out mouse window-dragging on those platforms.
+      const layoutShrunk = window.innerHeight < baseline.height - KEYBOARD_MIN
+      if (!layoutShrunk) {
         setKeyboardSeen(true)
         // The user is focused in a terminal with the keyboard up — they need
         // the bar right now. Set visibility here rather than waiting for the
@@ -100,13 +137,27 @@ export default function ShortcutBarEntry (props) {
         if (store && store.inActiveTerminal) {
           store.shortcutBarVisible = true
         }
+        return
+      }
+      // Android-style resize keyboard: both viewports shrink, so require a
+      // recent touch — a keyboard opens within moments of the tap, while a
+      // window drag fires no in-page pointerdown at all, so any touch old
+      // enough to have expired can't have been the cause.
+      if (Date.now() - lastTouchAt < TOUCH_GRACE_MS) {
+        setKeyboardSeen(true)
+        const { store } = window
+        if (store && store.inActiveTerminal) {
+          store.shortcutBarVisible = true
+        }
       }
     }
 
     document.addEventListener('focusin', onFocusIn)
+    document.addEventListener('pointerdown', onPointerDown)
     vv.addEventListener('resize', onResize)
     return () => {
       document.removeEventListener('focusin', onFocusIn)
+      document.removeEventListener('pointerdown', onPointerDown)
       vv.removeEventListener('resize', onResize)
     }
   }, [])
