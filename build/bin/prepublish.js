@@ -13,7 +13,7 @@ pack.dependencies = savedPackage.reduce((prev, p) => {
 }, {})
 pack.scripts = {
   postinstall: 'node npm/install.js',
-  postpublish: 'node bin/postpublish.js'
+  postpublish: 'node build/bin/postpublish.js'
 }
 delete pack.languageRepo
 delete pack.privacyNoticeLink
