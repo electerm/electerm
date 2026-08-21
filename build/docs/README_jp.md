@@ -47,9 +47,13 @@
 ----
 
 <div align="center">
+  <br />
+  <br />
   <a href="https://go.apimart.ai/gh-electerm">
     <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apimart.jpg?raw=true" alt="ApiMart" width="200" />
   </a>
+  <br />
+  <br />
 </div>
 
 APIMart が electerm をスポンサーしてくれています！APIMart は、AI 画像・動画生成のための低価格 API プラットフォームです。GPT-Image-2 は 1 枚 $0.006 から、1 ドルで 160 枚以上の画像を生成できます。1 つの非同期 API で画像と動画の両方に対応：タスクを送信して ID を取得し、ポーリングまたはコールバックで結果を取得します。タイムアウトを気にせず数万枚の画像をバッチ処理でき、コードを変更せずにモデルを切り替えられます。従量課金で月額料金なし — [こちらから登録して始めましょう](https://go.apimart.ai/gh-electerm)。
