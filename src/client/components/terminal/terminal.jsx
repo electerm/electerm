@@ -1723,12 +1723,6 @@ class Term extends Component {
     }
 
     this.shellType = shellType
-    if (shellType === 'fish') {
-      if (this.props.sftpPathFollowSsh) {
-        this.warnSftpFollowUnsupported()
-      }
-      return Promise.resolve()
-    }
 
     // Don't inject for sh type shells unless sftpPathFollowSsh is true
     if (shellType === 'sh' && !this.props.sftpPathFollowSsh) {

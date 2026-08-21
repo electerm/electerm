@@ -98,12 +98,6 @@ export default class AttachAddonCustom {
     }
   }
 
-  onShellIntegrationDetected = () => {
-    if (this.outputSuppressed) {
-      this.stopOutputSuppression(true)
-    }
-  }
-
   activate = async (terminal = this.term) => {
     await this._initBase()
     this.addSocketListener(this._socket, 'message', this.onMsg)
@@ -177,9 +171,10 @@ export default class AttachAddonCustom {
     }
   }
 
-  checkForShellIntegration = (str) => {
+  // Index of the first OSC 633 sequence in the chunk, or -1.
+  indexOfShellIntegration = (str) => {
     const ESC = String.fromCharCode(27)
-    return str.includes(ESC + ']633;')
+    return str.indexOf(ESC + ']633;')
   }
 
   writeToTerminalDirect = (data) => {
@@ -232,8 +227,15 @@ export default class AttachAddonCustom {
     }
 
     if (this.outputSuppressed) {
-      if (this.checkForShellIntegration(str)) {
-        this.onShellIntegrationDetected()
+      const oscIdx = this.indexOfShellIntegration(str)
+      if (oscIdx !== -1) {
+        // Shell integration is confirmed active. The pty often coalesces the
+        // tail of the echoed injection command and the first OSC 633 output
+        // into one chunk, so write only from the first OSC sequence on —
+        // everything before it is echo and stays hidden. A leading newline
+        // keeps the fresh prompt off the injection-time prompt line.
+        this.stopOutputSuppression(true)
+        this._enqueueWrite('\r\n' + str.slice(oscIdx))
         return
       }
       this.suppressedData.push(data)

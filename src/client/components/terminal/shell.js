@@ -27,7 +27,7 @@ function getBashInlineIntegration () {
     'if [[ $- == *i* ]] && [[ -z "${ELECTERM_SHELL_INTEGRATION:-}" ]]',
     'then export ELECTERM_SHELL_INTEGRATION=1',
     '__e_esc() { local v="$1"; v="${v//\\\\/\\\\\\\\}"; v="${v//;/\\\\x3b}"; printf \'%s\' "$v"; }',
-    '__e_pre() { [[ "$BASH_COMMAND" == "$PROMPT_COMMAND" ]] && return; [[ "$BASH_COMMAND" == "__e_"* ]] && return; [[ "${__e_in:-0}" == "0" ]] && { __e_in=1; printf \'\\e]633;E;%s\\a\\e]633;C\\a\' "$(__e_esc "$BASH_COMMAND")"; }; }',
+    '__e_pre() { local p; [[ "$BASH_COMMAND" == __e_* || "$BASH_COMMAND" == PROMPT_COMMAND=* ]] && return; [[ "$BASH_COMMAND" == "$PROMPT_COMMAND" ]] && return; if [[ -n "${PROMPT_COMMAND:-}" ]]; then local IFS=\';\'; for p in $PROMPT_COMMAND; do p="${p#"${p%%[! ]*}"}"; [[ "$BASH_COMMAND" == "$p" ]] && return; done; fi; [[ "${__e_in:-0}" == "0" ]] && { __e_in=1; printf \'\\e]633;E;%s\\a\\e]633;C\\a\' "$(__e_esc "$BASH_COMMAND")"; }; }',
     '__e_cmd() { local c="$?"; [[ "${__e_in:-0}" == "1" ]] && { printf \'\\e]633;D;%s\\a\' "$c"; __e_in=0; }; printf \'\\e]633;P;Cwd=%s\\a\\e]633;A\\a\' "$(__e_esc "$PWD")"; return "$c"; }',
     'trap \'__e_pre\' DEBUG',
     'PROMPT_COMMAND="__e_cmd${PROMPT_COMMAND:+; $PROMPT_COMMAND}"',
@@ -40,17 +40,19 @@ function getBashInlineIntegration () {
  * Properly formatted for semicolon joining
  */
 function getZshInlineIntegration () {
-  // Each statement is complete and can be joined with semicolons
-  // Note: 'then' must have a space/newline before the next command, not semicolon
+  // Register hooks by appending to the precmd/preexec hook arrays directly.
+  // add-zsh-hook is an autoloadable shell function: on systems like NixOS
+  // fpath may not include the standard functions directory, the autoload
+  // fails silently (stderr is suppressed) and the hooks never run, breaking
+  // path following. Appending to the arrays works on every zsh.
   return [
     'if [[ -o interactive ]] && [[ -z "${ELECTERM_SHELL_INTEGRATION:-}" ]]',
     'then export ELECTERM_SHELL_INTEGRATION=1',
     '__e_esc() { local v="$1"; v="${v//\\\\/\\\\\\\\}"; v="${v//;/\\\\x3b}"; builtin printf \'%s\' "$v"; }',
     '__e_preexec() { __e_cmd="$1"; builtin printf \'\\e]633;E;%s\\a\\e]633;C\\a\' "$(__e_esc "$1")"; }',
     '__e_precmd() { local c="$?"; [[ -n "$__e_cmd" ]] && builtin printf \'\\e]633;D;%s\\a\' "$c"; __e_cmd=""; builtin printf \'\\e]633;P;Cwd=%s\\a\\e]633;A\\a\' "$(__e_esc "$PWD")"; }',
-    'autoload -Uz add-zsh-hook',
-    'add-zsh-hook precmd __e_precmd',
-    'add-zsh-hook preexec __e_preexec',
+    'precmd_functions+=(__e_precmd)',
+    'preexec_functions+=(__e_preexec)',
     'fi'
   ].join('; ')
 }
@@ -78,11 +80,13 @@ function getShInlineIntegration () {
   return [
     'if [ -z "$ELECTERM_SHELL_INTEGRATION" ]',
     'then export ELECTERM_SHELL_INTEGRATION=1',
-    '__e_esc() { printf "%s" "$1" | sed "s/\\\\/\\\\\\\\/g; s/;/\\\\x3b/g"; }',
-    // We wrap the current PS1 with OSC 633 sequences.
-    // \033]633;P;Cwd=... \007 marks the directory
-    // \033]633;A \007 marks the start of the prompt
-    'export PS1="\\e]633;P;Cwd=$(__e_esc "$PWD")\\a\\e]633;A\\a${PS1:-# }"',
+    '__e_esc() { printf \'%s\' "$1" | sed \'s/\\\\/\\\\\\\\/g; s/;/\\\\x3b/g\'; }',
+    // sh/dash/ash re-evaluate $(...) inside PS1 every time the prompt is
+    // shown, but only if the $() stays literal — so PS1 must be assigned
+    // single-quoted. printf interprets \033/\a, unlike PS1 backslash
+    // escapes which dash does not expand.
+    '__e_ps1() { printf \'\\033]633;P;Cwd=%s\\a\\033]633;A\\a\' "$(__e_esc "$PWD")"; }',
+    'PS1=\'$(__e_ps1)\'"${PS1:-# }"',
     'fi'
   ].join('; ')
 }
@@ -139,6 +143,13 @@ export function wrapSilent (cmd, shellType) {
  * @returns {string} Complete command to send to terminal
  */
 export function getShellIntegrationCommand (shellType = 'bash') {
+  if (shellType === 'fish') {
+    // fish is not a Bourne shell: the eval '\''...'\'' wrapper of wrapSilent
+    // is a parse error in fish (nested single quotes stay unbalanced), so
+    // the whole injection silently fails. Send the script raw instead —
+    // it is already valid fish syntax as-is.
+    return ' ' + getInlineShellIntegration(shellType) + '\r'
+  }
   const cmd = getInlineShellIntegration(shellType)
   return wrapSilent(cmd, shellType)
 }
