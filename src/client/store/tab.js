@@ -111,17 +111,22 @@ export default Store => {
     // Remove old tab
     tabs.splice(index, 1)
 
-    setTimeout(() => {
-      if (store.activeTabId === tabId) {
-        store.activeTabId = newTab.id
-      }
+    // Update active tab id synchronously (same as addTab) so the new tab's
+    // container is already visible (display:block) by the time its Terminal
+    // mounts. Deferring this via setTimeout(0) left the container hidden at
+    // mount time, causing the initial fit()/createTerm() to use xterm's
+    // default 80x24 size instead of the real fitted size - which then got
+    // baked into the remote pty and only partially corrected later, leaving
+    // full-screen apps like tmux/vim rendering at the wrong size.
+    if (store.activeTabId === tabId) {
+      store.activeTabId = newTab.id
+    }
 
-      // Update batch current tab ID if needed
-      const batchProp = `activeTabId${oldBatch}`
-      if (store[batchProp] === tabId) {
-        store[batchProp] = newTab.id
-      }
-    }, 0)
+    // Update batch current tab ID if needed
+    const batchProp = `activeTabId${oldBatch}`
+    if (store[batchProp] === tabId) {
+      store[batchProp] = newTab.id
+    }
   }
 
   Store.prototype.reloadAllTabs = function () {

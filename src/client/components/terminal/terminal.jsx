@@ -1940,6 +1940,17 @@ class Term extends Component {
     if (this.isElementVisible()) {
       this.fitAddon.fit()
     }
+    // Force-send the current size now that `this.pid` is finally valid.
+    // A resize may already have fired earlier (e.g. from the tab-becomes-
+    // visible fit in componentDidUpdate, which can run before createTerm()
+    // resolves) while this.pid was still undefined - the backend silently
+    // drops resize calls for an unknown pid. If that earlier call already
+    // updated term.cols/rows locally, xterm's resize() no-ops on the next
+    // fit() (dims unchanged) and never fires onResize again, so the
+    // backend pty would otherwise be stuck at its initial (possibly wrong)
+    // size forever. Sending explicitly here, keyed off the real pid,
+    // guarantees the remote pty/ssh channel is told the true current size.
+    resizeTerm(this.pid, term.cols, term.rows)
     term.displayRaw = displayRaw
     term.loadAddon(
       new KeywordHighlighterAddon(keywords)
