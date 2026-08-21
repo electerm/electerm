@@ -14,7 +14,6 @@ jobs:
         repository:
           - electerm/electerm.org
           - electerm/repos
-          - electerm/electerm-data-tool
     steps:
       - name: Trigger ${{ matrix.repository }} repository workflow
         uses: peter-evans/repository-dispatch@v2
