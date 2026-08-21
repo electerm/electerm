@@ -210,6 +210,16 @@ export const commonFields = {
     label: () => e('proxy')
   },
 
+  proxyCommand: {
+    type: 'input',
+    name: 'proxyCommand',
+    label: () => `${e('proxy')} command`,
+    props: {
+      placeholder: 'netbird ssh proxy %h %p',
+      maxLength: 1024
+    }
+  },
+
   x11: {
     type: 'x11',
     name: '__x11__',
@@ -281,6 +291,7 @@ export const sshSettings = [
   },
   commonFields.enableTerminalImage,
   ...terminalSettings.slice(0, -1), // All except terminalBackground
+  commonFields.proxyCommand,
   commonFields.x11,
   commonFields.terminalBackground
 ]

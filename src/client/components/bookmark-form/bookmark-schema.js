@@ -26,6 +26,7 @@ const bookmarkSchema = {
     runScripts: 'array - run scripts after connected ({delay,script})',
     quickCommands: 'array - quick commands ({name,command})',
     proxy: 'string - proxy address (socks5://...)',
+    proxyCommand: 'string - ssh proxy command, supports %h (host) %p (port) %r (username) placeholders, e.g. `netbird ssh proxy %h %p` or `cloudflared access ssh --hostname %h`',
     x11: 'boolean - enable x11 forwarding, default is false',
     term: 'string - terminal type, default is xterm-256color, required',
     displayRaw: 'boolean - display raw output, default is false',
