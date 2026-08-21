@@ -48,7 +48,7 @@
 
 <div align="center">
   <a href="https://go.apimart.ai/gh-electerm">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apimart.png?raw=true" alt="ApiMart" width="200" />
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apimart.jpg?raw=true" alt="ApiMart" width="200" />
   </a>
 </div>
 
