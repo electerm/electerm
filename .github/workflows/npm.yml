@@ -4,6 +4,9 @@ on:
     types: [published]
   push:
     branches: [ test-npm ]
+# id-token: write is REQUIRED for npm trusted publishing (OIDC) to work
+permissions:
+  id-token: write
 jobs:
   release-npm:
     runs-on: ubuntu-latest
@@ -21,6 +24,8 @@ jobs:
       - run: cp -r ./build/npm ./
       - run: node build/bin/prepublish.js
       - run: npm config set legacy-peer-deps true && npm i -D shelljs
-      - uses: JS-DevTools/npm-publish@v3
-        with:
-          token: ${{secrets.NPM_TOKEN}}
+      # Trusted publishing: do NOT pass a token. npm authenticates via the
+      # GitHub OIDC token. Clear NODE_AUTH_TOKEN so no legacy token is used.
+      - run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ""
