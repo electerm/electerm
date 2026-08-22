@@ -4,6 +4,9 @@ on:
     types: [published]
   push:
     branches: [ electerm-react ]
+# id-token: write is REQUIRED for npm trusted publishing (OIDC) to work
+permissions:
+  id-token: write
 jobs:
   release-npm:
     runs-on: ubuntu-24.04
@@ -21,6 +24,4 @@ jobs:
       - run: npm install shelljs
       - run: npm install -g @jsdevtools/npm-publish
       - name: build
-        env:
-          token: ${{secrets.NPM_TOKEN}}
         run: node build/bin/publish-electerm-react.js
