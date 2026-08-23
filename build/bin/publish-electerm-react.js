@@ -13,4 +13,6 @@ fs.writeFileSync(resolve(to, 'package.json'), JSON.stringify(tpack, null, 2))
 rm('-rf', resolve(to, 'client'))
 cp('-r', from, to)
 cd(to)
-exec(`npm-publish  --token ${process.env.token} --access public`)
+// Trusted publishing: no --token. npm authenticates via the GitHub OIDC
+// token (requires permissions: id-token: write in the workflow).
+exec('npm-publish --access public --provenance')
