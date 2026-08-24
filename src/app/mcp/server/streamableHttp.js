@@ -196,7 +196,11 @@ class StreamableHTTPServerTransport {
         return
       } else if (request.method === 'notifications/initialized') {
         this.initialized = true
-        res.status(200).end()
+        // Per MCP Streamable HTTP spec, notifications MUST be answered with
+        // 202 Accepted and no body. A 200 with an empty body (and thus no
+        // Content-Type) is treated as a fatal UnexpectedContentType error by
+        // Codex's rmcp HTTP adapter, killing the transport during handshake.
+        res.status(202).end()
         return
       } else if (request.method === 'tools/list') {
         const tools = Array.from(this.server.tools.entries()).map(([name, { description, inputSchema }]) => ({
@@ -273,7 +277,8 @@ class StreamableHTTPServerTransport {
       // responses more reliably than short-lived SSE streams.
       if (request.id === undefined || request.id === null) {
         // Notification — client does not expect a result, just an ack.
-        res.status(200).end()
+        // 202 Accepted per MCP Streamable HTTP spec (see note above).
+        res.status(202).end()
         return
       }
       this._sendJSON(res, result)

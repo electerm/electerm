@@ -310,6 +310,10 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
     const b = await initSession({ protocolVersion: '2025-11-25' })
     assert.equal(b.init.result.protocolVersion, '2025-11-25')
 
+    // Widely-deployed revision (rmcp/Claude Code era clients) must be echoed
+    const c6 = await initSession({ protocolVersion: '2025-06-18' })
+    assert.equal(c6.init.result.protocolVersion, '2025-06-18')
+
     const c = await initSession({ protocolVersion: '1999-01-01' })
     assert.equal(c.init.result.protocolVersion, '2025-11-25', 'unknown version must fall back to newest supported')
   })
@@ -352,8 +356,9 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
     assert.ok(init.result, 'initialize must return a result')
 
     // 2. Send notifications/initialized — this is the step that was failing
-    //    with Codex/rmcp when the server used SSE for the initialize response.
-    //    The notification has no `id` and expects a plain 200 ack.
+    //    with Codex/rmcp: a 200 with an empty body (no Content-Type) is a
+    //    fatal UnexpectedContentType error in Codex's HTTP adapter. The MCP
+    //    Streamable HTTP spec requires 202 Accepted with no body.
     const res = await makeHttpRequest('post', serverUrl, {
       jsonrpc: '2.0',
       method: 'notifications/initialized'
@@ -362,7 +367,7 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
       Accept: 'application/json, text/event-stream',
       'mcp-session-id': sid
     })
-    assert.equal(res.status, 200, 'notifications/initialized must return 200')
+    assert.equal(res.status, 202, 'notifications/initialized must return 202 Accepted per spec')
 
     // 3. The session is now usable — tools/list must work
     const tools = await callMethod(sid, 'tools/list', {})
