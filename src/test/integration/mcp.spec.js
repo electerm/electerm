@@ -100,11 +100,21 @@ async function makeStreamGetRequest (urlStr, headers = {}, timeoutMs = 5000) {
   })
 }
 
-function parseSseBody (body) {
-  const dataLine = (typeof body === 'string' ? body : JSON.stringify(body))
-    .split('\n').find(l => l.startsWith('data: '))
-  if (!dataLine) return null
-  return JSON.parse(dataLine.slice(6))
+// The server may return either a plain JSON body or an SSE stream
+// (text/event-stream with a `data: ` line). Support both transparently.
+function parseResponseBody (body) {
+  if (body === null || body === undefined) return null
+  // Already a parsed object (axios auto-parsed application/json)
+  if (typeof body === 'object' && !Array.isArray(body)) return body
+  const str = String(body)
+  // SSE format: look for a `data: ` line
+  if (str.includes('data: ')) {
+    const dataLine = str.split('\n').find(l => l.startsWith('data: '))
+    if (!dataLine) return null
+    return JSON.parse(dataLine.slice(6))
+  }
+  // Plain JSON
+  return JSON.parse(str)
 }
 
 async function initSession ({ protocolVersion = '2025-11-25', withTasksCap = false } = {}) {
@@ -125,7 +135,7 @@ async function initSession ({ protocolVersion = '2025-11-25', withTasksCap = fal
   })
   const sid = res.headers['mcp-session-id']
   assert.ok(sid && sid !== 'null', `expected a real session ID, got: ${sid}`)
-  return { sid, init: parseSseBody(res.data) }
+  return { sid, init: parseResponseBody(res.data) }
 }
 
 let requestId = 1000
@@ -151,8 +161,8 @@ async function callTool (sid, toolName, args, { withTasksCap = false } = {}) {
     'mcp-session-id': sid
   })
   assert.equal(res.status, 200)
-  const jsonData = parseSseBody(res.data)
-  assert.ok(jsonData, `No SSE data in response for ${toolName}`)
+  const jsonData = parseResponseBody(res.data)
+  assert.ok(jsonData, `No response data for ${toolName}`)
   assert.equal(jsonData.id, id)
   return jsonData
 }
@@ -170,7 +180,7 @@ async function callMethod (sid, method, params) {
     'mcp-session-id': sid
   })
   assert.equal(res.status, 200)
-  return parseSseBody(res.data)
+  return parseResponseBody(res.data)
 }
 
 // Parse the JSON payload of a successful tool result
@@ -310,6 +320,86 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
     const ext = init.result.capabilities.extensions
     assert.ok(ext, 'capabilities.extensions must exist (enableTasks defaults to true)')
     assert.ok('io.modelcontextprotocol/tasks' in ext)
+  })
+
+  test('initialize returns application/json content-type (not SSE)', { timeout: 30000 }, async (t) => {
+    if (skipOffline(t)) return
+    const res = await makeHttpRequest('post', serverUrl, {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'initialize',
+      params: {
+        protocolVersion: '2025-11-25',
+        capabilities: {},
+        clientInfo: { name: 'electerm-content-type-test', version: '1.0.0' }
+      }
+    }, {
+      'Content-Type': 'application/json',
+      Accept: 'application/json, text/event-stream'
+    })
+    assert.equal(res.status, 200)
+    assert.equal(
+      res.headers['content-type'], 'application/json; charset=utf-8',
+      'initialize must return JSON (not text/event-stream) for client compatibility'
+    )
+    assert.ok(res.headers['mcp-session-id'], 'session ID must be in response headers')
+  })
+
+  test('notifications/initialized handshake completes the session', { timeout: 30000 }, async (t) => {
+    if (skipOffline(t)) return
+    // 1. initialize
+    const { sid, init } = await initSession()
+    assert.ok(init.result, 'initialize must return a result')
+
+    // 2. Send notifications/initialized — this is the step that was failing
+    //    with Codex/rmcp when the server used SSE for the initialize response.
+    //    The notification has no `id` and expects a plain 200 ack.
+    const res = await makeHttpRequest('post', serverUrl, {
+      jsonrpc: '2.0',
+      method: 'notifications/initialized'
+    }, {
+      'Content-Type': 'application/json',
+      Accept: 'application/json, text/event-stream',
+      'mcp-session-id': sid
+    })
+    assert.equal(res.status, 200, 'notifications/initialized must return 200')
+
+    // 3. The session is now usable — tools/list must work
+    const tools = await callMethod(sid, 'tools/list', {})
+    assert.ok(tools.result.tools.length > 0, 'session must be usable after handshake')
+  })
+
+  test('JSON-RPC responses use application/json content-type', { timeout: 30000 }, async (t) => {
+    if (skipOffline(t)) return
+    const { sid } = await initSession()
+
+    // tools/list — a standard JSON-RPC request with an id
+    const res = await makeHttpRequest('post', serverUrl, {
+      jsonrpc: '2.0',
+      id: 999,
+      method: 'tools/list',
+      params: {}
+    }, {
+      'Content-Type': 'application/json',
+      Accept: 'application/json, text/event-stream',
+      'mcp-session-id': sid
+    })
+    assert.equal(res.status, 200)
+    assert.equal(
+      res.headers['content-type'], 'application/json; charset=utf-8',
+      'JSON-RPC responses must use application/json for broad client compatibility'
+    )
+
+    // ping — simplest JSON-RPC method
+    const pingRes = await makeHttpRequest('post', serverUrl, {
+      jsonrpc: '2.0',
+      id: 998,
+      method: 'ping'
+    }, {
+      'Content-Type': 'application/json',
+      'mcp-session-id': sid
+    })
+    assert.equal(pingRes.headers['content-type'], 'application/json; charset=utf-8')
   })
 
   test('tools/list exposes the unified tool set and not the removed legacy tools', { timeout: 30000 }, async (t) => {

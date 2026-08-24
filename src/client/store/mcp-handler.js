@@ -810,7 +810,9 @@ export default Store => {
     const { command, tabId, timeoutMs } = args
     const marker = `__ET_EXEC_${uid()}__`
     const startLine = `${marker}S`
-    const wrapped = `echo "${startLine}"; ${command}; echo "${marker}E$?"`
+    // Run in a subshell so commands like `exit`/`exec` cannot kill the outer
+    // shell before the end sentinel is emitted; $? holds the subshell's code.
+    const wrapped = `echo "${startLine}"; ( ${command} ); echo "${marker}E$?"`
 
     store.runQuickCommand(wrapped, false, tabId)
 

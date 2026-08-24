@@ -50,6 +50,8 @@ class StreamableHTTPServerTransport {
     }
   }
 
+  // Send a single JSON-RPC result as an SSE `message` event and close the
+  // stream. Used for tool-call responses that may be streamed in the future.
   _sendSSE (res, data) {
     res.setHeader('Content-Type', 'text/event-stream')
     res.setHeader('Cache-Control', 'no-cache')
@@ -57,6 +59,20 @@ class StreamableHTTPServerTransport {
     res.write('event: message\n')
     res.write(`data: ${JSON.stringify(data)}\n\n`)
     res.end()
+  }
+
+  // Send a plain JSON response (not SSE). Some MCP clients (notably Codex's
+  // rmcp StreamableHttpClientWorker) treat the closing of the SSE stream as a
+  // transport-channel closure and fail when sending the follow-up
+  // `notifications/initialized` on the same worker. Returning a regular JSON
+  // response lets the HTTP request complete normally so the client can open a
+  // new request for the next message.
+  _sendJSON (res, data, sessionId) {
+    res.setHeader('Content-Type', 'application/json')
+    if (sessionId) {
+      res.setHeader('mcp-session-id', sessionId)
+    }
+    res.json(data)
   }
 
   // Detect tasks-extension support from request params. Accepts both the
@@ -172,7 +188,12 @@ class StreamableHTTPServerTransport {
             }
           }
         }
-        res.setHeader('mcp-session-id', this.sessionId)
+        // Use a plain JSON response for initialize so the HTTP request
+        // completes cleanly. Clients like Codex/rmcp treat the closing of
+        // an SSE stream as a transport-channel closure and then fail when
+        // trying to send `notifications/initialized` on the same worker.
+        this._sendJSON(res, result, this.sessionId)
+        return
       } else if (request.method === 'notifications/initialized') {
         this.initialized = true
         res.status(200).end()
@@ -246,7 +267,16 @@ class StreamableHTTPServerTransport {
           error: { code: -32601, message: `Method not found: ${request.method}` }
         }
       }
-      this._sendSSE(res, result)
+      // For JSON-RPC requests with an id (requires a response), return a
+      // plain JSON body. This is the most broadly compatible approach —
+      // some clients (Codex/rmcp, Claude Agent SDK) handle plain JSON
+      // responses more reliably than short-lived SSE streams.
+      if (request.id === undefined || request.id === null) {
+        // Notification — client does not expect a result, just an ack.
+        res.status(200).end()
+        return
+      }
+      this._sendJSON(res, result)
     } else {
       if (req.method === 'DELETE') {
         this.close()
