@@ -6,7 +6,6 @@ import {
   SearchOutlined,
   FullscreenOutlined,
   PaperClipOutlined,
-  CloseOutlined,
   ApartmentOutlined,
   MoreOutlined,
   ColumnWidthOutlined,
@@ -37,8 +36,6 @@ export default function SessionControl (props) {
     keepaliveEnabled,
     broadcastInput,
     wrapDisabled,
-    delKeyPressed,
-    hideDelKeyTip,
     onChangePane,
     toggleCheckSftpPathFollowSsh,
     onSshSftpSplitView,
@@ -47,7 +44,6 @@ export default function SessionControl (props) {
     toggleWrap,
     onFullscreen,
     onOpenSearch,
-    onDismissDelKeyTip,
     onExitGracefully
   } = props
 
@@ -108,26 +104,11 @@ export default function SessionControl (props) {
     )
   }
 
-  function renderDelTip (isS) {
-    if (!isS || hideDelKeyTip || !delKeyPressed) {
-      return null
-    }
-    return (
-      <div className='type-tab'>
-        <span className='mg1r'>Try <b>Shift + Backspace</b>?</span>
-        <CloseOutlined
-          onClick={onDismissDelKeyTip}
-          className='pointer'
-        />
-      </div>
-    )
-  }
-
   function renderSftpPathFollowControl () {
     if (isDisabled) {
       return null
     }
-    const { pane, enableSsh, sshSftpSplitView } = tab
+    const { enableSsh } = tab
     const checkTxt = e('sftpPathFollowSsh')
     const checkProps = {
       onClick: toggleCheckSftpPathFollowSsh,
@@ -138,8 +119,6 @@ export default function SessionControl (props) {
         }
       )
     }
-    const isS = pane === paneMap.terminal ||
-      sshSftpSplitView
     return (
       <>
         {
@@ -153,7 +132,6 @@ export default function SessionControl (props) {
               )
             : null
         }
-        {renderDelTip(isS)}
       </>
     )
   }

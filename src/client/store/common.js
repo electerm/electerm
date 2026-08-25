@@ -11,7 +11,6 @@ import {
   leftSideBarOpenKey,
   rightSidebarWidthKey,
   addPanelWidthLsKey,
-  dismissDelKeyTipLsKey,
   connectionMap,
   lastAiChatSessionIdKey,
   mobileBreakpoint,
@@ -147,10 +146,6 @@ export default Store => {
   Store.prototype.setRightSidePanelWidth = function (v) {
     ls.setItem(rightSidebarWidthKey, v)
     window.store._rightPanelWidth = v
-  }
-  Store.prototype.dismissDelKeyTip = function (v) {
-    ls.setItem(dismissDelKeyTipLsKey, 'y')
-    window.store.hideDelKeyTip = true
   }
   Store.prototype.beforeExit = function (evt) {
     const { confirmBeforeExit } = window.store.config

@@ -19,7 +19,6 @@ import {
   leftSidePanelWidthKey,
   rightSidebarWidthKey,
   addPanelWidthLsKey,
-  dismissDelKeyTipLsKey,
   qmSortByFrequencyKey,
   resolutionsLsKey,
   syncServerDataKey,
@@ -216,7 +215,6 @@ export default () => {
     hasNodePty: window.pre.runSync('nodePtyCheck'),
     isMobile: window.innerWidth <= mobileBreakpoint,
     fullscreen: false,
-    hideDelKeyTip: ls.getItem(dismissDelKeyTipLsKey) === 'y',
     tabsHeight: 36,
 
     // widgets

@@ -69,7 +69,6 @@ export default class Sessions extends Component {
         height,
         ...pick(this.props, [
           'resolutions',
-          'hideDelKeyTip',
           'fileOperation',
           'pinnedQuickCommandBar',
           'tabsHeight',
