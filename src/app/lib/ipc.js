@@ -94,6 +94,23 @@ const SAFE_ENV_KEYS = [
   'CI', 'DOCKER_HOST', 'CONTAINER'
 ]
 
+// Security: the dynamic IPC bridges (runGlobalAsync / runSync) only dispatch to
+// functions that are explicitly wired into the dispatch object as own properties.
+// Checking `hasOwnProperty` (instead of a hand-maintained name list) means the
+// allowlist can never drift from the real exports, and it blocks prototype-chain
+// pivots like 'constructor', 'toString', '__proto__', 'hasOwnProperty' (CWE-863 / CWE-749).
+function isExportedIpcFunc (obj, name) {
+  return Object.prototype.hasOwnProperty.call(obj, name) && typeof obj[name] === 'function'
+}
+
+// Only the main app window's webContents may use the dynamic IPC bridges. This blocks
+// any other renderer frame (webviews, popups, or an attacker page that navigated the
+// window) from reaching runGlobalAsync / runSync (CWE-863 / CWE-749).
+function isTrustedIpcSender (event) {
+  const win = globalState.get('win')
+  return !!win && event.sender === win.webContents
+}
+
 async function initAppServer () {
   const {
     config
@@ -149,6 +166,10 @@ function initIpc () {
   }
 
   ipcMain.on('sync-func', (event, { name, args }) => {
+    if (!isTrustedIpcSender(event) || !isExportedIpcFunc(ipcSyncFuncs, name)) {
+      console.error('[security] blocked IPC call: ' + name)
+      return
+    }
     event.returnValue = ipcSyncFuncs[name](...args)
   })
   const asyncGlobals = {
@@ -243,6 +264,10 @@ function initIpc () {
     }
   }
   ipcMain.handle('async', (event, { name, args }) => {
+    if (!isTrustedIpcSender(event) || !isExportedIpcFunc(asyncGlobals, name)) {
+      console.error('[security] blocked IPC call: ' + name)
+      return
+    }
     return asyncGlobals[name](...args)
   })
   ipcMain.handle('show-open-dialog-sync', async (event, ...args) => {
