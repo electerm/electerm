@@ -154,23 +154,30 @@ describe('zmodem session', () => {
       const wire = new Wire()
       const s = makeSession(wire)
       const frame = Buffer.concat([Buffer.from('**\x18B'), Buffer.from('00\r\n')])
-      // first chunk ends mid-header, only "**\x18B" carried over
-      assert.strictEqual(s.handleData(frame.subarray(0, 3)), true)
-      // nothing displayable yet
-      assert.strictEqual(wsSent.length, 0)
+      assert.strictEqual(s.handleData(frame.subarray(0, 3)), false)
+      assert.strictEqual(s.idleScanTail.toString(), '**\x18')
       assert.strictEqual(s.handleData(frame.subarray(3)), true)
       assert.strictEqual(s.state, ZMODEM_STATE.WAITING_SAVE_PATH)
     })
 
-    test('carry fragment expires and outputs resume normally', () => {
+    test('repeated stars are not withheld as protocol fragments', () => {
       const wire = new Wire()
       const s = makeSession(wire)
-      // partial header prefix that never completes
-      s.handleData(Buffer.from('ok**\x18'))
-      // simulate time passing beyond SNIFF_WINDOW_MS
-      s.carrySince = Date.now() - 10000
-      assert.strictEqual(s.handleData(Buffer.from('prompt$ ')), false)
-      // the stale fragment was released and merged into output
+      for (let i = 0; i < 3; i++) {
+        assert.strictEqual(s.handleData(Buffer.from('*')), false)
+      }
+      assert.strictEqual(s.idleScanTail.toString(), '**')
+      s.destroy()
+    })
+
+    test('detects a header split after the first star', () => {
+      const wire = new Wire()
+      const s = makeSession(wire)
+      const frame = zrqinitFrame()
+      assert.strictEqual(s.handleData(Buffer.from('ready*')), false)
+      assert.strictEqual(s.handleData(frame.subarray(1)), true)
+      assert.strictEqual(s.state, ZMODEM_STATE.WAITING_SAVE_PATH)
+      assert.strictEqual(wsSent.length, 0)
       s.destroy()
     })
 

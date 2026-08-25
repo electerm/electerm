@@ -54,10 +54,6 @@ const ZSKIP_HEX = Buffer.from([0x30, 0x35])
 // only react to the 5-CAN form, 8 covers both.
 const CANCEL_SEQUENCE = Buffer.from([0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x42])
 
-// How long a header fragment is kept while waiting for the rest of it
-// to arrive before we give up sniffing and pass data through.
-const SNIFF_WINDOW_MS = 3000
-
 // Watchdog timeouts (ms)
 const WATCHDOG = {
   // waiting for user to pick save folder / files
@@ -110,10 +106,10 @@ class ZmodemSession {
     this.fileReadPosition = 0
     this.currentMtime = 0
 
-    // Carry buffer: holds data that might contain the beginning of a
-    // zmodem header split across chunks, and all data buffered while
-    // waiting for user action (save path / file selection).
+    // Carry buffer holds wire data while waiting for user action. In idle
+    // state a separately displayed tail is retained for split-header scans.
     this.carry = null
+    this.idleScanTail = null
     this.scanTail = null
     this.canTail = null
     this.carrySince = 0
@@ -396,15 +392,15 @@ class ZmodemSession {
     }
     this.residueTail = null
 
-    // Expire a stale header fragment that never completed
-    if (this.carry && Date.now() - this.carrySince > SNIFF_WINDOW_MS) {
-      this.passThroughPrefix(this.carry)
-      this.carry = null
-    }
-
-    // Search carry + data so a header split across chunks is found.
-    const hay = this.carry ? Buffer.concat([this.carry, data]) : data
-    this.carry = null
+    // Search the previous idle chunk tail + data so a header split across
+    // chunks is found. Unlike an unconfirmed carry, that tail has already
+    // been displayed. Keeping it separately avoids withholding ordinary
+    // terminal echo such as repeated `*` characters while still allowing a
+    // ZMODEM header to be recognized across a chunk boundary.
+    const previousTail = this.idleScanTail
+    const hay = previousTail ? Buffer.concat([previousTail, data]) : data
+    this.idleScanTail = null
+    const alreadySentLength = previousTail ? previousTail.length : 0
 
     const hit = this.scanBuffer(hay, 0)
     if (hit) {
@@ -412,25 +408,22 @@ class ZmodemSession {
         // ZSKIP with no session in flight is stray noise - drop it
         return true
       }
-      // Output before the header (e.g. "rz waiting to receive.\r\n")
-      // stays visible
-      this.passThroughPrefix(hay.subarray(0, hit.offset))
+      // Output before the header (e.g. "rz waiting to receive.\r\n") stays
+      // visible. Bytes from the previous tail were already sent and must not
+      // be duplicated.
+      if (hit.offset > alreadySentLength) {
+        this.passThroughPrefix(hay.subarray(alreadySentLength, hit.offset))
+      }
       this.startSessionFromHit(hit.kind, hay.subarray(hit.offset))
       return true
     }
 
-    // No full header. If the chunk tail could be the start of one,
-    // hold it back and enter sniff mode (we consume + forward output
-    // ourselves until the question resolves).
+    // No full header. Remember a possible header prefix for the next chunk,
+    // but let session-server forward this chunk immediately.
     const partial = this.partialHeaderLength(hay)
-    if (partial > 0) {
-      this.passThroughPrefix(hay.subarray(0, hay.length - partial))
-      this.carry = Buffer.from(hay.subarray(hay.length - partial))
-      this.carrySince = Date.now()
-      return true
-    }
-
-    // Plain terminal output - let session-server forward the chunk
+    this.idleScanTail = partial > 0
+      ? Buffer.from(hay.subarray(hay.length - partial))
+      : null
     return false
   }
 
@@ -1120,6 +1113,7 @@ class ZmodemSession {
     this.transferredBytes = 0
     this.transferSize = 0
     this.carry = null
+    this.idleScanTail = null
     this.scanTail = null
     this.canTail = null
     this.carrySince = 0
