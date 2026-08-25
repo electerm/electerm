@@ -239,8 +239,15 @@ class Tab extends Component {
     }
   }
 
-  handleReloadTab = async () => {
-    window.store.reloadTab(this.props.tab.id)
+  handleReloadTab = async (e) => {
+    // stop propagation so the parent tab-title click doesn't re-activate
+    // this tab by its now-stale (removed) id after reloadTab replaces it
+    e && e.stopPropagation()
+    const { tab, batch } = this.props
+    const newTab = window.store.reloadTab(tab.id)
+    if (newTab) {
+      window.store.clickTab(newTab.id, batch)
+    }
   }
 
   handleReloadAll = () => {

@@ -127,6 +127,8 @@ export default Store => {
     if (store[batchProp] === tabId) {
       store[batchProp] = newTab.id
     }
+
+    return newTab
   }
 
   Store.prototype.reloadAllTabs = function () {
