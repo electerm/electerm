@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "5.3.2",
+  "version": "5.3.5",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
