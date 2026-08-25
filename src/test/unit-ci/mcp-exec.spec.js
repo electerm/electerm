@@ -172,11 +172,19 @@ const {
 
 Module._load = originalLoad
 
+// The server responds with plain JSON for jsonrpc requests (axios parses it
+// into an object automatically), but still falls back to SSE `data: ` framing
+// in some paths — handle both here.
 function parseSseBody (body) {
-  const dataLine = (typeof body === 'string' ? body : JSON.stringify(body))
-    .split('\n').find(l => l.startsWith('data: '))
-  if (!dataLine) return null
-  return JSON.parse(dataLine.slice(6))
+  if (body && typeof body === 'object') return body
+  if (typeof body !== 'string') return null
+  const dataLine = body.split('\n').find(l => l.startsWith('data: '))
+  if (dataLine) return JSON.parse(dataLine.slice(6))
+  try {
+    return JSON.parse(body)
+  } catch (e) {
+    return null
+  }
 }
 
 async function mcpPost (port, body, sid) {
