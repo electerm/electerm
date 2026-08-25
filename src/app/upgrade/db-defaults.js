@@ -116,7 +116,8 @@ module.exports = exports.default = [
         _id: 'default',
         title: 'default',
         bookmarkIds: [],
-        bookmarkGroupIds: []
+        bookmarkGroupIds: [],
+        color: '#0088cc'
       }
     ]
   }

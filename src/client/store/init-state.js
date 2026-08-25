@@ -29,7 +29,6 @@ import {
 import * as ls from '../common/safe-local-storage'
 import { exclude } from 'manate'
 import initSettingItem from '../common/init-setting-item'
-import { getRandomDefaultColor } from '../common/rand-hex-color'
 
 const e = window.translate
 
@@ -39,7 +38,7 @@ function getDefaultBookmarkGroups (bookmarks) {
       title: e(defaultBookmarkGroupId),
       id: defaultBookmarkGroupId,
       bookmarkIds: bookmarks.map(d => d.id),
-      color: getRandomDefaultColor()
+      color: '#0088cc'
     })
   ]
 }
