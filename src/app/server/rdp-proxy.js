@@ -432,6 +432,19 @@ async function performRDPHandshake (host, port, x224Request, options = {}) {
         connected: function (connection) {
           log.debug(`${logPrefix} ✓ node-forge TLS handshake completed`)
 
+          // The handshake-deadline timer set below (in the outer function)
+          // is a `net.Socket` idle-inactivity timer, not a one-shot deadline
+          // - it re-arms on every read/write and was never cleared once the
+          // handshake finished. Left alone, it destroys this same socket
+          // (reused for the whole session relay) after any 15s stretch with
+          // no bytes in either direction - e.g. a static remote desktop with
+          // no mouse/keyboard activity - killing otherwise-healthy sessions.
+          // Disable it now that the handshake is done; a real dead/half-open
+          // connection is instead caught by the TCP keepalive enabled below.
+          tcpSocket.setTimeout(0)
+          tcpSocket.setNoDelay(true)
+          tcpSocket.setKeepAlive(true, 10000)
+
           // Step 5: Convert captured certificates to DER
           const certChain = forgeCertsToDer(capturedCertChain)
           log.debug(`${logPrefix} ✓ Extracted ${certChain.length} certificate(s) from forge`)
