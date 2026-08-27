@@ -372,7 +372,7 @@ class Tab extends Component {
         icon: <iconsMap.EditOutlined />,
         label: e('rename')
       },
-      {
+      !window.store.isMobile && {
         key: 'togglePin',
         icon: tab.isPinned
           ? <iconsMap.PushpinFilled />
