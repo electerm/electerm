@@ -122,11 +122,23 @@ export default class Tabs extends Component {
     )
   }
 
+  // desktop tabs bar renders pinned tabs first: stable partition that keeps
+  // the original relative order inside the pinned and unpinned groups.
+  // store.tabs order itself is untouched by pinning.
+  getSortedTabs = () => {
+    const { tabs = [] } = this.props
+    return [
+      ...tabs.filter(t => t.isPinned),
+      ...tabs.filter(t => !t.isPinned)
+    ]
+  }
+
   adjustScroll = () => {
     if (this.props.isMobile || !this.domRef.current) {
       return
     }
-    const { tabs, currentBatchTabId, batch } = this.props
+    const { currentBatchTabId, batch } = this.props
+    const tabs = this.getSortedTabs()
     const index = tabs.findIndex(t => t.id === currentBatchTabId)
     const tabsDomWith = Array.from(
       document.querySelectorAll(`.v${batch + 1} .tab`)
@@ -209,7 +221,7 @@ export default class Tabs extends Component {
   }
 
   renderExtra () {
-    const items = this.props.tabs.map((t, i) => {
+    const items = this.getSortedTabs().map((t, i) => {
       return {
         key: i + '##' + t.id,
         label: (
@@ -261,7 +273,8 @@ export default class Tabs extends Component {
   }
 
   renderContentInner () {
-    const { tabs = [], width, config } = this.props
+    const { width, config } = this.props
+    const tabs = this.getSortedTabs()
     const len = tabs.length
     const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
     const { overflow } = this.state

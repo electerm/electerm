@@ -170,6 +170,17 @@ export default Store => {
     store[`activeTabId${sourceTab.batch}`] = duplicatedTab.id
   }
 
+  // only toggles the flag: the tabs bar renders pinned tabs first,
+  // store.tabs order itself is never changed by pinning
+  Store.prototype.pinTab = function (tabId, isPinned = true) {
+    const { store } = window
+    const tab = store.tabs.find(t => t.id === tabId)
+    if (!tab || Boolean(tab.isPinned) === isPinned) {
+      return
+    }
+    tab.isPinned = isPinned
+  }
+
   Store.prototype.closeOtherTabs = function (id) {
     const { store } = window
     const { tabs } = store
@@ -536,7 +547,8 @@ export default Store => {
       'sshSftpSplitView',
       'sshTunnelResults',
       'displayRaw',
-      'autoReConnect'
+      'autoReConnect',
+      'isPinned'
     ]
     const { history } = store
     const index = history.filter(d => d.id && d.tab).findIndex(d => {

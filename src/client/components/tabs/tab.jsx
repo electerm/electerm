@@ -9,7 +9,8 @@ import {
   CloseOutlined,
   Loading3QuartersOutlined,
   BorderlessTableOutlined,
-  LockOutlined
+  LockOutlined,
+  PushpinFilled
 } from '@ant-design/icons'
 import {
   Tooltip,
@@ -316,8 +317,13 @@ class Tab extends Component {
     window.store.closeTabsRight(this.props.tab.id)
   }
 
+  togglePin = () => {
+    const { tab } = this.props
+    window.store.pinTab(tab.id, !tab.isPinned)
+  }
+
   renderContext = () => {
-    const { tabs, tabIndex } = this.props
+    const { tabs, tabIndex, tab } = this.props
     const len = tabs.length
     const index = tabIndex
     const noRight = index >= len - 1
@@ -365,6 +371,13 @@ class Tab extends Component {
         key: 'doRename',
         icon: <iconsMap.EditOutlined />,
         label: e('rename')
+      },
+      {
+        key: 'togglePin',
+        icon: tab.isPinned
+          ? <iconsMap.PushpinFilled />
+          : <iconsMap.PushpinOutlined />,
+        label: tab.isPinned ? e('unpin') : e('pin')
       },
       {
         key: 'handleReloadTab',
@@ -549,6 +562,7 @@ class Tab extends Component {
               }
               <span className='tab-title'>
                 <span className='iblock mg1r tab-count' style={styleTag}>{tabCount}</span>
+                {tab.isPinned && <PushpinFilled className='tab-pin' />}
                 <span className='mg1r'>{title}</span>
               </span>
             </div>

@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "5.3.5",
+  "version": "5.3.15",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -99,7 +99,7 @@
     "vite": "8.1.0"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "2.3.9",
+    "@electerm/electerm-locales": "2.3.10",
     "@electerm/electerm-themes": "^1.0.1",
     "@electerm/ftp-srv": "1.0.5",
     "@electerm/nedb": "2.0.0",
