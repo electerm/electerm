@@ -20,6 +20,12 @@ function extend (value) {
       if (prop === 'includes') {
         return (expected) => target.toContain(expected)
       }
+      if (prop === 'deep') {
+        return {
+          equal: (expected) => target.toEqual(expected),
+          equals: (expected) => target.toEqual(expected)
+        }
+      }
 
       // For all other properties, return the original Playwright expect method
       return target[prop]

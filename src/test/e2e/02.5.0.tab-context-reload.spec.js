@@ -51,7 +51,7 @@ describe('tab reload', function () {
     await electronApp.close()
   })
 
-  it('should keep activeTabId when reloading inactive tab', async function () {
+  it('should activate the reloaded tab even when reloading an inactive tab', async function () {
     const electronApp = await electron.launch(appOptions)
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
@@ -78,15 +78,17 @@ describe('tab reload', function () {
     await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Reload")')
     await delay(2000)
 
-    // Verify state
+    // Verify state - reloading a tab activates its replacement, regardless
+    // of whether the reloaded tab was active beforehand
     const afterReload = await client.evaluate(() => ({
       tabs: window.store.tabs,
       activeId: window.store.activeTabId
     }))
 
     expect(afterReload.tabs.length).equal(tabs.length)
-    expect(afterReload.activeId).equal(activeId)
+    expect(afterReload.activeId !== activeId).equal(true)
     expect(afterReload.tabs.some(t => t.id === inactiveTab.id)).equal(false)
+    expect(afterReload.tabs.some(t => t.id === afterReload.activeId)).equal(true)
 
     await electronApp.close()
   })
