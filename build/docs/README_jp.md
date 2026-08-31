@@ -35,7 +35,7 @@
 <div>🤖 <strong><a href="https://ai.electerm.org">electerm AI</a></strong> — electerm ユーザー向けの無料 AI</div>
 <div>💻 <strong><a href="https://github.com/electerm/electerm-web">electerm-web</a></strong> — ブラウザ(モバイル端末を含む)で動作する Web アプリ版</div>
 
-## Atlas Cloud
+## スポンサー
 
 <div align="center">
   <a href="https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm">

@@ -35,7 +35,7 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS
 <div>🤖 <strong><a href="https://ai.electerm.org">electerm AI</a></strong> — Free AI for electerm users</div>
 <div>💻 <strong><a href="https://github.com/electerm/electerm-web">electerm-web</a></strong> — Web app version running in browser (including mobile device)</div>
 
-## Atlas Cloud
+## Sponsors
 
 <div align="center">
   <a href="https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm">
