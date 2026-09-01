@@ -23,6 +23,8 @@
   z-index 100
   bottom 0
   background var(--main-dark)
+  display flex
+  flex-direction column
 
   .item-list
     padding-right 0
@@ -104,6 +106,20 @@
   bottom 0
   z-index 200
   width 0
+
+// icon bar: fills sidebar height, scrolls when overflow on small screens,
+// scrollbar hidden but scrolling still works
+.sidebar-bar
+  flex 1
+  min-height 0
+  overflow-y auto
+  overflow-x hidden
+  scrollbar-width none // Firefox
+  -ms-overflow-style none // IE/Edge
+  &::-webkit-scrollbar
+    width 0
+    height 0
+    display none
 
 // mobile: icon bar hidden — hide its buttons
 .sidebar.collapsed
