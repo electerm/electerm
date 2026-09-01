@@ -52,6 +52,46 @@ function isJSON (str = '') {
   return str.startsWith('[')
 }
 
+/**
+ * Names of data types that are actually encrypted on upload when a
+ * sync password is set.  Only these types trigger the fail-closed
+ * check on download.
+ */
+const encryptedDataNames = new Set([
+  settingMap.bookmarks,
+  settingMap.profiles
+])
+
+/**
+ * Decrypt sync data with fail-closed semantics.
+ *
+ * Only bookmarks and profiles are encrypted on upload when a sync
+ * password is configured.  For those two types, plaintext JSON
+ * (content starting with '[') must never be silently accepted when a
+ * password is set — it could be attacker-injected data from a
+ * compromised sync backend.  Instead, we reject it so the user is
+ * alerted rather than silently importing untrusted data.
+ *
+ * For all other data types, plaintext JSON is expected even when a
+ * password is set, so we accept it without error.
+ */
+async function decryptSyncData (str, pass, dataName) {
+  if (!str) {
+    return str
+  }
+  if (isJSON(str)) {
+    if (pass && encryptedDataNames.has(dataName)) {
+      throw new Error(
+        'Sync data is plaintext but a sync password is configured. ' +
+        'This may indicate the data was tampered with or the sync backend is compromised. ' +
+        'Aborting sync download for safety.'
+      )
+    }
+    return str
+  }
+  return window.pre.runGlobalAsync('decryptAsync', str, pass)
+}
+
 async function fetchData (type, func, args, token, proxy) {
   const data = {
     type,
@@ -337,9 +377,7 @@ export default (Store) => {
       let serverItems = []
       if (serverStr) {
         try {
-          if (!isJSON(serverStr)) {
-            serverStr = await window.pre.runGlobalAsync('decryptAsync', serverStr, pass)
-          }
+          serverStr = await decryptSyncData(serverStr, pass, n)
           serverItems = JSON.parse(serverStr)
         } catch (e) {
           console.error(`Failed to parse server data for ${n}:`, e)
@@ -520,9 +558,7 @@ export default (Store) => {
               continue
             }
           }
-          if (!isJSON(str)) {
-            str = await window.pre.runGlobalAsync('decryptAsync', str, pass)
-          }
+          str = await decryptSyncData(str, pass, n)
           let arr = JSON.parse(str)
           if (n === settingMap.terminalThemes) {
             arr = store.fixThemes(arr)
@@ -585,9 +621,7 @@ export default (Store) => {
           continue
         }
       }
-      if (!isJSON(str)) {
-        str = await window.pre.runGlobalAsync('decryptAsync', str, pass)
-      }
+      str = await decryptSyncData(str, pass, n)
       let arr = JSON.parse(
         str
       )
