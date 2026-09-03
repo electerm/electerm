@@ -40,6 +40,9 @@ export default function ThemeForm (props) {
     action.current = 'saveOnly'
     form.submit()
   }
+  function applyOnly () {
+    props.store.setTheme(props.formData.id)
+  }
   // A function to validate the input text
   async function validateInput (_, value) {
     const input = value
@@ -188,6 +191,25 @@ export default function ThemeForm (props) {
   function renderFuncs (id) {
     if (!id) {
       return null
+    }
+    if (readonly) {
+      return (
+        <FormItem>
+          <Button
+            type='primary'
+            className='mg1r mg1b'
+            onClick={applyOnly}
+          >
+            {e('apply')}
+          </Button>
+          <Button
+            type='dashed'
+            onClick={exporter}
+          >
+            {e('export')}
+          </Button>
+        </FormItem>
+      )
     }
     return (
       <FormItem>
