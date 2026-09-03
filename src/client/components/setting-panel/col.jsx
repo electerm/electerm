@@ -1,9 +1,10 @@
 /**
  * two column layout, left column fixed width, right column auto width.
  * the DOM is identical on desktop and mobile — which part is visible is
- * pure CSS driven by the global `.is-mobile` class on the app root, so a
+ * pure CSS driven by the 800px media query in setting-wrap.styl (not the
+ * global `.is-mobile` class, which matches a different breakpoint), so a
  * resize across the breakpoint never remounts the forms:
- * - desktop: both columns side by side, breadcrumb hidden
+ * - desktop (>800px): both columns side by side, breadcrumb hidden
  * - mobile menu view (`setting-view-menu`): left menu fills the panel
  * - mobile content view (`setting-view-content`): breadcrumb on top
  *   (click it to go back to the menu) + right content scrolls below

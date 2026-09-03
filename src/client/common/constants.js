@@ -201,6 +201,9 @@ export const commonLineEndings = commonTxLineEndings
 export const maxBatchInput = 30
 export const windowControlWidth = 94
 export const mobileBreakpoint = 600
+// breakpoint matching the setting panel's `@media (max-width: 800px)` CSS —
+// must be kept in sync with setting-wrap.styl
+export const settingPanelMobileBreakpoint = 800
 export const baseUpdateCheckUrls = [
   packInfo.homepage,
   'https://gitee.com/github-zxdong262/electerm/raw/gh-pages'
