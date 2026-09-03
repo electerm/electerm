@@ -37,6 +37,7 @@
  */
 
 import { lazy, Suspense, useEffect, useState } from 'react'
+import { auto } from 'manate/react'
 
 const ShortcutBar = lazy(() => import('./shortcut-bar'))
 
@@ -52,37 +53,36 @@ export const KEYBOARD_MIN = 120
 // keyboard from a mouse-driven window resize on touch-capable desktops.
 const TOUCH_GRACE_MS = 3000
 
-// kept as a coarse capability fallback for engines without visualViewport.
-// Modern Chromium (Electron) always exposes window.visualViewport, so this is
-// effectively only reached on very old runtimes — where remote-control
-// misreporting is not a concern.
-export function isTouchDevice () {
-  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
-    return false
-  }
-  const coarse = typeof window.matchMedia === 'function' &&
-    window.matchMedia('(pointer: coarse)').matches
-  const hasTouch = (navigator.maxTouchPoints || 0) > 0 ||
-    ('ontouchstart' in window)
-  return Boolean(coarse || hasTouch)
-}
-
-export default function ShortcutBarEntry (props) {
-  // mount the lazy bar only after a soft keyboard has been seen at least once,
-  // so its code (and antd/icon deps) stays out of the main bundle on devices
-  // that never show one (desktops, remote-control clients mis-reported as
-  // touch, etc.).
-  //
+function ShortcutBarEntry (props) {
+  const { store } = props
   // opt out entirely when the user has disabled the shortcut bar in common
   // settings — bail before any listener is attached or component imported.
-  const { store } = props
   const disabled = store.config.disableShortcutBar
+  // follow the store's live touch state (flipped by main.jsx from real
+  // pointer input — mouse → false, touch/pen → true) instead of probing screen
+  // capability, which only says the screen *can* be touched, not whether the
+  // user is actually using touch, so the bar reacts when a touch-capable
+  // machine starts being used by touch.
+  const isTouch = store.isTouchDevice
+  // very old runtimes expose no visualViewport — the lazy "wait for a real
+  // keyboard" signal below can never fire there, so fall back straight to the
+  // touch state.
+  const noVisualViewport = typeof window === 'undefined' || !window.visualViewport
   const [keyboardSeen, setKeyboardSeen] = useState(() => {
-    if (disabled || typeof window === 'undefined' || !window.visualViewport) {
-      return disabled ? false : isTouchDevice()
+    if (noVisualViewport) {
+      return !disabled && isTouch
     }
     return false
   })
+
+  // keep the no-visualViewport fallback current as the store's touch state
+  // flips at runtime; on modern engines keyboardSeen is driven by the resize
+  // listener below and this never runs.
+  useEffect(() => {
+    if (noVisualViewport) {
+      setKeyboardSeen(!disabled && isTouch)
+    }
+  }, [disabled, isTouch, noVisualViewport])
 
   useEffect(() => {
     const vv = window.visualViewport
@@ -171,3 +171,5 @@ export default function ShortcutBarEntry (props) {
     </Suspense>
   )
 }
+
+export default auto(ShortcutBarEntry)

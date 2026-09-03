@@ -88,10 +88,11 @@ export default auto(function Index (props) {
 
   // Track the actual input modality rather than a static capability probe:
   // a touch-capable laptop is a mouse machine until a real touch happens,
-  // and a tablet stays touch even though the probe fires once. Stored in
-  // `store.isTouchDevice` (seeded from the capability probe); the `is-touch-device`
-  // class drives always-visible hover-only action icons, so it must follow
-  // the device the user is actually operating.
+  // and a tablet stays touch even though it can also pair a mouse. Stored in
+  // `store.isTouchDevice` (seeded false — no upfront probe, which only says
+  // the screen *can* be touched, not what the user operates with); the
+  // `is-touch-device` class drives always-visible hover-only action icons, so
+  // it must follow the device the user is actually operating.
   useEffect(() => {
     const { store } = window
     const handlePointer = (e) => {

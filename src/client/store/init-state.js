@@ -28,7 +28,6 @@ import {
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { exclude } from 'manate'
-import { isTouchDevice } from '../components/terminal/shortcut-bar-entry'
 import initSettingItem from '../common/init-setting-item'
 
 const e = window.translate
@@ -216,9 +215,11 @@ export default () => {
     isMaximized: window.pre.runSync('isMaximized'),
     hasNodePty: window.pre.runSync('nodePtyCheck'),
     isMobile: window.innerWidth <= mobileBreakpoint,
-    // seeded from the capability probe; updated live in main.jsx to follow
-    // the actual input device (mouse → false, touch/pen → true)
-    isTouchDevice: isTouchDevice(),
+    // reflects the input device actually in use, not screen capability — a
+    // capability probe only proves the screen can be touched, not whether the
+    // user operates it by touch. Seeded false and left to main.jsx, which sets
+    // mouse → false / touch → true on the first real pointer event.
+    isTouchDevice: false,
     fullscreen: false,
     tabsHeight: 36,
 
