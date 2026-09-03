@@ -16,9 +16,6 @@ export default class SettingWrap extends Component {
   }
 
   renderRightClose () {
-    if (this.props.isMobile) {
-      return null
-    }
     return (
       <CloseCircleOutlined
         className='close-setting-wrap-icon close-setting-wrap'

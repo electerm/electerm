@@ -25,6 +25,10 @@ const e = window.translate
 export default auto(function SettingModalWrap (props) {
   const selectItem = (item) => {
     window.store.setSettingItem(item)
+    // mobile drills into the right col content after picking a menu item
+    if (window.store.isMobile) {
+      window.store.settingMobileView = 'content'
+    }
   }
 
   function renderTabs () {
@@ -188,7 +192,6 @@ export default auto(function SettingModalWrap (props) {
       visible={show}
       useSystemTitleBar={useSystemTitleBar}
       innerWidth={innerWidth}
-      isMobile={props.store.isMobile}
     >
       {renderTabs()}
     </SettingModal>

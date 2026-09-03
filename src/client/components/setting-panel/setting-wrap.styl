@@ -98,3 +98,88 @@
       width auto
     .setting-row-right
       left auto
+
+// breadcrumb used on mobile content view; hidden by default (desktop)
+// and re-shown by `.is-mobile .setting-view-content` below
+.setting-mobile-back
+  display none
+  flex-shrink 0
+  align-items center
+  gap 4px
+  padding 8px 10px
+  background var(--main)
+  border-bottom 1px solid var(--main-light)
+  z-index 10
+.setting-mobile-back-btn
+  display flex
+  align-items center
+  gap 4px
+  height 24px
+  padding 0 6px
+  font-size 13px
+  color var(--primary)
+  background transparent
+  border 0
+  border-radius 4px
+  cursor pointer
+  &:hover
+    background var(--primary)
+    color var(--primary-contrast)
+.setting-mobile-back-sep
+  color var(--text-dark)
+  font-size 13px
+  line-height 24px
+  padding 0 2px
+.setting-mobile-back-current
+  font-size 13px
+  min-width 0
+  max-width 60%
+
+// mobile drill-down layout, driven by the global `.is-mobile` class on the
+// app root (main.jsx). the settings DOM is identical on desktop and mobile —
+// the view classes only flip which column is visible — so resizing across the
+// breakpoint never remounts the forms
+.is-mobile
+  .setting-col
+    display flex
+    flex-direction column
+    overflow hidden
+  // right close button is redundant with the left one on mobile
+  .close-setting-wrap:not(.alt-close-setting-wrap)
+    display none
+  // menu view by default: the left col list fills the panel
+  .setting-row-left
+    flex 1
+    min-height 0
+    overflow-y auto
+    position static
+    top auto
+    bottom auto
+    left auto
+    width auto
+    padding 10px
+  .setting-row-right
+    display none
+  // content view: fixed breadcrumb on top, right col content scrolls below
+  .setting-view-content
+    .setting-mobile-back
+      display flex
+    .setting-row-left
+      display none
+    .setting-row-right
+      display flex
+      flex-direction column
+      flex 1
+      min-height 0
+      overflow hidden
+      position static
+      top auto
+      right auto
+      bottom auto
+      left auto
+      width auto
+      padding 10px
+    .setting-col-content
+      flex 1
+      overflow-y auto
+      min-height 0

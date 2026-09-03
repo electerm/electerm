@@ -134,6 +134,8 @@ export default () => {
     settingTab: settingMap.bookmarks, // setting tab
     bookmarkId: undefined,
     showModal: 0,
+    // mobile settings view: 'menu' (left col list, default) or 'content' (right col)
+    settingMobileView: 'menu',
 
     // setting sync related
     autoSyncReady: false,

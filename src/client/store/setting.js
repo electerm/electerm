@@ -40,6 +40,7 @@ export default Store => {
     })
     store.setSettingItem(item)
     store.openSettingModal()
+    store.settingMobileView = 'content'
   }
 
   Store.prototype.handleOpenQuickCommandsSetting = function () {
@@ -136,12 +137,20 @@ export default Store => {
       )
     }
     store.showModal = modals.setting
+    // mobile always lands on the left col menu first
+    store.settingMobileView = 'menu'
+  }
+
+  Store.prototype.backToSettingMenu = function () {
+    window.store.settingMobileView = 'menu'
   }
 
   Store.prototype.hideSettingModal = function () {
     const { store } = window
     store.showModal = modals.hide
     store.setSettingItem({})
+    // reset so a later open starts from the menu on mobile
+    store.settingMobileView = 'menu'
   }
 
   Store.prototype.loadFontList = async function () {
@@ -161,5 +170,7 @@ export default Store => {
       settingTab
     })
     store.setSettingItem(item)
+    // a new tab means a new menu to pick from on mobile
+    store.settingMobileView = 'menu'
   }
 }
