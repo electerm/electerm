@@ -187,3 +187,16 @@
   &.is-active
     opacity 1
     pointer-events auto
+// touch screens have no hover — always reveal the hover-only action icons
+.is-touch-device
+  .tree-list-row
+    .tree-item-title
+      padding-right 60px
+    .tree-item-op-wrap
+      opacity 1
+      pointer-events auto
+  .add-menu-wrap
+  .sidebar-panel
+    .tree-list-row
+      .tree-item-title
+        padding-right 20px

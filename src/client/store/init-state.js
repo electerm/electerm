@@ -28,6 +28,7 @@ import {
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { exclude } from 'manate'
+import { isTouchDevice } from '../components/terminal/shortcut-bar-entry'
 import initSettingItem from '../common/init-setting-item'
 
 const e = window.translate
@@ -215,6 +216,9 @@ export default () => {
     isMaximized: window.pre.runSync('isMaximized'),
     hasNodePty: window.pre.runSync('nodePtyCheck'),
     isMobile: window.innerWidth <= mobileBreakpoint,
+    // seeded from the capability probe; updated live in main.jsx to follow
+    // the actual input device (mouse → false, touch/pen → true)
+    isTouchDevice: isTouchDevice(),
     fullscreen: false,
     tabsHeight: 36,
 

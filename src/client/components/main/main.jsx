@@ -86,6 +86,29 @@ export default auto(function Index (props) {
     store.checkPendingDeepLink()
   }, [])
 
+  // Track the actual input modality rather than a static capability probe:
+  // a touch-capable laptop is a mouse machine until a real touch happens,
+  // and a tablet stays touch even though the probe fires once. Stored in
+  // `store.isTouchDevice` (seeded from the capability probe); the `is-touch-device`
+  // class drives always-visible hover-only action icons, so it must follow
+  // the device the user is actually operating.
+  useEffect(() => {
+    const { store } = window
+    const handlePointer = (e) => {
+      if (e.pointerType === 'mouse') {
+        store.isTouchDevice = false
+      } else if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        store.isTouchDevice = true
+      }
+    }
+    document.addEventListener('pointerdown', handlePointer)
+    document.addEventListener('pointermove', handlePointer)
+    return () => {
+      document.removeEventListener('pointerdown', handlePointer)
+      document.removeEventListener('pointermove', handlePointer)
+    }
+  }, [])
+
   const { store } = props
   const {
     configLoaded,
@@ -122,7 +145,8 @@ export default auto(function Index (props) {
     'fs-with-footer': fullscreen && store.inActiveTerminal,
     'is-main': !isSecondInstance,
     'is-mobile': store.isMobile,
-    'is-desktop': !store.isMobile
+    'is-desktop': !store.isMobile,
+    'is-touch-device': store.isTouchDevice
   })
   const ext1 = {
     className: cls,
