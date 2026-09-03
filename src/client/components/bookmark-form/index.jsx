@@ -130,7 +130,7 @@ export default class BookmarkIndex2 extends PureComponent {
     return (
       <Button
         size='small'
-        className='mg2l create-ai-btn'
+        className='mg1l create-ai-btn'
         icon={<RobotOutlined />}
         onClick={this.handleToggleAIMode}
       >
@@ -171,15 +171,17 @@ export default class BookmarkIndex2 extends PureComponent {
     const isNew = id.startsWith(newBookmarkIdPrefix)
     const keys = Object.keys(sessionConfig)
     return (
-      <div className='form-wrap pd1x'>
+      <div className='form-wrap pd1x mg2b'>
         <div className='form-title pd1t pd1x pd2b bold'>
-          <BookOutlined className='mg1r' />
-          <span>
-            {((!isNew ? e('edit') : e('new')) + ' ' + e(settingMap.bookmarks))}
-          </span>
-          {this.renderTitle(formData, isNew)}
+          <p>
+            <BookOutlined className='mg1r' />
+            <span>
+              {((!isNew ? e('edit') : e('new')) + ' ' + e(settingMap.bookmarks))}
+            </span>
+            {this.renderTitle(formData, isNew)}
+            {this.renderAIButton(isNew)}
+          </p>
           {this.renderTypes(bookmarkType, isNew, keys)}
-          {this.renderAIButton(isNew)}
         </div>
         {this.renderForm()}
       </div>

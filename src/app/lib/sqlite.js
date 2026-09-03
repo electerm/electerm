@@ -128,7 +128,7 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
       return
     }
     if (!tables.includes(dbName)) {
-      throw new Error(`Table ${dbName} does not exist`)
+      return console.error(`Table ${dbName} does not exist`)
     }
 
     // Get the appropriate database for this table
