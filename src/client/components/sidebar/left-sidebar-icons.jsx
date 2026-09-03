@@ -81,7 +81,7 @@ export default function LeftSidebarIcons (props) {
       >
         <BookOutlined
           onClick={handleClickBookmark}
-          className='font20 iblock control-icon'
+          className='font20 iblock control-icon bookmark-sidebar-toggle'
         />
       </SideIcon>
     ),

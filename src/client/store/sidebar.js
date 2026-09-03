@@ -19,6 +19,18 @@ export default Store => {
     store.expandedKeys = []
   }
 
+  // Single entry point for opening/closing the left side panel from the
+  // sidebar icons. The panel is a toggle: call again to close. It also
+  // re-centers the pin behaviour so every open/close transition goes
+  // through this one method.
+  Store.prototype.openLeftSidePanel = function (field = 'bookmarks') {
+    const { store } = window
+    if (store.pinned) {
+      return
+    }
+    store.setOpenedSideBar(store.openedSideBar ? '' : field)
+  }
+
   Store.prototype.handlePin = function (pinned) {
     const { store } = window
     const current = !store.pinned

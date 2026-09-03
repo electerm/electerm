@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   InfoCircleOutlined,
   UpCircleOutlined,
@@ -48,37 +49,43 @@ export default function Sidebar (props) {
   const { store } = window
 
   const handleClickOutside = (event) => {
-    // Don't close if pinned or has active input
-    if (store.pinned || hasActiveInput()) {
+    const { store } = window
+    // Nothing to dismiss when the panel is closed or pinned; also ignore
+    // clicks while typing in an input so the panel is not yanked away
+    // mid-interaction.
+    if (!store.openedSideBar || store.pinned || hasActiveInput()) {
       return
     }
+    const target = event.target
+    // Never treat the panel itself or the bookmark toggle button as "outside".
+    // The very click that toggles the panel open lands on that button, so this
+    // guard makes the toggle immune to event-ordering races — and, in dev hot
+    // reloads, to stale listeners left behind by an older build.
+    if (target.closest && (
+      target.closest('.sidebar-panel') ||
+      target.closest('.bookmark-sidebar-toggle')
+    )) {
+      return
+    }
+    store.setOpenedSideBar('')
+  }
 
-    // Check if click is outside the sidebar panel
-    const sidebarPanel = document.querySelector('.sidebar-panel')
-    if (sidebarPanel && !sidebarPanel.contains(event.target)) {
-      store.setOpenedSideBar('')
+  // One always-on document listener for click-outside dismissal, attached
+  // once. Previously the listener was added/removed from inside the bookmark
+  // click handler, so it leaked when the panel was closed via the ✕ icon and
+  // then instantly re-closed the panel on the next bookmark-icon click.
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside)
+    return () => {
       document.removeEventListener('click', handleClickOutside)
     }
-  }
+  }, [])
 
   const handleClickBookmark = () => {
     if (showModal) {
       store.showModal = 0
     }
-    if (pinned) {
-      return
-    }
-    if (openedSideBar === 'bookmarks') {
-      // Remove listener when closing
-      document.removeEventListener('click', handleClickOutside)
-      store.setOpenedSideBar('')
-    } else {
-      // Add listener when opening, with slight delay to avoid conflict with this click
-      setTimeout(() => {
-        document.addEventListener('click', handleClickOutside)
-      }, 0)
-      store.setOpenedSideBar('bookmarks')
-    }
+    store.openLeftSidePanel()
   }
 
   const handleShowUpgrade = () => {
