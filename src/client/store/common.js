@@ -377,7 +377,10 @@ export default Store => {
           content: 'Understood. I will use this context as we continue.'
         })
       } else {
-        messages.push({ role: 'user', content: entry.prompt })
+        messages.push({
+          role: 'user',
+          content: entry.promptWithAttachments || entry.prompt
+        })
         if (entry.response) {
           messages.push({ role: 'assistant', content: entry.response })
         }

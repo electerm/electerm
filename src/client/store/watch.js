@@ -21,6 +21,12 @@ import dataCompare from '../common/data-compare'
 
 export default store => {
   for (const name of dbNamesForWatch) {
+    // ai chat history changes on every streaming tick (200ms polls,
+    // per-chunk agent updates); debounce to coalesce them into one
+    // db write after the stream pauses
+    const schedule = name === 'aiChatHistory'
+      ? func => debounce(func, 1000)
+      : undefined
     window[`watch${name}`] = autoRun(async () => {
       const n = store.getItems(name)
       if (window.migrating) {
@@ -51,10 +57,12 @@ export default store => {
         ...updated.map(item => update(item.id, item, name, false)),
         added.length ? insert(name, added) : Promise.resolve()
       ])
-      await update(
-        `${name}:order`,
-        newOrder
-      )
+      if (orderChanged) {
+        await update(
+          `${name}:order`,
+          newOrder
+        )
+      }
       if (name === 'bookmarks') {
         store.bookmarksMap = new Map(
           n.map(d => [d.id, d])
@@ -73,7 +81,7 @@ export default store => {
         }
       }
       return store[name]
-    })
+    }, schedule)
     window[`watch${name}`].start()
   }
 

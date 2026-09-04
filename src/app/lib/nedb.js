@@ -16,8 +16,30 @@ const DATA_ENC_ID = 'userConfig'
 // Prefix added to stored strings to mark them as encrypted
 const ENC_PREFIX = 'enc:'
 
+// NeDB datafiles are append-only: rewriting a doc keeps the old copy in
+// the file, so it grows forever without compaction. Compact each table
+// after this many write ops to reclaim the space.
+const COMPACT_EVERY_N_WRITES = 10
+
 function createDb (appPath, defaultUserName, { enc, dec } = {}) {
   const db = {}
+  const writeCounts = {}
+
+  // count a successful write op; fire a compaction every N writes.
+  // compactDatafile runs through the executor queue so it never races
+  // with pending writes
+  const countWrite = dbName => {
+    writeCounts[dbName] = (writeCounts[dbName] || 0) + 1
+    if (writeCounts[dbName] < COMPACT_EVERY_N_WRITES) {
+      return
+    }
+    writeCounts[dbName] = 0
+    try {
+      db[dbName].persistence.compactDatafile()
+    } catch (err) {
+      // compaction failure is not fatal, writes still landed
+    }
+  }
 
   const appDataPath = process.env.DATA_PATH || resolve(appPath, 'electerm')
 
@@ -118,7 +140,7 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
       db[dbName].persistence.compactDatafile()
       return
     }
-    return new Promise((resolve, reject) => {
+    const p = new Promise((resolve, reject) => {
       if (op === 'find') {
         db[dbName][op](...args, (err, results) => {
           if (err) return reject(err)
@@ -191,6 +213,13 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
         })
       }
     })
+    if (op === 'insert' || op === 'update' || op === 'remove') {
+      return p.then(res => {
+        countWrite(dbName)
+        return res
+      })
+    }
+    return p
   }
 
   return {
