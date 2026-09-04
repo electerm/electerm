@@ -608,6 +608,7 @@ export default class SettingCommon extends Component {
             'allowMultiInstance',
             'disableDeveloperTool',
             'switchTabOnHover',
+            'disableTabIndex',
             'disableShortcutBar',
             'debug'
           ].map(this.renderToggle)

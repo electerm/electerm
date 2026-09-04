@@ -1,7 +1,7 @@
 import createName from '../../common/create-title'
 
 export default function tabTitle (props) {
-  const { tab } = props
+  const { tab, config } = props
   const title = createName(tab)
   const { tabCount, color } = props.tab
   const styleTag = color
@@ -9,7 +9,8 @@ export default function tabTitle (props) {
     : {}
   return (
     <span className='tab-title'>
-      <span style={styleTag}>●</span> {tabCount}. {title}
+      <span style={styleTag}>●</span>
+      {!(config && config.disableTabIndex) ? ` ${tabCount}.` : ''} {title}
     </span>
   )
 }

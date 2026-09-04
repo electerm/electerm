@@ -225,7 +225,7 @@ export default class Tabs extends Component {
       return {
         key: i + '##' + t.id,
         label: (
-          <span><TabTitle tab={t} /></span>
+          <span><TabTitle tab={t} config={this.props.config} /></span>
         ),
         onClick: () => this.handleClickMenu({ key: i + '##' + t.id })
       }
@@ -423,7 +423,7 @@ export default class Tabs extends Component {
       return {
         key: i + '##' + t.id,
         label: (
-          <span><TabTitle tab={t} /></span>
+          <span><TabTitle tab={t} config={this.props.config} /></span>
         ),
         onClick: () => this.handleClickMenu({ key: i + '##' + t.id })
       }

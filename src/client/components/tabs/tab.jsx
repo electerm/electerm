@@ -561,7 +561,11 @@ class Tab extends Component {
                 )
               }
               <span className='tab-title'>
-                <span className='iblock mg1r tab-count' style={styleTag}>{tabCount}</span>
+                {!(config && config.disableTabIndex)
+                  ? (
+                    <span className='iblock mg1r tab-count' style={styleTag}>{tabCount}</span>
+                    )
+                  : null}
                 {tab.isPinned && <PushpinFilled className='tab-pin' />}
                 <span className='mg1r'>{title}</span>
               </span>
