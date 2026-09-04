@@ -269,7 +269,10 @@ function attachSftp (sftp, rootDir) {
 }
 
 function startTestSshServer ({ port = TEST_PORT, rootDir } = {}) {
+  const clients = new Set()
   const server = new Server({ hostKeys: [HOST_KEY_PRIVATE] }, (client) => {
+    clients.add(client)
+    client.on('close', () => clients.delete(client))
     client.on('authentication', (ctx) => {
       if (ctx.method === 'password' &&
         ctx.username === TEST_USERNAME &&
@@ -298,6 +301,8 @@ function startTestSshServer ({ port = TEST_PORT, rootDir } = {}) {
     })
     client.on('error', () => {})
   })
+  // expose tracked clients so stopTestSshServer can end live connections
+  server._clients = clients
   return new Promise((resolve, reject) => {
     server.once('error', reject)
     server.listen(port, '127.0.0.1', () => {
@@ -307,8 +312,41 @@ function startTestSshServer ({ port = TEST_PORT, rootDir } = {}) {
   })
 }
 
+// Stop the test server, ending live client connections first.
+// Server.close() waits for existing connections to end — without ending
+// them the callback never fires and callers hang. The timeout is a safety
+// net so a lingering socket can never hang the suite.
+function stopTestSshServer (server) {
+  return new Promise(resolve => {
+    let done = false
+    const finish = () => {
+      if (!done) {
+        done = true
+        resolve()
+      }
+    }
+    const timer = setTimeout(finish, 5000)
+    try {
+      for (const client of server._clients || []) {
+        try {
+          client.end()
+        } catch (_) {
+          // already gone
+        }
+      }
+    } catch (_) {
+      // best effort — fall through to close()
+    }
+    server.close(() => {
+      clearTimeout(timer)
+      finish()
+    })
+  })
+}
+
 module.exports = {
   startTestSshServer,
+  stopTestSshServer,
   ensureKnownHostsEntry,
   HOST_KEY_PUBLIC,
   TEST_USERNAME,

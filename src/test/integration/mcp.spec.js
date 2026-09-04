@@ -23,6 +23,7 @@ const path = require('path')
 
 const {
   startTestSshServer,
+  stopTestSshServer,
   ensureKnownHostsEntry,
   TEST_USERNAME,
   TEST_PASSWORD,
@@ -279,7 +280,7 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
 
   after(async () => {
     if (sshServer) {
-      await new Promise(resolve => sshServer.close(resolve))
+      await stopTestSshServer(sshServer)
     }
     if (sftpRoot) {
       fs.rmSync(sftpRoot, { recursive: true, force: true })
@@ -1103,20 +1104,17 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
     }
 
     try {
-      // Kill the in-process SSH server (and its live connections) so execCmd
-      // fails with a connection error — not the "not supported" PTY fallback
-      // — and the handler must surface [error] on the tab.
-      if (typeof sshServer.closeAllConnections === 'function') {
-        sshServer.closeAllConnections()
-      }
-      await new Promise(resolve => sshServer.close(resolve))
+      // Kill the in-process SSH server and end the tab's live connection.
+      // The renderer's exec path fails immediately ("socket is closed") and
+      // the handler must surface [error] on the tab.
+      await stopTestSshServer(sshServer)
       sshServer = null
 
       const res = await callTool(sid, 'execute_electerm_command', {
         command: 'echo never-runs',
         tabId
       })
-      assert.equal(res.result.isError, true, 'exec on a dead connection must error')
+      assert.equal(res.result.isError, true, 'execute on a dead connection must error')
 
       let tab = await findTab()
       assert.equal(tab.mcpStatus, 'error', 'failed execute must set [error]')

@@ -42,11 +42,11 @@ export default function createTitle (res, hide = true) {
   ) {
     f = `[T]${f}`
   }
-  if (res.from === 'mcp') {
-    f = `[mcp]${f}`
-  }
   if (res.mcpStatus) {
     f = `[${res.mcpStatus}]${f}`
+  }
+  if (res.from === 'mcp') {
+    f = `[mcp]${f}`
   }
   if (type && type !== 'ssh') {
     f = `[${type}]${f}`
