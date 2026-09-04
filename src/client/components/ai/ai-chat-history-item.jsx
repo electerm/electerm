@@ -301,7 +301,7 @@ export default function AIChatHistoryItem ({ item }) {
     return (
       <div className='agent-tool-calls'>
         {toolCalls.map((tc) => (
-          <AgentToolCallCard key={tc.id} toolCall={tc} />
+          <AgentToolCallCard key={tc.id} toolCall={tc} autoCollapse={!isStreaming} />
         ))}
       </div>
     )

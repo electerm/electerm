@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tag } from 'antd'
 import {
   CaretDownOutlined,
@@ -33,10 +33,18 @@ function formatResult (result) {
   }
 }
 
-export default function AgentToolCallCard ({ toolCall }) {
+export default function AgentToolCallCard ({ toolCall, autoCollapse }) {
   const [expanded, setExpanded] = useState(toolCall.status === 'running')
   const { name, args, status, result } = toolCall
   const Icon = toolIcons[name] || CodeOutlined
+
+  // Collapse every tool call once the agent session is done,
+  // user can still expand them again by clicking the header
+  useEffect(() => {
+    if (autoCollapse) {
+      setExpanded(false)
+    }
+  }, [autoCollapse])
 
   function renderStatus () {
     if (status === 'running') {
