@@ -30,6 +30,7 @@ export default function SessionControl (props) {
   const {
     tab,
     isMobile,
+    isTouchDevice,
     isDisabled,
     isSshDisabled,
     isNotTerminalType,
@@ -257,6 +258,12 @@ export default function SessionControl (props) {
   }
 
   function renderFontSizeIcons () {
+    // touch screens have no ctrl +/- shortcut to resize the terminal font,
+    // so the icons only show there — driven by store.isTouchDevice, which
+    // follows the input the user is actually using (see main.jsx).
+    if (!isTouchDevice) {
+      return null
+    }
     const cls = 'mg1r icon-info iblock pointer spliter font-size-control-icon'
     return (
       <>

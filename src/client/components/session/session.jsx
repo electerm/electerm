@@ -607,6 +607,7 @@ export default class SessionWrapper extends Component {
         <SessionControl
           tab={this.props.tab}
           isMobile={window.store.isMobile}
+          isTouchDevice={window.store.isTouchDevice}
           isDisabled={this.isDisabled()}
           isSshDisabled={this.isSshDisabled()}
           isNotTerminalType={this.isNotTerminalType()}
