@@ -509,7 +509,7 @@ export default class SettingTerminal extends Component {
         {
           this.renderNumber('fontSize', {
             step: 1,
-            min: 9
+            min: 5
           }, `${e('default')} ${e('fontSize')}`, 400)
         }
         <div className='pd2b'>
