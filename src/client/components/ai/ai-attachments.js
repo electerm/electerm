@@ -3,8 +3,8 @@
 // into the prompt, images/binaries are rejected
 import uid from '../../common/uid'
 
-export const MAX_ATTACHMENT_FILE_SIZE = 512 * 1024
-export const MAX_ATTACHMENT_TOTAL_SIZE = 1024 * 1024
+export const MAX_ATTACHMENT_FILE_SIZE = 50 * 1024
+export const MAX_ATTACHMENT_TOTAL_SIZE = 100 * 1024
 
 const BINARY_SNIFF_LEN = 8 * 1024
 const decoder = new TextDecoder('utf-8')
