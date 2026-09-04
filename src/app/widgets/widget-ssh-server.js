@@ -94,6 +94,30 @@ function attachSftp (sftp, rootDir) {
     mtime: Math.floor(st.mtimeMs / 1000)
   })
 
+  const modeFileType = (mode) => {
+    const t = mode & 0o170000
+    return t === 0o040000 ? 'd' : t === 0o120000 ? 'l' : '-'
+  }
+
+  const modeToPermStr = (mode) => {
+    const part = (r, w, x) =>
+      (mode & r ? 'r' : '-') + (mode & w ? 'w' : '-') + (mode & x ? 'x' : '-')
+    return modeFileType(mode) +
+      part(0o400, 0o200, 0o100) +
+      part(0o040, 0o020, 0o010) +
+      part(0o004, 0o002, 0o001)
+  }
+
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+  // ls-style longname: drwxr-xr-x 1 uid gid size mtime name
+  const toLongname = (name, st) => {
+    const d = new Date(st.mtimeMs)
+    const time = `${months[d.getMonth()]} ${String(d.getDate()).padStart(2)}` +
+      ` ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+    return `${modeToPermStr(st.mode)}  1 ${st.uid} ${st.gid} ${st.size} ${time} ${name}`
+  }
+
   sftp.on('REALPATH', (reqID, p) => {
     sftp.name(reqID, [{ filename: path.posix.normalize(`/${p || '/'}`), longname: '', attrs: {} }])
   })
@@ -116,7 +140,7 @@ function attachSftp (sftp, rootDir) {
     fs.readdir(confine(p), { withFileTypes: true }, (err, entries) => {
       if (err) return fail(reqID, err)
       const handle = Buffer.from(`dir-${++handleCount}`)
-      openDirs.set(handle.toString(), { entries, sent: false })
+      openDirs.set(handle.toString(), { entries, dirPath: confine(p), sent: false })
       sftp.handle(reqID, handle)
     })
   })
@@ -126,12 +150,25 @@ function attachSftp (sftp, rootDir) {
     if (!dir) return sftp.status(reqID, STATUS_CODE.FAILURE)
     if (dir.sent) return sftp.status(reqID, STATUS_CODE.EOF)
     dir.sent = true
-    const names = dir.entries.map(en => ({
-      filename: en.name,
-      longname: en.name,
-      attrs: {}
+    Promise.all(dir.entries.map(en => {
+      return new Promise(resolve => {
+        fs.lstat(path.join(dir.dirPath, en.name), (err, st) => {
+          if (err) {
+            return resolve({
+              filename: en.name,
+              longname: en.name,
+              attrs: {}
+            })
+          }
+          resolve({
+            filename: en.name,
+            longname: toLongname(en.name, st),
+            attrs: toAttrs(st)
+          })
+        })
+      })
     }))
-    sftp.name(reqID, names)
+      .then(names => sftp.name(reqID, names))
   })
 
   sftp.on('OPEN', (reqID, filename, pflags) => {

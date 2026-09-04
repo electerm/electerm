@@ -1261,7 +1261,7 @@ export default class FileSection extends React.Component {
     if (isDirectory && id === 'size') {
       value = null
     } else if (!isDirectory && id === 'size') {
-      value = filesize(value)
+      value = filesize(Number(value) || 0)
     } else if (id === 'owner') {
       const { type } = this.props
       value = this.props[`${type}UidTree`]['' + value] || value
