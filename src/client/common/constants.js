@@ -29,6 +29,7 @@ export const termControlHeight = 32
 export const maxDragMove = 30
 export const splitDraggerWidth = 5
 export const minTerminalWidth = 90
+export const minTerminalFontSize = 5
 export const filePropMinWidth = 1
 export const contextMenuHeight = 28
 export const contextMenuWidth = 280

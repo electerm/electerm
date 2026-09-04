@@ -471,6 +471,15 @@ export default class SessionWrapper extends Component {
     refs.get('term-' + this.props.tab.id)?.toggleSearch()
   }
 
+  handleZoomFontSize = (v) => {
+    const term = refs.get('term-' + this.props.tab.id)
+    if (!term?.term) {
+      return
+    }
+    term.zoom(v)
+    term.term.focus()
+  }
+
   toggleWrap = () => {
     const termRef = refs.get('term-' + this.props.tab.id)
     if (!termRef?.term) {
@@ -613,6 +622,7 @@ export default class SessionWrapper extends Component {
           toggleBroadcastInput={this.toggleBroadcastInput}
           toggleWrap={this.toggleWrap}
           onFullscreen={this.handleFullscreen}
+          onZoomFontSize={this.handleZoomFontSize}
           onOpenSearch={this.handleOpenSearch}
           onExitGracefully={this.handleExitGracefully}
         />

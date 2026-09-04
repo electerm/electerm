@@ -9,7 +9,9 @@ import {
   ApartmentOutlined,
   MoreOutlined,
   ColumnWidthOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  PlusOutlined,
+  MinusOutlined
 } from '@ant-design/icons'
 import { Tooltip, Popover } from 'antd'
 import classnames from 'classnames'
@@ -44,7 +46,8 @@ export default function SessionControl (props) {
     toggleWrap,
     onFullscreen,
     onOpenSearch,
-    onExitGracefully
+    onExitGracefully,
+    onZoomFontSize
   } = props
 
   if (isNotTerminalType) {
@@ -253,6 +256,22 @@ export default function SessionControl (props) {
     )
   }
 
+  function renderFontSizeIcons () {
+    const cls = 'mg1r icon-info iblock pointer spliter font-size-control-icon'
+    return (
+      <>
+        <MinusOutlined
+          className={cls}
+          onClick={() => onZoomFontSize(-1)}
+        />
+        <PlusOutlined
+          className={cls}
+          onClick={() => onZoomFontSize(1)}
+        />
+      </>
+    )
+  }
+
   function renderTermControls () {
     const { pane } = tab
     if (pane !== paneMap.terminal) {
@@ -260,6 +279,7 @@ export default function SessionControl (props) {
     }
     return (
       <div className='fright term-controls'>
+        {renderFontSizeIcons()}
         {renderFullscreenIcon()}
         {renderSearchIcon()}
       </div>

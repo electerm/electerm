@@ -22,7 +22,8 @@ import {
   isMac,
   isMacJs,
   connectionMap,
-  terminalSerialType
+  terminalSerialType,
+  minTerminalFontSize
 } from '../../common/constants.js'
 import deepCopy from 'json-deep-copy'
 import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
@@ -367,13 +368,21 @@ class Term extends Component {
     if (!term) {
       return
     }
-    term.options.fontSize = term.options.fontSize + v
+    const next = Math.max(
+      minTerminalFontSize,
+      term.options.fontSize + v
+    )
+    const changed = next - term.options.fontSize
+    if (changed === 0) {
+      return
+    }
+    term.options.fontSize = next
     window.store.triggerResize()
     if (this.originalFontSize == null) {
-      this.originalFontSize = term.options.fontSize - v
+      this.originalFontSize = next - changed
     }
     this.setState({
-      fontSizeChanged: term.options.fontSize !== this.originalFontSize
+      fontSizeChanged: next !== this.originalFontSize
     })
   }
 
