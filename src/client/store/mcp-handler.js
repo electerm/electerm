@@ -42,6 +42,46 @@ function stripDangerousTabProps (obj) {
   )
 }
 
+// ==================== Tab MCP status tag helpers ====================
+// Reflect MCP activity on the tab title via tab.mcpStatus
+// (rendered as [running]/[waiting]/[done]/[error] by create-title.jsx).
+
+const mcpStatusTimers = new Map()
+
+function findMcpTab (tabId) {
+  return window.store.tabs.find(t => t.id === tabId)
+}
+
+function setTabMcpStatus (tabId, status) {
+  const tab = findMcpTab(tabId)
+  if (!tab) {
+    return
+  }
+  const timer = mcpStatusTimers.get(tabId)
+  if (timer) {
+    clearTimeout(timer)
+    mcpStatusTimers.delete(tabId)
+  }
+  tab.mcpStatus = status
+}
+
+// Set a status that auto-clears after clearDelay ms (clearDelay 0 = keep
+// until the next status change). The clear only applies if the status
+// has not been replaced in the meantime.
+function setTabMcpStatusAuto (tabId, status, clearDelay = 6000) {
+  setTabMcpStatus(tabId, status)
+  if (!clearDelay) {
+    return
+  }
+  mcpStatusTimers.set(tabId, setTimeout(() => {
+    mcpStatusTimers.delete(tabId)
+    const tab = findMcpTab(tabId)
+    if (tab && tab.mcpStatus === status) {
+      tab.mcpStatus = ''
+    }
+  }, clearDelay))
+}
+
 export default Store => {
   // Initialize MCP handler - called when MCP widget is started
   Store.prototype.initMcpHandler = function () {
@@ -418,6 +458,8 @@ export default Store => {
         host: t.host,
         type: t.type || 'local',
         status: t.status,
+        from: t.from,
+        mcpStatus: t.mcpStatus || '',
         isTransporting: t.isTransporting,
         onData: refsTabs.get('tab-' + t.id)?.state.terminalOnData,
         batch: t.batch
@@ -511,6 +553,10 @@ export default Store => {
     const { store } = window
     store.addTab()
     const newTabId = store.activeTabId
+    const tab = store.tabs.find(t => t.id === newTabId)
+    if (tab) {
+      tab.from = 'mcp'
+    }
 
     return {
       success: true,
@@ -565,6 +611,8 @@ export default Store => {
     }
 
     store.runQuickCommand(command, args.inputOnly || false, tabId)
+    // Show [running] on the tab; auto-clears if the caller never waits.
+    setTabMcpStatusAuto(tabId, 'running', 15000)
 
     return {
       success: true,
@@ -652,6 +700,7 @@ export default Store => {
       throw new Error('No active terminal')
     }
 
+    setTabMcpStatus(tabId, 'waiting')
     const start = Date.now()
 
     // Brief initial wait so the command has time to start producing output
@@ -684,6 +733,7 @@ export default Store => {
       const onData = tabRef?.state.terminalOnData
       if (!onData) {
         const { output, lineCount } = collectOutput()
+        setTabMcpStatusAuto(tabId, 'done')
         return {
           tabId,
           elapsed: Date.now() - start,
@@ -695,7 +745,9 @@ export default Store => {
       await new Promise(resolve => setTimeout(resolve, pollInterval))
     }
 
-    // Timeout reached — return whatever is currently in the buffer
+    // Timeout reached — return whatever is currently in the buffer.
+    // The command is still producing output, so keep showing [running].
+    setTabMcpStatus(tabId, 'running')
     const { output, lineCount } = collectOutput()
     return {
       tabId,
@@ -901,29 +953,36 @@ export default Store => {
     let result = null
     let mode = 'pty'
 
-    if (requestedMode === 'exec' && isSsh) {
-      try {
-        const r = await execCmd(tabId, command, timeoutMs)
-        result = {
-          stdout: r.stdout || '',
-          stderr: r.stderr || '',
-          stderrMerged: false,
-          exitCode: typeof r.exitCode === 'number' ? r.exitCode : null,
-          durationMs: Date.now() - start,
-          timedOut: !!r.timedOut
-        }
-        mode = 'exec'
-      } catch (e) {
-        // Exec channel unavailable (e.g. connection dropped) — fall back to PTY
-        if (!/not supported/i.test(e.message || '')) {
-          throw e
+    setTabMcpStatus(tabId, 'running')
+    try {
+      if (requestedMode === 'exec' && isSsh) {
+        try {
+          const r = await execCmd(tabId, command, timeoutMs)
+          result = {
+            stdout: r.stdout || '',
+            stderr: r.stderr || '',
+            stderrMerged: false,
+            exitCode: typeof r.exitCode === 'number' ? r.exitCode : null,
+            durationMs: Date.now() - start,
+            timedOut: !!r.timedOut
+          }
+          mode = 'exec'
+        } catch (e) {
+          // Exec channel unavailable (e.g. connection dropped) — fall back to PTY
+          if (!/not supported/i.test(e.message || '')) {
+            throw e
+          }
         }
       }
-    }
 
-    if (!result) {
-      result = await store.mcpExecuteCommandPty({ command, tabId, timeoutMs })
+      if (!result) {
+        result = await store.mcpExecuteCommandPty({ command, tabId, timeoutMs })
+      }
+    } catch (err) {
+      setTabMcpStatusAuto(tabId, 'error')
+      throw err
     }
+    setTabMcpStatusAuto(tabId, result.timedOut ? 'running' : 'done')
 
     const out = truncateTail(result.stdout, maxOutputBytes)
     const err = truncateTail(result.stderr, maxOutputBytes)
@@ -995,6 +1054,7 @@ export default Store => {
       status: 'started'
     }
     backgroundTasks.set(taskId, task)
+    setTabMcpStatus(task.tabId, 'running')
 
     return {
       taskId,
@@ -1027,6 +1087,7 @@ export default Store => {
         task.status = 'completed'
         task.exitCode = parseInt(exitCode, 10)
         task.endTime = Date.now()
+        setTabMcpStatusAuto(task.tabId, 'done')
         return { ...task, status: 'completed', exitCode: task.exitCode }
       }
       return { ...task, status: 'unknown', message: 'PID file not found' }
@@ -1037,6 +1098,7 @@ export default Store => {
 
     if (aliveCheck.trim() === 'alive') {
       task.status = 'running'
+      setTabMcpStatus(task.tabId, 'running')
       return { ...task, pid, status: 'running' }
     }
 
@@ -1048,6 +1110,7 @@ export default Store => {
     task.status = 'completed'
     task.exitCode = exitCode !== '' ? parseInt(exitCode, 10) : null
     task.endTime = Date.now()
+    setTabMcpStatusAuto(task.tabId, 'done')
     return { ...task, pid, status: 'completed', exitCode: task.exitCode }
   }
 
@@ -1083,6 +1146,7 @@ export default Store => {
         `kill ${pid} 2>/dev/null; echo $? > ${task.exitFile}`)
       task.status = 'cancelled'
       task.endTime = Date.now()
+      setTabMcpStatus(task.tabId, '')
       return {
         taskId: task.id,
         pid,
@@ -1112,6 +1176,7 @@ export default Store => {
       // best-effort remote cleanup
     }
     backgroundTasks.delete(args.taskId)
+    setTabMcpStatus(task.tabId, '')
     return { success: true, taskId: args.taskId }
   }
 

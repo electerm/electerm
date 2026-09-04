@@ -645,6 +645,87 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
     await callTool(sid, 'close_electerm_tab', { tabId })
   })
 
+  test('MCP tab status: from tag, running/waiting/done lifecycle, auto-clear', { timeout: 180000 }, async (t) => {
+    if (skipOffline(t)) return
+    const { sid } = await initSession()
+
+    const opened = toolPayload(await callTool(sid, 'open_electerm_local_terminal', {}))
+    assert.equal(opened.success, true)
+    const tabId = opened.tabId
+    openedTabIds.push(tabId)
+    await waitForTerminalReady(sid, tabId)
+
+    const findTab = async () => {
+      const tabs = toolPayload(await callTool(sid, 'list_electerm_tabs', {}))
+      return tabs.find(tb => tb.id === tabId)
+    }
+
+    try {
+      // MCP-opened tabs carry from:"mcp" — the data source for the [mcp]
+      // prefix the tab title renders (create-title.jsx). The computed title
+      // itself is UI-side and not exposed through list_tabs.
+      let tab = await findTab()
+      assert.ok(tab, 'opened tab must be listed')
+      assert.equal(tab.from, 'mcp', 'MCP-opened tab must expose from:"mcp"')
+
+      // send → [running] appears (auto-clears after ~15s if never waited on)
+      await callTool(sid, 'send_electerm_terminal_command', {
+        command: 'sleep 2',
+        tabId
+      })
+      tab = await findTab()
+      assert.equal(tab.mcpStatus, 'running', 'send must set [running]')
+
+      // wait_for_terminal_idle → [waiting] while pending, [done] after
+      let sawWaiting = false
+      const waitPromise = callTool(sid, 'wait_for_electerm_terminal_idle', {
+        tabId, timeout: 30000, minWait: 4000, lines: 20
+      }).catch(err => { throw new Error(`wait_for_terminal_idle failed: ${err.message}`) })
+      const waitDeadline = Date.now() + 8000
+      while (Date.now() < waitDeadline) {
+        tab = await findTab()
+        if (tab && tab.mcpStatus === 'waiting') {
+          sawWaiting = true
+          break
+        }
+        await sleep(300)
+      }
+      assert.ok(sawWaiting, 'expected [waiting] while wait_for_terminal_idle is pending')
+      const idle = toolPayload(await waitPromise)
+      assert.equal(idle.timedOut, false)
+
+      // [done] shows right after and auto-clears within ~6s
+      tab = await findTab()
+      assert.equal(tab.mcpStatus, 'done', 'wait must end with [done]')
+      await sleep(7500)
+      tab = await findTab()
+      assert.equal(tab.mcpStatus || '', '', '[done] must auto-clear')
+
+      // execute → [running] while pending, [done] after completion
+      let sawRunning = false
+      const execPromise = callTool(sid, 'execute_electerm_command', {
+        command: `sleep 2 && echo "MCP_IT_STATUS_${uid}"`,
+        tabId
+      })
+      const execDeadline = Date.now() + 8000
+      while (Date.now() < execDeadline) {
+        tab = await findTab()
+        if (tab && tab.mcpStatus === 'running') {
+          sawRunning = true
+          break
+        }
+        await sleep(300)
+      }
+      assert.ok(sawRunning, 'expected [running] while execute_electerm_command is pending')
+      const exec = toolPayload(await execPromise)
+      assert.equal(exec.exitCode, 0)
+      tab = await findTab()
+      assert.equal(tab.mcpStatus, 'done', 'execute must end with [done]')
+    } finally {
+      await callTool(sid, 'close_electerm_tab', { tabId })
+    }
+  })
+
   // ─────────────────────────────────────────────────────────────────────────
   // 3. SSH tab against the in-process test server: exec mode + MCP Tasks
   // ─────────────────────────────────────────────────────────────────────────
@@ -993,6 +1074,65 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
         res.error || (res.result && res.result.isError),
         `${tool} with ${JSON.stringify(args)} must error`
       )
+    }
+  })
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 7. Error path: [error] status after the SSH connection drops
+  // ─────────────────────────────────────────────────────────────────────────
+
+  test('MCP tab status: [error] after the SSH connection drops', { timeout: 120000 }, async (t) => {
+    if (skipOffline(t)) return
+    const { sid } = await initSession()
+
+    const opened = toolPayload(await callTool(sid, 'open_electerm_tab_ssh', {
+      title: `MCP_IT_SSH_ERR_${uid}`,
+      host: '127.0.0.1',
+      port: TEST_PORT,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD
+    }))
+    assert.equal(opened.success, true)
+    const tabId = opened.tabId
+    openedTabIds.push(tabId)
+    await waitForTerminalReady(sid, tabId)
+
+    const findTab = async () => {
+      const tabs = toolPayload(await callTool(sid, 'list_electerm_tabs', {}))
+      return tabs.find(tb => tb.id === tabId)
+    }
+
+    try {
+      // Kill the in-process SSH server (and its live connections) so execCmd
+      // fails with a connection error — not the "not supported" PTY fallback
+      // — and the handler must surface [error] on the tab.
+      if (typeof sshServer.closeAllConnections === 'function') {
+        sshServer.closeAllConnections()
+      }
+      await new Promise(resolve => sshServer.close(resolve))
+      sshServer = null
+
+      const res = await callTool(sid, 'execute_electerm_command', {
+        command: 'echo never-runs',
+        tabId
+      })
+      assert.equal(res.result.isError, true, 'exec on a dead connection must error')
+
+      let tab = await findTab()
+      assert.equal(tab.mcpStatus, 'error', 'failed execute must set [error]')
+      await sleep(7500)
+      tab = await findTab()
+      assert.equal(tab.mcpStatus || '', '', '[error] must auto-clear')
+    } finally {
+      await callTool(sid, 'close_electerm_tab', { tabId })
+      // Bring the shared server back so later tests / reruns still work
+      for (let i = 0; i < 5 && !sshServer; i++) {
+        try {
+          sshServer = await startTestSshServer({ port: TEST_PORT, rootDir: sftpRoot })
+        } catch (_) {
+          await sleep(500)
+        }
+      }
     }
   })
 })
