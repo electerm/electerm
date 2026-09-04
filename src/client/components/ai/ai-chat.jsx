@@ -88,10 +88,10 @@ export default function AIChat (props) {
     }
     setAttachments(next)
     if (totalTooLarge) {
-      message.error(e('attachmentTotalTooLarge'))
+      message.error('attachment too big')
     }
     if (notText.length) {
-      message.error(`${e('attachmentNotTextFile')}: ${notText.join(', ')}`)
+      message.error(`attachment only support text files: ${notText.join(', ')}`)
     }
   }
 
@@ -335,7 +335,6 @@ export default function AIChat (props) {
             <PaperClipOutlined
               onClick={() => fileInputRef.current?.click()}
               className='mg1l pointer icon-hover toggle-ai-attach-icon'
-              title={e('attachFiles')}
             />
             <SettingOutlined
               onClick={toggleConfig}
