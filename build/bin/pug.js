@@ -20,10 +20,11 @@ const pugContent = fs.readFileSync(entryPug, 'utf-8')
 const defaultAIPreset = {
   baseURLAI: 'https://ai.electerm.org/api/ai',
   apiPathAI: '/chat/completions',
-  modelAI: 'mistral-small-latest',
+  modelAI: 'free',
   authHeaderNameAI: 'Authorization: Bearer',
   id: 'ai.electerm.org',
-  nameAI: 'ai.electerm.org(default free)'
+  nameAI: 'ai.electerm.org',
+  siteUrl: 'https://ai.electerm.org?utm=electerm'
 }
 
 // const AIDisclamer = 'AI-generated terminal commands can be inaccurate or unsafe, be careful'
