@@ -7,7 +7,7 @@ import {
   Space,
   Dropdown
 } from 'antd'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { DownOutlined } from '@ant-design/icons'
 import Link from '../common/external-link'
 import AiCache from './ai-cache'
@@ -17,7 +17,7 @@ import {
 import Password from '../common/password'
 import AiHistory, { addHistoryItem } from './ai-history'
 import message from '../common/message'
-import { getAIPresets } from './ai-config-props'
+import { getAIPresets } from './ai-presents'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 
 const STORAGE_KEY_CONFIG = 'ai_config_history'
@@ -51,6 +51,8 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   const [form] = Form.useForm()
   const [testing, setTesting] = useState(false)
   const baseURLAI = Form.useWatch('baseURLAI', form)
+  const presets = useMemo(() => getAIPresets(), [])
+  const currentPreset = presets.find(p => p.baseURLAI === baseURLAI)
 
   useEffect(() => {
     if (initialValues) {
@@ -106,7 +108,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   }
 
   function handleSelectPreset (preset) {
-    const fields = ['nameAI', 'baseURLAI', 'apiPathAI', 'modelAI', 'authHeaderNameAI', 'modelAI', 'apiKeyAI']
+    const fields = ['nameAI', 'baseURLAI', 'apiPathAI', 'modelAI', 'authHeaderNameAI', 'apiKeyAI']
     const values = {}
     fields.forEach(f => {
       if (preset[f] !== undefined) {
@@ -117,7 +119,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   }
 
   function renderPresetMenu () {
-    const presets = getAIPresets()
     const items = presets.map(p => ({
       key: p.id,
       label: p.nameAI,
@@ -145,13 +146,33 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   }
 
   function renderApiKeyLabel () {
-    if (baseURLAI === 'https://api.atlascloud.ai/v1') {
-      return <span className='bold'>API Key (<Link to='https://www.atlascloud.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'>get API key from atlascloud</Link>)</span>
-    }
-    if (baseURLAI === 'https://ai.electerm.org/api/ai') {
-      return <span className='bold'>API Key (<Link to='https://ai.electerm.org?utm=electerm'>get API key from ai.electerm.org(free)</Link>)</span>
+    const siteUrl = currentPreset?.siteUrl
+    if (siteUrl) {
+      const name = currentPreset?.nameAI || baseURLAI
+      return <span className='bold'>API Key (<Link to={siteUrl}>get API key from {name}</Link>)</span>
     }
     return 'API Key'
+  }
+
+  function renderModelInput () {
+    const modelAIs = currentPreset?.modelAIs
+    if (modelAIs && modelAIs.length) {
+      return (
+        <AutoComplete
+          options={modelAIs}
+          filterOption={filter}
+        >
+          <Input
+            placeholder='Enter or select AI model'
+          />
+        </AutoComplete>
+      )
+    }
+    return (
+      <Input
+        placeholder='Enter or select AI model'
+      />
+    )
   }
 
   if (!showAIConfig) {
@@ -231,9 +252,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           name='modelAI'
           rules={[{ required: true, message: 'Please input or select a model!' }]}
         >
-          <Input
-            placeholder='Enter or select AI model'
-          />
+          {renderModelInput()}
         </Form.Item>
 
         <Form.Item
