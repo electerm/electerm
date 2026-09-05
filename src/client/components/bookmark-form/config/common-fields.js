@@ -3,6 +3,7 @@
  * Reduces duplication and ensures consistency
  */
 import { terminalTypes } from '../../../common/constants'
+import { te } from '../../triggers/trigger-lang.js'
 import defaultSettings from '../../../common/default-setting'
 import encodes from '../common/encodes'
 import { isEmpty } from 'lodash-es'
@@ -251,6 +252,12 @@ export const commonFields = {
     label: ''
   },
 
+  triggers: {
+    type: 'triggers',
+    name: 'triggers',
+    label: ''
+  },
+
   enableTerminalImage: {
     type: 'switch',
     name: 'enableTerminalImage',
@@ -358,6 +365,12 @@ export const quickCommandsTab = () => ({
   key: 'quickCommands',
   label: e('quickCommands'),
   fields: [commonFields.quickCommands]
+})
+
+export const triggersTab = () => ({
+  key: 'triggers',
+  label: te('trigger'),
+  fields: [commonFields.triggers]
 })
 
 export const sshTunnelTab = () => ({

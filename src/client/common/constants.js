@@ -107,7 +107,8 @@ export const settingMap = buildConst([
   'addressBookmarks',
   'profiles',
   'widgets',
-  'workspaces'
+  'workspaces',
+  'triggers'
 ])
 
 export const staticNewItemTabs = new Set([
@@ -365,7 +366,8 @@ export const syncDataMaps = {
   quickCommands: ['quickCommands'],
   profiles: ['profiles'],
   addressBookmarks: ['addressBookmarks'],
-  workspaces: ['workspaces']
+  workspaces: ['workspaces'],
+  triggers: ['triggers']
 }
 export const terminalTypes = [
   'xterm-256color',

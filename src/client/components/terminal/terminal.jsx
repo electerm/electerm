@@ -28,6 +28,8 @@ import {
 import deepCopy from 'json-deep-copy'
 import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
 import AttachAddon from './attach-addon-custom.js'
+import { createTriggerManager } from './automation/index.js'
+import { te } from '../triggers/trigger-lang.js'
 import getProxy from '../../common/get-proxy.js'
 import { ZmodemClient } from './zmodem-client.js'
 import { TrzszClient } from './trzsz-client.js'
@@ -188,6 +190,12 @@ class Term extends Component {
       prevProps,
       this.props
     )
+    if (
+      prevProps.tab?.triggers !== this.props.tab?.triggers &&
+      this.triggerManager
+    ) {
+      this.refreshTriggers()
+    }
     const themeChanged = !isEqual(
       this.props.themeConfig,
       prevProps.themeConfig
@@ -231,6 +239,7 @@ class Term extends Component {
       this.term = null
     }
     this.attachAddon = null
+    this.disposeTriggerManager?.()
     this.fitAddon = null
     this.zmodemClient = null
     this.trzszClient = null
@@ -273,6 +282,56 @@ class Term extends Component {
     if (this.osc52Addon) {
       this.osc52Addon.setSendData(this.attachAddon._sendData.bind(this.attachAddon))
     }
+    this.initTriggerManager()
+  }
+
+  initTriggerManager = () => {
+    this.disposeTriggerManager()
+    if (!this.attachAddon) {
+      return
+    }
+    const attachAddon = this.attachAddon
+    this.triggerManager = createTriggerManager({
+      attachAddon,
+      send: (payload) => {
+        if (payload) {
+          attachAddon._sendData(payload)
+        }
+      },
+      getTriggers: () => {
+        try {
+          return window.store.getEffectiveTriggers(this.props.tab)
+        } catch (e) {
+          return []
+        }
+      },
+      onFire: ({ rule, matched, kind }) => {
+        if (kind === 'notify' && rule) {
+          notification.warning({
+            message: te('trigger') + ': ' + (rule.name || rule.match?.value || ''),
+            description: String(matched || '').slice(-240),
+            duration: 6
+          })
+        }
+      }
+    })
+  }
+
+  refreshTriggers = () => {
+    try {
+      this.triggerManager?.refresh()
+    } catch (e) {
+      console.debug(e)
+    }
+  }
+
+  disposeTriggerManager = () => {
+    try {
+      this.triggerManager?.dispose()
+    } catch (e) {
+      console.debug(e)
+    }
+    this.triggerManager = null
   }
 
   getValue = (props, type, name) => {
