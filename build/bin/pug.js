@@ -23,7 +23,7 @@ const defaultAIPreset = {
   modelAI: 'mistral-small-latest',
   authHeaderNameAI: 'Authorization: Bearer',
   id: 'ai.electerm.org',
-  nameAI: 'ai.electerm.org(default free)',
+  nameAI: 'ai.electerm.org',
   siteUrl: 'https://ai.electerm.org?utm=electerm',
   modelAIs: [
     { value: 'mistral-small-latest' },
