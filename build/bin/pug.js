@@ -24,12 +24,7 @@ const defaultAIPreset = {
   authHeaderNameAI: 'Authorization: Bearer',
   id: 'ai.electerm.org',
   nameAI: 'ai.electerm.org',
-  siteUrl: 'https://ai.electerm.org?utm=electerm',
-  modelAIs: [
-    { value: 'mistral-small-latest' },
-    { value: 'mistral-large-latest' },
-    { value: 'mistral-medium-latest' }
-  ]
+  siteUrl: 'https://ai.electerm.org?utm=electerm'
 }
 
 // const AIDisclamer = 'AI-generated terminal commands can be inaccurate or unsafe, be careful'
