@@ -4,7 +4,7 @@ import {
   Dropdown,
   Badge
 } from 'antd'
-import { InfoCircleOutlined, TranslationOutlined, DoubleRightOutlined, ThunderboltOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, TranslationOutlined, DoubleRightOutlined, FunctionOutlined } from '@ant-design/icons'
 import './footer.styl'
 import { statusMap } from '../../common/constants'
 import BatchInput from './batch-input'
@@ -94,7 +94,7 @@ export default auto(function FooterEntry (props) {
           size='small'
           offset={[-2, 2]}
         >
-          <ThunderboltOutlined
+          <FunctionOutlined
             onClick={() => store.toggleTriggerSessionModal(true)}
             className='pointer font14 terminal-trigger-icon'
             title={e('trigger')}
