@@ -20,7 +20,7 @@ const pugContent = fs.readFileSync(entryPug, 'utf-8')
 const defaultAIPreset = {
   baseURLAI: 'https://ai.electerm.org/api/ai',
   apiPathAI: '/chat/completions',
-  modelAI: 'mistral-small-latest',
+  modelAI: 'free',
   authHeaderNameAI: 'Authorization: Bearer',
   id: 'ai.electerm.org',
   nameAI: 'ai.electerm.org',

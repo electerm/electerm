@@ -15,7 +15,7 @@ const h = `http://${host}:${devPort}`
 const defaultAIPreset = {
   baseURLAI: 'https://ai.electerm.org/api/ai',
   apiPathAI: '/chat/completions',
-  modelAI: 'mistral-small-latest',
+  modelAI: 'free',
   authHeaderNameAI: 'Authorization: Bearer',
   id: 'ai.electerm.org',
   nameAI: 'ai.electerm.org(default free)',
