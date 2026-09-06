@@ -55,14 +55,34 @@ export default Store => {
     return []
   }
 
-  // effective triggers for a tab: enabled global triggers + tab session triggers
+  // effective triggers for a tab: predefined (global) triggers resolved with
+  // per-session on/off overrides + tab session/bookmark triggers.
+  // Only predefined triggers persist (db, synced); bookmark triggers stay on
+  // the bookmark record; session temp rules live on the in-memory tab only.
   Store.prototype.getEffectiveTriggers = function (tab) {
-    const globals = (window.store.triggers || []).filter(t => t && t.enabled !== false)
+    const overrides = (tab && tab.triggerOverrides) || {}
+    const globals = (window.store.triggers || [])
+      .filter(t => t && t.match && t.match.value)
+      .map(t => {
+        const on = t.id in overrides ? overrides[t.id] : t.enabled !== false
+        return normalizeTrigger({ ...t, enabled: on })
+      })
     const session = (tab && tab.triggers) || []
-    return [
-      ...globals.map(normalizeTrigger),
-      ...session.map(normalizeTrigger)
-    ].filter(t => t.enabled !== false && t.match.value)
+    return [...globals, ...session.map(normalizeTrigger)]
+      .filter(t => t.enabled !== false && t.match.value)
+  }
+
+  // per-session on/off for a predefined trigger (memory only, not persisted)
+  Store.prototype.togglePredefinedTrigger = function (tabId, triggerId, enabled) {
+    const id = tabId || window.store.activeTabId
+    const tab = window.store.tabs.find(t => t.id === id)
+    if (!tab) {
+      return
+    }
+    const overrides = { ...(tab.triggerOverrides || {}) }
+    overrides[triggerId] = !!enabled
+    window.store.updateTab(id, { triggerOverrides: overrides })
+    refs.get('term-' + id)?.refreshTriggers?.()
   }
 
   Store.prototype.getSessionTriggers = function (tabId) {

@@ -26,7 +26,7 @@ import {
   CodeOutlined,
   ThunderboltOutlined
 } from '@ant-design/icons'
-import TriggerForm from './trigger-form.jsx'
+import TriggerForm, { buildTriggerFromFormValues } from './trigger-form.jsx'
 import {
   triggerPresets,
   buildTriggerFromPreset,
@@ -36,14 +36,14 @@ import { validateTriggers } from '../terminal/automation/trigger-engine.js'
 import uid from '../../common/uid'
 import { te as e } from './trigger-lang.js'
 
-function matchSummary (t) {
+export function matchSummary (t) {
   const type = t.match?.type === 'regex' ? 're' : 'text'
   const v = t.match?.value || ''
   const short = v.length > 42 ? v.slice(0, 42) + '…' : v
   return `[${type}] ${short}`
 }
 
-function actionSummary (t) {
+export function actionSummary (t) {
   if (t.action?.type === 'notify') {
     return 'notify'
   }
@@ -96,24 +96,7 @@ export default function TriggerEditor ({ value, onChange }) {
   const handleSaveEdit = async () => {
     try {
       const v = await form.validateFields()
-      const next = {
-        ...(editing.id ? editing : {}),
-        id: editing.id || uid(),
-        name: v.name,
-        enabled: v.enabled !== false,
-        match: {
-          type: v.matchType,
-          value: v.matchValue,
-          caseSensitive: !!v.caseSensitive
-        },
-        action: {
-          type: v.actionType,
-          value: v.actionType === 'notify' ? '' : (v.actionValue || '')
-        },
-        sendEnter: v.sendEnter !== false,
-        mode: v.mode,
-        cooldownMs: v.mode === 'cooldown' ? (v.cooldownMs == null ? 500 : v.cooldownMs) : 0
-      }
+      const next = buildTriggerFromFormValues(editing, v)
       const errors = validateTriggers([next])
       if (errors.length) {
         message.error(errors[0])

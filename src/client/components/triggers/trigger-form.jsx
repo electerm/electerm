@@ -4,6 +4,8 @@
  */
 import { useEffect } from 'react'
 import {
+  Button,
+  Dropdown,
   Form,
   Input,
   Switch,
@@ -11,12 +13,38 @@ import {
   InputNumber,
   Radio
 } from 'antd'
+import { CaretDownOutlined } from '@ant-design/icons'
 import {
   triggerActionTypes,
   triggerMatchTypes,
-  triggerModes
+  triggerModes,
+  triggerPresets
 } from '../terminal/automation/trigger-presets.js'
 import { te as e } from './trigger-lang.js'
+import uid from '../../common/uid'
+
+// Build a full trigger rule from form values. `editing` is the rule being
+// edited (or a {id:''} placeholder for a new one).
+export function buildTriggerFromFormValues (editing = {}, v) {
+  return {
+    ...(editing.id ? editing : {}),
+    id: editing.id || uid(),
+    name: v.name,
+    enabled: v.enabled !== false,
+    match: {
+      type: v.matchType,
+      value: v.matchValue,
+      caseSensitive: !!v.caseSensitive
+    },
+    action: {
+      type: v.actionType,
+      value: v.actionType === 'notify' ? '' : (v.actionValue || '')
+    },
+    sendEnter: v.sendEnter !== false,
+    mode: v.mode,
+    cooldownMs: v.mode === 'cooldown' ? (v.cooldownMs == null ? 500 : v.cooldownMs) : 0
+  }
+}
 
 export default function TriggerForm ({ form, initial }) {
   useEffect(() => {
@@ -36,12 +64,44 @@ export default function TriggerForm ({ form, initial }) {
     // eslint-disable-next-line
   }, [initial])
 
+  const presetMenu = {
+    items: triggerPresets.map((p, i) => ({
+      key: String(i),
+      label: p.name
+    })),
+    onClick: ({ key }) => {
+      const p = triggerPresets[Number(key)]
+      if (!p) {
+        return
+      }
+      form.setFieldsValue({
+        name: p.name,
+        enabled: true,
+        matchType: p.match.type,
+        matchValue: p.match.value,
+        caseSensitive: !!p.match.caseSensitive,
+        actionType: p.action.type,
+        actionValue: p.action.value,
+        sendEnter: p.sendEnter !== false,
+        mode: p.mode || 'cooldown',
+        cooldownMs: p.cooldownMs == null ? 500 : p.cooldownMs
+      })
+    }
+  }
+
   return (
     <Form
       form={form}
       layout='vertical'
       preserve={false}
     >
+      <div className='pd1b alignright'>
+        <Dropdown menu={presetMenu} trigger={['click']}>
+          <Button icon={<CaretDownOutlined />}>
+            {e('presets')}
+          </Button>
+        </Dropdown>
+      </div>
       <Form.Item
         name='name'
         label={e('title')}

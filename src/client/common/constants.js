@@ -114,7 +114,8 @@ export const settingMap = buildConst([
 export const staticNewItemTabs = new Set([
   'terminalThemes',
   'quickCommands',
-  'profiles'
+  'profiles',
+  'triggers'
 ])
 
 export const infoTabs = buildConst([
