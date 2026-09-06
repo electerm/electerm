@@ -7,6 +7,7 @@ import { pick } from 'lodash-es'
 import { Tabs, Spin } from 'antd'
 import { lazy, Suspense } from 'react'
 import SettingModal from './setting-wrap'
+import { te as tte } from '../triggers/trigger-lang.js'
 import {
   settingMap,
   modals,
@@ -18,6 +19,7 @@ const TabSettings = lazy(() => import('./tab-settings'))
 const TabThemes = lazy(() => import('./tab-themes'))
 const TabProfiles = lazy(() => import('./tab-profiles'))
 const TabWidgets = lazy(() => import('./tab-widgets'))
+const TabTriggers = lazy(() => import('./tab-triggers'))
 
 const Loading = () => <div style={{ padding: 20, textAlign: 'center' }}><Spin /></div>
 
@@ -108,6 +110,11 @@ export default auto(function SettingModalWrap (props) {
         children: null
       },
       {
+        key: settingMap.triggers,
+        label: tte('trigger'),
+        children: null
+      },
+      {
         key: settingMap.profiles,
         label: e(settingMap.profiles),
         children: null
@@ -137,6 +144,12 @@ export default auto(function SettingModalWrap (props) {
             listProps={props0}
             settingItem={settingItem}
             formProps={formProps}
+            store={store}
+            settingTab={settingTab}
+          />
+          <TabTriggers
+            listProps={props0}
+            settingItem={settingItem}
             store={store}
             settingTab={settingTab}
           />

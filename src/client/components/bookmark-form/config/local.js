@@ -7,7 +7,7 @@ import {
   getTerminalBackgroundDefaults
 } from '../common/init-values.js'
 import defaultSettings from '../../../common/default-setting.js'
-import { commonFields } from './common-fields.js'
+import { commonFields, triggersTab } from './common-fields.js'
 
 const e = window.translate
 
@@ -56,7 +56,8 @@ const localConfig = {
       fields: [
         commonFields.quickCommands
       ]
-    }
+    },
+    triggersTab()
   ]
 }
 

@@ -393,7 +393,8 @@ export default Store => {
     'execLinuxArgs',
     'setEnv',
     'runScripts',
-    'interactiveValues'
+    'interactiveValues',
+    'triggers'
   ]
 
   Store.prototype.ipcOpenTab = function (parsed) {

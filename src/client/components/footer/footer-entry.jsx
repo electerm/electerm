@@ -1,15 +1,18 @@
 import { auto } from 'manate/react'
 import {
   Select,
-  Dropdown
+  Dropdown,
+  Badge
 } from 'antd'
-import { InfoCircleOutlined, TranslationOutlined, DoubleRightOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, TranslationOutlined, DoubleRightOutlined, FunctionOutlined } from '@ant-design/icons'
 import './footer.styl'
 import { statusMap } from '../../common/constants'
 import BatchInput from './batch-input'
 import encodes from '../bookmark-form/common/encodes'
 import { refs } from '../common/ref'
 import Qm from '../quick-commands/quick-commands-select'
+import TriggerSessionModal from '../triggers/trigger-session-modal'
+import { te as e } from '../triggers/trigger-lang.js'
 import AIIcon from '../icons/ai-icon'
 import { isAIDisabled } from '../../common/ai-feature'
 import CmdHistory from './cmd-history'
@@ -17,8 +20,6 @@ import CmdHistory from './cmd-history'
 const {
   Option
 } = Select
-
-const e = window.translate
 
 export default auto(function FooterEntry (props) {
   function handleInfoPanel () {
@@ -73,6 +74,33 @@ export default auto(function FooterEntry (props) {
     return (
       <div className='terminal-footer-unit terminal-footer-qm'>
         <Qm />
+      </div>
+    )
+  }
+
+  function renderTriggers () {
+    const { store } = props
+    const tab = store.currentTab
+    let count = 0
+    try {
+      count = tab ? store.getEffectiveTriggers(tab).length : store.triggers.length
+    } catch (err) {
+      count = 0
+    }
+    return (
+      <div className='terminal-footer-unit terminal-footer-triggers'>
+        <Badge
+          count={count}
+          size='small'
+          offset={[-2, 2]}
+        >
+          <FunctionOutlined
+            onClick={() => store.toggleTriggerSessionModal(true)}
+            className='pointer font14 terminal-trigger-icon'
+            title={e('trigger')}
+          />
+        </Badge>
+        <TriggerSessionModal store={store} />
       </div>
     )
   }
@@ -214,6 +242,7 @@ export default auto(function FooterEntry (props) {
         {!isAIDisabled() && renderAIIcon()}
         {renderCmdHistory()}
         {renderQuickCommands()}
+        {renderTriggers()}
         {renderBatchInputs()}
         {renderEncodingInfo()}
         {renderInfoIcon()}

@@ -7,7 +7,7 @@ import {
   getTerminalBackgroundDefaults,
   getAuthTypeDefault
 } from '../common/init-values.js'
-import { telnetAuthFields, terminalSettings, quickCommandsTab } from './common-fields.js'
+import { telnetAuthFields, terminalSettings, quickCommandsTab, triggersTab } from './common-fields.js'
 
 const e = window.translate
 
@@ -39,7 +39,8 @@ const telnetConfig = {
       label: e('settings'),
       fields: terminalSettings
     },
-    quickCommandsTab()
+    quickCommandsTab(),
+    triggersTab()
   ]
 }
 

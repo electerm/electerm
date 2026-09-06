@@ -26,6 +26,11 @@ export default (arr, tab) => {
       id: '',
       name: e(newQuickCommand)
     }
+  } else if (tab === settingMap.triggers) {
+    return {
+      id: '',
+      name: e(settingMap.triggers)
+    }
   } else if (tab === settingMap.profiles) {
     return {
       id: '',

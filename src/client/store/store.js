@@ -13,6 +13,7 @@ import bookmarkExtend from './bookmark'
 import commonExtend from './common'
 import itemExtend from './item'
 import quickCommandExtend from './quick-command'
+import triggerExtend from './trigger'
 import sessionExtend from './session'
 import settingExtend from './setting'
 import sidebarExtend from './sidebar'
@@ -312,6 +313,7 @@ bookmarkExtend(Store)
 commonExtend(Store)
 itemExtend(Store)
 quickCommandExtend(Store)
+triggerExtend(Store)
 sessionExtend(Store)
 settingExtend(Store)
 sidebarExtend(Store)
