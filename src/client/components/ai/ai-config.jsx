@@ -17,7 +17,7 @@ import {
 import Password from '../common/password'
 import AiHistory, { addHistoryItem } from './ai-history'
 import message from '../common/message'
-import { getAIPresets } from './ai-presents'
+import { getAIPresets } from './ai-presets'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 
 const STORAGE_KEY_CONFIG = 'ai_config_history'
@@ -127,7 +127,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     return (
       <Dropdown menu={{ items }} trigger={['click']}>
         <Button>
-          {e('presets') || 'Presets'} <DownOutlined />
+          {e('presets')} <DownOutlined />
         </Button>
       </Dropdown>
     )
