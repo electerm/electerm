@@ -13,4 +13,4 @@ export const aiConfigsArr = [
 export {
   defaultAIPresets,
   getAIPresets
-} from './ai-presents'
+} from './ai-presets'
