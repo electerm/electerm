@@ -17,6 +17,13 @@ import generate from '../common/id-with-stamp'
 import uid from '../common/uid'
 import newTerm, { updateCount } from '../common/new-terminal.js'
 import { action } from 'manate'
+import { shouldCaptureSshReloadState } from '../components/terminal/ssh-reload-state.js'
+
+function captureSshSessionState (tab, config) {
+  return shouldCaptureSshReloadState(tab, config)
+    ? refs.get(`term-${tab.id}`)?.getReloadState?.()
+    : undefined
+}
 
 export default Store => {
   Store.prototype.nextTabCount = function () {
@@ -96,12 +103,20 @@ export default Store => {
     const oldTab = tabs[index]
     const oldBatch = oldTab.batch
 
+    // Reload state is captured only for an SSH refresh/reconnect. Closing a
+    // tab goes through removeTabs and never reaches this code path.
+    const reloadState = captureSshSessionState(oldTab, store.config)
+
     // Create copy of old tab with new ID
     const newTab = {
       ...oldTab,
       tabCount: store.nextTabCount(),
       id: generate(), // Need to create new ID
       status: statusMap.processing // Reset status
+    }
+    delete newTab._reloadState
+    if (reloadState) {
+      newTab._reloadState = reloadState
     }
 
     // Add new tab at next index
@@ -153,12 +168,17 @@ export default Store => {
     }
 
     const sourceTab = tabs[targetIndex]
+    const sessionState = captureSshSessionState(sourceTab, store.config)
     const duplicatedTab = {
       ...deepCopy(sourceTab),
       id: generate(),
       tabCount: store.nextTabCount(),
       status: statusMap.processing,
       isTransporting: undefined
+    }
+    delete duplicatedTab._reloadState
+    if (sessionState) {
+      duplicatedTab._reloadState = sessionState
     }
 
     // Insert the duplicated tab after the source tab
@@ -454,12 +474,17 @@ export default Store => {
     const defaultStatus = statusMap.processing
     const { layout, currentLayoutBatch } = store
     const ntb = deepCopy(tab)
+    const sessionState = captureSshSessionState(tab, store.config)
     Object.assign(ntb, {
       id: generate(),
       status: defaultStatus,
       isTransporting: undefined,
       pane: paneMap.terminal
     })
+    delete ntb._reloadState
+    if (sessionState) {
+      ntb._reloadState = sessionState
+    }
     let maxBatch = splitConfig[layout].children
     if (maxBatch < 2) {
       maxBatch = 2
@@ -548,6 +573,7 @@ export default Store => {
       'sshTunnelResults',
       'displayRaw',
       'autoReConnect',
+      '_reloadState',
       'isPinned'
     ]
     const { history } = store

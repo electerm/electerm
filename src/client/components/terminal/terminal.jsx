@@ -68,8 +68,15 @@ import {
   loadSearchAddon,
   loadLigaturesAddon,
   loadUnicode11Addon,
-  loadImageAddon
+  loadImageAddon,
+  loadSerializeAddon
 } from './xterm-loader.js'
+import {
+  createRestoreCwdCommand,
+  createSshReloadState,
+  getAlternateBufferSnapshot,
+  shouldCaptureSshReloadState
+} from './ssh-reload-state.js'
 import {
   createRendererThemeConfig,
   handleTerminalColorQuery,
@@ -238,6 +245,7 @@ class Term extends Component {
     this.searchAddon = null
     this.fitAddon = null
     this.cmdAddon = null
+    this.serializeAddon = null
     this.imageAddon = null
     this.webglContextLossDisposable?.dispose?.()
     this.webglContextLossDisposable = null
@@ -317,10 +325,13 @@ class Term extends Component {
     const currShowSuggestions = props.config.showCmdSuggestions
     const prevSftpFollow = prevProps.sftpPathFollowSsh
     const currSftpFollow = props.sftpPathFollowSsh
+    const prevRestoreTerminal = prevProps.config.restoreTerminalSessionOnReload
+    const currRestoreTerminal = props.config.restoreTerminalSessionOnReload
 
     if (
       (!prevShowSuggestions && currShowSuggestions) ||
-      (!prevSftpFollow && currSftpFollow)
+      (!prevSftpFollow && currSftpFollow) ||
+      (!prevRestoreTerminal && currRestoreTerminal)
     ) {
       // Config was toggled to true, try to inject shell integration if not already done
       if (this.canInjectShellIntegration() && !this.shellInjected) {
@@ -1167,6 +1178,46 @@ class Term extends Component {
     return ''
   }
 
+  getReloadState = () => {
+    if (!shouldCaptureSshReloadState(this.props.tab, this.props.config)) {
+      return undefined
+    }
+    let screen = ''
+    try {
+      screen = this.serializeAddon?.serialize({
+        scrollback: this.props.config.scrollback,
+        excludeAltBuffer: true,
+        excludeModes: true
+      }) || ''
+      // Full-screen programs use the alternate buffer. Replaying that buffer
+      // as a terminal mode would trap the fresh shell in stale mouse/cursor
+      // state, so preserve its visible text as a safe normal-buffer snapshot.
+      const alternateScreen = getAlternateBufferSnapshot(this.term?.buffer.active)
+      if (alternateScreen) {
+        screen += `${screen ? '\r\n' : ''}${alternateScreen}`
+      }
+    } catch (e) {
+      console.warn('Failed to serialize terminal before reload', e)
+    }
+    const cwd = this.cmdAddon?.getCwd() || this.props.tab._reloadState?.cwd || ''
+    return createSshReloadState({ cwd, screen })
+  }
+
+  restoreReloadScreen = (term) => {
+    const screen = this.props.tab._reloadState?.screen
+    if (!screen) {
+      return Promise.resolve()
+    }
+    return new Promise(resolve => {
+      term.write(screen, () => {
+        // The framebuffer has been replayed; do not keep a potentially large
+        // duplicate string on the live tab. A later reload serializes afresh.
+        delete this.props.tab._reloadState.screen
+        resolve()
+      })
+    })
+  }
+
   setCwd = (cwd) => {
     this.props.setCwd(cwd, this.state.id)
   }
@@ -1555,6 +1606,8 @@ class Term extends Component {
     const FitAddon = await loadFitAddon()
     this.fitAddon = new FitAddon()
     this.cmdAddon = new CommandTrackerAddon()
+    const SerializeAddon = await loadSerializeAddon()
+    this.serializeAddon = new SerializeAddon()
     this.cmdAddon.onCommandExecuted((cmd) => {
       if (cmd && cmd.trim()) {
         window.store.addCmdHistory(cmd.trim())
@@ -1576,6 +1629,7 @@ class Term extends Component {
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
     term.loadAddon(this.cmdAddon)
+    term.loadAddon(this.serializeAddon)
     this.osc52Addon = new Osc52Addon()
     term.loadAddon(this.osc52Addon)
     if (tab.enableTerminalImage) {
@@ -1594,6 +1648,7 @@ class Term extends Component {
     if (this.isElementVisible()) {
       this.fitAddon.fit()
     }
+    await this.restoreReloadScreen(term)
     await this.remoteInit(term)
   }
 
@@ -1621,9 +1676,15 @@ class Term extends Component {
     } = this.props.tab
 
     const scripts = runScripts ? [...runScripts] : []
-    const startFolder = startDirectory || window.initFolder
-    if (startFolder) {
-      scripts.unshift({ script: `cd "${startFolder}"`, delay: 0 })
+    const reloadCwd = this.props.config.restoreTerminalSessionOnReload && this.isSsh()
+      ? this.props.tab._reloadState?.cwd
+      : ''
+    const startFolder = reloadCwd || startDirectory || window.initFolder
+    const cwdCommand = this.isSsh()
+      ? createRestoreCwdCommand(startFolder)
+      : startFolder ? `cd "${startFolder}"` : ''
+    if (cwdCommand) {
+      scripts.unshift({ script: cwdCommand, delay: 0 })
     }
 
     // Create unified execution queue
@@ -1662,7 +1723,11 @@ class Term extends Component {
 
   canInjectShellIntegration = () => {
     const { config } = this.props
-    const canInject = (config.showCmdSuggestions || this.props.sftpPathFollowSsh) &&
+    const canInject = (
+      config.showCmdSuggestions ||
+      this.props.sftpPathFollowSsh ||
+      (config.restoreTerminalSessionOnReload && this.isSsh())
+    ) &&
     (
       this.isSsh() ||
       (this.isLocal() && !isWin)
@@ -1879,6 +1944,9 @@ class Term extends Component {
         ? typeMap.remote
         : typeMap.local
     })
+    // Renderer-only state can contain a large serialized screen and must not
+    // cross the process boundary as part of the SSH connection options.
+    delete opts._reloadState
     const isAutoReconnect = !!(tab.autoReConnect && this.props.config.autoReconnectTerminal)
     const r = await createTerm(opts)
       .catch(err => {

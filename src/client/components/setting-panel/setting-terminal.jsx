@@ -575,7 +575,8 @@ export default class SettingTerminal extends Component {
             'sftpPathFollowSsh',
             'sshSftpSplitView',
             'showCmdSuggestions',
-            'autoReconnectTerminal'
+            'autoReconnectTerminal',
+            'restoreTerminalSessionOnReload'
           ].map(d => this.renderToggle(d))
         }
         <div className='pd1b'>{e('dragDropBehavior')}</div>
