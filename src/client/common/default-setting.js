@@ -58,6 +58,18 @@ export default {
     'network',
     'disks'
   ],
+  remoteMonitorBarEnabled: false,
+  remoteMonitorBarItems: [
+    'hostname',
+    'cpu',
+    'cpuHistory',
+    'memory',
+    'upload',
+    'download',
+    'uptime',
+    'users',
+    'disks'
+  ],
   filePropsEnabled: [
     'name',
     'size',

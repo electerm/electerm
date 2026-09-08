@@ -275,7 +275,7 @@ async function setupSshConnection (client, options = {}) {
   await client.setValue('#ssh-form_username', username)
   await client.setValue('#ssh-form_password', password)
   await client.setValue('#ssh-form_port', port)
-  await client.click('.setting-wrap .ant-btn-primary')
+  await client.click('.setting-wrap .ant-btn-primary:visible')
   await confirmSshHostKeyVerificationIfNeeded(client, hostKeyModalTimeout)
   await delay(waitAfterConnect)
 }

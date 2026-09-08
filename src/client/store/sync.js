@@ -845,6 +845,8 @@ export default (Store) => {
       'addTimeStampToTermLog',
       'showHiddenFilesOnSftpStart',
       'terminalInfos',
+      'remoteMonitorBarEnabled',
+      'remoteMonitorBarItems',
       'filePropsEnabled',
       'hideIP',
       'terminalTimeout',

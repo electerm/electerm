@@ -5,12 +5,15 @@ import {
   splitConfig,
   quickCommandBoxHeight,
   footerHeight,
+  remoteMonitorBarHeight,
   shortcutBarHeight
 } from '../../common/constants'
 import layoutAlg from './layout-alg'
 import calcSessionSize from './session-size-alg'
 import TermSearch from '../terminal/term-search'
 import Footer from '../footer/footer-entry'
+import RemoteMonitorBar from '../remote-monitor/remote-monitor-bar'
+import { isRemoteMonitorBarVisible } from '../remote-monitor/visibility'
 import SessionsWrap from '../session/sessions'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import pixed from './pixed'
@@ -46,7 +49,8 @@ export default auto(function Layout (props) {
       shortcutBarVisible,
       shortcutBarKbOffset
     } = props.store
-    const h = height - footerHeight - (inActiveTerminal && pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight + shortcutBarKbOffset : 0) + resizeTrigger
+    const monitorHeight = isRemoteMonitorBarVisible(props.store) ? remoteMonitorBarHeight : 0
+    const h = height - footerHeight - monitorHeight - (inActiveTerminal && pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight + shortcutBarKbOffset : 0) + resizeTrigger
     const l = pinned ? leftSideBarWidth + leftSidePanelWidth : leftSideBarWidth
     const r = rightPanelVisible && rightPanelPinned ? rightPanelWidth : 0
     return {
@@ -77,7 +81,8 @@ export default auto(function Layout (props) {
     // account for the far-left icon bar (sidebarWidth - 1px border on desktop;
     // 0 when the bar is hidden on mobile)
     const w = width - l - r - (leftSideBarWidth > 0 ? leftSideBarWidth - 1 : 0)
-    const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight + shortcutBarKbOffset : 0)
+    const monitorHeight = isRemoteMonitorBarVisible(props.store) ? remoteMonitorBarHeight : 0
+    const h = height - footerHeight - monitorHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight + shortcutBarKbOffset : 0)
     return layoutAlg(layout, w, h)
   }
   const layoutSize = calcLayoutStyle()
@@ -213,6 +218,10 @@ export default auto(function Layout (props) {
     <QuickCommandsFooterBox
       key='QuickCommandsFooterBox'
       {...qmProps}
+    />,
+    <RemoteMonitorBar
+      key='RemoteMonitorBar'
+      store={store}
     />,
     <Footer
       key='Footer'

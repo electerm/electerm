@@ -19,7 +19,13 @@ import TerminalCmdSuggestions from '../terminal/terminal-command-dropdown'
 import TransportsActionStore from '../file-transfer/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
-import { isMac, isWin, textTerminalBgValue } from '../../common/constants'
+import {
+  footerHeight,
+  isMac,
+  isWin,
+  remoteMonitorBarHeight,
+  textTerminalBgValue
+} from '../../common/constants'
 import { isAIDisabled } from '../../common/ai-feature'
 import { ConfigProvider } from 'antd'
 import { NotificationContainer } from '../common/notification'
@@ -44,6 +50,7 @@ import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
 import TerminalInfo from '../terminal-info/terminal-info-entry'
 import ShortcutBarEntry from '../terminal/shortcut-bar-entry'
+import { isRemoteMonitorBarVisible } from '../remote-monitor/visibility'
 import '../../common/fs.js'
 import './term-fullscreen.styl'
 
@@ -129,6 +136,7 @@ export default auto(function Index (props) {
     widgetInstances
   } = store
   const upgradeInfo = deepCopy(store.upgradeInfo)
+  const remoteMonitorBarVisible = isRemoteMonitorBarVisible(store)
   const cls = classnames({
     loaded: configLoaded,
     'not-webapp': !window.et.isWebApp,
@@ -147,12 +155,14 @@ export default auto(function Index (props) {
     'is-main': !isSecondInstance,
     'is-mobile': store.isMobile,
     'is-desktop': !store.isMobile,
-    'is-touch-device': store.isTouchDevice
+    'is-touch-device': store.isTouchDevice,
+    'remote-monitor-bar-on': remoteMonitorBarVisible
   })
   const ext1 = {
     className: cls,
     style: {
-      '--left-side-bar-width': store.leftSideBarWidth + 'px'
+      '--left-side-bar-width': store.leftSideBarWidth + 'px',
+      '--footer-stack-height': `${footerHeight + (remoteMonitorBarVisible ? remoteMonitorBarHeight : 0)}px`
     }
   }
   // Get active tab IDs
