@@ -100,7 +100,7 @@ APIMart が electerm をスポンサーしてくれています！APIMart は、
 - UI/ターミナルのテーマ
 - ブックマーク/テーマ/クイックコマンドを github/gitee の secret gist、webdav、カスタムサーバー、electerm cloud に同期
 - 1 つまたはすべてのターミナルへのクイック入力
-- AI アシスタント連携([DeepSeek](https://www.deepseek.com)、OpenAI、その他あらゆる AI API に対応)により、コマンドの提案、スクリプトの作成、選択したターミナル内容の説明、ブックマーク/テーマの作成をサポート
+- AI アシスタント連携(openAI互換APIに対応)により、コマンドの提案、スクリプトの作成、選択したターミナル内容の説明、ブックマーク/テーマの作成、およびagentモードによるターミナル操作の直接実行をサポート
 - AI アシスタントや外部ツールと連携するための MCP(Model Context Protocol)ウィジェット — [MCP ウィジェット利用ガイド](https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide)を参照
 - ディープリンク対応: `telnet://192.168.2.31:34554` や `ssh://user@host:22` のような URL から接続を開けます — [ディープリンク対応の wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)を参照
 - コマンドラインからの利用: [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage) を参照
