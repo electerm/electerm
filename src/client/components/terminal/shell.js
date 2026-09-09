@@ -15,7 +15,6 @@
  */
 
 /* eslint-disable no-template-curly-in-string, no-useless-escape */
-import { runCmd } from './terminal-apis.js'
 
 /**
  * Get inline shell integration command for bash (one-liner format)
@@ -152,31 +151,4 @@ export function getShellIntegrationCommand (shellType = 'bash') {
   }
   const cmd = getInlineShellIntegration(shellType)
   return wrapSilent(cmd, shellType)
-}
-export async function detectRemoteShell (pid) {
-  // SSH exec runs under the account shell, so prefer the configured shell path
-  // instead of probing for any shell binary installed on the host.
-  const cmd = 'printf "%s\n" "$SHELL"'
-
-  // { silent: true } so this best-effort probe does not emit a transport-level
-  // fetch warning; a single, clearer warning is logged below if it fails.
-  const r = await runCmd(pid, cmd, { silent: true })
-    .catch((err) => {
-      // Non-fatal: the interactive shell already opened, so the terminal keeps
-      // working. We just can't inject OSC 633 shell integration for command
-      // tracking. This commonly happens when the server limits concurrent
-      // sessions (sshd MaxSessions) or the account uses a forced/restricted
-      // command, which rejects the auxiliary exec channel with
-      // "(SSH) Channel open failure: open failed".
-      console.warn('detectRemoteShell: exec channel rejected by server, shell integration disabled, falling back to sh —', err?.message || err)
-      return 'sh'
-    })
-
-  const shell = r.trim().toLowerCase()
-
-  if (!shell) {
-    return 'sh'
-  }
-
-  return detectShellType(shell)
 }

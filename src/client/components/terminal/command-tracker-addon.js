@@ -34,6 +34,25 @@ export class CommandTrackerAddon {
     // Event callbacks for shell integration events
     this._onCommandExecuted = null // Called when OSC 633;E is received
     this._onCwdChanged = null // Called when OSC 633;P;Cwd= is received
+    // Multi-subscriber "a fresh prompt was drawn" signal. Used to pace
+    // scripted input: OSC 633;A means the previous command has finished and
+    // the shell is ready for the next one.
+    this._promptListeners = new Set()
+  }
+
+  /**
+   * Subscribe to "prompt started" (OSC 633;A).
+   * @param {function} callback
+   * @returns {function} unsubscribe
+   */
+  onPrompt (callback) {
+    if (typeof callback !== 'function') {
+      return () => {}
+    }
+    this._promptListeners.add(callback)
+    return () => {
+      this._promptListeners.delete(callback)
+    }
   }
 
   /**
@@ -67,6 +86,9 @@ export class CommandTrackerAddon {
 
   dispose () {
     this.terminal = null
+    this._promptListeners.clear()
+    this._onCommandExecuted = null
+    this._onCwdChanged = null
     if (this._disposables) {
       this._disposables.forEach(d => d.dispose())
       this._disposables.length = 0
@@ -86,11 +108,19 @@ export class CommandTrackerAddon {
     const args = data.length > 1 ? data.substring(2) : '' // Skip "X;" part
 
     switch (command) {
-      case 'A': // Prompt started
+      case 'A': { // Prompt started — the previous command is done
         this.shellIntegrationActive = true
         // Reset current command when new prompt appears
         this.currentCommand = ''
+        for (const cb of this._promptListeners) {
+          try {
+            cb()
+          } catch (e) {
+            console.error('[CommandTracker] prompt listener failed', e)
+          }
+        }
         return true
+      }
 
       case 'B': // Command input started (after prompt)
         return true

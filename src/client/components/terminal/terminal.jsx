@@ -42,17 +42,14 @@ import { KeywordHighlighterAddon } from './highlight-addon.js'
 import { getFilePath, isUnsafeFilename } from '../../common/file-drop-utils.js'
 import { getFolderFromFilePath } from '../sftp/file-read.js'
 import { CommandTrackerAddon } from './command-tracker-addon.js'
+import { StartupQueue } from './startup-queue.js'
+import { detectRemoteShell } from './shell-detect.js'
 import { Osc52Addon } from './osc52-addon.js'
 import AIIcon from '../icons/ai-icon.jsx'
 import { isAIDisabled } from '../../common/ai-feature.js'
 import {
   AimOutlined
 } from '@ant-design/icons'
-import {
-  getShellIntegrationCommand,
-  detectRemoteShell,
-  detectShellType
-} from './shell.js'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { refs, refsStatic } from '../common/ref.js'
 import ExternalLink from '../common/external-link.jsx'
@@ -73,7 +70,6 @@ import {
   loadSerializeAddon
 } from './xterm-loader.js'
 import {
-  createRestoreCwdCommand,
   createSshReloadState,
   getAlternateBufferSnapshot,
   shouldCaptureSshReloadState
@@ -144,8 +140,8 @@ class Term extends Component {
     this.id = `term-${this.props.tab.id}`
     refs.add(this.id, this)
     this.currentInput = ''
-    this.shellInjected = false
-    this.shellType = null
+    // Owns the shell integration injection + cd + runScripts sequence.
+    this.startupQueue = new StartupQueue(this, { detectRemoteShell })
   }
 
   domRef = createRef()
@@ -229,6 +225,7 @@ class Term extends Component {
       this.term.parent = null
     }
     this.disposeTerminalColorQueryHandlers()
+    this.startupQueue?.dispose()
     window.cancelAnimationFrame(this.timers.themeRaf)
     this.timers.themeRaf = null
     Object.keys(this.timers).forEach(k => {
@@ -392,27 +389,9 @@ class Term extends Component {
       (!prevRestoreTerminal && currRestoreTerminal)
     ) {
       // Config was toggled to true, try to inject shell integration if not already done
-      if (this.canInjectShellIntegration() && !this.shellInjected) {
-        // If there's an active execution queue, add to it
-        if (this.executionQueue && this.executionQueue.length > 0) {
-          this.executionQueue.unshift({
-            type: 'shell_integration',
-            execute: async () => {
-              await this.injectShellIntegration()
-              if (currSftpFollow) {
-                this.attachAddon._sendData('\r')
-              }
-            }
-          })
-        } else {
-          // No active queue, inject directly
-          this.injectShellIntegration().then(() => {
-            if (currSftpFollow) {
-              this.attachAddon._sendData('\r')
-            }
-          })
-        }
-      } else if (this.shellInjected && currSftpFollow) {
+      if (this.startupQueue.canInjectShellIntegration() && !this.startupQueue.shellInjected) {
+        this.startupQueue.enqueueShellIntegration(currSftpFollow)
+      } else if (this.startupQueue.shellInjected && currSftpFollow) {
         this.getCwd()
       }
     }
@@ -1726,73 +1705,6 @@ class Term extends Component {
   //   })
   // }
 
-  runInitScript = async () => {
-    window.store.triggerResize()
-    const {
-      startDirectory,
-      runScripts
-    } = this.props.tab
-
-    const scripts = runScripts ? [...runScripts] : []
-    const reloadCwd = this.props.config.restoreTerminalSessionOnReload && this.isSsh()
-      ? this.props.tab._reloadState?.cwd
-      : ''
-    const startFolder = reloadCwd || startDirectory || window.initFolder
-    const cwdCommand = this.isSsh()
-      ? createRestoreCwdCommand(startFolder)
-      : startFolder ? `cd "${startFolder}"` : ''
-    if (cwdCommand) {
-      scripts.unshift({ script: cwdCommand, delay: 0 })
-    }
-
-    // Create unified execution queue
-    this.executionQueue = []
-
-    // Add shell integration injection to queue if needed
-    if (this.canInjectShellIntegration()) {
-      this.executionQueue.push({
-        type: 'shell_integration',
-        execute: async () => {
-          await this.injectShellIntegration()
-        }
-      })
-    }
-
-    // Add delayed scripts to queue
-    scripts.forEach(script => {
-      this.executionQueue.push({
-        type: 'delayed_script',
-        script: script.script,
-        delay: script.delay || 0,
-        execute: () => {
-          if (script.script) {
-            this.attachAddon._sendData(script.script + '\r')
-          }
-        }
-      })
-    })
-
-    this.processExecutionQueue()
-  }
-
-  shouldUseManualHistory = () => {
-    return !this.cmdAddon || !this.cmdAddon.hasShellIntegration()
-  }
-
-  canInjectShellIntegration = () => {
-    const { config } = this.props
-    const canInject = (
-      config.showCmdSuggestions ||
-      this.props.sftpPathFollowSsh ||
-      (config.restoreTerminalSessionOnReload && this.isSsh())
-    ) &&
-    (
-      this.isSsh() ||
-      (this.isLocal() && !isWin)
-    )
-    return canInject
-  }
-
   isSsh = () => {
     const { host, type } = this.props.tab
     return host && (type === 'ssh' || type === undefined)
@@ -1804,83 +1716,8 @@ class Term extends Component {
       (type === 'local' || type === undefined)
   }
 
-  /**
-   * Process the unified execution queue one item at a time
-   */
-  processExecutionQueue = async () => {
-    if (!this.executionQueue || this.executionQueue.length === 0) {
-      return
-    }
-
-    const item = this.executionQueue.shift()
-
-    try {
-      if (item.type === 'shell_integration') {
-        await item.execute()
-      } else if (item.type === 'delayed_script') {
-        item.execute()
-        // Wait for the specified delay before processing next item
-        if (item.delay > 0) {
-          await new Promise(resolve => {
-            this.timers.timerDelay = setTimeout(resolve, item.delay)
-          })
-        }
-      }
-    } catch (error) {
-      console.error('[Shell Integration] Error processing queue item:', item.type, error)
-    }
-
-    // Process next item
-    this.processExecutionQueue()
-  }
-
-  /**
-   * Inject shell integration commands from client-side
-   * This replaces the server-side source xxx.xxx approach
-   * Uses output suppression to hide the injection command
-   * Returns a promise that resolves when injection is complete
-   */
-  injectShellIntegration = async () => {
-    if (this.shellInjected) {
-      return Promise.resolve()
-    }
-
-    let shellType
-    if (this.isLocal()) {
-      const { config } = this.props
-      const localShell = isMac ? config.execMac : config.execLinux
-      shellType = detectShellType(localShell)
-    } else if (this.isSsh()) {
-      shellType = await detectRemoteShell(this.pid)
-    }
-
-    this.shellType = shellType
-
-    // Don't inject for sh type shells unless sftpPathFollowSsh is true
-    if (shellType === 'sh' && !this.props.sftpPathFollowSsh) {
-      return Promise.resolve()
-    }
-
-    const integrationCmd = getShellIntegrationCommand(shellType)
-
-    return new Promise((resolve) => {
-      // Wait for initial data (prompt/banner) to arrive before injecting
-      this.attachAddon.onInitialData(() => {
-        if (this.attachAddon) {
-          // Start suppressing output before sending the integration command
-          // This hides the command and its output until OSC 633 is detected
-          const suppressionTimeout = this.isSsh() ? 5000 : 3000
-          // Pass callback to resolve the promise after suppression ends
-          this.attachAddon.startOutputSuppression(suppressionTimeout, () => {
-            this.shellInjected = true
-            resolve()
-          })
-          this.attachAddon._sendData(integrationCmd)
-        } else {
-          resolve()
-        }
-      })
-    })
+  shouldUseManualHistory = () => {
+    return !this.cmdAddon || !this.cmdAddon.hasShellIntegration()
   }
 
   setStatus = status => {
@@ -2055,7 +1892,7 @@ class Term extends Component {
     this.term = term
     socket.onopen = async () => {
       await this.initAttachAddon()
-      this.runInitScript()
+      this.startupQueue.runInitScript()
     }
     // term.onRrefresh(this.onRefresh)
     term.onResize(this.onResizeTerminal)
