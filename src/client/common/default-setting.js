@@ -75,6 +75,7 @@ export default {
   sshSftpSplitView: false,
   showCmdSuggestions: false,
   autoReconnectTerminal: false,
+  restoreTerminalSessionOnReload: false,
   startDirectoryLocal: '',
   allowMultiInstance: false,
   disableDeveloperTool: false,

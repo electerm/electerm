@@ -38,12 +38,12 @@
 ## スポンサー
 
 <div align="center">
-  <a href="https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm">
+  <a href="https://www.atlascloud.ai/?ref=PCAEL2&utm_source=github&utm_medium=link&utm_campaign=electerm">
     <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/atlas-cloud.png?raw=true" alt="Atlas Cloud" height="200" />
   </a>
 </div>
 
-[Atlas Cloud](https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=electerm) は、electerm での AI 活用ワークフロー向けに、OpenAI 互換の AI API とモデルへのアクセスを提供しています。
+[Atlas Cloud](https://www.atlascloud.ai/?ref=PCAEL2&utm_source=github&utm_medium=link&utm_campaign=electerm) は、electerm での AI 活用ワークフロー向けに、OpenAI 互換の AI API とモデルへのアクセスを提供しています。
 
 ----
 

@@ -28,11 +28,29 @@ const TelnetOptions = {
   NEW_ENVIRON: 39
 }
 
+// Max auto-login retries after a failed attempt before we give up
+// and leave the login to the user
+const MAX_LOGIN_FAILURES = 3
+
 class Stream extends Duplex {
   constructor (socket, options) {
     super(options)
     this.socket = socket
-    this.socket.on('data', data => this.push(data))
+    // Raw socket data is NOT pushed here directly - Telnet parses it
+    // (strips IAC negotiation sequences) and pushes the parsed bytes in
+    this.socket.on('end', () => {
+      if (!this.readableEnded) {
+        this.push(null)
+      }
+    })
+    this.socket.on('close', () => {
+      if (!this.destroyed) {
+        this.emit('close')
+      }
+    })
+    this.socket.on('error', err => {
+      this.emit('error', err)
+    })
   }
 
   _write (data, encoding, callback) {
@@ -58,7 +76,7 @@ class Telnet extends EventEmitter {
       password: '',
       terminalWidth: 80,
       terminalHeight: 24,
-      loginPrompt: /login[: ]*$/i,
+      loginPrompt: /login[: ]*$|user(name)?[: ]*$/i,
       passwordPrompt: /password[: ]*$/i,
       failedLoginMatch: /failed|incorrect|denied/i,
       ...options
@@ -71,10 +89,18 @@ class Telnet extends EventEmitter {
     this.authenticated = false
     this.loginAttempted = false
     this.passwordAttempted = false
+    this.loginFailedCount = 0
+    this.shellStream = null
   }
 
   async connect (options = {}) {
     Object.assign(this.options, options)
+
+    // No credentials configured - just pass everything through and
+    // let the user type them manually
+    if (!this.options.username && !this.options.password) {
+      this.authenticated = true
+    }
 
     // If proxy is specified, establish proxied connection first
     if (this.options.proxy) {
@@ -101,13 +127,18 @@ class Telnet extends EventEmitter {
 
       this.socket.setTimeout(this.options.timeout || 0)
 
-      this.socket.on('connect', () => {
+      const onConnected = () => {
         this.state = 'connected'
+        // The timeout option is only meant for the connection phase -
+        // disable the idle timeout so long-lived sessions are not killed
+        this.socket.setTimeout(0)
         this.emit('connect')
         if (!this.options.negotiationMandatory) {
           resolve()
         }
-      })
+      }
+
+      this.socket.on('connect', onConnected)
 
       this.socket.on('timeout', () => {
         this.emit('timeout')
@@ -120,10 +151,12 @@ class Telnet extends EventEmitter {
       })
 
       this.socket.on('end', () => {
+        this.state = 'ended'
         this.emit('end')
       })
 
       this.socket.on('close', () => {
+        this.state = 'closed'
         this.emit('close')
       })
 
@@ -138,11 +171,7 @@ class Telnet extends EventEmitter {
       // Otherwise, create a new connection
       if (this.options.sock) {
         // Socket already connected via proxy
-        this.state = 'connected'
-        this.emit('connect')
-        if (!this.options.negotiationMandatory) {
-          resolve()
-        }
+        onConnected()
       } else {
         this.socket.connect({
           host: this.options.host,
@@ -161,19 +190,42 @@ class Telnet extends EventEmitter {
     })
   }
 
+  // Parsed (protocol-stripped) output goes to the shell stream - that is
+  // what the terminal session consumes - and to the 'data' event
+  emitData (data) {
+    if (this.shellStream && !this.shellStream.destroyed) {
+      this.shellStream.push(data)
+    }
+    this.emit('data', data)
+  }
+
   handleLoginSequence (data) {
     if (this.authenticated) {
-      this.emit('data', data)
+      this.emitData(data)
       return
     }
 
     const str = data.toString()
     this.dataBuffer += str
 
-    // Check for failed login
-    if (this.options.failedLoginMatch.test(this.dataBuffer)) {
-      this.emit('failedlogin')
+    // Always show server output to the user (banner, prompts, errors) -
+    // auto login happens in parallel, so the user is never left with a
+    // blank screen when the prompts do not match
+    this.emitData(data)
+
+    // Check for failed login - only meaningful after we tried credentials
+    if ((this.loginAttempted || this.passwordAttempted) &&
+        this.options.failedLoginMatch.test(this.dataBuffer)) {
+      this.loginFailedCount++
       this.dataBuffer = ''
+      this.emit('failedlogin')
+      if (this.loginFailedCount >= MAX_LOGIN_FAILURES) {
+        // Give up auto login, let the user handle it manually
+        this.authenticated = true
+      } else {
+        this.loginAttempted = false
+        this.passwordAttempted = false
+      }
       return
     }
 
@@ -181,9 +233,7 @@ class Telnet extends EventEmitter {
     if (!this.loginAttempted &&
         this.options.username &&
         this.options.loginPrompt.test(this.dataBuffer)) {
-      setTimeout(() => {
-        this.socket.write(this.options.username + '\n')
-      }, 100)
+      this.socket.write(this.options.username + '\r\n')
       this.loginAttempted = true
       this.dataBuffer = ''
       return
@@ -193,40 +243,68 @@ class Telnet extends EventEmitter {
     if (!this.passwordAttempted &&
         this.options.password &&
         this.options.passwordPrompt.test(this.dataBuffer)) {
-      setTimeout(() => {
-        this.socket.write(this.options.password + '\n')
-      }, 100)
+      this.socket.write(this.options.password + '\r\n')
       this.passwordAttempted = true
       this.dataBuffer = ''
       return
     }
 
-    // If both login and password were attempted, consider it authenticated
-    if (this.loginAttempted && this.passwordAttempted) {
+    // Once all configured credentials were sent, consider it authenticated
+    // Some servers do not ask for a password at all
+    if (
+      (this.loginAttempted && (this.passwordAttempted || !this.options.password)) ||
+      (!this.options.username && this.passwordAttempted)
+    ) {
       this.authenticated = true
-      this.emit('data', data)
     }
 
-    // Keep only last chunk in buffer for prompt detection
-    if (this.dataBuffer.length > 1024) {
+    // Keep only last chunk(s) in buffer for prompt detection
+    if (this.dataBuffer.length > 2048) {
       this.dataBuffer = this.dataBuffer.slice(-1024)
     }
   }
 
   processData (data) {
-    if (!this.telnetProtocol && data[0] === TelnetCommands.IAC) {
-      this.telnetProtocol = true
-      this.emit('telnetProtocol')
+    // A previous chunk may have ended in the middle of an IAC sequence -
+    // those pending bytes must be processed together with the new data
+    if (this.buffer && this.buffer.length) {
+      data = Buffer.concat([this.buffer, data])
+      this.buffer = Buffer.alloc(0)
     }
 
-    if (this.telnetProtocol) {
-      data = this.processTelnetProtocol(data)
+    if (!this.telnetProtocol) {
+      // Hold back a trailing lone IAC byte - it may be the first byte of
+      // a negotiation sequence split across chunks, and without protocol
+      // mode enabled it would leak to the terminal as garbage
+      if (data[data.length - 1] === TelnetCommands.IAC) {
+        this.buffer = data.slice(-1)
+        data = data.slice(0, -1)
+      }
+      this.detectTelnetProtocol(data)
+      if (!this.telnetProtocol) {
+        return data.length > 0 ? data : null
+      }
     }
+
+    data = this.processTelnetProtocol(data)
 
     if (data && data.length > 0) {
       return data
     }
     return null
+  }
+
+  detectTelnetProtocol (data) {
+    // Some servers start negotiation right away (IAC as the first byte),
+    // others send a banner first and negotiate later - scan the whole chunk
+    // for an IAC byte followed by a valid telnet command byte (239-255)
+    for (let i = 0; i < data.length - 1; i++) {
+      if (data[i] === TelnetCommands.IAC && data[i + 1] >= 239) {
+        this.telnetProtocol = true
+        this.emit('telnetProtocol')
+        return
+      }
+    }
   }
 
   processTelnetProtocol (data) {
@@ -236,8 +314,11 @@ class Telnet extends EventEmitter {
     while (position < data.length) {
       if (data[position] === TelnetCommands.IAC) {
         if (position + 1 >= data.length) {
+          // Incomplete sequence at chunk end - hold it for the next chunk.
+          // resultBuffer already holds all plain data before it, consumed
+          // command bytes must NOT be re-emitted here
           this.buffer = data.slice(position)
-          return Buffer.concat([resultBuffer, data.slice(0, position)])
+          return resultBuffer
         }
 
         const command = data[position + 1]
@@ -248,7 +329,7 @@ class Telnet extends EventEmitter {
         } else if ([TelnetCommands.WILL, TelnetCommands.WONT, TelnetCommands.DO, TelnetCommands.DONT].includes(command)) {
           if (position + 2 >= data.length) {
             this.buffer = data.slice(position)
-            return Buffer.concat([resultBuffer, data.slice(0, position)])
+            return resultBuffer
           }
 
           const option = data[position + 2]
@@ -265,7 +346,7 @@ class Telnet extends EventEmitter {
 
           if (endPos >= data.length - 1) {
             this.buffer = data.slice(position)
-            return Buffer.concat([resultBuffer, data.slice(0, position)])
+            return resultBuffer
           }
 
           this.handleSuboption(data.slice(position + 2, endPos))
@@ -327,10 +408,16 @@ class Telnet extends EventEmitter {
   }
 
   emitTelnet (command, option) {
+    if (!this.socket) {
+      return
+    }
     this.socket.write(Buffer.from([TelnetCommands.IAC, command, option]))
   }
 
   emitTelnetSuboption (option, value) {
+    if (!this.socket) {
+      return
+    }
     this.socket.write(Buffer.from([
       TelnetCommands.IAC,
       TelnetCommands.SUBOPTION,
@@ -350,7 +437,8 @@ class Telnet extends EventEmitter {
   }
 
   shell (options = {}) {
-    return new Stream(this.socket, options)
+    this.shellStream = new Stream(this.socket, options)
+    return this.shellStream
   }
 
   end () {

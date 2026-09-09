@@ -80,6 +80,9 @@ class TerminalTelnet extends TerminalBase {
   }
 
   resize = (cols, rows) => {
+    if (!this.channel) {
+      return
+    }
     Object.assign(this.channel.options, {
       terminalWidth: cols,
       terminalHeight: rows
@@ -111,7 +114,18 @@ class TerminalTelnet extends TerminalBase {
   }
 
   kill = () => {
-    this.channel && this.channel.end()
+    if (this.channel) {
+      try {
+        this.channel.end()
+      } catch (e) {
+        log.warn('telnet end failed:', e.message)
+      }
+      try {
+        this.channel.destroy()
+      } catch (e) {
+        log.warn('telnet destroy failed:', e.message)
+      }
+    }
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
