@@ -83,23 +83,19 @@ APIMart が electerm をスポンサーしてくれています！APIMart は、
 
 ## 機能
 
-- ターミナル/ファイルマネージャー、または ssh/sftp/ftp/telnet/シリアルポート/RDP/VNC/Spice クライアントとして動作
+- ターミナル/ファイルマネージャーとして、または ssh/sftp/ftp/telnet/シリアルポート/RDP/VNC/Spice クライアントとして動作
 - Windows 7 以降(X64/ARM64)、HarmonyOS、Android、iOS、Mac OS 10.15 以降(x64/arm64)、Linux(x64/arm64/Loong64 new world & old world)に対応。UOS/Kylin/Ubuntu 18.04 などの glibc 2.17 以降の古い Linux でも動作
 - グローバルホットキーによるウィンドウ表示の切り替え(guake と同様、デフォルトは `ctrl + 2`)
-- マルチプラットフォーム対応(linux, mac, win)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 🇮🇩 🇵🇱 多言語対応([electerm-locales](https://github.com/electerm/electerm-locales)、貢献・修正を歓迎します)
 - ダブルクリックでリモートの(小さな)ファイルを直接編集
-- 公開鍵 + パスワードによる認証
-- Zmodem(rz, sz)に対応
-- ssh トンネルに対応
-- [Trzsz](https://github.com/trzsz/trzsz)(trz/tsz)に対応。rz/sz と同様の機能で、tmux とも互換性があります
-- 透過ウィンドウ(Mac, win)
-- ターミナルの背景画像
+- あらゆる認証方式に対応: 公開鍵、パスワード、ssh agent、証明書、otp、netbird など
+- Zmodem(rz, sz)、および [Trzsz](https://github.com/trzsz/trzsz)(trz/tsz)に対応
+- ssh 関連機能に対応: トンネル、接続ホッピング
+- カスタマイズ可能な UI: テーマ、背景画像、透過ウィンドウ(Mac, win)
 - グローバル/セッションごとのプロキシ
-- クイックコマンド
-- UI/ターミナルのテーマ
-- ブックマーク/テーマ/クイックコマンドを github/gitee の secret gist、webdav、カスタムサーバー、electerm cloud に同期
-- 1 つまたはすべてのターミナルへのクイック入力
+- クイックコマンド/トリガーで定義済みタスクや自動操作を実行
+- ブックマークを含むデータを github/gitee の secret gist、webdav、カスタムサーバー、electerm cloud に同期
+- 1 つまたはすべてのターミナルへのクイック入力/ミラー入力
 - AI アシスタント連携(openAI互換APIに対応)により、コマンドの提案、スクリプトの作成、選択したターミナル内容の説明、ブックマーク/テーマの作成、およびagentモードによるターミナル操作の直接実行をサポート
 - AI アシスタントや外部ツールと連携するための MCP(Model Context Protocol)ウィジェット — [MCP ウィジェット利用ガイド](https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide)を参照
 - ディープリンク対応: `telnet://192.168.2.31:34554` や `ssh://user@host:22` のような URL から接続を開けます — [ディープリンク対応の wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)を参照

@@ -84,23 +84,19 @@
 
 ## 功能特性
 
-- 支持ssh,telnet,serialport,RDP,VNC,Spice,本地和远程文件管理，sftp/ftp文件传输，以及作为本地终端使用
-- 支持Window 7+(X64/ARM64), 鸿蒙, 安卓, iOS, Mac OS 10.15+(x64/arm64), Linux(x64/arm64/Loong64), 以及Linux with glibc 2.17+ like UOS/Kylin/Ubuntu 18.04 etc
-- 全局快捷键切换隐藏显示窗口(类似guake, 默认快捷键`ctrl + 2`)
-- 多平台支持(linux, mac, win)
+- 可作为终端/文件管理器，以及 ssh/sftp/ftp/telnet/serialport/RDP/VNC/Spice 客户端
+- 支持 Window 7+(X64/ARM64), 鸿蒙, 安卓, iOS, Mac OS 10.15+(x64/arm64), Linux(x64/arm64/Loong64 新世界 & 旧世界), 甚至 glibc 2.17+ 的老旧 Linux 如 UOS/Kylin/Ubuntu 18.04 等
+- 全局快捷键切换窗口显隐(类似 guake, 默认快捷键 `ctrl + 2`)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 🇮🇩 🇵🇱 多国语言支持([electerm-locales](https://github.com/electerm/electerm-locales), 欢迎提交代码)
-- 双击直接编辑远程文件.
-- 支持密码或者密匙登录.
-- 支持Zmodem(rz, sz).
-- 支持ssh隧道
-- 支持[Trzsz](https://github.com/trzsz/trzsz)(trz/tsz), 类似rz/sz, 兼容tmux.
-- 支持透明窗口(Mac, win).
-- 支持设置终端背景图片.
-- 支持代理服务器.
-- 支持预设快捷命令
-- 支持主题
-- 支持同步书签等数据到github/gitee私人gist, webdav/custom server/electerm cloud
-- 支持快速输入命令到一个或者多个终端
+- 双击直接编辑(小)远程文件.
+- 全类型认证方式: publicKey, password, ssh agent, 证书, otp, netbird 等.
+- 支持 Zmodem(rz, sz), 以及 [Trzsz](https://github.com/trzsz/trzsz)(trz/tsz).
+- 支持 ssh 相关特性: 隧道, 连接跳转.
+- 可定制 UI: 主题, 背景图片, 透明窗口(Mac, win).
+- 全局/会话级代理.
+- 快捷命令/触发器执行预设任务与自动化操作
+- 同步数据(含书签)到 github/gitee 私人 gist, webdav/custom server/electerm cloud
+- 支持快速输入/镜像输入到一个或多个终端
 - AI助手集成（支持openAI兼容API），协助命令建议、脚本编写、以及解释所选终端内容, 创建书签/主题，以及agent模式直接进行终端操作
 - MCP (Model Context Protocol) 组件，用于AI助手和外部工具集成 - 详见 [MCP Widget Usage Guide](https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide)
 - 支持命令行使用: 请参阅[wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
