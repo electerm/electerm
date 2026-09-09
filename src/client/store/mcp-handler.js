@@ -35,6 +35,36 @@ const dangerousTabProps = [
   'interactiveValues'
 ]
 
+// Tab/session UI state keys that must never be set by MCP/AI callers.
+// A crafted `batch` (missing, string, or out-of-range) used to crash the
+// Sessions render (`sizes[batch]` undefined -> cannot destructure height).
+// `addTab` now clamps batch too, but strip here as first line of defense.
+const tabInternalProps = [
+  'batch',
+  'id',
+  'status',
+  'pane',
+  'tabCount',
+  'from',
+  'srcId',
+  'sftpCreated',
+  'isTransporting',
+  'mcpStatus',
+  'activeTabId',
+  'sshSftpSplitView',
+  'sshTunnelResults',
+  'displayRaw',
+  'autoReConnect',
+  '_reloadState',
+  'isPinned'
+]
+
+function stripTabInternalProps (obj) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key]) => !tabInternalProps.includes(key))
+  )
+}
+
 // Strip dangerous props from an object, returning a safe copy.
 function stripDangerousTabProps (obj) {
   return Object.fromEntries(
@@ -85,12 +115,21 @@ function setTabMcpStatusAuto (tabId, status, clearDelay = 6000) {
 export default Store => {
   // Initialize MCP handler - called when MCP widget is started
   Store.prototype.initMcpHandler = function () {
+    if (window._mcpHandlerInitialized) {
+      return
+    }
+    window._mcpHandlerInitialized = true
     const { ipcOnEvent } = window.pre
     // Listen for MCP requests from main process
     ipcOnEvent('mcp-request', (event, request) => {
-      const { requestId, action, data } = request
-      if (action === 'tool-call') {
-        window.store.handleMcpToolCall(requestId, data.toolName, data.args)
+      try {
+        const { requestId, action, data } = request || {}
+        if (action === 'tool-call') {
+          window.store.handleMcpToolCall(requestId, data && data.toolName, data && data.args)
+        }
+      } catch (err) {
+        // Never let a malformed IPC payload break the UI thread
+        console.error('mcp-request dispatch error', err)
       }
     })
   }
@@ -98,6 +137,7 @@ export default Store => {
   // Handle individual tool calls
   Store.prototype.handleMcpToolCall = async function (requestId, toolName, args) {
     const { store } = window
+    args = args || {}
 
     try {
       let result
@@ -306,9 +346,10 @@ export default Store => {
 
   Store.prototype.mcpAddBookmark = async function (args) {
     const { store } = window
+    const safeArgs = stripTabInternalProps(stripDangerousTabProps({ ...(args || {}) }))
     const bookmark = fixBookmarkData({
-      id: uid(),
-      ...args
+      ...safeArgs,
+      id: uid()
     })
 
     const { valid, errors } = validateBookmarkData(bookmark)
@@ -327,14 +368,16 @@ export default Store => {
 
   Store.prototype.mcpEditBookmark = function (args) {
     const { store } = window
-    const { id, updates } = args
+    const { id, updates } = args || {}
 
     const bookmark = store.bookmarks.find(b => b.id === id)
     if (!bookmark) {
       throw new Error(`Bookmark not found: ${id}`)
     }
 
-    store.editItem(id, updates, settingMap.bookmarks)
+    const safeUpdates = stripTabInternalProps(stripDangerousTabProps({ ...(updates || {}) }))
+    delete safeUpdates.id
+    store.editItem(id, safeUpdates, settingMap.bookmarks)
 
     return {
       success: true,
@@ -375,12 +418,23 @@ export default Store => {
 
   Store.prototype.mcpAddBookmarkGroup = async function (args) {
     const { store } = window
+    const title = (args || {}).title
+    if (!title || typeof title !== 'string') {
+      throw new Error('title is required')
+    }
+    const parentId = (args || {}).parentId
+    if (parentId) {
+      const parent = (store.bookmarkGroups || []).find(g => g.id === parentId)
+      if (!parent) {
+        throw new Error(`Parent bookmark group not found: ${parentId}`)
+      }
+    }
     const group = {
       id: uid(),
-      title: args.title,
+      title,
       bookmarkIds: [],
       bookmarkGroupIds: [],
-      level: args.parentId ? 2 : 1
+      level: parentId ? 2 : 1
     }
 
     await store.addBookmarkGroup(group)
@@ -570,7 +624,10 @@ export default Store => {
     // Strip dangerous execution-related props before any processing.
     // This prevents MCP/AI callers from injecting execLinux/execLinuxArgs,
     // setEnv, runScripts, etc. to spawn arbitrary local processes.
-    const safeArgs = stripDangerousTabProps({ ...args })
+    // Also strip tab UI-state props (notably `batch`): a crafted batch
+    // used to crash Sessions via `sizes[batch]` undefined destructuring.
+    // Batch is always assigned by addTab from the current layout.
+    const safeArgs = stripTabInternalProps(stripDangerousTabProps({ ...(args || {}) }))
     const data = fixBookmarkData(safeArgs)
 
     const { valid, errors } = validateBookmarkData(data)
@@ -583,6 +640,7 @@ export default Store => {
       from: 'mcp',
       ...newTerm(true, true)
     }
+    delete tab.batch
 
     store.addTab(tab)
     const newTabId = store.activeTabId
@@ -968,8 +1026,13 @@ export default Store => {
           }
           mode = 'exec'
         } catch (e) {
-          // Exec channel unavailable (e.g. connection dropped) — fall back to PTY
-          if (!/not supported/i.test(e.message || '')) {
+          // Only session types that genuinely lack an exec channel
+          // (local/telnet/serial/...) fall back to PTY sentinel capture.
+          // An SSH tab always has exec support, so any exec failure there
+          // means the connection is dead — surface it immediately as
+          // [error] instead of polling a dead terminal for the full
+          // timeout and misreporting timedOut.
+          if (isSsh || !/not supported/i.test(e.message || '')) {
             throw e
           }
         }

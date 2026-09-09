@@ -123,6 +123,34 @@ describe('execCommand – session layer', () => {
     assert.equal(r.timedOut, false)
     assert.equal(r.stdout, 'done')
   })
+
+  test('rejects when the exec callback never fires (dead connection watchdog)', async () => {
+    const client = { exec (cmd, opts, cb) { /* never calls back — wedged channel-open */ } }
+    await assert.rejects(
+      () => makeSession(client).execCommand('ls', { openTimeoutMs: 50 }),
+      /did not open/
+    )
+  })
+
+  test('late callback after the open watchdog is ignored', async () => {
+    let lateCb = null
+    const client = {
+      exec (cmd, opts, cb) {
+        lateCb = cb
+      }
+    }
+    const session = makeSession(client)
+    await assert.rejects(
+      () => session.execCommand('ls', { openTimeoutMs: 30 }),
+      /did not open/
+    )
+    // Late callback must not throw or change the settled rejection
+    const stream = new EventEmitter()
+    stream.stderr = new EventEmitter()
+    lateCb(null, stream)
+    stream.emit('data', Buffer.from('too late'))
+    stream.emit('close')
+  })
 })
 
 // ─────────────────────────────────────────────────────────────────────────────

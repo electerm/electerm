@@ -381,7 +381,19 @@ export default Store => {
     const { store } = window
     const { tabs } = store
     newTab.tabCount = store.nextTabCount()
-    newTab.batch = batch ?? newTab.batch ?? window.openTabBatch ?? window.store.currentLayoutBatch
+    // Sanitize batch: MCP/AI callers may pass a missing, string, or
+    // out-of-range batch which would crash Sessions (sizes[batch]
+    // undefined). Clamp to a valid pane index for the current layout.
+    let batchNum = batch ?? newTab.batch ?? window.openTabBatch ?? window.store.currentLayoutBatch
+    batchNum = Number(batchNum)
+    const maxBatch = (splitConfig[store.layout] && splitConfig[store.layout].children) || 1
+    if (!Number.isInteger(batchNum) || batchNum < 0 || batchNum >= maxBatch) {
+      batchNum = Number(window.store.currentLayoutBatch) || 0
+      if (!Number.isInteger(batchNum) || batchNum < 0 || batchNum >= maxBatch) {
+        batchNum = 0
+      }
+    }
+    newTab.batch = batchNum
     if (!newTab.id) {
       newTab.id = generate()
     }
@@ -396,7 +408,6 @@ export default Store => {
     } else {
       tabs.push(newTab)
     }
-    const batchNum = newTab.batch
     store[`activeTabId${batchNum}`] = newTab.id
     store.activeTabId = newTab.id
     store.currentLayoutBatch = batchNum

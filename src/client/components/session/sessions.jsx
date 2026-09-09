@@ -35,7 +35,7 @@ export default class Sessions extends Component {
   }
 
   computeSessionStyle = (batch) => {
-    const style = this.props.styles[batch]
+    const style = this.props.styles[batch] || this.props.styles[0] || {}
     return pixed(style)
   }
 
@@ -46,9 +46,12 @@ export default class Sessions extends Component {
       activeTabId,
       sizes
     } = this.props
+    const fallbackSize = sizes[0] || { height: 0, width: 0 }
     return tabs.map((tab) => {
       const { id, batch } = tab
-      const { height, width } = sizes[batch]
+      // MCP/AI-created tabs may carry an out-of-range or missing batch.
+      // Never crash the whole UI on bad data — fall back to batch 0 size.
+      const { height, width } = sizes[batch] || fallbackSize
       const currentBatchTabId = this.props['activeTabId' + batch]
       const cls = classNames(
         `session-wrap session-${id}`,

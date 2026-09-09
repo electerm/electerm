@@ -102,7 +102,14 @@ export default auto(function Layout (props) {
     const { tabs } = store
     const tabsBatch = {}
     for (const tab of tabs) {
-      const { batch } = tab
+      let { batch } = tab
+      // Guard against tabs with missing/invalid batch (e.g. created by
+      // MCP/AI operations before sanitization). Route them to pane 0
+      // instead of crashing or disappearing.
+      batch = Number(batch)
+      if (!Number.isInteger(batch) || batch < 0 || batch >= sizes.length) {
+        batch = 0
+      }
       if (!tabsBatch[batch]) {
         tabsBatch[batch] = []
       }

@@ -67,16 +67,46 @@ async function runSessionServer (type, port) {
   })
 }
 
-async function sendMsgToChildProcess (pid, msg) {
+async function sendMsgToChildProcess (pid, msg, timeoutMs = 0) {
   const child = typeof pid === 'object' ? pid : activeTerminals.get(pid)?.child
   if (!child) {
     throw new Error(`Terminal with PID ${pid} not found`)
   }
 
   return new Promise((resolve, reject) => {
+    let timer = null
+    let settled = false
+    const entry = { id: msg.id, settle: null }
+    const cleanup = () => {
+      child.removeListener('message', responseHandler)
+      if (timer) {
+        clearTimeout(timer)
+        timer = null
+      }
+      const pending = pendingChildRequests.get(child)
+      if (pending) {
+        pending.delete(entry)
+        if (!pending.size) {
+          pendingChildRequests.delete(child)
+        }
+      }
+    }
+    const doReject = (err) => {
+      if (settled) {
+        return
+      }
+      settled = true
+      cleanup()
+      reject(err)
+    }
+    entry.settle = doReject
     const responseHandler = (response) => {
-      if (response.id === msg.id) {
-        child.removeListener('message', responseHandler)
+      if (response && response.id === msg.id) {
+        if (settled) {
+          return
+        }
+        settled = true
+        cleanup()
         if (response.error) {
           reject(response.error)
         } else {
@@ -85,12 +115,58 @@ async function sendMsgToChildProcess (pid, msg) {
       }
     }
 
+    // Track pending requests per child so a child exit settles them
+    // instead of leaving callers hanging forever (see onChildExit).
+    let pending = pendingChildRequests.get(child)
+    if (!pending) {
+      pending = new Set()
+      pendingChildRequests.set(child, pending)
+    }
+    pending.add(entry)
+
+    if (timeoutMs > 0) {
+      timer = setTimeout(() => {
+        doReject(new Error(`Session request "${msg.action}" timed out after ${timeoutMs}ms (session may be dead)`))
+      }, timeoutMs)
+      if (timer.unref) {
+        timer.unref()
+      }
+    }
+
     child.on('message', responseHandler)
-    child.send({
-      type: 'common',
-      data: msg
-    })
+    try {
+      child.send({
+        type: 'common',
+        data: msg
+      })
+    } catch (err) {
+      doReject(err)
+    }
   })
+}
+
+// Pending sendMsgToChildProcess entries, keyed by child process.
+// A child can die (crash on connection loss, cleanup on disconnect)
+// while requests are in flight — reject them instead of hanging.
+const pendingChildRequests = new Map()
+
+function onChildExit (child) {
+  // Settle in-flight requests first: removing listeners without settling
+  // used to leave callers (exec-cmd, run-cmd) hanging forever.
+  const pending = pendingChildRequests.get(child)
+  if (pending) {
+    pendingChildRequests.delete(child)
+    for (const entry of pending) {
+      try {
+        entry.settle(new Error('Session process exited before responding'))
+      } catch (_) {
+        // ignore settle errors during teardown
+      }
+    }
+  }
+  // Remove all pending message listeners to prevent memory leaks
+  // if the child exits before responding to sendMsgToChildProcess calls
+  child.removeAllListeners('message')
 }
 
 exports.terminal = async function (initOptions, ws, uid) {
@@ -119,9 +195,7 @@ exports.terminal = async function (initOptions, ws, uid) {
     })
   }
   child.on('exit', () => {
-    // Remove all pending message listeners to prevent memory leaks
-    // if the child exits before responding to sendMsgToChildProcess calls
-    child.removeAllListeners('message')
+    onChildExit(child)
     activeTerminals.delete(pid)
   })
   if (type !== 'ftp') {
@@ -188,7 +262,7 @@ exports.testConnection = async function (initOptions, ws, uid) {
     id: uid,
     action: 'test-terminal',
     body: initOptions
-  })
+  }, 60000)
 
   child.kill()
   return res
@@ -214,11 +288,14 @@ exports.terminals = function (pid) {
       })
     },
     execCommand: async (cmd, timeoutMs, id) => {
+      // Parent-side backstop: the child bounds the command itself with
+      // timeoutMs, so allow it plus a margin for IPC round-trips.
+      const parentTimeout = (Number(timeoutMs) > 0 ? Number(timeoutMs) : 120000) + 30000
       return sendMsgToChildProcess(pid, {
         id,
         action: 'exec-cmd',
         body: { cmd, pid, timeoutMs }
-      })
+      }, parentTimeout)
     },
     resize: (cols, rows, id) => {
       sendMsgToChildProcess(pid, {

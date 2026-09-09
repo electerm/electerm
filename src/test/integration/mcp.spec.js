@@ -37,14 +37,20 @@ const uid = Date.now()
 // HTTP helpers (proxy:false — never route localhost through env proxies)
 // ─────────────────────────────────────────────────────────────────────────────
 
-async function makeHttpRequest (method, urlStr, data = null, headers = {}) {
+async function makeHttpRequest (method, urlStr, data = null, headers = {}, { timeoutMs = 20000 } = {}) {
   try {
     const response = await axios({
       method: method.toUpperCase(),
       url: urlStr,
       data,
       headers,
-      proxy: false
+      proxy: false,
+      // Safety net: no single HTTP call may hang the suite forever.
+      // Well under the smallest per-test timeout (30s) for quick protocol
+      // calls, and long enough for the slowest legit tool call
+      // (wait_for_terminal_idle up to ~40s IPC, execute up to ~135s IPC —
+      // those go through callTool which sets its own longer timeout).
+      timeout: timeoutMs
     })
     return {
       status: response.status,
@@ -141,7 +147,7 @@ async function initSession ({ protocolVersion = '2025-11-25', withTasksCap = fal
 
 let requestId = 1000
 
-async function callTool (sid, toolName, args, { withTasksCap = false } = {}) {
+async function callTool (sid, toolName, args, { withTasksCap = false, timeoutMs = 150000 } = {}) {
   const params = { name: toolName, arguments: args }
   if (withTasksCap) {
     params._meta = {
@@ -160,7 +166,7 @@ async function callTool (sid, toolName, args, { withTasksCap = false } = {}) {
     'Content-Type': 'application/json',
     Accept: 'application/json, text/event-stream',
     'mcp-session-id': sid
-  })
+  }, { timeoutMs })
   assert.equal(res.status, 200)
   const jsonData = parseResponseBody(res.data)
   assert.ok(jsonData, `No response data for ${toolName}`)
