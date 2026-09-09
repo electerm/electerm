@@ -59,8 +59,14 @@ async function migrate () {
     checkDbUpgrade,
     doUpgrade
   } = require('./index')
-  if (await checkDbUpgrade()) {
-    await doUpgrade()
+  try {
+    if (await checkDbUpgrade()) {
+      await doUpgrade()
+    }
+  } catch (e) {
+    // Pre-migration upgrades are best-effort: never let them block
+    // the NeDB -> SQLite migration and app startup
+    log.error('Pre-migration db upgrade fails, continue migrating anyway', e)
   }
 
   // Migrate data from each table
