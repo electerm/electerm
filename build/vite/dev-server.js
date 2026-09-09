@@ -18,7 +18,7 @@ const defaultAIPreset = {
   modelAI: 'free',
   authHeaderNameAI: 'Authorization: Bearer',
   id: 'ai.electerm.org',
-  nameAI: 'ai.electerm.org(default free)',
+  nameAI: 'ai.electerm.org',
   siteUrl: 'https://ai.electerm.org?utm=electerm'
 }
 
