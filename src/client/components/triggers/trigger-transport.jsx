@@ -36,7 +36,7 @@ export default class TriggerTransport extends BookmarkTransport {
         stopWatchers: [this.name],
         steps: [
           {
-            label: e('trigger'),
+            label: e('triggers'),
             items: fresh,
             process: (chunk) => {
               state.push(...chunk)

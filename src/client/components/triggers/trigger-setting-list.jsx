@@ -25,7 +25,7 @@ export default class TriggerSettingList extends List {
     e.stopPropagation()
     const copy = deepCopy(item)
     copy.id = uid()
-    copy.name = (item.name || e('unnamed')) + ' (copy)'
+    copy.name = (item.name || 'Unnamed') + ' (copy)'
     window.store.addTrigger(copy)
   }
 
@@ -54,7 +54,7 @@ export default class TriggerSettingList extends List {
         active: activeItemId === id
       }
     )
-    let title = name || e('unnamed')
+    let title = name || 'Unnamed'
     title = highlight(
       title,
       this.state.keyword

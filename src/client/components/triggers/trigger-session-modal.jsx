@@ -10,8 +10,9 @@ import { auto } from 'manate/react'
 import { Modal, Tabs, Alert, Switch, Button, Empty, Tag } from 'antd'
 import { SettingOutlined } from '@ant-design/icons'
 import TriggerEditor, { matchSummary, actionSummary } from './trigger-editor.jsx'
-import { te as e } from './trigger-lang.js'
 import message from '../common/message'
+
+const e = window.translate
 
 function renderItemWrap (children) {
   return (
@@ -71,7 +72,7 @@ export default auto(function TriggerSessionModal (props) {
             onChange={v => store.editTrigger(t.id, { enabled: v })}
           />
           <b className='elli' style={{ flex: 1 }} title={t.name}>
-            {t.name || e('unnamed')}
+            {t.name || 'Unnamed'}
           </b>
           <Tag>{t.mode || 'cooldown'}</Tag>
         </div>
@@ -94,13 +95,13 @@ export default auto(function TriggerSessionModal (props) {
             onChange={v => store.togglePredefinedTrigger(tabId, t.id, v)}
           />
           <b className='elli' style={{ flex: 1 }} title={t.name}>
-            {t.name || e('unnamed')}
+            {t.name || 'Unnamed'}
           </b>
           {
             overridden && overrides[t.id] !== globalOn
               ? (
                 <span className='small muted'>
-                  {globalOn ? e('triggerGlobalOn') : e('triggerGlobalOff')}
+                  {globalOn ? 'global: on' : 'global: off'}
                 </span>
                 )
               : null
@@ -119,11 +120,11 @@ export default auto(function TriggerSessionModal (props) {
           type='info'
           showIcon
           className='mg1b'
-          message={e('triggerGlobalHint')}
+          message='All predefined triggers. Switches change the global on/off default.'
         />
         {
           !predefined.length
-            ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={e('triggerEmpty')} />
+            ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='No triggers yet — add one in Manage' />
             : predefined.map(renderGlobalRow)
         }
         <div className='pd1t' style={{ textAlign: 'right' }}>
@@ -132,7 +133,7 @@ export default auto(function TriggerSessionModal (props) {
             icon={<SettingOutlined />}
             onClick={openManage}
           >
-            {e('triggerManage')}
+            e('edit')
           </Button>
         </div>
       </div>
@@ -147,8 +148,8 @@ export default auto(function TriggerSessionModal (props) {
             ? null
             : (
               <div className='mg1b'>
-                <b>{e('triggerPredefined')}</b>
-                <span className='small muted mg1l'>{e('triggerPredefinedHint')}</span>
+                <b>Predefined</b>
+                <span className='small muted mg1l'>Switches apply to this session only.</span>
                 <div className='pd1t'>
                   {predefined.map(renderSessionRow)}
                 </div>
@@ -156,8 +157,8 @@ export default auto(function TriggerSessionModal (props) {
               )
         }
         <div className='mg1b'>
-          <b>{e('triggerSession')}</b>
-          <span className='small muted mg1l'>{e('triggerSessionHint')}</span>
+          <b>This session</b>
+          <span className='small muted mg1l'>Temporary rules are not saved to the triggers database.</span>
         </div>
         <TriggerEditor
           value={sessionTriggers}
@@ -174,12 +175,12 @@ export default auto(function TriggerSessionModal (props) {
   const items = [
     {
       key: 'predefined',
-      label: `${e('triggerGlobal')} (${predefined.length})`,
+      label: `${e('global')} (${predefined.length})`,
       children: renderGlobalList()
     },
     {
       key: 'session',
-      label: `${e('triggerSession')} (${activeCount})`,
+      label: `This session (${activeCount})`,
       children: renderSessionList()
     }
   ]
@@ -187,7 +188,7 @@ export default auto(function TriggerSessionModal (props) {
   return (
     <Modal
       open={open}
-      title={e('trigger')}
+      title={e('triggers')}
       onCancel={handleClose}
       footer={null}
       width={680}

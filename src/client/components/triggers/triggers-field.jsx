@@ -4,13 +4,14 @@
  */
 import { Form } from 'antd'
 import TriggerEditor from './trigger-editor.jsx'
-import { te as e } from './trigger-lang.js'
+
+const e = window.translate
 
 export default function TriggersField () {
   return (
     <Form.Item
       name='triggers'
-      label={e('trigger')}
+      label={e('triggers')}
     >
       <TriggerEditor />
     </Form.Item>

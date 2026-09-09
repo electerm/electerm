@@ -12,10 +12,11 @@ import encodes from '../bookmark-form/common/encodes'
 import { refs } from '../common/ref'
 import Qm from '../quick-commands/quick-commands-select'
 import TriggerSessionModal from '../triggers/trigger-session-modal'
-import { te as e } from '../triggers/trigger-lang.js'
 import AIIcon from '../icons/ai-icon'
 import { isAIDisabled } from '../../common/ai-feature'
 import CmdHistory from './cmd-history'
+
+const e = window.translate
 
 const {
   Option
@@ -97,7 +98,7 @@ export default auto(function FooterEntry (props) {
           <FunctionOutlined
             onClick={() => store.toggleTriggerSessionModal(true)}
             className='pointer font14 terminal-trigger-icon'
-            title={e('trigger')}
+            title={e('triggers')}
           />
         </Badge>
         <TriggerSessionModal store={store} />

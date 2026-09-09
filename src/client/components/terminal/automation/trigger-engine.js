@@ -53,40 +53,66 @@ export function validateTriggers (list) {
 }
 
 export default class TriggerEngine {
-  constructor ({ send, maxBuffer = 65536, onFire = null } = {}) {
+  constructor ({ send, maxBuffer = 65536, onFire = null, now = Date.now } = {}) {
     this.send = send
     this.maxBuffer = maxBuffer
     this.onFire = onFire
+    this.now = now
     this.buf = ''
+    this.base = 0
     this.rules = []
     this.reCache = new Map()
-    this.lastFire = new Map()
-    this.firedOnce = new Set()
+    this.ruleState = new Map()
   }
 
   setTriggers (rules) {
-    this.rules = Array.isArray(rules) ? rules.filter(Boolean) : []
+    const nextRules = Array.isArray(rules) ? rules.filter(Boolean) : []
+    const streamEnd = this.base + this.buf.length
+    const nextState = new Map()
+    nextRules.forEach((rule, index) => {
+      const key = this._getRuleKey(rule, index)
+      const signature = this._getRuleSignature(rule)
+      const previous = this.ruleState.get(key)
+      nextState.set(key, previous?.signature === signature
+        ? previous
+        : {
+            signature,
+            startAt: streamEnd,
+            seenEnd: streamEnd,
+            consumedEnd: streamEnd,
+            lastFire: 0,
+            firedOnce: false
+          })
+    })
+    this.rules = nextRules
+    this.ruleState = nextState
     this.reCache.clear()
-    // drop per-rule runtime state for rules that no longer exist
-    const ids = new Set(this.rules.map(r => r.id))
-    for (const id of [...this.lastFire.keys()]) {
-      if (!ids.has(id)) {
-        this.lastFire.delete(id)
-      }
-    }
-    for (const id of [...this.firedOnce]) {
-      if (!ids.has(id)) {
-        this.firedOnce.delete(id)
+  }
+
+  resetOnce (id = null) {
+    for (const [key, state] of this.ruleState) {
+      if (id == null || key === id) {
+        state.firedOnce = false
       }
     }
   }
 
-  resetOnce (id = null) {
-    if (id) {
-      this.firedOnce.delete(id)
-    } else {
-      this.firedOnce.clear()
-    }
+  _getRuleKey (rule, index) {
+    return rule.id || `#${index}`
+  }
+
+  _getRuleSignature (rule) {
+    return JSON.stringify([
+      rule.enabled,
+      rule.match?.type,
+      rule.match?.value,
+      rule.match?.caseSensitive,
+      rule.action?.type,
+      rule.action?.value,
+      rule.sendEnter,
+      rule.mode,
+      rule.cooldownMs
+    ])
   }
 
   _getRe (rule) {
@@ -107,60 +133,79 @@ export default class TriggerEngine {
     }
     this.buf += str
     if (this.buf.length > this.maxBuffer) {
-      this.buf = this.buf.slice(this.buf.length - this.maxBuffer)
+      const over = this.buf.length - this.maxBuffer
+      this.buf = this.buf.slice(over)
+      this.base += over
     }
     this._scan()
   }
 
   _scan () {
-    const now = Date.now()
-    for (const rule of this.rules) {
+    const now = this.now()
+    const streamEnd = this.base + this.buf.length
+    this.rules.forEach((rule, index) => {
       if (!rule || rule.enabled === false) {
-        continue
+        return
+      }
+      const state = this.ruleState.get(this._getRuleKey(rule, index))
+      if (!state) {
+        return
       }
       const mode = rule.mode || 'cooldown'
-      if (mode === 'once' && this.firedOnce.has(rule.id)) {
-        continue
-      }
-      if (mode === 'cooldown') {
-        const cd = rule.cooldownMs == null ? 500 : rule.cooldownMs
-        const last = this.lastFire.get(rule.id) || 0
-        if (now - last < cd) {
-          continue
-        }
+      if (mode === 'once' && state.firedOnce) {
+        state.seenEnd = streamEnd
+        return
       }
       const re = this._getRe(rule)
       if (!re) {
-        continue
+        state.seenEnd = streamEnd
+        return
       }
-      // global flag + lastIndex walk so one chunk can fire several
-      // distinct matches; per-rule cooldown still applies per match
       const gre = new RegExp(re.source, re.flags.includes('i') ? 'gi' : 'g')
+      const previousEnd = state.seenEnd
+      // Literal matches only need enough overlap to bridge the latest chunk.
+      // Regexes can have arbitrary width, so scan the retained window and use
+      // absolute stream positions below to ignore matches already observed.
+      if (rule.match?.type !== 'regex') {
+        const overlap = Math.max(0, (rule.match?.value || '').length - 1)
+        gre.lastIndex = Math.max(0, previousEnd - this.base - overlap)
+      }
       let m
       while ((m = gre.exec(this.buf)) !== null) {
-        if (mode === 'cooldown') {
-          const last = this.lastFire.get(rule.id) || 0
-          if (Date.now() - last < (rule.cooldownMs == null ? 500 : rule.cooldownMs)) {
-            break
+        const matchStart = this.base + m.index
+        const matchEnd = matchStart + m[0].length
+        const isNew = matchEnd > previousEnd &&
+          matchStart >= state.startAt &&
+          matchStart >= state.consumedEnd
+        const cooldown = rule.cooldownMs == null ? 500 : rule.cooldownMs
+        const canFire = mode !== 'cooldown' || now - state.lastFire >= cooldown
+        if (isNew) {
+          // Consume the occurrence even when cooldown suppresses its action.
+          // This prevents a greedy regex rooted in old output from growing
+          // into later chunks and being mistaken for a fresh match.
+          state.consumedEnd = Math.max(state.consumedEnd, matchEnd)
+          if (canFire) {
+            this._fire(rule, m[0], state, now)
+            if (mode === 'once') {
+              break
+            }
           }
         }
-        this._fire(rule, m[0])
-        if (mode === 'once' || mode === 'cooldown') {
-          break
-        }
-        // repeat: avoid zero-length infinite loop
         if (m[0].length === 0) {
+          gre.lastIndex++
+        }
+        if (gre.lastIndex > this.buf.length) {
           break
         }
       }
-    }
+      state.seenEnd = streamEnd
+    })
   }
 
-  _fire (rule, matched) {
-    const now = Date.now()
-    this.lastFire.set(rule.id, now)
+  _fire (rule, matched, state, now) {
+    state.lastFire = now
     if ((rule.mode || 'cooldown') === 'once') {
-      this.firedOnce.add(rule.id)
+      state.firedOnce = true
     }
     try {
       const action = rule.action || { type: 'send', value: '' }
@@ -169,7 +214,7 @@ export default class TriggerEngine {
         // default: append \r unless text already ends with \r or \n,
         // unless the user explicitly turned sendEnter off
         const enter = rule.sendEnter !== false
-        const payload = enter && text && !/[\r\n]$/.test(text) ? text + '\r' : text
+        const payload = enter && !/[\r\n]$/.test(text) ? text + '\r' : text
         this.send?.(payload, { rule, matched })
       }
       this.onFire?.({ rule, matched, kind: action.type || 'send' })
@@ -180,9 +225,9 @@ export default class TriggerEngine {
 
   dispose () {
     this.buf = ''
+    this.base = 0
     this.rules = []
     this.reCache.clear()
-    this.lastFire.clear()
-    this.firedOnce.clear()
+    this.ruleState.clear()
   }
 }

@@ -34,7 +34,8 @@ import {
 } from '../terminal/automation/trigger-presets.js'
 import { validateTriggers } from '../terminal/automation/trigger-engine.js'
 import uid from '../../common/uid'
-import { te as e } from './trigger-lang.js'
+
+const e = window.translate
 
 export function matchSummary (t) {
   const type = t.match?.type === 'regex' ? 're' : 'text'
@@ -162,7 +163,7 @@ export default function TriggerEditor ({ value, onChange }) {
         </Button>
         <Dropdown menu={presetMenu} trigger={['click']}>
           <Button size='small' icon={<ThunderboltOutlined />}>
-            {e('triggerPreset')}
+            {e('presets')}
           </Button>
         </Dropdown>
         <Button
@@ -175,7 +176,7 @@ export default function TriggerEditor ({ value, onChange }) {
       </div>
       {
         !list.length
-          ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={e('triggerEmpty')} />
+          ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='No triggers yet — add one or pick a preset' />
           : list.map(t => (
             <div
               key={t.id}
@@ -189,7 +190,7 @@ export default function TriggerEditor ({ value, onChange }) {
                   onChange={(v) => handleToggle(t.id, v)}
                 />
                 <b className='elli' style={{ flex: 1 }} title={t.name}>
-                  {t.name || e('unnamed')}
+                  {t.name || 'Unnamed'}
                 </b>
                 <Tag>{t.mode || 'cooldown'}</Tag>
                 <Tooltip title={e('edit')}>
@@ -213,7 +214,7 @@ export default function TriggerEditor ({ value, onChange }) {
       }
       <Modal
         open={!!editing}
-        title={(editing?.name ? e('edit') : e('new')) + ' ' + e('trigger')}
+        title={(editing?.name ? e('edit') : e('new')) + ' ' + e('triggers')}
         onCancel={() => setEditing(null)}
         onOk={handleSaveEdit}
         destroyOnHidden
@@ -237,7 +238,7 @@ export default function TriggerEditor ({ value, onChange }) {
           style={{ fontFamily: 'monospace' }}
         />
         <div className='mg1t small muted'>
-          {e('triggerJsonHint')}
+          JSON array of trigger rules. Invalid regex or missing match will be rejected.
         </div>
       </Modal>
     </div>

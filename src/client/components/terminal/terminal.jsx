@@ -29,7 +29,6 @@ import deepCopy from 'json-deep-copy'
 import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
 import AttachAddon from './attach-addon-custom.js'
 import { createTriggerManager } from './automation/index.js'
-import { te } from '../triggers/trigger-lang.js'
 import getProxy from '../../common/get-proxy.js'
 import { ZmodemClient } from './zmodem-client.js'
 import { TrzszClient } from './trzsz-client.js'
@@ -316,7 +315,7 @@ class Term extends Component {
       onFire: ({ rule, matched, kind }) => {
         if (kind === 'notify' && rule) {
           notification.warning({
-            message: te('trigger') + ': ' + (rule.name || rule.match?.value || ''),
+            message: window.translate('triggers') + ': ' + (rule.name || rule.match?.value || ''),
             description: String(matched || '').slice(-240),
             duration: 6
           })

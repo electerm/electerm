@@ -11,8 +11,8 @@ export const triggerMatchTypes = [
 ]
 
 export const triggerModes = [
-  { value: 'cooldown', label: 'Repeat + cooldown' },
-  { value: 'repeat', label: 'Repeat every match' },
+  { value: 'cooldown', label: 'Every new match + cooldown' },
+  { value: 'repeat', label: 'Every new match' },
   { value: 'once', label: 'Once per session' }
 ]
 

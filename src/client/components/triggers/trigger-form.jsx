@@ -20,8 +20,9 @@ import {
   triggerModes,
   triggerPresets
 } from '../terminal/automation/trigger-presets.js'
-import { te as e } from './trigger-lang.js'
 import uid from '../../common/uid'
+
+const e = window.translate
 
 // Build a full trigger rule from form values. `editing` is the rule being
 // edited (or a {id:''} placeholder for a new one).
@@ -42,11 +43,16 @@ export function buildTriggerFromFormValues (editing = {}, v) {
     },
     sendEnter: v.sendEnter !== false,
     mode: v.mode,
-    cooldownMs: v.mode === 'cooldown' ? (v.cooldownMs == null ? 500 : v.cooldownMs) : 0
+    // Keep the value while another mode is selected so switching back to
+    // cooldown does not silently replace the user's interval.
+    cooldownMs: v.cooldownMs == null ? 500 : v.cooldownMs
   }
 }
 
 export default function TriggerForm ({ form, initial }) {
+  const actionType = Form.useWatch('actionType', form)
+  const mode = Form.useWatch('mode', form)
+
   useEffect(() => {
     form.resetFields()
     form.setFieldsValue({
@@ -61,8 +67,7 @@ export default function TriggerForm ({ form, initial }) {
       mode: initial.mode || 'cooldown',
       cooldownMs: initial.cooldownMs == null ? 500 : initial.cooldownMs
     })
-    // eslint-disable-next-line
-  }, [initial])
+  }, [form, initial])
 
   const presetMenu = {
     items: triggerPresets.map((p, i) => ({
@@ -93,7 +98,6 @@ export default function TriggerForm ({ form, initial }) {
     <Form
       form={form}
       layout='vertical'
-      preserve={false}
     >
       <div className='pd1b alignright'>
         <Dropdown menu={presetMenu} trigger={['click']}>
@@ -116,7 +120,7 @@ export default function TriggerForm ({ form, initial }) {
       >
         <Switch />
       </Form.Item>
-      <Form.Item label={e('triggerMatch')}>
+      <Form.Item label='Match'>
         <div style={{ display: 'flex', gap: 8 }}>
           <Form.Item name='matchType' noStyle>
             <Radio.Group
@@ -140,12 +144,12 @@ export default function TriggerForm ({ form, initial }) {
       </Form.Item>
       <Form.Item
         name='caseSensitive'
-        label={e('caseSensitive')}
+        label='Case sensitive'
         valuePropName='checked'
       >
         <Switch size='small' />
       </Form.Item>
-      <Form.Item label={e('triggerAction')}>
+      <Form.Item label='Action'>
         <div style={{ display: 'flex', gap: 8 }}>
           <Form.Item name='actionType' noStyle>
             <Select
@@ -153,40 +157,26 @@ export default function TriggerForm ({ form, initial }) {
               options={triggerActionTypes.map(t => ({ label: t.label, value: t.value }))}
             />
           </Form.Item>
-          <Form.Item
-            noStyle
-            shouldUpdate={(prev, cur) => prev.actionType !== cur.actionType}
-          >
-            {({ getFieldValue }) => (
-              <Form.Item name='actionValue' noStyle>
-                <Input
-                  placeholder={getFieldValue('actionType') === 'notify' ? e('notifyOnly') : 'space, y, \\r, \\x03, ^M'}
-                  style={{ flex: 1 }}
-                  disabled={getFieldValue('actionType') === 'notify'}
-                />
-              </Form.Item>
-            )}
+          <Form.Item name='actionValue' noStyle>
+            <Input
+              placeholder={actionType === 'notify' ? 'Notify only (no send)' : 'space, y, \\r, \\x03, ^M'}
+              style={{ flex: 1 }}
+              disabled={actionType === 'notify'}
+            />
           </Form.Item>
         </div>
       </Form.Item>
       <div style={{ display: 'flex', gap: 24 }}>
         <Form.Item
-          noStyle
-          shouldUpdate={(prev, cur) => prev.actionType !== cur.actionType}
+          name='sendEnter'
+          label='Send Enter'
+          valuePropName='checked'
         >
-          {({ getFieldValue }) => (
-            <Form.Item
-              name='sendEnter'
-              label={e('triggerSendEnter')}
-              valuePropName='checked'
-            >
-              <Switch size='small' disabled={getFieldValue('actionType') === 'notify'} />
-            </Form.Item>
-          )}
+          <Switch size='small' disabled={actionType === 'notify'} />
         </Form.Item>
         <Form.Item
           name='mode'
-          label={e('triggerMode')}
+          label={e('mode')}
         >
           <Select
             style={{ width: 190 }}
@@ -194,22 +184,15 @@ export default function TriggerForm ({ form, initial }) {
           />
         </Form.Item>
         <Form.Item
-          noStyle
-          shouldUpdate={(prev, cur) => prev.mode !== cur.mode}
+          name='cooldownMs'
+          label='Cooldown (ms)'
         >
-          {({ getFieldValue }) => (
-            <Form.Item
-              name='cooldownMs'
-              label={e('triggerCooldown')}
-            >
-              <InputNumber
-                min={0}
-                max={600000}
-                step={100}
-                disabled={getFieldValue('mode') !== 'cooldown'}
-              />
-            </Form.Item>
-          )}
+          <InputNumber
+            min={0}
+            max={600000}
+            step={100}
+            disabled={mode !== 'cooldown'}
+          />
         </Form.Item>
       </div>
     </Form>

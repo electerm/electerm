@@ -7,7 +7,6 @@ import { pick } from 'lodash-es'
 import { Tabs, Spin } from 'antd'
 import { lazy, Suspense } from 'react'
 import SettingModal from './setting-wrap'
-import { te as tte } from '../triggers/trigger-lang.js'
 import {
   settingMap,
   modals,
@@ -111,7 +110,7 @@ export default auto(function SettingModalWrap (props) {
       },
       {
         key: settingMap.triggers,
-        label: tte('trigger'),
+        label: <span>{e('triggers')} <sup>Beta</sup></span>,
         children: null
       },
       {

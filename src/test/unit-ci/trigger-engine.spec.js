@@ -34,6 +34,71 @@ describe('trigger-engine', () => {
     assert.equal(sent.length, 1)
   })
 
+  test('never re-fires a previous match when unrelated output arrives', async () => {
+    const { default: TriggerEngine } = await loadEngine()
+    const sent = []
+    const eng = new TriggerEngine({ send: (p) => sent.push(p) })
+    eng.setTriggers([rule({ mode: 'repeat', cooldownMs: 0 })])
+    eng.push('--More--')
+    eng.push('\n')
+    eng.push('unrelated output')
+    assert.equal(sent.length, 1)
+  })
+
+  test('cooldown applies only to new matches and consumes suppressed matches', async () => {
+    const { default: TriggerEngine } = await loadEngine()
+    const sent = []
+    let now = 1000
+    const eng = new TriggerEngine({ send: (p) => sent.push(p), now: () => now })
+    eng.setTriggers([rule({ cooldownMs: 100 })])
+    eng.push('--More--')
+    now = 1050
+    eng.push('--More--')
+    now = 1200
+    eng.push('unrelated output')
+    assert.equal(sent.length, 1)
+    eng.push('--More--')
+    assert.equal(sent.length, 2)
+  })
+
+  test('repeat mode fires once for each new stream match', async () => {
+    const { default: TriggerEngine } = await loadEngine()
+    const sent = []
+    const eng = new TriggerEngine({ send: (p) => sent.push(p) })
+    eng.setTriggers([rule({ mode: 'repeat', cooldownMs: 0 })])
+    eng.push('--More----More--')
+    assert.equal(sent.length, 2)
+    eng.push('x--More--')
+    assert.equal(sent.length, 3)
+  })
+
+  test('a greedy regex rooted in old output is not a new match', async () => {
+    const { default: TriggerEngine } = await loadEngine()
+    const sent = []
+    const eng = new TriggerEngine({ send: (p) => sent.push(p) })
+    eng.setTriggers([rule({
+      mode: 'repeat',
+      match: { type: 'regex', value: 'prompt.*', caseSensitive: false }
+    })])
+    eng.push('prompt: first')
+    eng.push(' and more text')
+    assert.equal(sent.length, 1)
+    eng.push('\nprompt: second')
+    assert.equal(sent.length, 2)
+  })
+
+  test('a newly enabled or edited rule ignores buffered history', async () => {
+    const { default: TriggerEngine } = await loadEngine()
+    const sent = []
+    const eng = new TriggerEngine({ send: (p) => sent.push(p) })
+    eng.push('--More--')
+    eng.setTriggers([rule({ mode: 'repeat' })])
+    eng.push('unrelated')
+    assert.equal(sent.length, 0)
+    eng.push('--More--')
+    assert.equal(sent.length, 1)
+  })
+
   test('matches split across chunks', async () => {
     const { default: TriggerEngine } = await loadEngine()
     const sent = []
@@ -93,6 +158,15 @@ describe('trigger-engine', () => {
     eng.setTriggers([rule({ action: { type: 'send', value: 'yes' }, sendEnter: true })])
     eng.push('--More--')
     assert.equal(sent[0], 'yes\r')
+  })
+
+  test('sendEnter can send a carriage return without text', async () => {
+    const { default: TriggerEngine } = await loadEngine()
+    const sent = []
+    const eng = new TriggerEngine({ send: (p) => sent.push(p) })
+    eng.setTriggers([rule({ action: { type: 'send', value: '' }, sendEnter: true })])
+    eng.push('--More--')
+    assert.equal(sent[0], '\r')
   })
 
   test('validateTriggers rejects bad rules', async () => {

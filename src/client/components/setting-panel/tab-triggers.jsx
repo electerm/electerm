@@ -9,6 +9,7 @@ import { settingMap } from '../../common/constants'
 const e = window.translate
 
 export default function TabTriggers (props) {
+  const [form] = Form.useForm()
   const {
     settingTab,
     store,
@@ -18,8 +19,6 @@ export default function TabTriggers (props) {
   if (settingTab !== settingMap.triggers) {
     return null
   }
-  const [form] = Form.useForm()
-
   const handleSave = async () => {
     try {
       const v = await form.validateFields()
