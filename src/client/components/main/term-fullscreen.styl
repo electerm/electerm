@@ -5,6 +5,7 @@
   .terminal-control
   .qm-wrap-tooltip
   .main-footer
+  .remote-monitor-bar
   .session-v-info
     display none
   // Mobile tabs carry the extra .mobile-tabs class, and mobile.styl uses
@@ -40,11 +41,15 @@
 // visible; the session shrinks to sit on top of the footer. RDP/VNC/Spice
 // fullscreen stays footer-less — inActiveTerminal is false for those tabs, so
 // the fs-with-footer class is absent there.
-// 36px matches footerHeight / the .main-footer height in footer.styl.
+// --footer-stack-height includes the 36px footer and the optional monitor row.
 .fullscreen.fs-with-footer
   .main-footer
     display block
     left 0 !important
+  &.remote-monitor-bar-on
+    .remote-monitor-bar
+      display flex
+      left 0 !important
   .qm-wrap-tooltip
     display block
     left 0 !important
@@ -53,10 +58,10 @@
     display none
   .session-wrap.session-current
     .term-wrap
-      height calc(100% - 36px - var(--shortcut-bar-h, 0px)) !important
+      height calc(100% - var(--footer-stack-height, 36px) - var(--shortcut-bar-h, 0px)) !important
   // pinned quick-command bar (180px, same as quickCommandBoxHeight) sits
   // between terminal and footer — reserve its space too
   &.qm-pinned
     .session-wrap.session-current
       .term-wrap
-        height calc(100% - 36px - 180px - var(--shortcut-bar-h, 0px)) !important
+        height calc(100% - var(--footer-stack-height, 36px) - 180px - var(--shortcut-bar-h, 0px)) !important

@@ -34,6 +34,7 @@ import isColorDark from '../../common/is-color-dark'
 import DeepLinkControl from './deep-link-control'
 import HotkeySetting from './hotkey'
 import SettingLeftSidebarIcons from './setting-left-sidebar-icons'
+import SettingRemoteMonitor from './setting-remote-monitor'
 import './setting.styl'
 
 const { Option } = Select
@@ -428,6 +429,10 @@ export default class SettingCommon extends Component {
       <div className='form-wrap pd1y pd2x'>
         <h2>{e('settings')}</h2>
         <SettingLeftSidebarIcons
+          config={props.config}
+          store={props.store}
+        />
+        <SettingRemoteMonitor
           config={props.config}
           store={props.store}
         />

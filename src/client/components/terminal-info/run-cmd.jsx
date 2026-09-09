@@ -1,263 +1,111 @@
 /**
- * run command in remote terminal
+ * Subscribe the Info panel to the shared per-session remote monitor sampler.
  */
 
-import { runCmd } from '../terminal/terminal-apis'
-import { useEffect } from 'react'
-import wait from '../../common/wait'
-import parseInt10 from '../../common/parse-int10'
-import formatDisks from './format-disks'
+import { useEffect, useMemo } from 'react'
+import {
+  formatBytes,
+  formatDuration
+} from '../remote-monitor/monitor-model'
+import { useRemoteMonitor } from '../remote-monitor/session-monitor'
 
-function formatActivities (str) {
-  if (!str) {
-    return {
-      activities: []
-    }
-  }
-  const r = str.split('\n')
-    .map(a => a.trim())
-    .filter(s => s)
-    .map(st => {
-      const arr = st.split(/ +/)
-      return {
-        pid: arr[0],
-        user: arr[1],
-        cpu: parseFloat(arr[2]),
-        mem: parseInt10(arr[3]),
-        cmd: arr.slice(4).join(' ')
+function requestedGroups (terminalInfos) {
+  const selected = new Set(Array.isArray(terminalInfos) ? terminalInfos : [])
+  const groups = ['sysinfo']
+  if (selected.has('uptime')) groups.push('uptime')
+  if (selected.has('cpu')) groups.push('cpu')
+  if (selected.has('mem') || selected.has('swap')) groups.push('memory')
+  if (selected.has('activities')) groups.push('activities')
+  if (selected.has('network')) groups.push('network')
+  if (selected.has('disks')) groups.push('disks')
+  return groups
+}
+
+function dataOf (snapshot, name) {
+  return snapshot.groups[name]?.data
+}
+
+function toInfoState (snapshot) {
+  const cpu = dataOf(snapshot, 'cpu')
+  const memory = dataOf(snapshot, 'memory')
+  const uptime = dataOf(snapshot, 'uptime')
+  const network = dataOf(snapshot, 'network')
+  const activities = dataOf(snapshot, 'activities')
+  const disks = dataOf(snapshot, 'disks')
+  const mem = memory
+    ? {
+        total: formatBytes(memory.totalBytes),
+        used: formatBytes(memory.usedBytes),
+        free: formatBytes(memory.availableBytes),
+        percent: memory.percent
       }
-    }).filter(d => d.pid)
+    : {}
+  const swap = memory && memory.swapTotalBytes !== null
+    ? {
+        total: formatBytes(memory.swapTotalBytes),
+        used: formatBytes(memory.swapUsedBytes),
+        free: formatBytes(memory.swapTotalBytes - memory.swapUsedBytes),
+        percent: memory.swapTotalBytes > 0
+          ? memory.swapUsedBytes * 100 / memory.swapTotalBytes
+          : 0
+      }
+    : {}
+  const networkMap = Object.fromEntries((network?.interfaces || []).map(item => [
+    item.name,
+    {
+      ip: item.ipv4 || '',
+      download: item.rxBytes,
+      upload: item.txBytes,
+      down: item.rxRate,
+      up: item.txRate
+    }
+  ]))
   return {
-    activities: r
+    uptime: uptime ? formatDuration(uptime.seconds) : '',
+    cpu: Number.isFinite(cpu) ? `${cpu.toFixed(1)}%` : '',
+    mem,
+    swap,
+    activities: Array.isArray(activities)
+      ? activities.map(item => ({
+        pid: item.pid,
+        user: item.user,
+        cpu: item.cpu,
+        mem: formatBytes(item.memBytes),
+        cmd: item.cmd
+      }))
+      : [],
+    disks: Array.isArray(disks)
+      ? disks.map(item => ({
+        filesystem: item.filesystem,
+        size: formatBytes(item.totalBytes),
+        used: formatBytes(item.usedBytes),
+        avail: formatBytes(item.availableBytes),
+        usedPercent: `${item.percent}%`,
+        mount: item.mount
+      }))
+      : [],
+    network: networkMap,
+    sysInfo: dataOf(snapshot, 'sysinfo') || null
   }
 }
 
-function formatSysInfo (unameStr, prettyName) {
-  if (!unameStr) {
-    return {}
-  }
-  const parts = unameStr.trim().split(/\s+/)
-  if (parts.length < 4) {
-    return {}
-  }
-  const [sysname, hostname, kernel, arch] = parts
-  let os = sysname
-  const m = (prettyName || '').match(/PRETTY_NAME="?([^"\r\n]+)"?/)
-  if (m) {
-    os = m[1].trim()
-  } else if (sysname === 'Darwin') {
-    os = 'macOS'
-  }
-  return {
-    sysInfo: {
-      os,
-      sysname,
-      hostname,
-      kernel,
-      arch
-    }
-  }
-}
+export default function RunCmd (props) {
+  const terminalInfosKey = JSON.stringify(props.terminalInfos || [])
+  const groups = useMemo(
+    () => requestedGroups(props.terminalInfos),
+    [terminalInfosKey]
+  )
+  const snapshot = useRemoteMonitor(
+    props.pid || '',
+    groups,
+    !!props.isRemote && !!props.pid
+  )
 
-function formatCpu (str) {
-  if (!str) {
-    return {
-      cpu: ''
-    }
-  }
-  return {
-    cpu: str.split(' ')[1]
-  }
-}
-
-function formatMem (str) {
-  if (!str) {
-    return {}
-  }
-  const names = ['mem', 'swap']
-  return str
-    .split('\n')
-    .filter(d => d)
-    .slice(1)
-    .reduce((p, d, i) => {
-      const arr = d.split(/\s+/)
-      if (!arr[1]) {
-        return p
-      }
-      p[names[i]] = {
-        total: arr[1],
-        used: arr[2],
-        free: arr[3]
-      }
-      return p
-    }, {})
-}
-
-const ipSplitReg = /\n[\d]{1,5}:\s+/
-const ipNameReg = /inet\s+([\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3})\/\d/
-
-function formatIps (ips) {
-  if (!ips) {
-    return {}
-  }
-  const arr = ips.split(ipSplitReg)
-  return arr.reduce((p, s) => {
-    const name = s.replace(/^[\d]{1,5}:\s+/, '').split(/:\s+/)[0]
-    const arr1 = s.match(ipNameReg)
-    return {
-      ...p,
-      [name]: {
-        ip: arr1 ? arr1[1] : ''
-      }
-    }
-  }, {})
-}
-
-function formatTraffic (traffic, ipObj) {
-  if (!traffic) {
-    return ipObj
-  }
-  const arr = traffic.split(ipSplitReg)
-  return arr.reduce((p, s) => {
-    const name = s.replace(/^[\d]{1,5}:\s+/, '').split(/:\s+/)[0]
-    const arr1 = s.split('\n')
-    let download = 0
-    let upload = 0
-    const len = arr1.length
-    for (let i = 0; i < len; i++) {
-      const line = arr1[i]
-      if (line.toLowerCase().trim().startsWith('rx')) {
-        download = Number(arr1[i + 1].trim().split(/\s+/)[0])
-      } else if (line.trim().toLowerCase().startsWith('tx')) {
-        upload = Number(arr1[i + 1].trim().split(/\s+/)[0])
-      }
-    }
-    if (!p[name]) {
-      p[name] = {}
-    }
-    Object.assign(p[name], {
-      download, upload
-    })
-    return p
-  }, ipObj)
-}
-
-function formatNetwork (traffic, ips) {
-  const ipObj = formatIps(ips)
-  return {
-    network: formatTraffic(traffic, ipObj)
-  }
-}
-
-export async function runCmds (props, cmds) {
-  const {
-    pid
-  } = props
-  const ress = []
-  for (const cmd of cmds) {
-    const res = await runCmd(pid, cmd)
-    ress.push(res || '')
-  }
-  return ress
-}
-
-function InfoGetter (props) {
-  const {
-    // name,
-    cmd,
-    cmds,
-    interval,
-    formatter,
-    delay
-  } = props.options
-  const { pid } = props
-  const cms = cmds || [cmd]
   useEffect(() => {
-    const run = async () => {
-      await wait(delay)
-      const ress = await runCmds(props, cms)
-      const update = formatter(...ress)
-      props.setState(update)
+    if (props.isRemote && props.pid) {
+      props.setState(toInfoState(snapshot))
     }
-    run()
-    if (interval > 0) {
-      const ref = setInterval(run, interval)
-      return () => {
-        clearInterval(ref)
-      }
-    }
-  }, [pid])
-  return null
-}
+  }, [snapshot, props.isRemote, props.pid])
 
-export default (props) => {
-  if (!props.isRemote) {
-    return null
-  }
-  const cmds = [
-    {
-      name: 'sysinfo',
-      cmds: [
-        'uname -s -n -r -m',
-        'grep PRETTY_NAME= /etc/os-release 2>/dev/null || echo'
-      ],
-      interval: 0,
-      delay: 0,
-      formatter: formatSysInfo
-    },
-    {
-      name: 'uptime',
-      cmd: 'uptime -p',
-      interval: 5000,
-      delay: 0,
-      formatter: d => ({ uptime: d })
-    },
-    {
-      name: 'activities',
-      cmd: 'ps --no-headers -o pid,user,%cpu,size,command ax | sort -b -k3 -r',
-      interval: 5000,
-      delay: 800,
-      formatter: formatActivities
-    },
-    {
-      name: 'disks',
-      cmd: 'df -hP',
-      interval: 10000,
-      delay: 1600,
-      formatter: formatDisks
-    },
-    {
-      name: 'cpu',
-      cmd: '(grep \'cpu \' /proc/stat;sleep 0.1;grep \'cpu \' /proc/stat)|awk -v RS="" \'{print "CPU "($13-$2+$15-$4)*100/($13-$2+$15-$4+$16-$5)"%"}\'',
-      interval: 5000,
-      formatter: formatCpu,
-      delay: 2400
-    },
-    {
-      name: 'mem',
-      cmd: 'free -h',
-      interval: 5000,
-      delay: 3200,
-      formatter: formatMem
-    },
-    {
-      name: 'network',
-      cmds: [
-        'ip -s link',
-        'ip addr'
-      ],
-      delay: 4000,
-      formatter: formatNetwork,
-      interval: 5000
-    }
-  ]
-  return cmds.map(options => {
-    return (
-      <InfoGetter
-        key={'info-getter-' + options.name}
-        {...props}
-        options={options}
-      />
-    )
-  })
+  return null
 }
