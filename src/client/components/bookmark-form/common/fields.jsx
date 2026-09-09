@@ -16,6 +16,7 @@ import ConnectionHopping from './connection-hopping.jsx'
 import TerminalBackgroundField from './terminal-background.jsx'
 import ExecSettingsField from './exec-settings-field.jsx'
 import useQuickCmds from './quick-commands.jsx'
+import TriggersField from '../../triggers/triggers-field.jsx'
 import ProfileItem from './profile-item.jsx'
 import renderRunScripts from './run-scripts.jsx'
 import SerialPathSelector from './serial-path-selector.jsx'
@@ -173,6 +174,8 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
       return <ProfileItem key={name} store={ctxProps.store} form={form} profileFilter={item.profileFilter} />
     case 'quickCommands':
       return <Fragment key={name}>{useQuickCmds(form, ctxProps.formData || {})}</Fragment>
+    case 'triggers':
+      return <TriggersField key={name} />
     case 'runScripts':
       return <Fragment key={name}>{renderRunScripts()}</Fragment>
     case 'serialPathSelector':

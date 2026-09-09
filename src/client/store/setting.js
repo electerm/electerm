@@ -129,6 +129,15 @@ export default Store => {
     store.openSettingModal()
   }
 
+  Store.prototype.openTriggers = function () {
+    const { store } = window
+    store.storeAssign({
+      settingTab: settingMap.triggers
+    })
+    store.setSettingItem({ id: '', name: settingMap.triggers })
+    store.openSettingModal()
+  }
+
   Store.prototype.openSettingModal = function () {
     const { store } = window
     if (store.isSecondInstance) {

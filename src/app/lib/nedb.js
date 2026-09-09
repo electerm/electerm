@@ -62,6 +62,7 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
     'dbUpgradeLog',
     'profiles',
     'workspaces',
+    'triggers',
     'history',
     'terminalCommandHistory',
     'aiChatHistory',

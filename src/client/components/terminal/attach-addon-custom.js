@@ -194,6 +194,16 @@ export default class AttachAddonCustom {
     this._maxBufferChars = 2 * 1024 * 1024
     this._droppedChars = 0
     this._droppedWarned = false
+    // Automation taps: subscribers receive the decoded string BEFORE write
+    // coalescing (see writeToTerminal). Suppressed output never reaches taps.
+    this._dataTaps = new Set()
+  }
+
+  addDataTap = (fn) => {
+    this._dataTaps.add(fn)
+    return () => {
+      this._dataTaps.delete(fn)
+    }
   }
 
   _initBase = async () => {
@@ -400,6 +410,18 @@ export default class AttachAddonCustom {
 
     // Coalesce the actual write (see _enqueueWrite). notifyOnData /
     // onTerminalWrite fire once per flush instead of once per chunk.
+    // Automation taps run here on the decoded string, before coalescing
+    // (and after the suppression early-return above, so suppressed
+    // keepalive/shell-integration echo never triggers automations).
+    if (this._dataTaps.size) {
+      for (const fn of this._dataTaps) {
+        try {
+          fn(str)
+        } catch (e) {
+          console.error('[dataTap]', e)
+        }
+      }
+    }
     this._enqueueWrite(str)
   }
 
@@ -574,6 +596,7 @@ export default class AttachAddonCustom {
     this._flushScheduled = false
     this._writeBuffer = []
     this._bufferChars = 0
+    this._dataTaps.clear()
     // Reset the streaming decoder so any partial multi-byte sequence held
     // over from this connection can not leak into a reused instance.
     this.decoder = new TextDecoder('utf-8')

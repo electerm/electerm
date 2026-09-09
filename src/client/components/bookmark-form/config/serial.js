@@ -2,7 +2,7 @@ import { formItemLayout } from '../../../common/form-layout.js'
 import { terminalSerialType, commonBaudRates, commonDataBits, commonStopBits, commonParities, commonTxLineEndings, commonRxLineEndings } from '../../../common/constants.js'
 import defaultSettings from '../../../common/default-setting.js'
 import { createBaseInitValues, getTerminalBackgroundDefaults } from '../common/init-values.js'
-import { commonFields } from './common-fields.js'
+import { commonFields, triggersTab } from './common-fields.js'
 
 const e = window.translate
 
@@ -91,7 +91,8 @@ const serialConfig = {
       fields: [
         { type: 'quickCommands', name: '__quick__', label: '' }
       ]
-    }
+    },
+    triggersTab()
   ]
 }
 

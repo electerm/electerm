@@ -251,6 +251,12 @@ export const commonFields = {
     label: ''
   },
 
+  triggers: {
+    type: 'triggers',
+    name: 'triggers',
+    label: ''
+  },
+
   enableTerminalImage: {
     type: 'switch',
     name: 'enableTerminalImage',
@@ -358,6 +364,12 @@ export const quickCommandsTab = () => ({
   key: 'quickCommands',
   label: e('quickCommands'),
   fields: [commonFields.quickCommands]
+})
+
+export const triggersTab = () => ({
+  key: 'triggers',
+  label: e('triggers'),
+  fields: [commonFields.triggers]
 })
 
 export const sshTunnelTab = () => ({

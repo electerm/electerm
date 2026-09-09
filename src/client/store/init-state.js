@@ -167,6 +167,10 @@ export default () => {
     pinnedQuickCommandBar: ls.getItem(pinnedQuickCommandBarKey) === 'y',
     qmSortByFrequency: ls.getItem(qmSortByFrequencyKey) === 'yes',
 
+    // declarative auto triggers (global; bookmark/session ones live on the tab)
+    triggers: [],
+    triggerSessionOpen: false,
+
     // touch-only shortcut bar (see components/terminal/shortcut-bar-entry.jsx)
     shortcutBarVisible: false,
     // px the bar is lifted above a page-overlaying system input panel

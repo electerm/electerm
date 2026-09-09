@@ -25,6 +25,7 @@ const bookmarkSchema = {
     compress: 'array - compression algorithms (zlib@openssh.com, zlib, none)',
     runScripts: 'array - run scripts after connected ({delay,script})',
     quickCommands: 'array - quick commands ({name,command})',
+    triggers: 'array - declarative auto triggers ({id,name,enabled,match:{type:text|regex,value,caseSensitive},action:{type:send|notify,value},sendEnter,mode:repeat|once|cooldown,cooldownMs})',
     proxy: 'string - proxy address (socks5://...)',
     proxyCommand: 'string - ssh proxy command, supports %h (host) %p (port) %r (username) placeholders, e.g. `netbird ssh proxy %h %p` or `cloudflared access ssh --hostname %h`',
     x11: 'boolean - enable x11 forwarding, default is false',
@@ -66,6 +67,7 @@ const bookmarkSchema = {
     loginPrompt: 'string - login prompt regex',
     passwordPrompt: 'string - password prompt regex',
     runScripts: 'array - run scripts after connected ({delay,script})',
+    triggers: 'array - declarative auto triggers, same shape as ssh.triggers',
     startDirectoryRemote: 'string - remote starting directory',
     startDirectoryLocal: 'string - local starting directory',
     profile: 'string - profile id',
@@ -88,6 +90,7 @@ const bookmarkSchema = {
     closeSequence: 'string - key sequence sent to the serial port when the user clicks "exit gracefully" in the terminal controls, supports \\n \\t \\r \\\\ and \\xHH hex bytes, default "\\x01ky" (Ctrl+A, k, y - GNU screen kill-window confirm)',
     closeSequenceDelay: 'number - ms to wait after sending closeSequence before closing the port, default 500',
     runScripts: 'array - run scripts after connected ({delay,script})',
+    triggers: 'array - declarative auto triggers, same shape as ssh.triggers',
     description: 'string - bookmark description'
   },
   vnc: {
@@ -144,6 +147,7 @@ const bookmarkSchema = {
     description: 'string - bookmark description',
     startDirectoryLocal: 'string - local starting directory',
     runScripts: 'array - run scripts after connected ({delay,script})',
+    triggers: 'array - declarative auto triggers, same shape as ssh.triggers',
     execWindows: 'string - Windows exec path (overrides global setting)',
     execMac: 'string - Mac exec path (overrides global setting)',
     execLinux: 'string - Linux exec path (overrides global setting)',
