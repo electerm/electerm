@@ -59,6 +59,35 @@ export const defaultAIPresets = [
     siteUrl: 'https://platform.openai.com/api-keys?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
   },
   {
+    id: 'openai-responses',
+    nameAI: 'OpenAI (Responses API)',
+    baseURLAI: 'https://api.openai.com/v1',
+    apiPathAI: '/responses',
+    modelAI: 'gpt-4o',
+    authHeaderNameAI: 'Authorization: Bearer',
+    modelAIs: [
+      { value: 'gpt-4o' },
+      { value: 'gpt-4o-mini' },
+      { value: 'gpt-4.1' },
+      { value: 'o4-mini' }
+    ],
+    siteUrl: 'https://platform.openai.com/api-keys?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
+  },
+  {
+    id: 'anthropic',
+    nameAI: 'Anthropic Claude',
+    baseURLAI: 'https://api.anthropic.com/v1',
+    apiPathAI: '/messages',
+    modelAI: 'claude-sonnet-4-5',
+    authHeaderNameAI: 'x-api-key',
+    modelAIs: [
+      { value: 'claude-sonnet-4-5' },
+      { value: 'claude-opus-4-1' },
+      { value: 'claude-haiku-4-5' }
+    ],
+    siteUrl: 'https://console.anthropic.com/settings/keys?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
+  },
+  {
     id: 'openrouter',
     nameAI: 'OpenRouter',
     baseURLAI: 'https://openrouter.ai/api/v1',

@@ -39,6 +39,15 @@ const proxyOptions = [
   { value: 'https://proxy.example.com:3128' }
 ]
 
+// The wire protocol is detected from the path:
+// /chat/completions -> OpenAI compatible, /responses -> OpenAI Responses API,
+// /messages -> Anthropic Claude Messages API
+const apiPathOptions = [
+  { value: '/chat/completions', label: '/chat/completions (OpenAI)' },
+  { value: '/responses', label: '/responses (OpenAI Responses)' },
+  { value: '/messages', label: '/messages (Anthropic)' }
+]
+
 const authHeaderOptions = [
   { value: 'Authorization: Bearer' },
   { value: 'x-api-key' },
@@ -240,8 +249,11 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
               ]}
               noStyle
             >
-              <Input
+              <AutoComplete
+                options={apiPathOptions}
+                filterOption={filter}
                 placeholder='/chat/completions'
+                popupMatchSelectWidth={false}
                 style={{ width: '25%' }}
               />
             </Form.Item>

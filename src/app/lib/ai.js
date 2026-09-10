@@ -3,7 +3,14 @@ const { StringDecoder } = require('string_decoder')
 const log = require('../common/log')
 const defaultSettings = require('../common/config-default')
 const { createProxyAgent } = require('./proxy-agent')
-const { resolveAIResponse, errorMessageFromData } = require('./ai-response')
+const { errorMessageFromData } = require('./ai-response')
+const {
+  detectFormat,
+  headersForFormat,
+  buildRequest,
+  parseResponse,
+  createStreamParser
+} = require('./ai-format')
 
 // Keep the real error detail, axios only reports the status code
 const formatError = (e) => {
@@ -36,7 +43,7 @@ exports.stopStream = (sessionId) => {
   return { stopped: true }
 }
 
-const createAIClient = (baseURL, apiKey, proxy, authHeaderName) => {
+const createAIClient = (baseURL, apiKey, proxy, authHeaderName, extraHeaders) => {
   const headerStr = authHeaderName || 'Authorization: Bearer'
   const parts = headerStr.split(': ')
   const headerKey = parts[0]
@@ -48,7 +55,8 @@ const createAIClient = (baseURL, apiKey, proxy, authHeaderName) => {
     baseURL,
     headers: {
       'Content-Type': 'application/json',
-      [headerKey]: headerValue
+      [headerKey]: headerValue,
+      ...(extraHeaders || {})
     }
   }
 
@@ -63,19 +71,18 @@ const createAIClient = (baseURL, apiKey, proxy, authHeaderName) => {
   return axios.create(config)
 }
 
-exports.AIchatWithTools = async (messages, model, baseURL, path, apiKey, proxy, tools, authHeaderName) => {
+exports.AIchatWithTools = async (messages, model, baseURL, path, apiKey, proxy, tools, authHeaderName, format) => {
   try {
-    const client = createAIClient(baseURL, apiKey, proxy, authHeaderName)
-    const requestData = {
+    const fmt = detectFormat(path, format)
+    const client = createAIClient(baseURL, apiKey, proxy, authHeaderName, headersForFormat(fmt))
+    const requestData = buildRequest(fmt, {
       model,
       messages,
+      tools,
       stream: false
-    }
-    if (tools && tools.length) {
-      requestData.tools = tools
-    }
+    })
     const response = await client.post(path, requestData)
-    const { message, error } = resolveAIResponse(response.data)
+    const { message, error } = parseResponse(fmt, response.data)
     if (error) {
       return { error }
     }
@@ -96,10 +103,12 @@ exports.AIchat = async (
   proxy = defaultSettings.proxyAI,
   stream = true,
   authHeaderName = defaultSettings.authHeaderNameAI,
-  messages = null
+  messages = null,
+  format
 ) => {
   try {
-    const client = createAIClient(baseURL, apiKey, proxy, authHeaderName)
+    const fmt = detectFormat(path, format)
+    const client = createAIClient(baseURL, apiKey, proxy, authHeaderName, headersForFormat(fmt))
 
     // Determine if we should use streaming based on the prompt content
     // Command suggestions should not use streaming for quick response
@@ -118,11 +127,11 @@ exports.AIchat = async (
       }
     ]
 
-    const requestData = {
+    const requestData = buildRequest(fmt, {
       model,
       messages: requestMessages,
       stream: useStream
-    }
+    })
 
     if (useStream) {
       // For streaming responses, initiate streaming and return session info
@@ -141,7 +150,7 @@ exports.AIchat = async (
       streamingSessions.set(sessionId, sessionData)
 
       // Start processing the stream
-      processStream(sessionId, sessionData)
+      processStream(sessionId, sessionData, fmt)
 
       return {
         sessionId,
@@ -152,7 +161,7 @@ exports.AIchat = async (
     } else {
       // For non-streaming responses (command suggestions and when stream=false)
       const response = await client.post(path, requestData)
-      const { message, error } = resolveAIResponse(response.data)
+      const { message, error } = parseResponse(fmt, response.data)
       if (error) {
         return { error }
       }
@@ -199,44 +208,34 @@ exports.getStreamContent = (sessionId) => {
   return result
 }
 
-// Process streaming data
-function processStream (sessionId, sessionData) {
-  let buffer = ''
+// Process streaming data. `format` picks the SSE parser (openai-chat /
+// openai-responses / anthropic) and normalizes all of them to plain content.
+function processStream (sessionId, sessionData, format) {
   const decoder = new StringDecoder('utf8')
+  const parser = createStreamParser(format)
 
-  const processLines = (shouldFlush = false) => {
-    const lines = buffer.split('\n')
-    buffer = shouldFlush ? '' : lines.pop()
-    const linesToProcess = shouldFlush ? lines.filter(Boolean).concat(buffer ? [buffer] : []) : lines
-
-    for (const line of linesToProcess) {
-      if (line.trim() === '') continue
-      if (line.trim() === 'data: [DONE]') {
-        sessionData.completed = true
-        return
-      }
-
-      if (line.startsWith('data: ')) {
-        try {
-          const data = JSON.parse(line.slice(6))
-          if (data.choices && data.choices[0] && data.choices[0].delta && data.choices[0].delta.content) {
-            sessionData.content += data.choices[0].delta.content
-          }
-        } catch (e) {
-          log.error('Error parsing stream data:', e)
-        }
-      }
+  const sync = () => {
+    sessionData.content = parser.content
+    if (parser.error) {
+      sessionData.error = parser.error
+      sessionData.completed = true
+    } else if (parser.completed) {
+      sessionData.completed = true
     }
   }
 
   sessionData.stream.on('data', (chunk) => {
-    buffer += decoder.write(chunk)
-    processLines()
+    parser.feed(decoder.write(chunk))
+    sync()
   })
 
   sessionData.stream.on('end', () => {
-    buffer += decoder.end()
-    processLines(true)
+    parser.feed(decoder.end())
+    parser.flush()
+    sessionData.content = parser.content
+    if (parser.error) {
+      sessionData.error = parser.error
+    }
     sessionData.completed = true
   })
 
