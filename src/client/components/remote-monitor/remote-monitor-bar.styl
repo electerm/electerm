@@ -16,8 +16,13 @@
   display flex
   overflow-x auto
   overflow-y hidden
-  scrollbar-width thin
+  scrollbar-width none // Firefox
+  -ms-overflow-style none // IE/Edge
   overscroll-behavior-x contain
+  &::-webkit-scrollbar
+    width 0
+    height 0
+    display none
 
 .remote-monitor-item
   height 100%
