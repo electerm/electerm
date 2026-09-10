@@ -248,3 +248,68 @@
     transform rotate(0deg)
   to
     transform rotate(360deg)
+
+.ai-chat-empty
+  position relative
+  width 100%
+  min-height 150px
+  display flex
+  align-items center
+  justify-content center
+  overflow hidden
+  padding 10px 0
+
+.ai-chat-empty-inner
+  text-align center
+  padding 0 12px
+  max-width 100%
+
+.ai-chat-watermark
+  width 86%
+  max-width 400px
+  aspect-ratio 766 / 266
+  margin 0 auto 14px
+  background-color var(--text)
+  opacity 0.55
+  pointer-events none
+  user-select none
+  -webkit-mask-image var(--ai-watermark)
+  mask-image var(--ai-watermark)
+  -webkit-mask-repeat no-repeat
+  mask-repeat no-repeat
+  -webkit-mask-position center
+  mask-position center
+  -webkit-mask-size contain
+  mask-size contain
+
+.ai-chat-empty-title
+  font-size 15px
+  font-weight 500
+
+.ai-chat-empty-hint
+  font-size 12px
+  margin-top 4px
+  color var(--text-dark)
+
+.ai-chat-empty-examples
+  margin-top 14px
+  display flex
+  flex-direction column
+  align-items center
+  gap 6px
+
+.ai-chat-empty-example
+  max-width 100%
+  font-size 12px
+  padding 5px 10px
+  border 1px solid var(--main-darker)
+  border-radius 14px
+  color var(--text-dark)
+  cursor pointer
+  transition all 0.2s
+  white-space nowrap
+  overflow hidden
+  text-overflow ellipsis
+  &:hover
+    border-color var(--primary)
+    color var(--text)
