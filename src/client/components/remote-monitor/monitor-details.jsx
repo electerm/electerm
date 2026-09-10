@@ -1,4 +1,4 @@
-import { Button, Popconfirm } from 'antd'
+import { Button, Popconfirm, Table } from 'antd'
 import { CloseCircleOutlined, BarChartOutlined } from '@ant-design/icons'
 import { formatBytes, formatDuration, formatRate, groupOf, selectPrimaryNetwork, sortDisks } from './monitor-model'
 import './monitor-details.styl'
@@ -67,36 +67,18 @@ function DetailRows ({ rows }) {
   )
 }
 
+// antd Table gives us column ellipsis, responsive breakpoints and the compact
+// size for free, so no hand rolled markup or table css is needed here.
 function DetailTable ({ columns, rows, rowKey }) {
   return (
-    <div className='remote-monitor-table-wrap'>
-      <table className='remote-monitor-table'>
-        <thead>
-          <tr>{columns.map(column => <th className={column.className} key={column.key}>{column.title}</th>)}</tr>
-        </thead>
-        <tbody>
-          {
-            rows.map((row, index) => (
-              <tr key={rowKey ? rowKey(row) : index}>
-                {
-                  columns.map(column => {
-                    const value = column.value(row)
-                    const title = typeof value === 'string' || typeof value === 'number'
-                      ? String(value)
-                      : undefined
-                    return (
-                      <td className={column.className} key={column.key} title={title}>
-                        {value}
-                      </td>
-                    )
-                  })
-                }
-              </tr>
-            ))
-          }
-        </tbody>
-      </table>
-    </div>
+    <Table
+      className='remote-monitor-table'
+      columns={columns}
+      dataSource={rows}
+      pagination={false}
+      rowKey={rowKey}
+      size='small'
+    />
   )
 }
 
@@ -137,20 +119,21 @@ function ActivityDetails ({ group, sortBy, onKillProcess }) {
                 ...(onKillProcess
                   ? [{
                       key: 'kill',
-                      className: 'remote-monitor-kill-cell',
                       title: '',
-                      value: row => (
+                      width: 32,
+                      align: 'center',
+                      render: (_, row) => (
                         <Popconfirm title={`${e('close')} pid: ${row.pid}?`} onConfirm={() => onKillProcess(row.pid)}>
                           <Button size='small' type='text' icon={<CloseCircleOutlined />} aria-label={`${e('close')} ${row.pid}`} />
                         </Popconfirm>
                       )
                     }]
                   : []),
-                { key: 'pid', title: 'PID', value: row => row.pid },
-                { key: 'user', title: e('users'), value: row => row.user },
-                { key: 'cpu', title: 'CPU', value: row => `${row.cpu}%` },
-                { key: 'memory', title: e('memory'), value: row => formatBytes(row.memBytes) },
-                { key: 'process', title: e('process'), value: row => row.cmd }
+                { key: 'pid', title: 'PID', dataIndex: 'pid', width: 60 },
+                { key: 'user', title: e('users'), dataIndex: 'user', ellipsis: true, responsive: ['sm'], width: 64 },
+                { key: 'cpu', title: 'CPU', width: 52, render: (_, row) => `${row.cpu}%` },
+                { key: 'memory', title: e('memory'), width: 72, render: (_, row) => formatBytes(row.memBytes) },
+                { key: 'process', title: e('process'), dataIndex: 'cmd', ellipsis: true }
               ]}
               rowKey={row => row.pid}
               rows={rows}
@@ -225,22 +208,41 @@ function NetworkDetail ({ snapshot, direction, hideIP }) {
   const primary = selectPrimaryNetwork(network)
   const directions = direction === 'network' ? ['upload', 'download'] : [direction]
   const columns = [
-    { key: 'name', title: e('interface'), value: row => row.name === primary?.name ? `${row.name} *` : row.name },
+    {
+      key: 'name',
+      title: e('interface'),
+      width: 84,
+      ellipsis: true,
+      render: (_, row) => row.name === primary?.name ? `${row.name} *` : row.name
+    },
+    ...(hideIP
+      ? []
+      : [{
+          key: 'address',
+          title: e('address'),
+          width: 96,
+          ellipsis: true,
+          render: (_, row) => row.ipv4 || '—'
+        }]),
     ...directions.flatMap(direction => {
       const upload = direction === 'upload'
       return [
-        { key: direction, title: e(direction), value: row => formatRate(upload ? row.txRate : row.rxRate) },
-        { key: `${direction}-total`, title: upload ? e('sent') : e('received'), value: row => formatBytes(upload ? row.txBytes : row.rxBytes) }
+        {
+          key: direction,
+          title: e(direction),
+          width: 68,
+          render: (_, row) => formatRate(upload ? row.txRate : row.rxRate)
+        },
+        {
+          key: `${direction}-total`,
+          title: upload ? e('sent') : e('received'),
+          width: 72,
+          responsive: ['sm'],
+          render: (_, row) => formatBytes(upload ? row.txBytes : row.rxBytes)
+        }
       ]
     })
   ]
-  if (!hideIP) {
-    columns.splice(1, 0, {
-      key: 'address',
-      title: e('address'),
-      value: row => row.ipv4 || '—'
-    })
-  }
   return (
     <>
       <GroupState group={group} />
@@ -277,10 +279,12 @@ function UsersDetail ({ snapshot, hideIP }) {
             ? (
               <DetailTable
                 columns={[
-                  { key: 'user', title: e('users'), value: row => row.user },
-                  { key: 'terminal', title: 'TTY', value: row => row.terminal || '—' },
-                  { key: 'time', title: e('sessions'), value: row => row.loginTime || '—' },
-                  ...(!hideIP ? [{ key: 'source', title: e('address'), value: row => row.source || '—' }] : [])
+                  { key: 'user', title: e('users'), dataIndex: 'user', ellipsis: true, width: 80 },
+                  { key: 'terminal', title: 'TTY', width: 64, ellipsis: true, responsive: ['sm'], render: (_, row) => row.terminal || '—' },
+                  { key: 'time', title: e('sessions'), width: 116, ellipsis: true, render: (_, row) => row.loginTime || '—' },
+                  ...(!hideIP
+                    ? [{ key: 'source', title: e('address'), width: 96, ellipsis: true, responsive: ['sm'], render: (_, row) => row.source || '—' }]
+                    : [])
                 ]}
                 rows={users.sessions}
               />
@@ -303,12 +307,12 @@ function DisksDetail ({ snapshot, levels }) {
           ? (
             <DetailTable
               columns={[
-                { key: 'mount', title: e('mount'), value: row => row.mount },
-                { key: 'usage', title: e('used'), value: row => <span className={`remote-monitor-level-${levels[row.mount] || 'unknown'}`}>{row.percent}%</span> },
-                { key: 'used', title: e('used'), value: row => formatBytes(row.usedBytes) },
-                { key: 'available', title: e('available'), value: row => formatBytes(row.availableBytes) },
-                { key: 'total', title: e('total'), value: row => formatBytes(row.totalBytes) },
-                { key: 'filesystem', title: e('filesystem'), value: row => row.filesystem }
+                { key: 'mount', title: e('mount'), dataIndex: 'mount', ellipsis: true, width: 72 },
+                { key: 'usage', title: e('used'), width: 60, render: (_, row) => <span className={`remote-monitor-level-${levels[row.mount] || 'unknown'}`}>{row.percent}%</span> },
+                { key: 'used', title: e('used'), width: 72, ellipsis: true, render: (_, row) => formatBytes(row.usedBytes) },
+                { key: 'available', title: e('available'), width: 76, ellipsis: true, responsive: ['sm'], render: (_, row) => formatBytes(row.availableBytes) },
+                { key: 'total', title: e('total'), width: 72, ellipsis: true, render: (_, row) => formatBytes(row.totalBytes) },
+                { key: 'filesystem', title: e('filesystem'), dataIndex: 'filesystem', ellipsis: true, responsive: ['sm'], width: 100 }
               ]}
               rowKey={row => `${row.filesystem}-${row.mount}`}
               rows={disks}

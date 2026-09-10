@@ -13,11 +13,6 @@
   max-height calc(100dvh - 80px - var(--shortcut-bar-kb-offset, 0px))
   overflow auto
 
-.remote-monitor-details
-  min-width 0
-  color var(--text)
-  font-size 12px
-
 .remote-monitor-detail-heading
   margin-bottom 8px
   color var(--text)
@@ -57,41 +52,12 @@
 
 .remote-monitor-activity
   margin-top 10px
-  .remote-monitor-table-wrap
-    max-height 240px
 
-.remote-monitor-table-wrap
-  max-width 100%
-  overflow auto
-
+// antd Table owns the whole table layout, only the dense metrics look is kept
 .remote-monitor-table
-  width 100%
-  min-width 340px
-  font-size 11px
   font-variant-numeric tabular-nums
-  th,
-  td
-    max-width 220px
-    padding 5px 7px
-    overflow hidden
-    text-align left
-    text-overflow ellipsis
-    white-space nowrap
-  th
-    position sticky
-    top 0
-    z-index 1
-    background var(--main)
-    color var(--text-dark)
-    font-weight 600
-
-.remote-monitor-table
-  .remote-monitor-kill-cell
-    width 30px
-    max-width 30px
-    padding-left 0
-    padding-right 0
-    text-align center
+  .ant-table.ant-table-small
+    font-size 11px
 
 .remote-monitor-item.remote-monitor-level-warning,
 .remote-monitor-level-warning
