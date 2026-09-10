@@ -33,7 +33,6 @@ import ConnectionHoppingWarning from './connection-hopping-warnning'
 import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
 import AIChat from '../ai/ai-chat-entry'
-import Opacity from '../common/opacity'
 import MoveItemModal from '../tree-list/move-item-modal'
 import InputContextMenu from '../common/input-context-menu'
 import WorkspaceSaveModal from '../tabs/workspace-save-modal'
@@ -55,6 +54,8 @@ import './term-fullscreen.styl'
 const Resolutions = lazy(() => import('../rdp/resolution-edit'))
 const InfoModal = lazy(() => import('../sidebar/info-modal.jsx'))
 const AIConfigModal = lazy(() => import('../ai/ai-config-modal'))
+// window opacity is electron-only: lazy so the web app never loads the chunk
+const Opacity = lazy(() => import('../common/opacity'))
 
 export default auto(function Index (props) {
   useEffect(() => {
@@ -291,7 +292,15 @@ export default auto(function Index (props) {
           {...confsCss}
           configLoaded={configLoaded}
         />
-        <Opacity opacity={config.opacity} />
+        {window.et.isWebApp
+          ? null
+          : (
+            <LazyBoundary>
+              <Suspense fallback={null}>
+                <Opacity opacity={config.opacity} />
+              </Suspense>
+            </LazyBoundary>
+            )}
         <TerminalInteractive />
         <UiTheme
           {...themeProps}

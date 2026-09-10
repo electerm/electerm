@@ -21,7 +21,8 @@ import InputNumberConfirm from '../common/input-number-confirm'
 import TextareaConfirm from '../common/textarea-confirm'
 import {
   settingMap,
-  proxyHelpLink
+  proxyHelpLink,
+  webAppHiddenSettings
 } from '../../common/constants'
 import defaultSettings from '../../common/default-setting'
 import Link from '../common/external-link'
@@ -413,6 +414,7 @@ export default class SettingCommon extends Component {
     const {
       langs = []
     } = window.et
+    const isWebApp = !!window.et.isWebApp
     const terminalThemes = props.store.getSidebarList(settingMap.terminalThemes)
     const pops = {
       onStartSessions: props.config.onStartSessions,
@@ -436,9 +438,15 @@ export default class SettingCommon extends Component {
           config={props.config}
           store={props.store}
         />
-        <HotkeySetting
-          {...hotkeyProps}
-        />
+        {
+          isWebApp
+            ? null
+            : (
+              <HotkeySetting
+                {...hotkeyProps}
+              />
+              )
+        }
         <div className='pd1b'>{e('onStartBookmarks')}</div>
         <div className='pd2b'>
           <StartSession
@@ -463,12 +471,14 @@ export default class SettingCommon extends Component {
           }, e('keepaliveIntervalDesc'))
         }
         {
-          this.renderNumber('opacity', {
-            step: 0.05,
-            min: 0,
-            max: 1,
-            cls: 'opacity'
-          }, e('opacity'))
+          isWebApp
+            ? null
+            : this.renderNumber('opacity', {
+              step: 0.05,
+              min: 0,
+              max: 1,
+              cls: 'opacity'
+            }, e('opacity'))
         }
 
         <div className='pd2b'>
@@ -572,7 +582,9 @@ export default class SettingCommon extends Component {
             'disableTabIndex',
             'disableShortcutBar',
             'debug'
-          ].map(this.renderToggle)
+          ]
+            .filter(name => !isWebApp || !webAppHiddenSettings.includes(name))
+            .map(this.renderToggle)
         }
         {
           window.et.isWebApp ? null : <DeepLinkControl />

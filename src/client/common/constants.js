@@ -241,6 +241,16 @@ export const settingShortcutsId = 'setting-shortcuts'
 export const settingAiId = 'setting-ai'
 export const settingCommonId = 'setting-common'
 export const settingPasswordsId = 'setting-passwords'
+// settings that only apply to the desktop (electron) app,
+// hidden when window.et.isWebApp is true
+export const webAppHiddenSettings = [
+  'hotkey',
+  'opacity',
+  'useSystemTitleBar',
+  'checkUpdateOnStart',
+  'allowMultiInstance',
+  'disableDeveloperTool'
+]
 export const defaultEnvLang = 'en_US.UTF-8'
 export const fileActions = {
   cancel: 'cancel',
