@@ -8,14 +8,12 @@ import { filesize } from 'filesize'
 import { TransferClientBase } from './transfer-client-base.js'
 import { transferTypeMap } from '../../common/constants.js'
 
-const ZMODEM_SAVE_PATH_KEY = 'zmodem-save-path'
-
 /**
  * ZmodemClient class handles zmodem UI and client-side logic
  */
 export class ZmodemClient extends TransferClientBase {
   constructor (terminal) {
-    super(terminal, ZMODEM_SAVE_PATH_KEY)
+    super(terminal)
     this.transferStartTime = 0
   }
 

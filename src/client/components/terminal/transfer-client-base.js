@@ -4,16 +4,15 @@
  */
 
 // import { transferTypeMap } from '../../common/constants.js'
-import { getItem, setItem } from '../../common/safe-local-storage.js'
+import { chooseSaveDirectory } from '../../common/choose-save-folder.js'
 import { getLocalFileInfo } from '../sftp/file-read.js'
 
 /**
  * TransferClientBase class - abstract base for file transfer protocols
  */
 export class TransferClientBase {
-  constructor (terminal, storageKey) {
+  constructor (terminal) {
     this.terminal = terminal
-    this.storageKey = storageKey
     this.socket = null
     this.isActive = false
     this.currentTransfer = null
@@ -233,38 +232,15 @@ export class TransferClientBase {
     if (window._apiControlSelectFolder) {
       const folder = window._apiControlSelectFolder
       delete window._apiControlSelectFolder
-      if (this.storageKey) {
-        setItem(this.storageKey, folder)
-      }
       return folder
     }
 
-    // Try to use last saved path
-    const lastPath = this.storageKey ? getItem(this.storageKey) : null
-
-    const savePaths = await window.api.openDialog({
-      title: 'Choose a folder to save file(s)',
-      message: 'Choose a folder to save file(s)',
-      defaultPath: lastPath || undefined,
-      properties: [
-        'openDirectory',
-        'showHiddenFiles',
-        'createDirectory',
-        'noResolveAliases',
-        'treatPackageAsDirectory',
-        'dontAddToRecent'
-      ],
+    // Last saved path is remembered by chooseSaveDirectory in localStorage
+    const savePath = await chooseSaveDirectory({
       noBrowserTransfer: true
     }).catch(() => false)
 
-    if (!savePaths || !savePaths.length) {
-      return null
-    }
-
-    if (this.storageKey) {
-      setItem(this.storageKey, savePaths[0])
-    }
-    return savePaths[0]
+    return savePath || null
   }
 
   /**

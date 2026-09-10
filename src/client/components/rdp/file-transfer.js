@@ -7,6 +7,7 @@ import { getLocalFileInfo } from '../sftp/file-read'
 import { osResolve } from '../../common/resolve'
 import { filesize } from 'filesize'
 import sanitizeFilename from '../../common/sanitize-filename'
+import { chooseSaveDirectory } from '../../common/choose-save-folder'
 
 const LOG_PREFIX = '[RDP-FILE-TRANSFER]'
 
@@ -231,23 +232,22 @@ export class FileTransferManager {
 
   async handleFileDownload (fileInfo) {
     try {
-      const savePath = await window.api.openDialog({
+      const savePath = await chooseSaveDirectory({
         title: `Save ${fileInfo.name}`,
         message: `Choose where to save ${fileInfo.name}`,
-        properties: ['openDirectory', 'createDirectory'],
         noBrowserTransfer: true
       }).catch((err) => {
         this.log(`Save dialog error: ${err.message}`, 'error')
         return false
       })
 
-      if (!savePath || !savePath.length) {
+      if (!savePath) {
         this.log('Download cancelled by user', 'info')
         return
       }
 
       const safeName = sanitizeFilename(fileInfo.name)
-      const fullPath = osResolve(savePath[0], safeName)
+      const fullPath = osResolve(savePath, safeName)
 
       const fd = await new Promise((resolve, reject) => {
         window.fs.open(fullPath, O_WRONLY | O_CREAT | O_TRUNC, (err, fd) => {

@@ -9,14 +9,12 @@ import { filesize } from 'filesize'
 import { TransferClientBase } from './transfer-client-base.js'
 import { transferTypeMap } from '../../common/constants.js'
 
-const XMODEM_SAVE_PATH_KEY = 'xmodem-save-path'
-
 /**
  * XmodemClient class handles XMODEM UI and client-side logic
  */
 export class XmodemClient extends TransferClientBase {
   constructor (terminal) {
-    super(terminal, XMODEM_SAVE_PATH_KEY)
+    super(terminal)
     this.transferStartTime = 0
     this.pendingMode = null // 'send' or 'receive' - waiting for user action
   }
