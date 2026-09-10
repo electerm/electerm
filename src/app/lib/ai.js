@@ -3,6 +3,13 @@ const { StringDecoder } = require('string_decoder')
 const log = require('../common/log')
 const defaultSettings = require('../common/config-default')
 const { createProxyAgent } = require('./proxy-agent')
+const { resolveAIResponse, errorMessageFromData } = require('./ai-response')
+
+// Keep the real error detail, axios only reports the status code
+const formatError = (e) => {
+  const detail = errorMessageFromData(e.response && e.response.data)
+  return detail ? `${e.message}: ${detail}` : e.message
+}
 
 // Store for ongoing streaming sessions
 const streamingSessions = new Map()
@@ -68,13 +75,14 @@ exports.AIchatWithTools = async (messages, model, baseURL, path, apiKey, proxy, 
       requestData.tools = tools
     }
     const response = await client.post(path, requestData)
-    const choice = response.data.choices[0]
-    return {
-      message: choice.message
+    const { message, error } = resolveAIResponse(response.data)
+    if (error) {
+      return { error }
     }
+    return { message }
   } catch (e) {
     log.error('AI chat with tools error', e)
-    return { error: e.message }
+    return { error: formatError(e) }
   }
 }
 
@@ -144,9 +152,13 @@ exports.AIchat = async (
     } else {
       // For non-streaming responses (command suggestions and when stream=false)
       const response = await client.post(path, requestData)
+      const { message, error } = resolveAIResponse(response.data)
+      if (error) {
+        return { error }
+      }
 
       return {
-        response: response.data.choices[0].message.content,
+        response: message.content === undefined ? '' : message.content,
         isStream: false
       }
     }
@@ -154,7 +166,7 @@ exports.AIchat = async (
     log.error('AI chat error')
     log.error(e)
     return {
-      error: e.message,
+      error: formatError(e),
       stack: e.stack
     }
   }
