@@ -26,6 +26,7 @@
     "test2": "./node_modules/.bin/playwright test src/test/e2e/01*.js --workers=1",
     "test3": "./node_modules/.bin/playwright test src/test/e2e/02*.js --workers=1 && npm run test-unit-ci",
     "test4": "./node_modules/.bin/playwright test src/test/e2e/03*.js --workers=1",
+    "clean-test-server": "node build/bin/clean-test-server-home.js",
     "b": "npm run clean && npm run compile && npm run prepare-file",
     "r": "./build/bin/release",
     "w": "./build/bin/web-release",

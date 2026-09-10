@@ -35,6 +35,14 @@ jobs:
     
     - name: Run pb
       run: npm run pb
+    # wipe the CI test server home folder before the run, keep .cache only
+    - name: Clean test server home
+      run: npm run clean-test-server
+      env:
+        TEST_HOST: ${{ secrets.TEST_HOST }}
+        TEST_USER: ${{ secrets.TEST_USER_1 }}
+        TEST_PASS: ${{ secrets.TEST_PASS_1 }}
+
     - name: test
       uses: GabrielBB/xvfb-action@v1
       with:
