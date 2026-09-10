@@ -7,6 +7,10 @@ import { generateMosaicBackground } from './shapes'
 
 const themeDomId = 'css-overwrite-terminal-backgrounds'
 
+// natural (intrinsic) width of images/electerm-watermark.png, used to keep the
+// default terminal background at its original size on wide terminals
+const watermarkWidth = 766
+
 function createBackgroundStyle (imagePath) {
   if (!imagePath || imagePath === '') {
     return ''
@@ -104,8 +108,15 @@ async function createStyleForTab (tab, props) {
 async function createGlobalStyle (props) {
   const st = await createBackgroundStyle(props.terminalBackgroundImagePath)
   if (!st) {
+    // Default terminal bg = the electerm watermark (766 x 266 natural size).
+    // Without an explicit size the image is just centered at 1:1, so on narrow
+    // panes (mobile / thin split columns) it gets cropped on both sides.
+    // `min(100%, 766px) auto` keeps the aspect ratio and scales it down to fit
+    // the pane width, while leaving the desktop rendering (= natural size)
+    // untouched.
     return '#container .session-batch-active .xterm-screen::before {' +
     'background-image: url("./images/electerm-watermark.png");' +
+    `background-size: min(100%, ${watermarkWidth}px) auto;` +
     '}'
   }
 
