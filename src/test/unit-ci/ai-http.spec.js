@@ -25,6 +25,7 @@ require.cache[logPath] = {
 const {
   AIchat,
   AIchatWithTools,
+  AIlistModels,
   getStreamContent
 } = require('../../../src/app/lib/ai')
 
@@ -122,6 +123,21 @@ before(async () => {
           }
         ]
       })
+    }
+
+    if (req.url === '/models') {
+      return json({
+        object: 'list',
+        data: [
+          { id: 'deepseek-chat', object: 'model' },
+          { id: 'deepseek-reasoner', object: 'model' },
+          { id: 'deepseek-chat', object: 'model' }
+        ]
+      })
+    }
+
+    if (req.url === '/alt/models') {
+      return json({ models: [{ name: 'model-a' }, { name: 'model-b' }] })
     }
 
     if (req.url === '/messages') {
@@ -401,5 +417,33 @@ describe('error handling', () => {
     } finally {
       badServer.close()
     }
+  })
+})
+
+describe('AIlistModels', () => {
+  it('normalizes and dedupes the openai style model list', async () => {
+    const res = await AIlistModels(baseURL(), 'test-key', 'Authorization: Bearer')
+    assert.deepEqual(res, {
+      models: ['deepseek-chat', 'deepseek-reasoner']
+    })
+    const req = lastRequest('/models')
+    assert.equal(req.headers.authorization, 'Bearer test-key')
+  })
+
+  it('tolerates a trailing slash and the {models:[{name}]} shape', async () => {
+    const res = await AIlistModels(`${baseURL()}/alt/`, 'k', 'Authorization: Bearer')
+    assert.deepEqual(res, { models: ['model-a', 'model-b'] })
+  })
+
+  it('adds the anthropic version header for x-api-key auth', async () => {
+    await AIlistModels(baseURL(), 'k', 'x-api-key')
+    const req = lastRequest('/models')
+    assert.equal(req.headers['anthropic-version'], '2023-06-01')
+    assert.equal(req.headers['x-api-key'], 'k')
+  })
+
+  it('returns an error when /models is missing', async () => {
+    const res = await AIlistModels(`${baseURL()}/nope`, 'k', 'Authorization: Bearer')
+    assert.ok(res.error)
   })
 })

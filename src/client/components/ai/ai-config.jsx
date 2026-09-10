@@ -8,7 +8,7 @@ import {
   Dropdown
 } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
-import { DownOutlined } from '@ant-design/icons'
+import { DownOutlined, ReloadOutlined } from '@ant-design/icons'
 import Link from '../common/external-link'
 import AiCache from './ai-cache'
 import {
@@ -22,6 +22,45 @@ import { appendMandatoryGuardrails } from './ai-guardrails'
 
 const STORAGE_KEY_CONFIG = 'ai_config_history'
 const EVENT_NAME_CONFIG = 'ai-config-history-update'
+const STORAGE_KEY_MODELS = 'ai_models_cache'
+
+// Model lists fetched from `<baseURL>/models`, cached per API URL
+function normalizeBaseURL (url) {
+  return (url || '').trim().replace(/\/+$/, '')
+}
+
+function readModelsCache () {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY_MODELS)
+    const parsed = raw ? JSON.parse(raw) : null
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch (e) {
+    return {}
+  }
+}
+
+function getCachedModels (baseURL) {
+  const key = normalizeBaseURL(baseURL)
+  if (!key) {
+    return []
+  }
+  const models = readModelsCache()[key]
+  return Array.isArray(models) ? models : []
+}
+
+function saveModelsToCache (baseURL, models) {
+  const key = normalizeBaseURL(baseURL)
+  if (!key) {
+    return
+  }
+  try {
+    const cache = readModelsCache()
+    cache[key] = models
+    window.localStorage.setItem(STORAGE_KEY_MODELS, JSON.stringify(cache))
+  } catch (e) {
+    // storage full or disabled, keep it in memory only
+  }
+}
 
 const e = window.translate
 const defaultRoles = [
@@ -59,6 +98,8 @@ const authHeaderOptions = [
 export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig }) {
   const [form] = Form.useForm()
   const [testing, setTesting] = useState(false)
+  const [loadingModels, setLoadingModels] = useState(false)
+  const [cachedModels, setCachedModels] = useState([])
   const baseURLAI = Form.useWatch('baseURLAI', form)
   const presets = useMemo(() => getAIPresets(), [])
   const currentPreset = presets.find(p => p.baseURLAI === baseURLAI)
@@ -68,6 +109,11 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
       form.setFieldsValue(initialValues)
     }
   }, [initialValues])
+
+  // Restore the model list previously fetched for this API URL
+  useEffect(() => {
+    setCachedModels(getCachedModels(baseURLAI))
+  }, [baseURLAI])
 
   function filter () {
     return true
@@ -113,6 +159,43 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   function handleSelectHistory (item) {
     if (item && typeof item === 'object') {
       form.setFieldsValue(item)
+    }
+  }
+
+  async function handleLoadModels () {
+    const values = form.getFieldsValue()
+    const baseURL = normalizeBaseURL(values.baseURLAI)
+    if (!baseURL) {
+      message.error('Please input API URL first')
+      return
+    }
+    setLoadingModels(true)
+    try {
+      const res = await window.pre.runGlobalAsync(
+        'AIlistModels',
+        baseURL,
+        values.apiKeyAI,
+        values.authHeaderNameAI,
+        values.proxyAI
+      )
+      if (res && res.error) {
+        message.error(res.error)
+      } else if (res && res.models && res.models.length) {
+        setCachedModels(res.models)
+        saveModelsToCache(baseURL, res.models)
+        message.success(`Got ${res.models.length} models`)
+        if (!values.modelAI) {
+          form.setFieldsValue({ modelAI: res.models[0] })
+        }
+      } else {
+        message.error('No models found in response')
+      }
+    } catch (e) {
+      if (e.message) {
+        message.error(e.message)
+      }
+    } finally {
+      setLoadingModels(false)
     }
   }
 
@@ -164,23 +247,29 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   }
 
   function renderModelInput () {
-    const modelAIs = currentPreset?.modelAIs
-    if (modelAIs && modelAIs.length) {
-      return (
-        <AutoComplete
-          options={modelAIs}
-          filterOption={filter}
-        >
-          <Input
-            placeholder='Enter or select AI model'
-          />
-        </AutoComplete>
-      )
-    }
+    const presetModels = (currentPreset?.modelAIs || [])
+      .map(o => (typeof o === 'string' ? o : o.value))
+    const values = [...presetModels, ...cachedModels].filter(Boolean)
+    const options = [...new Set(values)].map(value => ({ value }))
+    const title = 'Fetch model list from API URL'
     return (
-      <Input
-        placeholder='Enter or select AI model'
-      />
+      <AutoComplete
+        options={options}
+        filterOption={filter}
+      >
+        <Input
+          placeholder='Enter or select AI model'
+          suffix={
+            <ReloadOutlined
+              spin={loadingModels}
+              className='pointer ai-model-reload'
+              title={title}
+              onMouseDown={e => e.preventDefault()}
+              onClick={handleLoadModels}
+            />
+          }
+        />
+      </AutoComplete>
     )
   }
 

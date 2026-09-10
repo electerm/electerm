@@ -71,6 +71,50 @@ const createAIClient = (baseURL, apiKey, proxy, authHeaderName, extraHeaders) =>
   return axios.create(config)
 }
 
+// Standard `/models` listing, used by the AI config form reload button.
+// Providers answer in several shapes, so normalize whatever we get to a string list.
+function extractModelList (data) {
+  const arr = Array.isArray(data)
+    ? data
+    : data && Array.isArray(data.data)
+      ? data.data
+      : data && Array.isArray(data.models)
+        ? data.models
+        : []
+  const seen = new Set()
+  const models = []
+  for (const item of arr) {
+    const id = typeof item === 'string'
+      ? item
+      : item && (item.id || item.name || item.model)
+    if (id && !seen.has(id)) {
+      seen.add(id)
+      models.push(id)
+    }
+  }
+  return models
+}
+
+exports.AIlistModels = async (baseURL, apiKey, authHeaderName, proxy) => {
+  try {
+    // Anthropic's /models needs the version header, other providers ignore it
+    const extraHeaders = /x-api-key/i.test(authHeaderName || '')
+      ? { 'anthropic-version': '2023-06-01' }
+      : null
+    const client = createAIClient(baseURL, apiKey, proxy, authHeaderName, extraHeaders)
+    const url = baseURL.replace(/\/+$/, '') + '/models'
+    const response = await client.get(url)
+    const models = extractModelList(response.data)
+    if (!models.length) {
+      return { error: 'No models found in response' }
+    }
+    return { models }
+  } catch (e) {
+    log.error('AI list models error', e)
+    return { error: formatError(e) }
+  }
+}
+
 exports.AIchatWithTools = async (messages, model, baseURL, path, apiKey, proxy, tools, authHeaderName, format) => {
   try {
     const fmt = detectFormat(path, format)
