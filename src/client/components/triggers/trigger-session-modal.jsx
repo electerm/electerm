@@ -133,7 +133,7 @@ export default auto(function TriggerSessionModal (props) {
             icon={<SettingOutlined />}
             onClick={openManage}
           >
-            e('edit')
+            {e('edit')}
           </Button>
         </div>
       </div>
