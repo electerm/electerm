@@ -15,6 +15,7 @@ const log = require('./common/log')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { closeApp } = require('./common/common')
+const e = require('./common/lang')
 
 describe('profile', function () {
   it('quick commands form', async function () {
@@ -27,9 +28,8 @@ describe('profile', function () {
     await delay(2500)
     log('0103.profile.spec.js: setting opened')
     log('0103.profile.spec.js: click profiles')
-    await client.click('.setting-tabs [role="tab"]', 4)
+    await client.click(`.setting-tabs [role="tab"]:has-text("${e('profiles')}")`)
     log('0103.profile.spec.js: profiles tab clicked')
-    // await client.click('.setting-tabs [role="tab"]', 4)
     await client.setValue(
       '.setting-tabs-profile input#name',
       'profile1'

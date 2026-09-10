@@ -52,7 +52,7 @@ describe('bookmarks', function () {
     await client.setValue('.setting-wrap #ssh-form_password', TEST_PASS)
     await client.setValue('.setting-wrap #ssh-form_port', TEST_PORT)
     // const list0 = await client.elements('.setting-wrap .tree-item')
-    await client.click('.setting-wrap .ant-btn-primary')
+    await client.click('.setting-wrap .ant-btn-primary:visible')
     await delay(1000)
     const bookmarkCount = await client.evaluate(() => {
       return window.store.bookmarks.length

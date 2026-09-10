@@ -17,6 +17,7 @@ const {
 const uid = require('./common/uid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const e = require('./common/lang')
 const {
   closeApp,
   setupSshConnection
@@ -47,7 +48,7 @@ describe('ssh profile login', function () {
     await client.click('.btns .anticon-setting')
     log('0104.profile-use.spec.js: setting opened')
     await delay(2500)
-    await client.click('.setting-tabs [role="tab"]', 4)
+    await client.click(`.setting-tabs [role="tab"]:has-text("${e('profiles')}")`)
     log('0104.profile-use.spec.js: profiles tab clicked')
     await delay(500)
 

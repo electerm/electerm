@@ -36,7 +36,7 @@ describe('Web session', function () {
     await client.setValue('.setting-wrap input[id="web-form_url"]', testUrl)
 
     // Save and connect
-    await client.click('.setting-wrap .ant-btn-primary')
+    await client.click('.setting-wrap .ant-btn-primary:visible')
     await delay(2000)
 
     // Verify history has been updated

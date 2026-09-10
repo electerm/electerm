@@ -276,6 +276,14 @@ export default Store => {
     const { store } = window
     store.rightPanelVisible = true
     store.rightPanelTab = 'ai'
+    // Ask for AI config right away when AI is not configured yet.
+    // This has to happen here (a plain user action) instead of from
+    // AIChat's mount effect: a write issued there lands in the very commit
+    // that opened the panel, and that update is dropped, so the config
+    // modal never showed up on first open.
+    if (store.aiConfigMissing()) {
+      store.toggleAIConfig()
+    }
   }
 
   Store.prototype.explainWithAi = function (txt) {
