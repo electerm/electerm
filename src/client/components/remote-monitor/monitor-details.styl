@@ -8,10 +8,15 @@
   color var(--text-disabled)
 
 .remote-monitor-popover
-  width 440px
+  // 488 - antd popover innerPadding 12*2 = 464 content, just clears the widest table
+  // (network, Σ列宽 460) so the desktop popover never needs a horizontal scrollbar
+  width 488px
   max-width calc(100vw - 32px)
   max-height calc(100dvh - 80px - var(--shortcut-bar-kb-offset, 0px))
-  overflow auto
+  // tables own their own horizontal overflow via scroll.x, so the panel never needs
+  // to scroll sideways (that would drag the heading and the info button along)
+  overflow-x hidden
+  overflow-y auto
 
 .remote-monitor-detail-heading
   margin-bottom 8px
@@ -58,6 +63,12 @@
   font-variant-numeric tabular-nums
   .ant-table.ant-table-small
     font-size 11px
+
+// click a value cell copies it (see withCellCopy)
+.remote-monitor-copy-cell
+  cursor pointer
+  &:hover
+    color var(--primary)
 
 .remote-monitor-item.remote-monitor-level-warning,
 .remote-monitor-level-warning
