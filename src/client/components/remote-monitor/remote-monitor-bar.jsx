@@ -177,6 +177,11 @@ export default auto(function RemoteMonitorBar ({ store, style }) {
   const enabledItems = items.filter(item => item.enabled)
   const [openId, setOpenId] = useState(null)
   const [pinnedId, setPinnedId] = useState(null)
+  // Touch has no hover, so the details popover there is click-driven: a tap
+  // toggles it and a tap outside closes it (store.isTouchDevice follows the
+  // input the user actually uses, see main.jsx). The hover/pin bookkeeping
+  // below is mouse-only.
+  const touchMode = !!store.isTouchDevice
   const connected = visible && tab.status === statusMap.success
   const requestedItems = enabledItems.map(item => item.id)
   if (openId === 'cpu' || openId === 'memory') requestedItems.push('activities')
@@ -192,6 +197,15 @@ export default auto(function RemoteMonitorBar ({ store, style }) {
   }
 
   function handleOpenChange (id, open) {
+    if (touchMode) {
+      // the popover click trigger owns open/close
+      if (open) {
+        setOpenId(id)
+      } else {
+        closePopover()
+      }
+      return
+    }
     if (open) {
       setOpenId(id)
       if (pinnedId && pinnedId !== id) {
@@ -203,6 +217,10 @@ export default auto(function RemoteMonitorBar ({ store, style }) {
   }
 
   function handleClick (id) {
+    if (touchMode) {
+      // click trigger already toggled it, don't toggle twice
+      return
+    }
     if (pinnedId === id) {
       setPinnedId(null)
       setOpenId(null)
@@ -275,7 +293,7 @@ export default auto(function RemoteMonitorBar ({ store, style }) {
                     onOpenChange={open => handleOpenChange(item.id, open)}
                     open={openId === item.id}
                     placement='top'
-                    trigger={['hover', 'focus']}
+                    trigger={touchMode ? 'click' : ['hover', 'focus']}
                   >
                     <button
                       aria-label={`${label}: ${accessibleSummary}; ${statusText(level)}`}

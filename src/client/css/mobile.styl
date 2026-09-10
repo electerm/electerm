@@ -3,6 +3,14 @@
 // Breakpoint: 600px (see mobileBreakpoint in constants.js)
 // ---------------------------------------------------------------------------
 .is-mobile
+  // Keep every terminal footer row on the same positioning reference as the
+  // touch shortcut bar. Mobile browsers change the visual viewport when their
+  // chrome or soft keyboard opens; mixing absolute footer rows with the fixed
+  // shortcut row makes the monitor/shortcut stack detach from the footer.
+  .main-footer,
+  .remote-monitor-bar
+    position fixed
+
   // ---- 1. Tabs: show only current tab + dropdown, close icon always visible
   .tabs.mobile-tabs
     display flex

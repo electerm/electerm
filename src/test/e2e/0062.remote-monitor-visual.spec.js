@@ -77,6 +77,10 @@ test('remote monitor styles, panel geometry and mobile overflow', async () => {
     for (const width of [1200, 375]) {
       await page.setViewportSize({ width, height: 800 })
       await page.waitForFunction(width => window.store.width === width, width)
+      if (width === 375) {
+        assert.equal(await bar.evaluate(node => window.getComputedStyle(node).position), 'fixed')
+        assert.equal(await page.locator('.main-footer').evaluate(node => window.getComputedStyle(node).position), 'fixed')
+      }
       for (const sidebar of [false, true]) {
         for (const pinned of [false, true]) {
           for (const rightPinned of [false, true]) {
