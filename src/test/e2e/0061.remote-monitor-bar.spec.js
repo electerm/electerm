@@ -232,33 +232,33 @@ test('remote monitor bar renders, shares details, configures and persists', asyn
     await running.page.locator('.right-side-panel').waitFor({ state: 'visible' })
     await running.page.locator('.right-side-panel [data-monitor-detail="cpu"]').waitFor({ state: 'visible' })
     await bar.waitFor({ state: 'hidden' })
-    await running.page.locator('.terminal-info-filter').waitFor({ state: 'visible' })
+    // the info panel reuses the bar's ItemFilter component
+    await running.page.locator('.right-side-panel .item-filter').waitFor({ state: 'visible' })
     await running.page.locator('.right-side-panel-close').click()
+    await bar.waitFor({ state: 'visible' })
 
     await bar.hover()
-    await controls.locator('.ant-btn').first().click()
-    const settings = running.page.locator('.remote-monitor-setting')
-    await settings.waitFor({ state: 'visible' })
-    const itemSelect = settings.locator('.remote-monitor-item-select')
-    await itemSelect.waitFor({ state: 'visible' })
-    assert.equal(await itemSelect.locator('.ant-select-selection-item').count(), 9)
+    await controls.locator('.item-filter').click()
+    const filterList = running.page.locator('.item-filter-list:visible')
+    await filterList.waitFor({ state: 'visible' })
+    assert.equal(await filterList.locator('.item-filter-item').count(), 9)
+    assert.equal(await filterList.locator('.item-filter-item-on').count(), 9)
 
-    await itemSelect.hover()
-    await itemSelect.locator('.ant-select-clear').click()
+    for (const id of defaultItems) {
+      await filterList.locator(`[data-filter-item="${id}"]`).click()
+    }
     await running.page.waitForFunction(() => {
       return window.store.config.remoteMonitorBarItems.length === 0
     })
-    await itemSelect.click()
-    const dropdown = running.page.locator('.ant-select-dropdown:visible')
-    await dropdown.locator('.ant-select-item-option').filter({ hasText: 'Memory' }).click()
-    await dropdown.locator('.ant-select-item-option').filter({ hasText: 'Hostname' }).click()
-    await running.page.keyboard.press('Escape')
+    assert.equal(await bar.locator('.remote-monitor-item').count(), 0)
+    assert.equal(await bar.locator('.remote-monitor-message').count(), 1)
+
+    await filterList.locator('[data-filter-item="memory"]').click()
+    await filterList.locator('[data-filter-item="users"]').click()
     const selectedItems = await running.page.evaluate(() => {
       return window.store.config.remoteMonitorBarItems
     })
-    assert.deepEqual(selectedItems, ['memory', 'hostname'])
-    await running.page.evaluate(() => window.store.hideSettingModal())
-    await bar.waitFor({ state: 'visible' })
+    assert.deepEqual(selectedItems, ['memory', 'users'])
 
     assert.equal(
       await bar.locator('.remote-monitor-item').first().getAttribute('data-monitor-item'),
@@ -274,7 +274,7 @@ test('remote monitor bar renders, shares details, configures and persists', asyn
       items: window.store.config.remoteMonitorBarItems
     }))
     assert.equal(persisted.enabled, true)
-    assert.deepEqual(persisted.items, ['memory', 'hostname'])
+    assert.deepEqual(persisted.items, ['memory', 'users'])
 
     await connectFixture(running.page)
     const persistedBar = running.page.locator('.remote-monitor-bar')
@@ -286,7 +286,7 @@ test('remote monitor bar renders, shares details, configures and persists', asyn
     assert.equal(await persistedBar.locator('[data-monitor-item="cpu"]').count(), 0)
 
     await persistedBar.hover()
-    await persistedBar.locator('.remote-monitor-controls .ant-btn').nth(1).click()
+    await persistedBar.locator('.remote-monitor-controls .ant-btn').first().click()
     await persistedBar.waitFor({ state: 'detached' })
   } finally {
     await running.app.close().catch(() => {})

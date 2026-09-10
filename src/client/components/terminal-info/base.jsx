@@ -2,8 +2,7 @@
  * show base terminal info, id sessionID
  */
 import { Component } from 'react'
-import { Popover } from 'antd'
-import { CheckOutlined, FilterOutlined } from '@ant-design/icons'
+import ItemFilter from '../common/item-filter'
 import SwitchLabel from '../common/switch'
 import { INFO_PANEL_ITEM_IDS } from '../remote-monitor/monitor-model'
 import { toggleTerminalLog, toggleTerminalLogTimestamp } from '../terminal/terminal-apis'
@@ -114,56 +113,12 @@ export default class TerminalInfoBase extends Component {
   }
 
   renderInfoFilter () {
-    const selected = new Set(this.props.terminalInfos || [])
-    const content = (
-      <div className='terminal-info-filter-list' role='menu'>
-        {
-          INFO_PANEL_ITEM_IDS.map(id => {
-            const active = selected.has(id)
-            return (
-              <div
-                aria-checked={active}
-                className={'terminal-info-filter-item' + (active ? ' terminal-info-filter-item-on' : '')}
-                key={id}
-                onClick={() => this.handleToggleInfo(id)}
-                onKeyDown={event => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault()
-                    this.handleToggleInfo(id)
-                  }
-                }}
-                role='menuitemcheckbox'
-                tabIndex={0}
-              >
-                <span className='terminal-info-filter-check'>
-                  {active ? <CheckOutlined /> : null}
-                </span>
-                <span className='terminal-info-filter-label'>{e(id)}</span>
-              </div>
-            )
-          })
-        }
-      </div>
-    )
-    const total = INFO_PANEL_ITEM_IDS.length
-    const count = INFO_PANEL_ITEM_IDS.filter(id => selected.has(id)).length
     return (
-      <Popover
-        content={content}
-        placement='bottomRight'
-        title={e('filter')}
-        trigger='click'
-      >
-        <button
-          aria-label={`${e('filter')} (${count}/${total})`}
-          className='terminal-info-filter'
-          title={e('filter')}
-          type='button'
-        >
-          <FilterOutlined />
-          <span className='terminal-info-filter-count'>({count}/{total})</span>
-        </button>
-      </Popover>
+      <ItemFilter
+        ids={INFO_PANEL_ITEM_IDS}
+        onToggle={this.handleToggleInfo}
+        selected={this.props.terminalInfos || []}
+      />
     )
   }
 
