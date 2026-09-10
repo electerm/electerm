@@ -1,65 +1,56 @@
-/**
- * info content module
- */
-
-import { PureComponent } from 'react'
+import { auto } from 'manate/react'
+import { useEffect, useState } from 'react'
 import TerminalInfoBase from './base'
-import TerminalInfoUp from './up'
-import TerminalInfoNetwork from './network'
-import TerminalInfoResource from './resource'
-import TerminalInfoActivities from './activity'
-import TerminalInfoDisk from './disk'
-import TerminalInfoSys from './sys-info'
-import RunCmd from './run-cmd'
+import MonitorDetails from '../remote-monitor/monitor-details'
+import { getInfoPanelItems } from '../remote-monitor/monitor-model'
+import { useMonitorDetails } from '../remote-monitor/use-monitor-details'
+import { createEmptyMonitorSnapshot } from '../remote-monitor/session-monitor'
+import { getRemoteMonitorTab } from '../remote-monitor/visibility'
+import { statusMap } from '../../common/constants'
 import { runCmd } from '../terminal/terminal-apis'
+import resolveLocalInfo from './local-info-resolver'
 import './terminal-info.styl'
 
-export default class TerminalInfoContent extends PureComponent {
-  state = {
-    uptime: '',
-    cpu: '',
-    mem: {},
-    swap: {},
-    activities: [],
-    disks: [],
-    network: {},
-    sysInfo: null
-  }
-
-  setStateRef = (...args) => {
-    this.setState(...args)
-  }
-
-  killProcess = async (id) => {
-    const {
-      pid
-    } = this.props
-    const cmd = `kill ${id}`
-    runCmd(pid, cmd)
-  }
-
-  render () {
-    const { props, state } = this
-    if (props.rightPanelTab === 'ai') {
-      return null
-    }
-    return (
-      <>
-        <TerminalInfoBase {...props} {...state} />
-        <TerminalInfoSys {...props} {...state} />
-        <TerminalInfoUp {...props} {...state} />
-        <TerminalInfoResource
-          {...props} {...state}
-        />
-        <TerminalInfoActivities
-          {...props}
-          {...state}
-          killProcess={this.killProcess}
-        />
-        <TerminalInfoNetwork {...props} {...state} />
-        <TerminalInfoDisk {...props} {...state} />
-        <RunCmd {...props} setState={this.setStateRef} />
-      </>
-    )
-  }
+function LocalSystemInfo ({ pid }) {
+  const [info, setInfo] = useState(null)
+  useEffect(() => {
+    let active = true
+    resolveLocalInfo(pid).then(info => { if (active) setInfo(info) })
+    return () => { active = false }
+  }, [pid])
+  if (!info) return null
+  const snapshot = createEmptyMonitorSnapshot(pid)
+  snapshot.groups.sysinfo = { status: 'ready', data: info }
+  return <MonitorDetails id='hostname' snapshot={snapshot} config={{}} tab={{}} />
 }
+
+function RemoteInfo ({ tab, config }) {
+  const items = getInfoPanelItems(config.terminalInfos)
+  const { snapshot, levels } = useMonitorDetails(tab.id, items, tab.status === statusMap.success)
+  return items.map(id => (
+    <MonitorDetails
+      key={id}
+      id={id}
+      snapshot={snapshot}
+      levels={levels}
+      tab={tab}
+      config={config}
+      includeActivity={false}
+      onKillProcess={pid => runCmd(tab.id, `kill ${pid}`)}
+    />
+  ))
+}
+
+export default auto(function TerminalInfo ({ store, ...props }) {
+  const tab = getRemoteMonitorTab(store)
+  if (store.rightPanelTab !== 'info' || props.pid !== tab?.id) return null
+  const config = store.config
+  return (
+    <>
+      <TerminalInfoBase {...props} terminalInfos={config.terminalInfos} />
+      {props.isRemote
+        ? <RemoteInfo key={tab.id} tab={tab} config={config} />
+        : <LocalSystemInfo key={tab.id} pid={tab.id} />}
+    </>
+  )
+})

@@ -50,6 +50,7 @@
     .remote-monitor-bar
       display flex
       left 0 !important
+      width 100% !important
   .qm-wrap-tooltip
     display block
     left 0 !important
@@ -58,10 +59,10 @@
     display none
   .session-wrap.session-current
     .term-wrap
-      height calc(100% - var(--footer-stack-height, 36px) - var(--shortcut-bar-h, 0px)) !important
+      height calc(100% - var(--footer-stack-height, 36px) - var(--shortcut-bar-h, 0px) - var(--shortcut-bar-kb-offset, 0px)) !important
   // pinned quick-command bar (180px, same as quickCommandBoxHeight) sits
   // between terminal and footer — reserve its space too
   &.qm-pinned
     .session-wrap.session-current
       .term-wrap
-        height calc(100% - var(--footer-stack-height, 36px) - 180px - var(--shortcut-bar-h, 0px)) !important
+        height calc(100% - var(--footer-stack-height, 36px) - 180px - var(--shortcut-bar-h, 0px) - var(--shortcut-bar-kb-offset, 0px)) !important

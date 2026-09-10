@@ -69,6 +69,7 @@ test.afterAll(async () => {
 async function launchApp () {
   const app = await electron.launch({
     ...appOptions,
+    args: [...appOptions.args, `--user-data-dir=${profileRoot}`],
     env: {
       ...appOptions.env,
       DATA_PATH: path.join(profileRoot, 'data'),
@@ -107,11 +108,20 @@ test('remote monitor bar renders, shares details, configures and persists', asyn
         remoteMonitorBarItems: items
       })
     }, defaultItems)
+    // The production chunk (or dev module) must not load for local terminals.
+    const monitorModuleLoaded = () => running.page.evaluate(() =>
+      performance.getEntriesByType('resource').some(({ name }) =>
+        /\/remote-monitor-bar(?:-\d[^/]*\.js|\.jsx)(?:\?|$)/.test(name)
+      )
+    )
+    assert.equal(await monitorModuleLoaded(), false)
     await connectFixture(running.page)
 
     const bar = running.page.locator('.remote-monitor-bar')
     await bar.waitFor({ state: 'visible' })
+    assert.equal(await monitorModuleLoaded(), true)
     assert.equal(await bar.locator('.remote-monitor-item').count(), 9)
+    await bar.locator('.remote-monitor-item-cpuHistory svg').waitFor({ state: 'visible' })
     assert.equal(await bar.locator('.remote-monitor-item-cpuHistory svg').count(), 1)
     const borders = await bar.evaluate(node => {
       const item = node.querySelector('.remote-monitor-item')
@@ -220,8 +230,9 @@ test('remote monitor bar renders, shares details, configures and persists', asyn
 
     await popover.locator('.ant-btn-link').click()
     await running.page.locator('.right-side-panel').waitFor({ state: 'visible' })
-    await running.page.locator('.terminal-info-resource').waitFor({ state: 'visible' })
-    await running.page.locator('.terminal-info-item-select').waitFor({ state: 'visible' })
+    await running.page.locator('.right-side-panel [data-monitor-detail="cpu"]').waitFor({ state: 'visible' })
+    await bar.waitFor({ state: 'hidden' })
+    await running.page.locator('.terminal-info-filter').waitFor({ state: 'visible' })
     await running.page.locator('.right-side-panel-close').click()
 
     await bar.hover()

@@ -4,7 +4,7 @@ import './right-side-panel.styl'
 import {
   CloseCircleOutlined,
   PushpinOutlined,
-  InfoCircleOutlined
+  BarChartOutlined
 } from '@ant-design/icons'
 import {
   Typography,
@@ -29,7 +29,7 @@ export default memo(function RightSidePanel (
   }
   const tag = rightPanelTab === 'ai'
     ? <Tag className='mg1r'>AI</Tag>
-    : <InfoCircleOutlined className='mg1r' />
+    : <BarChartOutlined className='mg1r' />
 
   function onDragEnd (nw) {
     window.store.setRightSidePanelWidth(nw)

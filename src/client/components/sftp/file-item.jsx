@@ -36,6 +36,7 @@ import { filesize } from 'filesize'
 import { createTransferProps } from './transfer-common'
 import generate from '../../common/uid'
 import sanitizeFilename from '../../common/sanitize-filename'
+import { openTextEditor } from '../text-editor/open-text-editor'
 import { refsStatic, refs, filesRef } from '../common/ref'
 import iconsMap from '../sys-menu/icons-map'
 import message from '../common/message'
@@ -702,7 +703,7 @@ export default class FileSection extends React.Component {
   }
 
   onFileChange = (e, text) => {
-    this.editor.editWithSystemEditorDone({
+    this.editor?.editWithSystemEditorDone({
       id: this.id,
       text
     })
@@ -773,7 +774,8 @@ export default class FileSection extends React.Component {
 
   editFile = () => {
     refs.add(this.id, this)
-    this.editor?.openEditor({
+    // editor is lazy loaded, this will mount it on demand
+    openTextEditor({
       id: this.id,
       file: this.state.file
     })

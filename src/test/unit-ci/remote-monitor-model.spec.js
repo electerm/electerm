@@ -38,6 +38,13 @@ describe('remote monitor item configuration', () => {
     ])
   })
 
+  test('maps saved Info panel sections to shared details without duplicating memory and swap', () => {
+    assert.deepEqual(model.getInfoPanelItems(['cpu', 'mem', 'swap', 'network', 'activities', 'users', 'unknown']),
+      ['hostname', 'cpu', 'memory', 'activities', 'network', 'users'])
+    assert.deepEqual(model.getInfoPanelItems(['swap']), ['hostname', 'swap'])
+    assert.deepEqual(model.getInfoPanelItems([]), ['hostname'])
+  })
+
   test('keeps explicit empty configuration as all disabled, not default enabled', () => {
     const items = model.normalizeRemoteMonitorItems([])
     assert.equal(items.length, 9)
@@ -174,6 +181,7 @@ describe('remote monitor parsers', () => {
       mount: '/'
     })
     assert.equal(disks[1].mount, '/home/My Data')
+    assert.equal(model.parseDisks(String.raw`/dev/sda 100 50 50 50% /tab\011back\134slash`)[0].mount, '/tab\tback\\slash')
     assert.equal(model.parseDisks(''), null)
   })
 

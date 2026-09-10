@@ -13,5 +13,6 @@ export function isRemoteMonitorBarVisible (store) {
   return !!store.config.remoteMonitorBarEnabled &&
     !!isSsh &&
     pane !== undefined &&
-    !store.showModal
+    !store.showModal &&
+    !(store.rightPanelVisible && store.rightPanelTab === 'info')
 }

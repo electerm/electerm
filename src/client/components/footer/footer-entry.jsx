@@ -4,7 +4,7 @@ import {
   Dropdown,
   Badge
 } from 'antd'
-import { InfoCircleOutlined, TranslationOutlined, DoubleRightOutlined, FunctionOutlined } from '@ant-design/icons'
+import { BarChartOutlined, TranslationOutlined, DoubleRightOutlined, FunctionOutlined } from '@ant-design/icons'
 import './footer.styl'
 import { statusMap } from '../../common/constants'
 import BatchInput from './batch-input'
@@ -178,7 +178,7 @@ export default auto(function FooterEntry (props) {
     }
     return (
       <div className='terminal-footer-unit terminal-footer-info'>
-        <InfoCircleOutlined
+        <BarChartOutlined
           onClick={handleInfoPanel}
           className='pointer font14 terminal-info-icon'
         />

@@ -119,7 +119,13 @@ class Term extends Component {
   terminalColorQueryDisposables = []
 
   componentDidMount () {
-    this.initTerminal()
+    // xterm and every addon are dynamic imports: a failed chunk fetch would
+    // otherwise end as a silent unhandled rejection with a permanently blank
+    // terminal pane
+    this.initTerminal().catch(e => {
+      console.error(e)
+      this.handleError({ message: e.message })
+    })
     if (this.props.tab.enableSsh === false) {
       this.props.tab.pane = paneMap.fileManager
     }

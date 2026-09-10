@@ -38,6 +38,7 @@
 
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { auto } from 'manate/react'
+import LazyBoundary from '../common/lazy-boundary'
 
 const ShortcutBar = lazy(() => import('./shortcut-bar'))
 
@@ -166,9 +167,11 @@ function ShortcutBarEntry (props) {
     return null
   }
   return (
-    <Suspense fallback={null}>
-      <ShortcutBar {...props} />
-    </Suspense>
+    <LazyBoundary>
+      <Suspense fallback={null}>
+        <ShortcutBar {...props} />
+      </Suspense>
+    </LazyBoundary>
   )
 }
 

@@ -193,6 +193,9 @@ export default () => {
 
     // editor
     showEditor: false,
+    // set to true to mount the text editor component,
+    // so its code is only loaded when user really needs it
+    textEditorRequested: false,
 
     // file/info modal
     showFileModal: false,

@@ -203,8 +203,15 @@ export const socketMixin = {
     this.initSocketEvents()
     this.term = term
     socket.onopen = async () => {
-      await this.initAttachAddon()
-      this.startupQueue.runInitScript()
+      // attach addon is a dynamic import too — report a failed chunk fetch
+      // instead of leaving an unhandled rejection behind
+      try {
+        await this.initAttachAddon()
+        this.startupQueue.runInitScript()
+      } catch (e) {
+        console.error(e)
+        this.handleError({ message: e.message })
+      }
     }
     // term.onRrefresh(this.onRefresh)
     term.onResize(this.onResizeTerminal)

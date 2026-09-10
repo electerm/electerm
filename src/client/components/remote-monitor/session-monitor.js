@@ -3,6 +3,7 @@ import {
   REMOTE_MONITOR_COMMANDS,
   REMOTE_MONITOR_INTERVALS,
   deriveNetworkRates,
+  getUsageLevel,
   parseActivities,
   parseCpu,
   parseDisks,
@@ -35,7 +36,8 @@ export function createEmptyMonitorSnapshot (sessionId = '') {
   return {
     sessionId,
     groups: Object.fromEntries(GROUP_NAMES.map(name => [name, emptyGroup()])),
-    cpuHistory: []
+    cpuHistory: [],
+    levels: { cpu: 'unknown', memory: 'unknown', disks: {} }
   }
 }
 
@@ -156,12 +158,11 @@ export class SessionMonitor {
       return
     }
     const runner = {
-      token: 1,
       timer: null,
       failures: 0
     }
     this.runners.set(name, runner)
-    this.runGroup(name, runner.token)
+    this.runGroup(name, runner)
   }
 
   stopGroup (name) {
@@ -169,7 +170,6 @@ export class SessionMonitor {
     if (!runner) {
       return
     }
-    runner.token += 1
     clearTimeout(runner.timer)
     this.runners.delete(name)
     if (name === 'network') {
@@ -201,9 +201,8 @@ export class SessionMonitor {
     return this.executor(command)
   }
 
-  async runGroup (name, token) {
-    const runner = this.runners.get(name)
-    if (!runner || runner.token !== token) {
+  async runGroup (name, runner) {
+    if (this.runners.get(name) !== runner) {
       return
     }
     const previous = this.snapshot.groups[name]
@@ -221,6 +220,9 @@ export class SessionMonitor {
       const results = []
       for (const command of commands) {
         const result = await this.execute(command)
+        if (this.runners.get(name) !== runner) {
+          return
+        }
         if (failedResult(result)) {
           unsupported = unsupportedResult(result)
           const error = new Error(result?.timedOut
@@ -230,9 +232,6 @@ export class SessionMonitor {
           throw error
         }
         results.push(result)
-      }
-      if (!this.runners.has(name) || runner.token !== token) {
-        return
       }
       const sampleTimestamp = Date.now()
       const parsed = parseGroup(name, results, sampleTimestamp, this.networkSample)
@@ -251,8 +250,17 @@ export class SessionMonitor {
           { timestamp: sampleTimestamp, value: data }
         ].slice(-60)
       }
+      const levels = { ...this.snapshot.levels }
+      if (name === 'cpu') levels.cpu = getUsageLevel(data, levels.cpu)
+      if (name === 'memory') levels.memory = getUsageLevel(data.percent, levels.memory)
+      if (name === 'disks') {
+        levels.disks = Object.fromEntries(data.map(disk => [
+          disk.mount, getUsageLevel(disk.percent, levels.disks[disk.mount])
+        ]))
+      }
       this.snapshot = {
         ...this.snapshot,
+        levels,
         cpuHistory,
         groups: {
           ...this.snapshot.groups,
@@ -266,7 +274,7 @@ export class SessionMonitor {
       }
       this.emit()
     } catch (error) {
-      if (!this.runners.has(name) || runner.token !== token) {
+      if (this.runners.get(name) !== runner) {
         return
       }
       runner.failures += 1
@@ -283,14 +291,14 @@ export class SessionMonitor {
         return
       }
     }
-    if (!this.runners.has(name) || runner.token !== token) {
+    if (this.runners.get(name) !== runner) {
       return
     }
     const interval = REMOTE_MONITOR_INTERVALS[name]
     if (interval > 0 || runner.failures > 0) {
       const baseInterval = interval || 5000
       const backoff = Math.min(baseInterval * (2 ** runner.failures), 60000)
-      runner.timer = setTimeout(() => this.runGroup(name, token), backoff)
+      runner.timer = setTimeout(() => this.runGroup(name, runner), backoff)
     } else {
       this.runners.delete(name)
     }

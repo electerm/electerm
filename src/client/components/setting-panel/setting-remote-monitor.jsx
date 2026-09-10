@@ -20,7 +20,6 @@ export default function SettingRemoteMonitor (props) {
       <SwitchLabel
         checked={!!config.remoteMonitorBarEnabled}
         className='mg1b'
-        label={e('enabled')}
         onChange={remoteMonitorBarEnabled => {
           store.setConfig({ remoteMonitorBarEnabled })
         }}
@@ -35,7 +34,7 @@ export default function SettingRemoteMonitor (props) {
         }}
         placeholder={e('remoteMonitorBar')}
         popupMatchSelectWidth={false}
-        style={{ minWidth: 320, width: '100%' }}
+        style={{ width: '100%' }}
         value={value}
       >
         {

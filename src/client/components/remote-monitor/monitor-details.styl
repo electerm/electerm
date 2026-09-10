@@ -1,0 +1,110 @@
+.remote-monitor-sparkline
+  display block
+  overflow visible
+  color var(--primary)
+  transition color 120ms ease
+
+.remote-monitor-empty
+  color var(--text-disabled)
+
+.remote-monitor-popover
+  width 440px
+  max-width calc(100vw - 32px)
+  max-height calc(100dvh - 80px - var(--shortcut-bar-kb-offset, 0px))
+  overflow auto
+
+.remote-monitor-details
+  min-width 0
+  color var(--text)
+  font-size 12px
+
+.remote-monitor-detail-heading
+  margin-bottom 8px
+  color var(--text)
+  font-size 13px
+  font-weight 600
+
+.remote-monitor-detail-state
+  margin 6px 0
+  color var(--text-disabled)
+
+.remote-monitor-detail-rows
+  margin 0 0 8px
+
+.remote-monitor-detail-row
+  display grid
+  grid-template-columns minmax(0, 0.45fr) minmax(0, 1fr)
+  gap 10px
+  padding 3px 0
+  dt
+    color var(--text-dark)
+  dd
+    min-width 0
+    margin 0
+    overflow hidden
+    text-overflow ellipsis
+    color var(--text)
+    font-variant-numeric tabular-nums
+
+.remote-monitor-detail-chart
+  display flex
+  align-items center
+  justify-content center
+  margin 8px 0
+  padding 4px
+  .remote-monitor-sparkline
+    max-width 100%
+
+.remote-monitor-activity
+  margin-top 10px
+  .remote-monitor-table-wrap
+    max-height 240px
+
+.remote-monitor-table-wrap
+  max-width 100%
+  overflow auto
+
+.remote-monitor-table
+  width 100%
+  min-width 340px
+  font-size 11px
+  font-variant-numeric tabular-nums
+  th,
+  td
+    max-width 220px
+    padding 5px 7px
+    overflow hidden
+    text-align left
+    text-overflow ellipsis
+    white-space nowrap
+  th
+    position sticky
+    top 0
+    z-index 1
+    background var(--main)
+    color var(--text-dark)
+    font-weight 600
+
+.remote-monitor-table
+  .remote-monitor-kill-cell
+    width 30px
+    max-width 30px
+    padding-left 0
+    padding-right 0
+    text-align center
+
+.remote-monitor-item.remote-monitor-level-warning,
+.remote-monitor-level-warning
+  color var(--warn)
+
+.remote-monitor-item.remote-monitor-level-critical,
+.remote-monitor-level-critical
+  color var(--error)
+
+.remote-monitor-item.remote-monitor-level-unknown,
+.remote-monitor-level-unknown
+  color var(--text-disabled)
+
+@media (prefers-reduced-motion: reduce)
+  .remote-monitor-sparkline
+    transition none

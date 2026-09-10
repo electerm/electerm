@@ -511,8 +511,8 @@ const PSEUDO_FILESYSTEMS = new Set([
 function decodeMount (value) {
   return value
     .replace(/\\040/g, ' ')
-    .replace(/\\011/g, '\\t')
-    .replace(/\\134/g, '\\\\')
+    .replace(/\\011/g, '\t')
+    .replace(/\\134/g, '\\')
 }
 
 function diskFromFields (filesystem, fields) {
@@ -694,4 +694,71 @@ export function formatDuration (value) {
     return `${minutes}m ${String(secs).padStart(2, '0')}s`
   }
   return `${secs}s`
+}
+
+export const MONITOR_ITEM_GROUP = {
+  hostname: 'sysinfo',
+  cpu: 'cpu',
+  cpuHistory: 'cpu',
+  memory: 'memory',
+  upload: 'network',
+  download: 'network',
+  uptime: 'uptime',
+  users: 'users',
+  disks: 'disks',
+  swap: 'memory',
+  network: 'network',
+  activities: 'activities'
+}
+
+const DISK_PRIORITY = ['/', '/home', '/var', '/data']
+
+// Selectable info panel sections, in the order they are displayed.
+// `mem` is the config id, `memory` is the monitor group id.
+export const INFO_PANEL_ITEM_IDS = Object.freeze([
+  'uptime',
+  'cpu',
+  'mem',
+  'activities',
+  'network',
+  'disks',
+  'users'
+])
+
+const INFO_PANEL_ORDER = [
+  'hostname',
+  'uptime',
+  'cpu',
+  'memory',
+  'swap',
+  'activities',
+  'network',
+  'disks',
+  'users'
+]
+
+export function groupOf (snapshot, name) {
+  return snapshot.groups[name] || {
+    status: 'idle',
+    data: null,
+    updatedAt: null,
+    error: null
+  }
+}
+
+export function sortDisks (disks) {
+  return [...(Array.isArray(disks) ? disks : [])].sort((a, b) => {
+    const ai = DISK_PRIORITY.indexOf(a.mount)
+    const bi = DISK_PRIORITY.indexOf(b.mount)
+    const ar = ai === -1 ? DISK_PRIORITY.length : ai
+    const br = bi === -1 ? DISK_PRIORITY.length : bi
+    return ar - br || a.mount.localeCompare(b.mount)
+  })
+}
+
+export function getInfoPanelItems (items = []) {
+  const selected = new Set(['hostname', ...items.map(id => id === 'mem' ? 'memory' : id)])
+  if (selected.has('memory')) selected.delete('swap')
+  // Always render in the fixed order, no matter how the user toggled them
+  return INFO_PANEL_ORDER.filter(id => selected.has(id) && MONITOR_ITEM_GROUP[id])
 }

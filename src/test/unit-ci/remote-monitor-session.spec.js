@@ -50,6 +50,23 @@ describe('shared remote monitor session owner', () => {
     monitor.destroy()
   })
 
+  test('preserves usage thresholds when switching between bar and panel subscriptions', async () => {
+    const { SessionMonitor } = await loadModule()
+    let cpu = 95
+    const monitor = new SessionMonitor('session-handoff', async () => ({ ...cpuResult, stdout: `CPU ${cpu}%` }))
+    const offBar = monitor.subscribe(['cpu'], () => {})
+    await turn()
+    assert.equal(monitor.snapshot.levels.cpu, 'critical')
+    offBar()
+    cpu = 87
+    const offPanel = monitor.subscribe(['cpu'], () => {})
+    await turn()
+    assert.equal(monitor.snapshot.groups.cpu.data, 87)
+    assert.equal(monitor.snapshot.levels.cpu, 'critical')
+    offPanel()
+    monitor.destroy()
+  })
+
   test('starts activity only when an activity subscriber exists', async () => {
     const commands = []
     const { SessionMonitor } = await loadModule()
@@ -114,6 +131,26 @@ describe('shared remote monitor session owner', () => {
     assert.equal(snapshots.length, countAfterStop)
     assert.notEqual(monitor.snapshot.groups.cpu.status, 'ready')
 
+    monitor.destroy()
+  })
+
+  test('does not continue an obsolete system-info request after resubscribing', async () => {
+    const { SessionMonitor } = await loadModule()
+    const pending = deferred()
+    const commands = []
+    const monitor = new SessionMonitor('session-restart', command => {
+      commands.push(command)
+      return pending.promise
+    })
+    const off = monitor.subscribe(['sysinfo'], () => {})
+    off()
+    const offNew = monitor.subscribe(['cpu'], () => {})
+    pending.resolve(cpuResult)
+    await turn()
+    assert.equal(commands.length, 2)
+    assert.notEqual(monitor.snapshot.groups.sysinfo.status, 'ready')
+    assert.equal(monitor.snapshot.groups.cpu.status, 'ready')
+    offNew()
     monitor.destroy()
   })
 })

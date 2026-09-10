@@ -135,12 +135,10 @@ function ShortcutBar (props) {
   // keep the offset in a CSS var consumed by shortcut-bar.styl, and expose the
   // lifted height so layout.jsx can shrink the terminal accordingly.
   useEffect(() => {
-    document.documentElement.style.setProperty(
-      '--shortcut-bar-kb-offset',
-      kbOffset ? kbOffset + 'px' : '0px'
-    )
-    store.shortcutBarKbOffset = kbOffset
-  }, [kbOffset])
+    const offset = store.shortcutBarVisible ? kbOffset : 0
+    document.documentElement.style.setProperty('--shortcut-bar-kb-offset', offset + 'px')
+    store.shortcutBarKbOffset = offset
+  }, [kbOffset, store.shortcutBarVisible])
 
   // reserve layout space + lift the footer while the bar is shown.
   // expose the bar height as a CSS var so the .styl + footer-lift rule stay

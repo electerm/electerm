@@ -1,14 +1,10 @@
 /**
  * terminal/sftp wrapper
  */
-import { createRef } from 'react'
+import { createRef, lazy, Suspense } from 'react'
 import { Component } from 'manate/react/class-components'
 import Term from '../terminal/terminal.jsx'
 import Sftp from '../sftp/sftp-entry'
-import RdpSession from '../rdp/rdp-session'
-import VncSession from '../vnc/vnc-session'
-import WebSession from '../web/web-session.jsx'
-import SpiceSession from '../spice/spice-session'
 import {
   FullscreenOutlined
 } from '@ant-design/icons'
@@ -31,8 +27,13 @@ import {
 import { refs } from '../common/ref'
 import sanitizeFilename from '../../common/sanitize-filename.js'
 import SessionControl from './session-control'
+import LazyBoundary from '../common/lazy-boundary'
 import './session.styl'
 
+const RdpSession = lazy(() => import('../rdp/rdp-session'))
+const VncSession = lazy(() => import('../vnc/vnc-session'))
+const WebSession = lazy(() => import('../web/web-session.jsx'))
+const SpiceSession = lazy(() => import('../spice/spice-session'))
 const e = window.translate
 const SplitterPane = Splitter.Panel
 
@@ -239,9 +240,11 @@ export default class SessionWrapper extends Component {
         reloadTab: this.props.reloadTab
       }
       return (
-        <WebSession
-          {...webProps}
-        />
+        <LazyBoundary>
+          <WebSession
+            {...webProps}
+          />
+        </LazyBoundary>
       )
     }
     if (type === terminalRdpType || type === terminalVncType || type === terminalSpiceType) {
@@ -269,23 +272,29 @@ export default class SessionWrapper extends Component {
       }
       if (type === terminalVncType) {
         return (
-          <VncSession
-            {...rdpProps}
-          />
+          <LazyBoundary>
+            <VncSession
+              {...rdpProps}
+            />
+          </LazyBoundary>
         )
       }
       if (type === terminalSpiceType) {
         return (
-          <SpiceSession
-            {...rdpProps}
-          />
+          <LazyBoundary>
+            <SpiceSession
+              {...rdpProps}
+            />
+          </LazyBoundary>
         )
       }
 
       return (
-        <RdpSession
-          {...rdpProps}
-        />
+        <LazyBoundary>
+          <RdpSession
+            {...rdpProps}
+          />
+        </LazyBoundary>
       )
     }
 
@@ -627,7 +636,9 @@ export default class SessionWrapper extends Component {
           onOpenSearch={this.handleOpenSearch}
           onExitGracefully={this.handleExitGracefully}
         />
-        {this.renderViews()}
+        <Suspense fallback={null}>
+          {this.renderViews()}
+        </Suspense>
       </div>
     )
   }

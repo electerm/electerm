@@ -1,35 +1,26 @@
 .remote-monitor-bar
   position absolute
-  left calc(var(--left-side-bar-width, 43px) + 1px)
-  right 0
   bottom 36px
-  z-index 201
-  height 28px
+  z-index 188
+  overflow hidden
   display flex
-  align-items stretch
   background var(--main)
   color var(--text)
   font-size 12px
-  line-height 1
+  font-variant-numeric tabular-nums
   user-select none
-
-.pinned
-  .remote-monitor-bar
-    left 343px
 
 .remote-monitor-scroll
   min-width 0
   flex 1
   display flex
-  align-items stretch
   overflow-x auto
   overflow-y hidden
   scrollbar-width thin
   overscroll-behavior-x contain
 
 .remote-monitor-item
-  height 27px
-  min-width max-content
+  height 100%
   flex-shrink 0
   display inline-flex
   align-items center
@@ -40,7 +31,6 @@
   background transparent
   color var(--text)
   font inherit
-  font-variant-numeric tabular-nums
   white-space nowrap
   cursor default
   transition color 120ms ease, background-color 120ms ease
@@ -51,43 +41,19 @@
     box-shadow inset 0 0 0 1px var(--primary)
 
 .remote-monitor-item-hostname
+  display block
   max-width 220px
   overflow hidden
   text-overflow ellipsis
-
-.remote-monitor-item-cpu,
-.remote-monitor-item-memory,
-.remote-monitor-item-upload,
-.remote-monitor-item-download,
-.remote-monitor-item-uptime
-  min-width 76px
 
 .remote-monitor-disk-summary
   display inline-flex
   align-items center
   gap 6px
 
-.remote-monitor-level-warning
-  color var(--warn) !important
-
-.remote-monitor-level-critical
-  color var(--error) !important
-
-.remote-monitor-level-unknown
-  color var(--text-disabled) !important
-
 .remote-monitor-status-marker
   flex-shrink 0
   font-size 10px
-
-.remote-monitor-sparkline
-  display block
-  overflow visible
-  color var(--primary)
-  transition color 120ms ease
-
-.remote-monitor-empty
-  color var(--text-disabled)
 
 .remote-monitor-message
   display flex
@@ -105,7 +71,7 @@
   pointer-events none
   .ant-btn
     width 28px
-    height 27px
+    height 100%
     padding 0
     color var(--text-dark)
     &:hover,
@@ -115,84 +81,12 @@
 
 .remote-monitor-bar:hover,
 .remote-monitor-bar:focus-within,
+.is-mobile,
 .is-touch-device
   .remote-monitor-controls
     opacity 1
     pointer-events auto
 
-.remote-monitor-popover
-  width 440px
-  max-width calc(100vw - 32px)
-  max-height calc(100vh - 80px)
-  overflow auto
-  color var(--text)
-  font-size 12px
-
-.remote-monitor-detail-heading
-  margin-bottom 8px
-  color var(--text)
-  font-size 13px
-  font-weight 600
-
-.remote-monitor-detail-state
-  margin 6px 0
-  color var(--text-disabled)
-
-.remote-monitor-detail-rows
-  margin 0 0 8px
-
-.remote-monitor-detail-row
-  display grid
-  grid-template-columns minmax(80px, 0.45fr) minmax(140px, 1fr)
-  gap 10px
-  padding 3px 0
-  dt
-    color var(--text-dark)
-  dd
-    min-width 0
-    margin 0
-    overflow hidden
-    text-overflow ellipsis
-    color var(--text)
-    font-variant-numeric tabular-nums
-
-.remote-monitor-detail-chart
-  display flex
-  align-items center
-  justify-content center
-  min-height 92px
-  margin 8px 0
-  padding 4px
-
-.remote-monitor-activity
-  margin-top 10px
-
-.remote-monitor-table-wrap
-  max-width 100%
-  overflow auto
-
-.remote-monitor-table
-  width 100%
-  min-width 340px
-  font-size 11px
-  font-variant-numeric tabular-nums
-  th,
-  td
-    max-width 220px
-    padding 5px 7px
-    overflow hidden
-    text-align left
-    text-overflow ellipsis
-    white-space nowrap
-  th
-    position sticky
-    top 0
-    z-index 1
-    background var(--main)
-    color var(--text-dark)
-    font-weight 600
-
 @media (prefers-reduced-motion: reduce)
-  .remote-monitor-item,
-  .remote-monitor-sparkline
+  .remote-monitor-item
     transition none

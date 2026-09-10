@@ -2,16 +2,16 @@
  * show base terminal info, id sessionID
  */
 import { Component } from 'react'
-import { Select } from 'antd'
+import { Popover } from 'antd'
+import { CheckOutlined, FilterOutlined } from '@ant-design/icons'
 import SwitchLabel from '../common/switch'
-import defaults from '../../common/default-setting'
+import { INFO_PANEL_ITEM_IDS } from '../remote-monitor/monitor-model'
 import { toggleTerminalLog, toggleTerminalLogTimestamp } from '../terminal/terminal-apis'
 import { refs } from '../common/ref'
 import ShowItem from '../common/show-item'
 import { osResolve } from '../../common/resolve'
 import createDefaultLogPath from '../../common/default-log-path'
 
-const { Option } = Select
 const e = window.translate
 
 export default class TerminalInfoBase extends Component {
@@ -52,8 +52,14 @@ export default class TerminalInfoBase extends Component {
     })
   }
 
-  handleTerminalInfosChange = (terminalInfos) => {
-    window.store.setConfig({ terminalInfos })
+  handleToggleInfo = (id) => {
+    const selected = new Set(this.props.terminalInfos || [])
+    if (selected.has(id)) {
+      selected.delete(id)
+    } else {
+      selected.add(id)
+    }
+    window.store.setTerminalInfos(INFO_PANEL_ITEM_IDS.filter(x => selected.has(x)))
   }
 
   handleToggle = () => {
@@ -107,30 +113,57 @@ export default class TerminalInfoBase extends Component {
     )
   }
 
-  renderInfoSelection () {
-    const { terminalInfos } = this.props
-    return (
-      <Select
-        aria-label={e('filter')}
-        allowClear
-        className='terminal-info-item-select'
-        mode='multiple'
-        onChange={this.handleTerminalInfosChange}
-        placeholder={e('filter')}
-        popupMatchSelectWidth={false}
-        style={{ minWidth: 240, width: '100%' }}
-        value={terminalInfos}
-      >
+  renderInfoFilter () {
+    const selected = new Set(this.props.terminalInfos || [])
+    const content = (
+      <div className='terminal-info-filter-list' role='menu'>
         {
-          defaults.terminalInfos.map(id => {
+          INFO_PANEL_ITEM_IDS.map(id => {
+            const active = selected.has(id)
             return (
-              <Option key={id} value={id}>
-                {e(id)}
-              </Option>
+              <div
+                aria-checked={active}
+                className={'terminal-info-filter-item' + (active ? ' terminal-info-filter-item-on' : '')}
+                key={id}
+                onClick={() => this.handleToggleInfo(id)}
+                onKeyDown={event => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    this.handleToggleInfo(id)
+                  }
+                }}
+                role='menuitemcheckbox'
+                tabIndex={0}
+              >
+                <span className='terminal-info-filter-check'>
+                  {active ? <CheckOutlined /> : null}
+                </span>
+                <span className='terminal-info-filter-label'>{e(id)}</span>
+              </div>
             )
           })
         }
-      </Select>
+      </div>
+    )
+    const total = INFO_PANEL_ITEM_IDS.length
+    const count = INFO_PANEL_ITEM_IDS.filter(id => selected.has(id)).length
+    return (
+      <Popover
+        content={content}
+        placement='bottomRight'
+        title={e('filter')}
+        trigger='click'
+      >
+        <button
+          aria-label={`${e('filter')} (${count}/${total})`}
+          className='terminal-info-filter'
+          title={e('filter')}
+          type='button'
+        >
+          <FilterOutlined />
+          <span className='terminal-info-filter-count'>({count}/{total})</span>
+        </button>
+      </Popover>
     )
   }
 
@@ -169,9 +202,9 @@ export default class TerminalInfoBase extends Component {
               )
             : null
         }
-        <div className='pd2y'>
+        <div className='terminal-info-filter-wrap'>
           {
-            this.renderInfoSelection()
+            this.renderInfoFilter()
           }
         </div>
 
