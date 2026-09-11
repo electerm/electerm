@@ -14,12 +14,17 @@ async function diagnose (client, tag) {
       const q = (sel) => document.querySelectorAll(sel).length
       const firstTitles = (sel, n = 8) => Array.from(document.querySelectorAll(sel)).slice(0, n).map((d) => d.getAttribute('title'))
       const termEl = document.querySelector('.session-current .term-wrap .xterm-screen')
+      const termText = termEl ? (termEl.textContent || '') : ''
       const active = document.activeElement
+      const localList = document.querySelector('.session-current .file-list.local')
+      const remoteList = document.querySelector('.session-current .file-list.remote')
       return {
         win: { w: window.innerWidth, h: window.innerHeight },
         sessionCurrent: q('.session-current'),
         termWrap: q('.session-current .term-wrap'),
-        termTextLen: termEl ? (termEl.textContent || '').length : null,
+        termTextLen: termText.length,
+        termHead: termText.slice(0, 400),
+        termTail: termText.slice(-400),
         activeTag: active ? active.tagName + (active.className ? '.' + String(active.className).slice(0, 60) : '') : null,
         localItems: q('.session-current .file-list.local .sftp-item'),
         localReal: q('.session-current .file-list.local .real-file-item'),
@@ -30,6 +35,8 @@ async function diagnose (client, tag) {
         dropdowns: q('.ant-dropdown:not(.ant-dropdown-hidden)'),
         localSample: firstTitles('.session-current .file-list.local .sftp-item'),
         remoteSample: firstTitles('.session-current .file-list.remote .sftp-item'),
+        localHtml: localList ? localList.innerHTML.slice(0, 600) : null,
+        remoteHtml: remoteList ? remoteList.innerHTML.slice(0, 600) : null,
         tabs: q('.tabs .tabs-wrapper .tab')
       }
     })
