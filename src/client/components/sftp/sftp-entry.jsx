@@ -104,8 +104,12 @@ export default class Sftp extends Component {
     refs.remove(this.id)
     this.sftp && this.sftp.destroy()
     this.sftp = null
+    clearTimeout(this.timer)
+    this.timer = null
     clearTimeout(this.timer4)
     this.timer4 = null
+    clearTimeout(this.retryHandler)
+    this.retryHandler = null
     // Clear sort cache to prevent memory leaks
     this._sortCache?.clear()
     this._lastSortArgs = null

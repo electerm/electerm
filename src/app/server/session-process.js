@@ -298,39 +298,42 @@ exports.terminals = function (pid) {
       }, parentTimeout)
     },
     resize: (cols, rows, id) => {
+      // Fire-and-forget, but bound the pending IPC listener with a timeout
+      // so a slow/dead child can not accumulate 'message' handlers on resize
+      // floods (fit sends resize on every layout change).
       sendMsgToChildProcess(pid, {
         id,
         action: 'resize-terminal',
         body: { cols, rows, pid }
-      })// Ignore errors for resize
+      }, 10000).catch(() => {})// Ignore errors for resize
     },
     toggleTerminalLog: (id) => {
       sendMsgToChildProcess(pid, {
         id,
         action: 'toggle-terminal-log',
         body: { pid }
-      })
+      }, 10000).catch(() => {})
     },
     toggleTerminalLogTimestamp: (id) => {
       sendMsgToChildProcess(pid, {
         id,
         action: 'toggle-terminal-log-timestamp',
         body: { pid }
-      })
+      }, 10000).catch(() => {})
     },
     setTerminalLogPath: (id, logPath) => {
       sendMsgToChildProcess(pid, {
         id,
         action: 'set-terminal-log-path',
         body: { pid, logPath }
-      })
+      }, 10000).catch(() => {})
     },
     startTerminalLogFile: (id, logFilePath, addTimeStampToTermLog) => {
       sendMsgToChildProcess(pid, {
         id,
         action: 'start-terminal-log-file',
         body: { pid, logFilePath, addTimeStampToTermLog }
-      })
+      }, 10000).catch(() => {})
     }
   }
 }

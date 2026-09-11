@@ -94,6 +94,14 @@ class TerminalTelnet extends TerminalBase {
     this.port.on(event, cb)
   }
 
+  off = (event, cb) => {
+    try {
+      this.port?.removeListener?.(event, cb)
+    } catch (_) {
+      // ignore removal errors during teardown
+    }
+  }
+
   write = (data) => {
     try {
       const encode = this.initOptions?.encode

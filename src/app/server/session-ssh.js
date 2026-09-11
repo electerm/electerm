@@ -1002,6 +1002,15 @@ class TerminalSshBase extends TerminalBase {
     this.channel.stderr.on(event, cb)
   }
 
+  off (event, cb) {
+    try {
+      this.channel?.removeListener?.(event, cb)
+    } catch (_) {}
+    try {
+      this.channel?.stderr?.removeListener?.(event, cb)
+    } catch (_) {}
+  }
+
   write (data) {
     const encode = this.connectOptions?.encode || this.initOptions?.encode
     if (encode && !utf8Aliases.has(encode.toLowerCase()) && typeof data === 'string') {

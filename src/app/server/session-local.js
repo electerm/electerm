@@ -76,6 +76,21 @@ class TerminalLocal extends TerminalBase {
     this.term.on(event, cb)
   }
 
+  off (event, cb) {
+    try {
+      if (!this.term) {
+        return
+      }
+      if (typeof this.term.removeListener === 'function') {
+        this.term.removeListener(event, cb)
+      } else if (typeof this.term.off === 'function') {
+        this.term.off(event, cb)
+      }
+    } catch (_) {
+      // ignore removal errors during teardown
+    }
+  }
+
   write (data) {
     this.term.write(data)
   }

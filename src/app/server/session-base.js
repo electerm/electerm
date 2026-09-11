@@ -36,6 +36,14 @@ class TerminalBase {
     }
   }
 
+  on () {
+    // Implemented by subclasses (ssh/local/serial/telnet)
+  }
+
+  off () {
+    // Implemented by subclasses - removes a listener added via on()
+  }
+
   _initVtParser () {
     this._vtTerm = createVtParser(this.initOptions.cols || 4096)
     this._vtLastRow = 0

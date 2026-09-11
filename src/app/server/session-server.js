@@ -225,8 +225,28 @@ if (type === 'rdp') {
       }
     }
 
-    // In the WebSocket setup, replace the data handler:
-    term.on('data', function (data) {
+    // Detach listeners from a previous WS connection for the same term.
+    // Reconnects create a new WS but reuse the same term instance; without
+    // this each reconnect stacks another 'data' handler, duplicating output
+    // and pinning closed sockets/buffers in memory.
+    if (term._wsDataHandler && typeof term.off === 'function') {
+      try {
+        term.off('data', term._wsDataHandler)
+      } catch (_) {}
+    }
+    if (term._wsPortDataHandler && term.port) {
+      try {
+        term.port.removeListener('data', term._wsPortDataHandler)
+      } catch (_) {}
+    }
+    if (term._wsCloseHandler && typeof term.off === 'function') {
+      try {
+        term.off('close', term._wsCloseHandler)
+        term.off('exit', term._wsCloseHandler)
+      } catch (_) {}
+    }
+
+    const onTermData = function (data) {
       // Check if zmodem session is active and handle data
       if (zmodemManager.isActive(pid)) {
         // Let zmodem handle the data, but still log it
@@ -323,23 +343,52 @@ if (type === 'rdp') {
       if (!sendTimeout) {
         sendTimeout = setTimeout(flushBufferedData, flushIntervalMs - elapsed)
       }
-    })
+    }
+    term._wsDataHandler = onTermData
+    term.on('data', onTermData)
 
     // For serial terminals, register a raw data listener directly on the port to
     // feed binary XMODEM data to xmodemManager without rxLineEnding transformation.
     if (term.port) {
-      term.port.on('data', function (rawData) {
+      const onPortData = function (rawData) {
         if (xmodemManager.isActive(pid)) {
           term.writeLog(rawData)
           xmodemManager.handleData(pid, rawData, term, ws)
         }
-      })
+      }
+      term._wsPortDataHandler = onPortData
+      term.port.on('data', onPortData)
     }
 
     let onCloseCalled = false
     function onClose () {
       if (onCloseCalled) return
       onCloseCalled = true
+      // Detach this connection's listeners so a reconnect does not stack
+      // duplicates on the reused term instance.
+      if (term._wsDataHandler && typeof term.off === 'function') {
+        try {
+          term.off('data', term._wsDataHandler)
+        } catch (_) {}
+      }
+      if (term._wsDataHandler === onTermData) {
+        term._wsDataHandler = null
+      }
+      if (term._wsPortDataHandler && term.port) {
+        try {
+          term.port.removeListener('data', term._wsPortDataHandler)
+        } catch (_) {}
+        term._wsPortDataHandler = null
+      }
+      if (typeof term.off === 'function') {
+        try {
+          term.off('close', onClose)
+          term.off('exit', onClose)
+        } catch (_) {}
+      }
+      if (term._wsCloseHandler === onClose) {
+        term._wsCloseHandler = null
+      }
       // Cancel any pending batched send
       if (sendTimeout) {
         clearTimeout(sendTimeout)
@@ -359,6 +408,7 @@ if (type === 'rdp') {
       cleanup()
     }
 
+    term._wsCloseHandler = onClose
     term.on('close', onClose)
     if (term.isLocal && isWin) {
       term.on('exit', onClose)

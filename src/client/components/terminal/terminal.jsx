@@ -204,10 +204,15 @@ class Term extends Component {
     }
     this.disposeTerminalColorQueryHandlers()
     this.startupQueue?.dispose()
+    try {
+      this._notifyOnDataDebounced?.cancel?.()
+    } catch (_) {}
+    this._notifyOnDataDebounced = null
     window.cancelAnimationFrame(this.timers.themeRaf)
     this.timers.themeRaf = null
     Object.keys(this.timers).forEach(k => {
       clearTimeout(this.timers[k])
+      clearInterval(this.timers[k])
       this.timers[k] = null
     })
     this.onClose = true
@@ -215,11 +220,16 @@ class Term extends Component {
       this.socket.close()
       this.socket = null
     }
+    if (this.attachAddon) {
+      try {
+        this.attachAddon.dispose?.()
+      } catch (_) {}
+      this.attachAddon = null
+    }
     if (this.term) {
       this.term.dispose()
       this.term = null
     }
-    this.attachAddon = null
     this.disposeTriggerManager?.()
     this.fitAddon = null
     this.zmodemClient = null
@@ -232,6 +242,9 @@ class Term extends Component {
     this.imageAddon = null
     this.webglContextLossDisposable?.dispose?.()
     this.webglContextLossDisposable = null
+    try {
+      this.webglAddon?.dispose?.()
+    } catch (_) {}
     this.webglAddon = null
     this.webglRecovering = false
   }
