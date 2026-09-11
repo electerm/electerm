@@ -2,31 +2,54 @@ const delay = require('./wait')
 const { expect } = require('./expect')
 const log = require('./log')
 const diagnose = require('./diagnose')
+const e = require('./lang')
 
-// Terminal select-all/copy shortcuts are platform specific:
-// macOS uses meta (command), Linux uses ctrl+shift (plain ctrl+c would
-// send SIGINT to the pty instead of copying).
+// Terminal select-all/copy is platform specific: macOS uses meta (command),
+// while on Linux there is no select-all keyboard binding in the terminal and
+// plain ctrl+c would send SIGINT to the pty instead of copying. So on Linux
+// select-all/copy go through the terminal context menu, which keeps every
+// keystroke out of the pty.
 const isMac = process.platform === 'darwin'
-const selectAllKeys = isMac ? 'Meta+A' : 'Control+Shift+A'
-const copyKeys = isMac ? 'Meta+C' : 'Control+Shift+C'
+const termWrapSel = '.session-current .term-wrap'
+
+async function selectAllTerminal (client) {
+  if (isMac) {
+    await client.keyboard.press('Meta+A')
+    await delay(401)
+    return
+  }
+  await client.withContextMenu(
+    termWrapSel,
+    `.ant-dropdown-menu-item:has-text("${e('selectall')}")`,
+    10, 10
+  )
+  await delay(401)
+}
+
+async function copyTerminal (client) {
+  if (isMac) {
+    await selectAllTerminal(client)
+    await client.keyboard.press('Meta+C')
+    await delay(401)
+    return
+  }
+  await selectAllTerminal(client)
+  await client.withContextMenu(
+    termWrapSel,
+    `.ant-dropdown-menu-item:has-text("${e('copy')}")`,
+    10, 10
+  )
+  await delay(401)
+}
 
 exports.basicTerminalTest = async (client, cmd) => {
   async function focus () {
     await client.click('.session-current .term-wrap')
   }
-  async function selectAll () {
-    await client.keyboard.press(selectAllKeys)
-    await delay(401)
-  }
-  async function copy () {
-    await selectAll()
-    await client.keyboard.press(copyKeys)
-    await delay(401)
-  }
   async function readTerminal (retries = 5) {
     let text = ''
     for (let i = 0; i < retries; i++) {
-      await copy()
+      await copyTerminal(client)
       await delay(101)
       text = await client.readClipboard()
       if (text && text.trim().length > 0) {
@@ -70,9 +93,7 @@ exports.getTerminalContent = async function (client, retries = 5) {
   for (let i = 0; i < retries; i++) {
     await client.click('.session-current .term-wrap')
     await delay(300)
-    await client.keyboard.press(selectAllKeys)
-    await delay(300)
-    await client.keyboard.press(copyKeys)
+    await copyTerminal(client)
     await delay(300)
     const clipboardText = await client.readClipboard()
     await client.keyboard.press('Escape')
