@@ -54,8 +54,9 @@ describe('Terminal Explain with AI', function () {
     await client.keyboard.press('Enter')
     await delay(1000)
 
-    // Use terminal's built-in select all command (usually Cmd+A or Ctrl+A)
-    await client.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A')
+    // Use terminal's built-in select all command (Cmd+A on macOS,
+    // Ctrl+Shift+A on Linux, where plain Ctrl+A is shell line-start)
+    await client.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+Shift+A')
     await delay(500)
 
     // Right-click to open context menu

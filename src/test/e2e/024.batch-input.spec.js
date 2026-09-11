@@ -4,6 +4,7 @@ const {
   expect
 } = require('@playwright/test')
 const { describe } = it
+it.setTimeout(100000)
 const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')

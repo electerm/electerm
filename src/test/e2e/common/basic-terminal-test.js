@@ -3,17 +3,24 @@ const { expect } = require('./expect')
 const log = require('./log')
 const diagnose = require('./diagnose')
 
+// Terminal select-all/copy shortcuts are platform specific:
+// macOS uses meta (command), Linux uses ctrl+shift (plain ctrl+c would
+// send SIGINT to the pty instead of copying).
+const isMac = process.platform === 'darwin'
+const selectAllKeys = isMac ? 'Meta+A' : 'Control+Shift+A'
+const copyKeys = isMac ? 'Meta+C' : 'Control+Shift+C'
+
 exports.basicTerminalTest = async (client, cmd) => {
   async function focus () {
     await client.click('.session-current .term-wrap')
   }
   async function selectAll () {
-    await client.keyboard.press('Meta+A')
+    await client.keyboard.press(selectAllKeys)
     await delay(401)
   }
   async function copy () {
     await selectAll()
-    await client.keyboard.press('Meta+C')
+    await client.keyboard.press(copyKeys)
     await delay(401)
   }
   async function readTerminal (retries = 5) {
@@ -63,9 +70,9 @@ exports.getTerminalContent = async function (client, retries = 5) {
   for (let i = 0; i < retries; i++) {
     await client.click('.session-current .term-wrap')
     await delay(300)
-    await client.keyboard.press('Meta+A')
+    await client.keyboard.press(selectAllKeys)
     await delay(300)
-    await client.keyboard.press('Meta+C')
+    await client.keyboard.press(copyKeys)
     await delay(300)
     const clipboardText = await client.readClipboard()
     await client.keyboard.press('Escape')
