@@ -34,6 +34,9 @@ async function createFile (client, type, fileName) {
   await client.setValue('.session-current .sftp-item input', fileName)
   await client.click('.session-current .sftp-panel-title')
   await delay(3500) // Ensure file creation completes
+  if (!await verifyFileExists(client, type, fileName, 10000)) {
+    throw new Error(`createFile failed: ${type}/${fileName} not listed after creation`)
+  }
 }
 
 /**
@@ -55,6 +58,9 @@ async function createFolder (client, type, folderName) {
   await client.setValue('.session-current .sftp-item input', folderName)
   await client.click('.session-current .sftp-panel-title')
   await delay(3500) // Ensure folder creation completes
+  if (!await verifyFileExists(client, type, folderName, 10000)) {
+    throw new Error(`createFolder failed: ${type}/${folderName} not listed after creation`)
+  }
 }
 /**
  * Deletes an item (file or folder) from the specified type of file list
@@ -73,6 +79,32 @@ async function deleteItem (client, type, itemName) {
 }
 
 /**
+ * Waits until a file-list item exists and scrolls it into view so that
+ * subsequent clicks target the right row even in virtualized lists.
+ * Throws (after capturing diagnostics) when the item never shows up.
+ */
+async function ensureItemVisible (client, type, itemName, timeout = 20000) {
+  const sel = `.session-current .file-list.${type} .sftp-item[title="${itemName}"]`
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    const loc = client.locator(sel).first()
+    if (await loc.count() > 0) {
+      try {
+        await loc.scrollIntoViewIfNeeded()
+        await loc.waitFor({ state: 'visible', timeout: 3000 })
+        return
+      } catch (e) {
+        // Row exists but is not visible yet (virtualized list or re-render);
+        // keep polling.
+      }
+    }
+    await delay(1000)
+  }
+  await diagnose(client, `item-not-visible-${type}-${itemName}`)
+  throw new Error(`file list item not visible: ${type}/${itemName}`)
+}
+
+/**
  * Copies an item using the context menu
  *
  * @param {Object} client - The Playwright client
@@ -80,6 +112,7 @@ async function deleteItem (client, type, itemName) {
  * @param {string} itemName - The name of the item to copy
  */
 async function copyItem (client, type, itemName) {
+  await ensureItemVisible(client, type, itemName)
   await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`, 10, 10)
   await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Copy")')
   await delay(1500) // Ensure copy operation registers
@@ -111,6 +144,7 @@ async function copyItemWithKeyboard (client, type, itemName) {
  * @param {string} itemName - The name of the item to cut
  */
 async function cutItem (client, type, itemName) {
+  await ensureItemVisible(client, type, itemName)
   await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`, 10, 10)
   await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Cut")')
   await delay(1000)
@@ -170,6 +204,7 @@ async function pasteItemWithKeyboard (client, type) {
  * @param {string} newName - The new name for the item
  */
 async function renameItem (client, type, oldName, newName) {
+  await ensureItemVisible(client, type, oldName)
   await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${oldName}"]`, 10, 10)
   await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Rename")')
   await delay(400)
@@ -186,6 +221,7 @@ async function renameItem (client, type, oldName, newName) {
  * @param {string} folderName - The name of the folder to enter
  */
 async function enterFolder (client, type, folderName) {
+  await ensureItemVisible(client, type, folderName)
   await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
   await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Enter")')
   await delay(3500) // Increased delay for folder navigation
@@ -249,6 +285,7 @@ async function selectAllContextMenu (client, type) {
  * @param {string} folderName - The name of the folder to access
  */
 async function accessFolderFromTerminal (client, type, folderName) {
+  await ensureItemVisible(client, type, folderName)
   await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
   await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Access this folder from the terminal")')
   await delay(1000)

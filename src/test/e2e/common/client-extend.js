@@ -123,8 +123,9 @@ module.exports = (client, app) => {
       `${openScope} .ant-dropdown-menu-submenu-title, ${openScope} .ant-menu-submenu-title`
     ).first()
     await more.waitFor({ state: 'visible', timeout: 5000 })
-    await more.hover()
-    await delay(600)
+    // Click (not just hover) so the submenu stays open while we locate the item.
+    await more.click()
+    await delay(800)
     const expandedSel =
       `${openScope} ${itemSel}, ` +
       `.ant-dropdown-menu-submenu-popup ${itemSel}, ` +

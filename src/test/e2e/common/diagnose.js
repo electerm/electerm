@@ -18,6 +18,7 @@ async function diagnose (client, tag) {
       const active = document.activeElement
       const localList = document.querySelector('.session-current .file-list.local')
       const remoteList = document.querySelector('.session-current .file-list.remote')
+      const openMenu = document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden)')
       return {
         win: { w: window.innerWidth, h: window.innerHeight },
         sessionCurrent: q('.session-current'),
@@ -33,6 +34,10 @@ async function diagnose (client, tag) {
         remoteReal: q('.session-current .file-list.remote .real-file-item'),
         remoteParent: q('.session-current .file-list.remote .parent-file-item'),
         dropdowns: q('.ant-dropdown:not(.ant-dropdown-hidden)'),
+        menuItems: openMenu
+          ? Array.from(openMenu.querySelectorAll('.ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title')).map((d) => (d.innerText || '').slice(0, 40))
+          : null,
+        notices: Array.from(document.querySelectorAll('.ant-notification-notice')).map((d) => (d.innerText || '').slice(0, 200)),
         localSample: firstTitles('.session-current .file-list.local .sftp-item'),
         remoteSample: firstTitles('.session-current .file-list.remote .sftp-item'),
         localHtml: localList ? localList.innerHTML.slice(0, 600) : null,
