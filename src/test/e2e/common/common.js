@@ -270,6 +270,8 @@ async function navigateToParentFolder (client, type, retries = 3) {
       return
     }
   }
+  await diagnose(client, `nav-parent-stuck-${type}`)
+  throw new Error(`navigateToParentFolder failed: ${type} path stuck at ${before}`)
 }
 
 /**
