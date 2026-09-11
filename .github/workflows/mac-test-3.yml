@@ -65,3 +65,11 @@ jobs:
         CUSTOM_SYNC_USER: ${{ secrets.CUSTOM_SYNC_USER }}
         CUSTOM_SYNC_SECRET: ${{ secrets.CUSTOM_SYNC_SECRET }}
         CLOUD_TOKEN: ${{ secrets.CLOUD_TOKEN }}
+
+    - name: Upload failure diagnostics
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: diag-mac-test-3
+        path: test-results/
+        if-no-files-found: ignore
