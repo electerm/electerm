@@ -10,27 +10,13 @@ jobs:
     runs-on: ubuntu-24.04
     environment: build
     steps:
-      - uses: vedantmgoyal9/winget-releaser@main
-        with:
-          identifier: electerm.electerm
-          installers-regex: 'win-(x64|arm64)-installer\.exe$'
-          max-versions-to-keep: 30
-          token: ${{ secrets.WINGET_TOKEN }}
-
-  publish-test:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-24.04
-    environment: build
-    steps:
-      - id: tag
-        name: Resolve latest release tag
-        run: echo "tag=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')" >> "$GITHUB_OUTPUT"
+      - name: Sync winget-pkgs fork with upstream
+        run: gh api -X POST repos/electerm/winget-pkgs/merge-upstream -f branch=master || echo "Fork already in sync or nothing to merge"
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
       - uses: vedantmgoyal9/winget-releaser@main
         with:
           identifier: electerm.electerm
           installers-regex: 'win-(x64|arm64)-installer\.exe$'
           max-versions-to-keep: 30
-          release-tag: ${{ steps.tag.outputs.tag }}
           token: ${{ secrets.WINGET_TOKEN }}
