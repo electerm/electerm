@@ -12,6 +12,28 @@ const e = require('./lang')
 const isMac = process.platform === 'darwin'
 const termWrapSel = '.session-current .term-wrap'
 
+async function dumpTermMenuState (client, tag) {
+  try {
+    const info = await client.evaluate(() => {
+      const items = Array.from(
+        document.querySelectorAll('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item')
+      ).map((d) => ({
+        text: (d.innerText || '').slice(0, 30),
+        disabled: d.getAttribute('aria-disabled'),
+        cls: (d.className || '').slice(0, 80)
+      }))
+      return {
+        openMenus: document.querySelectorAll('.ant-dropdown:not(.ant-dropdown-hidden)').length,
+        selLayer: document.querySelectorAll('.session-current .xterm-selection').length,
+        items
+      }
+    })
+    log(`[termmenu:${tag}]`, JSON.stringify(info).slice(0, 1200))
+  } catch (e) {
+    log(`[termmenu:${tag}] dump failed:`, String((e && e.message) || e).slice(0, 120))
+  }
+}
+
 async function selectAllTerminal (client) {
   if (isMac) {
     await client.keyboard.press('Meta+A')
@@ -24,6 +46,7 @@ async function selectAllTerminal (client) {
     10, 10
   )
   await delay(401)
+  await dumpTermMenuState(client, 'after-select-all')
 }
 
 async function copyTerminal (client) {
@@ -34,6 +57,20 @@ async function copyTerminal (client) {
     return
   }
   await selectAllTerminal(client)
+  // Open the menu once more just to observe Copy enabled-state, then close it
+  await client.rightClick(termWrapSel, 10, 10)
+  try {
+    await client.locator('.ant-dropdown:not(.ant-dropdown-hidden)').first().waitFor({
+      state: 'visible',
+      timeout: 5000
+    })
+  } catch (err) {
+    log('[termmenu:copy] menu did not open')
+    throw err
+  }
+  await dumpTermMenuState(client, 'before-copy')
+  await client.keyboard.press('Escape').catch(() => {})
+  await delay(300)
   await client.withContextMenu(
     termWrapSel,
     `.ant-dropdown-menu-item:has-text("${e('copy')}")`,

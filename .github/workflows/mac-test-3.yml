@@ -51,7 +51,8 @@ jobs:
     - name: test
       uses: GabrielBB/xvfb-action@v1
       with:
-        run: npm run test3
+        # TEMP-DEBUG: single spec only for fast iteration, revert to npm run test3
+        run: ./node_modules/.bin/playwright test src/test/e2e/02.04.profile-use.spec.js --workers=1
       env:
         NODE_TEST: 1
         TEST_HOST: ${{ secrets.TEST_HOST }}
