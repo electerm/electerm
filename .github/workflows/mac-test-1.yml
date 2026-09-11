@@ -35,7 +35,7 @@ jobs:
     
     - name: Run pb
       run: npm run pb
-    # wipe the CI test server home folder before the run, keep .cache only
+    # remove only artifacts created by earlier e2e runs
     - name: Clean test server home
       run: npm run clean-test-server
       env:
@@ -56,4 +56,3 @@ jobs:
         GIST_ID: ${{ secrets.GIST_ID }}
         GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
         GITEE_ID: ${{ secrets.GITEE_ID }}
-

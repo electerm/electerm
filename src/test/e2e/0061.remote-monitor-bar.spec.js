@@ -223,7 +223,9 @@ test('remote monitor bar renders, shares details, configures and persists', asyn
 
     const memoryItem = running.page.locator('.remote-monitor-item-memory')
     await memoryItem.hover()
-    const popover = running.page.locator('.remote-monitor-popover')
+    const popover = running.page.locator(
+      '.remote-monitor-popover[data-monitor-detail="memory"]'
+    )
     await popover.waitFor({ state: 'visible' })
     await memoryItem.click()
     await running.page.mouse.move(2, 2)
