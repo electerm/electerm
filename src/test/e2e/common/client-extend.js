@@ -6,6 +6,7 @@ const {
   expect
 } = require('@playwright/test')
 const delay = require('./wait')
+const diagnose = require('./diagnose')
 
 module.exports = (client, app) => {
   client.element = (sel) => {
@@ -136,6 +137,52 @@ module.exports = (client, app) => {
       timeout: 5000
     })
     await target.click()
+  }
+  // Atomic open-menu-then-click-item with retries.
+  // The file list re-renders on SFTP refresh, which can detach the
+  // right-clicked row and close the menu mid-sequence, and long menus split
+  // late items into a "…" submenu — so the whole sequence is retried.
+  client.withContextMenu = async function (targetSel, itemSel, x = 10, y = 10, attempts = 4) {
+    const dropdownSel = '.ant-dropdown:not(.ant-dropdown-hidden)'
+    let lastError = null
+    for (let i = 0; i < attempts; i++) {
+      try {
+        await client.rightClick(targetSel, x, y)
+        await client.locator(dropdownSel).first().waitFor({
+          state: 'visible',
+          timeout: 2500
+        })
+        const item = client.locator(`${dropdownSel} ${itemSel}`).first()
+        try {
+          await item.waitFor({ state: 'visible', timeout: 2500 })
+          await item.click()
+          return
+        } catch (e) {
+          lastError = e
+          // Item may live inside the collapsed "…" submenu; expand it.
+          const more = client.locator(
+            `${dropdownSel} .ant-dropdown-menu-submenu-title, ${dropdownSel} .ant-menu-submenu-title`
+          ).first()
+          await more.waitFor({ state: 'visible', timeout: 2500 })
+          await more.hover()
+          await delay(600)
+          const expanded = client.locator(
+            `${dropdownSel} ${itemSel}, ` +
+            `.ant-dropdown-menu-submenu-popup ${itemSel}, ` +
+            `.ant-menu-submenu-popup ${itemSel}`
+          ).first()
+          await expanded.waitFor({ state: 'visible', timeout: 2500 })
+          await expanded.click()
+          return
+        }
+      } catch (e) {
+        lastError = e
+        await client.keyboard.press('Escape').catch(() => {})
+        await delay(600)
+      }
+    }
+    await diagnose(client, `menu-fail-${itemSel}`.slice(0, 60))
+    throw lastError
   }
   client.readClipboard = async () => {
     return app.evaluate(async ({ clipboard }) => clipboard.readText())
