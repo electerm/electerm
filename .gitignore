@@ -127,3 +127,4 @@ ftp-root
 /.workbuddy
 .catpaw
 .workbuddy-ai
+/test-results*
