@@ -6,40 +6,44 @@ const delay = require('./common/wait')
 const nanoid = require('./common/uid')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
-const { setupSftpConnection } = require('./common/common')
+const { setupSftpConnection, closeApp } = require('./common/common')
 
 describe('file info modal', function () {
   it('should open window and basic file info modal works for both local and remote', async function () {
     const electronApp = await electron.launch(appOptions)
-    const client = await electronApp.firstWindow()
-    extendClient(client, electronApp)
-    await delay(3500)
+    try {
+      const client = await electronApp.firstWindow()
+      extendClient(client, electronApp)
+      await delay(3500)
 
-    // Create SSH connection
-    await setupSftpConnection(client)
+      // Create SSH connection
+      await setupSftpConnection(client)
 
-    // Test local file info modal
-    await testFileInfoModal(client, 'local', 'click')
-
-    await electronApp.close().catch(console.log)
+      // Test local file info modal
+      await testFileInfoModal(client, 'local', 'click')
+    } finally {
+      await closeApp(electronApp, __filename)
+    }
   })
 
   it('should test edit permission functionality for both local and remote files', async function () {
     const electronApp = await electron.launch(appOptions)
-    const client = await electronApp.firstWindow()
-    extendClient(client, electronApp)
-    await delay(3500)
+    try {
+      const client = await electronApp.firstWindow()
+      extendClient(client, electronApp)
+      await delay(3500)
 
-    // Create SSH connection
-    await setupSftpConnection(client)
+      // Create SSH connection
+      await setupSftpConnection(client)
 
-    // Test local file edit permission
-    await testEditFolderPermission(client, 'local')
+      // Test local file edit permission
+      await testEditFolderPermission(client, 'local')
 
-    // Test remote file edit permission
-    await testEditFolderPermission(client, 'remote')
-
-    await electronApp.close().catch(console.log)
+      // Test remote file edit permission
+      await testEditFolderPermission(client, 'remote')
+    } finally {
+      await closeApp(electronApp, __filename)
+    }
   })
 })
 

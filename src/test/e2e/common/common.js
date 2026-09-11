@@ -213,6 +213,9 @@ async function navigateToParentFolder (client, type) {
  * @param {string} type - The type of file list ('local' or 'remote')
  */
 async function selectAllContextMenu (client, type) {
+  // Wait for the list to actually load content; on a slow SFTP roundtrip
+  // the list can briefly have no real items right after navigation.
+  await client.locator(`.session-current .file-list.${type} .real-file-item`).first().waitFor({ state: 'visible', timeout: 20000 })
   await client.rightClick(`.session-current .file-list.${type} .real-file-item`, 10, 10)
   await delay(500)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Select All")')
@@ -227,7 +230,7 @@ async function selectAllContextMenu (client, type) {
  * @param {string} folderName - The name of the folder to access
  */
 async function accessFolderFromTerminal (client, type, folderName) {
-  await client.rightClick(`.file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
+  await client.rightClick(`.session-current .file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
   await delay(500)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Access this folder from the terminal")')
   await delay(1000)
@@ -300,10 +303,17 @@ async function setupSftpConnection (client) {
  * @param {string} itemName - The name of the item to verify
  * @returns {Promise<boolean>} - Whether the file exists
  */
-async function verifyFileExists (client, type, itemName) {
-  const fileItems = await client.locator(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`)
-  const count = await fileItems.count()
-  return count > 0
+async function verifyFileExists (client, type, itemName, timeout = 15000) {
+  const sel = `.session-current .file-list.${type} .sftp-item[title="${itemName}"]`
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    const count = await client.locator(sel).count()
+    if (count > 0) {
+      return true
+    }
+    await delay(1000)
+  }
+  return false
 }
 
 /**
@@ -314,8 +324,17 @@ async function verifyFileExists (client, type, itemName) {
  * @param {string} itemName - The name of the item to verify
  * @returns {Promise<boolean>} - Whether the file does not exist
  */
-async function verifyFileNotExists (client, type, itemName) {
-  return !(await verifyFileExists(client, type, itemName))
+async function verifyFileNotExists (client, type, itemName, timeout = 15000) {
+  const sel = `.session-current .file-list.${type} .sftp-item[title="${itemName}"]`
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    const count = await client.locator(sel).count()
+    if (count === 0) {
+      return true
+    }
+    await delay(1000)
+  }
+  return false
 }
 
 // Selection operations
@@ -357,9 +376,21 @@ async function selectItemsWithCtrlOrCmd (client, type, indices) {
  * @param {string} expectedPath - The expected path or part of it
  * @returns {Promise<boolean>} - Whether the path matches
  */
-async function verifyCurrentPath (client, type, expectedPath) {
-  const currentPath = await client.getValue(`.session-current .sftp-${type}-section .sftp-title input`)
-  return currentPath.endsWith(expectedPath)
+async function verifyCurrentPath (client, type, expectedPath, timeout = 15000) {
+  const sel = `.session-current .sftp-${type}-section .sftp-title input`
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    try {
+      const currentPath = await client.getValue(sel)
+      if (currentPath.endsWith(expectedPath)) {
+        return true
+      }
+    } catch (e) {
+      // input may not be rendered yet; keep polling
+    }
+    await delay(1000)
+  }
+  return false
 }
 
 /**
