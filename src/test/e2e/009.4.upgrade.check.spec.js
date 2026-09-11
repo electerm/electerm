@@ -23,7 +23,13 @@ describe('Upgrade check', function () {
     await client.hasElem(sel)
 
     await client.click('.about-wrap .ant-btn-primary')
-    await delay(500)
+    // the version check is a remote request — poll for the message instead
+    // of asserting right after a fixed delay
+    await client.waitForFunction(
+      () => !!document.querySelector('.update-msg'),
+      null,
+      { timeout: 20000 }
+    ).catch(() => {})
     await client.hasElem('.update-msg')
     await electronApp.close().catch(console.log)
   })

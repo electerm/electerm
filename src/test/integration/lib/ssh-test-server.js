@@ -60,7 +60,98 @@ function ensureKnownHostsEntry (port = TEST_PORT, log = () => {}) {
 
 // Run a command locally and pipe the result through an SSH exec channel,
 // mirroring what a real sshd does (stdout, stderr, exit status).
+//
+// The remote-monitor specs (0061/0062) treat this fixture as a Linux host
+// and probe /proc/stat, /proc/meminfo, /sys/class/net etc. Those paths do
+// not exist on macOS (the CI runner OS), where the fixture actually runs,
+// so every monitor group would end up "unsupported" and cpuHistory would
+// never fill. Intercept the known monitor commands and answer with small
+// deterministic Linux-style outputs instead of executing them locally.
+const emulatorState = {
+  cpu: { user: 1200, nice: 0, system: 800, idle: 950000, iowait: 100, irq: 0, softirq: 50, last: 0 },
+  net: { rx: 8000000, tx: 4000000, last: 0 }
+}
+
+function fakeCpuLine (minElapsedMs) {
+  const state = emulatorState.cpu
+  const now = Date.now()
+  const real = Math.max(0, now - state.last)
+  const elapsed = Math.max(real, minElapsedMs || 0)
+  state.last = now
+  // ~2 jiffies per ms, ~92% idle so usage stays in the "normal" band
+  const ticks = Math.round(elapsed * 2) || 20
+  const idleTicks = Math.round(ticks * 0.92)
+  const busy = ticks - idleTicks
+  const userTicks = Math.round(busy * 0.6)
+  const systemTicks = Math.round(busy * 0.3)
+  state.user += userTicks
+  state.system += systemTicks
+  state.iowait += busy - userTicks - systemTicks
+  state.idle += idleTicks
+  return `cpu  ${state.user} ${state.nice} ${state.system} ${state.idle} ${state.iowait} ${state.irq} ${state.softirq} 0 0 0`
+}
+
+function fakeNetSample () {
+  const state = emulatorState.net
+  const now = Date.now()
+  const elapsed = state.last ? Math.max(0, now - state.last) : 1000
+  state.last = now
+  state.rx += elapsed * 120
+  state.tx += elapsed * 60
+  return [
+    'default\teth0',
+    `iface\teth0\tstate=up\tipv4=10.0.0.2/24\trx=${Math.round(state.rx)}\ttx=${Math.round(state.tx)}`
+  ].join('\n') + '\n'
+}
+
+function emulateMonitorCommand (command) {
+  if (command.includes('/proc/stat')) {
+    // two samples with a guaranteed gap, like `sleep 0.1` between greps
+    const first = fakeCpuLine()
+    const second = fakeCpuLine(200)
+    return `${first}\n${second}\n`
+  }
+  if (command.includes('/proc/meminfo')) {
+    return [
+      'MemTotal:       16000000 kB',
+      'MemFree:         8000000 kB',
+      'MemAvailable:   10000000 kB',
+      'Buffers:          200000 kB',
+      'Cached:          1500000 kB',
+      'SwapTotal:       2000000 kB',
+      'SwapFree:        1800000 kB'
+    ].join('\n') + '\n'
+  }
+  if (command.includes('/proc/uptime')) {
+    return `${os.uptime().toFixed(2)} 0.35\n`
+  }
+  if (command.includes('/sys/class/net')) {
+    return fakeNetSample()
+  }
+  if (command.includes('ps -eo')) {
+    return [
+      '    1 root      0.0   4096 /sbin/init',
+      '  483 root      1.2  20480 /usr/sbin/sshd -D',
+      '  917 mcpit     0.4  12288 bash'
+    ].join('\n') + '\n'
+  }
+  if (/^uname\s/.test(command.trim())) {
+    return 'Linux electerm-fixture 5.15.0-generic x86_64\n'
+  }
+  if (command.trim() === 'who') {
+    return 'mcpit  pts/0  2026-09-11 08:00 (10.0.0.9)\n'
+  }
+  return null
+}
+
 function attachExec (stream, command) {
+  const emulated = emulateMonitorCommand(String(command || ''))
+  if (emulated !== null) {
+    stream.write(emulated)
+    stream.exit(0)
+    stream.end()
+    return
+  }
   exec(command, { maxBuffer: 16 * 1024 * 1024 }, (err, stdout, stderr) => {
     if (stdout) stream.write(stdout)
     if (stderr && stream.stderr) stream.stderr.write(stderr)

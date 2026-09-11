@@ -59,6 +59,10 @@ describe('auto upgrade check', function () {
     }
     expect(fr.progress).equal(1)
     expect(fr.zero).equal(1)
+    // the primary button turns into "Cancel" while upgrading — stop the
+    // download before closing so no installer is ever fully fetched
+    await client.click('.upgrade-panel .ant-btn-primary').catch(() => {})
+    await delay(500)
     await electronApp.close().catch(console.log)
   })
 })

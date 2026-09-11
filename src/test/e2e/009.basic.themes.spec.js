@@ -42,7 +42,7 @@ describe('terminal themes', function () {
     const themeIterm = await client.evaluate(() => {
       return window.store.itermThemes.length
     })
-    await client.click('.setting-wrap .ant-btn-primary')
+    await client.click('.setting-wrap .ant-btn-primary:visible')
 
     const themeNow = await client.evaluate(() => {
       return window.store.terminalThemes.length

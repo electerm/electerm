@@ -36,6 +36,14 @@ jobs:
     - name: Run pb
       run: npm run pb
 
+    # remove only artifacts created by earlier e2e runs
+    - name: Clean test server home
+      run: npm run clean-test-server
+      env:
+        TEST_HOST: ${{ secrets.TEST_HOST }}
+        TEST_USER: ${{ secrets.TEST_USER_4 }}
+        TEST_PASS: ${{ secrets.TEST_PASS_4 }}
+
     - name: test
       uses: GabrielBB/xvfb-action@v1
       with:
@@ -53,4 +61,3 @@ jobs:
         CUSTOM_SYNC_USER: ${{ secrets.CUSTOM_SYNC_USER }}
         CUSTOM_SYNC_SECRET: ${{ secrets.CUSTOM_SYNC_SECRET }}
         CLOUD_TOKEN: ${{ secrets.CLOUD_TOKEN }}
-

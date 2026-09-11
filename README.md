@@ -96,7 +96,7 @@ Thanks to APIMart for sponsoring electerm! APIMart is a low-cost API platform fo
 - Quick commands/triggers to do predefined tasks and automattic operations
 - Sync data including bookmarks to github/gitee secret gist/webdav/custom server/electerm cloud
 - Quick input/mirror input to one or all terminals.
-- AI assistant integration (supporting openAI compatible API) to help with command suggestions, script writing, and explaining selected terminal content, create bookmarks/themes, and agent mode to directly do terminal operations
+- AI assistant integration (supporting multiple LLM API formats — OpenAI Chat Completions, OpenAI Responses, and Anthropic Messages) to help with command suggestions, script writing, and explaining selected terminal content, create bookmarks/themes, and agent mode to directly do terminal operations
 - MCP (Model Context Protocol) widget for AI assistants and external tools integration - see [MCP Widget Usage Guide](https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide)
 - Deep link support: Open connections with URLs like `telnet://192.168.2.31:34554` or `ssh://user@host:22` - see [Deep link support wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)
 - Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)

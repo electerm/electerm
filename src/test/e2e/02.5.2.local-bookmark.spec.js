@@ -36,7 +36,7 @@ describe('Local bookmark', function () {
     await client.setValue('.setting-wrap textarea[id="local-form_runScripts_0_script"]', 'ls')
 
     // Save and connect
-    await client.click('.setting-wrap .ant-btn-primary')
+    await client.click('.setting-wrap .ant-btn-primary:visible')
     await delay(2000)
 
     // Verify that the history has been updated

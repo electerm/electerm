@@ -99,6 +99,20 @@ async function connectFixture (page) {
   await page.waitForFunction(() => window.store.currentTab?.status === 'success')
 }
 
+// The bookmark modal triggers the sticky "load ssh configs" prompt
+// (duration: 0). It sits in the bottom-right corner and blocks clicks on the
+// monitor bar controls, so dismiss it right after the first connection.
+async function dismissSshConfigNotify (page) {
+  const ignoreBtn = page.locator('.notification button:has-text("Ignore")')
+  if (await ignoreBtn.count().catch(() => 0)) {
+    await ignoreBtn.first().click().catch(() => {})
+  }
+  await page
+    .locator('.notification:has-text("Ignore")')
+    .waitFor({ state: 'detached', timeout: 5000 })
+    .catch(() => {})
+}
+
 test('remote monitor bar renders, shares details, configures and persists', async () => {
   let running = await launchApp()
   try {
@@ -116,6 +130,7 @@ test('remote monitor bar renders, shares details, configures and persists', asyn
     )
     assert.equal(await monitorModuleLoaded(), false)
     await connectFixture(running.page)
+    await dismissSshConfigNotify(running.page)
 
     const bar = running.page.locator('.remote-monitor-bar')
     await bar.waitFor({ state: 'visible' })
@@ -208,7 +223,9 @@ test('remote monitor bar renders, shares details, configures and persists', asyn
 
     const memoryItem = running.page.locator('.remote-monitor-item-memory')
     await memoryItem.hover()
-    const popover = running.page.locator('.remote-monitor-popover')
+    const popover = running.page.locator(
+      '.remote-monitor-popover[data-monitor-detail="memory"]'
+    )
     await popover.waitFor({ state: 'visible' })
     await memoryItem.click()
     await running.page.mouse.move(2, 2)
@@ -277,6 +294,7 @@ test('remote monitor bar renders, shares details, configures and persists', asyn
     assert.deepEqual(persisted.items, ['memory', 'users'])
 
     await connectFixture(running.page)
+    await dismissSshConfigNotify(running.page)
     const persistedBar = running.page.locator('.remote-monitor-bar')
     await persistedBar.waitFor({ state: 'visible' })
     assert.equal(

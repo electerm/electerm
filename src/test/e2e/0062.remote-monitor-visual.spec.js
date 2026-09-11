@@ -158,7 +158,9 @@ test('remote monitor styles, panel geometry and mobile overflow', async () => {
     await panel.locator('[data-monitor-detail="hostname"]').waitFor()
     await panel.locator('[data-monitor-detail="cpu"]').waitFor()
     assert.equal(await panel.locator('[data-monitor-detail="hostname"] dl').innerText(), tooltipRows)
-    assert.equal((await page.locator('.sessions').boundingBox()).height, terminalHeight + 28)
+    // sub-pixel rounding on different runners can shift the height by 1px
+    const height = (await page.locator('.sessions').boundingBox()).height
+    assert.ok(Math.abs(height - (terminalHeight + 28)) <= 1)
     assert.equal(await panel.locator('[data-monitor-detail="memory"]').count(), 1)
     assert.equal(await panel.locator('[data-monitor-detail="swap"]').count(), 0)
     await page.evaluate(() => window.store.setConfig({ hideIP: true }))
