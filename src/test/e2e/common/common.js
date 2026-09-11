@@ -72,6 +72,7 @@ async function createFolder (client, type, folderName) {
  * @param {string} itemName - The name of the item to delete
  */
 async function deleteItem (client, type, itemName) {
+  await ensureItemVisible(client, type, itemName)
   await client.click(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`)
   await delay(400)
   await client.keyboard.press('Delete')
