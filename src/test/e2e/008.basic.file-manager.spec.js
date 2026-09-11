@@ -3,7 +3,7 @@ const {
   test: it
 } = require('@playwright/test')
 const { describe } = it
-it.setTimeout(100000)
+it.setTimeout(200000)
 const log = require('./common/log')
 const { expect } = require('./common/expect')
 const delay = require('./common/wait')

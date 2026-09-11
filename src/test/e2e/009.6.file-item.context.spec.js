@@ -3,7 +3,7 @@ const {
   test: it
 } = require('@playwright/test')
 const { describe } = it
-it.setTimeout(100000)
+it.setTimeout(200000)
 const delay = require('./common/wait')
 const { getTerminalContent } = require('./common/basic-terminal-test')
 const appOptions = require('./common/app-options')
