@@ -102,48 +102,38 @@ module.exports = (client, app) => {
     // if the dropdown still fails to appear.
     await client.rightClick(sel, x, y)
   }
-  // Click an item in the open Ant Design context menu.
-  // The file-list menu splits into first-half + "…" submenu when it would
-  // overflow the window bottom (see renderContextMenu in file-item.jsx), so
-  // late items like "Select All" / "Edit Permission" may live inside the
-  // "…" submenu instead of the top level. Expand it when needed.
-  client.clickMenuItem = async function (itemSel) {
-    const openScope = '.ant-dropdown:not(.ant-dropdown-hidden)'
-    const sel = `${openScope} ${itemSel}`
-    try {
-      await client.locator(sel).first().waitFor({
-        state: 'visible',
-        timeout: 4000
-      })
-      await client.locator(sel).first().click()
-      return
-    } catch (e) {
-      // Item may live inside the collapsed "…" submenu; expand it first.
-    }
-    const more = client.locator(
-      `${openScope} .ant-dropdown-menu-submenu-title, ${openScope} .ant-menu-submenu-title`
-    ).first()
-    await more.waitFor({ state: 'visible', timeout: 5000 })
-    // Click (not just hover) so the submenu stays open while we locate the item.
-    await more.click()
-    await delay(800)
-    const expandedSel =
-      `${openScope} ${itemSel}, ` +
-      `.ant-dropdown-menu-submenu-popup ${itemSel}, ` +
-      `.ant-menu-submenu-popup ${itemSel}`
-    const target = client.locator(expandedSel).first()
-    await target.waitFor({
-      state: 'visible',
-      timeout: 5000
-    })
-    await target.click()
-  }
   // Atomic open-menu-then-click-item with retries.
   // The file list re-renders on SFTP refresh, which can detach the
   // right-clicked row and close the menu mid-sequence, and long menus split
-  // late items into a "…" submenu — so the whole sequence is retried.
+  // late items into a "…" submenu — so the whole sequence is retried and
+  // always clicks the first VISIBLE match (hidden duplicates from closed
+  // dropdowns or collapsed submenus are skipped).
   client.withContextMenu = async function (targetSel, itemSel, x = 10, y = 10, attempts = 4) {
     const dropdownSel = '.ant-dropdown:not(.ant-dropdown-hidden)'
+    const scopes = (s) => (
+      `${dropdownSel} ${s}, ` +
+      `.ant-dropdown-menu-submenu-popup ${s}, ` +
+      `.ant-menu-submenu-popup ${s}`
+    )
+    const expandMore = async () => {
+      const titles = client.locator(
+        `${dropdownSel} .ant-dropdown-menu-submenu-title, ${dropdownSel} .ant-menu-submenu-title`
+      )
+      const n = await titles.count()
+      for (let k = 0; k < n; k++) {
+        const t = titles.nth(k)
+        try {
+          if (await t.isVisible()) {
+            await t.hover()
+            await delay(500)
+            return true
+          }
+        } catch (e) {
+          // detached; keep scanning
+        }
+      }
+      return false
+    }
     let lastError = null
     for (let i = 0; i < attempts; i++) {
       try {
@@ -152,28 +142,17 @@ module.exports = (client, app) => {
           state: 'visible',
           timeout: 2500
         })
-        const item = client.locator(`${dropdownSel} ${itemSel}`).first()
         try {
-          await item.waitFor({ state: 'visible', timeout: 2500 })
-          await item.click()
+          await client.clickFirstVisible(scopes(itemSel), 2500)
           return
         } catch (e) {
           lastError = e
           // Item may live inside the collapsed "…" submenu; expand it.
-          const more = client.locator(
-            `${dropdownSel} .ant-dropdown-menu-submenu-title, ${dropdownSel} .ant-menu-submenu-title`
-          ).first()
-          await more.waitFor({ state: 'visible', timeout: 2500 })
-          await more.hover()
-          await delay(600)
-          const expanded = client.locator(
-            `${dropdownSel} ${itemSel}, ` +
-            `.ant-dropdown-menu-submenu-popup ${itemSel}, ` +
-            `.ant-menu-submenu-popup ${itemSel}`
-          ).first()
-          await expanded.waitFor({ state: 'visible', timeout: 2500 })
-          await expanded.click()
-          return
+          if (await expandMore()) {
+            await client.clickFirstVisible(scopes(itemSel), 2500)
+            return
+          }
+          throw e
         }
       } catch (e) {
         lastError = e
@@ -186,6 +165,29 @@ module.exports = (client, app) => {
   }
   client.readClipboard = async () => {
     return app.evaluate(async ({ clipboard }) => clipboard.readText())
+  }
+  // Click the first VISIBLE match of a menu-item selector (there can be
+  // hidden duplicates from closed dropdowns or collapsed submenus).
+  client.clickFirstVisible = async function (sel, timeout = 5000) {
+    const all = client.locator(sel)
+    const start = Date.now()
+    while (Date.now() - start < timeout) {
+      const n = await all.count()
+      for (let k = 0; k < n; k++) {
+        const el = all.nth(k)
+        try {
+          if (await el.isVisible()) {
+            await el.click()
+            return
+          }
+        } catch (e) {
+          // detached mid-iteration; rescan
+          break
+        }
+      }
+      await delay(400)
+    }
+    throw new Error(`no visible element for ${sel}`)
   }
   client.writeClipboard = async (clipboardContentToWrite) => {
     await app.evaluate(async ({ clipboard }, text) => {

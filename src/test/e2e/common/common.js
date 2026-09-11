@@ -92,6 +92,15 @@ async function ensureItemVisible (client, type, itemName, timeout = 20000) {
     const loc = client.locator(sel).first()
     if (await loc.count() > 0) {
       try {
+        // Scroll the row to the top of the list so the context menu that
+        // opens on right-click has room below and does not split items
+        // into the "…" submenu.
+        await loc.evaluate((el) => el.scrollIntoView({ block: 'start' }))
+      } catch (e) {
+        // ignore scroll errors, fall back to playwright scrolling
+      }
+      await delay(500)
+      try {
         await loc.scrollIntoViewIfNeeded()
         await loc.waitFor({ state: 'visible', timeout: 3000 })
         return
