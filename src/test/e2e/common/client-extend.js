@@ -107,24 +107,29 @@ module.exports = (client, app) => {
   // late items like "Select All" / "Edit Permission" may live inside the
   // "…" submenu instead of the top level. Expand it when needed.
   client.clickMenuItem = async function (itemSel) {
-    // Scope to menu trees only (never toolbar buttons that may share icon classes).
-    const menuScope = '.ant-dropdown-menu'
-    const sel = `${menuScope} ${itemSel}`
+    const openScope = '.ant-dropdown:not(.ant-dropdown-hidden)'
+    const sel = `${openScope} ${itemSel}`
     try {
       await client.locator(sel).first().waitFor({
         state: 'visible',
         timeout: 4000
       })
+      await client.locator(sel).first().click()
+      return
     } catch (e) {
-      // Item is probably inside the collapsed "…" submenu; expand it.
-      const more = client.locator(
-        `${menuScope} .ant-dropdown-menu-submenu-title, ${menuScope} .ant-menu-submenu-title`
-      ).first()
-      await more.waitFor({ state: 'visible', timeout: 5000 })
-      await more.hover()
-      await delay(600)
+      // Item may live inside the collapsed "…" submenu; expand it first.
     }
-    const target = client.locator(sel).first()
+    const more = client.locator(
+      `${openScope} .ant-dropdown-menu-submenu-title, ${openScope} .ant-menu-submenu-title`
+    ).first()
+    await more.waitFor({ state: 'visible', timeout: 5000 })
+    await more.hover()
+    await delay(600)
+    const expandedSel =
+      `${openScope} ${itemSel}, ` +
+      `.ant-dropdown-menu-submenu-popup ${itemSel}, ` +
+      `.ant-menu-submenu-popup ${itemSel}`
+    const target = client.locator(expandedSel).first()
     await target.waitFor({
       state: 'visible',
       timeout: 5000
