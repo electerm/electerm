@@ -10,7 +10,7 @@ on:
 jobs:
   build:
 
-    runs-on: macos-15-intel
+    runs-on: macos-15
     environment: build
     if: ${{ !contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]') && !contains(github.event.head_commit.message, '[skip test1]') }}
 
@@ -56,3 +56,11 @@ jobs:
         GIST_ID: ${{ secrets.GIST_ID }}
         GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
         GITEE_ID: ${{ secrets.GITEE_ID }}
+
+    - name: Upload failure diagnostics
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: diag-mac-test-1
+        path: test-results/
+        if-no-files-found: ignore

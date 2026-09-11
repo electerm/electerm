@@ -3,7 +3,7 @@ const {
   test: it
 } = require('@playwright/test')
 const { describe } = it
-it.setTimeout(100000)
+it.setTimeout(200000)
 const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
@@ -12,24 +12,27 @@ const {
   setupSftpConnection,
   createFolder,
   deleteItem,
-  selectAllContextMenu
+  selectAllContextMenu,
+  closeApp
 } = require('./common/common')
 
 describe('File List Context Menu Select All Operation', function () {
   it('should select all items using context menu and verify single click behavior for both local and remote file lists', async function () {
     const electronApp = await electron.launch(appOptions)
-    const client = await electronApp.firstWindow()
-    extendClient(client, electronApp)
-    await delay(3500)
+    try {
+      const client = await electronApp.firstWindow()
+      extendClient(client, electronApp)
+      await delay(3500)
 
-    // Set up SSH connection first for remote testing
-    await setupSftpConnection(client)
+      // Set up SSH connection first for remote testing
+      await setupSftpConnection(client)
 
-    // Test for both local and remote
-    await testSelectAll(client, 'local')
-    await testSelectAll(client, 'remote')
-
-    await electronApp.close()
+      // Test for both local and remote
+      await testSelectAll(client, 'local')
+      await testSelectAll(client, 'remote')
+    } finally {
+      await closeApp(electronApp, __filename)
+    }
   })
 })
 

@@ -1,4 +1,5 @@
 const delay = require('./wait')
+const diagnose = require('./diagnose')
 const {
   TEST_HOST,
   TEST_PASS,
@@ -22,15 +23,21 @@ const log = require('./log')
  * @param {string} fileName - The name of the file to create
  */
 async function createFile (client, type, fileName) {
-  // Always use the parent-file-item for right-click context menu
-  await client.rightClick(`.session-current .file-list.${type} .parent-file-item`, 10, 10)
-
-  await delay(500)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New File")')
+  // Always use the parent-file-item for right-click context menu.
+  // openContextMenu retries the right click until the dropdown is visible,
+  // hardening against the race where the contextmenu event is missed
+  // during a list re-render.
+  await client.withContextMenu(
+    `.session-current .file-list.${type} .parent-file-item`,
+    '.ant-dropdown-menu-item:has-text("New File")'
+  )
   await delay(400)
   await client.setValue('.session-current .sftp-item input', fileName)
   await client.click('.session-current .sftp-panel-title')
   await delay(3500) // Ensure file creation completes
+  if (!await verifyFileExists(client, type, fileName, 10000)) {
+    throw new Error(`createFile failed: ${type}/${fileName} not listed after creation`)
+  }
 }
 
 /**
@@ -43,15 +50,19 @@ async function createFile (client, type, fileName) {
  */
 async function createFolder (client, type, folderName) {
   await delay(500)
-  // Always use the parent-file-item for right-click context menu
-  await client.rightClick(`.session-current .file-list.${type} .parent-file-item`, 10, 10)
-
-  await delay(500)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
+  // Always use the parent-file-item for right-click context menu.
+  // openContextMenu retries until the dropdown is visible.
+  await client.withContextMenu(
+    `.session-current .file-list.${type} .parent-file-item`,
+    '.ant-dropdown-menu-item:has-text("New Folder")'
+  )
   await delay(400)
   await client.setValue('.session-current .sftp-item input', folderName)
   await client.click('.session-current .sftp-panel-title')
   await delay(3500) // Ensure folder creation completes
+  if (!await verifyFileExists(client, type, folderName, 10000)) {
+    throw new Error(`createFolder failed: ${type}/${folderName} not listed after creation`)
+  }
 }
 /**
  * Deletes an item (file or folder) from the specified type of file list
@@ -61,12 +72,48 @@ async function createFolder (client, type, folderName) {
  * @param {string} itemName - The name of the item to delete
  */
 async function deleteItem (client, type, itemName) {
+  await ensureItemVisible(client, type, itemName)
   await client.click(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`)
   await delay(400)
   await client.keyboard.press('Delete')
   await delay(400)
   await client.keyboard.press('Enter')
   await delay(2000)
+}
+
+/**
+ * Waits until a file-list item exists and scrolls it into view so that
+ * subsequent clicks target the right row even in virtualized lists.
+ * Throws (after capturing diagnostics) when the item never shows up.
+ */
+async function ensureItemVisible (client, type, itemName, timeout = 20000) {
+  const sel = `.session-current .file-list.${type} .sftp-item[title="${itemName}"]`
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    const loc = client.locator(sel).first()
+    if (await loc.count() > 0) {
+      try {
+        // Scroll the row to the top of the list so the context menu that
+        // opens on right-click has room below and does not split items
+        // into the "…" submenu.
+        await loc.evaluate((el) => el.scrollIntoView({ block: 'start' }))
+      } catch (e) {
+        // ignore scroll errors, fall back to playwright scrolling
+      }
+      await delay(500)
+      try {
+        await loc.scrollIntoViewIfNeeded()
+        await loc.waitFor({ state: 'visible', timeout: 3000 })
+        return
+      } catch (e) {
+        // Row exists but is not visible yet (virtualized list or re-render);
+        // keep polling.
+      }
+    }
+    await delay(1000)
+  }
+  await diagnose(client, `item-not-visible-${type}-${itemName}`)
+  throw new Error(`file list item not visible: ${type}/${itemName}`)
 }
 
 /**
@@ -77,9 +124,11 @@ async function deleteItem (client, type, itemName) {
  * @param {string} itemName - The name of the item to copy
  */
 async function copyItem (client, type, itemName) {
-  await client.rightClick(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`, 10, 10)
-  await delay(1000) // Increased delay for context menu
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Copy")')
+  await ensureItemVisible(client, type, itemName)
+  await client.withContextMenu(
+    `.session-current .file-list.${type} .sftp-item[title="${itemName}"]`,
+    '.ant-dropdown-menu-item:has-text("Copy")'
+  )
   await delay(1500) // Ensure copy operation registers
 }
 
@@ -109,9 +158,11 @@ async function copyItemWithKeyboard (client, type, itemName) {
  * @param {string} itemName - The name of the item to cut
  */
 async function cutItem (client, type, itemName) {
-  await client.rightClick(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`, 10, 10)
-  await delay(800)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Cut")')
+  await ensureItemVisible(client, type, itemName)
+  await client.withContextMenu(
+    `.session-current .file-list.${type} .sftp-item[title="${itemName}"]`,
+    '.ant-dropdown-menu-item:has-text("Cut")'
+  )
   await delay(1000)
 }
 
@@ -130,18 +181,15 @@ async function pasteItem (client, type) {
   await delay(1000) // Increased delay
 
   // Try to right click on the parent file item first (for empty folders)
-  if (await client.locator(parentFolderSelector).count() > 0) {
-    await client.rightClick(parentFolderSelector, 10, 10)
-  } else {
-    // Fall back to real file item if parent item doesn't exist
-    await client.rightClick(realFileSelector, 10, 10)
-  }
-  await delay(1000)
+  const pasteTarget = await client.locator(parentFolderSelector).count() > 0
+    ? parentFolderSelector
+    : realFileSelector
 
-  // Wait for paste menu to be visible and enabled
-  const pasteMenuItem = await client.locator('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Paste"):not(.ant-dropdown-menu-item-disabled)')
-  await pasteMenuItem.waitFor({ state: 'visible', timeout: 5000 })
-  await pasteMenuItem.click()
+  // Wait for paste menu to be visible and enabled (may live in the "…" submenu)
+  await client.withContextMenu(
+    pasteTarget,
+    '.ant-dropdown-menu-item:has-text("Paste"):not(.ant-dropdown-menu-item-disabled)'
+  )
   await delay(4000) // Increased delay for paste operation
 }
 
@@ -172,9 +220,11 @@ async function pasteItemWithKeyboard (client, type) {
  * @param {string} newName - The new name for the item
  */
 async function renameItem (client, type, oldName, newName) {
-  await client.rightClick(`.session-current .file-list.${type} .sftp-item[title="${oldName}"]`, 10, 10)
-  await delay(500)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Rename")')
+  await ensureItemVisible(client, type, oldName)
+  await client.withContextMenu(
+    `.session-current .file-list.${type} .sftp-item[title="${oldName}"]`,
+    '.ant-dropdown-menu-item:has-text("Rename")'
+  )
   await delay(400)
   await client.setValue('.session-current .sftp-item input', newName)
   await client.click('.session-current .sftp-panel-title')
@@ -189,9 +239,11 @@ async function renameItem (client, type, oldName, newName) {
  * @param {string} folderName - The name of the folder to enter
  */
 async function enterFolder (client, type, folderName) {
-  await client.rightClick(`.session-current .file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
-  await delay(800)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Enter")')
+  await ensureItemVisible(client, type, folderName)
+  await client.withContextMenu(
+    `.session-current .file-list.${type} .sftp-item[title="${folderName}"]`,
+    '.ant-dropdown-menu-item:has-text("Enter")'
+  )
   await delay(3500) // Increased delay for folder navigation
 }
 
@@ -201,9 +253,26 @@ async function enterFolder (client, type, folderName) {
  * @param {Object} client - The Playwright client
  * @param {string} type - The type of file list ('local' or 'remote')
  */
-async function navigateToParentFolder (client, type) {
-  await client.doubleClick(`.session-current .file-list.${type} .parent-file-item`)
-  await delay(3000)
+async function navigateToParentFolder (client, type, retries = 3) {
+  const sel = `.session-current .sftp-${type}-section .sftp-title input`
+  const readPath = async () => {
+    try {
+      return await client.getValue(sel)
+    } catch (e) {
+      return null
+    }
+  }
+  const before = await readPath()
+  for (let i = 0; i < retries; i++) {
+    await client.doubleClick(`.session-current .file-list.${type} .parent-file-item`)
+    await delay(3000)
+    const after = await readPath()
+    if (before === null || after === null || after !== before) {
+      return
+    }
+  }
+  await diagnose(client, `nav-parent-stuck-${type}`)
+  throw new Error(`navigateToParentFolder failed: ${type} path stuck at ${before}`)
 }
 
 /**
@@ -213,9 +282,22 @@ async function navigateToParentFolder (client, type) {
  * @param {string} type - The type of file list ('local' or 'remote')
  */
 async function selectAllContextMenu (client, type) {
-  await client.rightClick(`.session-current .file-list.${type} .real-file-item`, 10, 10)
+  // Wait for the list to actually load content; on a slow SFTP roundtrip
+  // the list can briefly have no real items right after navigation.
+  try {
+    await client.locator(`.session-current .file-list.${type} .real-file-item`).first().waitFor({ state: 'visible', timeout: 20000 })
+  } catch (e) {
+    await diagnose(client, `select-all-empty-${type}`)
+    throw e
+  }
+  // Dismiss any stale dropdown, then open the menu with retries until
+  // the dropdown is actually visible.
+  await client.click('.session-current .sftp-panel-title')
   await delay(500)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Select All")')
+  await client.withContextMenu(
+    `.session-current .file-list.${type} .real-file-item`,
+    '.ant-dropdown-menu-item:has-text("Select All")'
+  )
   await delay(1000)
 }
 
@@ -227,9 +309,11 @@ async function selectAllContextMenu (client, type) {
  * @param {string} folderName - The name of the folder to access
  */
 async function accessFolderFromTerminal (client, type, folderName) {
-  await client.rightClick(`.file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
-  await delay(500)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Access this folder from the terminal")')
+  await ensureItemVisible(client, type, folderName)
+  await client.withContextMenu(
+    `.session-current .file-list.${type} .sftp-item[title="${folderName}"]`,
+    '.ant-dropdown-menu-item:has-text("Access this folder from the terminal")'
+  )
   await delay(1000)
 }
 
@@ -290,6 +374,41 @@ async function setupSftpConnection (client) {
   // Click sftp tab
   await client.click('.session-current .term-sftp-tabs .type-tab', 1)
   await delay(2500)
+  // Reset both panels to their session homes. The app remembers the last
+  // visited SFTP paths per host in the shared profile, so without this a
+  // test can start in a read-only folder (e.g. /home or /Users) left behind
+  // by an earlier test and every creation silently fails.
+  await resetSftpPath(client, 'remote')
+  await resetSftpPath(client, 'local')
+}
+
+/**
+ * Navigates an SFTP panel back to its session home via the address bar home
+ * button and waits until the home listing is actually shown.
+ * Throws (after capturing diagnostics) when the panel does not land home.
+ */
+async function resetSftpPath (client, type, timeout = 25000) {
+  const section = `.session-current .sftp-${type}-section`
+  // Marker entries that only exist in the session home folders and are never
+  // removed by the test suite (see build/bin/clean-test-server-home.js).
+  const marker = type === 'remote' ? '.bash_history' : 'Library'
+  const markerSel = `.session-current .file-list.${type} .sftp-item[title="${marker}"]`
+  const atHome = async () => await client.locator(markerSel).count() > 0
+  if (await atHome()) {
+    return
+  }
+  await client.locator(`${section} .anticon-home`).first().waitFor({ state: 'visible', timeout: 10000 })
+  await client.click(`${section} .anticon-home`)
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    await delay(1000)
+    if (await atHome()) {
+      await delay(2500)
+      return
+    }
+  }
+  await diagnose(client, `reset-path-${type}`)
+  throw new Error(`resetSftpPath failed: ${type} panel did not land home`)
 }
 
 /**
@@ -300,10 +419,18 @@ async function setupSftpConnection (client) {
  * @param {string} itemName - The name of the item to verify
  * @returns {Promise<boolean>} - Whether the file exists
  */
-async function verifyFileExists (client, type, itemName) {
-  const fileItems = await client.locator(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`)
-  const count = await fileItems.count()
-  return count > 0
+async function verifyFileExists (client, type, itemName, timeout = 15000) {
+  const sel = `.session-current .file-list.${type} .sftp-item[title="${itemName}"]`
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    const count = await client.locator(sel).count()
+    if (count > 0) {
+      return true
+    }
+    await delay(1000)
+  }
+  await diagnose(client, `verify-missing-${type}-${itemName}`)
+  return false
 }
 
 /**
@@ -314,8 +441,17 @@ async function verifyFileExists (client, type, itemName) {
  * @param {string} itemName - The name of the item to verify
  * @returns {Promise<boolean>} - Whether the file does not exist
  */
-async function verifyFileNotExists (client, type, itemName) {
-  return !(await verifyFileExists(client, type, itemName))
+async function verifyFileNotExists (client, type, itemName, timeout = 15000) {
+  const sel = `.session-current .file-list.${type} .sftp-item[title="${itemName}"]`
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    const count = await client.locator(sel).count()
+    if (count === 0) {
+      return true
+    }
+    await delay(1000)
+  }
+  return false
 }
 
 // Selection operations
@@ -357,9 +493,21 @@ async function selectItemsWithCtrlOrCmd (client, type, indices) {
  * @param {string} expectedPath - The expected path or part of it
  * @returns {Promise<boolean>} - Whether the path matches
  */
-async function verifyCurrentPath (client, type, expectedPath) {
-  const currentPath = await client.getValue(`.session-current .sftp-${type}-section .sftp-title input`)
-  return currentPath.endsWith(expectedPath)
+async function verifyCurrentPath (client, type, expectedPath, timeout = 15000) {
+  const sel = `.session-current .sftp-${type}-section .sftp-title input`
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    try {
+      const currentPath = await client.getValue(sel)
+      if (currentPath.endsWith(expectedPath)) {
+        return true
+      }
+    } catch (e) {
+      // input may not be rendered yet; keep polling
+    }
+    await delay(1000)
+  }
+  return false
 }
 
 /**
@@ -452,6 +600,7 @@ module.exports = {
   accessFolderFromTerminal,
   setupSshConnection,
   setupSftpConnection,
+  resetSftpPath,
   verifyFileExists,
   verifyFileNotExists,
   selectItemsWithShift,

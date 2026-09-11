@@ -15,23 +15,26 @@ const {
   enterFolder,
   copyItem,
   pasteItem,
-  deleteItem
+  deleteItem,
+  closeApp
 } = require('./common/common')
 
 describe('file-copy-paste-operation-keyboard', function () {
   it('should test file copy and paste operations using keyboard shortcuts', async function () {
     const electronApp = await electron.launch(appOptions)
-    const client = await electronApp.firstWindow()
-    extendClient(client, electronApp)
-    await delay(3500)
+    try {
+      const client = await electronApp.firstWindow()
+      extendClient(client, electronApp)
+      await delay(3500)
 
-    await setupSftpConnection(client)
+      await setupSftpConnection(client)
 
-    // Test for both local and remote
-    await testCopyPasteOperationWithKeyboard(client, 'local')
-    await testCopyPasteOperationWithKeyboard(client, 'remote')
-
-    await electronApp.close()
+      // Test for both local and remote
+      await testCopyPasteOperationWithKeyboard(client, 'local')
+      await testCopyPasteOperationWithKeyboard(client, 'remote')
+    } finally {
+      await closeApp(electronApp, __filename)
+    }
   })
 })
 

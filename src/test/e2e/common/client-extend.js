@@ -6,6 +6,7 @@ const {
   expect
 } = require('@playwright/test')
 const delay = require('./wait')
+const diagnose = require('./diagnose')
 
 module.exports = (client, app) => {
   client.element = (sel) => {
@@ -101,8 +102,92 @@ module.exports = (client, app) => {
     // if the dropdown still fails to appear.
     await client.rightClick(sel, x, y)
   }
+  // Atomic open-menu-then-click-item with retries.
+  // The file list re-renders on SFTP refresh, which can detach the
+  // right-clicked row and close the menu mid-sequence, and long menus split
+  // late items into a "…" submenu — so the whole sequence is retried and
+  // always clicks the first VISIBLE match (hidden duplicates from closed
+  // dropdowns or collapsed submenus are skipped).
+  client.withContextMenu = async function (targetSel, itemSel, x = 10, y = 10, attempts = 4) {
+    const dropdownSel = '.ant-dropdown:not(.ant-dropdown-hidden)'
+    const scopes = (s) => (
+      `${dropdownSel} ${s}, ` +
+      `.ant-dropdown-menu-submenu-popup ${s}, ` +
+      `.ant-menu-submenu-popup ${s}`
+    )
+    const expandMore = async () => {
+      const titles = client.locator(
+        `${dropdownSel} .ant-dropdown-menu-submenu-title, ${dropdownSel} .ant-menu-submenu-title`
+      )
+      const n = await titles.count()
+      for (let k = 0; k < n; k++) {
+        const t = titles.nth(k)
+        try {
+          if (await t.isVisible()) {
+            await t.hover()
+            await delay(500)
+            return true
+          }
+        } catch (e) {
+          // detached; keep scanning
+        }
+      }
+      return false
+    }
+    let lastError = null
+    for (let i = 0; i < attempts; i++) {
+      try {
+        await client.rightClick(targetSel, x, y)
+        await client.locator(dropdownSel).first().waitFor({
+          state: 'visible',
+          timeout: 2500
+        })
+        try {
+          await client.clickFirstVisible(scopes(itemSel), 2500)
+          return
+        } catch (e) {
+          lastError = e
+          // Item may live inside the collapsed "…" submenu; expand it.
+          if (await expandMore()) {
+            await client.clickFirstVisible(scopes(itemSel), 2500)
+            return
+          }
+          throw e
+        }
+      } catch (e) {
+        lastError = e
+        await client.keyboard.press('Escape').catch(() => {})
+        await delay(600)
+      }
+    }
+    await diagnose(client, `menu-fail-${itemSel}`.slice(0, 60))
+    throw lastError
+  }
   client.readClipboard = async () => {
     return app.evaluate(async ({ clipboard }) => clipboard.readText())
+  }
+  // Click the first VISIBLE match of a menu-item selector (there can be
+  // hidden duplicates from closed dropdowns or collapsed submenus).
+  client.clickFirstVisible = async function (sel, timeout = 5000) {
+    const all = client.locator(sel)
+    const start = Date.now()
+    while (Date.now() - start < timeout) {
+      const n = await all.count()
+      for (let k = 0; k < n; k++) {
+        const el = all.nth(k)
+        try {
+          if (await el.isVisible()) {
+            await el.click()
+            return
+          }
+        } catch (e) {
+          // detached mid-iteration; rescan
+          break
+        }
+      }
+      await delay(400)
+    }
+    throw new Error(`no visible element for ${sel}`)
   }
   client.writeClipboard = async (clipboardContentToWrite) => {
     await app.evaluate(async ({ clipboard }, text) => {

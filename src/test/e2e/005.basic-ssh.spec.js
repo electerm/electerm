@@ -19,17 +19,20 @@ const { setupSshConnection } = require('./common/common')
 describe('ssh', function () {
   it('should open window and basic ssh ls command works', async function () {
     const electronApp = await electron.launch(appOptions)
-    const client = await electronApp.firstWindow()
-    extendClient(client, electronApp)
-    await delay(4500)
-    const cmd = 'ls'
-    await setupSshConnection(client)
-    await delay(5500)
-    let tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
-    tabsCount = await tabsCount.count()
-    expect(tabsCount).equal(2)
-    await delay(4010)
-    await basicTerminalTest(client, cmd)
-    await electronApp.close().catch(console.log)
+    try {
+      const client = await electronApp.firstWindow()
+      extendClient(client, electronApp)
+      await delay(4500)
+      const cmd = 'ls'
+      await setupSshConnection(client)
+      await delay(5500)
+      let tabsCount = await client.elements('.tabs .tabs-wrapper .tab')
+      tabsCount = await tabsCount.count()
+      expect(tabsCount).equal(2)
+      await delay(4010)
+      await basicTerminalTest(client, cmd)
+    } finally {
+      await electronApp.close().catch(console.log)
+    }
   })
 })

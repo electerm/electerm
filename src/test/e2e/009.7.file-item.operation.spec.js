@@ -16,23 +16,26 @@ const {
   copyItem,
   pasteItem,
   enterFolder,
-  navigateToParentFolder
+  navigateToParentFolder,
+  closeApp
 } = require('./common/common')
 
 describe('file-copy-paste-operation', function () {
   it('should test file copy and paste operations', async function () {
     const electronApp = await electron.launch(appOptions)
-    const client = await electronApp.firstWindow()
-    extendClient(client, electronApp)
-    await delay(3500)
+    try {
+      const client = await electronApp.firstWindow()
+      extendClient(client, electronApp)
+      await delay(3500)
 
-    await setupSftpConnection(client)
+      await setupSftpConnection(client)
 
-    // Test for both local and remote
-    await testCopyPasteOperation(client, 'local')
-    await testCopyPasteOperation(client, 'remote')
-
-    await electronApp.close()
+      // Test for both local and remote
+      await testCopyPasteOperation(client, 'local')
+      await testCopyPasteOperation(client, 'remote')
+    } finally {
+      await closeApp(electronApp, __filename)
+    }
   })
 })
 
