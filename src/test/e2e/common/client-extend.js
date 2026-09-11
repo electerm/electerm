@@ -101,6 +101,36 @@ module.exports = (client, app) => {
     // if the dropdown still fails to appear.
     await client.rightClick(sel, x, y)
   }
+  // Click an item in the open Ant Design context menu.
+  // The file-list menu splits into first-half + "…" submenu when it would
+  // overflow the window bottom (see renderContextMenu in file-item.jsx), so
+  // late items like "Select All" / "Edit Permission" may live inside the
+  // "…" submenu instead of the top level. Expand it when needed.
+  client.clickMenuItem = async function (itemSel) {
+    // Scope to menu trees only (never toolbar buttons that may share icon classes).
+    const menuScope = '.ant-dropdown-menu'
+    const sel = `${menuScope} ${itemSel}`
+    try {
+      await client.locator(sel).first().waitFor({
+        state: 'visible',
+        timeout: 4000
+      })
+    } catch (e) {
+      // Item is probably inside the collapsed "…" submenu; expand it.
+      const more = client.locator(
+        `${menuScope} .ant-dropdown-menu-submenu-title, ${menuScope} .ant-menu-submenu-title`
+      ).first()
+      await more.waitFor({ state: 'visible', timeout: 5000 })
+      await more.hover()
+      await delay(600)
+    }
+    const target = client.locator(sel).first()
+    await target.waitFor({
+      state: 'visible',
+      timeout: 5000
+    })
+    await target.click()
+  }
   client.readClipboard = async () => {
     return app.evaluate(async ({ clipboard }) => clipboard.readText())
   }

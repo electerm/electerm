@@ -29,7 +29,7 @@ async function createFile (client, type, fileName) {
   // during a list re-render.
   await client.openContextMenu(`.session-current .file-list.${type} .parent-file-item`, 10, 10)
 
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New File")')
+  await client.clickMenuItem('.ant-dropdown-menu-item:has-text("New File")')
   await delay(400)
   await client.setValue('.session-current .sftp-item input', fileName)
   await client.click('.session-current .sftp-panel-title')
@@ -50,7 +50,7 @@ async function createFolder (client, type, folderName) {
   // openContextMenu retries until the dropdown is visible.
   await client.openContextMenu(`.session-current .file-list.${type} .parent-file-item`, 10, 10)
 
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
+  await client.clickMenuItem('.ant-dropdown-menu-item:has-text("New Folder")')
   await delay(400)
   await client.setValue('.session-current .sftp-item input', folderName)
   await client.click('.session-current .sftp-panel-title')
@@ -81,7 +81,7 @@ async function deleteItem (client, type, itemName) {
  */
 async function copyItem (client, type, itemName) {
   await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`, 10, 10)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Copy")')
+  await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Copy")')
   await delay(1500) // Ensure copy operation registers
 }
 
@@ -112,7 +112,7 @@ async function copyItemWithKeyboard (client, type, itemName) {
  */
 async function cutItem (client, type, itemName) {
   await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`, 10, 10)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Cut")')
+  await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Cut")')
   await delay(1000)
 }
 
@@ -138,10 +138,8 @@ async function pasteItem (client, type) {
     await client.openContextMenu(realFileSelector, 10, 10)
   }
 
-  // Wait for paste menu to be visible and enabled
-  const pasteMenuItem = await client.locator('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Paste"):not(.ant-dropdown-menu-item-disabled)')
-  await pasteMenuItem.waitFor({ state: 'visible', timeout: 5000 })
-  await pasteMenuItem.click()
+  // Wait for paste menu to be visible and enabled (may live in the "…" submenu)
+  await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Paste"):not(.ant-dropdown-menu-item-disabled)')
   await delay(4000) // Increased delay for paste operation
 }
 
@@ -173,7 +171,7 @@ async function pasteItemWithKeyboard (client, type) {
  */
 async function renameItem (client, type, oldName, newName) {
   await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${oldName}"]`, 10, 10)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Rename")')
+  await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Rename")')
   await delay(400)
   await client.setValue('.session-current .sftp-item input', newName)
   await client.click('.session-current .sftp-panel-title')
@@ -189,7 +187,7 @@ async function renameItem (client, type, oldName, newName) {
  */
 async function enterFolder (client, type, folderName) {
   await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Enter")')
+  await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Enter")')
   await delay(3500) // Increased delay for folder navigation
 }
 
@@ -199,9 +197,24 @@ async function enterFolder (client, type, folderName) {
  * @param {Object} client - The Playwright client
  * @param {string} type - The type of file list ('local' or 'remote')
  */
-async function navigateToParentFolder (client, type) {
-  await client.doubleClick(`.session-current .file-list.${type} .parent-file-item`)
-  await delay(3000)
+async function navigateToParentFolder (client, type, retries = 3) {
+  const sel = `.session-current .sftp-${type}-section .sftp-title input`
+  const readPath = async () => {
+    try {
+      return await client.getValue(sel)
+    } catch (e) {
+      return null
+    }
+  }
+  const before = await readPath()
+  for (let i = 0; i < retries; i++) {
+    await client.doubleClick(`.session-current .file-list.${type} .parent-file-item`)
+    await delay(3000)
+    const after = await readPath()
+    if (before === null || after === null || after !== before) {
+      return
+    }
+  }
 }
 
 /**
@@ -224,7 +237,7 @@ async function selectAllContextMenu (client, type) {
   await client.click('.session-current .sftp-panel-title')
   await delay(500)
   await client.openContextMenu(`.session-current .file-list.${type} .real-file-item`, 10, 10)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Select All")')
+  await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Select All")')
   await delay(1000)
 }
 
@@ -237,7 +250,7 @@ async function selectAllContextMenu (client, type) {
  */
 async function accessFolderFromTerminal (client, type, folderName) {
   await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
-  await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Access this folder from the terminal")')
+  await client.clickMenuItem('.ant-dropdown-menu-item:has-text("Access this folder from the terminal")')
   await delay(1000)
 }
 
