@@ -75,7 +75,7 @@ describe('file-item-context-menu', function () {
       await createFolder(client, 'remote', remoteFolderName)
 
       // Verify local folder does not have "Access this folder from terminal" option
-      await client.rightClick(`.session-current .file-list.local .sftp-item[title="${localFolderName}"]`, 10, 10)
+      await client.openContextMenu(`.session-current .file-list.local .sftp-item[title="${localFolderName}"]`, 10, 10)
       await delay(500)
       const localContextMenu = await client.locator('.ant-dropdown:not(.ant-dropdown-hidden)')
       const localHasTerminalAccess = await localContextMenu.locator('.ant-dropdown-menu-item:has-text("Access this folder from the terminal")').count()

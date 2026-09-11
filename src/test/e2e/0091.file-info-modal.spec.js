@@ -51,7 +51,7 @@ async function testEditFolderPermission (client, folderType) {
   const folderName = `${folderType}-test-folder-${nanoid()}`
 
   // Create a new folder
-  await client.rightClick(`.session-current .file-list.${folderType} .parent-file-item`, 10, 10)
+  await client.openContextMenu(`.session-current .file-list.${folderType} .parent-file-item`, 10, 10)
   await delay(500)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
   await delay(200)
@@ -60,7 +60,7 @@ async function testEditFolderPermission (client, folderType) {
   await delay(2500)
 
   // Right-click on the folder and select "Edit Permission"
-  await client.rightClick(`.session-current .file-list.${folderType} .sftp-item[title="${folderName}"]`, 10, 10)
+  await client.openContextMenu(`.session-current .file-list.${folderType} .sftp-item[title="${folderName}"]`, 10, 10)
   await delay(500)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Edit Permission")')
   await delay(1000)
@@ -97,7 +97,7 @@ async function testEditFolderPermission (client, folderType) {
   await client.hasElem('.custom-modal-container', false)
 
   // Open folder properties to check if permissions were updated
-  await client.rightClick(`.session-current .file-list.${folderType} .sftp-item[title="${folderName}"]`, 10, 10)
+  await client.openContextMenu(`.session-current .file-list.${folderType} .sftp-item[title="${folderName}"]`, 10, 10)
   await delay(500)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-info-circle')
   await delay(1200)
@@ -127,7 +127,7 @@ async function testFileInfoModal (client, fileType, closeMethod) {
   const fname = `${fileType}-test-electerm-${nanoid()}`
 
   // Create a new folder
-  await client.rightClick(`.session-current .file-list.${fileType} .real-file-item`, 10, 10)
+  await client.openContextMenu(`.session-current .file-list.${fileType} .real-file-item`, 10, 10)
   await delay(500)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-folder-add')
   await delay(200)
@@ -139,7 +139,7 @@ async function testFileInfoModal (client, fileType, closeMethod) {
   await client.hasElem(`.session-current .file-list.${fileType} .sftp-item[title="${fname}"]`)
 
   // Open info modal
-  await client.rightClick(`.session-current .file-list.${fileType} .sftp-item[title="${fname}"]`, 10, 10)
+  await client.openContextMenu(`.session-current .file-list.${fileType} .sftp-item[title="${fname}"]`, 10, 10)
   await delay(200)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-info-circle')
   await delay(1200)

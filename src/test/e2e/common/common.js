@@ -22,10 +22,12 @@ const log = require('./log')
  * @param {string} fileName - The name of the file to create
  */
 async function createFile (client, type, fileName) {
-  // Always use the parent-file-item for right-click context menu
-  await client.rightClick(`.session-current .file-list.${type} .parent-file-item`, 10, 10)
+  // Always use the parent-file-item for right-click context menu.
+  // openContextMenu retries the right click until the dropdown is visible,
+  // hardening against the race where the contextmenu event is missed
+  // during a list re-render.
+  await client.openContextMenu(`.session-current .file-list.${type} .parent-file-item`, 10, 10)
 
-  await delay(500)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New File")')
   await delay(400)
   await client.setValue('.session-current .sftp-item input', fileName)
@@ -43,10 +45,10 @@ async function createFile (client, type, fileName) {
  */
 async function createFolder (client, type, folderName) {
   await delay(500)
-  // Always use the parent-file-item for right-click context menu
-  await client.rightClick(`.session-current .file-list.${type} .parent-file-item`, 10, 10)
+  // Always use the parent-file-item for right-click context menu.
+  // openContextMenu retries until the dropdown is visible.
+  await client.openContextMenu(`.session-current .file-list.${type} .parent-file-item`, 10, 10)
 
-  await delay(500)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("New Folder")')
   await delay(400)
   await client.setValue('.session-current .sftp-item input', folderName)
@@ -77,8 +79,7 @@ async function deleteItem (client, type, itemName) {
  * @param {string} itemName - The name of the item to copy
  */
 async function copyItem (client, type, itemName) {
-  await client.rightClick(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`, 10, 10)
-  await delay(1000) // Increased delay for context menu
+  await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`, 10, 10)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Copy")')
   await delay(1500) // Ensure copy operation registers
 }
@@ -109,8 +110,7 @@ async function copyItemWithKeyboard (client, type, itemName) {
  * @param {string} itemName - The name of the item to cut
  */
 async function cutItem (client, type, itemName) {
-  await client.rightClick(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`, 10, 10)
-  await delay(800)
+  await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${itemName}"]`, 10, 10)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Cut")')
   await delay(1000)
 }
@@ -131,12 +131,11 @@ async function pasteItem (client, type) {
 
   // Try to right click on the parent file item first (for empty folders)
   if (await client.locator(parentFolderSelector).count() > 0) {
-    await client.rightClick(parentFolderSelector, 10, 10)
+    await client.openContextMenu(parentFolderSelector, 10, 10)
   } else {
     // Fall back to real file item if parent item doesn't exist
-    await client.rightClick(realFileSelector, 10, 10)
+    await client.openContextMenu(realFileSelector, 10, 10)
   }
-  await delay(1000)
 
   // Wait for paste menu to be visible and enabled
   const pasteMenuItem = await client.locator('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Paste"):not(.ant-dropdown-menu-item-disabled)')
@@ -172,8 +171,7 @@ async function pasteItemWithKeyboard (client, type) {
  * @param {string} newName - The new name for the item
  */
 async function renameItem (client, type, oldName, newName) {
-  await client.rightClick(`.session-current .file-list.${type} .sftp-item[title="${oldName}"]`, 10, 10)
-  await delay(500)
+  await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${oldName}"]`, 10, 10)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Rename")')
   await delay(400)
   await client.setValue('.session-current .sftp-item input', newName)
@@ -189,8 +187,7 @@ async function renameItem (client, type, oldName, newName) {
  * @param {string} folderName - The name of the folder to enter
  */
 async function enterFolder (client, type, folderName) {
-  await client.rightClick(`.session-current .file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
-  await delay(800)
+  await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Enter")')
   await delay(3500) // Increased delay for folder navigation
 }
@@ -216,8 +213,11 @@ async function selectAllContextMenu (client, type) {
   // Wait for the list to actually load content; on a slow SFTP roundtrip
   // the list can briefly have no real items right after navigation.
   await client.locator(`.session-current .file-list.${type} .real-file-item`).first().waitFor({ state: 'visible', timeout: 20000 })
-  await client.rightClick(`.session-current .file-list.${type} .real-file-item`, 10, 10)
+  // Dismiss any stale dropdown, then open the menu with retries until
+  // the dropdown is actually visible.
+  await client.click('.session-current .sftp-panel-title')
   await delay(500)
+  await client.openContextMenu(`.session-current .file-list.${type} .real-file-item`, 10, 10)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Select All")')
   await delay(1000)
 }
@@ -230,8 +230,7 @@ async function selectAllContextMenu (client, type) {
  * @param {string} folderName - The name of the folder to access
  */
 async function accessFolderFromTerminal (client, type, folderName) {
-  await client.rightClick(`.session-current .file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
-  await delay(500)
+  await client.openContextMenu(`.session-current .file-list.${type} .sftp-item[title="${folderName}"]`, 10, 10)
   await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Access this folder from the terminal")')
   await delay(1000)
 }
