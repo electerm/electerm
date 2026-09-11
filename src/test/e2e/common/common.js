@@ -384,31 +384,31 @@ async function setupSftpConnection (client) {
 
 /**
  * Navigates an SFTP panel back to its session home via the address bar home
- * button and waits until the listing settles there.
+ * button and waits until the home listing is actually shown.
  * Throws (after capturing diagnostics) when the panel does not land home.
  */
-async function resetSftpPath (client, type, timeout = 20000) {
+async function resetSftpPath (client, type, timeout = 25000) {
   const section = `.session-current .sftp-${type}-section`
+  // Marker entries that only exist in the session home folders and are never
+  // removed by the test suite (see build/bin/clean-test-server-home.js).
+  const marker = type === 'remote' ? '.bash_history' : 'Library'
+  const markerSel = `.session-current .file-list.${type} .sftp-item[title="${marker}"]`
+  const atHome = async () => await client.locator(markerSel).count() > 0
+  if (await atHome()) {
+    return
+  }
   await client.locator(`${section} .anticon-home`).first().waitFor({ state: 'visible', timeout: 10000 })
   await client.click(`${section} .anticon-home`)
-  // The address bar shows a go-arrow while navigating and a reload icon once
-  // the committed path matches the input; wait for the committed state.
   const start = Date.now()
   while (Date.now() - start < timeout) {
     await delay(1000)
-    try {
-      const reloading = await client.locator(`${section} .anticon-reload`).count()
-      const loading = await client.locator(`${section} .anticon-loading`).count()
-      if (reloading > 0 && loading === 0) {
-        await delay(2500)
-        return
-      }
-    } catch (e) {
-      // keep polling
+    if (await atHome()) {
+      await delay(2500)
+      return
     }
   }
   await diagnose(client, `reset-path-${type}`)
-  throw new Error(`resetSftpPath failed: ${type} panel did not settle home`)
+  throw new Error(`resetSftpPath failed: ${type} panel did not land home`)
 }
 
 /**
