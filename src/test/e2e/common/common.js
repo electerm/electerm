@@ -1,4 +1,5 @@
 const delay = require('./wait')
+const diagnose = require('./diagnose')
 const {
   TEST_HOST,
   TEST_PASS,
@@ -212,7 +213,12 @@ async function navigateToParentFolder (client, type) {
 async function selectAllContextMenu (client, type) {
   // Wait for the list to actually load content; on a slow SFTP roundtrip
   // the list can briefly have no real items right after navigation.
-  await client.locator(`.session-current .file-list.${type} .real-file-item`).first().waitFor({ state: 'visible', timeout: 20000 })
+  try {
+    await client.locator(`.session-current .file-list.${type} .real-file-item`).first().waitFor({ state: 'visible', timeout: 20000 })
+  } catch (e) {
+    await diagnose(client, `select-all-empty-${type}`)
+    throw e
+  }
   // Dismiss any stale dropdown, then open the menu with retries until
   // the dropdown is actually visible.
   await client.click('.session-current .sftp-panel-title')
@@ -312,6 +318,7 @@ async function verifyFileExists (client, type, itemName, timeout = 15000) {
     }
     await delay(1000)
   }
+  await diagnose(client, `verify-missing-${type}-${itemName}`)
   return false
 }
 

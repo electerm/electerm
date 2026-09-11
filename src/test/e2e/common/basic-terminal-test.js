@@ -1,5 +1,7 @@
 const delay = require('./wait')
 const { expect } = require('./expect')
+const log = require('./log')
+const diagnose = require('./diagnose')
 
 exports.basicTerminalTest = async (client, cmd) => {
   async function focus () {
@@ -49,6 +51,10 @@ exports.basicTerminalTest = async (client, cmd) => {
     if (text2.trim().length > len1) {
       break
     }
+  }
+  log(`[basicTerminalTest] len1=${len1} len2=${text2.trim().length} cmd=${cmd}`)
+  if (!(len1 < text2.trim().length)) {
+    await diagnose(client, `terminal-${cmd}`)
   }
   expect(len1).lessThan(text2.trim().length)
 }

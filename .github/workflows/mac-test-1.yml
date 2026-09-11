@@ -56,3 +56,11 @@ jobs:
         GIST_ID: ${{ secrets.GIST_ID }}
         GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
         GITEE_ID: ${{ secrets.GITEE_ID }}
+
+    - name: Upload failure diagnostics
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: diag-mac-test-1
+        path: test-results/
+        if-no-files-found: ignore
