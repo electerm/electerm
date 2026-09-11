@@ -374,39 +374,41 @@ async function setupSftpConnection (client) {
   // Click sftp tab
   await client.click('.session-current .term-sftp-tabs .type-tab', 1)
   await delay(2500)
-  // Reset both panels to known writable roots. The app remembers the last
+  // Reset both panels to their session homes. The app remembers the last
   // visited SFTP paths per host in the shared profile, so without this a
   // test can start in a read-only folder (e.g. /home or /Users) left behind
   // by an earlier test and every creation silently fails.
-  await resetSftpPath(client, 'remote', `/home/${TEST_USER}`)
-  await resetSftpPath(client, 'local', require('os').homedir())
+  await resetSftpPath(client, 'remote')
+  await resetSftpPath(client, 'local')
 }
 
 /**
- * Navigates an SFTP panel to an absolute path via its address bar.
- * Throws (after capturing diagnostics) when the panel does not land there.
+ * Navigates an SFTP panel back to its session home via the address bar home
+ * button and waits until the listing settles there.
+ * Throws (after capturing diagnostics) when the panel does not land home.
  */
-async function resetSftpPath (client, type, path, timeout = 15000) {
-  const sel = `.session-current .sftp-${type}-section .sftp-title input`
-  await client.locator(sel).first().waitFor({ state: 'visible', timeout: 10000 })
-  await client.setValue(sel, path)
-  await delay(500)
-  await client.keyboard.press('Enter')
+async function resetSftpPath (client, type, timeout = 20000) {
+  const section = `.session-current .sftp-${type}-section`
+  await client.locator(`${section} .anticon-home`).first().waitFor({ state: 'visible', timeout: 10000 })
+  await client.click(`${section} .anticon-home`)
+  // The address bar shows a go-arrow while navigating and a reload icon once
+  // the committed path matches the input; wait for the committed state.
   const start = Date.now()
   while (Date.now() - start < timeout) {
     await delay(1000)
     try {
-      const current = await client.getValue(sel)
-      if (current === path || current.endsWith('/' + path.split('/').pop())) {
+      const reloading = await client.locator(`${section} .anticon-reload`).count()
+      const loading = await client.locator(`${section} .anticon-loading`).count()
+      if (reloading > 0 && loading === 0) {
         await delay(2500)
         return
       }
     } catch (e) {
-      // input not ready yet; keep polling
+      // keep polling
     }
   }
   await diagnose(client, `reset-path-${type}`)
-  throw new Error(`resetSftpPath failed: ${type} did not land at ${path}`)
+  throw new Error(`resetSftpPath failed: ${type} panel did not settle home`)
 }
 
 /**
