@@ -19,11 +19,11 @@ const {
   TEST_USERNAME
 } = require('../integration/lib/ssh-test-server')
 
-process.env.TEST_HOST = '127.0.0.1'
-process.env.TEST_PASS = TEST_PASSWORD
-process.env.TEST_PORT = String(TEST_PORT)
-process.env.TEST_USER = TEST_USERNAME
-
+// NOTE: do NOT copy the in-process fixture credentials into process.env here.
+// Playwright shares one process.env across every spec file in the run, so
+// mutating TEST_HOST/TEST_USER/TEST_PASS/TEST_PORT would hijack all later
+// SSH/SFTP specs (005/008/009*) to dial 127.0.0.1:22022. This spec passes
+// the fixture credentials explicitly via connectFixture() instead.
 const { setupSshConnection } = require('./common/common')
 
 const defaultItems = [
