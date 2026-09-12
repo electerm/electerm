@@ -26,6 +26,7 @@ import {
   defaultActive,
   keyOptions,
   modifierOptions,
+  isModifier,
   buildComboData,
   buildComboLabel
 } from './shortcut-bar-defs'
@@ -43,6 +44,9 @@ export default function ShortcutBarEdit (props) {
 
   const [keyword, setKeyword] = useState('')
   const [customMod1, setCustomMod1] = useState(undefined)
+  // second slot takes a modifier OR a bare key: a modifier stacks onto the
+  // first one (Ctrl+Shift+D), a key becomes a prefix typed before the third
+  // slot's key (Ctrl+A then D).
   const [customMod2, setCustomMod2] = useState(undefined)
   const [customKey, setCustomKey] = useState(undefined)
 
@@ -70,13 +74,21 @@ export default function ShortcutBarEdit (props) {
     if (!customKey) {
       return
     }
-    const mods = [customMod1, customMod2].filter(Boolean)
     const key = keyOptions.find(k => k.id === customKey)
     if (!key) {
       return
     }
-    const label = buildComboLabel(mods, key)
-    const data = buildComboData(mods, key)
+    const mods = [customMod1].filter(Boolean)
+    let prefix
+    if (customMod2) {
+      if (isModifier(customMod2)) {
+        mods.push(customMod2)
+      } else {
+        prefix = keyOptions.find(k => k.id === customMod2)
+      }
+    }
+    const label = buildComboLabel(mods, key, prefix)
+    const data = buildComboData(mods, key, prefix)
     const id = 'custom-' + label + '-' + Date.now()
     onSave([...active, { id, label, data, custom: true }])
     setCustomMod1(undefined)
@@ -87,6 +99,26 @@ export default function ShortcutBarEdit (props) {
   function handleReset () {
     onSave(defaultActive())
   }
+
+  // second slot option list: modifiers first, then the same bare-key list the
+  // third slot offers (so Ctrl+A then D is expressible).
+  const secondOptions = [
+    {
+      label: e('modifier'),
+      options: modifierOptions.map(m => ({
+        value: m.id,
+        label: m.label,
+        disabled: m.id === customMod1
+      }))
+    },
+    {
+      label: e('key'),
+      options: keyOptions.map(k => ({
+        value: k.id,
+        label: k.label
+      }))
+    }
+  ]
 
   const kw = keyword.trim().toLowerCase()
   const filtered = allCandidates.filter(b => {
@@ -195,15 +227,13 @@ export default function ShortcutBarEdit (props) {
           <Select
             value={customMod2}
             onChange={setCustomMod2}
-            placeholder={e('modifier') + ' (' + e('optional') + ')'}
+            placeholder={e('modifier') + '/' + e('key') + ' (' + e('optional') + ')'}
             className='shortcut-custom-select'
             allowClear
+            showSearch
+            optionFilterProp='label'
             getPopupContainer={popupContainer}
-            options={modifierOptions.map(m => ({
-              value: m.id,
-              label: m.label,
-              disabled: m.id === customMod1
-            }))}
+            options={secondOptions}
           />
           <Select
             value={customKey}
@@ -212,6 +242,7 @@ export default function ShortcutBarEdit (props) {
             className='shortcut-custom-select shortcut-custom-key'
             allowClear
             showSearch
+            optionFilterProp='label'
             getPopupContainer={popupContainer}
             options={keyOptions.map(k => ({
               value: k.id,

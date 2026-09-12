@@ -56,11 +56,20 @@ function sendToTerminal (data) {
   }
 }
 
-// honor the active terminal's DECCKM state for the cursor / Home / End keys
+// honor the active terminal's DECCKM state for the cursor / Home / End keys.
+// custom combos can be multi-key sequences (Ctrl+A then ↑), so match the
+// trailing key too — not only the whole payload.
 function resolveCursorMode (data, term) {
-  const app = appCursorMap[data]
-  if (app && term?.term?.modes?.applicationCursorKeysMode) {
-    return app
+  if (!term?.term?.modes?.applicationCursorKeysMode) {
+    return data
+  }
+  for (const normal in appCursorMap) {
+    if (data === normal) {
+      return appCursorMap[normal]
+    }
+    if (data.length > normal.length && data.endsWith(normal)) {
+      return data.slice(0, data.length - normal.length) + appCursorMap[normal]
+    }
   }
   return data
 }

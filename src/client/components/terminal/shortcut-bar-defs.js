@@ -100,9 +100,17 @@ const modifierOptions = [
   { id: 'meta', label: 'Meta' }
 ]
 
+const MODIFIER_IDS = new Set(modifierOptions.map(m => m.id))
+
+// the builder's second slot accepts either a modifier (Ctrl/Alt/Shift/Meta)
+// or a bare key, so we need to tell them apart.
+function isModifier (id) {
+  return MODIFIER_IDS.has(id)
+}
+
 // compose the bytes to send for a (mods, key) combo.
 // Ctrl+letter -> the control byte; Alt -> ESC prefix; Shift+letter -> uppercase
-function buildComboData (mods, key) {
+function applyMods (mods, key) {
   const ctrl = mods.includes('ctrl')
   const alt = mods.includes('alt')
   const shift = mods.includes('shift')
@@ -118,10 +126,27 @@ function buildComboData (mods, key) {
   return data
 }
 
-// human-readable label, e.g. mods ['ctrl','shift'] + key A -> "Ctrl+Shift+A"
-function buildComboLabel (mods, key) {
+// `prefix` is an optional first key typed BEFORE `key` — that's how you build
+// two-step combos such as tmux's Ctrl+A then D: the modifiers apply to the
+// prefix only, the trailing key is sent plain.
+//   mods [ctrl], prefix A, key D -> Ctrl+A then D
+//   mods [ctrl, shift], key D    -> Ctrl+Shift+D
+function buildComboData (mods, key, prefix) {
+  if (prefix) {
+    return applyMods(mods, prefix) + key.data
+  }
+  return applyMods(mods, key)
+}
+
+// human-readable label, e.g.
+//   mods ['ctrl','shift'] + key A        -> "Ctrl+Shift+A"
+//   mods ['ctrl'] + prefix A + key D     -> "Ctrl+A D"
+function buildComboLabel (mods, key, prefix) {
   const byId = new Map(modifierOptions.map(m => [m.id, m.label]))
-  return [...mods.map(m => byId.get(m) || m), key.label].join('+')
+  const head = mods.map(m => byId.get(m) || m)
+  return prefix
+    ? [...head, prefix.label].join('+') + ' ' + key.label
+    : [...head, key.label].join('+')
 }
 
 // full library, de-duplicated by id
@@ -196,6 +221,7 @@ export {
   candidates,
   keyOptions,
   modifierOptions,
+  isModifier,
   buildComboData,
   buildComboLabel
 }
