@@ -18,9 +18,9 @@ import { XmodemClient } from '../xmodem-client.js'
 import { loadWebLinksAddon } from '../xterm-loader.js'
 import { KeywordHighlighterAddon } from '../highlight-addon.js'
 import {
-  createSshReloadState,
+  createTerminalReloadState,
   getAlternateBufferSnapshot,
-  shouldCaptureSshReloadState
+  shouldCaptureTerminalReloadState
 } from '../ssh-reload-state.js'
 
 // Expands \n \t \r \\ and \xHH hex byte escapes, used to let users type
@@ -58,7 +58,7 @@ function expandCloseSequence (text) {
 /**
  * Session lifecycle: opening the pty/ssh session over its websocket, error
  * and reconnect handling, input broadcast, and the screen snapshot used to
- * restore an ssh session after a reload.
+ * restore a shell session (ssh, local, telnet, serial) after a reload.
  */
 export const socketMixin = {
   buildWsUrl (port) {
@@ -392,7 +392,7 @@ export const socketMixin = {
   },
 
   getReloadState () {
-    if (!shouldCaptureSshReloadState(this.props.tab, this.props.config)) {
+    if (!shouldCaptureTerminalReloadState(this.props.tab, this.props.config)) {
       return undefined
     }
     let screen = ''
@@ -413,7 +413,7 @@ export const socketMixin = {
       console.warn('Failed to serialize terminal before reload', e)
     }
     const cwd = this.cmdAddon?.getCwd() || this.props.tab._reloadState?.cwd || ''
-    return createSshReloadState({ cwd, screen })
+    return createTerminalReloadState({ cwd, screen })
   },
 
   restoreReloadScreen (term) {

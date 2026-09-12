@@ -275,6 +275,27 @@ class Term extends Component {
       (type === 'local' || type === undefined)
   }
 
+  isTelnet () {
+    return this.props.tab?.type === connectionMap.telnet
+  }
+
+  isSerial () {
+    return this.props.tab?.type === connectionMap.serial
+  }
+
+  isShellTerminal () {
+    const { type } = this.props.tab || {}
+    if (!type) {
+      return true
+    }
+    return (
+      type === connectionMap.ssh ||
+      type === connectionMap.local ||
+      type === connectionMap.telnet ||
+      type === connectionMap.serial
+    )
+  }
+
   setStatus = status => {
     const id = this.props.tab?.id
     this.props.editTab(id, {

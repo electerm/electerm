@@ -17,10 +17,10 @@ import generate from '../common/id-with-stamp'
 import uid from '../common/uid'
 import newTerm, { updateCount } from '../common/new-terminal.js'
 import { action } from 'manate'
-import { shouldCaptureSshReloadState } from '../components/terminal/ssh-reload-state.js'
+import { shouldCaptureTerminalReloadState } from '../components/terminal/ssh-reload-state.js'
 
 function captureSshSessionState (tab, config) {
-  return shouldCaptureSshReloadState(tab, config)
+  return shouldCaptureTerminalReloadState(tab, config)
     ? refs.get(`term-${tab.id}`)?.getReloadState?.()
     : undefined
 }
@@ -103,8 +103,9 @@ export default Store => {
     const oldTab = tabs[index]
     const oldBatch = oldTab.batch
 
-    // Reload state is captured only for an SSH refresh/reconnect. Closing a
-    // tab goes through removeTabs and never reaches this code path.
+    // Reload state is captured only for a shell terminal refresh/reconnect
+    // (ssh, local, telnet, serial). Closing a tab goes through removeTabs
+    // and never reaches this code path.
     const reloadState = captureSshSessionState(oldTab, store.config)
 
     // Create copy of old tab with new ID
