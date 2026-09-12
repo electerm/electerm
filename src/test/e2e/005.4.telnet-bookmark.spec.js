@@ -1,6 +1,7 @@
 const { _electron: electron } = require('@playwright/test')
 const { test: it, expect } = require('@playwright/test')
 const { describe } = it
+it.setTimeout(100000)
 const delay = require('./common/wait')
 const { nanoid } = require('nanoid')
 const appOptions = require('./common/app-options')

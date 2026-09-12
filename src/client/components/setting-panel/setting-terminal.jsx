@@ -571,6 +571,7 @@ export default class SettingTerminal extends Component {
             'rightClickSelectsWord',
             'pasteWhenContextMenu',
             'copyWhenSelect',
+            'disableConfirmForLargeClipboardContent',
             'ctrlOrMetaOpenTerminalLink',
             'sftpPathFollowSsh',
             'sshSftpSplitView',

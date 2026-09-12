@@ -73,12 +73,18 @@ export default function QuickCommandForm (props) {
       store.editQuickCommand(formData.id, update)
     } else {
       store.addQuickCommand(update1)
-      store.setSettingItem({
-        id: '',
-        name: e('newQuickCommand')
-      })
+      // resetting the settings panel form only makes sense there; when the
+      // form is hosted elsewhere (e.g. the command history modal) the caller
+      // decides what happens next
+      if (!props.onSaved) {
+        store.setSettingItem({
+          id: '',
+          name: e('newQuickCommand')
+        })
+      }
     }
     message.success(e('saved'))
+    props.onSaved?.()
   }
   const initialValues = formData
   if (!initialValues.labels) {

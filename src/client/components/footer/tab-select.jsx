@@ -6,15 +6,28 @@ import {
   CodeOutlined
 } from '@ant-design/icons'
 
-export default function TabSelect (props) {
-  const { selectedTabIds, tabs, activeTabId } = props
+/**
+ * The multi terminal selection panel: select-all/none plus one toggle button
+ * per terminal tab.
+ * Extracted so it can be reused outside the batch input popover (e.g. run a
+ * command from the history panel in several terminals at once).
+ */
+export function TabSelectList (props) {
+  const {
+    selectedTabIds = [],
+    tabs = [],
+    activeTabId,
+    onSelect,
+    onSelectAll,
+    onSelectNone
+  } = props
   function renderTabs () {
     return tabs.map(tab => {
       const selected = selectedTabIds.includes(tab.id)
       const itemProps = {
         tab,
         selected,
-        onSelect: window.store.onSelectBatchInputSelectedTabId,
+        onSelect,
         id: tab.id,
         isCurrent: tab.id === activeTabId
       }
@@ -25,12 +38,6 @@ export default function TabSelect (props) {
         />
       )
     })
-  }
-  function onSelectAll () {
-    window.store.selectAllBatchInputTabs()
-  }
-  function onSelectNone () {
-    window.store.selectNoneBatchInputTabs()
   }
   function renderBtns () {
     return (
@@ -50,17 +57,27 @@ export default function TabSelect (props) {
       </div>
     )
   }
-  function renderContent () {
-    return (
-      <div className='pd1x alignright'>
-        {renderBtns()}
-        {renderTabs()}
-      </div>
-    )
+  return (
+    <div className='pd1x alignright'>
+      {renderBtns()}
+      {renderTabs()}
+    </div>
+  )
+}
+
+export default function TabSelect (props) {
+  const { selectedTabIds, tabs, activeTabId } = props
+  const listProps = {
+    selectedTabIds,
+    tabs,
+    activeTabId,
+    onSelect: window.store.onSelectBatchInputSelectedTabId,
+    onSelectAll: window.store.selectAllBatchInputTabs,
+    onSelectNone: window.store.selectNoneBatchInputTabs
   }
   return (
     <Popover
-      content={renderContent()}
+      content={<TabSelectList {...listProps} />}
       trigger='click'
     >
       <span className='pointer iblock pd1x'>

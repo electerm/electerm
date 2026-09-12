@@ -4,6 +4,7 @@ const { describe } = it
 const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const { selectAllTerminal } = require('./common/basic-terminal-test')
 const { spawn } = require('child_process')
 const path = require('path')
 
@@ -54,8 +55,10 @@ describe('Terminal Explain with AI', function () {
     await client.keyboard.press('Enter')
     await delay(1000)
 
-    // Use terminal's built-in select all command (usually Cmd+A or Ctrl+A)
-    await client.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A')
+    // Select all terminal content. macOS uses Cmd+A; on Linux the terminal
+    // has no select-all keyboard binding (plain Ctrl+A is shell line-start),
+    // so selectAllTerminal uses the terminal context menu instead.
+    await selectAllTerminal(client)
     await delay(500)
 
     // Right-click to open context menu

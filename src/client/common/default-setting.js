@@ -95,6 +95,7 @@ export default {
   switchTabOnHover: false,
   disableTabIndex: false,
   disableShortcutBar: false,
+  disableConfirmForLargeClipboardContent: false,
   leftSideBarIcons: [
     'newBookmark',
     'quickConnect',

@@ -4,15 +4,31 @@ const assert = require('node:assert/strict')
 const loadModule = () => import('../../client/components/terminal/ssh-reload-state.js')
 
 describe('SSH reload state', () => {
-  test('is enabled only for SSH tabs when the setting is on', async () => {
-    const { shouldCaptureSshReloadState } = await loadModule()
+  test('is enabled for all shell terminals when the setting is on', async () => {
+    const {
+      shouldCaptureSshReloadState,
+      shouldCaptureTerminalReloadState,
+      isRestorableTerminalTab
+    } = await loadModule()
     const enabled = { restoreTerminalSessionOnReload: true }
 
     assert.equal(shouldCaptureSshReloadState({ host: 'server', type: 'ssh' }, enabled), true)
     assert.equal(shouldCaptureSshReloadState({ host: 'server' }, enabled), true)
-    assert.equal(shouldCaptureSshReloadState({ type: 'local' }, enabled), false)
-    assert.equal(shouldCaptureSshReloadState({ host: 'server', type: 'telnet' }, enabled), false)
+    assert.equal(shouldCaptureSshReloadState({ type: 'local' }, enabled), true)
+    assert.equal(shouldCaptureSshReloadState({ host: 'server', type: 'telnet' }, enabled), true)
+    assert.equal(shouldCaptureSshReloadState({ type: 'serial', path: '/dev/ttyUSB0' }, enabled), true)
     assert.equal(shouldCaptureSshReloadState({ host: 'server', type: 'ssh' }, {}), false)
+
+    // new alias agrees with the legacy name
+    assert.equal(shouldCaptureTerminalReloadState({ type: 'local' }, enabled), true)
+    assert.equal(shouldCaptureTerminalReloadState({ host: 'server', type: 'telnet' }, enabled), true)
+
+    // graphical / file-transfer tabs are never restorable
+    assert.equal(isRestorableTerminalTab({ type: 'rdp', host: 'server' }), false)
+    assert.equal(isRestorableTerminalTab({ type: 'vnc', host: 'server' }), false)
+    assert.equal(isRestorableTerminalTab({ type: 'web' }), false)
+    assert.equal(isRestorableTerminalTab({ type: 'ftp', host: 'server' }), false)
+    assert.equal(shouldCaptureSshReloadState({ type: 'rdp', host: 'server' }, enabled), false)
   })
 
   test('quotes remote directories without allowing command injection', async () => {

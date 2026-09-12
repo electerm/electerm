@@ -152,6 +152,9 @@ export const contextMenuMixin = {
   },
 
   pasteTextTooLong () {
+    if (this.props.config.disableConfirmForLargeClipboardContent) {
+      return false
+    }
     if (window.et.isWebApp) {
       return false
     }
@@ -180,7 +183,11 @@ export const contextMenuMixin = {
 
   async onPaste (skipTextLengthCheck) {
     let selected = await readClipboardAsync()
-    if (!skipTextLengthCheck && selected.length > 500) {
+    if (
+      !skipTextLengthCheck &&
+      !this.props.config.disableConfirmForLargeClipboardContent &&
+      selected.length > 500
+    ) {
       return this.askUserConfirm()
     }
     if (isWin && this.isRemote()) {

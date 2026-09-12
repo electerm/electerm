@@ -3,13 +3,24 @@
  */
 
 import { useState, useEffect } from 'react'
-import { Button, Empty, Popover } from 'antd'
+import { Button, Empty, Popover, Dropdown } from 'antd'
 import { auto } from 'manate/react'
 import SwitchLabel from '../common/switch'
 import { copy } from '../../common/clipboard'
-import { HistoryOutlined, DeleteOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons'
+import {
+  HistoryOutlined,
+  DeleteOutlined,
+  CopyOutlined,
+  UnorderedListOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  CodeOutlined
+} from '@ant-design/icons'
 import InputAutoFocus from '../common/input-auto-focus'
 import { getItemJSON, setItemJSON } from '../../common/safe-local-storage'
+import QuickCommandCreateModal from '../quick-commands/quick-command-create-modal'
+import MultiTabRunModal from './multi-tab-run-modal'
+import classNames from 'classnames'
 import './cmd-history.styl'
 
 const e = window.translate
@@ -20,6 +31,10 @@ export default auto(function CmdHistory (props) {
   const [sortByFrequency, setSortByFrequency] = useState(() => {
     return getItemJSON(SORT_BY_FREQ_KEY, false)
   })
+  // cmd of the item whose action menu is open / being acted on
+  const [menuOpenCmd, setMenuOpenCmd] = useState('')
+  const [quickCommandCmd, setQuickCommandCmd] = useState('')
+  const [multiTabCmd, setMultiTabCmd] = useState('')
   const { terminalCommandHistory } = props.store
 
   useEffect(() => {
@@ -30,11 +45,6 @@ export default auto(function CmdHistory (props) {
     window.store.runCmdFromHistory(cmd)
   }
 
-  function handleDeleteCommand (cmd, ev) {
-    ev.stopPropagation()
-    window.store.deleteCmdHistory(cmd)
-  }
-
   function handleCopyCommand (cmd, ev) {
     ev.stopPropagation()
     copy(cmd)
@@ -42,6 +52,46 @@ export default auto(function CmdHistory (props) {
 
   function handleClearAll () {
     window.store.clearAllCmdHistory()
+  }
+
+  function handleMenuAction (key, cmd) {
+    if (key === 'delete') {
+      window.store.deleteCmdHistory(cmd)
+    } else if (key === 'quickCommand') {
+      setQuickCommandCmd(cmd)
+    } else if (key === 'multiTab') {
+      window.store.filterBatchInputSelectedTabIds()
+      setMultiTabCmd(cmd)
+    }
+  }
+
+  function getMenuProps (cmd) {
+    return {
+      items: [
+        {
+          key: 'delete',
+          icon: <DeleteOutlined />,
+          label: e('del'),
+          danger: true
+        },
+        {
+          key: 'quickCommand',
+          icon: <PlusOutlined />,
+          label: e('addQuickCommands')
+        },
+        {
+          key: 'multiTab',
+          icon: <CodeOutlined />,
+          label: e('runInAllTerminals')
+        }
+      ],
+      onClick: ({ key, domEvent }) => {
+        // the menu renders in a portal but React events still bubble through
+        // the row, which would run the command
+        domEvent.stopPropagation()
+        handleMenuAction(key, cmd)
+      }
+    }
   }
 
   function filterArray (array, keyword) {
@@ -76,34 +126,46 @@ export default auto(function CmdHistory (props) {
         />
       )
     }
-    return filtered.map((item, index) => (
-      <div
-        key={index}
-        className='cmd-history-item'
-        onClick={() => handleRunCommand(item.cmd)}
-      >
-        <span className='cmd-history-item-text' title={item.cmd}>{item.cmd}</span>
-        <div className='cmd-history-item-actions'>
-          <span className='cmd-history-item-count' title={e('count') + ': ' + item.count}>
-            {item.count}
-          </span>
-          <Button
-            type='text'
-            size='small'
-            icon={<CopyOutlined />}
-            className='cmd-history-item-copy'
-            onClick={(ev) => handleCopyCommand(item.cmd, ev)}
-          />
-          <Button
-            type='text'
-            size='small'
-            icon={<DeleteOutlined />}
-            className='cmd-history-item-delete'
-            onClick={(ev) => handleDeleteCommand(item.cmd, ev)}
-          />
+    return filtered.map((item, index) => {
+      const cls = classNames(
+        'cmd-history-item',
+        { 'menu-open': menuOpenCmd === item.cmd }
+      )
+      return (
+        <div
+          key={index}
+          className={cls}
+          onClick={() => handleRunCommand(item.cmd)}
+        >
+          <span className='cmd-history-item-text' title={item.cmd}>{item.cmd}</span>
+          <div className='cmd-history-item-actions'>
+            <span className='cmd-history-item-count' title={e('count') + ': ' + item.count}>
+              {item.count}
+            </span>
+            <Button
+              type='text'
+              size='small'
+              icon={<CopyOutlined />}
+              className='cmd-history-item-copy'
+              onClick={(ev) => handleCopyCommand(item.cmd, ev)}
+            />
+            <Dropdown
+              menu={getMenuProps(item.cmd)}
+              trigger={['click']}
+              onOpenChange={(open) => setMenuOpenCmd(open ? item.cmd : '')}
+            >
+              <Button
+                type='text'
+                size='small'
+                icon={<MoreOutlined />}
+                className='cmd-history-item-more'
+                onClick={(ev) => ev.stopPropagation()}
+              />
+            </Dropdown>
+          </div>
         </div>
-      </div>
-    ))
+      )
+    })
   }
 
   function renderHeader () {
@@ -148,16 +210,41 @@ export default auto(function CmdHistory (props) {
   )
 
   return (
-    <Popover
-      content={content}
-      trigger='click'
-      placement='topLeft'
-    >
-      <Button
-        size='small'
-        type='text'
-        icon={<HistoryOutlined />}
-      />
-    </Popover>
+    <>
+      <Popover
+        content={content}
+        trigger='click'
+        placement='topLeft'
+      >
+        <Button
+          size='small'
+          type='text'
+          icon={<HistoryOutlined />}
+        />
+      </Popover>
+      {
+        quickCommandCmd
+          ? (
+            <QuickCommandCreateModal
+              key={quickCommandCmd}
+              store={props.store}
+              command={quickCommandCmd}
+              onClose={() => setQuickCommandCmd('')}
+            />
+            )
+          : null
+      }
+      {
+        multiTabCmd
+          ? (
+            <MultiTabRunModal
+              store={props.store}
+              cmd={multiTabCmd}
+              onClose={() => setMultiTabCmd('')}
+            />
+            )
+          : null
+      }
+    </>
   )
 })

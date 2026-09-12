@@ -22,7 +22,11 @@ import {
   getShellIntegrationCommand,
   detectShellType
 } from './shell.js'
-import { createRestoreCwdCommand } from './ssh-reload-state.js'
+import {
+  createRestoreCwdCommand,
+  createWindowsRestoreCwdCommand,
+  isRestorableTerminalTab
+} from './ssh-reload-state.js'
 import { isMac, isWin } from '../../common/platform.js'
 
 // Pacing: `settleIdleMs` of silence counts as "the shell is done",
@@ -77,11 +81,49 @@ export class StartupQueue {
   }
 
   isSsh = () => {
-    return this.term.isSsh()
+    return this.term.isSsh ? this.term.isSsh() : this.getTabType() === 'ssh'
   }
 
   isLocal = () => {
-    return this.term.isLocal()
+    return this.term.isLocal ? this.term.isLocal() : this.getTabType() === 'local'
+  }
+
+  getTabType = () => {
+    return this.term.props?.tab?.type
+  }
+
+  isTelnet = () => {
+    if (this.term.isTelnet) {
+      return this.term.isTelnet()
+    }
+    return this.getTabType() === 'telnet'
+  }
+
+  isSerial = () => {
+    if (this.term.isSerial) {
+      return this.term.isSerial()
+    }
+    return this.getTabType() === 'serial'
+  }
+
+  isRemoteShell = () => {
+    return this.isSsh() || this.isTelnet() || this.isSerial()
+  }
+
+  isRestorable = () => {
+    const tab = this.term.props?.tab || {}
+    if (typeof this.term.isShellTerminal === 'function') {
+      return this.term.isShellTerminal()
+    }
+    return isRestorableTerminalTab(tab)
+  }
+
+  isWindowsLocal = () => {
+    return this.isLocal() && isWin
+  }
+
+  isPosixShell = () => {
+    return this.isRemoteShell() || (this.isLocal() && !isWin)
   }
 
   sleep = (ms) => {
@@ -108,13 +150,16 @@ export class StartupQueue {
     } = term.props.tab
 
     const scripts = runScripts ? [...runScripts] : []
-    const reloadCwd = term.props.config.restoreTerminalSessionOnReload && this.isSsh()
+    const reloadCwd = term.props.config.restoreTerminalSessionOnReload && this.isRestorable()
       ? term.props.tab._reloadState?.cwd
       : ''
     const startFolder = reloadCwd || startDirectory || window.initFolder
-    const cwdCommand = this.isSsh()
-      ? createRestoreCwdCommand(startFolder)
-      : startFolder ? `cd "${startFolder}"` : ''
+    let cwdCommand = ''
+    if (startFolder) {
+      cwdCommand = this.isPosixShell()
+        ? createRestoreCwdCommand(startFolder)
+        : createWindowsRestoreCwdCommand(startFolder) || `cd "${startFolder}"`
+    }
     if (cwdCommand) {
       scripts.unshift({ script: cwdCommand, delay: 0 })
     }
@@ -277,10 +322,12 @@ export class StartupQueue {
     return (
       config.showCmdSuggestions ||
       sftpPathFollowSsh ||
-      (config.restoreTerminalSessionOnReload && this.isSsh())
+      (config.restoreTerminalSessionOnReload && this.isRestorable())
     ) &&
     (
       this.isSsh() ||
+      this.isTelnet() ||
+      this.isSerial() ||
       (this.isLocal() && !isWin)
     )
   }
@@ -305,8 +352,8 @@ export class StartupQueue {
     if (this.isLocal()) {
       const { config } = this.term.props
       const localShell = isMac ? config.execMac : config.execLinux
-      shellType = detectShellType(localShell)
-    } else if (this.isSsh()) {
+      shellType = detectShellType(localShell || '')
+    } else if (this.isRemoteShell()) {
       shellType = await Promise.race([
         this.detectRemoteShell(this.term.pid),
         new Promise(resolve => {
@@ -317,8 +364,15 @@ export class StartupQueue {
 
     this.shellType = shellType
 
-    // Don't inject for sh type shells unless sftpPathFollowSsh is true
-    if (shellType === 'sh' && !this.term.props.sftpPathFollowSsh) {
+    // sh/ash only reports cwd via PS1 (no command tracking), so it is only
+    // worth injecting when something actually needs the cwd: sftp follow or
+    // session restore. Command suggestions alone stay disabled on sh.
+    const { config, sftpPathFollowSsh } = this.term.props
+    if (
+      shellType === 'sh' &&
+      !sftpPathFollowSsh &&
+      !config.restoreTerminalSessionOnReload
+    ) {
       return
     }
 
@@ -331,7 +385,7 @@ export class StartupQueue {
     }
 
     const integrationCmd = getShellIntegrationCommand(shellType)
-    const suppressionTimeout = this.isSsh() ? 5000 : 3000
+    const suppressionTimeout = this.isRemoteShell() ? 5000 : 3000
 
     return new Promise((resolve) => {
       let done = false
