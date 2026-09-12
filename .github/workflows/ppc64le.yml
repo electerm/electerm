@@ -2,7 +2,7 @@
 #
 # Uses the prebuilt ppc64le Electron runtime published by IBM:
 #   https://github.com/lex-ibm/electron-ppc64le-build-scripts
-#   v39.2.7 is built on Ubuntu 22.04 (glibc 2.35).
+#   v41.0.3 is built on Ubuntu 22.04 (glibc 2.35).
 #
 # Therefore this workflow runs on an ubuntu-22.04 (x64) runner so the
 # cross-compiled native modules share the same glibc baseline (2.35) as
@@ -11,7 +11,7 @@
 # This workflow:
 # 1. Cross-compiles native modules (node-pty, @serialport/bindings-cpp) for ppc64le
 # 2. Builds the x64 app to get the arch-independent app.asar
-# 3. Downloads electron v39.2.7 for ppc64le
+# 3. Downloads electron v41.0.3 for ppc64le
 # 4. Merges asar + ppc64le electron + native modules
 # 5. Uploads tar.gz + deb to the GitHub release draft
 # 6. Optionally uploads to R2 (add [r2] to the commit message)

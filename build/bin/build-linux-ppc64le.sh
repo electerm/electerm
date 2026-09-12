@@ -3,8 +3,9 @@
 #
 # Electron runtime comes from the prebuilt ppc64le binaries published by IBM:
 #   https://github.com/lex-ibm/electron-ppc64le-build-scripts
-#   v39.2.7 is built on Ubuntu 22.04 (glibc 2.35), so this build targets
+#   v41.0.3 is built on Ubuntu 22.04 (glibc 2.35), so this build targets
 #   Ubuntu 22.04+ / Debian 12+ / RHEL 9+ ppc64le.
+#   v41.x ships Node 24 (so node:sqlite is available without a flag).
 #
 # Strategy (adapted from build-linux-loong64.sh):
 #   1. Build the x64 app to obtain the arch-independent app.asar
@@ -19,7 +20,7 @@
 #   6. Upload to the GitHub release draft
 #
 # Env:
-#   ELECTRON_VERSION=<ver>        (default: 39.2.7)
+#   ELECTRON_VERSION=<ver>        (default: 41.0.3)
 #   ELECTRON_PPC64LE_URL=<url>    (default: derived from ELECTRON_VERSION)
 #   SKIP_NATIVE=1                 skip native module build
 #   WORKFLOW_NAME=<name>          electron-builder publish channel
@@ -30,7 +31,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-ELECTRON_VERSION="${ELECTRON_VERSION:-39.2.7}"
+ELECTRON_VERSION="${ELECTRON_VERSION:-41.0.3}"
 ELECTRON_PPC64LE_URL="${ELECTRON_PPC64LE_URL:-https://github.com/lex-ibm/electron-ppc64le-build-scripts/releases/download/v${ELECTRON_VERSION}/electron-v${ELECTRON_VERSION}-linux-ppc64le.zip}"
 
 WORK_DIR="$PROJECT_ROOT/work-ppc64le"
