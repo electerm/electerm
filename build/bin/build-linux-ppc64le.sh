@@ -10,11 +10,14 @@
 # Strategy (adapted from build-linux-loong64.sh):
 #   1. Build the x64 app to obtain the arch-independent app.asar
 #   2. Download the ppc64le electron runtime (.zip)
-#   3. Cross-compile the native modules (node-pty, @serialport/bindings-cpp)
-#      with powerpc64le-linux-gnu-* on an ubuntu-22.04 runner so that the
-#      glibc baseline of the native modules matches electron (2.35).
-#      Both modules are N-API based, so they are ABI-stable across electron
-#      versions and need no electron headers.
+#   3. Cross-compile the native modules with powerpc64le-linux-gnu-* on an
+#      ubuntu-22.04 runner so that the glibc baseline matches electron (2.35).
+#      Both are N-API based, so they are ABI-stable across electron versions
+#      and need no electron headers.
+#      node-pty is mandatory -- without it there is no terminal at all.
+#      @serialport/bindings-cpp is best-effort: if it does not build it is
+#      dropped from the package (see build_serialport_optional) and the app
+#      just reports no serial ports, which its own code already handles.
 #   4. Merge asar + ppc64le electron + ppc64le native modules
 #   5. Package as tar.gz + .deb
 #   6. Upload to the GitHub release draft
@@ -169,6 +172,57 @@ stage_native_module() {
     log_info "  staged $(basename "$dest") ($(readelf -h "$src" | grep Machine | xargs))"
 }
 
+# Cross-build @serialport/bindings-cpp, best-effort.
+#
+# This module is OPTIONAL: it only powers the serial port feature, and the app
+# degrades gracefully without it -- lib/serial-port.js wraps the require in
+# try/catch and returns [], and session-serial.js loads serialport lazily, only
+# when a serial session is actually opened. So a failure here must never fail
+# the build; the caller drops the x64 binding from the package instead
+# (see merge_ppc64le) rather than shipping a binary that cannot be dlopen'd.
+#
+# Returns 0 when a ppc64le binding was staged, 1 on any failure.
+build_serialport_optional() {
+    local cross_build_dir="$1"
+    local native_modules_dir="$2"
+
+    cd "$cross_build_dir/build-serialport" || return 1
+
+    # Install without running the install script first: there is no ppc64le
+    # prebuild, and the source needs the header patch below before it compiles.
+    if ! npm install "$SERIALPORT_SPEC" --ignore-scripts --foreground-scripts \
+        > "$cross_build_dir/serialport-install.log" 2>&1; then
+        log_warn "serialport: npm install failed, last lines:"
+        tail -n 20 "$cross_build_dir/serialport-install.log" || true
+        return 1
+    fi
+
+    if ! patch_serialport_source \
+        "node_modules/@serialport/bindings-cpp/src/serialport_linux.cpp"; then
+        log_warn "serialport: could not patch the source (upstream layout changed?)"
+        return 1
+    fi
+
+    # Run the module's own install script (node-gyp-build): npm_config_arch makes
+    # it look for a linux-ppc64 prebuild, find none, and fall back to node-gyp.
+    if ! npm_config_arch=ppc64 CC="${CROSS_PREFIX}gcc" CXX="${CROSS_PREFIX}g++" \
+        npm rebuild @serialport/bindings-cpp --foreground-scripts \
+        > "$cross_build_dir/serialport.log" 2>&1; then
+        log_warn "serialport: cross build failed, last lines:"
+        tail -n 20 "$cross_build_dir/serialport.log" || true
+        return 1
+    fi
+
+    if ! stage_native_module \
+        "$(find . -path '*/build/Release/bindings.node' -type f | head -1)" \
+        "$native_modules_dir/serialport-bindings.node" \
+        "*/build/Release/bindings.node"; then
+        return 1
+    fi
+
+    return 0
+}
+
 # ============================================================================
 # Step 0: prerequisites
 # ============================================================================
@@ -317,56 +371,30 @@ rebuild_native_modules() {
         "$native_modules_dir/node-pty.node" \
         "pty.node"
 
-    log_info "Building ${SERIALPORT_SPEC} (patched for ppc64le)..."
+    log_info "Building ${SERIALPORT_SPEC} (optional, patched for ppc64le)..."
     cd "$cross_build_dir"
-    mkdir -p build-serialport && cd build-serialport
-    npm init -y >/dev/null 2>&1 || true
-
-    # Install without running the install script first: it has no ppc64le
-    # prebuild, and the source needs the header patch below before it compiles.
-    local rc=0
-    set +e
-    npm install "$SERIALPORT_SPEC" --ignore-scripts --foreground-scripts \
-        > "$cross_build_dir/serialport-install.log" 2>&1
-    rc=$?
-    set -e
-    if [ "$rc" -ne 0 ]; then
-        log_error "npm install failed (exit ${rc})"
-        tail -n 30 "$cross_build_dir/serialport-install.log"
-        return 1
+    mkdir -p "$cross_build_dir/build-serialport"
+    if ! (cd "$cross_build_dir/build-serialport" && npm init -y >/dev/null 2>&1); then
+        log_warn "serialport: npm init failed (not fatal, npm install creates the tree)"
     fi
 
-    patch_serialport_source \
-        "node_modules/@serialport/bindings-cpp/src/serialport_linux.cpp"
-
-    # Now run the module's own install script (node-gyp-build). npm_config_arch
-    # makes it look for a linux-ppc64 prebuild, find none, and fall back to
-    # node-gyp; npm rebuild reuses the node-gyp bundled with npm.
-    set +e
-    npm_config_arch=ppc64 CC="${CROSS_PREFIX}gcc" CXX="${CROSS_PREFIX}g++" \
-        npm rebuild @serialport/bindings-cpp --foreground-scripts 2>&1 \
-        | tee "$cross_build_dir/serialport.log"
-    rc=${PIPESTATUS[0]}
-    set -e
-    if [ "$rc" -ne 0 ]; then
-        log_error "Cross build failed (exit ${rc}). Full log: $cross_build_dir/serialport.log"
-        return 1
+    if build_serialport_optional "$cross_build_dir" "$native_modules_dir"; then
+        log_info "  serialport built successfully."
+    else
+        log_warn "  serialport is optional, continuing WITHOUT serial port support."
+        log_warn "  The x64 binding will be removed from the package by merge_ppc64le."
     fi
-
-    stage_native_module \
-        "$(find . -path '*/build/Release/bindings.node' -type f | head -1)" \
-        "$native_modules_dir/serialport-bindings.node" \
-        "*/build/Release/bindings.node"
 
     cd "$PROJECT_ROOT"
 
-    if [ -d "$native_modules_dir" ] && [ "$(ls -A "$native_modules_dir" 2>/dev/null)" ]; then
-        log_info "Native modules:"
-        ls -la "$native_modules_dir/"
-    else
-        log_error "No native modules were built."
+    # node-pty is mandatory: without it electerm has no terminal at all.
+    if [ ! -f "$native_modules_dir/node-pty.node" ]; then
+        log_error "node-pty was not built; the package would have no working terminal."
         return 1
     fi
+
+    log_info "Native modules:"
+    ls -la "$native_modules_dir/"
 }
 
 # ============================================================================
@@ -409,17 +437,7 @@ merge_ppc64le() {
         fi
     done
 
-    # Replace native modules with the ppc64le versions
-    local native_modules_dir="$WORK_DIR/native-modules-ppc64le"
-    if [ -d "$native_modules_dir" ] && [ "$(ls -A "$native_modules_dir" 2>/dev/null)" ]; then
-        log_info "Replacing native modules with ppc64le versions..."
-        if [ -f "$native_modules_dir/node-pty.node" ]; then
-            find "$output_dir" -path "*/node-pty/build/Release/*.node" -exec cp "$native_modules_dir/node-pty.node" {} \; 2>/dev/null || true
-        fi
-        if [ -f "$native_modules_dir/serialport-bindings.node" ]; then
-            find "$output_dir" -path "*@serialport/bindings-cpp*" -name "*.node" -exec cp "$native_modules_dir/serialport-bindings.node" {} \; 2>/dev/null || true
-        fi
-    fi
+    merge_native_modules "$output_dir" "$WORK_DIR/native-modules-ppc64le"
 
     if [ -f "$WORK_DIR/app.asar" ] && [ ! -f "$output_dir/resources/app.asar" ]; then
         mkdir -p "$output_dir/resources"
@@ -430,6 +448,50 @@ merge_ppc64le() {
     cd "$OUTPUT_DIR"
     tar czf "${output_name}.tar.gz" "$output_name"
     log_info "Tar.gz complete: $OUTPUT_DIR/${output_name}.tar.gz"
+}
+
+# Install the cross-built native modules into the output tree.
+#
+# node-pty is mandatory; @serialport/bindings-cpp is optional and is dropped
+# rather than shipped for the wrong architecture (see build_serialport_optional).
+merge_native_modules() {
+    local output_dir="$1"
+    local native_modules_dir="$2"
+
+    if [ ! -f "$native_modules_dir/node-pty.node" ]; then
+        log_error "ppc64le node-pty.node is missing; refusing to ship an x64 terminal."
+        return 1
+    fi
+
+    log_info "Replacing node-pty with the ppc64le build..."
+    find "$output_dir" -path "*/node-pty/build/Release/*.node" \
+        -exec cp "$native_modules_dir/node-pty.node" {} \; 2>/dev/null || true
+
+    # node-gyp-build resolves build/Release/bindings.node before prebuilds/, and
+    # that exact path is already unpacked in the x64 package (electron-builder
+    # unpacks every .node), so overwriting it keeps it reachable through
+    # Electron's asar layer. A brand new path under app.asar.unpacked would not
+    # be, because it is missing from the asar index.
+    local sp_dir
+    sp_dir=$(find "$output_dir" -type d -path "*@serialport/bindings-cpp" | head -1)
+
+    if [ -f "$native_modules_dir/serialport-bindings.node" ] && [ -n "$sp_dir" ]; then
+        log_info "Replacing the serialport binding with the ppc64le build..."
+        mkdir -p "$sp_dir/build/Release"
+        cp "$native_modules_dir/serialport-bindings.node" \
+            "$sp_dir/build/Release/bindings.node"
+        return 0
+    fi
+
+    # Either the cross build failed, or the package has no serialport at all.
+    # Drop the x64 bindings instead of shipping a binary that cannot be
+    # dlopen'd. serialport is optional: lib/serial-port.js wraps the require in
+    # try/catch and returns [], and session-serial.js loads serialport lazily,
+    # so the app still starts and simply reports no serial ports.
+    local removed
+    removed=$(find "$output_dir" -path "*@serialport*" -name "*.node" -type f 2>/dev/null | wc -l | tr -d ' ')
+    find "$output_dir" -path "*@serialport*" -name "*.node" -type f -delete 2>/dev/null || true
+    log_warn "No ppc64le serialport binding; removed ${removed} x64 serialport .node file(s)."
 }
 
 # ============================================================================
@@ -644,4 +706,7 @@ main() {
     log_info "=========================================="
 }
 
-main "$@"
+# Allow sourcing this file (e.g. to test a single helper) without running a build.
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+    main "$@"
+fi

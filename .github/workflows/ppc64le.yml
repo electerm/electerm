@@ -9,7 +9,9 @@
 # electron. The produced build targets Ubuntu 22.04+ / Debian 12+ / RHEL 9+.
 #
 # This workflow:
-# 1. Cross-compiles native modules (node-pty, @serialport/bindings-cpp) for ppc64le
+# 1. Cross-compiles native modules for ppc64le: node-pty (mandatory) and
+#    @serialport/bindings-cpp (best-effort -- if it does not build it is simply
+#    dropped from the package and the app reports no serial ports)
 # 2. Builds the x64 app to get the arch-independent app.asar
 # 3. Downloads electron v41.0.3 for ppc64le
 # 4. Merges asar + ppc64le electron + native modules
@@ -88,15 +90,19 @@ jobs:
       run: |
         ls -la dist-ppc64le/*.tar.gz dist-ppc64le/*.deb
         file dist-ppc64le/electerm-*/electerm
-        echo "=== native modules ==="
+        echo "=== native modules: every .node must be ppc64le ==="
         for f in $(find dist-ppc64le/electerm-* -name "*.node" -type f); do
           echo "--- $f ---"
           readelf -h "$f" | grep -E "Class|Machine|Data"
           readelf -h "$f" | grep -q PowerPC64 || { echo "ERROR: $f is not ppc64le"; exit 1; }
         done
-        echo "=== required native modules present ==="
-        for n in pty.node bindings.node; do
-          find dist-ppc64le/electerm-* -name "$n" -type f | grep -q . \
-            || { echo "ERROR: $n missing"; exit 1; }
-          echo "ok: $n"
-        done
+        echo "=== required: node-pty (the terminal) ==="
+        find dist-ppc64le/electerm-* -name "pty.node" -type f | grep -q . \
+          || { echo "ERROR: pty.node missing"; exit 1; }
+        echo "ok: pty.node"
+        echo "=== optional: serialport (best-effort, may be absent on ppc64le) ==="
+        if find dist-ppc64le/electerm-* -path "*@serialport*" -name "*.node" -type f | grep -q .; then
+          echo "ok: serialport binding present and ppc64le"
+        else
+          echo "note: no serialport binding in this package; serial port feature unavailable"
+        fi
