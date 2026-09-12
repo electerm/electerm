@@ -4,7 +4,6 @@
   overflow hidden
   display flex
   flex-direction column
-
 .cmd-history-search
   flex-shrink 0
   position sticky
@@ -46,6 +45,13 @@
   cursor pointer
   &:hover
     background var(--main-lighter)
+  // keep the row actions visible while its action menu is open, otherwise the
+  // menu trigger would be hidden (display none) and the popup would lose its
+  // anchor when the mouse moves onto the menu
+  &.menu-open
+    background var(--main-lighter)
+    .cmd-history-item-actions
+      display flex
 
 .cmd-history-item-text
   overflow hidden
@@ -68,14 +74,46 @@
   .cmd-history-item:hover &
     display flex
 
-.cmd-history-item-delete
+.cmd-history-item-more
   cursor pointer
   padding 2px 4px
-  &:hover
-    color red
 
 .cmd-history-item-copy
   cursor pointer
   padding 2px 4px
   &:hover
     color blue
+
+.multi-tab-run-cmd
+  font-size 12px
+  padding 6px 8px
+  margin-bottom 10px
+  border-radius 4px
+  background var(--main-lighter)
+  word-break break-all
+  max-height 96px
+  overflow-y auto
+
+// Narrow screens: the popup is aligned to the history trigger (placement
+// topLeft) and is 324px wide, while the footer trigger sits within the first
+// ~96px of the screen (43px icon bar + footer margin + the icons before it), so
+// below ~420px the popup's right edge would fall outside the window. antd's
+// auto-shift does not correct it, so pin the popup to the viewport instead.
+// Matched by its content: the popup lives in a body-level portal, so neither
+// the component tree nor an antd popup class reaches it reliably.
+@media (max-width: 420px)
+  .ant-popover:has(.cmd-history-popover-content)
+    // rc-trigger writes `inset: auto auto 40px <trigger left>px` inline
+    left 0px !important
+    // pinned to the viewport, the arrow no longer points at the trigger
+    .ant-popover-arrow
+      display none
+  .cmd-history-popover-content
+    // popup = content + 24px container padding; keep 8px on both sides
+    width 100%
+
+// Touch devices have no hover, so the row actions (count / copy / ⋯ menu)
+// would never be reachable — feature-detect instead of sniffing the UA
+@media (pointer: coarse)
+  .cmd-history-item-actions
+    display flex

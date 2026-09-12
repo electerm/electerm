@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "5.5.7",
+  "version": "5.5.8",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
   "bin": "npm/electerm",
@@ -15,7 +15,7 @@
     "postpublish": "node build/bin/postpublish",
     "prepare-file": "node build/bin/prepare",
     "pb": "node build/bin/prepare-electron-build.js",
-    "prepare-test": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -E playwright@1.28.1 --no-save && npm i -E @playwright/test@1.28.1 --no-save",
+    "prepare-test": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -E playwright@1.49.1 --no-save && npm i -E @playwright/test@1.49.1 --no-save",
     "postinstall": "node build/bin/post-install",
     "lint": "./node_modules/.bin/standard --verbose",
     "fix": "./node_modules/.bin/standard --fix",

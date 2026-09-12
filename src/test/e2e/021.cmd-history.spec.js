@@ -4,8 +4,10 @@
  * Verifies:
  *  1. Running a command in a local terminal adds it to cmd history.
  *  2. Clicking the history item re-runs the command.
- *  3. Deleting a history item removes it from the list.
+ *  3. Deleting a history item (item action menu -> Delete) removes it from the list.
  *  4. History persists across app restarts.
+ *  5. The item action menu can create a quick command from the item and run the
+ *     item in several terminals at once.
  */
 
 const { _electron: electron } = require('@playwright/test')
@@ -19,6 +21,8 @@ const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { expect } = require('./common/expect')
 const { closeApp } = require('./common/common')
+const { getTerminalContent } = require('./common/basic-terminal-test')
+const e = require('./common/lang')
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -53,10 +57,11 @@ async function getHistoryItems (client) {
 }
 
 /**
- * Hover over a history item whose text includes `term` to reveal action buttons,
- * then click the delete button.  The popover must already be open.
+ * Hover over the history item whose text includes `term` to reveal its action
+ * buttons, then open the item action menu (⋯).
+ * The popover must already be open.
  */
-async function deleteHistoryItem (client, term) {
+async function openItemMenu (client, term) {
   const items = client.locator('.cmd-history-item')
   const count = await items.count()
   for (let i = 0; i < count; i++) {
@@ -64,12 +69,19 @@ async function deleteHistoryItem (client, term) {
     if (txt.includes(term)) {
       await items.nth(i).hover()
       await delay(400)
-      await items.nth(i).locator('.cmd-history-item-delete').click()
+      await items.nth(i).locator('.cmd-history-item-more').click()
       await delay(600)
       return
     }
   }
   throw new Error(`History item matching "${term}" not found in popover`)
+}
+
+/** Delete a history item through its action menu (⋯ -> Delete). */
+async function deleteHistoryItem (client, term) {
+  await openItemMenu(client, term)
+  await client.click(`.ant-dropdown-menu-item:has-text("${e('del')}")`)
+  await delay(600)
 }
 
 /** Return the cmd strings currently in window.store.terminalCommandHistory. */
@@ -180,5 +192,80 @@ describe('cmd-history', function () {
 
     await closeApp(electronApp, __filename)
     log('021: all cmd-history tests passed')
+  })
+
+  it('should create a quick command and run the item in several terminals from the action menu', async function () {
+    const electronApp = await electron.launch(appOptions)
+    const client = await electronApp.firstWindow()
+    extendClient(client, electronApp)
+    await delay(13000)
+    log('021: app launched (action menu)')
+
+    const ts = Date.now()
+    const cmd = `echo cmd-history-action-${ts}`
+
+    await client.evaluate(() => window.store.clearAllCmdHistory())
+    await delay(300)
+
+    // a second terminal so there is something to multi-select
+    await client.click('.tabs .tabs-add-btn')
+    await delay(500)
+    await client.click('.add-menu-wrap .context-item:has-text("New tab")')
+    await delay(2500)
+    expect(await client.countElem('.tabs .tab')).equal(2)
+
+    await runInTerminal(client, cmd)
+    expect((await getStoredHistory(client)).includes(cmd)).equal(true)
+
+    // ── action menu -> create quick command ───────────────────────────────────
+    await openHistoryPopover(client)
+    await openItemMenu(client, cmd)
+    await client.click(`.ant-dropdown-menu-item:has-text("${e('addQuickCommands')}")`)
+    await delay(2000)
+
+    // the shared quick command form, prefilled with the history command
+    const prefill = await client.evaluate(() => {
+      const el = document.querySelector('.ant-modal .qm-input')
+      return el ? el.value : ''
+    })
+    log(`021: quick command form command field: ${JSON.stringify(prefill)}`)
+    expect(prefill.trim()).equal(cmd)
+
+    // name comes prefilled too, so saving right away must work
+    await client.click('.ant-modal button[type="submit"]')
+    await delay(2000)
+    const qmCmds = await client.evaluate(() =>
+      window.store.quickCommands.map(qm => (qm.commands || []).map(c => c.command).join('\n'))
+    )
+    log(`021: quick commands: ${JSON.stringify(qmCmds)}`)
+    expect(qmCmds.some(c => c.includes(cmd))).equal(true)
+    // the form modal closes on save
+    expect(await client.countElem('.ant-modal')).equal(0)
+
+    // ── action menu -> run in multiple terminals ──────────────────────────────
+    await openHistoryPopover(client)
+    await openItemMenu(client, cmd)
+    await client.click(`.ant-dropdown-menu-item:has-text("${e('runInAllTerminals')}")`)
+    await delay(2000)
+    expect(await client.countElem('.multi-tab-run-cmd')).equal(1)
+
+    await client.click('.ant-modal span.pointer:has-text("All")')
+    await delay(500)
+    await client.click('.ant-modal-footer .ant-btn-primary')
+    await delay(3000)
+
+    // both terminals must have received the command
+    const tabCount = await client.countElem('.tabs .tab')
+    expect(tabCount).equal(2)
+    for (let i = 0; i < tabCount; i++) {
+      await client.click('.tabs .tab', i)
+      await delay(1200)
+      const content = await getTerminalContent(client)
+      log(`021: tab ${i} tail: ${JSON.stringify(content.slice(-140))}`)
+      expect(content.includes(cmd)).equal(true)
+    }
+
+    await closeApp(electronApp, __filename)
+    log('021: action menu tests passed')
   })
 })
