@@ -9,54 +9,75 @@ const e = require('./lang')
 // plain ctrl+c would send SIGINT to the pty instead of copying. So on Linux
 // select-all/copy go through the terminal context menu, which keeps every
 // keystroke out of the pty.
+//
+// Gotcha: xterm's helper textarea follows the cursor, so a right-click can
+// land on it and open the global *input* menu (Copy/Cut/Paste/Select all)
+// instead of the terminal menu. Neutralize it for pointer events first, then
+// right-click the center of the xterm canvas.
 const isMac = process.platform === 'darwin'
+const termScreenSel = '.session-current .xterm-screen'
 
-async function dumpTermMenuState (client, tag) {
+async function prepareTerminalMenu (client) {
+  await client.evaluate(() => {
+    document.querySelectorAll('.session-current .xterm-helper-textarea').forEach((el) => {
+      el.style.pointerEvents = 'none'
+    })
+  }).catch(() => {})
+}
+
+async function isTerminalMenuOpen (client) {
   try {
-    const info = await client.evaluate(() => {
+    return await client.evaluate((ids) => {
       const items = Array.from(
         document.querySelectorAll('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item')
-      ).map((d) => ({
-        text: (d.innerText || '').slice(0, 30),
-        disabled: d.getAttribute('aria-disabled'),
-        cls: (d.className || '').slice(0, 80)
-      }))
-      const el = document.elementFromPoint(640, 500)
-      return {
-        openMenus: document.querySelectorAll('.ant-dropdown:not(.ant-dropdown-hidden)').length,
-        selLayer: document.querySelectorAll('.session-current .xterm-selection').length,
-        selTextLen: (() => {
-          try {
-            const n = document.querySelector('.session-current .xterm-selection')
-            return n ? (n.textContent || '').length : -1
-          } catch { return -2 }
-        })(),
-        termWraps: document.querySelectorAll('.session-current .term-wrap').length,
-        atPoint: el ? `${el.tagName}.${String(el.className || '').slice(0, 100)}` : null,
-        items
-      }
-    })
-    log(`[termmenu:${tag}]`, JSON.stringify(info).slice(0, 1500))
-  } catch (e) {
-    log(`[termmenu:${tag}] dump failed:`, String((e && e.message) || e).slice(0, 120))
+      ).map((d) => d.innerText || '')
+      const text = items.join('\n')
+      // terminal menu has Select all but never Cut; the input menu has both
+      return text.includes(ids.selectAll) && !text.includes(ids.cut)
+    }, { selectAll: e('selectall'), cut: e('cut') })
+  } catch {
+    return false
   }
 }
 
-// TEMP-DEBUG: right-click the center of the xterm canvas instead of term-wrap corner
-async function openTerminalMenu (client, itemText) {
-  const box = await client.locator('.session-current .xterm-screen').first().boundingBox()
-  log('[termmenu:bbox]', JSON.stringify(box))
-  const s = client.locator('.session-current .xterm-screen').first()
-  await s.waitFor({ state: 'visible', timeout: 10000 })
-  await s.click({
-    button: 'right',
-    position: { x: Math.floor(box.width / 2), y: Math.floor(box.height / 2) }
-  })
-  await client.locator('.ant-dropdown:not(.ant-dropdown-hidden)').first().waitFor({
-    state: 'visible',
-    timeout: 5000
-  })
-  await dumpTermMenuState(client, `opened-for-${itemText}`)
+async function openTerminalMenu (client, attempts = 3) {
+  const dropdownSel = '.ant-dropdown:not(.ant-dropdown-hidden)'
+  for (let i = 0; i < attempts; i++) {
+    const s = client.locator(termScreenSel).first()
+    await s.waitFor({ state: 'visible', timeout: 10000 })
+    const box = await s.boundingBox()
+    await s.click({
+      button: 'right',
+      position: {
+        x: Math.floor(box.width / 2),
+        y: Math.floor(box.height / 2)
+      }
+    })
+    try {
+      await client.locator(dropdownSel).first().waitFor({
+        state: 'visible',
+        timeout: 3000
+      })
+    } catch {
+      continue
+    }
+    if (await isTerminalMenuOpen(client)) {
+      return
+    }
+    await client.keyboard.press('Escape').catch(() => {})
+    await delay(500)
+  }
+  await diagnose(client, 'terminal-menu')
+  throw new Error('openTerminalMenu failed: terminal context menu did not open')
+}
+
+async function clickTerminalMenuItem (client, label) {
+  await openTerminalMenu(client)
+  await client.clickFirstVisible(
+    `.ant-dropdown-menu-item:has-text("${label}")`,
+    5000
+  )
+  await delay(401)
 }
 
 async function selectAllTerminal (client) {
@@ -65,13 +86,8 @@ async function selectAllTerminal (client) {
     await delay(401)
     return
   }
-  await openTerminalMenu(client, 'selectall')
-  await client.clickFirstVisible(
-    `.ant-dropdown-menu-item:has-text("${e('selectall')}")`,
-    2500
-  )
-  await delay(401)
-  await dumpTermMenuState(client, 'after-select-all')
+  await prepareTerminalMenu(client)
+  await clickTerminalMenuItem(client, e('selectall'))
 }
 
 async function copyTerminal (client) {
@@ -81,19 +97,12 @@ async function copyTerminal (client) {
     await delay(401)
     return
   }
+  await prepareTerminalMenu(client)
   await selectAllTerminal(client)
-  // Open the menu once more just to observe Copy enabled-state, then close it
-  await openTerminalMenu(client, 'copy-observe')
-  await dumpTermMenuState(client, 'before-copy')
-  await client.keyboard.press('Escape').catch(() => {})
-  await delay(300)
-  await openTerminalMenu(client, 'copy')
-  await client.clickFirstVisible(
-    `.ant-dropdown-menu-item:has-text("${e('copy')}")`,
-    2500
-  )
-  await delay(401)
+  await clickTerminalMenuItem(client, e('copy'))
 }
+
+exports.selectAllTerminal = selectAllTerminal
 
 exports.basicTerminalTest = async (client, cmd) => {
   async function focus () {
