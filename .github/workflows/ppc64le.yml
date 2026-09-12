@@ -90,19 +90,49 @@ jobs:
       run: |
         ls -la dist-ppc64le/*.tar.gz dist-ppc64le/*.deb
         file dist-ppc64le/electerm-*/electerm
-        echo "=== native modules: every .node must be ppc64le ==="
-        for f in $(find dist-ppc64le/electerm-* -name "*.node" -type f); do
-          echo "--- $f ---"
-          readelf -h "$f" | grep -E "Class|Machine|Data"
-          readelf -h "$f" | grep -q PowerPC64 || { echo "ERROR: $f is not ppc64le"; exit 1; }
+
+        # Anything outside prebuilds/ is a file the loader can actually pick up,
+        # and node-gyp-build probes build/Release/*.node first, so every ELF
+        # there must be ppc64le. prebuilds/ is a lookup table keyed by
+        # <platform>-<arch>: npm ships the whole set (win32 PE, darwin Mach-O,
+        # linux-x64, ...) for every platform, and node-gyp-build only ever
+        # matches <platform>-<arch> for the running machine, so on ppc64le
+        # (arch=ppc64) entries like linux-x64 are inert.
+        echo "=== every ELF outside prebuilds/ must be ppc64le ==="
+        failed=0
+        for f in $(find dist-ppc64le/electerm-* -name "*.node" -type f | sort); do
+          rel="${f#dist-ppc64le/}"
+          if ! readelf -h "$f" >/dev/null 2>&1; then
+            echo "skip (not ELF, other-OS prebuild): $rel"
+            continue
+          fi
+          if readelf -h "$f" | grep -q PowerPC64; then
+            echo "ok   (ppc64le): $rel"
+            continue
+          fi
+          case "$rel" in
+            */prebuilds/*)
+              echo "skip (foreign-arch prebuild, never selected on ppc64le): $rel" ;;
+            *)
+              echo "ERROR: non-ppc64le ELF outside prebuilds/: $rel"
+              readelf -h "$f" | grep -E "Class|Machine|Data"
+              failed=1 ;;
+          esac
         done
+        [ "$failed" -eq 0 ] || exit 1
+
         echo "=== required: node-pty (the terminal) ==="
-        find dist-ppc64le/electerm-* -name "pty.node" -type f | grep -q . \
-          || { echo "ERROR: pty.node missing"; exit 1; }
-        echo "ok: pty.node"
+        # node-pty also ships prebuilds/<other-os>/*.node, so target the exact
+        # file node-gyp-build resolves first.
+        pty=$(find dist-ppc64le/electerm-* -path "*/node-pty/build/Release/pty.node" -type f | head -1)
+        [ -n "$pty" ] || { echo "ERROR: node-pty/build/Release/pty.node missing"; exit 1; }
+        readelf -h "$pty" | grep -q PowerPC64 || { echo "ERROR: pty.node is not ppc64le"; exit 1; }
+        echo "ok: pty.node ($pty)"
+
         echo "=== optional: serialport (best-effort, may be absent on ppc64le) ==="
-        if find dist-ppc64le/electerm-* -path "*@serialport*" -name "*.node" -type f | grep -q .; then
-          echo "ok: serialport binding present and ppc64le"
+        sp=$(find dist-ppc64le/electerm-* -path "*@serialport/bindings-cpp/build/Release/bindings.node" -type f | head -1)
+        if [ -n "$sp" ]; then
+          echo "ok: serialport binding present, checked above: $sp"
         else
           echo "note: no serialport binding in this package; serial port feature unavailable"
         fi
