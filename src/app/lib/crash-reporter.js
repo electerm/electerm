@@ -66,19 +66,28 @@ Example:
 // Missing font suggestion message
 const FONT_ERROR_SUGGESTION = `
 ================================================================================
-⚠️  Crash Caused By Missing Fonts (exit code ${SIGTRAP_EXIT_CODE} / SIGTRAP)
+⚠️  Crash Caused By Unusable System Fonts (exit code ${SIGTRAP_EXIT_CODE} / SIGTRAP)
 ================================================================================
-Chromium aborted inside Skia, which on Linux almost always means this system
-has no usable font at all (minimal installs, containers, servers).
-The usual GPU workarounds (--no-sandbox, --disable-gpu) do NOT help here.
+Chromium aborted inside Skia: SkFontMgr_FCI::onMatchFamilyStyleCharacter() is
+not implemented, and it is called as soon as Blink has to fall back for a glyph
+the current font does not have. In practice that means Chromium sees no usable
+font. The usual GPU workarounds (--no-sandbox, --disable-gpu) do NOT help here.
 
 Check:
   fc-list | wc -l   (should list the installed fonts)
   fc-match sans     (should resolve to a real font file)
 
+Both can look perfectly healthy while Chromium still sees nothing -- that is
+exactly what happens on the linux ppc64le build, where fontconfig works in a
+shell (thousands of fonts) but Blink resolves no font at all.
+
 Fix (Debian/Ubuntu):
   sudo apt-get install -y fontconfig fonts-dejavu-core
   sudo fc-cache -fv
+
+If it still crashes, make electerm use the web font it ships with instead of
+the system ones:
+  ELECTERM_SAFE_FONT=1 electerm
 ================================================================================
 `
 
