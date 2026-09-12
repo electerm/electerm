@@ -18,6 +18,9 @@
 #   4. Merge asar + ppc64le electron + ppc64le native modules
 #   5. Package as tar.gz + .deb
 #   6. Upload to the GitHub release draft
+#   7. Upload to R2 via the shared uploadToR2 helper (build-common.js), the same
+#      way the other (non-loong64) builds do. It self-skips unless running in CI
+#      with "[r2]" in the commit message and the CF_R2_* env vars set.
 #
 # Env:
 #   ELECTRON_VERSION=<ver>        (default: 41.0.3)
@@ -25,6 +28,8 @@
 #   SKIP_NATIVE=1                 skip native module build
 #   WORKFLOW_NAME=<name>          electron-builder publish channel
 #   GH_TOKEN=<token>              upload artifacts to the GitHub release draft
+#   CF_R2_ACCOUNT_ID / CF_R2_BUCKET / CF_R2_ACCESS_KEY_ID / CF_R2_SECRET_ACCESS_KEY
+#                                 required for the R2 upload (with [r2])
 
 set -euo pipefail
 
@@ -446,6 +451,38 @@ upload_to_github() {
 }
 
 # ============================================================================
+# Step 7: upload artifacts to R2 (shared helper, same as the other builds)
+# ============================================================================
+upload_artifacts_to_r2() {
+    local tar_file="$1"
+    local deb_file="$2"
+
+    # uploadToR2() from build-common.js only looks for files inside <root>/dist,
+    # so stage the ppc64le artifacts there first. The helper self-skips unless
+    # we are in CI, the commit message contains "[r2]" and CF_R2_* are set.
+    mkdir -p "$PROJECT_ROOT/dist"
+    cp "$tar_file" "$PROJECT_ROOT/dist/"
+    cp "$deb_file" "$PROJECT_ROOT/dist/"
+
+    log_info "Step 7: Uploading artifacts to R2 (skipped unless [r2] + CF_R2_*)..."
+
+    node -e "
+        const { uploadToR2 } = require('$PROJECT_ROOT/build/bin/build-common')
+        ;(async () => {
+            await uploadToR2('linux-${TARBALL_ARCH}.tar.gz')
+            await uploadToR2('${DEB_ARCH}.deb')
+        })().catch(err => {
+            console.error(err)
+            process.exit(1)
+        })
+    "
+
+    # dist/ is discarded anyway, but keep it tidy
+    rm -f "$PROJECT_ROOT/dist/$(basename "$tar_file")" \
+          "$PROJECT_ROOT/dist/$(basename "$deb_file")"
+}
+
+# ============================================================================
 # Main
 # ============================================================================
 main() {
@@ -472,6 +509,7 @@ main() {
 
     upload_to_github "$tar_file"
     upload_to_github "$deb_file"
+    upload_artifacts_to_r2 "$tar_file" "$deb_file"
 
     log_info "=========================================="
     log_info "Build complete!"
