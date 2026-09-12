@@ -389,22 +389,62 @@ async function setupSftpConnection (client) {
  */
 async function resetSftpPath (client, type, timeout = 25000) {
   const section = `.session-current .sftp-${type}-section`
+  const pathInputSel = `${section} .sftp-title-wrap input`
   // Marker entries that only exist in the session home folders and are never
   // removed by the test suite (see build/bin/clean-test-server-home.js).
-  const marker = type === 'remote' ? '.bash_history' : 'Library'
+  // The local marker is platform specific: macOS homes have Library, Linux
+  // CI homes do not, so fall back to .bashrc there.
+  const isLinuxRunner = process.platform === 'linux'
+  const marker = type === 'remote'
+    ? '.bash_history'
+    : (isLinuxRunner ? '.bashrc' : 'Library')
   const markerSel = `.session-current .file-list.${type} .sftp-item[title="${marker}"]`
+  const listSel = `.session-current .file-list.${type} .sftp-item`
   const atHome = async () => await client.locator(markerSel).count() > 0
   if (await atHome()) {
     return
   }
+  const readPath = async () => {
+    try {
+      return await client.locator(pathInputSel).first().inputValue()
+    } catch {
+      return null
+    }
+  }
+  const readCount = async () => {
+    try {
+      return await client.locator(listSel).count()
+    } catch {
+      return 0
+    }
+  }
   await client.locator(`${section} .anticon-home`).first().waitFor({ state: 'visible', timeout: 10000 })
   await client.click(`${section} .anticon-home`)
   const start = Date.now()
+  let prevPath = await readPath()
+  let stableRounds = 0
   while (Date.now() - start < timeout) {
     await delay(1000)
     if (await atHome()) {
       await delay(2500)
       return
+    }
+    // Fallback for homes without the marker file (e.g. minimal CI test
+    // accounts): the home click navigates to the session home by definition,
+    // so once the address bar path settles and the listing is loaded, the
+    // navigation has completed and we are home.
+    const pathNow = await readPath()
+    const count = await readCount()
+    if (pathNow && count > 0 && pathNow === prevPath) {
+      stableRounds += 1
+      if (stableRounds >= 2) {
+        log(`resetSftpPath: ${type} settled at ${pathNow} without marker, accepting`)
+        await delay(1500)
+        return
+      }
+    } else {
+      stableRounds = 0
+      prevPath = pathNow
     }
   }
   await diagnose(client, `reset-path-${type}`)

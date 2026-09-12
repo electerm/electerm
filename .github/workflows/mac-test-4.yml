@@ -5,12 +5,12 @@ name: mac-x64-test-4
 
 on:
   push:
-    branches: [ build, test, test-only ]
+    branches: [ build, test, test-only, temp/ubuntu-test-ci ]
 
 jobs:
   build:
 
-    runs-on: macos-15-intel
+    runs-on: ubuntu-latest
     environment: build
     if: ${{ !contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]') && !contains(github.event.head_commit.message, '[skip test4]') }}
 
@@ -29,6 +29,10 @@ jobs:
     - run: npm install -g yarn
     - run: npm i
     - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.49.1 && npm i -D -E @playwright/test@1.49.1
+
+    # Linux system deps for Playwright's bundled Electron/Chromium (ubuntu-latest)
+    - name: Install OS deps for Playwright Electron
+      run: sudo "$GITHUB_WORKSPACE/node_modules/.bin/playwright" install-deps chromium
 
     # script:
     - run: npm run b
