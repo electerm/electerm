@@ -47,6 +47,21 @@ WORKFLOW_NAME="${WORKFLOW_NAME:-linux-ppc64le}"
 # Native modules version, taken from the repo's package.json
 NODE_PTY_VERSION="$(node -e "console.log(require('$PROJECT_ROOT/package.json').dependencies['node-pty'])")"
 
+# @serialport/bindings-cpp is only a transitive dep (via serialport), so read the
+# version that is actually installed rather than letting npm pick "latest" --
+# the two can drift and a native module bump can silently break the build.
+SERIALPORT_BINDINGS_VERSION="$(node -e "
+    try {
+        console.log(require('$PROJECT_ROOT/node_modules/@serialport/bindings-cpp/package.json').version)
+    } catch (e) {
+        console.log('')
+    }
+")"
+SERIALPORT_SPEC="@serialport/bindings-cpp"
+if [ -n "$SERIALPORT_BINDINGS_VERSION" ]; then
+    SERIALPORT_SPEC="@serialport/bindings-cpp@${SERIALPORT_BINDINGS_VERSION}"
+fi
+
 CROSS_PREFIX="powerpc64le-linux-gnu-"
 DEB_ARCH="ppc64el"                 # Debian's canonical name for ppc64le
 TARBALL_ARCH="ppc64le"             # naming used by the electron/Node ecosystem
@@ -73,6 +88,85 @@ write_install_src() {
         const { writeFileSync } = require('fs');
         writeFileSync('$PROJECT_ROOT/work/app/lib/install-src.js', \"module.exports = '${src}'\");
     "
+}
+
+# @serialport/bindings-cpp uses the termios2 interface (struct termios2 /
+# TCGETS2 / TCSETS2). Those live in <asm-generic/termbits.h> +
+# <asm-generic/ioctls.h>, but on powerpc the arch-specific <asm/termbits.h>
+# only pulls in <asm-generic/termbits-common.h> and defines neither, so the file
+# fails to compile ("aggregate has incomplete type", "TCGETS2 was not declared").
+# The kernel ABI on ppc64le does use the generic termios2, so switching this one
+# translation unit to the asm-generic headers is correct. The file includes no
+# <termios.h>, so no struct termios redefinition is involved.
+patch_serialport_source() {
+    local file="$1"
+
+    if [ ! -f "$file" ]; then
+        log_error "Cannot patch, file not found: ${file}"
+        return 1
+    fi
+
+    node -e "
+        const fs = require('fs');
+        const f = '${file}';
+        const before = fs.readFileSync(f, 'utf8');
+        const after = before
+            .replace('#include <asm/ioctls.h>', '#include <asm-generic/ioctls.h>')
+            .replace('#include <asm/termbits.h>', '#include <asm-generic/termbits.h>');
+        if (after === before) {
+            console.error('ERROR: no asm/ include found in ' + f +
+                ' -- upstream changed, review the ppc64le patch');
+            process.exit(1);
+        }
+        fs.writeFileSync(f, after);
+        console.log('patched asm headers in ' + f);
+    "
+}
+
+
+# Cross-compile a package from source: stream the output (npm hides install
+# script output by default, hence --foreground-scripts) and keep a full log so a
+# failure is actually diagnosable instead of being swallowed by `tail`.
+cross_build_module() {
+    local log_file="$1"
+    shift
+
+    local rc=0
+    set +e
+    npm_config_arch=ppc64 npm_config_target_arch=ppc64 \
+        CC="${CROSS_PREFIX}gcc" CXX="${CROSS_PREFIX}g++" \
+        npm install "$@" --build-from-source --foreground-scripts 2>&1 | tee "$log_file"
+    rc=${PIPESTATUS[0]}
+    set -e
+
+    if [ "$rc" -ne 0 ]; then
+        log_error "Cross build failed (exit ${rc}). Full log: ${log_file}"
+        return 1
+    fi
+    return 0
+}
+
+# Copy a cross-built .node into the staging dir, asserting that it exists and is
+# really ppc64le. Without this check a silently failed cross build lets the x64
+# .node survive into the ppc64le package.
+stage_native_module() {
+    local src="$1"
+    local dest="$2"
+
+    if [ -z "$src" ] || [ ! -f "$src" ]; then
+        log_error "Cross build produced no native module (looked for: ${3:-?})"
+        return 1
+    fi
+
+    if ! readelf -h "$src" 2>/dev/null | grep -q "PowerPC64"; then
+        log_error "Native module is NOT ppc64le: ${src}"
+        file "$src" 2>/dev/null || true
+        readelf -h "$src" 2>/dev/null | grep -E "Class|Machine" || true
+        return 1
+    fi
+
+    cp "$src" "$dest"
+    log_info "  staged $(basename "$dest") ($(readelf -h "$src" | grep Machine | xargs))"
 }
 
 # ============================================================================
@@ -199,8 +293,10 @@ rebuild_native_modules() {
     fi
 
     if ! command -v "${CROSS_PREFIX}g++" &>/dev/null; then
-        log_warn "Step 3: ${CROSS_PREFIX}g++ not found, skipping native module build"
-        return 0
+        log_error "Step 3: ${CROSS_PREFIX}g++ not found; refusing to continue, the"
+        log_error "package would silently keep the x64 native modules. Install with:"
+        log_error "  sudo apt-get install -y gcc-powerpc64le-linux-gnu g++-powerpc64le-linux-gnu binutils-powerpc64le-linux-gnu"
+        return 1
     fi
 
     log_info "Step 3: Cross-compiling native modules for ppc64le..."
@@ -215,23 +311,52 @@ rebuild_native_modules() {
     log_info "Building node-pty@${NODE_PTY_VERSION}..."
     mkdir -p "$cross_build_dir/build-node-pty" && cd "$cross_build_dir/build-node-pty"
     npm init -y >/dev/null 2>&1 || true
-    npm_config_arch=ppc64 npm_config_target_arch=ppc64 \
-        CC="${CROSS_PREFIX}gcc" CXX="${CROSS_PREFIX}g++" \
-        npm install "node-pty@${NODE_PTY_VERSION}" --build-from-source 2>&1 | tail -5
-    find . -name "pty.node" -type f | head -1 | while read -r f; do
-        cp "$f" "$native_modules_dir/node-pty.node"
-    done
+    cross_build_module "$cross_build_dir/node-pty.log" "node-pty@${NODE_PTY_VERSION}"
+    stage_native_module \
+        "$(find . -name 'pty.node' -type f | head -1)" \
+        "$native_modules_dir/node-pty.node" \
+        "pty.node"
 
-    log_info "Building @serialport/bindings-cpp..."
+    log_info "Building ${SERIALPORT_SPEC} (patched for ppc64le)..."
     cd "$cross_build_dir"
     mkdir -p build-serialport && cd build-serialport
     npm init -y >/dev/null 2>&1 || true
-    npm_config_arch=ppc64 npm_config_target_arch=ppc64 \
-        CC="${CROSS_PREFIX}gcc" CXX="${CROSS_PREFIX}g++" \
-        npm install @serialport/bindings-cpp --build-from-source 2>&1 | tail -5
-    find . -path "*/build/Release/bindings.node" -type f | head -1 | while read -r f; do
-        cp "$f" "$native_modules_dir/serialport-bindings.node"
-    done
+
+    # Install without running the install script first: it has no ppc64le
+    # prebuild, and the source needs the header patch below before it compiles.
+    local rc=0
+    set +e
+    npm install "$SERIALPORT_SPEC" --ignore-scripts --foreground-scripts \
+        > "$cross_build_dir/serialport-install.log" 2>&1
+    rc=$?
+    set -e
+    if [ "$rc" -ne 0 ]; then
+        log_error "npm install failed (exit ${rc})"
+        tail -n 30 "$cross_build_dir/serialport-install.log"
+        return 1
+    fi
+
+    patch_serialport_source \
+        "node_modules/@serialport/bindings-cpp/src/serialport_linux.cpp"
+
+    # Now run the module's own install script (node-gyp-build). npm_config_arch
+    # makes it look for a linux-ppc64 prebuild, find none, and fall back to
+    # node-gyp; npm rebuild reuses the node-gyp bundled with npm.
+    set +e
+    npm_config_arch=ppc64 CC="${CROSS_PREFIX}gcc" CXX="${CROSS_PREFIX}g++" \
+        npm rebuild @serialport/bindings-cpp --foreground-scripts 2>&1 \
+        | tee "$cross_build_dir/serialport.log"
+    rc=${PIPESTATUS[0]}
+    set -e
+    if [ "$rc" -ne 0 ]; then
+        log_error "Cross build failed (exit ${rc}). Full log: $cross_build_dir/serialport.log"
+        return 1
+    fi
+
+    stage_native_module \
+        "$(find . -path '*/build/Release/bindings.node' -type f | head -1)" \
+        "$native_modules_dir/serialport-bindings.node" \
+        "*/build/Release/bindings.node"
 
     cd "$PROJECT_ROOT"
 
@@ -239,7 +364,8 @@ rebuild_native_modules() {
         log_info "Native modules:"
         ls -la "$native_modules_dir/"
     else
-        log_warn "No native modules were built."
+        log_error "No native modules were built."
+        return 1
     fi
 }
 

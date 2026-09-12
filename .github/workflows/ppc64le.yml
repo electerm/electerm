@@ -51,6 +51,19 @@ jobs:
     - run: rm -f package-lock.json
     - run: npm config set legacy-peer-deps true
 
+    # Must run BEFORE `npm i`, so that node_modules gets electron 41.0.3.
+    # electron-builder/@electron/rebuild resolve the version from the installed
+    # electron, not from the temporary edit the build script makes later.
+    - name: Update electron version to v41.0.3
+      run: |
+        node -e "
+        const fs = require('fs');
+        const pkg = JSON.parse(fs.readFileSync('package.json'));
+        pkg.devDependencies.electron = '41.0.3';
+        fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+        console.log('Electron version set to 41.0.3');
+        "
+
     - name: Install dependencies
       run: |
         npm install -g yarn
@@ -76,4 +89,14 @@ jobs:
         ls -la dist-ppc64le/*.tar.gz dist-ppc64le/*.deb
         file dist-ppc64le/electerm-*/electerm
         echo "=== native modules ==="
-        find dist-ppc64le/electerm-* -name "*.node" -exec sh -c 'echo "--- $1 ---"; file "$1"; readelf -h "$1" 2>/dev/null | grep -E "Machine|Class"' _ {} \;
+        for f in $(find dist-ppc64le/electerm-* -name "*.node" -type f); do
+          echo "--- $f ---"
+          readelf -h "$f" | grep -E "Class|Machine|Data"
+          readelf -h "$f" | grep -q PowerPC64 || { echo "ERROR: $f is not ppc64le"; exit 1; }
+        done
+        echo "=== required native modules present ==="
+        for n in pty.node bindings.node; do
+          find dist-ppc64le/electerm-* -name "$n" -type f | grep -q . \
+            || { echo "ERROR: $n missing"; exit 1; }
+          echo "ok: $n"
+        done
