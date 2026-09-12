@@ -56,8 +56,15 @@ jobs:
       run: |
         ls -la dist-riscv64/*.tar.gz dist-riscv64/*.deb
         file dist-riscv64/electerm-*/electerm
-        find dist-riscv64/electerm-* -name "*.node" -exec file {} \; | grep "RISC-V"
-        find dist-riscv64/electerm-* -name "spawn-helper" -exec file {} \; | grep "RISC-V"
+        # every ELF outside prebuilds/ must be riscv64
+        bad=$(find dist-riscv64/electerm-* -name "*.node" -not -path "*/prebuilds/*" \
+          -exec sh -c 'file "$1" | grep -q "RISC-V" || echo "$1"' _ {} \;)
+        if [ -n "$bad" ]; then
+          echo "Non riscv64 binaries found:"
+          echo "$bad"
+          exit 1
+        fi
+        echo "All non-prebuilds .node files are riscv64"
 
     - name: Upload to R2
       if: ${{ contains(github.event.head_commit.message, '[r2]') }}

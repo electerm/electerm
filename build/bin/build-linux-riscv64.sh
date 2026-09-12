@@ -198,29 +198,36 @@ build_node_pty() {
     cd "$build_dir"
     npm init -y 2>/dev/null
 
+    npm install --ignore-scripts "node-pty@${version}" node-gyp 2>&1 | tee "$build_dir/npm.log"
+
+    if [ ! -d "$build_dir/node_modules/node-pty" ]; then
+        log_warn "node-pty not installed, see $build_dir/npm.log"
+        return 1
+    fi
+
+    cd "$build_dir/node_modules/node-pty"
     npm_config_arch=${ARCH} npm_config_target_arch=${ARCH} \
         CC=${CROSS_PREFIX}-gcc CXX=${CROSS_PREFIX}-g++ \
-        npm install "node-pty@${version}" --build-from-source 2>&1 | tee "$build_dir/build.log"
+        "$build_dir/node_modules/.bin/node-gyp" rebuild --arch=${ARCH} 2>&1 | tee "$build_dir/build.log"
 
     local pty_node spawn_helper
-    pty_node=$(find . -path "*/build/Release/pty.node" -type f -print -quit)
-    spawn_helper=$(find . -path "*/build/Release/spawn-helper" -type f -print -quit)
+    pty_node=$(find "$build_dir" -path "*/build/Release/pty.node" -type f -print -quit)
+    spawn_helper=$(find "$build_dir" -path "*/build/Release/spawn-helper" -type f -print -quit)
 
     if [ -z "$pty_node" ]; then
         log_warn "node-pty build produced no pty.node, see $build_dir/build.log"
         return 1
     fi
-    if [ -z "$spawn_helper" ]; then
-        log_warn "node-pty build produced no spawn-helper, see $build_dir/build.log"
-        return 1
-    fi
 
     assert_riscv_elf "$pty_node" || return 1
-    assert_riscv_elf "$spawn_helper" || return 1
 
     cp "$pty_node" "$out_dir/node-pty.node"
-    cp "$spawn_helper" "$out_dir/spawn-helper"
-    chmod +x "$out_dir/spawn-helper"
+    # spawn-helper is macOS only (binding.gyp builds it under OS=="mac"),
+    # on linux node-pty forks via forkpty and ignores it
+    if [ -n "$spawn_helper" ] && assert_riscv_elf "$spawn_helper"; then
+        cp "$spawn_helper" "$out_dir/spawn-helper"
+        chmod +x "$out_dir/spawn-helper"
+    fi
     return 0
 }
 
@@ -242,12 +249,20 @@ build_serialport() {
     cd "$build_dir"
     npm init -y 2>/dev/null
 
+    npm install --ignore-scripts "@serialport/bindings-cpp@${version}" node-gyp 2>&1 | tee "$build_dir/npm.log"
+
+    if [ ! -d "$build_dir/node_modules/@serialport/bindings-cpp" ]; then
+        log_warn "@serialport/bindings-cpp not installed, see $build_dir/npm.log"
+        return 1
+    fi
+
+    cd "$build_dir/node_modules/@serialport/bindings-cpp"
     npm_config_arch=${ARCH} npm_config_target_arch=${ARCH} \
         CC=${CROSS_PREFIX}-gcc CXX=${CROSS_PREFIX}-g++ \
-        npm install "@serialport/bindings-cpp@${version}" --build-from-source 2>&1 | tee "$build_dir/build.log"
+        "$build_dir/node_modules/.bin/node-gyp" rebuild --arch=${ARCH} 2>&1 | tee "$build_dir/build.log"
 
     local bindings
-    bindings=$(find . -path "*/build/Release/bindings.node" -type f -print -quit)
+    bindings=$(find "$build_dir" -path "*/build/Release/bindings.node" -type f -print -quit)
     if [ -z "$bindings" ]; then
         log_warn "@serialport/bindings-cpp build produced no bindings.node, see $build_dir/build.log"
         return 1
@@ -349,7 +364,7 @@ merge_riscv64() {
         if [ -f "$native_modules_dir/node-pty.node" ]; then
             find "$output_dir" -path "*/node-pty/build/Release/pty.node" \
                 -exec cp "$native_modules_dir/node-pty.node" {} \; 2>/dev/null || true
-            # spawn-helper is an executable used by every pty.fork(), must match arch
+            # spawn-helper is macOS only, copy it along when present
             find "$output_dir" -path "*/node-pty/build/Release/spawn-helper" \
                 -exec cp "$native_modules_dir/spawn-helper" {} \; 2>/dev/null || true
         fi
