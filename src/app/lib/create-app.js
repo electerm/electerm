@@ -13,6 +13,7 @@ const {
 } = require('./deep-link')
 const { handleSingleInstance } = require('./single-instance')
 const { setupCrashReporter, setupCommandLineSwitches } = require('./crash-reporter')
+const { precheckFonts } = require('./font-check')
 
 let conf = {}
 
@@ -65,6 +66,9 @@ exports.createApp = async function () {
     }
   })
   app.whenReady().then(async () => {
+    // Linux only, and it overlaps with loading the config rather than
+    // delaying the first window (see font-check.js).
+    precheckFonts()
     conf = await getDbConfig()
     createWindow(conf)
   })
