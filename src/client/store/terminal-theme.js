@@ -8,18 +8,21 @@ import {
 import { convertTheme } from '../common/terminal-theme'
 import {
   defaultTheme,
-  defaultThemeLight
+  defaultThemeLight,
+  dickersHackdioTheme
 } from '../common/theme-defaults'
 
 export default Store => {
   Store.prototype.getTerminalThemes = function () {
     const t1 = defaultTheme()
     const t2 = defaultThemeLight()
+    const t3 = dickersHackdioTheme()
     return [
       t1,
       t2,
+      t3,
       ...window.store.getItems(settingMap.terminalThemes).filter(d => {
-        return d && d.id !== t1.id && d.id !== t2.id
+        return d && d.id !== t1.id && d.id !== t2.id && d.id !== t3.id
       })
     ]
   }
