@@ -57,6 +57,12 @@ write_install_src() {
     "
 }
 
+# True when file starts with the ELF magic
+is_elf() {
+    local f="$1"
+    [ "$(head -c 4 "$f" | od -An -tx1 | tr -d ' \n')" = "7f454c46" ]
+}
+
 # Assert file exists and is a riscv64 ELF
 assert_riscv_elf() {
     local f="$1"
@@ -391,6 +397,11 @@ merge_riscv64() {
     log_info "Checking for non-${ARCH} ELF files in package..."
     local bad=0
     while IFS= read -r f; do
+        # only care about real ELF files for this platform
+        case "$f" in
+            */darwin/*|*/win32/*|*/win/*) continue ;;
+        esac
+        is_elf "$f" || continue
         if ! assert_riscv_elf "$f"; then
             bad=1
         fi
