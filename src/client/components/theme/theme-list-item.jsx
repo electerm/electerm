@@ -161,7 +161,7 @@ export default function ThemeListItem (props) {
         {renderTag()}{title}
       </div>
       {
-        id === defaultTheme().id || type === 'iterm'
+        id === defaultTheme().id || item.readonly || type === 'iterm'
           ? null
           : props.renderDelBtn(item)
       }
