@@ -1,0 +1,91 @@
+# Build electerm for riscv64 Linux
+#
+# This workflow:
+# 1. Builds x64 version with electron v42.8.1 to get the asar
+# 2. Downloads electron riscv64 v42.8.1 from riscv-forks/electron-riscv-releases
+# 3. Cross-compiles native modules for riscv64
+# 4. Merges x64 asar with riscv64 electron and native modules
+# 5. Uploads tar.gz to GitHub release draft
+# 6. Builds deb package and uploads to GitHub release draft
+# 7. Optionally uploads to R2
+
+name: linux-riscv64
+
+on:
+  push:
+    branches: [ build, test, build-only, riscv64, linux-riscv64 ]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    environment: build
+    if: ${{ !contains(github.event.head_commit.message, '[skip build]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip linux]') && !contains(github.event.head_commit.message, '[skip riscv64]') }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24.x
+
+    - name: Install riscv64 cross-compiler
+      run: |
+        sudo add-apt-repository -y universe
+        sudo apt-get update
+        sudo apt-get install -y gcc-riscv64-linux-gnu g++-riscv64-linux-gnu binutils-riscv64-linux-gnu
+        riscv64-linux-gnu-gcc --version
+
+    - run: rm package-lock.json
+    - run: npm config set legacy-peer-deps true
+
+    - name: Install dependencies
+      run: |
+        npm config set legacy-peer-deps true
+        npm install -g yarn
+        npm i
+
+    - name: Build riscv64
+      env:
+        WORKFLOW_NAME: linux-riscv64
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
+      run: bash build/bin/build-linux-riscv64.sh
+
+    - name: Verify output
+      run: |
+        ls -la dist-riscv64/*.tar.gz dist-riscv64/*.deb
+        file dist-riscv64/electerm-*/electerm
+        # every ELF outside prebuilds/ must be riscv64
+        bad=$(find dist-riscv64/electerm-* -name "*.node" -not -path "*/prebuilds/*" \
+          -exec sh -c 'file "$1" | grep -q "RISC-V" || echo "$1"' _ {} \;)
+        if [ -n "$bad" ]; then
+          echo "Non riscv64 binaries found:"
+          echo "$bad"
+          exit 1
+        fi
+        echo "All non-prebuilds .node files are riscv64"
+
+    - name: Upload to R2
+      if: ${{ contains(github.event.head_commit.message, '[r2]') }}
+      env:
+        CF_R2_BUCKET: ${{ secrets.CF_R2_BUCKET }}
+      run: |
+        mkdir -p ~/.aws
+        cat > ~/.aws/credentials << EOF
+        [default]
+        aws_access_key_id = ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+        aws_secret_access_key = ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+        EOF
+        cat > ~/.aws/config << EOF
+        [default]
+        region = auto
+        endpoint_url = ${{ secrets.CF_R2_ENDPOINT }}
+        EOF
+        for file in $(find dist-riscv64 \( -name "*.tar.gz" -o -name "*.deb" \) -type f); do
+          filename=$(basename "$file")
+          aws s3 cp "$file" "s3://${CF_R2_BUCKET}/${filename}" \
+            --acl public-read \
+            --cache-control "max-age=31536000"
+          echo "Uploaded: ${filename}"
+        done
