@@ -1,4 +1,4 @@
-# Build electerm for ppc64le (PowerPC 64-bit little endian) Linux
+# Build electerm for  ppc64le (PowerPC 64-bit little endian) Linux
 #
 # Uses the prebuilt ppc64le Electron runtime published by IBM:
 #   https://github.com/lex-ibm/electron-ppc64le-build-scripts
