@@ -53,6 +53,67 @@
     background-position center
     background-color transparent !important
 
+// Full-screen plain-text view of the buffer, opened from the touch context
+// menu (see terminal-select-text.jsx) so the platform's own selection handles
+// and Copy callout can be used instead of xterm's canvas.
+//
+// 900 clears the touch shortcut bar (400) and the terminal panes, while
+// staying below antd's modal (1000) and message (1010) layers so a "copied"
+// toast still shows up over this panel.
+//
+// The callout/user-select resets are load-bearing, not decoration: the
+// component is portalled onto <body>, but `.term-wrap` switches off
+// -webkit-touch-callout for the terminal's own gestures and the property is
+// inherited — if this panel is ever rendered in place again, without the
+// resets the native Copy callout would never appear on the textarea.
+.terminal-select-text
+  position fixed
+  left 0
+  top 0
+  width 100%
+  height 100%
+  z-index 900
+  display flex
+  flex-direction column
+  background var(--main)
+  color var(--text)
+  -webkit-touch-callout default
+  -webkit-user-select text
+  user-select text
+
+.terminal-select-text-bar
+  flex-shrink 0
+  display flex
+  align-items center
+  justify-content space-between
+  height 40px
+  padding 0 10px
+  font-size 14px
+  background var(--main-lighter)
+  .terminal-select-text-btns
+    a
+      margin-left 16px
+      color var(--text)
+      &:hover
+        color var(--text-light)
+
+.terminal-select-text-area
+  flex 1
+  width 100%
+  margin 0
+  padding 8px 10px
+  border 0
+  outline none
+  resize none
+  background var(--main)
+  color var(--text)
+  font-family monospace
+  font-size 13px
+  line-height 1.4
+  -webkit-touch-callout default
+  -webkit-user-select text
+  user-select text
+
 .terminal-normal-buffer
   position absolute
   left 0

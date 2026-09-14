@@ -84,5 +84,43 @@ export const contentMixin = {
       const ts = `[${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(now.getMilliseconds()).padStart(3, '0')}] `
       return ts + text
     }).join('\n')
+  },
+
+  /**
+   * The whole buffer as clean plain text, for the touch select-text overlay.
+   *
+   * Differs from getTerminalBufferText() on purpose: that one is for log files
+   * and keeps xterm's fixed-width padding (`translateToString(false)`), which
+   * would trail a screen-full of spaces into a textarea and make every line
+   * look wrapped. Here each row is right-trimmed, rows xterm reports as
+   * `isWrapped` are glued back so a line the shell printed as one line is
+   * copied as one line, and the blank rows scrollback starts out with are
+   * dropped so the panel opens on real output.
+   */
+  getSelectableBufferText () {
+    const buffer = this.term.buffer.active
+    const len = buffer.length
+    const lines = []
+    for (let i = 0; i < len; i++) {
+      const line = buffer.getLine(i)
+      if (!line) {
+        continue
+      }
+      const text = line.translateToString(true)
+      if (line.isWrapped && lines.length) {
+        lines[lines.length - 1] += text
+      } else {
+        lines.push(text)
+      }
+    }
+    let start = 0
+    let end = lines.length
+    while (start < end && !lines[start].trim()) {
+      start++
+    }
+    while (end > start && !lines[end - 1].trim()) {
+      end--
+    }
+    return lines.slice(start, end).join('\n')
   }
 }
