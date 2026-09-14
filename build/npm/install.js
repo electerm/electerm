@@ -515,6 +515,8 @@ async function main () {
         await runLinux(`linux-armv7l${suffix}`, `linux-armv7l${suffix}.tar.gz`)
       } else if (arch.includes('loong')) {
         await runLinux(`linux-loong64${suffix}`, `linux-loong64${suffix}.tar.gz`)
+      } else if (arch === 'riscv64' || arch.includes('riscv')) {
+        await runLinux(`linux-riscv64${suffix}`, `linux-riscv64${suffix}.tar.gz`)
       } else {
         await runLinux(`linux-x64${suffix}`, `linux-x64${suffix}.tar.gz`)
       }

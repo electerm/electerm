@@ -1,0 +1,23 @@
+// AI history items (ai-history.jsx / ai-history-item.jsx)
+//
+// Each entry is an antd Tag: nowrap, no max-width, and the text is a user
+// written description up to 50 chars long. Space renders an inline-flex box,
+// which shrink-to-fits its widest *unwrappable* child — so one long entry
+// pushes the whole panel into horizontal scrolling instead of using the width
+// it already has. The label gets its own ellipsis box so the tag can shrink to
+// the available width while the close icon stays reachable.
+.ai-bookmark-history
+  .ant-space
+    display flex
+  .ant-space-item
+    min-width 0
+  .ant-tag
+    max-width 100%
+
+.ai-history-label
+  display inline-block
+  // leave room for the tag close icon
+  max-width calc(100% - 16px)
+  overflow hidden
+  text-overflow ellipsis
+  vertical-align middle

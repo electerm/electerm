@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { Space } from 'antd'
 import { safeGetItemJSON, safeSetItemJSON } from '../../common/safe-local-storage'
 import AiHistoryItem from './ai-history-item'
+import './ai-history.styl'
 
 const MAX_HISTORY = 20
 

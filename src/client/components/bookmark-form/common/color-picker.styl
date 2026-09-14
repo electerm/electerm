@@ -10,6 +10,9 @@
   width 92px
 .color-picker-box
   width 420px
+  // the popover is portaled to the body, a 420px box simply falls off a phone
+  // screen (measured: the swatch list and the antd picker still fit at 280px)
+  max-width calc(100vw - 40px)
 
 .color-picker-defaults
   width 200px

@@ -142,6 +142,8 @@ function getDownloadPattern (platform, architecture, options = {}) {
       return { pattern: new RegExp(`linux-armv7l${suffix}\\.tar\\.gz$`), type: `linux-armv7l${suffix}` }
     } else if (architecture === 'loong64') {
       return { pattern: new RegExp(`linux-loong64${suffix}\\.tar\\.gz$`), type: `linux-loong64${suffix}` }
+    } else if (architecture === 'riscv64') {
+      return { pattern: new RegExp(`linux-riscv64${suffix}\\.tar\\.gz$`), type: `linux-riscv64${suffix}` }
     } else {
       return { pattern: new RegExp(`linux-x64${suffix}\\.tar\\.gz$`), type: `linux-x64${suffix}` }
     }
@@ -266,6 +268,7 @@ const releaseFiles = [
   `electerm-${v}-linux-armv7l-legacy.tar.gz`,
   `electerm-${v}-linux-loong64.tar.gz`,
   `electerm-${v}-linux-loong64-legacy.tar.gz`,
+  `electerm-${v}-linux-riscv64.tar.gz`,
   `electerm-${v}-linux-x64.tar.gz`,
   `electerm-${v}-linux-x64-legacy.tar.gz`,
   `electerm-${v}-mac-arm64.dmg`,
@@ -358,6 +361,12 @@ test('pattern: linux-loong64-legacy matches exactly one file', () => {
   const { pattern } = getDownloadPattern('linux', 'loong64', { linuxLegacy: true })
   const matches = releaseFiles.filter(f => pattern.test(f))
   expect(matches).toEqual([`electerm-${v}-linux-loong64-legacy.tar.gz`])
+})
+
+test('pattern: linux-riscv64 matches exactly one file', () => {
+  const { pattern } = getDownloadPattern('linux', 'riscv64', {})
+  const matches = releaseFiles.filter(f => pattern.test(f))
+  expect(matches).toEqual([`electerm-${v}-linux-riscv64.tar.gz`])
 })
 
 test('pattern: unsupported platform returns null pattern', () => {

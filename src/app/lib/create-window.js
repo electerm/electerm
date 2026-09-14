@@ -14,6 +14,7 @@ const {
 } = require('./window-control')
 const { ensureWindowVisible } = require('./window-restore')
 const { onClose } = require('./on-close')
+const { resolveFontWorkaround } = require('./font-check')
 const { initIpc, initAppServer } = require('./ipc')
 const { disableShortCuts } = require('./key-bind')
 const _ = require('./lodash.js')
@@ -21,11 +22,29 @@ const getPort = require('./get-port')
 const globalState = require('./glob-state')
 const webviewHandler = require('./webview-handler')
 
+// A crashed / reloaded renderer leaves the window object alive, and sending to
+// it then throws "Render frame was disposed before WebFrameMain could be
+// accessed" -- which is exactly what floods the log after a renderer dies.
+function safeSend (win, channel, data) {
+  try {
+    if (win.isDestroyed() || win.webContents.isDestroyed()) {
+      return
+    }
+    win.webContents.send(channel, data)
+  } catch (err) {
+    // renderer is gone, nothing to deliver to
+  }
+}
+
 exports.createWindow = async function (userConfig) {
   globalState.set('closeAction', 'closeApp')
   globalState.set('requireAuth', !!userConfig.hashedPassword)
   const { width, height, x, y } = await getWindowSize()
   const { useSystemTitleBar = defaults.useSystemTitleBar } = userConfig
+  // On a box where Chromium resolves no font, Blink aborts the renderer on the
+  // first glyph it has to fall back for, so pick the workaround that measurably
+  // gives us text (see font-check.js). {} on any normal install.
+  const fontFix = await resolveFontWorkaround()
   const win = new BrowserWindow({
     width,
     height,
@@ -45,7 +64,8 @@ exports.createWindow = async function (userConfig) {
       preload: resolve(__dirname, '../preload/preload.js'),
       webviewTag: true,
       devTools: !userConfig.disableDeveloperTool,
-      spellcheck: false
+      spellcheck: false,
+      ...fontFix
     },
     titleBarStyle: useSystemTitleBar ? 'default' : 'hidden',
     icon: iconPath
@@ -105,10 +125,10 @@ exports.createWindow = async function (userConfig) {
     }, 100))
 
     win.on('focus', () => {
-      win.webContents.send('focused', null)
+      safeSend(win, 'focused', null)
     })
     win.on('blur', () => {
-      win.webContents.send('blur', null)
+      safeSend(win, 'blur', null)
     })
     // macOS only: in native fullscreen, switching between apps goes through
     // the Spaces transition, which can leave the window frame stuck at an
