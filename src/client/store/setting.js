@@ -111,6 +111,10 @@ export default Store => {
       })
       store.setSettingItem(settingList().find(d => d.id === settingSyncId))
       store.openSettingModal()
+      // on mobile, jump straight to the sync form instead of the menu list
+      if (store.isMobile) {
+        store.settingMobileView = 'content'
+      }
     })
   }
 
