@@ -7,6 +7,18 @@ import { chooseSaveDirectory } from './choose-save-folder'
 import { DownloadOutlined } from '@ant-design/icons'
 
 export default async function download (filename, text) {
+  // iOS WKWebView: sandbox targets are invisible to the Files app and
+  // blob-anchor downloads are a no-op — save to Documents (visible in
+  // Files) via the native bridge instead (see
+  // web-components/native-file-save.js).
+  if (window.et && window.et.isWebApp && window.et.saveTextNative) {
+    try {
+      await window.et.saveTextNative(filename, text)
+      return
+    } catch (e) {
+      console.log('native save failed, falling back to sandbox save:', e)
+    }
+  }
   const opts = window.et.isWebApp
     ? { filename, content: text }
     : undefined
