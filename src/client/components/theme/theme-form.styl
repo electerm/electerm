@@ -1,10 +1,16 @@
-.theme-editor-txt
-  .editor-u-textarea
-    display block !important
-  .editor-u-picker
-    display none !important
-.theme-editor-color-picker
-  .editor-u-textarea
-    display none !important
-  .editor-u-picker
-    display block !important
+// setting panel > UI themes > theme form
+//
+// The three editor tabs need ~395px for their translated labels ("Edit with
+// color picker" / "Edit with text editor" / "AI") while a 320px phone leaves
+// the panel only ~257px, so antd hides the last tab behind an overflow
+// dropdown. Below the app's mobile breakpoint (600px, see constants.js)
+// collapse the labels to icons — they are self explanatory and keep their
+// label as a title tooltip.
+@media (max-width: 600px)
+  .theme-editor-tab
+    // antd adds a trailing margin to an icon that is not the last child,
+    // which would push the lone icon off the center of its tab
+    .anticon
+      margin-right 0 !important
+    .theme-editor-tab-text
+      display none

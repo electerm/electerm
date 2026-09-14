@@ -22,7 +22,7 @@ import InputAutoFocus from '../common/input-auto-focus'
 import ThemePicker from './theme-editor'
 import ThemeAiEditor from './theme-ai-editor'
 import Upload from '../common/upload'
-// import './theme-form.styl'
+import './theme-form.styl'
 
 const { TextArea } = Input
 const FormItem = Form.Item
@@ -155,6 +155,7 @@ export default function ThemeForm (props) {
         <FormItem>
           <span className='mg1r'>src:</span>
           <Link
+            className='wordbreak'
             to={url}
           >{url}
           </Link>
@@ -277,34 +278,29 @@ export default function ThemeForm (props) {
     themeText: txt,
     disabled
   }
+  // icon + label, the label text is hidden by css on narrow screens so the
+  // three editor tabs always fit, the title keeps it discoverable
+  function renderTabLabel (icon, text) {
+    return (
+      <span className='theme-editor-tab' title={text}>
+        {icon}
+        <span className='theme-editor-tab-text'>{text}</span>
+      </span>
+    )
+  }
   const tabItems = [
     {
       key: 'theme-editor-color-picker',
-      label: (
-        <span>
-          <BgColorsOutlined className='mg1r' />
-          {e('editWithColorPicker')}
-        </span>
-      )
+      label: renderTabLabel(<BgColorsOutlined className='mg1r' />, e('editWithColorPicker'))
     },
     {
       key: 'theme-editor-txt',
-      label: (
-        <span>
-          <FontSizeOutlined className='mg1r' />
-          {e('editWithTextEditor')}
-        </span>
-      )
+      label: renderTabLabel(<FontSizeOutlined className='mg1r' />, e('editWithTextEditor'))
     },
     ...(!isAIDisabled()
       ? [{
           key: 'theme-editor-ai',
-          label: (
-            <span>
-              <RobotOutlined className='mg1r' />
-              AI
-            </span>
-          )
+          label: renderTabLabel(<RobotOutlined className='mg1r' />, 'AI')
         }]
       : [])
   ]
