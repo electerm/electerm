@@ -4,10 +4,11 @@
 
 import { auto } from 'manate/react'
 import { pick } from 'lodash-es'
-import { Tabs, Spin } from 'antd'
+import { Spin } from 'antd'
 import { lazy, Suspense } from 'react'
 import SettingModal from './setting-wrap'
 import LazyBoundary from '../common/lazy-boundary'
+import ResponsiveTabs from '../common/responsive-tabs'
 import {
   settingMap,
   modals,
@@ -132,11 +133,15 @@ export default auto(function SettingModalWrap (props) {
       onChange: store.handleChangeSettingTab,
       destroyOnHidden: true,
       className: 'setting-tabs',
-      type: 'card'
+      type: 'card',
+      // the panel turns into a phone style drill-down at 800px (same
+      // breakpoint as the media query in setting-wrap.styl), collapse the tab
+      // bar there too instead of letting antd hide the overflow tabs
+      isMobile: store.innerWidth <= settingPanelMobileBreakpoint
     }
     return (
       <>
-        <Tabs
+        <ResponsiveTabs
           {...tabsProps}
         />
         <LazyBoundary>

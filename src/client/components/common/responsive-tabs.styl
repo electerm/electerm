@@ -1,0 +1,34 @@
+// common/responsive-tabs — the mobile (collapsed) tab bar, see responsive-tabs.jsx
+//
+// .responsive-tabs-mobile-wrap is the element the caller's className lands on
+// (e.g. `.setting-tabs`, which positions the bar absolutely), the button is
+// always full width inside it.
+.responsive-tabs-mobile
+  box-sizing border-box
+  display flex
+  align-items center
+  width 100%
+  height 36px
+  padding 0 10px
+  font-size 13px
+  line-height 1
+  color var(--text)
+  background transparent
+  border 1px solid var(--main-light)
+  border-radius 4px
+  cursor pointer
+  overflow hidden
+  &:hover
+    color var(--primary)
+    border-color var(--primary)
+.responsive-tabs-mobile-label
+  flex 1
+  min-width 0
+  display flex
+  align-items center
+  text-align left
+.responsive-tabs-mobile-icon
+  flex-shrink 0
+  margin-left 8px
+  font-size 11px
+  color var(--text-light)

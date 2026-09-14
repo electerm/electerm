@@ -47,7 +47,7 @@ module.exports = {
   trayIconPath,
   extIconPath,
   defaultUserName,
-  minWindowWidth: 590,
+  minWindowWidth: 320,
   minWindowHeight: 400,
   defaultLang: 'en_us',
   tempDir: require('os').tmpdir(),

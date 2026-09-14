@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Button, Input, Form, Tabs, Flex } from 'antd'
+import { Button, Input, Form, Flex } from 'antd'
 import {
   BgColorsOutlined,
   FontSizeOutlined,
@@ -19,6 +19,7 @@ import generate from '../../common/uid'
 import { isAIDisabled } from '../../common/ai-feature'
 import Link from '../common/external-link'
 import InputAutoFocus from '../common/input-auto-focus'
+import ResponsiveTabs from '../common/responsive-tabs'
 import ThemePicker from './theme-editor'
 import ThemeAiEditor from './theme-ai-editor'
 import Upload from '../common/upload'
@@ -361,7 +362,7 @@ export default function ThemeForm (props) {
             </Button>
           </Upload>
         </Flex>
-        <Tabs {...tabsProps} />
+        <ResponsiveTabs {...tabsProps} />
         {
           editor === 'theme-editor-txt'
             ? renderTxt()
