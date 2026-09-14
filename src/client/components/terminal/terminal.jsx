@@ -22,6 +22,7 @@ import RemoteFloatControl from '../common/remote-float-control'
 import ReconnectOverlay from './reconnect-overlay.jsx'
 import TerminalErrorHandle from './terminal-error-handle.jsx'
 import DropFileModal from './drop-file-modal.jsx'
+import TerminalSelectText from './terminal-select-text.jsx'
 import { StartupQueue } from './startup-queue.js'
 import { detectRemoteShell } from './shell-detect.js'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
@@ -79,7 +80,10 @@ class Term extends Component {
       terminalError: null,
       dropFileModalVisible: false,
       droppedFiles: [],
-      fontSizeChanged: false
+      fontSizeChanged: false,
+      // touch-only: the buffer snapshot shown by the select-text overlay
+      selectTextVisible: false,
+      selectTextContent: ''
     }
     this.id = `term-${this.props.tab.id}`
     refs.add(this.id, this)
@@ -109,12 +113,28 @@ class Term extends Component {
     }
   ]
 
-  // ---- Mobile touch support ----
+  // ---- Mobile touch support (behaviour lives in mixins/term-touch.js) ----
+  // Only used while store.isTouchDevice is true, so a mouse-driven desktop
+  // never touches any of it. Per-instance state has to stay a class field
+  // here — a mixin may only export functions, see ./mixins/index.js.
   longPressTimer = null
   touchStartPos = null
   longPressFired = false
   longPressThreshold = 500 // ms
-  longPressMoveTolerance = 10 // px
+  // a finger drifts further than a mouse while holding still, so the tolerance
+  // is looser than the old 10px to stop long presses being read as scrolls
+  longPressMoveTolerance = 12 // px
+  // { anchor: {col, absRow}, moved, clientX, clientY, target } while a
+  // long-press selection is being dragged out
+  dragSelect = null
+  lastDragTouch = null
+  autoScrollDir = 0
+  dragFrame = 0
+  tapCount = 0
+  lastTapTime = 0
+  lastTapPos = null
+  // the read-only textarea of the select-text overlay
+  selectTextRef = createRef()
 
   terminalColorQueryDisposables = []
 
@@ -196,6 +216,12 @@ class Term extends Component {
     clearTimeout(this.longPressTimer)
     this.longPressTimer = null
     this.touchStartPos = null
+    this.stopAutoScroll()
+    window.cancelAnimationFrame(this.dragFrame)
+    this.dragFrame = 0
+    this.dragSelect = null
+    this.lastDragTouch = null
+    this.lastTapPos = null
     if (window.store.activeTerminalId === this.props.tab.id) {
       window.store.activeTerminalId = ''
     }
@@ -411,6 +437,14 @@ class Term extends Component {
             onCancel={this.handleDropFileModalCancel}
           />
           {spin}
+          <TerminalSelectText
+            visible={this.state.selectTextVisible}
+            text={this.state.selectTextContent}
+            textareaRef={this.selectTextRef}
+            onSelectAll={this.handleSelectTextAll}
+            onCopy={this.handleSelectTextCopy}
+            onClose={this.handleSelectTextClose}
+          />
         </div>
       </Dropdown>
     )

@@ -44,12 +44,23 @@ export const contextMenuMixin = {
         disabled: !hasSelection
       },
       {
-
         key: 'onSelectAll',
         icon: <iconsMap.CheckSquareOutlined />,
         label: e('selectall'),
         extra: selectAllShortcut
       },
+      // Touch only: a selection dragged out on the canvas can only ever be an
+      // approximation of a native one, so offer the overlay where the OS does
+      // the selecting (see term-touch.js / terminal-select-text.jsx).
+      ...(
+        this.isTouchMode()
+          ? [{
+              key: 'onSelectTextMode',
+              icon: <iconsMap.SelectOutlined />,
+              label: e('selectText')
+            }]
+          : []
+      ),
       ...(
         isAIDisabled()
           ? []
@@ -124,11 +135,25 @@ export const contextMenuMixin = {
     ) {
       return false
     }
+    // While a touch drag is still building the selection we copy once on
+    // release instead — otherwise every cell the finger crosses would write
+    // the clipboard and raise a toast.
+    if (this.dragSelect) {
+      return false
+    }
     this.copySelectionToClipboard()
   },
 
   copySelectionToClipboard () {
-    const txt = this.term.getSelection()
+    this.copyToClipboard(this.term.getSelection())
+  },
+
+  /**
+   * Shared clipboard write. Lives here rather than in term-touch.js so that
+   * the touch module stays free of imports (it is loaded directly by a
+   * node:test unit spec), and so every copy raises the same `copied` toast.
+   */
+  copyToClipboard (txt) {
     if (txt) {
       copy(txt)
     }

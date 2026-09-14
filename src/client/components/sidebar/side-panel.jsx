@@ -19,7 +19,7 @@ export default function SidePanel (props) {
     }
   }, [props.leftSidePanelWidth, props.leftSideBarWidth])
   const dragProps = {
-    min: 343,
+    min: 200,
     max: 600,
     width: props.leftSidePanelWidth,
     onDragEnd,

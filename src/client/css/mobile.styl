@@ -170,18 +170,31 @@
   .upgrade-panel
     max-width calc(100vw - 20px)
 
-  // ---- 9. Terminal touch support: prevent the browser's native long-press
-  //        callout (iOS "Copy/Look Up" menu) and text-selection gesture from
-  //        interfering with xterm's own touch handling and our custom
-  //        long-press context-menu detection. xterm.js already sets
-  //        user-select:none on .xterm; we additionally suppress the iOS
-  //        callout and set touch-action so the browser does not compete with
-  //        xterm for touch gesture interpretation.
+// ---------------------------------------------------------------------------
+// Terminal touch selection (behaviour in mixins/term-touch.js).
+//
+// Scoped to is-touch-device on top of the narrow-window is-mobile case: a
+// tablet held in landscape is wider than the 600px mobile breakpoint but is
+// still touch-primary and needs the same suppression, while store.isTouchDevice
+// keeps it off for anything mouse-driven (it follows the input in use — see
+// main.jsx).
+//
+// - the browser's native long-press callout (iOS "Copy/Look Up" menu) and its
+//   own text-selection gesture would fight xterm for the touch stream and
+//   swallow the long press that starts a selection;
+// - xterm already sets user-select:none on .xterm; touch-action:none stops the
+//   browser scrolling/zooming the page out from under a selection drag, since
+//   xterm does its own scrolling from gesture events.
+// ---------------------------------------------------------------------------
+.is-mobile,
+.is-touch-device
   .term-wrap
     -webkit-touch-callout none
     -webkit-tap-highlight-color transparent
     .xterm
       -webkit-touch-callout none
+      -webkit-user-select none
+      user-select none
       touch-action none
 
 // ---------------------------------------------------------------------------
