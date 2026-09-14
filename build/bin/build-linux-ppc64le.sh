@@ -25,6 +25,14 @@
 #      way the other (non-loong64) builds do. It self-skips unless running in CI
 #      with "[r2]" in the commit message and the CF_R2_* env vars set.
 #
+# ppc64le-only font workaround, deliberately kept out of the source tree:
+#   build/ppc64le/ holds the fallback fontconfig file and the code that uses it,
+#   and this script injects it into work/app -- which build/bin/prepare.js fills
+#   with a byte-for-byte copy of src/app and electron-builder packs verbatim --
+#   right before packing. Nothing in src/app and nothing in
+#   build/electron-builder.json changes, so the branch stays easy to rebase and
+#   every other build is unaffected. See build/ppc64le/README.md.
+#
 # Env:
 #   ELECTRON_VERSION=<ver>        (default: 41.0.3)
 #   ELECTRON_PPC64LE_URL=<url>    (default: derived from ELECTRON_VERSION)
@@ -46,6 +54,10 @@ WORK_DIR="$PROJECT_ROOT/work-ppc64le"
 OUTPUT_DIR="$PROJECT_ROOT/dist-ppc64le"
 SKIP_NATIVE="${SKIP_NATIVE:-0}"
 WORKFLOW_NAME="${WORKFLOW_NAME:-linux-ppc64le}"
+
+# ppc64le-only source workaround; applied to the packing tree, never to src/app.
+PPC64LE_PATCH_DIR="$PROJECT_ROOT/build/ppc64le"
+PACK_APP_DIR="$PROJECT_ROOT/work/app"
 
 # Native modules version, taken from the repo's package.json
 NODE_PTY_VERSION="$(node -e "console.log(require('$PROJECT_ROOT/package.json').dependencies['node-pty'])")"
@@ -250,6 +262,27 @@ install_prerequisites() {
 }
 
 # ============================================================================
+# ppc64le workaround: inject build/ppc64le into the tree that gets packed
+# ============================================================================
+#
+# electron-builder packs work/app ("directories.app" in build/electron-builder.json),
+# and build/bin/prepare.js fills that with `cp -r src/app work/` -- so patching
+# it is the same bytes as patching src/app, without touching one tracked file,
+# and with nothing to revert if the build dies half way. write_install_src()
+# below works the same way for install-src.js.
+#
+# patch.js fails the build if the files it appends to lost the symbols it needs,
+# rather than shipping a workaround that silently does nothing.
+inject_ppc64le_workaround() {
+    if [ ! -d "$PACK_APP_DIR" ]; then
+        log_error "No $PACK_APP_DIR to patch (build_x64 creates it)"
+        return 1
+    fi
+    log_info "Injecting build/ppc64le font workaround into work/app..."
+    node "$PPC64LE_PATCH_DIR/patch.js" apply "$PACK_APP_DIR"
+}
+
+# ============================================================================
 # Step 1: build the x64 app to get the arch-independent asar
 # ============================================================================
 build_x64() {
@@ -272,6 +305,10 @@ build_x64() {
     npm run pb
 
     rm -rf dist
+    # work/app exists from here on; add the ppc64le-only files to it before it
+    # is packed.
+    inject_ppc64le_workaround
+
     local builder="./node_modules/.bin/electron-builder"
     write_install_src "linux-ppc64le.tar.gz"
 
@@ -443,6 +480,18 @@ merge_ppc64le() {
         mkdir -p "$output_dir/resources"
         cp "$WORK_DIR/app.asar" "$output_dir/resources/"
     fi
+
+    # The fallback fontconfig file has to sit next to app.asar: fontconfig is
+    # native code and cannot read from inside the asar. This is where an
+    # "extraResources" entry in build/electron-builder.json would put it, but
+    # only this build needs it, so it is copied here instead of being declared
+    # there. build_deb copies this same tree, so the deb gets it too.
+    if [ ! -f "$PPC64LE_PATCH_DIR/electerm-fonts.conf" ]; then
+        log_error "Missing $PPC64LE_PATCH_DIR/electerm-fonts.conf"
+        return 1
+    fi
+    mkdir -p "$output_dir/resources"
+    cp "$PPC64LE_PATCH_DIR/electerm-fonts.conf" "$output_dir/resources/"
 
     log_info "Creating ppc64le tar.gz..."
     cd "$OUTPUT_DIR"
