@@ -14,7 +14,6 @@ const {
 } = require('./window-control')
 const { ensureWindowVisible } = require('./window-restore')
 const { onClose } = require('./on-close')
-const { resolveFontWorkaround } = require('./font-check')
 const { initIpc, initAppServer } = require('./ipc')
 const { disableShortCuts } = require('./key-bind')
 const _ = require('./lodash.js')
@@ -41,10 +40,6 @@ exports.createWindow = async function (userConfig) {
   globalState.set('requireAuth', !!userConfig.hashedPassword)
   const { width, height, x, y } = await getWindowSize()
   const { useSystemTitleBar = defaults.useSystemTitleBar } = userConfig
-  // On a box where Chromium resolves no font, Blink aborts the renderer on the
-  // first glyph it has to fall back for, so pick the workaround that measurably
-  // gives us text (see font-check.js). {} on any normal install.
-  const fontFix = await resolveFontWorkaround()
   const win = new BrowserWindow({
     width,
     height,
@@ -64,8 +59,7 @@ exports.createWindow = async function (userConfig) {
       preload: resolve(__dirname, '../preload/preload.js'),
       webviewTag: true,
       devTools: !userConfig.disableDeveloperTool,
-      spellcheck: false,
-      ...fontFix
+      spellcheck: false
     },
     titleBarStyle: useSystemTitleBar ? 'default' : 'hidden',
     icon: iconPath

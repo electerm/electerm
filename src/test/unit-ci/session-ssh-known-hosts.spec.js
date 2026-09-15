@@ -18,8 +18,7 @@ const {
 
 function createHostKey (label) {
   const pair = generateKeyPairSync('ed25519')
-  const publicKey = `${pair.public} ${label}`.trim()
-  return Buffer.from(publicKey.split(/\s+/)[1], 'base64')
+  return Buffer.from(`${pair.public} ${label}`.trim().split(/\s+/)[1], 'base64')
 }
 
 describe('ssh known_hosts verification', () => {

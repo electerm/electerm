@@ -66,7 +66,7 @@ describe('batch-op', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
 
-    await client.waitForFunction(() => window.store && window.store.configLoaded === true, { timeout: 15000 })
+    await client.waitForFunction(() => window.store && window.store.configLoaded === true, null, { timeout: 15000 })
     await delay(500)
     log('023-batch-op: app launched')
 
@@ -109,7 +109,7 @@ describe('batch-op', function () {
     await client.waitForFunction(() => {
       const entries = document.querySelectorAll('.batch-op-log-entry')
       return entries.length >= 7
-    }, { timeout: 180000 })
+    }, null, { timeout: 180000 })
     await delay(1000)
 
     const logText = await getLogText(client)
@@ -133,7 +133,7 @@ describe('batch-op', function () {
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
 
-    await client.waitForFunction(() => window.store && window.store.configLoaded === true, { timeout: 15000 })
+    await client.waitForFunction(() => window.store && window.store.configLoaded === true, null, { timeout: 15000 })
     await delay(500)
 
     await openWidgetsPanel(client)
@@ -165,7 +165,7 @@ describe('batch-op', function () {
     await client.waitForFunction(() => {
       const entries = document.querySelectorAll('.batch-op-log-entry.error')
       return entries.length > 0
-    }, { timeout: 35000 })
+    }, null, { timeout: 35000 })
 
     const errorCount = await client.locator('.batch-op-log-entry.error').count()
     expect(errorCount).greaterThan(0)

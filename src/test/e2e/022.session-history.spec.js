@@ -69,7 +69,7 @@ describe('session-history', function () {
       return window.store &&
         window.store.configLoaded === true &&
         !!window.watchhistory
-    }, { timeout: 15000 })
+    }, null, { timeout: 15000 })
     await delay(500) // small buffer after watcher starts
     log('022: app launched (session 1)')
 
@@ -186,7 +186,7 @@ describe('session-history', function () {
       return window.store &&
         window.store.configLoaded === true &&
         !!window.watchhistory
-    }, { timeout: 15000 })
+    }, null, { timeout: 15000 })
     await delay(300)
     log('022: app launched (session 2 – restart)')
 
