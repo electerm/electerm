@@ -15,7 +15,7 @@
 
 开源终端/ssh/telnet/serialport/RDP/VNC/Spice/sftp/ftp客户端(Linux, Mac, Windows, Android, HarmonyOS, iOS)。
 
-除了主流的 Windows/macOS/Linux/Android，electerm 还支持鸿蒙(HarmonyOS)、iOS，以及老旧系统——如 Ubuntu 18、Windows 7、macOS 10+，以及国产特殊 Linux 发行版如 UOS、麒麟(Kylin)、龙芯(LoongArch，含旧世界与新世界)。
+除了主流的 Windows/macOS/Linux/Android，electerm 还支持鸿蒙(HarmonyOS)、iOS，以及老旧系统——如 Ubuntu 18、Windows 7、macOS 10+，以及国产特殊 Linux 发行版如 UOS、麒麟(Kylin)、龙芯(LoongArch，含旧世界与新世界)，同时还支持 RISC-V (riscv64) 与 PowerPC 64位小端 (ppc64le) Linux。
 
 <p>
   <a href="https://electerm.org">主页 / 下载</a> ·
@@ -85,7 +85,7 @@
 ## 功能特性
 
 - 可作为终端/文件管理器，以及 ssh/sftp/ftp/telnet/serialport/RDP/VNC/Spice 客户端
-- 支持 Window 7+(X64/ARM64), 鸿蒙, 安卓, iOS, Mac OS 10.15+(x64/arm64), Linux(x64/arm64/Loong64 新世界 & 旧世界), 甚至 glibc 2.17+ 的老旧 Linux 如 UOS/Kylin/Ubuntu 18.04 等
+- 支持 Window 7+(X64/ARM64), 鸿蒙, 安卓, iOS, Mac OS 10.15+(x64/arm64), Linux(x64/arm64/riscv64/ppc64le/Loong64 新世界 & 旧世界), 甚至 glibc 2.17+ 的老旧 Linux 如 UOS/Kylin/Ubuntu 18.04 等
 - 全局快捷键切换窗口显隐(类似 guake, 默认快捷键 `ctrl + 2`)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 🇮🇩 🇵🇱 多国语言支持([electerm-locales](https://github.com/electerm/electerm-locales), 欢迎提交代码)
 - 双击直接编辑(小)远程文件.
