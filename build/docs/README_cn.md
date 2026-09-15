@@ -15,7 +15,7 @@
 
 开源终端/ssh/telnet/serialport/RDP/VNC/Spice/sftp/ftp客户端(Linux, Mac, Windows, Android, HarmonyOS, iOS)。
 
-除了主流的 Windows/macOS/Linux/Android，electerm 还支持鸿蒙(HarmonyOS)、iOS，以及老旧系统——如 Ubuntu 18、Windows 7、macOS 10+，以及国产特殊 Linux 发行版如 UOS、麒麟(Kylin)、龙芯(LoongArch，含旧世界与新世界)。
+除了主流的 Windows/macOS/Linux/Android，electerm 还支持鸿蒙(HarmonyOS)、iOS，以及老旧系统——如 Ubuntu 18、Windows 7、macOS 10+，以及国产特殊 Linux 发行版如 UOS、麒麟(Kylin)。同时也运行在 x64/ARM64 之外的 CPU 架构上——龙芯(LoongArch，含旧世界与新世界)、RISC-V 64 和 ppc64le。
 
 <p>
   <a href="https://electerm.org">主页 / 下载</a> ·
@@ -85,7 +85,7 @@
 ## 功能特性
 
 - 可作为终端/文件管理器，以及 ssh/sftp/ftp/telnet/serialport/RDP/VNC/Spice 客户端
-- 支持 Window 7+(X64/ARM64), 鸿蒙, 安卓, iOS, Mac OS 10.15+(x64/arm64), Linux(x64/arm64/Loong64 新世界 & 旧世界), 甚至 glibc 2.17+ 的老旧 Linux 如 UOS/Kylin/Ubuntu 18.04 等
+- 支持 Window 7+(X64/ARM64), 鸿蒙, 安卓, iOS, Mac OS 10.15+(x64/arm64), Linux(x64/arm64/riscv64/ppc64le/Loong64 新世界 & 旧世界), 甚至 glibc 2.17+ 的老旧 Linux 如 UOS/Kylin/Ubuntu 18.04 等
 - 全局快捷键切换窗口显隐(类似 guake, 默认快捷键 `ctrl + 2`)
 - 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 🇮🇩 🇵🇱 多国语言支持([electerm-locales](https://github.com/electerm/electerm-locales), 欢迎提交代码)
 - 双击直接编辑(小)远程文件.
@@ -109,6 +109,7 @@
 - Snap: `sudo snap install electerm --classic`
 - 一些Linux发行版的内置软件商店(Ubuntu, Deepin, Mint...).
 - 不支持`rpm`, `deb`, or `snap` 的Linux发行版可以尝试 `tar.gz`版本.
+- riscv64、ppc64le 架构的 Linux 仅提供 `tar.gz` 和 `deb` 版本.
 - Windows用户可以从[windows store](https://www.microsoft.com/store/apps/9NCN7272GTFF), 命令行安装工具 [winget](https://github.com/microsoft/winget-cli)，以及[scoop](https://github.com/lukesampson/scoop) :
 
 ```powershell
@@ -230,6 +231,10 @@ npm run pb
 
 # build for linux arm/
 ./node_modules/.bin/electron-builder --linux --arm64
+
+# 构建 linux riscv64 / ppc64le(交叉编译, 仅在 Linux 上可用)
+bash build/bin/build-linux-riscv64.sh
+bash build/bin/build-linux-ppc64le.sh
 ```
 
 ## 使用视频

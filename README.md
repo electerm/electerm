@@ -14,7 +14,7 @@
 
 Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(Linux, Mac, Windows, Android, HarmonyOS, iOS).
 
-Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS, iOS, and older systems — Ubuntu 18, Windows 7, macOS 10+, and special Chinese Linux distributions such as UOS, Kylin, and LoongArch (both old-world and new-world).
+Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS, iOS, and older systems — Ubuntu 18, Windows 7, macOS 10+, and special Chinese Linux distributions such as UOS and Kylin. It also runs on CPU architectures beyond x64/ARM64 — LoongArch (both old-world and new-world), RISC-V 64, and ppc64le.
 
 <p>
   <a href="https://electerm.org">Homepage / Downloads</a> ·
@@ -229,6 +229,10 @@ npm run pb
 
 # build for linux arm/
 ./node_modules/.bin/electron-builder --linux --arm64
+
+# build for linux riscv64 / ppc64le (cross-compiled, works on Linux only)
+bash build/bin/build-linux-riscv64.sh
+bash build/bin/build-linux-ppc64le.sh
 ```
 
 ## Video guide
