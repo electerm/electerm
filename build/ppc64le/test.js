@@ -11,6 +11,7 @@
  */
 
 const assert = require('assert')
+const { execFileSync } = require('child_process')
 const Module = require('module')
 const fs = require('fs')
 const os = require('os')
@@ -233,6 +234,41 @@ async function main () {
   ok('no precheckFonts to call: complains instead of throwing',
     logged().includes('nothing to wrap'))
   ok('no precheckFonts to call: wrapper not installed', originalCalls === 0)
+
+  // -------------------------------------- patch.js apply/revert round trip
+  // The wiring insertions (create-app.js / create-window.js) are what keeps
+  // the workaround alive now that the mainline no longer requires it.
+  const patchApp = fs.mkdtempSync(join(os.tmpdir(), 'ppc64le-patch-'))
+  const libDir = join(patchApp, 'lib')
+  fs.mkdirSync(libDir)
+  const wired = ['create-app.js', 'create-window.js', 'single-instance.js']
+  for (const f of wired) {
+    fs.copyFileSync(join(__dirname, '..', '..', 'src', 'app', 'lib', f), join(libDir, f))
+  }
+  const runPatch = (...args) => execFileSync(
+    process.execPath, [join(__dirname, 'patch.js'), ...args], { stdio: 'pipe' })
+  runPatch('apply', patchApp)
+  const patchedApp = fs.readFileSync(join(libDir, 'create-app.js'), 'utf8')
+  ok('apply: create-app requires font-check',
+    patchedApp.includes("const { precheckFonts } = require('./font-check')"))
+  ok('apply: create-app calls precheckFonts inside whenReady',
+    /app\.whenReady\(\)[\s\S]*?precheckFonts\(\)[\s\S]*?getDbConfig/.test(patchedApp))
+  const patchedWin = fs.readFileSync(join(libDir, 'create-window.js'), 'utf8')
+  ok('apply: create-window awaits resolveFontWorkaround',
+    patchedWin.includes('const fontFix = await resolveFontWorkaround()'))
+  ok('apply: webPreferences spread fontFix', patchedWin.includes('...fontFix'))
+  ok('apply: single-instance exports removeInstanceSocket',
+    fs.readFileSync(join(libDir, 'single-instance.js'), 'utf8')
+      .includes('removeInstanceSocket'))
+  runPatch('apply', patchApp) // must be a no-op the second time
+  ok('apply: idempotent', fs.readFileSync(join(libDir, 'create-app.js'), 'utf8') === patchedApp)
+  runPatch('revert', patchApp)
+  for (const f of wired) {
+    const restored = fs.readFileSync(join(libDir, f), 'utf8')
+    const pristine = fs.readFileSync(join(__dirname, '..', '..', 'src', 'app', 'lib', f), 'utf8')
+    ok(`revert: ${f} byte-exact`, restored === pristine)
+  }
+  fs.rmSync(patchApp, { recursive: true, force: true })
 
   fs.rmSync(resourcesDir, { recursive: true, force: true })
   console.error = realError

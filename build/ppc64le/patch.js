@@ -15,22 +15,29 @@
  *
  * What it does, all of it additive and idempotent:
  *
- *   1. copies lib/font-conf-fix.js into <appDir>/lib/, and lib/font-check.js
- *      too -- the probe is ppc64le-only as well, so it lives here next to the
+ *   1. copies lib/font-conf-fix.js and lib/font-check.js into <appDir>/lib/
+ *      -- the probe is ppc64le-only as well, so it lives here next to the
  *      wrapper instead of in the electerm source tree
  *   2. appends a block to <appDir>/lib/font-check.js that installs the wrapper
  *      around resolveFontWorkaround -- it runs while that module is still
- *      loading, so create-window.js and create-app.js destructure the wrapped
- *      export
+ *      loading, so the wiring below destructures the wrapped export
  *   3. appends a block to <appDir>/lib/single-instance.js that exports
  *      removeInstanceSocket(), which the restart needs to drop the socket lock
+ *   4. Wires lib/font-check.js into lib/create-app.js and
+ *      lib/create-window.js. The mainline used to do this itself; the probe
+ *      window confused Playwright's firstWindow() in e2e, so the requires
+ *      moved out of src/app and are injected here instead, anchored on
+ *      declarations so reformatting cannot break them. Verified in the
+ *      ppc64le QEMU VM (temp/ppc64le-vm/): without this the shipped
+ *      workaround is dead code -- the app runs, but zero-font boxes fall
+ *      back to nothing and can SIGTRAP again.
  *
- * Both blocks are appended past the end of the existing file, so a change
- * anywhere inside those files cannot break the patch. The symbols the blocks
- * rely on are checked though: better a failed build than a workaround that
- * silently does nothing. For lib/font-check.js the check runs against the
- * payload that is about to be copied in, so a broken payload is caught before
- * anything is written.
+ * All blocks are appended, all insertions are anchored: a change anywhere
+ * inside those files cannot break the patch silently. The symbols and anchors
+ * the patch relies on are checked though -- better a failed build than a
+ * workaround that does nothing. For lib/font-check.js the check runs against
+ * the payload that is about to be copied in, so a broken payload is caught
+ * before anything is written.
  */
 
 const fs = require('fs')
@@ -67,7 +74,7 @@ const BLOCKS = [
 // The renderer resolved no font at all. Restart once with the fontconfig file
 // next to app.asar instead of going straight to the bundled web font.
 // install() replaces the export below while this module is still loading, so
-// create-window.js and create-app.js destructure the wrapped function.
+// the create-app/create-window wiring destructures the wrapped function.
 try {
   require('./font-conf-fix').install(module.exports)
 } catch (err) {
@@ -90,6 +97,41 @@ module.exports.removeInstanceSocket = function () {
 }
 ${END}
 `
+  },
+  {
+    file: 'lib/create-app.js',
+    insertions: [
+      {
+        name: 'the precheckFonts require',
+        anchor: /const \{ setupCrashReporter, setupCommandLineSwitches \} = require\('\.\/crash-reporter'\)\r?\n/,
+        text: "const { precheckFonts } = require('./font-check')\n"
+      },
+      {
+        name: 'the whenReady precheck call',
+        anchor: /app\.whenReady\(\)\.then\(async \(\) => \{\r?\n/,
+        text: '    // Linux only, and it overlaps with loading the config rather than\n    // delaying the first window (see font-check.js).\n    precheckFonts()\n'
+      }
+    ]
+  },
+  {
+    file: 'lib/create-window.js',
+    insertions: [
+      {
+        name: 'the resolveFontWorkaround require',
+        anchor: /const webviewHandler = require\('\.\/webview-handler'\)\r?\n/,
+        text: "\nconst { resolveFontWorkaround } = require('./font-check')\n"
+      },
+      {
+        name: 'the fontFix call',
+        anchor: /const \{ useSystemTitleBar = defaults\.useSystemTitleBar \} = userConfig\r?\n/,
+        text: '  // On a box where Chromium resolves no font, Blink aborts the renderer on\n  // the first glyph it needs, so ask the probe and let it fall back to the\n  // bundled web font when even that resolves nothing (see font-check.js).\n  // {} on any normal install.\n  const fontFix = await resolveFontWorkaround()\n'
+      },
+      {
+        name: 'the fontFix spread',
+        anchor: /spellcheck: false/,
+        text: ',\n      ...fontFix'
+      }
+    ]
   }
 ]
 
@@ -120,6 +162,61 @@ function readTarget (appDir, file) {
   }
 }
 
+// Texts are stored with LF; files in the tree are not (create-app.js is CRLF,
+// checked in that way). Rewrite the inserted text in the file's own line
+// endings, so both apply and revert stay byte-exact.
+function inFileEol (src, text) {
+  const eol = src.includes('\r\n') ? '\r\n' : '\n'
+  return text.replace(/\n/g, eol)
+}
+
+function applyInsertions (appDir, block) {
+  let src = readTarget(appDir, block.file)
+  let changed = false
+  for (const ins of block.insertions) {
+    const text = inFileEol(src, ins.text)
+    if (src.includes(text)) {
+      log(`already applied: ${ins.name} (${block.file})`)
+      continue
+    }
+    // Exactly one anchor match, checked before writing anything.
+    const global = new RegExp(ins.anchor.source, ins.anchor.flags + 'g')
+    const hits = src.match(global) || []
+    if (hits.length !== 1) {
+      fail(`${block.file}: anchor for ${ins.name} matches ${hits.length} times; update build/ppc64le/patch.js`)
+    }
+    const m = ins.anchor.exec(src)
+    const at = m.index + m[0].length
+    src = src.slice(0, at) + text + src.slice(at)
+    changed = true
+    log(`inserted: ${ins.name} (${block.file})`)
+  }
+  if (changed) {
+    fs.writeFileSync(join(appDir, block.file), src)
+  }
+}
+
+function revertInsertions (appDir, block) {
+  const file = join(appDir, block.file)
+  let src
+  try {
+    src = fs.readFileSync(file, 'utf8')
+  } catch (err) {
+    log(`not there, skipped: ${block.file}`)
+    return
+  }
+  let restored = src
+  for (const ins of block.insertions) {
+    restored = restored.split(inFileEol(src, ins.text)).join('')
+  }
+  if (restored !== src) {
+    fs.writeFileSync(file, restored)
+    log(`restored: ${block.file}`)
+  } else {
+    log(`not applied, skipped: ${block.file}`)
+  }
+}
+
 function apply (appDir) {
   assertSources()
   // Read and validate everything before writing anything, so a missing file or
@@ -131,7 +228,7 @@ function apply (appDir) {
     const src = provided
       ? fs.readFileSync(provided.source, 'utf8')
       : readTarget(appDir, block.file)
-    for (const [re, name] of block.expect) {
+    for (const [re, name] of (block.expect || [])) {
       if (!re.test(src)) {
         fail(`${block.file} has no ${name} any more; update build/ppc64le/patch.js`)
       }
@@ -150,6 +247,10 @@ function apply (appDir) {
     log(`copied: ${e.target}`)
   }
   for (const block of BLOCKS) {
+    if (block.insertions) {
+      applyInsertions(appDir, block)
+      continue
+    }
     // Read back what is on disk now: a provided target holds the fresh copy,
     // an in-tree one is the file that was just validated.
     const src = readTarget(appDir, block.file)
@@ -164,6 +265,10 @@ function apply (appDir) {
 
 function revert (appDir) {
   for (const block of BLOCKS) {
+    if (block.insertions) {
+      revertInsertions(appDir, block)
+      continue
+    }
     const file = join(appDir, block.file)
     let src
     try {
