@@ -172,6 +172,7 @@
       "WebSocket",
       "FileReader",
       "CustomEvent",
+      "ResizeObserver",
       "onmessage",
       "requestAnimationFrame",
       "self"

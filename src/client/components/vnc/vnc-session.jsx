@@ -7,7 +7,6 @@ import {
   statusMap
 } from '../../common/constants'
 import {
-  Spin,
   Select
 } from 'antd'
 import {
@@ -18,6 +17,7 @@ import Modal from '../common/modal'
 import { copy, readClipboard } from '../../common/clipboard'
 import VncForm from './vnc-form'
 import RemoteFloatControl from '../common/remote-float-control'
+import RemoteSessionShell from '../common/remote-session-shell'
 import './vnc.styl'
 
 // noVNC module imports — loaded dynamically
@@ -71,21 +71,33 @@ export default class VncSession extends PureComponent {
     })
   }
 
-  getScreenSize = () => {
-    const { screens, currentScreen } = this.state
-    const currentScreenData = screens.find(s => s.id === currentScreen)
+  // fullscreen always fills the screen, the per tab setting only applies
+  // windowed; the switch is not reachable in fullscreen anyway
+  getFit = () => {
+    if (this.props.fullscreen) {
+      return true
+    }
+    const { scaleViewport = true } = this.props.tab
+    return !!scaleViewport
+  }
+
+  // viewport box measured by the shell, used as the size hint for the server.
+  // Falls back to the layout props before the first measurement.
+  calcCanvasSize = () => {
+    const { width, height } = this.viewSize || {}
+    if (width && height) {
+      return { width, height }
+    }
+    const { width: w, height: h } = this.props
     return {
-      remoteWidth: currentScreenData ? currentScreenData.width : null,
-      remoteHeight: currentScreenData ? currentScreenData.height : null
+      width: w - 10,
+      height: h - 80
     }
   }
 
-  calcCanvasSize = () => {
-    const { width, height } = this.props
-    return {
-      width: width - 10,
-      height: height - 80
-    }
+  handleViewportResize = (width, height) => {
+    this.viewSize = { width, height }
+    this.updateViewLayout()
   }
 
   buildWsUrl = (port, type = 'vnc', extra = '') => {
@@ -125,30 +137,6 @@ export default class VncSession extends PureComponent {
       showExitFullscreen,
       className
     }
-  }
-
-  renderControl = () => {
-    const contrlProps = this.getControlProps({
-      fixedPosition: false,
-      showExitFullscreen: false,
-      className: 'mg1l'
-    })
-    return (
-      <div className='pd1 fix session-v-info'>
-        <div className='fleft'>
-          <ReloadOutlined
-            onClick={this.handleReInit}
-            className='mg2r mg1l pointer'
-          />
-          {this.renderScreensSelect()}
-          {this.renderInfo()}
-        </div>
-        <div className='fright'>
-          {this.props.fullscreenIcon()}
-          <RemoteFloatControl {...contrlProps} />
-        </div>
-      </div>
-    )
   }
 
   renderScreensSelect = () => {
@@ -232,8 +220,9 @@ export default class VncSession extends PureComponent {
 
     const { width, height } = this.calcCanvasSize()
     const wsUrl = this.buildWsUrl(port, 'vnc', `&width=${width}&height=${height}`)
-    // When scaleViewport is false, we don't set fixed dimensions on the canvas
-    // so it can render at the actual remote screen size
+    // noVNC sizes its own canvas (`_screen` fills whatever box it is mounted
+    // into, the canvas is centered in it), so scaling is entirely driven by
+    // `scaleViewport` plus the size of the mount node.
     const vncOpts = {
       clipViewport,
       scaleViewport,
@@ -241,13 +230,6 @@ export default class VncSession extends PureComponent {
       qualityLevel, // JPEG quality 0-9, lower = faster
       compressionLevel, // Compression 0-9, lower = faster
       shared, // Allow shared connections
-      style: scaleViewport
-        ? {
-            width: width + 'px',
-            height: height + 'px',
-            overflow: 'hidden'
-          }
-        : {},
       credentials: {}
     }
     if (username) {
@@ -378,7 +360,7 @@ export default class VncSession extends PureComponent {
     for (const event of events) {
       rfb.addEventListener(event, this[`on${window.capitalizeFirstLetter(event)}`])
     }
-    rfb.scaleViewport = scaleViewport
+    rfb.scaleViewport = this.getFit()
     rfb.clipViewport = clipViewport
     rfb.qualityLevel = qualityLevel
     rfb.compressionLevel = compressionLevel
@@ -550,9 +532,10 @@ export default class VncSession extends PureComponent {
   }
 
   componentDidUpdate (prevProps, prevState) {
+    // viewport size changes are reported by the shell, the layout props are
+    // stale in fullscreen so they are not used here
     if (
-      prevProps.width !== this.props.width ||
-      prevProps.height !== this.props.height ||
+      prevProps.fullscreen !== this.props.fullscreen ||
       prevState.currentScreen !== this.state.currentScreen
     ) {
       this.updateViewLayout()
@@ -561,24 +544,25 @@ export default class VncSession extends PureComponent {
 
   updateViewLayout = () => {
     const { currentScreen, screens } = this.state
-    const { scaleViewport = true, clipViewport = false } = this.props.tab
+    const { clipViewport = false } = this.props.tab
     const container = this.domRef.current ? this.domRef.current.firstElementChild : null
 
     if (!this.rfb || !container) {
       return
     }
 
-    // Force re-apply scaleViewport to trigger autoscale logic (if enabled)
-    // or reset to 1.0 (if disabled)
-    this.rfb.scaleViewport = scaleViewport
+    // keep noVNC scaling in sync with our fit state, then re-run autoscale so
+    // our patched single screen logic sees the new viewport size
+    const fit = this.getFit()
+    this.rfb.scaleViewport = fit
     this.rfb.clipViewport = clipViewport
 
-    // Explicitly trigger autoscale to ensure our patched logic runs
-    if (scaleViewport && this.rfb._display) {
+    if (fit && this.rfb._display) {
       this.rfb._display.autoscale(container.clientWidth, container.clientHeight)
     }
 
     // Handle scrolling to the selected screen
+    clearTimeout(this.timer)
     this.timer = setTimeout(() => {
       if (currentScreen === 'all') {
         container.scrollTo(0, 0)
@@ -653,61 +637,45 @@ export default class VncSession extends PureComponent {
   }
 
   render () {
-    const { width: w, height: h } = this.props
     const { loading } = this.state
-    const { remoteWidth, remoteHeight } = this.getScreenSize()
-    const { scaleViewport = true } = this.props.tab
-    // When not in scale mode, we need a wrapper with container size,
-    // and the inner div should have remote screen size to show scrollbars
-    const isScaled = scaleViewport
-
-    const {
-      width: innerWidth,
-      height: innerHeight
-    } = this.calcCanvasSize()
-    const wrapperStyle = {
-      width: innerWidth + 'px',
-      height: innerHeight + 'px',
-      overflow: isScaled ? 'hidden' : 'auto'
-    }
-    const remoteStyle = {
-      width: isScaled ? '100%' : remoteWidth + 'px',
-      height: isScaled ? '100%' : remoteHeight + 'px',
-      overflow: 'hidden'
-    }
-    const divProps = {
-      style: remoteStyle,
-      className: 'vnc-session-wrap session-v-wrap'
-    }
-    const contrlProps = this.getControlProps()
-    const sessProps = {
-      className: 'vnc-session-wrap',
-      style: {
-        width: w + 'px',
-        height: h + 'px'
-      }
-    }
+    const floatProps = this.getControlProps()
+    const inlineProps = this.getControlProps({
+      fixedPosition: false,
+      showExitFullscreen: false,
+      className: 'mg1l'
+    })
+    const controlLeft = (
+      <>
+        <ReloadOutlined
+          onClick={this.handleReInit}
+          className='mg2r mg1l pointer'
+        />
+        {this.renderScreensSelect()}
+        {this.renderInfo()}
+      </>
+    )
+    const controlRight = (
+      <>
+        {this.props.fullscreenIcon()}
+        <RemoteFloatControl {...inlineProps} />
+      </>
+    )
     return (
-      <Spin spinning={loading}>
+      <RemoteSessionShell
+        loading={loading}
+        fit={this.getFit()}
+        wrapClassName='vnc-session-wrap'
+        onViewportResize={this.handleViewportResize}
+        controlLeft={controlLeft}
+        controlRight={controlRight}
+        floatControl={<RemoteFloatControl {...floatProps} />}
+        overlay={this.renderConfirm()}
+      >
         <div
-          {...sessProps}
-        >
-          {this.renderControl()}
-          <RemoteFloatControl
-            {...contrlProps}
-          />
-          <div
-            style={wrapperStyle}
-            className='vnc-scroll-wrapper'
-          >
-            <div
-              {...divProps}
-              ref={this.domRef}
-            />
-          </div>
-          {this.renderConfirm()}
-        </div>
-      </Spin>
+          className='remote-session-fill vnc-session-mount'
+          ref={this.domRef}
+        />
+      </RemoteSessionShell>
     )
   }
 }

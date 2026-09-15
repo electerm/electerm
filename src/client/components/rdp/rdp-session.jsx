@@ -14,7 +14,6 @@ import {
   DownloadOutlined
 } from '@ant-design/icons'
 import {
-  Spin,
   Select,
   Tooltip
 } from 'antd'
@@ -23,6 +22,8 @@ import scanCode from './code-scan'
 import resolutions from './resolutions'
 import { readClipboardAsync } from '../../common/clipboard'
 import RemoteFloatControl from '../common/remote-float-control'
+import RemoteSessionShell from '../common/remote-session-shell'
+import { eventToRemotePos } from '../common/remote-pointer'
 import SwitchLabel from '../common/switch'
 import HelpIcon from '../common/help-icon'
 import Modal from '../common/modal'
@@ -101,6 +102,12 @@ export default class RdpSession extends PureComponent {
   }
 
   runInitScript = () => { }
+
+  // fullscreen always fills the screen, the per tab setting only applies
+  // windowed; the switch is not reachable in fullscreen anyway
+  getFit = () => {
+    return !!this.props.fullscreen || !!this.state.scaleViewport
+  }
 
   setStatus = status => {
     const id = this.props.tab?.id
@@ -458,30 +465,14 @@ export default class RdpSession extends PureComponent {
     canvas.addEventListener('mousemove', (e) => {
       if (!this.session) return
       try {
-        const rect = canvas.getBoundingClientRect()
-        const { scaleViewport } = this.state
-        let scaleX = canvas.width / rect.width
-        let scaleY = canvas.height / rect.height
-        let offsetX = 0
-        let offsetY = 0
-        if (scaleViewport) {
-          const containerRatio = rect.width / rect.height
-          const canvasRatio = canvas.width / canvas.height
-          let renderWidth, renderHeight
-          if (containerRatio > canvasRatio) {
-            renderHeight = rect.height
-            renderWidth = rect.height * canvasRatio
-            offsetX = (rect.width - renderWidth) / 2
-          } else {
-            renderWidth = rect.width
-            renderHeight = rect.width / canvasRatio
-            offsetY = (rect.height - renderHeight) / 2
-          }
-          scaleX = canvas.width / renderWidth
-          scaleY = canvas.height / renderHeight
-        }
-        const x = Math.round((e.clientX - rect.left - offsetX) * scaleX)
-        const y = Math.round((e.clientY - rect.top - offsetY) * scaleY)
+        // the canvas is rendered with object-fit: contain, so the pointer has
+        // to be mapped through the real surface rect (see remote-pointer.js)
+        const { x, y } = eventToRemotePos(
+          e,
+          canvas,
+          canvas.width,
+          canvas.height
+        )
         const event = window.ironRdp.DeviceEvent.mouseMove(x, y)
         const tx = new window.ironRdp.InputTransaction()
         tx.addEvent(event)
@@ -705,12 +696,7 @@ export default class RdpSession extends PureComponent {
     this.setupInputHandlers()
   }
 
-  renderControl = () => {
-    const contrlProps = this.getControlProps({
-      fixedPosition: false,
-      showExitFullscreen: false,
-      className: 'mg1l'
-    })
+  renderControlLeft = () => {
     const {
       id,
       hasRemoteFiles,
@@ -730,61 +716,67 @@ export default class RdpSession extends PureComponent {
     const uploadTitle = window.translate('upload') || 'Upload files to remote'
     const downloadTitle = window.translate('download') || 'Download files from remote'
     return (
-      <div
-        className='pd1 fix session-v-info block'
-      >
-        <div className='fleft'>
-          <ReloadOutlined
-            onClick={this.handleReInit}
-            className='mg2r mg1l pointer'
+      <>
+        <ReloadOutlined
+          onClick={this.handleReInit}
+          className='mg2r mg1l pointer'
+        />
+        <Select
+          {...sleProps}
+        >
+          {
+            this.getAllRes().map(d => {
+              const v = d.id
+              return (
+                <Option
+                  key={v}
+                  value={v}
+                >
+                  {d.width}x{d.height}
+                </Option>
+              )
+            })
+          }
+        </Select>
+        <EditOutlined
+          onClick={this.handleEditResolutions}
+          className='mg2r mg1l pointer'
+        />
+        {this.renderInfo()}
+        <SwitchLabel
+          {...scaleProps}
+        />
+        <Tooltip title={uploadTitle}>
+          <UploadOutlined
+            onClick={this.handleUploadButtonClick}
+            className={`mg1r mg2l pointer rdp-file-transfer-btn${uploadReady ? ' rdp-download-flash' : ''}`}
           />
-          <Select
-            {...sleProps}
-          >
-            {
-              this.getAllRes().map(d => {
-                const v = d.id
-                return (
-                  <Option
-                    key={v}
-                    value={v}
-                  >
-                    {d.width}x{d.height}
-                  </Option>
-                )
-              })
-            }
-          </Select>
-          <EditOutlined
-            onClick={this.handleEditResolutions}
-            className='mg2r mg1l pointer'
+        </Tooltip>
+        <Tooltip title={downloadTitle}>
+          <DownloadOutlined
+            onClick={this.handleDownloadButtonClick}
+            className={`mg2r mg1l pointer rdp-file-transfer-btn${hasRemoteFiles ? ' rdp-download-flash' : ' rdp-download-disabled'}`}
           />
-          {this.renderInfo()}
-          <SwitchLabel
-            {...scaleProps}
-          />
-          <Tooltip title={uploadTitle}>
-            <UploadOutlined
-              onClick={this.handleUploadButtonClick}
-              className={`mg1r mg2l pointer rdp-file-transfer-btn${uploadReady ? ' rdp-download-flash' : ''}`}
-            />
-          </Tooltip>
-          <Tooltip title={downloadTitle}>
-            <DownloadOutlined
-              onClick={this.handleDownloadButtonClick}
-              className={`mg2r mg1l pointer rdp-file-transfer-btn${hasRemoteFiles ? ' rdp-download-flash' : ' rdp-download-disabled'}`}
-            />
-          </Tooltip>
-          <HelpIcon
-            link='https://github.com/electerm/electerm/wiki/RDP-File-Transfer'
-            className='mg2r mg1l'
-          />
-        </div>
-        <div className='fright'>
-          {this.props.fullscreenIcon()}
-          <RemoteFloatControl {...contrlProps} />
-        </div>
-      </div>
+        </Tooltip>
+        <HelpIcon
+          link='https://github.com/electerm/electerm/wiki/RDP-File-Transfer'
+          className='mg2r mg1l'
+        />
+      </>
+    )
+  }
+
+  renderControlRight = () => {
+    const contrlProps = this.getControlProps({
+      fixedPosition: false,
+      showExitFullscreen: false,
+      className: 'mg1l'
+    })
+    return (
+      <>
+        {this.props.fullscreenIcon()}
+        <RemoteFloatControl {...contrlProps} />
+      </>
     )
   }
 
@@ -802,48 +794,26 @@ export default class RdpSession extends PureComponent {
   }
 
   render () {
-    const { width: w, height: h } = this.props
-    const { width, height, loading, scaleViewport } = this.state
-    const innerWidth = w - 10
-    const innerHeight = h - 80
-    const wrapperStyle = {
-      width: innerWidth + 'px',
-      height: innerHeight + 'px',
-      overflow: scaleViewport ? 'hidden' : 'auto'
-    }
-    const canvasProps = {
-      width,
-      height,
-      tabIndex: 0
-    }
-    const cls = `rdp-session-wrap session-v-wrap${scaleViewport ? ' scale-viewport' : ''}`
-    const sessProps = {
-      className: cls,
-      style: {
-        width: w + 'px',
-        height: h + 'px'
-      }
-    }
+    const { width, height, loading } = this.state
     const controlProps = this.getControlProps()
     return (
-      <Spin spinning={loading}>
-        <div
-          {...sessProps}
-        >
-          {this.renderControl()}
-          <RemoteFloatControl {...controlProps} />
-          <div
-            style={wrapperStyle}
-            className='rdp-scroll-wrapper s-scroll-wrapper'
-          >
-            <canvas
-              {...canvasProps}
-              ref={this.canvasRef}
-            />
-          </div>
-          {this.renderCredPrompt()}
-        </div>
-      </Spin>
+      <RemoteSessionShell
+        loading={loading}
+        fit={this.getFit()}
+        wrapClassName='rdp-session-wrap'
+        controlLeft={this.renderControlLeft()}
+        controlRight={this.renderControlRight()}
+        floatControl={<RemoteFloatControl {...controlProps} />}
+        overlay={this.renderCredPrompt()}
+      >
+        <canvas
+          className='rdp-canvas'
+          width={width}
+          height={height}
+          tabIndex={0}
+          ref={this.canvasRef}
+        />
+      </RemoteSessionShell>
     )
   }
 }

@@ -1,17 +1,26 @@
+// VNC only styling — the session layout (control bar, viewport, fit mode)
+// lives in the shared remote session shell: common/remote-session-shell.styl
 .vnc-session-wrap
-  display: flex
-  flex-direction: column
-  justify-content: center
-  align-items: center
-  .session-v-info
-    position: absolute
-    top: 0
-    left: 0
-    width: 100%
-  &.scale-viewport
-    .rdp-scroll-wrapper canvas
-      width: 100% !important
-      height: 100% !important
-      object-fit: contain
-  > div
-    background: transparent !important
+  .vnc-session-mount
+    // noVNC mounts its own screen element in here and sizes its canvas
+    // against this box, so it has to keep a definite size
+    width 100%
+    height 100%
+    // noVNC's screen element carries no class of its own: letterbox area
+    // follows the app theme instead of noVNC's own background
+    > div
+      background transparent !important
+      // scrolled when fit is off and the remote screen is bigger than
+      // the window
+      &::-webkit-scrollbar
+        width 16px
+        height 16px
+        background var(--main-darker)
+      &::-webkit-scrollbar-track
+        background var(--main-darker)
+        box-shadow inset 0 0 5px var(--main-darker)
+      &::-webkit-scrollbar-thumb
+        background var(--primary)
+        border-radius 0
+      &::-webkit-scrollbar-corner
+        background var(--main-darker)
