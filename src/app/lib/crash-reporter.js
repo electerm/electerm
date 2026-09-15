@@ -1,15 +1,11 @@
 /**
  * Crash / process-gone reporter
- * Logs dead child / render processes and prints actionable hints
- * (GPU flags vs missing system fonts) to stderr.
+ * Logs dead child / render processes and prints actionable hints (GPU flags)
+ * to stderr.
  */
 
 const { app } = require('electron')
 const log = require('../common/log')
-
-// exit code 133 = 128 + SIGTRAP(5), which is how Chromium's SK_ABORT() dies.
-// On Linux we hit it inside Skia when not a single usable font can be resolved.
-const SIGTRAP_EXIT_CODE = 133
 
 // Chromium's Windows GPU crash status codes (0x80000003 STATUS_BREAKPOINT),
 // as Electron reports them to us (signed).
@@ -63,34 +59,6 @@ Example:
 ================================================================================
 `
 
-// Missing font suggestion message
-const FONT_ERROR_SUGGESTION = `
-================================================================================
-⚠️  Crash Caused By Unusable System Fonts (exit code ${SIGTRAP_EXIT_CODE} / SIGTRAP)
-================================================================================
-Chromium aborted inside Skia: SkFontMgr_FCI::onMatchFamilyStyleCharacter() is
-not implemented, and it is called as soon as Blink has to fall back for a glyph
-the current font does not have. In practice that means Chromium sees no usable
-font. The usual GPU workarounds (--no-sandbox, --disable-gpu) do NOT help here.
-
-Check:
-  fc-list | wc -l   (should list the installed fonts)
-  fc-match sans     (should resolve to a real font file)
-
-Both can look perfectly healthy while Chromium still sees nothing -- that is
-exactly what happens on the linux ppc64le build, where fontconfig works in a
-shell (thousands of fonts) but Blink resolves no font at all.
-
-Fix (Debian/Ubuntu):
-  sudo apt-get install -y fontconfig fonts-dejavu-core
-  sudo fc-cache -fv
-
-If it still crashes, make electerm use the web font it ships with instead of
-the system ones:
-  ELECTERM_SAFE_FONT=1 electerm
-================================================================================
-`
-
 // A dead process is not necessarily a GPU crash: a renderer can die for
 // dozens of reasons that have nothing to do with the GPU, so only print the
 // advice that actually matches what died and how.
@@ -109,9 +77,7 @@ const reportProcessGone = (label, details = {}) => {
     `${name ? ` name=${name}` : ''}`,
     details
   )
-  if (exitCode === SIGTRAP_EXIT_CODE) {
-    console.error(FONT_ERROR_SUGGESTION)
-  } else if (type === 'GPU' || GPU_EXIT_CODES.has(exitCode)) {
+  if (type === 'GPU' || GPU_EXIT_CODES.has(exitCode)) {
     console.error(GPU_ERROR_SUGGESTION)
   }
 }
@@ -199,8 +165,6 @@ module.exports = {
   setupCommandLineSwitches,
   reportProcessGone,
   describeExitCode,
-  SIGTRAP_EXIT_CODE,
   GPU_EXIT_CODES,
-  GPU_ERROR_SUGGESTION,
-  FONT_ERROR_SUGGESTION
+  GPU_ERROR_SUGGESTION
 }

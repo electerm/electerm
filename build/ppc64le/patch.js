@@ -15,7 +15,9 @@
  *
  * What it does, all of it additive and idempotent:
  *
- *   1. copies lib/font-conf-fix.js into <appDir>/lib/
+ *   1. copies lib/font-conf-fix.js into <appDir>/lib/, and lib/font-check.js
+ *      too -- the probe is ppc64le-only as well, so it lives here next to the
+ *      wrapper instead of in the electerm source tree
  *   2. appends a block to <appDir>/lib/font-check.js that installs the wrapper
  *      around resolveFontWorkaround -- it runs while that module is still
  *      loading, so create-window.js and create-app.js destructure the wrapped
@@ -26,7 +28,9 @@
  * Both blocks are appended past the end of the existing file, so a change
  * anywhere inside those files cannot break the patch. The symbols the blocks
  * rely on are checked though: better a failed build than a workaround that
- * silently does nothing.
+ * silently does nothing. For lib/font-check.js the check runs against the
+ * payload that is about to be copied in, so a broken payload is caught before
+ * anything is written.
  */
 
 const fs = require('fs')
@@ -35,6 +39,15 @@ const { join, resolve } = require('path')
 const DEFAULT_APP_DIR = resolve(__dirname, '../../work/app')
 const FIX_SOURCE = join(__dirname, 'lib', 'font-conf-fix.js')
 const FIX_TARGET = 'lib/font-conf-fix.js'
+const FONT_CHECK_SOURCE = join(__dirname, 'lib', 'font-check.js')
+const FONT_CHECK_TARGET = 'lib/font-check.js'
+
+// Files the patch owns: copied into the app tree, never patched in place
+// unless a BLOCK below targets them.
+const EXPORTS = [
+  { source: FIX_SOURCE, target: FIX_TARGET },
+  { source: FONT_CHECK_SOURCE, target: FONT_CHECK_TARGET }
+]
 
 const BEGIN = '// >>> electerm ppc64le font workaround (build/ppc64le/patch.js)'
 const END = '// <<< electerm ppc64le font workaround'
@@ -89,34 +102,57 @@ function fail (msg) {
   process.exit(1)
 }
 
-function assertFixSource () {
-  if (!fs.existsSync(FIX_SOURCE)) {
-    fail(`missing ${FIX_SOURCE}`)
+function assertSources () {
+  for (const e of EXPORTS) {
+    if (!fs.existsSync(e.source)) {
+      fail(`missing ${e.source}`)
+    }
+  }
+}
+
+const providedBy = file => EXPORTS.find(e => e.target === file)
+
+function readTarget (appDir, file) {
+  try {
+    return fs.readFileSync(join(appDir, file), 'utf8')
+  } catch (err) {
+    fail(`cannot read ${join(appDir, file)} -- is ${appDir} an app tree?`)
   }
 }
 
 function apply (appDir) {
-  assertFixSource()
+  assertSources()
   // Read and validate everything before writing anything, so a missing file or
-  // a renamed symbol can never leave the tree half patched.
-  const sources = new Map()
+  // a renamed symbol can never leave the tree half patched. A block target the
+  // patch provides is not in the tree yet, so validate the payload instead --
+  // it is what will be copied in.
   for (const block of BLOCKS) {
-    const file = join(appDir, block.file)
-    let src
-    try {
-      src = fs.readFileSync(file, 'utf8')
-    } catch (err) {
-      fail(`cannot read ${file} -- is ${appDir} an app tree?`)
-    }
+    const provided = providedBy(block.file)
+    const src = provided
+      ? fs.readFileSync(provided.source, 'utf8')
+      : readTarget(appDir, block.file)
     for (const [re, name] of block.expect) {
       if (!re.test(src)) {
         fail(`${block.file} has no ${name} any more; update build/ppc64le/patch.js`)
       }
     }
-    sources.set(block, src)
+  }
+  for (const e of EXPORTS) {
+    const target = join(appDir, e.target)
+    // Never overwrite a copy that already carries the block: apply is
+    // idempotent, and a fresh copy would silently drop the appended wrapper.
+    if (providedBy(e.target) && fs.existsSync(target) &&
+      fs.readFileSync(target, 'utf8').includes(BEGIN)) {
+      log(`already applied: ${e.target}`)
+      continue
+    }
+    fs.copyFileSync(e.source, target)
+    log(`copied: ${e.target}`)
   }
   for (const block of BLOCKS) {
-    const src = sources.get(block)
+    // Read back what is on disk now: a provided target holds the fresh copy,
+    // an in-tree one is the file that was just validated.
+    const src = readTarget(appDir, block.file)
     if (src.includes(BEGIN)) {
       log(`already applied: ${block.file}`)
       continue
@@ -124,8 +160,6 @@ function apply (appDir) {
     fs.writeFileSync(join(appDir, block.file), src + '\n' + block.body)
     log(`patched: ${block.file}`)
   }
-  fs.copyFileSync(FIX_SOURCE, join(appDir, FIX_TARGET))
-  log(`copied: ${FIX_TARGET}`)
 }
 
 function revert (appDir) {
@@ -150,10 +184,12 @@ function revert (appDir) {
     fs.writeFileSync(file, src.slice(0, i))
     log(`restored: ${block.file}`)
   }
-  const target = join(appDir, FIX_TARGET)
-  if (fs.existsSync(target)) {
-    fs.unlinkSync(target)
-    log(`removed: ${FIX_TARGET}`)
+  for (const e of EXPORTS) {
+    const target = join(appDir, e.target)
+    if (fs.existsSync(target)) {
+      fs.unlinkSync(target)
+      log(`removed: ${e.target}`)
+    }
   }
 }
 

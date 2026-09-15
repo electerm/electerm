@@ -82,9 +82,15 @@ describe('workspace', function () {
     expect(workspaceItems).greaterThan(0)
 
     // Test 13: Verify workspace name is displayed
+    // The saved list lives in the profile, so a run can find workspaces saved
+    // by an earlier one: check the name we just saved is in the list rather
+    // than that it is the first item (which any leftover would push down).
     log('Test 13: Verifying workspace name displayed')
-    const displayedName = await client.getText('.workspace-name')
-    expect(displayedName).includes('Test Workspace')
+    const displayedNames = await client.evaluate(() => {
+      return Array.from(document.querySelectorAll('.workspace-name'))
+        .map(el => el.textContent)
+    })
+    expect(displayedNames.some(name => name.includes('Test Workspace'))).equal(true)
 
     // Test 14: Change layout then load workspace to restore
     log('Test 14: Testing workspace load')
@@ -100,8 +106,9 @@ describe('workspace', function () {
     await client.click('.layout-workspace-dropdown .ant-tabs-tab:has-text("Workspaces")')
     await delay(300)
 
-    // Now load the workspace by clicking on it
-    await client.click('.workspace-item')
+    // Now load the workspace we saved, by name: the first item is not
+    // necessarily ours when the profile already holds other workspaces.
+    await client.click(`.workspace-item:has-text("${workspaceName}")`)
     await delay(500)
 
     // Test 15: Delete workspace
@@ -115,16 +122,19 @@ describe('workspace', function () {
     // Click delete icon
     const deleteIcon = await client.countElem('.workspace-delete-icon')
     if (deleteIcon > 0) {
-      await client.click('.workspace-delete-icon')
+      await client.click(`.workspace-item:has-text("${workspaceName}") .workspace-delete-icon`)
       await delay(300)
 
       // Confirm delete
       await client.click('.ant-popconfirm .ant-btn-primary')
       await delay(500)
 
-      // Verify workspace deleted
-      const remainingWorkspaces = await client.countElem('.workspace-item')
-      expect(remainingWorkspaces).equal(0)
+      // Verify the workspace we created is gone
+      const remainingNames = await client.evaluate(() => {
+        return Array.from(document.querySelectorAll('.workspace-name'))
+          .map(el => el.textContent)
+      })
+      expect(remainingNames.some(name => name.includes(workspaceName))).equal(false)
     }
 
     await electronApp.close().catch(console.log)
