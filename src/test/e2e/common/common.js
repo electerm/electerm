@@ -365,6 +365,36 @@ async function setupSshConnection (client, options = {}) {
 }
 
 /**
+ * Waits until an SFTP panel actually shows a path, which means its session is
+ * connected and the first listing has been loaded. Returns true when ready,
+ * false on timeout (resetSftpPath then reports the real panel state).
+ *
+ * The sftp session is opened asynchronously once the ssh session is up, so a
+ * fixed delay is not enough on a slow runner.
+ *
+ * @param {Object} client - The Playwright client
+ * @param {String} type - 'local' or 'remote'
+ * @param {Number} timeout - max wait in ms
+ */
+async function waitForSftpPanelReady (client, type, timeout = 25000) {
+  const inputSel = `.session-current .sftp-${type}-section .sftp-title-wrap input`
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    const val = await client
+      .locator(inputSel)
+      .first()
+      .inputValue()
+      .catch(() => '')
+    if (val) {
+      return true
+    }
+    await delay(500)
+  }
+  log(`waitForSftpPanelReady: ${type} panel showed no path in ${timeout}ms`)
+  return false
+}
+
+/**
  * Sets up SFTP connection for testing (SSH form + SFTP tab)
  *
  * @param {Object} client - The Playwright client
@@ -373,7 +403,11 @@ async function setupSftpConnection (client) {
   await setupSshConnection(client)
   // Click sftp tab
   await client.click('.session-current .term-sftp-tabs .type-tab', 1)
-  await delay(2500)
+  // Wait for both panels to really be up before touching them: their home
+  // button navigates from the current path, so clicking it while a session is
+  // still connecting has nothing to resolve.
+  await waitForSftpPanelReady(client, 'remote', 30000)
+  await waitForSftpPanelReady(client, 'local', 20000)
   // Reset both panels to their session homes. The app remembers the last
   // visited SFTP paths per host in the shared profile, so without this a
   // test can start in a read-only folder (e.g. /home or /Users) left behind
@@ -428,6 +462,14 @@ async function resetSftpPath (client, type, timeout = 25000) {
     if (await atHome()) {
       await delay(2500)
       return
+    }
+    // A vanished session view means the renderer crashed (the app shows its
+    // error boundary). Report that instead of waiting out the whole timeout.
+    if (await client.locator('.session-current').count() === 0) {
+      await diagnose(client, `reset-path-${type}`)
+      throw new Error(
+        `resetSftpPath failed: session view is gone (renderer crash) while resetting ${type} panel`
+      )
     }
     // Fallback for homes without the marker file (e.g. minimal CI test
     // accounts): the home click navigates to the session home by definition,

@@ -293,9 +293,27 @@ export default class Sftp extends Component {
       if (!path && this.sftp) {
         path = await this.getPwd(this.props.tab.username)
       }
+      if (!path) {
+        // No sftp connection yet (still connecting, or the previous attempt
+        // failed). There is no remote home to resolve, and navigating to an
+        // unknown path would blank the panel, so (re)start the connection and
+        // let its own listing decide the path.
+        if (
+          !this.sftp &&
+          !this.state.loadingSftp &&
+          !this.state.remoteLoading
+        ) {
+          this.initData(this.terminalId, this.port)
+        }
+        return
+      }
       path = normalizeRemotePath(path)
     } else {
       path = this.getLocalHome()
+    }
+
+    if (typeof path !== 'string' || !path) {
+      return
     }
 
     this.setState({
@@ -1033,6 +1051,9 @@ export default class Sftp extends Component {
   goParent = (type) => {
     const n = `${type}Path`
     const p = this.state[n]
+    if (typeof p !== 'string' || !p) {
+      return
+    }
     let np = resolve(p, '..')
     if (type === typeMap.remote) {
       np = normalizeRemotePath(np)
@@ -1136,6 +1157,11 @@ export default class Sftp extends Component {
 
   renderParentItem = (type) => {
     const currentPath = this.state[`${type}Path`]
+    // The path can be momentarily unknown (e.g. the remote home while the sftp
+    // client is still connecting). Show no parent item rather than throwing.
+    if (typeof currentPath !== 'string') {
+      return null
+    }
     const parentPath = resolve(currentPath, '..')
     // Don't render parent item if we're at the root
     if (parentPath === currentPath) {
