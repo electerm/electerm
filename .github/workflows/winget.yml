@@ -6,17 +6,54 @@ on:
     branches: [test-winget]
 jobs:
   publish:
-    if: github.event_name == 'release'
+    # Allow real releases plus manual verification via pushes to test-winget.
+    # NOTE: previously `if: github.event_name == 'release'` made pushes to
+    # test-winget a no-op, so sync problems could not be tested.
+    if: github.event_name == 'release' || github.ref == 'refs/heads/test-winget'
     runs-on: ubuntu-24.04
     environment: build
     steps:
       - name: Sync winget-pkgs fork with upstream
-        run: gh api -X POST repos/electerm/winget-pkgs/merge-upstream -f branch=master || echo "Fork already in sync or nothing to merge"
+        # WINGET_TOKEN must be a *classic* PAT with `public_repo` + `workflow`
+        # scopes (fine-grained PATs are not supported by winget-releaser).
+        # Without `workflow` scope, merge-upstream fails with 422 when upstream
+        # touches `.github/workflows/*`, and the later `komac sync-fork` fails
+        # with `does not have the correct permissions to execute UpdateRef`.
+        # Do NOT swallow that failure: fail fast here so the cause is obvious.
+        run: |
+          set -e
+          echo "Syncing electerm/winget-pkgs master with microsoft/winget-pkgs..."
+          set +e
+          OUTPUT=$(gh api -X POST repos/electerm/winget-pkgs/merge-upstream -f branch=master 2>&1)
+          CODE=$?
+          set -e
+          echo "$OUTPUT"
+          if [ $CODE -ne 0 ]; then
+            if echo "$OUTPUT" | grep -qi "already in sync\|nothing to merge\|no commits to merge"; then
+              echo "Fork already in sync."
+              exit 0
+            fi
+            if echo "$OUTPUT" | grep -qi "workflow.*scope"; then
+              echo "::error::Fork sync failed: WINGET_TOKEN lacks the 'workflow' scope. Recreate it as a classic PAT with 'public_repo' + 'workflow' scopes (fine-grained PATs are unsupported, see vedantmgoyal9/winget-releaser#172)."
+            else
+              echo "::error::Fork sync failed (exit $CODE). Fix sync before the PR step; komac sync-fork cannot succeed on a stale fork."
+            fi
+            exit $CODE
+          fi
         env:
           GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
+      - id: tag
+        name: Resolve release tag (push test runs have no release event)
+        if: github.event_name != 'release'
+        run: echo "tag=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
       - uses: vedantmgoyal9/winget-releaser@main
         with:
           identifier: electerm.electerm
           installers-regex: 'win-(x64|arm64)-installer\.exe$'
           max-versions-to-keep: 30
+          # On `release` events this resolves to the release tag; on
+          # test-winget pushes it resolves to the latest release tag above.
+          release-tag: ${{ github.event.release.tag_name || steps.tag.outputs.tag }}
           token: ${{ secrets.WINGET_TOKEN }}
