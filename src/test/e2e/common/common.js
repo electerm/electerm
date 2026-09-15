@@ -265,9 +265,24 @@ async function navigateToParentFolder (client, type, retries = 3) {
   const before = await readPath()
   for (let i = 0; i < retries; i++) {
     await client.doubleClick(`.session-current .file-list.${type} .parent-file-item`)
-    await delay(3000)
-    const after = await readPath()
-    if (before === null || after === null || after !== before) {
+    if (before === null) {
+      await delay(3000)
+      return
+    }
+    // Wait until the path input actually reflects the new directory instead
+    // of sampling it once after a fixed delay: on a slow CI run the listing
+    // refresh can outlive the delay, the stale read looked like "no
+    // navigation happened" and the retry double-clicked again, overshooting
+    // one directory too far (seen as a cleanup failing to find its folder).
+    const changed = await client.waitForFunction(
+      ([sel2, prev]) => {
+        const el = document.querySelector(sel2)
+        return !!el && el.value !== prev
+      },
+      [sel, before],
+      { timeout: 8000 }
+    ).then(() => true).catch(() => false)
+    if (changed) {
       return
     }
   }

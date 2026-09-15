@@ -17,9 +17,17 @@ const {
 } = require('../../../src/app/server/ssh-known-hosts')
 
 function createHostKey (label) {
-  const pair = generateKeyPairSync('ed25519')
-  const publicKey = `${pair.public} ${label}`.trim()
-  return Buffer.from(publicKey.split(/\s+/)[1], 'base64')
+  // @electerm/ssh2 keygen strips ALL leading zero bytes from the SPKI bit
+  // string, so a key whose first byte is 0x00 (1/256 of keys) comes out one
+  // byte short and parseKey then rejects it ("Unsupported key format") --
+  // seen once on CI. The OpenSSH wire blob is 51 bytes (4 + alg + 4 + 32);
+  // regenerate until keygen hands us an uncorrupted one.
+  let pub
+  do {
+    const pair = generateKeyPairSync('ed25519')
+    pub = Buffer.from(`${pair.public} ${label}`.trim().split(/\s+/)[1], 'base64')
+  } while (pub.length !== 51)
+  return pub
 }
 
 describe('ssh known_hosts verification', () => {
