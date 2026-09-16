@@ -1,5 +1,5 @@
 /**
- * Tests for npm/install.js and npm/utils.js
+ * Tests for build/npm/install.js and build/npm/utils.js
  * Tests platform detection, download patterns, extraction, and CLI launcher flow
  */
 
@@ -11,13 +11,14 @@ const {
   isWindows7OrEarlier,
   isMacOS10,
   isLinuxLegacy,
+  getDownloadTarget,
   sanitizeVersion,
   sanitizeFilename,
   getElectermExePath,
   isElectermExtracted,
   _packageRoot,
   _extractDir
-} = require('../../../npm/install')
+} = require('../../../build/npm/install')
 
 const {
   httpGet,
@@ -26,7 +27,7 @@ const {
   phin,
   applyProxy,
   formatBytes
-} = require('../../../npm/utils')
+} = require('../../../build/npm/utils')
 
 const plat = os.platform()
 
@@ -112,44 +113,17 @@ function testThrows (fn, expectedMessage) {
 }
 
 // ---------------------------------------------------------------------------
-// Download pattern helper (for testing)
+// Download pattern helper
 // ---------------------------------------------------------------------------
 
+// The real resolver from build/npm/install.js, so the table under test is the
+// one that actually runs. install.js picks an asset with `name.endsWith(filePattern)`.
 function getDownloadPattern (platform, architecture, options = {}) {
-  const { win7, mac10, linuxLegacy } = options
+  return getDownloadTarget(platform, architecture, options)
+}
 
-  if (platform === 'win32') {
-    if (win7) {
-      return { pattern: /electerm-\d+\.\d+\.\d+-win7\.tar\.gz$/, type: 'win7' }
-    } else if (architecture === 'arm64') {
-      return { pattern: /electerm-\d+\.\d+\.\d+-win-arm64\.tar\.gz$/, type: 'win-arm64' }
-    } else {
-      return { pattern: /electerm-\d+\.\d+\.\d+-win-x64\.tar\.gz$/, type: 'win-x64' }
-    }
-  } else if (platform === 'darwin') {
-    if (mac10) {
-      return { pattern: /mac10-x64\.dmg$/, type: 'mac10-x64' }
-    } else if (architecture === 'arm64') {
-      return { pattern: /mac-arm64\.dmg$/, type: 'mac-arm64' }
-    } else {
-      return { pattern: /mac-x64\.dmg$/, type: 'mac-x64' }
-    }
-  } else if (platform === 'linux') {
-    const suffix = linuxLegacy ? '-legacy' : ''
-    if (architecture === 'arm64' || architecture === 'aarch64') {
-      return { pattern: new RegExp(`linux-arm64${suffix}\\.tar\\.gz$`), type: `linux-arm64${suffix}` }
-    } else if (architecture === 'arm') {
-      return { pattern: new RegExp(`linux-armv7l${suffix}\\.tar\\.gz$`), type: `linux-armv7l${suffix}` }
-    } else if (architecture === 'loong64') {
-      return { pattern: new RegExp(`linux-loong64${suffix}\\.tar\\.gz$`), type: `linux-loong64${suffix}` }
-    } else if (architecture === 'riscv64') {
-      return { pattern: new RegExp(`linux-riscv64${suffix}\\.tar\\.gz$`), type: `linux-riscv64${suffix}` }
-    } else {
-      return { pattern: new RegExp(`linux-x64${suffix}\\.tar\\.gz$`), type: `linux-x64${suffix}` }
-    }
-  }
-
-  return { pattern: null, type: 'unsupported' }
+function matches (filePattern, name) {
+  return name.endsWith(filePattern)
 }
 
 // =============================================================================
@@ -268,9 +242,12 @@ const releaseFiles = [
   `electerm-${v}-linux-armv7l-legacy.tar.gz`,
   `electerm-${v}-linux-loong64.tar.gz`,
   `electerm-${v}-linux-loong64-legacy.tar.gz`,
+  `electerm-${v}-linux-ppc64le.tar.gz`,
   `electerm-${v}-linux-riscv64.tar.gz`,
   `electerm-${v}-linux-x64.tar.gz`,
   `electerm-${v}-linux-x64-legacy.tar.gz`,
+  `electerm-${v}-linux-ppc64el.deb`,
+  `electerm-${v}-linux-riscv64.deb`,
   `electerm-${v}-mac-arm64.dmg`,
   `electerm-${v}-mac-x64.dmg`,
   `electerm-${v}-mac10-x64.dmg`,
@@ -279,99 +256,67 @@ const releaseFiles = [
   `electerm-${v}-win7.tar.gz`
 ]
 
-test('pattern: win-x64 matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('win32', 'x64', {})
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-win-x64.tar.gz`])
+// every case: platform, arch, options, the single asset it must resolve to
+const patternCases = [
+  ['win32', 'x64', {}, `electerm-${v}-win-x64.tar.gz`],
+  ['win32', 'ia32', {}, `electerm-${v}-win-x64.tar.gz`],
+  ['win32', 'arm64', {}, `electerm-${v}-win-arm64.tar.gz`],
+  ['win32', 'x64', { win7: true }, `electerm-${v}-win7.tar.gz`],
+  ['darwin', 'x64', {}, `electerm-${v}-mac-x64.dmg`],
+  ['darwin', 'arm64', {}, `electerm-${v}-mac-arm64.dmg`],
+  ['darwin', 'x64', { mac10: true }, `electerm-${v}-mac10-x64.dmg`],
+  ['linux', 'x64', {}, `electerm-${v}-linux-x64.tar.gz`],
+  ['linux', 'x64', { legacy: true }, `electerm-${v}-linux-x64-legacy.tar.gz`],
+  ['linux', 'arm64', {}, `electerm-${v}-linux-arm64.tar.gz`],
+  ['linux', 'aarch64', {}, `electerm-${v}-linux-arm64.tar.gz`],
+  ['linux', 'arm64', { legacy: true }, `electerm-${v}-linux-arm64-legacy.tar.gz`],
+  ['linux', 'arm', {}, `electerm-${v}-linux-armv7l.tar.gz`],
+  ['linux', 'arm', { legacy: true }, `electerm-${v}-linux-armv7l-legacy.tar.gz`],
+  ['linux', 'loong64', {}, `electerm-${v}-linux-loong64.tar.gz`],
+  ['linux', 'loong64', { legacy: true }, `electerm-${v}-linux-loong64-legacy.tar.gz`],
+  ['linux', 'riscv64', {}, `electerm-${v}-linux-riscv64.tar.gz`],
+  ['linux', 'ppc64le', {}, `electerm-${v}-linux-ppc64le.tar.gz`],
+  ['linux', 'ppc64', {}, `electerm-${v}-linux-ppc64le.tar.gz`]
+]
+
+for (const [platform, architecture, options, expected] of patternCases) {
+  test(`pattern: ${architecture}${options.legacy ? '-legacy' : ''} on ${platform} matches exactly one file`, () => {
+    const shortName = expected.replace(`electerm-${v}-`, '')
+    const expectedType = shortName.replace(/\.tar\.gz$/, '').replace(/\.dmg$/, '')
+    const { type, filePattern } = getDownloadPattern(platform, architecture, options)
+    expect(type).toBe(expectedType)
+    expect(filePattern).toBe(shortName)
+    expect(releaseFiles.filter(f => matches(filePattern, f))).toEqual([expected])
+  })
+}
+
+// riscv64/ppc64le publish no -legacy asset: asking for one used to fail with
+// "No release found for pattern", now we keep the standard build and warn.
+for (const architecture of ['riscv64', 'ppc64le', 'ppc64']) {
+  test(`pattern: ${architecture} on old glibc keeps the standard build`, () => {
+    const { type, filePattern, legacyUnavailable } =
+      getDownloadPattern('linux', architecture, { legacy: true })
+    expect(type).toBe(`linux-${architecture === 'riscv64' ? 'riscv64' : 'ppc64le'}`)
+    expect(legacyUnavailable).toBe(true)
+    expect(releaseFiles.filter(f => matches(filePattern, f)).length).toBe(1)
+  })
+}
+
+test('pattern: ppc64 big endian is unsupported', () => {
+  const { type } = getDownloadPattern('linux', 'ppc64', {
+    legacy: false,
+    endianness: 'BE'
+  })
+  expect(type).toBe('unsupported')
 })
 
-test('pattern: win-arm64 matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('win32', 'arm64', {})
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-win-arm64.tar.gz`])
+test('pattern: unsupported platform returns unsupported', () => {
+  const { type } = getDownloadPattern('freebsd', 'x64', {})
+  expect(type).toBe('unsupported')
 })
 
-test('pattern: win7 matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('win32', 'x64', { win7: true })
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-win7.tar.gz`])
-})
-
-test('pattern: mac-x64 matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('darwin', 'x64', {})
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-mac-x64.dmg`])
-})
-
-test('pattern: mac-arm64 matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('darwin', 'arm64', {})
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-mac-arm64.dmg`])
-})
-
-test('pattern: mac10-x64 matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('darwin', 'x64', { mac10: true })
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-mac10-x64.dmg`])
-})
-
-test('pattern: linux-x64 matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('linux', 'x64', {})
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-linux-x64.tar.gz`])
-})
-
-test('pattern: linux-x64-legacy matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('linux', 'x64', { linuxLegacy: true })
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-linux-x64-legacy.tar.gz`])
-})
-
-test('pattern: linux-arm64 matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('linux', 'arm64', {})
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-linux-arm64.tar.gz`])
-})
-
-test('pattern: linux-arm64-legacy matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('linux', 'arm64', { linuxLegacy: true })
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-linux-arm64-legacy.tar.gz`])
-})
-
-test('pattern: linux-armv7l matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('linux', 'arm', {})
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-linux-armv7l.tar.gz`])
-})
-
-test('pattern: linux-armv7l-legacy matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('linux', 'arm', { linuxLegacy: true })
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-linux-armv7l-legacy.tar.gz`])
-})
-
-test('pattern: linux-loong64 matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('linux', 'loong64', {})
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-linux-loong64.tar.gz`])
-})
-
-test('pattern: linux-loong64-legacy matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('linux', 'loong64', { linuxLegacy: true })
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-linux-loong64-legacy.tar.gz`])
-})
-
-test('pattern: linux-riscv64 matches exactly one file', () => {
-  const { pattern } = getDownloadPattern('linux', 'riscv64', {})
-  const matches = releaseFiles.filter(f => pattern.test(f))
-  expect(matches).toEqual([`electerm-${v}-linux-riscv64.tar.gz`])
-})
-
-test('pattern: unsupported platform returns null pattern', () => {
-  const { pattern, type } = getDownloadPattern('freebsd', 'x64', {})
-  expect(pattern).toBe(null)
+test('pattern: unsupported linux arch is not silently x64', () => {
+  const { type } = getDownloadPattern('linux', 's390x', {})
   expect(type).toBe('unsupported')
 })
 
@@ -526,7 +471,7 @@ test('install flow: no infinite recursion', () => {
   // install.js does NOT call exec('electerm')
   // It only downloads and extracts
   // The node launcher then spawns the extracted binary directly
-  const installExports = require('../../../npm/install')
+  const installExports = require('../../../build/npm/install')
   expect(typeof installExports.isElectermExtracted).toBe('function')
   expect(typeof installExports.getElectermExePath).toBe('function')
 })

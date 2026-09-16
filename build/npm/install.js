@@ -17,7 +17,28 @@ const { phin, download, extractTarGz, GITHUB_PROXY, applyProxy } = require('./ut
 
 const plat = os.platform()
 const arch = os.arch()
-const { homepage } = require('../package.json')
+
+/**
+ * In the published package this file is at <pkg>/npm/install.js so the manifest
+ * is one level up. In a repo checkout it is at build/npm/install.js and the
+ * manifest is two levels up. Look in both so the installer can be required
+ * (and tested) straight from the repo.
+ */
+function readHomepage () {
+  for (const p of ['../package.json', '../../package.json']) {
+    try {
+      const { homepage } = require(p)
+      if (homepage) {
+        return homepage
+      }
+    } catch (e) {
+      // not here, try the next location
+    }
+  }
+  return 'https://electerm.org'
+}
+
+const homepage = readHomepage()
 
 const releaseInfoUrl = `${homepage}/data/electerm-github-release.json?_=${+new Date()}`
 const versionUrl = `${homepage}/version.html?_=${+new Date()}`
@@ -121,6 +142,111 @@ function isLinuxLegacy (platform) {
 }
 
 // ---------------------------------------------------------------------------
+// Architecture -> release asset resolution
+// ---------------------------------------------------------------------------
+
+// Every Linux release asset we can install, keyed by `os.arch()`.
+//
+// `legacy: true` means a `-legacy` variant (glibc 2.17+) is published as well.
+// riscv64 and ppc64le have no legacy variant on purpose: the Electron runtime
+// for those architectures is only published built against a newer glibc, so
+// there is nothing to fall back to and the legacy flag must be ignored there
+// instead of producing a `linux-riscv64-legacy.tar.gz` that does not exist.
+//
+// `ia32` (32-bit node on a 64-bit host) maps to x64 on purpose: the kernel runs
+// the 64-bit build fine, and electron has no 32-bit build any more.
+const LINUX_TARGETS = {
+  x64: { name: 'linux-x64', legacy: true },
+  ia32: { name: 'linux-x64', legacy: true },
+  arm64: { name: 'linux-arm64', legacy: true },
+  aarch64: { name: 'linux-arm64', legacy: true },
+  arm: { name: 'linux-armv7l', legacy: true },
+  armv7l: { name: 'linux-armv7l', legacy: true },
+  loong64: { name: 'linux-loong64', legacy: true },
+  riscv64: { name: 'linux-riscv64', legacy: false },
+  ppc64le: { name: 'linux-ppc64le', legacy: false },
+  // node reports `ppc64` for both endiannesses, we only publish little endian
+  ppc64: { name: 'linux-ppc64le', legacy: false, littleEndianOnly: true }
+}
+
+const SUPPORTED_LINUX_ARCHES = Object.keys(LINUX_TARGETS).sort().join(', ')
+
+/**
+ * Resolve the release asset to install for the running platform/arch.
+ *
+ * @param {string} platform - os.platform()
+ * @param {string} arch - os.arch()
+ * @param {object} options
+ * @param {boolean} options.win7 - Windows 7 or earlier detected
+ * @param {boolean} options.mac10 - macOS 10.x detected
+ * @param {boolean} options.legacy - Linux with glibc < 2.34 detected
+ * @param {string} options.endianness - os.endianness(), only used for ppc64
+ * @returns {{type: string, filePattern: string, legacyUnavailable?: boolean}|{type: 'unsupported', reason: string}}
+ */
+function getDownloadTarget (platform, arch, options = {}) {
+  const {
+    win7,
+    mac10,
+    legacy,
+    endianness = os.endianness()
+  } = options
+
+  if (platform === 'win32') {
+    if (win7) {
+      return { type: 'win7', filePattern: 'win7.tar.gz' }
+    }
+    if (arch === 'arm64') {
+      return { type: 'win-arm64', filePattern: 'win-arm64.tar.gz' }
+    }
+    if (arch === 'x64' || arch === 'ia32') {
+      return { type: 'win-x64', filePattern: 'win-x64.tar.gz' }
+    }
+    return { type: 'unsupported', reason: `Windows on "${arch}" is not supported` }
+  }
+
+  if (platform === 'darwin') {
+    if (mac10) {
+      return { type: 'mac10-x64', filePattern: 'mac10-x64.dmg' }
+    }
+    if (arch === 'arm64') {
+      return { type: 'mac-arm64', filePattern: 'mac-arm64.dmg' }
+    }
+    if (arch === 'x64' || arch === 'ia32') {
+      return { type: 'mac-x64', filePattern: 'mac-x64.dmg' }
+    }
+    return { type: 'unsupported', reason: `macOS on "${arch}" is not supported` }
+  }
+
+  if (platform === 'linux') {
+    const entry = LINUX_TARGETS[arch]
+    if (!entry) {
+      return {
+        type: 'unsupported',
+        reason: `Linux architecture "${arch}" is not supported (supported: ${SUPPORTED_LINUX_ARCHES})`
+      }
+    }
+    if (entry.littleEndianOnly && endianness === 'BE') {
+      return {
+        type: 'unsupported',
+        reason: `Linux ${arch} big-endian is not supported, only little-endian (ppc64le) builds are published`
+      }
+    }
+    const useLegacy = !!legacy && entry.legacy
+    const type = useLegacy ? `${entry.name}-legacy` : entry.name
+    const result = {
+      type,
+      filePattern: `${type}.tar.gz`
+    }
+    if (legacy && !entry.legacy) {
+      result.legacyUnavailable = true
+    }
+    return result
+  }
+
+  return { type: 'unsupported', reason: `Platform "${platform}" is not supported` }
+}
+
+// ---------------------------------------------------------------------------
 // Launch the extracted binary
 // ---------------------------------------------------------------------------
 
@@ -160,7 +286,7 @@ async function runLinux (folderName, filePattern) {
   rm('-rf', [target, extractDir])
 
   console.log('  Fetching release info...')
-  const releaseInfo = await getReleaseInfo(r => r.name.includes(filePattern))
+  const releaseInfo = await getReleaseInfo(r => r.name.endsWith(filePattern))
   if (!releaseInfo) {
     throw new Error(`No release found for pattern: ${filePattern}`)
   }
@@ -471,7 +597,7 @@ async function main () {
   console.log('========================================')
   console.log('electerm binary installer')
   console.log('========================================')
-  console.log(`Platform: ${plat}, Architecture: ${arch}`)
+  console.log(`Platform: ${plat}, Architecture: ${arch}${os.endianness() === 'BE' ? ' (big-endian)' : ''}`)
 
   if (GITHUB_PROXY) {
     console.log(`GitHub Proxy: ${GITHUB_PROXY}`)
@@ -491,10 +617,24 @@ async function main () {
   console.log('  Fetching release information...')
 
   try {
+    const target = getDownloadTarget(plat, arch, {
+      win7,
+      mac10,
+      legacy: linuxLegacy
+    })
+
+    if (target.type === 'unsupported') {
+      throw new Error(target.reason)
+    }
+
+    if (target.legacyUnavailable) {
+      console.log(`  Note: no -legacy build is published for ${arch}, installing the standard build`)
+    }
+
     if (plat === 'win32') {
       if (win7) {
         await runWin7()
-      } else if (arch === 'arm64') {
+      } else if (target.type === 'win-arm64') {
         await runWin('arm64')
       } else {
         await runWin('x64')
@@ -502,26 +642,13 @@ async function main () {
     } else if (plat === 'darwin') {
       if (mac10) {
         await runMac10()
-      } else if (arch === 'arm64') {
+      } else if (target.type === 'mac-arm64') {
         await runMac('arm64')
       } else {
         await runMac('x64')
       }
-    } else if (plat === 'linux') {
-      const suffix = linuxLegacy ? '-legacy' : ''
-      if (arch === 'arm64' || arch === 'aarch64') {
-        await runLinux(`linux-arm64${suffix}`, `linux-arm64${suffix}.tar.gz`)
-      } else if (arch === 'arm') {
-        await runLinux(`linux-armv7l${suffix}`, `linux-armv7l${suffix}.tar.gz`)
-      } else if (arch.includes('loong')) {
-        await runLinux(`linux-loong64${suffix}`, `linux-loong64${suffix}.tar.gz`)
-      } else if (arch === 'riscv64' || arch.includes('riscv')) {
-        await runLinux(`linux-riscv64${suffix}`, `linux-riscv64${suffix}.tar.gz`)
-      } else {
-        await runLinux(`linux-x64${suffix}`, `linux-x64${suffix}.tar.gz`)
-      }
     } else {
-      throw new Error(`Platform "${plat}" is not supported.`)
+      await runLinux(target.type, target.filePattern)
     }
   } catch (err) {
     console.error('')
@@ -546,10 +673,12 @@ module.exports = {
   isWindows7OrEarlier,
   isMacOS10,
   isLinuxLegacy,
+  getDownloadTarget,
   sanitizeVersion,
   sanitizeFilename,
   getElectermExePath,
   isElectermExtracted,
+  LINUX_TARGETS,
   // Expose for test injection
   _packageRoot: packageRoot,
   _extractDir: extractDir
