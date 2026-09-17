@@ -101,9 +101,12 @@ const defaultThemeDarkTerminal = () => {
   }
 }
 
+export const defaultThemeId = 'default'
+export const defaultThemeLightId = 'defaultLight'
+
 export function defaultTheme () {
   return {
-    id: 'default',
+    id: defaultThemeId,
     name: 'default',
     themeConfig: defaultThemeDarkTerminal(),
     uiThemeConfig: defaultThemeDark()
@@ -112,7 +115,7 @@ export function defaultTheme () {
 
 export function defaultThemeLight () {
   return {
-    id: 'defaultLight',
+    id: defaultThemeLightId,
     name: 'default light',
     themeConfig: defaultThemeLightTerminal(),
     uiThemeConfig: defaultThemeLightFunc()

@@ -2,6 +2,12 @@
  * database default should init
  */
 
+const { getDefaultLocalBookmarks } = require('./default-local-bookmarks')
+const {
+  getDefaultQuickCommands,
+  getDefaultCmdHistory
+} = require('./default-quick-commands')
+
 function parsor (themeTxt) {
   return themeTxt.split('\n').reduce((prev, line) => {
     let [key = '', value = ''] = line.split('=')
@@ -91,6 +97,10 @@ const defaultThemeTerminal = {
   brightWhite: '#E6E6E6'
 }
 
+const defaultBookmarks = getDefaultLocalBookmarks()
+
+// order matters: v1.7.0 migration and its tests read the terminalThemes entry
+// as the first one
 module.exports = exports.default = [
   {
     db: 'terminalThemes',
@@ -115,10 +125,24 @@ module.exports = exports.default = [
       {
         _id: 'default',
         title: 'default',
-        bookmarkIds: [],
+        bookmarkIds: defaultBookmarks.map(d => d._id),
         bookmarkGroupIds: [],
         color: '#0088cc'
       }
     ]
+  },
+  {
+    db: 'bookmarks',
+    data: defaultBookmarks
+  },
+  {
+    db: 'quickCommands',
+    data: getDefaultQuickCommands()
+  },
+  {
+    // same commands as above, so they are also discoverable (and runnable)
+    // from the terminal command history popover
+    db: 'terminalCommandHistory',
+    data: getDefaultCmdHistory()
   }
 ]

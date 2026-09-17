@@ -108,6 +108,9 @@ describe('migrate/upgrade version file parsing', () => {
       'nedb-instance.js',
       'version-upgrade.js',
       'db-defaults.js',
+      'detect-shells.js',
+      'default-local-bookmarks.js',
+      'default-quick-commands.js',
       'v1.7.0',
       'v1.7.0.json',
       '.DS_Store'

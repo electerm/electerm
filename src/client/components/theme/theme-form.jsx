@@ -14,7 +14,7 @@ import {
   validThemeProps,
   requiredThemeProps
 } from '../../common/terminal-theme'
-import { defaultTheme, defaultThemeLight } from '../../common/theme-defaults'
+import { defaultThemeId, defaultThemeLightId } from '../../common/theme-defaults'
 import generate from '../../common/uid'
 import { isAIDisabled } from '../../common/ai-feature'
 import Link from '../common/external-link'
@@ -272,7 +272,7 @@ export default function ThemeForm (props) {
     themeName,
     themeText: convertThemeToText(props.formData)
   }
-  const isDefaultTheme = id === defaultTheme().id || id === defaultThemeLight().id
+  const isDefaultTheme = id === defaultThemeId || id === defaultThemeLightId
   const disabled = readonly || isDefaultTheme
   const pickerProps = {
     onChange: onPickerChange,
