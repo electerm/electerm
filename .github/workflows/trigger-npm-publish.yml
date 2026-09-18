@@ -1,0 +1,51 @@
+name: trigger-npm-publish
+
+# The npm package itself now lives in electerm/electerm-npm (the installer plus
+# its publish workflow). This workflow only tells that repo which version to
+# publish — it needs a PAT, because the default GITHUB_TOKEN cannot trigger
+# workflows in another repository.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish, x.y.z (default: version in package.json)'
+        required: false
+        type: string
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    environment: build
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip npm]') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: ver
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          set -eu
+          raw="${INPUT_VERSION:-$TAG_NAME}"
+          if [ -z "$raw" ]; then
+            raw="$(node -p "require('./package.json').version")"
+          fi
+          ver="${raw#v}"
+          if ! printf '%s' "$ver" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Not an x.y.z version: '$raw'"
+            exit 1
+          fi
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          echo "Triggering electerm-npm publish for $ver"
+
+      - name: Trigger electerm/electerm-npm publish
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.PAT_REPO_TOKEN }}
+          repository: electerm/electerm-npm
+          event-type: electerm-release
+          client-payload: '{"version":"${{ steps.ver.outputs.version }}"}'

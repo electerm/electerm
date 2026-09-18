@@ -3,7 +3,6 @@
   "version": "5.5.16",
   "description": "Terminal/ssh/telnet/serialport/sftp client(linux, mac, win)",
   "main": "app.js",
-  "bin": "npm/electerm",
   "scripts": {
     "app": "node build/bin/app",
     "build": "npm run vite-build",
@@ -12,7 +11,6 @@
     "clean": "node build/bin/clean",
     "compile": "node build/bin/build",
     "vite-build": "node build/bin/vite-build.js",
-    "postpublish": "node build/bin/postpublish",
     "prepare-file": "node build/bin/prepare",
     "pb": "node build/bin/prepare-electron-build.js",
     "prepare-test": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -E playwright@1.49.1 --no-save && npm i -E @playwright/test@1.49.1 --no-save",
@@ -55,7 +53,6 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "preferGlobal": true,
   "devDependencies": {
     "@ant-design/icons": "6.2.5",
     "@electerm/electerm-resource": "2.2.1",
@@ -154,11 +151,6 @@
       }
     }
   },
-  "files": [
-    "npm",
-    "README.md",
-    "LICENSE"
-  ],
   "standard": {
     "sourceType": "module",
     "ignore": [
