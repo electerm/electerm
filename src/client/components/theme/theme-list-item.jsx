@@ -2,13 +2,13 @@
  * theme list render
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   CheckCircleOutlined,
+  CloseOutlined,
   PlusOutlined,
   SunOutlined,
-  MoonOutlined,
-  EyeOutlined
+  MoonOutlined
 } from '@ant-design/icons'
 import { Tag, Tooltip, Button, Space } from 'antd'
 import classnames from 'classnames'
@@ -30,34 +30,61 @@ export default function ThemeListItem (props) {
   const [tooltipVisible, setTooltipVisible] = useState(false)
   const [isPreviewing, setIsPreviewing] = useState(false)
 
-  function handleClickApply () {
-    setTooltipVisible(false)
-    setIsPreviewing(false)
-    delete window.originalTheme
-    store.setTheme(item.id)
-  }
-
-  function handleClickPreview () {
-    if (!isPreviewing) {
-      // Store current theme ID before changing
-      const currentTheme = window.store.config.theme
-      window.originalTheme = currentTheme
-      // Apply the preview theme
-      store.setTheme(item.id)
-      setIsPreviewing(true)
+  function startPreview () {
+    // keep the very first original, hopping between themes must never
+    // overwrite it with a theme that is itself only a preview
+    if (!window.originalTheme) {
+      window.originalTheme = store.config.theme
     }
+    store.setTheme(item.id)
+    setIsPreviewing(true)
   }
 
-  function handleTooltipVisibleChange (visible) {
-    setTooltipVisible(visible)
-    if (!visible && isPreviewing) {
-      // Restore original theme when tooltip closes during preview
+  function cancelPreview () {
+    if (window.originalTheme) {
+      store.setTheme(window.originalTheme)
+      delete window.originalTheme
+    }
+    setIsPreviewing(false)
+  }
+
+  useEffect(() => {
+    return () => {
+      // leaving the list mid preview (switching settings tab, filtering the
+      // list, ...) must not leave the user stuck on a theme never applied
       if (window.originalTheme) {
         store.setTheme(window.originalTheme)
         delete window.originalTheme
       }
-      setIsPreviewing(false)
     }
+  }, [])
+
+  function handleClickApply () {
+    delete window.originalTheme
+    setIsPreviewing(false)
+    setTooltipVisible(false)
+    store.setTheme(item.id)
+  }
+
+  function handleClickCancel () {
+    cancelPreview()
+    setTooltipVisible(false)
+  }
+
+  function handleTooltipVisibleChange (visible) {
+    setTooltipVisible(visible)
+    // opening the popup is the preview itself; every other way of closing it
+    // (click elsewhere, esc, clicking the icon again) rolls the preview back
+    if (visible) {
+      startPreview()
+    } else {
+      cancelPreview()
+    }
+  }
+
+  function handleClickApplyIcon (e) {
+    // previewing must not also load the theme into the edit form
+    e.stopPropagation()
   }
 
   function renderTooltipContent () {
@@ -65,11 +92,10 @@ export default function ThemeListItem (props) {
       <Space.Compact>
         <Button
           size='small'
-          icon={<EyeOutlined />}
-          onClick={handleClickPreview}
-          type={isPreviewing ? 'primary' : 'default'}
+          icon={<CloseOutlined />}
+          onClick={handleClickCancel}
         >
-          {e('preview')}
+          {e('cancel')}
         </Button>
         <Button
           size='small'
@@ -96,7 +122,15 @@ export default function ThemeListItem (props) {
         placement='top'
       >
         <CheckCircleOutlined
-          className='pointer list-item-apply'
+          className={
+            classnames(
+              'pointer list-item-apply',
+              {
+                'list-item-apply-previewing': isPreviewing
+              }
+            )
+          }
+          onClick={handleClickApplyIcon}
         />
       </Tooltip>
     )
