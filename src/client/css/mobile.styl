@@ -11,6 +11,34 @@
   .remote-monitor-bar
     position fixed
 
+  // Side panels are full-screen drawers on mobile: they start at the viewport
+  // edge (the left one covers the icon bar too, so no strip of terminal is left
+  // showing) and run to the bottom edge — footer included. On desktop the
+  // footer is reserved *beside* the panel because it holds the panel's own
+  // trigger; on mobile the drawer is dismissed from its header (✕ / the
+  // bookmark/history tabs) instead, so there is nothing to keep clear. The
+  // inline width already comes from store.leftSidePanelWidth / rightPanelWidth,
+  // which are the viewport width here.
+  // Both are on the fixed frame (the right panel explicitly: its bottom edge
+  // must not drift from the fixed footer when the visual viewport changes), and
+  // both have to outrank the footer's 200 — it comes later in the DOM, so at an
+  // equal rank it would paint over the drawer. The left drawer lives inside
+  // .sidebar, which is its own stacking context (z-index 100), so lifting the
+  // drawer alone is not enough: the whole sidebar column has to clear the
+  // footer. The right panel is a root-level child, so its own z-index suffices.
+  // The icon bar takes no extra room from this: it is 43px wide and the footer
+  // starts at 44px.
+  .sidebar
+    z-index 250
+  .sidebar-list
+    left 0
+    bottom 0
+    z-index 250
+  .right-side-panel
+    position fixed
+    bottom 0
+    z-index 250
+
   // ---- 1. Tabs: show only current tab + dropdown, close icon always visible
   .tabs.mobile-tabs
     display flex

@@ -43,17 +43,24 @@ export default function Sidebar (props) {
     openWidgetsModal,
     zoom,
     leftSideBarIcons,
-    widgetInstancesLength
+    widgetInstancesLength,
+    isMobile
   } = props
 
   const { store } = window
+
+  // pinned is desktop-only, like the right panel's: on mobile the panel spans
+  // the viewport and there is no pin control to unpin it, so a pin persisted
+  // from a desktop session must not turn into a mode the user cannot leave.
+  const pinnedActive = pinned && !isMobile
 
   const handleClickOutside = (event) => {
     const { store } = window
     // Nothing to dismiss when the panel is closed or pinned; also ignore
     // clicks while typing in an input so the panel is not yanked away
-    // mid-interaction.
-    if (!store.openedSideBar || store.pinned || hasActiveInput()) {
+    // mid-interaction. Read the pin live rather than from the render scope:
+    // this listener is attached once, so a captured value would go stale.
+    if (!store.openedSideBar || (store.pinned && !store.isMobile) || hasActiveInput()) {
       return
     }
     const target = event.target
@@ -221,10 +228,12 @@ export default function Sidebar (props) {
         setLeftSidePanelWidth={setLeftSidePanelWidth}
         leftSidePanelWidth={leftSidePanelWidth}
         leftSideBarWidth={leftSideBarWidth}
+        isMobile={isMobile}
       >
         <SideBarPanel
-          pinned={pinned}
+          pinned={pinnedActive}
           sidebarPanelTab={sidebarPanelTab}
+          isMobile={isMobile}
         />
       </SidePanel>
     </div>

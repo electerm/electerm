@@ -81,6 +81,20 @@
     bottom calc(var(--shortcut-bar-h, 44px) + var(--shortcut-bar-kb-offset, 0px))
   .remote-monitor-bar
     bottom calc(var(--shortcut-bar-h, 44px) + var(--shortcut-bar-kb-offset, 0px) + 36px)
+  // the right panel stacks on the footer exactly like the monitor bar, so it
+  // needs the same lift. Pinned is excluded: a pinned panel is a full-height
+  // dock and owns bottom 0. Mobile is excluded as well: there the panel is a
+  // full-screen drawer that covers the footer on purpose (mobile.styl).
+  &:not(.is-mobile)
+    .right-side-panel:not(.right-side-panel-pinned)
+      bottom calc(var(--shortcut-bar-h, 44px) + var(--shortcut-bar-kb-offset, 0px) + 36px)
+  // A pinned panel is still a dock, but it yields to the shortcut bar rather
+  // than the other way round: the bar is z-index 400 and spans the full
+  // viewport width by design (it ignores the left sidebar too), so it would
+  // otherwise paint over the dock's bottom edge. The dock stops above the bar
+  // only — the footer sits beside the dock, not below it.
+  .right-side-panel.right-side-panel-pinned
+    bottom calc(var(--shortcut-bar-h, 44px) + var(--shortcut-bar-kb-offset, 0px))
   .qm-wrap-tooltip
     bottom calc(var(--footer-stack-height, 36px) + var(--shortcut-bar-h, 44px) + var(--shortcut-bar-kb-offset, 0px))
 

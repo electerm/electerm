@@ -20,7 +20,7 @@ import {
 const e = window.translate
 
 export default memo(function SidebarPanel (props) {
-  const { sidebarPanelTab, pinned } = props
+  const { sidebarPanelTab, pinned, isMobile } = props
   const { store } = window
   const [openSelectModal, setOpenSelectModal] = useState(false)
   const prps = {
@@ -81,6 +81,22 @@ export default memo(function SidebarPanel (props) {
       </Tooltip>
     ]
   }
+  // No pin control on mobile: the panel spans the viewport there, so there is
+  // nothing to dock it beside, and the control row is tight enough that the
+  // pin would crowd the icons it shares it with.
+  function renderPinIcon () {
+    if (isMobile) {
+      return null
+    }
+    return (
+      <Tooltip title={e('pin')}>
+        <PushpinOutlined
+          {...prps1}
+          onClick={store.handlePin}
+        />
+      </Tooltip>
+    )
+  }
   return (
     <div
       className='sidebar-panel bookmarks-panel animate-fast'
@@ -100,12 +116,9 @@ export default memo(function SidebarPanel (props) {
           {
             renderExpandIcons()
           }
-          <Tooltip title={e('pin')}>
-            <PushpinOutlined
-              {...prps1}
-              onClick={store.handlePin}
-            />
-          </Tooltip>
+          {
+            renderPinIcon()
+          }
           <CloseOutlined
             {...prps}
             onClick={store.handleCloseSidebar}

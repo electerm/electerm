@@ -10,6 +10,7 @@ import {
   leftSidePanelWidthKey,
   leftSideBarOpenKey,
   rightSidebarWidthKey,
+  rightPanelPinnedKey,
   addPanelWidthLsKey,
   connectionMap,
   lastAiChatSessionIdKey,
@@ -41,6 +42,18 @@ export default Store => {
   Store.prototype.updateConfig = function (ext) {
     window.store.setConfig(ext)
   }
+
+  // The footer info icon is a toggle: the same click opens and closes the
+  // panel, so the trigger never has to be hunted down in the panel header.
+  Store.prototype.toggleInfoPanel = action(function () {
+    const { store } = window
+    const isOpen = store.rightPanelVisible && store.rightPanelTab === 'info'
+    store.rightPanelVisible = !isOpen
+    store.rightPanelTab = 'info'
+    if (!isOpen) {
+      store.openInfoPanelAction()
+    }
+  })
 
   Store.prototype.openInfoPanel = action(function () {
     const { store } = window
@@ -122,7 +135,13 @@ export default Store => {
     Object.assign(window.store._termSearchOptions, update)
   }
 
+  // Both panel widths are desktop-only preferences: on mobile the panel is a
+  // full-width drawer whose width is fixed, so a drag (or any other caller)
+  // must not overwrite the desktop value that is still in localStorage.
   Store.prototype.setLeftSidePanelWidth = function (v) {
+    if (window.store.isMobile) {
+      return
+    }
     ls.setItem(leftSidePanelWidthKey, v)
     window.store._leftSidePanelWidth = v
   }
@@ -144,8 +163,21 @@ export default Store => {
   }
 
   Store.prototype.setRightSidePanelWidth = function (v) {
+    if (window.store.isMobile) {
+      return
+    }
     ls.setItem(rightSidebarWidthKey, v)
     window.store._rightPanelWidth = v
+  }
+
+  // Persist the pin the same way the left sidebar does (sidebarPinnedKey):
+  // pinned is a durable layout preference, not a per-session toggle. It matters
+  // more here because pinned and unpinned are visibly different modes — the
+  // unpinned panel is an overlay that clears the footer, the pinned one is a
+  // full-height dock.
+  Store.prototype.setRightPanelPinned = function (v) {
+    ls.setItem(rightPanelPinnedKey, v + '')
+    window.store.rightPanelPinned = v
   }
   Store.prototype.beforeExit = function (evt) {
     const { confirmBeforeExit } = window.store.config
@@ -284,6 +316,18 @@ export default Store => {
     if (store.aiConfigMissing()) {
       store.toggleAIConfig()
     }
+  }
+
+  // Same toggle contract as toggleInfoPanel: the footer AI button opens and
+  // closes its own panel. The open path must go through handleOpenAIPanel so
+  // the missing-config prompt still fires; closing must not touch config.
+  Store.prototype.toggleAIPanel = function () {
+    const { store } = window
+    if (store.rightPanelVisible && store.rightPanelTab === 'ai') {
+      store.rightPanelVisible = false
+      return
+    }
+    store.handleOpenAIPanel()
   }
 
   Store.prototype.explainWithAi = function (txt) {

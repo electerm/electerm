@@ -163,7 +163,11 @@ export default function QuickCommandsFooterBox (props) {
     inActiveTerminal,
     leftSidePanelWidth,
     leftSideBarWidth,
-    openedSideBar
+    openedSideBar,
+    rightPanelVisible,
+    rightPanelPinned,
+    rightPanelWidth,
+    isMobile
   } = props
   if ((!openQuickCommandBar && !pinnedQuickCommandBar) || !inActiveTerminal) {
     return null
@@ -189,12 +193,26 @@ export default function QuickCommandsFooterBox (props) {
     : 'text'
   const cls = classNames('qm-list-wrap')
   const type = qmSortByFrequency ? 'primary' : 'default'
-  const w = openedSideBar ? leftSideBarWidth + leftSidePanelWidth : leftSideBarWidth
+  // Mirrors the footer's left offset. Mobile reserves nothing for the side
+  // panel — it is a full-screen drawer there (store.leftSidePanelWidth returns
+  // the viewport width), so adding it would push the popup off-screen.
+  const w = openedSideBar && !isMobile
+    ? leftSideBarWidth + leftSidePanelWidth
+    : leftSideBarWidth
+  // Keep the popup's horizontal extent in step with the footer (same `w`
+  // expression above). A pinned right panel is a dock that reserves its width
+  // in layout.jsx, so give that width up here too — otherwise the popup's right
+  // end slides under the dock. Unpinned is an overlay and reserves nothing, and
+  // mobile is excluded to match layout.jsx.
+  const qmStyle = {
+    left: w
+  }
+  if (rightPanelVisible && rightPanelPinned && !isMobile) {
+    qmStyle.right = rightPanelWidth
+  }
   const qmProps = {
     className: 'qm-wrap-tooltip',
-    style: {
-      left: w
-    }
+    style: qmStyle
   }
   return (
     <div

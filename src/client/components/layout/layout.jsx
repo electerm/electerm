@@ -151,7 +151,13 @@ export default auto(function Layout (props) {
     'leftSidePanelWidth',
     'leftSideBarWidth',
     'openedSideBar',
-    'currentQuickCommands'
+    'currentQuickCommands',
+    // the quick-command popup mirrors the footer's horizontal extent, so it
+    // needs the same right-panel state the footer uses
+    'rightPanelVisible',
+    'rightPanelPinned',
+    'rightPanelWidth',
+    'isMobile'
   ])
   const sessionsProps = {
     styles: styles.wrapStyles,

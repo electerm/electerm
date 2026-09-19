@@ -61,10 +61,15 @@ class Store {
     return window.store.innerWidth
   }
 
+  // Mobile turns a side panel into a full-screen drawer: it spans the whole
+  // viewport and its width is not user-adjustable. So the stored desktop width
+  // is ignored here, and so is the icon bar (the drawer covers it) — and the
+  // old 500px cap, which left a strip of terminal showing on windows between
+  // 500 and 600px, i.e. the top of the mobile range.
   get leftSidePanelWidth () {
     const { store } = window
     if (store.isMobile) {
-      return Math.min(store.innerWidth - store.leftSideBarWidth, 500)
+      return store.innerWidth
     }
     return store._leftSidePanelWidth
   }
@@ -78,10 +83,12 @@ class Store {
     return store._leftSideBarOpen ? sidebarWidth : 0
   }
 
+  // Same as leftSidePanelWidth: full-screen drawer on mobile, width not
+  // user-adjustable.
   get rightPanelWidth () {
     const { store } = window
     if (store.isMobile) {
-      return Math.min(store.innerWidth, 500)
+      return store.innerWidth
     }
     return store._rightPanelWidth
   }

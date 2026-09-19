@@ -24,7 +24,7 @@ const {
 
 export default auto(function FooterEntry (props) {
   function handleInfoPanel () {
-    window.store.openInfoPanel()
+    window.store.toggleInfoPanel()
   }
 
   function batchInput (cmd, selectedTabIds) {
@@ -106,11 +106,19 @@ export default auto(function FooterEntry (props) {
     )
   }
 
+  function handleAIPanel () {
+    window.store.toggleAIPanel()
+  }
+
   function renderAIIcon () {
+    const { rightPanelVisible, rightPanelTab } = props.store
+    // same contract as the info icon: lit while its panel is open
+    const active = rightPanelVisible && rightPanelTab === 'ai'
     return (
       <div className='terminal-footer-unit terminal-footer-ai'>
         <AIIcon
-          onClick={window.store.handleOpenAIPanel}
+          onClick={handleAIPanel}
+          className={active ? 'active' : ''}
         />
       </div>
     )
@@ -176,11 +184,15 @@ export default auto(function FooterEntry (props) {
     if (loading) {
       return null
     }
+    const { rightPanelVisible, rightPanelTab } = props.store
+    // keep the icon lit while its panel is open so it reads as "click to close"
+    const active = rightPanelVisible && rightPanelTab === 'info'
     return (
       <div className='terminal-footer-unit terminal-footer-info'>
         <BarChartOutlined
           onClick={handleInfoPanel}
-          className='pointer font14 terminal-info-icon'
+          className={'pointer font14 terminal-info-icon' + (active ? ' active' : '')}
+          title={e('info')}
         />
       </div>
     )
@@ -202,7 +214,11 @@ export default auto(function FooterEntry (props) {
     leftSidePanelWidth,
     leftSideBarWidth,
     openedSideBar,
-    inActiveTerminal
+    inActiveTerminal,
+    rightPanelVisible,
+    rightPanelPinned,
+    rightPanelWidth,
+    isMobile
   } = props.store
   const w = leftSideBarWidth + leftSidePanelWidth
   // icon bar hidden: show a control on the left of the footer to bring the
@@ -217,16 +233,25 @@ export default auto(function FooterEntry (props) {
       </div>
       )
     : null
-  const sideProps = openedSideBar
-    ? {
-        className: 'main-footer',
-        style: {
-          left: `${w}px`
-        }
-      }
-    : {
-        className: 'main-footer'
-      }
+  // The footer mirrors the space layout.jsx reserves on both sides.
+  // Left: reserve while the panel is open OR pinned. A pinned left panel is
+  // always open, so this is a superset of the pin state — and it is what keeps
+  // the footer from painting over the panel, which spans bottom 0 in both
+  // states. Right: reserve only for a pinned panel, because the unpinned right
+  // panel is an overlay that stops above the footer and so never needs the
+  // space. Mobile reserves nothing on either side, matching layout.jsx, and the
+  // right panel has no pin control there at all.
+  const footerStyle = {}
+  if (openedSideBar && !isMobile) {
+    footerStyle.left = `${w}px`
+  }
+  if (rightPanelVisible && rightPanelPinned && !isMobile) {
+    footerStyle.right = `${rightPanelWidth}px`
+  }
+  const sideProps = {
+    className: 'main-footer',
+    style: footerStyle
+  }
   if (
     !inActiveTerminal
   ) {

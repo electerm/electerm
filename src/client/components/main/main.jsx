@@ -148,7 +148,12 @@ export default auto(function Index (props) {
     'is-mac': isMac,
     'not-mac': !isMac,
     'is-win': isWin,
-    pinned,
+    // The left sidebar dock is desktop-only (see sidebar/index.jsx). This
+    // class drives the docked-layout CSS — the footer's left offset and the
+    // sidebar panel's top padding — so it has to follow the same gate as the
+    // layout maths in layout.jsx, or a pin persisted from a desktop session
+    // would restyle the mobile layout.
+    pinned: pinned && !store.isMobile,
     'not-win': !isWin,
     'qm-pinned': pinnedQuickCommandBar,
     fullscreen,
@@ -226,6 +231,7 @@ export default auto(function Index (props) {
     transferHistory: copiedHistory,
     upgradeInfo,
     pinned,
+    isMobile: store.isMobile,
     leftSideBarIcons: config.leftSideBarIcons,
     widgetInstancesLength: widgetInstances.length
   }
@@ -253,7 +259,8 @@ export default auto(function Index (props) {
     rightPanelPinned: store.rightPanelPinned,
     rightPanelWidth: store.rightPanelWidth,
     title: rightPanelTitle,
-    rightPanelTab
+    rightPanelTab,
+    isMobile: store.isMobile
   }
   const sshConfigProps = {
     ...pick(store, [

@@ -2,6 +2,9 @@
   color var(--text-dark)
   &:hover
     color var(--text)
+  // panel open: stay lit (after :hover so the "on" state survives hovering)
+  &.active
+    color var(--success)
 .terminal-info-section,
 .right-side-panel-content > .remote-monitor-details
   padding 10px 0

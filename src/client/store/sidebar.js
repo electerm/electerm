@@ -25,7 +25,11 @@ export default Store => {
   // through this one method.
   Store.prototype.openLeftSidePanel = function (field = 'bookmarks') {
     const { store } = window
-    if (store.pinned) {
+    // A pinned panel is already open, so there is nothing to toggle — except
+    // on mobile, where pinning is not a reachable mode (no pin control) and
+    // the panel is a full-width overlay. Honouring a stale desktop pin here
+    // would leave the bookmark button dead on arrival.
+    if (store.pinned && !store.isMobile) {
       return
     }
     store.setOpenedSideBar(store.openedSideBar ? '' : field)

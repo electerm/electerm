@@ -20,7 +20,9 @@ export default auto(function BookmarkSelect (props) {
     return null
   }
   const onClickItem = (item) => {
-    if (!store.pinned) {
+    // A pinned (docked) panel stays open; anything else — including mobile,
+    // where pinning is not a reachable mode — dismisses on selection.
+    if (!(store.pinned && !store.isMobile)) {
       store.setOpenedSideBar('')
     }
     store.onSelectBookmark(item.id)

@@ -37,6 +37,13 @@
       right 10px !important
       bottom 10px !important
 
+// RDP/VNC/Spice fullscreen has no footer (it is in the hide list above), so
+// the right panel has nothing to clear and may use the full height. When the
+// footer IS kept, see .fullscreen.fs-with-footer below.
+.fullscreen:not(.fs-with-footer)
+  .right-side-panel
+    bottom 0
+
 // Terminal fullscreen keeps the footer (and the quick-command popup above it)
 // visible; the session shrinks to sit on top of the footer. RDP/VNC/Spice
 // fullscreen stays footer-less — inActiveTerminal is false for those tabs, so

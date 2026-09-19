@@ -18,6 +18,7 @@ import {
   localAddrBookmarkLsKey,
   leftSidePanelWidthKey,
   rightSidebarWidthKey,
+  rightPanelPinnedKey,
   addPanelWidthLsKey,
   qmSortByFrequencyKey,
   resolutionsLsKey,
@@ -125,7 +126,7 @@ export default () => {
     terminalInfoProps: {},
     rightPanelVisible: false,
     rightPanelTab: 'info',
-    rightPanelPinned: false,
+    rightPanelPinned: ls.getItem(rightPanelPinnedKey) === 'true',
     _rightPanelWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
     showAIConfigModal: false,
 
