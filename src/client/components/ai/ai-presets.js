@@ -175,8 +175,10 @@ export const defaultAIPresets = [
 
 export function getAIPresets () {
   const presets = [...defaultAIPresets]
-  if (window.et?.defaultAIPreset) {
-    presets.unshift(window.et.defaultAIPreset)
+  const customPreset = window.et?.defaultAIPreset
+  if (customPreset) {
+    // keep the first preset (sponsor) on top, insert after it
+    presets.splice(1, 0, customPreset)
   }
   return presets
 }
