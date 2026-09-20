@@ -48,6 +48,16 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS
 ----
 
 <div align="center">
+  <a href="https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/fluxionai.png?raw=true" alt="FluxionAI" height="180" />
+  </a>
+</div>
+
+[Fluxion AI](https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm) — One gateway to the world's leading AI models — an OpenAI-compatible API that plugs straight into electerm's AI features. [Sign up here to get started](https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm).
+
+----
+
+<div align="center">
   <br />
   <br />
   <a href="https://go.apimart.ai/gh-electerm">
