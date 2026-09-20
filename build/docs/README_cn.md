@@ -54,7 +54,7 @@
   </a>
 </div>
 
-[Fluxion AI](https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm) — 通往全球领先 AI 模型的统一入口 —— OpenAI 兼容接口，可直接接入 electerm 的 AI 功能。[点击这里注册开始使用](https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm)。
+[Fluxion AI](https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm) — 通往全球领先 AI 模型的统一入口。[点击这里注册开始使用](https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm)。
 
 ----
 
