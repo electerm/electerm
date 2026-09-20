@@ -5,6 +5,7 @@
 import { useEffect, useRef } from 'react'
 import eq from 'fast-deep-equal'
 import isColorDark from '../../common/is-color-dark'
+import { terminalBgVar } from '../../common/terminal-background.mjs'
 
 const themeDomId = 'theme-css'
 
@@ -28,7 +29,7 @@ function darker (color, amount = 0.1) {
   return (usePound ? '#' : '') + (g | (b << 8) | (r << 16)).toString(16)
 }
 
-function buildTheme (themeConfig) {
+function buildTheme (themeConfig, terminalBackground) {
   const keys = Object.keys(themeConfig || {})
   const themeCss = keys.map(key => {
     const val = themeConfig[key]
@@ -42,21 +43,23 @@ function buildTheme (themeConfig) {
     }
     return `--${key}: ${val};`
   }).join('\n')
-  if (themeCss) {
-    const css = `:root {\n${themeCss}\n}\n`
-    return Promise.resolve(css)
-  }
-  return Promise.resolve('')
+  // the terminal area has its own background (theme key terminal:background),
+  // which may deliberately differ from the UI main colour; theme.styl defaults
+  // it to var(--main) so a theme without one keeps the previous look
+  const terminalBg = terminalBackground || themeConfig.main
+  const terminalCss = terminalBg ? `${terminalBgVar}: ${terminalBg};` : ''
+  const css = `:root {\n${terminalCss}\n${themeCss}\n}\n`
+  return Promise.resolve(css)
 }
 
 export default function UiTheme (props) {
-  const { themeConfig } = props
+  const { themeConfig, terminalBackground } = props
 
   const prevRef = useRef(null)
 
   async function applyTheme () {
     const style = document.getElementById(themeDomId)
-    const css = await buildTheme(themeConfig)
+    const css = await buildTheme(themeConfig, terminalBackground)
     style.innerHTML = css
   }
 
@@ -65,11 +68,12 @@ export default function UiTheme (props) {
   }, [])
 
   useEffect(() => {
-    if (prevRef.current && !eq(prevRef.current, themeConfig)) {
+    const next = { themeConfig, terminalBackground }
+    if (prevRef.current && !eq(prevRef.current, next)) {
       applyTheme()
     }
-    prevRef.current = themeConfig
-  }, [themeConfig])
+    prevRef.current = next
+  }, [themeConfig, terminalBackground])
 
   return null
 }

@@ -205,7 +205,11 @@ export default auto(function Index (props) {
     })
   }
   const themeProps = {
-    themeConfig: store.getUiThemeConfig()
+    themeConfig: store.getUiThemeConfig(),
+    // the terminal area paints its own background (theme key
+    // terminal:background), which may deliberately differ from the UI main
+    // colour — see common/terminal-background.mjs
+    terminalBackground: store.getThemeConfig().background
   }
   const copiedTransfer = deepCopy(fileTransfers)
   const copiedHistory = deepCopy(transferHistory)

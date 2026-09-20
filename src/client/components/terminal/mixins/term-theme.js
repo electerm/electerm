@@ -78,18 +78,18 @@ export const themeMixin = {
   },
 
   getVisibleTerminalBackground () {
+    // The terminal area paints the theme's own background — the
+    // `terminal:background` key, exposed to CSS as --main-terminal and applied
+    // to .term-wrap/.terms-box — which the user may deliberately keep different
+    // from the UI main colour. Read it from the store: that value is always
+    // immediately up-to-date when the theme changes, while the CSS variable lags
+    // behind because UiTheme's useEffect runs after componentDidUpdate. Fall
+    // back to main for themes that do not define a terminal background.
+    const themeConfig = window.store?.getThemeConfig?.() || {}
     const uiThemeConfig = window.store?.getUiThemeConfig?.() || {}
-    // The store value (uiThemeConfig.main) is always immediately up-to-date
-    // when the theme changes, because it reads directly from store.config.theme.
-    // The CSS --main variable lags behind because UiTheme's useEffect runs
-    // asynchronously after componentDidUpdate. So we prioritise the store
-    // value, and only fall back to CSS (for custom-CSS edge cases) or the
-    // terminal theme background (last resort).
-    const root = document.documentElement
-    const cssMain = root && window.getComputedStyle
-      ? window.getComputedStyle(root).getPropertyValue('--main').trim()
-      : ''
-    return uiThemeConfig.main || cssMain || this.props.themeConfig.background
+    return themeConfig.background ||
+      this.props.themeConfig.background ||
+      uiThemeConfig.main
   },
 
   getVisibleTerminalForeground () {

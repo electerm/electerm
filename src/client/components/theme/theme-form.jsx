@@ -15,6 +15,12 @@ import {
   requiredThemeProps
 } from '../../common/terminal-theme'
 import { defaultThemeId, defaultThemeLightId } from '../../common/theme-defaults'
+import {
+  mainKey,
+  terminalBgKey,
+  terminalBgFollowsMain,
+  terminalBgDiffersFromMain
+} from '../../common/terminal-background.mjs'
 import generate from '../../common/uid'
 import { isAIDisabled } from '../../common/ai-feature'
 import Link from '../common/external-link'
@@ -120,10 +126,30 @@ export default function ThemeForm (props) {
       themeText
     } = res
     const converted = convertTheme(themeText)
+    const {
+      uiThemeConfig,
+      themeConfig
+    } = converted
 
-    if (converted.uiThemeConfig.main !== converted.themeConfig.background) {
-      converted.themeConfig.background = converted.uiThemeConfig.main
+    // main and terminal:background are allowed to differ, so a terminal
+    // background set on purpose is saved as typed (it used to be overwritten
+    // with main here, which made terminal:background a dead key). The two stay
+    // linked while they agreed before the edit, and only when the terminal
+    // background was not edited in this same save — editing main then carries
+    // over to the terminal area background.
+    const storedThemeConfig = formData.themeConfig || {}
+    const storedUiThemeConfig = formData.uiThemeConfig || {}
+    if (
+      terminalBgFollowsMain({
+        main: storedUiThemeConfig.main,
+        terminalBackground: storedThemeConfig.background
+      }) &&
+      themeConfig.background === storedThemeConfig.background
+    ) {
+      themeConfig.background = uiThemeConfig.main
     }
+    warnTerminalBgDiffersFromMain(uiThemeConfig.main, themeConfig.background)
+
     const update = {
       name: themeName,
       ...converted
@@ -225,16 +251,48 @@ export default function ThemeForm (props) {
     )
   }
 
+  // One warning per distinct main/terminal-background pair: the picker warns as
+  // soon as the terminal background is edited, and saving must not repeat that
+  // very same warning. Reset whenever the two agree again.
+  const warnedTerminalBg = useRef('')
+  function warnTerminalBgDiffersFromMain (main, terminalBackground) {
+    if (!terminalBgDiffersFromMain({ main, terminalBackground })) {
+      warnedTerminalBg.current = ''
+      return
+    }
+    const sig = `${main}|${terminalBackground}`
+    if (warnedTerminalBg.current === sig) {
+      return
+    }
+    warnedTerminalBg.current = sig
+    message.warning(
+      `${e('terminalBgDiffersFromMain')} (main ${main}, terminal:${terminalBgKey} ${terminalBackground})`
+    )
+  }
+
   function onPickerChange (value, name) {
     const realName = name.includes('terminal:')
       ? name.replace('terminal:', '')
       : name
     const text = form.getFieldValue('themeText')
     const obj = convertTheme(text)
+    // editing main carries over to the terminal background, as long as the two
+    // still agree (a terminal background the user set on purpose is kept)
+    const followTerminalBg = name === mainKey &&
+      terminalBgFollowsMain({
+        main: obj.uiThemeConfig.main,
+        terminalBackground: obj.themeConfig[terminalBgKey]
+      })
     if (obj.themeConfig[realName]) {
       obj.themeConfig[realName] = value
     } else if (obj.uiThemeConfig[realName]) {
       obj.uiThemeConfig[realName] = value
+    }
+    if (followTerminalBg) {
+      obj.themeConfig[terminalBgKey] = value
+    }
+    if (name === `terminal:${terminalBgKey}`) {
+      warnTerminalBgDiffersFromMain(obj.uiThemeConfig.main, value)
     }
     form.setFieldsValue({
       themeText: convertThemeToText(obj)

@@ -1,6 +1,10 @@
 
+// the terminal surface uses the theme's own terminal:background (--main-terminal,
+// set in components/main/ui-theme.jsx), which is allowed to differ from the UI
+// main colour. .terminal-control above it stays on --main: it holds UI icons and
+// labels coloured with --text, so it must follow the UI theme, not the terminal.
 .terms-box
-  background var(--main)
+  background var(--main-terminal)
   position relative
 .loading-wrapper
   padding 30px
@@ -19,7 +23,7 @@
 .terms-box
   position relative
 .term-wrap
-  background var(--main)
+  background var(--main-terminal)
   position absolute
 
 .vertical

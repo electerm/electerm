@@ -2,6 +2,10 @@
   --main #141314
   --main-dark #000
   --main-light #2E3338
+  // the terminal area's own background: the active theme's terminal:background,
+  // set by components/main/ui-theme.jsx. Defaults to the UI main colour so a
+  // theme that does not define one keeps the old look.
+  --main-terminal var(--main)
   --text #ddd
   --text-light #fff
   --text-dark #888
