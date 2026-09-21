@@ -26,6 +26,7 @@ const spiceConfig = {
       fields: [
         commonFields.category,
         commonFields.colorTitle,
+        { type: 'vvFile', name: '__vv__', label: '' },
         { type: 'input', name: 'host', label: () => e('host'), rules: [{ required: true, message: e('host') + ' required' }] },
         commonFields.port,
         { type: 'switch', name: 'viewOnly', label: () => e('viewOnly'), valuePropName: 'checked' },
