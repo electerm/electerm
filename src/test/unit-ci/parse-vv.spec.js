@@ -1,8 +1,10 @@
 const { describe, it, before } = require('node:test')
 const assert = require('node:assert/strict')
 
-// Server-side (CJS)
-const appParse = require('../../../src/app/common/parse-vv')
+// Client-side (ESM) only. .vv files are loaded by the bookmark form
+// (src/client/components/bookmark-form/common/vv-file-field.jsx), so
+// src/client/common/parse-vv.js is the sole implementation -- there is no
+// server-side (CJS) twin to keep in sync with.
 
 function runTests (getMod) {
   it('parses the four-line minimum', () => {
@@ -240,40 +242,11 @@ function runTests (getMod) {
   })
 }
 
-describe('parse-vv', () => {
-  let clientParse
+describe('parse-vv — src/client/common/parse-vv.js (ESM)', () => {
+  let parseMod
   before(async () => {
-    clientParse = await import('../../../src/client/common/parse-vv.js')
+    parseMod = await import('../../../src/client/common/parse-vv.js')
   })
 
-  describe('server (CJS) — src/app/common/parse-vv.js', () => {
-    runTests(() => appParse)
-  })
-
-  describe('client (ESM) — src/client/common/parse-vv.js', () => {
-    runTests(() => clientParse)
-  })
-
-  describe('the two copies stay in sync', () => {
-    it('exposes the same exports', () => {
-      const appKeys = Object.keys(appParse).sort()
-      const clientKeys = Object.keys(clientParse)
-        .filter(k => k !== 'default')
-        .sort()
-      assert.deepStrictEqual(clientKeys, appKeys)
-    })
-
-    it('returns identical results for the same input', () => {
-      const text = [
-        '[virt-viewer]',
-        'type=spice',
-        'host=h',
-        'port=5900',
-        'tls-port=5901',
-        'title=t',
-        'unknown-key=v'
-      ].join('\n')
-      assert.deepStrictEqual(clientParse.parseVv(text), appParse.parseVv(text))
-    })
-  })
+  runTests(() => parseMod)
 })

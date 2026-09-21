@@ -16,8 +16,9 @@
  *   unknown keys/groups     -> kept, never an error (the format is
  *                              extensible; the convention is an `x-` prefix)
  *
- * Keep in sync with src/client/common/parse-vv.js -- the two differ only in
- * the export statement (see sanitize-filename.js for the same pattern).
+ * This is the only copy. .vv loading happens in the renderer only, so there
+ * is no src/app/common twin -- unlike sanitize-filename.js, which the main
+ * process and the renderer both need.
  */
 
 const MAIN_GROUP = 'virt-viewer'
