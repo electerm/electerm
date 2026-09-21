@@ -43,6 +43,19 @@ function generateTestBookmark (description) {
   }
 }
 
+// Generate a test quick command based on description
+function generateTestQuickCommand () {
+  return {
+    name: 'Test Quick Command',
+    commands: [
+      { name: 'list', command: 'ls -al', delay: 100 },
+      { name: 'disk', command: 'df -h', delay: 200 }
+    ],
+    inputOnly: false,
+    labels: ['test']
+  }
+}
+
 // Chat completions endpoint
 app.post('/chat/completions', (req, res) => {
   const { messages, stream } = req.body
@@ -66,6 +79,15 @@ app.post('/chat/completions', (req, res) => {
       choices: [{
         message: {
           content: JSON.stringify(bookmarkData, null, 2)
+        }
+      }]
+    })
+  } else if (lastMessage.includes('Generate the quick command JSON')) {
+    const quickCommand = generateTestQuickCommand()
+    res.json({
+      choices: [{
+        message: {
+          content: JSON.stringify(quickCommand, null, 2)
         }
       }]
     })
