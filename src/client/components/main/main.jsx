@@ -94,6 +94,7 @@ export default auto(function Index (props) {
     store.checkForDbUpgrade()
     store.handleGetSerials()
     store.checkPendingDeepLink()
+    store.checkPendingVvFile()
   }, [])
 
   // Track the actual input modality rather than a static capability probe:

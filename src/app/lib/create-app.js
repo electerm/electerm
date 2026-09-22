@@ -11,6 +11,7 @@ const { getUserConfigNoEnc, getDbConfig } = require('./get-config')
 const {
   setupDeepLinkHandlers
 } = require('./deep-link')
+const { setupVvFileHandlers } = require('./vv-file-open')
 const { handleSingleInstance } = require('./single-instance')
 const { setupCrashReporter, setupCommandLineSwitches } = require('./crash-reporter')
 
@@ -35,6 +36,9 @@ exports.createApp = async function () {
 
   // Setup deep link handlers (open-url for macOS, etc.)
   setupDeepLinkHandlers()
+  // .vv files handed over by the OS. Before whenReady(): macOS can deliver
+  // 'open-file' during launch, and an event with no listener is dropped.
+  setupVvFileHandlers()
   // Only request single instance lock if multi-instance is not allowed
   if (!allowMultiInstance) {
     // Use socket-based single instance lock for compatibility with Electron 22

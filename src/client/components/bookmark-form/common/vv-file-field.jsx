@@ -2,8 +2,9 @@
  * bookmark form - load a .vv (virt-viewer) connection file
  *
  * Registered as field type 'vvFile' in ./fields.jsx and used by
- * ../config/spice.js. Fills host/port/password/title/proxy from the file and
- * reports anything it could not honour instead of dropping it silently.
+ * ../config/spice.js. Fills host/port/password/title/proxy/tls/ca/hostSubject
+ * from the file and reports anything it could not honour instead of dropping
+ * it silently.
  */
 import { useState } from 'react'
 import {

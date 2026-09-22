@@ -69,6 +69,15 @@
       ]
     }
   ],
+  "fileAssociations": [
+    {
+      "ext": "vv",
+      "name": "Virt Viewer connection file",
+      "description": "SPICE console connection file (virt-viewer / remote-viewer)",
+      "mimeType": "application/x-virt-viewer",
+      "role": "Viewer"
+    }
+  ],
   "appx": {
     "applicationId": "electerm",
     "identityName": "64159ZHAOXudong.electerm",

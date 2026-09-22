@@ -8,6 +8,7 @@
  *
  * Behaviour is deliberately matched against:
  *   - src/virt-viewer-file.c  (gitlab.com/virt-viewer/virt-viewer)
+ *   - src/virt-viewer-session-spice.c, for which port wins over tls-port
  *   - remote-viewer(1), "CONNECTION FILE" section
  *
  * Rejection rules copied from virt_viewer_file_new():
@@ -27,24 +28,37 @@ const OVIRT_GROUP = 'ovirt'
 /**
  * .vv key -> bookmark field understood by
  * src/client/components/bookmark-form/config/spice.js
+ *
+ * `port` and `tls-port` are NOT here: which one wins depends on whether the
+ * other is present, so they are resolved in parseVv().
  */
 const FIELD_MAP = {
   host: 'host',
-  port: 'port',
   password: 'password',
   title: 'title',
-  proxy: 'proxy'
+  proxy: 'proxy',
+  ca: 'ca',
+  'host-subject': 'hostSubject'
 }
+
+/**
+ * Keys parseVv() consumes itself, so the "not supported" pass must not report
+ * them again.
+ */
+const HANDLED = new Set([
+  'type',
+  'delete-this-file',
+  'port',
+  'tls-port',
+  ...Object.keys(FIELD_MAP)
+])
 
 /**
  * Keys the .vv format defines but electerm cannot honour for a spice session.
  * Each becomes a user-visible note instead of being dropped silently.
  */
 const UNSUPPORTED = {
-  'tls-port': 'TLS is not supported (electerm makes a plain TCP connection)',
-  'tls-ciphers': 'TLS is not supported',
-  ca: 'TLS certificate verification is not supported',
-  'host-subject': 'TLS certificate verification is not supported',
+  'tls-ciphers': 'TLS is used, but the cipher list is not configurable',
   'unix-path': 'Unix-socket transport is not supported',
   username: 'spice sessions authenticate with the password only',
   'disable-channels': 'spice channel selection is not supported',
@@ -71,6 +85,14 @@ const UNSUPPORTED = {
   'usb-device-reset': 'hotkey rebinding is not supported'
 }
 
+/**
+ * Proxmox writes the SPICE proxy ticket into `host` (see
+ * PVE::AccessControl::remote_viewer_config) and puts the real node name inside
+ * it. PVE::Ticket::verify_spice_connect_url() only accepts a ticket younger
+ * than 40 seconds, so a .vv from the Proxmox UI is strictly single-use.
+ */
+const PROXMOX_TICKET = /^pvespiceproxy:/i
+
 const BOOL_TRUE = new Set(['1', 'true', 'yes', 'on'])
 
 function stripBom (text) {
@@ -79,6 +101,49 @@ function stripBom (text) {
 
 function isComment (line) {
   return line.startsWith('#') || line.startsWith(';')
+}
+
+/**
+ * GKeyFile escapes \\n, \\t, \\r, \\s and \\\\ inside values, and
+ * g_key_file_get_string() expands them on read. parseIni keeps values
+ * verbatim (a trailing space in a password is significant), so the one value
+ * that is handed to a parser rather than used as-is is expanded here.
+ *
+ * Proxmox relies on this: it writes the whole CA on a single line with literal
+ * "\\n" separators (`$cacert =~ s/\n/\\n/g`), which no PEM parser accepts
+ * unexpanded.
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+function unescapeValue (value) {
+  return value.replace(/\\(.)/g, (match, char) => {
+    switch (char) {
+      case 'n': return '\n'
+      case 't': return '\t'
+      case 'r': return '\r'
+      case 's': return ' '
+      case '\\': return '\\'
+      default: return match
+    }
+  })
+}
+
+/**
+ * Read and range-check one of the two port keys.
+ * @returns {number|null}
+ */
+function readPort (main, key, result) {
+  if (!(key in main)) {
+    return null
+  }
+  const raw = main[key].trim()
+  const port = parseInt(raw, 10)
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    result.warnings.push('ignoring invalid ' + key + ' "' + raw + '"')
+    return null
+  }
+  return port
 }
 
 /**
@@ -193,6 +258,30 @@ function parseVv (text) {
     return result
   }
 
+  // spice-gtk dials the plain port and only falls back to TLS when the file
+  // offers no plain port at all (spice-channel.c: "trying with TLS port"), so
+  // a file that sets both keeps its plain port here too.
+  //
+  // Which port key the file used also decides the transport, so `tls` is set
+  // on both branches: the form only overwrites the keys it is handed, and a
+  // switch left over from a previous file would silently break the connection.
+  const plainPort = readPort(main, 'port', result)
+  const tlsPort = readPort(main, 'tls-port', result)
+
+  if (plainPort) {
+    result.fields.port = plainPort
+    result.fields.tls = false
+    result.applied.push({ key: 'port', value: main.port, field: 'port' })
+  } else if (tlsPort) {
+    result.fields.port = tlsPort
+    result.fields.tls = true
+    result.applied.push({
+      key: 'tls-port',
+      value: main['tls-port'],
+      field: 'port'
+    })
+  }
+
   Object.keys(FIELD_MAP).forEach(key => {
     if (!(key in main)) {
       return
@@ -200,14 +289,7 @@ function parseVv (text) {
     const raw = main[key]
     const field = FIELD_MAP[key]
 
-    if (key === 'port') {
-      const port = parseInt(raw.trim(), 10)
-      if (!Number.isInteger(port) || port < 1 || port > 65535) {
-        result.warnings.push('ignoring invalid port "' + raw.trim() + '"')
-        return
-      }
-      result.fields.port = port
-    } else if (key === 'password') {
+    if (key === 'password') {
       result.fields.password = raw
     } else {
       const value = raw.trim()
@@ -215,7 +297,7 @@ function parseVv (text) {
         result.warnings.push('ignoring empty "' + key + '"')
         return
       }
-      result.fields[field] = value
+      result.fields[field] = key === 'ca' ? unescapeValue(value) : value
     }
     result.applied.push({ key, value: raw, field })
   })
@@ -225,12 +307,12 @@ function parseVv (text) {
     return result
   }
 
-  // A file that only offers a TLS port has nothing we can dial, because the
-  // spice transport here is plain TCP (see src/app/server/spice-proxy.js).
-  if (main['tls-port'] && !('port' in main)) {
+  // The Proxmox ticket in `host` is signed and time limited: the proxy rejects
+  // anything older than 40 seconds, so a saved bookmark can never work.
+  if (PROXMOX_TICKET.test(result.fields.host)) {
     result.warnings.push(
-      'this file defines only tls-port, and TLS is not supported here, ' +
-        'so there is no plain port to connect to'
+      'this is a Proxmox SPICE proxy ticket: it is only valid for about 40 ' +
+        'seconds, so connect right away -- saving it as a bookmark will not work'
     )
   }
 
@@ -249,7 +331,7 @@ function parseVv (text) {
   }
 
   Object.keys(main).forEach(key => {
-    if (key === 'type' || key === 'delete-this-file' || key in FIELD_MAP) {
+    if (HANDLED.has(key)) {
       return
     }
     const value = main[key]
@@ -259,6 +341,17 @@ function parseVv (text) {
       result.unknown.push({ key, value })
     }
   })
+
+  // Both ports offered: the plain one wins (see above), but say so instead of
+  // dropping the TLS port in silence.
+  if (plainPort && tlsPort) {
+    result.ignored.push({
+      key: 'tls-port',
+      value: main['tls-port'],
+      reason:
+        'this file also offers a plain port, which is the one remote-viewer uses'
+    })
+  }
 
   if (groups[OVIRT_GROUP]) {
     result.ignored.push({
@@ -289,8 +382,8 @@ function describeVv (parsed) {
   if (!parsed || !parsed.ok) {
     return (parsed && parsed.error) || 'invalid .vv file'
   }
-  const { host, port, title, proxy } = parsed.fields
-  const bits = ['spice://' + host + (port ? ':' + port : '')]
+  const { host, port, title, proxy, tls } = parsed.fields
+  const bits = ['spice' + (tls ? '+tls' : '') + '://' + host + (port ? ':' + port : '')]
   if (title) {
     bits.push('"' + title + '"')
   }

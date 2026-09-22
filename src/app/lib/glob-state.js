@@ -21,7 +21,8 @@ class GlobalState {
       oldRectangle: null,
       serverPort: null,
       isSecondInstance: false,
-      pendingDeepLink: null
+      pendingDeepLink: null,
+      pendingVvFile: null
     }
   }
 

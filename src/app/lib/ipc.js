@@ -46,6 +46,7 @@ const {
   checkProtocolRegistration,
   getPendingDeepLink
 } = require('./deep-link')
+const { getPendingVvFile } = require('./vv-file-open')
 const {
   packInfo,
   appPath,
@@ -259,6 +260,7 @@ function initIpc () {
     unregisterDeepLink,
     checkProtocolRegistration,
     getPendingDeepLink,
+    getPendingVvFile,
     getEnv: (key) => {
       if (key) {
         return SAFE_ENV_KEYS.includes(key) ? process.env[key] : ''

@@ -12,7 +12,7 @@ function runTests (getMod) {
     const r = parseVv('[virt-viewer]\ntype=spice\nhost=127.0.0.1\nport=5930\n')
     assert.strictEqual(r.ok, true, r.error)
     assert.strictEqual(r.type, 'spice')
-    assert.deepStrictEqual(r.fields, { host: '127.0.0.1', port: 5930 })
+    assert.deepStrictEqual(r.fields, { host: '127.0.0.1', port: 5930, tls: false })
     assert.deepStrictEqual(r.warnings, [])
     assert.deepStrictEqual(r.ignored, [])
     assert.deepStrictEqual(r.unknown, [])
@@ -126,18 +126,74 @@ function runTests (getMod) {
     assert.strictEqual(r.fields.proxy, 'http://10.0.15.50:3128')
   })
 
-  it('warns when only tls-port is offered', () => {
+  it('uses tls-port and turns tls on when there is no plain port', () => {
     const { parseVv } = getMod()
     const r = parseVv('[virt-viewer]\ntype=spice\nhost=a\ntls-port=5901\n')
+    assert.strictEqual(r.ok, true, r.error)
+    assert.strictEqual(r.fields.port, 5901)
+    assert.strictEqual(r.fields.tls, true)
+    assert.deepStrictEqual(r.warnings, [])
+    assert.deepStrictEqual(r.ignored, [])
+  })
+
+  it('warns and drops an out-of-range tls-port', () => {
+    const { parseVv } = getMod()
+    const r = parseVv('[virt-viewer]\ntype=spice\nhost=a\ntls-port=abc\n')
     assert.strictEqual(r.ok, true)
     assert.strictEqual(r.fields.port, undefined)
-    assert.match(r.warnings.join('\n'), /only tls-port/)
+    assert.strictEqual(r.fields.tls, undefined)
+    assert.match(r.warnings.join('\n'), /invalid tls-port/)
+  })
+
+  it('maps ca and host-subject', () => {
+    const { parseVv } = getMod()
+    const r = parseVv(
+      '[virt-viewer]\ntype=spice\nhost=a\ntls-port=5901\n' +
+      'ca=-----BEGIN CERTIFICATE-----\\nMIIB\\n-----END CERTIFICATE-----\\n\n' +
+      'host-subject=OU=Cluster Node,O=Proxmox Virtual Environment,CN=pve1\n'
+    )
+    assert.strictEqual(r.ok, true, r.error)
+    // GKeyFile expands the escapes on read, so the PEM has to come out as
+    // real newlines or no TLS library will parse it
+    assert.strictEqual(
+      r.fields.ca,
+      '-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----\n'
+    )
+    assert.strictEqual(
+      r.fields.hostSubject,
+      'OU=Cluster Node,O=Proxmox Virtual Environment,CN=pve1'
+    )
+    assert.deepStrictEqual(r.ignored, [])
+  })
+
+  it('leaves an unknown escape sequence alone', () => {
+    const { parseVv } = getMod()
+    const r = parseVv('[virt-viewer]\ntype=spice\nhost=a\ntls-port=1\nca=A\\qB\n')
+    assert.strictEqual(r.fields.ca, 'A\\qB')
+  })
+
+  it('warns that a Proxmox proxy ticket is short lived', () => {
+    const { parseVv } = getMod()
+    const r = parseVv(
+      '[virt-viewer]\ntype=spice\nhost=pvespiceproxy:68d1a2b3:100:pve1:61001::' +
+      'a'.repeat(40) + '\ntls-port=61001\n'
+    )
+    assert.strictEqual(r.ok, true, r.error)
+    assert.strictEqual(r.fields.tls, true)
+    assert.match(r.warnings.join('\n'), /Proxmox SPICE proxy ticket/)
+  })
+
+  it('does not warn about a short lived ticket for a normal host', () => {
+    const { parseVv } = getMod()
+    const r = parseVv('[virt-viewer]\ntype=spice\nhost=a\ntls-port=1\n')
+    assert.deepStrictEqual(r.warnings, [])
   })
 
   it('uses port and notes tls-port when both are present', () => {
     const { parseVv } = getMod()
     const r = parseVv('[virt-viewer]\ntype=spice\nhost=a\nport=5900\ntls-port=5901\n')
     assert.strictEqual(r.fields.port, 5900)
+    assert.strictEqual(r.fields.tls, false)
     assert.strictEqual(r.ignored.length, 1)
     assert.strictEqual(r.ignored[0].key, 'tls-port')
   })
@@ -177,6 +233,12 @@ function runTests (getMod) {
     const { parseVv, describeVv } = getMod()
     const r = parseVv('[virt-viewer]\ntype=spice\nhost=127.0.0.1\nport=5930\ntitle=T\n')
     assert.strictEqual(describeVv(r), 'spice://127.0.0.1:5930 "T"')
+  })
+
+  it('summarises a tls file', () => {
+    const { parseVv, describeVv } = getMod()
+    const r = parseVv('[virt-viewer]\ntype=spice\nhost=10.0.0.42\ntls-port=5901\n')
+    assert.strictEqual(describeVv(r), 'spice+tls://10.0.0.42:5901')
   })
 
   it('summarises a bad file', () => {
@@ -219,15 +281,16 @@ function runTests (getMod) {
     assert.strictEqual(r.ok, true, r.error)
     assert.strictEqual(r.fields.host, '10.0.0.42')
     assert.strictEqual(r.fields.port, 5900)
+    assert.strictEqual(r.fields.tls, false)
     assert.strictEqual(r.fields.title, 'prod-db-01')
     assert.strictEqual(r.fields.proxy, 'http://10.0.15.50:3128')
     assert.strictEqual(r.fields.password, 'sup3rs3cret ')
+    assert.strictEqual(r.fields.hostSubject, 'O=Red Hat,CN=prod-db-01')
+    assert.match(r.fields.ca, /^-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----$/)
     assert.strictEqual(r.deleteThisFile, true)
     const keys = r.ignored.map(d => d.key)
     ;[
       'tls-port',
-      'ca',
-      'host-subject',
       'enable-smartcard',
       'color-depth',
       'disable-effects',
