@@ -10,6 +10,7 @@ import {
   FlagFilled
 } from '@ant-design/icons'
 import getBrand from './get-brand'
+import CopyIcon from './copy-icon'
 
 const e = window.translate
 
@@ -160,6 +161,9 @@ export default function AIOutput ({ item }) {
             <>
               {renderBrand()}
               <ReactMarkdown {...mdProps} />
+              <div className='ai-output-actions'>
+                <CopyIcon text={response} />
+              </div>
             </>
             )}
       </div>

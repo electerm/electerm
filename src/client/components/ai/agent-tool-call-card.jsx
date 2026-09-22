@@ -9,6 +9,7 @@ import {
   CodeOutlined,
   DatabaseOutlined
 } from '@ant-design/icons'
+import CopyIcon from './copy-icon'
 
 const toolIcons = {
   send_terminal_command: CodeOutlined,
@@ -65,6 +66,20 @@ export default function AgentToolCallCard ({ toolCall, autoCollapse }) {
     )
   }
 
+  function renderPre (text) {
+    return (
+      <div className='agent-tool-pre-wrap'>
+        <CopyIcon text={text} className='agent-tool-copy' />
+        <pre className='agent-tool-pre'>{text}</pre>
+      </div>
+    )
+  }
+
+  const argsText = args && Object.keys(args).length > 0
+    ? JSON.stringify(args, null, 2)
+    : ''
+  const resultText = formatResult(result)
+
   return (
     <div className={`agent-tool-call-card agent-tool-${status}`}>
       <div
@@ -79,16 +94,16 @@ export default function AgentToolCallCard ({ toolCall, autoCollapse }) {
       </div>
       {expanded && (
         <div className='agent-tool-detail'>
-          {args && Object.keys(args).length > 0 && (
+          {argsText && (
             <div className='agent-tool-args'>
               <div className='agent-tool-label'>Arguments:</div>
-              <pre className='agent-tool-pre'>{JSON.stringify(args, null, 2)}</pre>
+              {renderPre(argsText)}
             </div>
           )}
-          {result && (
+          {resultText && (
             <div className='agent-tool-result'>
               <div className='agent-tool-label'>Result:</div>
-              <pre className='agent-tool-pre'>{formatResult(result)}</pre>
+              {renderPre(resultText)}
             </div>
           )}
         </div>

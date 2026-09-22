@@ -26,11 +26,23 @@
     border-radius 3px
     pre
       margin-bottom 0
-    // .code-block-actions
-    //   display block
-    // &:hover
-    //   .code-block-actions
-    //     display block
+
+// copy icons stay visible all the time, never hover only
+.copy-icon,
+.code-action-icon
+  color var(--text-dark)
+  font-size 14px
+  &:hover
+    color var(--primary)
+
+.code-block-actions
+  display flex
+  justify-content flex-end
+
+.ai-output-actions
+  display flex
+  justify-content flex-end
+  margin-top 6px
 
 .ai-stream-output
   position relative
@@ -223,9 +235,18 @@
   font-size 12px
   color var(--text-color-2)
 
+.agent-tool-pre-wrap
+  position relative
+
+.agent-tool-copy
+  position absolute
+  top 5px
+  right 6px
+  z-index 1
+
 .agent-tool-pre
   background var(--main-dark)
-  padding 6px 8px
+  padding 6px 26px 6px 8px
   border-radius 3px
   font-size 12px
   max-height 200px
