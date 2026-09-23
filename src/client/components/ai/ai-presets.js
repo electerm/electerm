@@ -6,7 +6,7 @@ export const defaultAIPresets = [
     apiPathAI: '/chat/completions',
     modelAI: 'deepseek-v4-flash-0731',
     authHeaderNameAI: 'Authorization: Bearer',
-    siteUrl: 'https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM'
+    siteUrl: 'https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM&aff=7H7DERHU3GFF'
   },
   {
     id: 'atlascloud',
