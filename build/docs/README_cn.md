@@ -50,7 +50,7 @@
 
 <div align="center">
   <a href="https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/fluxionai.png?raw=true" alt="FluxionAI" height="180" />
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/fluxionai.png?raw=true" alt="FluxionAI" width="200" />
   </a>
 </div>
 
