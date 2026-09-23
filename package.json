@@ -26,6 +26,8 @@
     "test2": "./node_modules/.bin/playwright test test/e2e/01*.js --workers=1",
     "test3": "./node_modules/.bin/playwright test test/e2e/02*.js --workers=1 && npm run test-unit-ci",
     "b": "npm run clean && npm run compile && npm run prepare-file",
+    "btest": "node build/bin/build-test.js",
+    "bdebfast": "node build/bin/build-deb-fast.js",
     "r": "./build/bin/release",
     "w": "./build/bin/web-release",
     "t": "./node_modules/.bin/electron work/app/app.js",

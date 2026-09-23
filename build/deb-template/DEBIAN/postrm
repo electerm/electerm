@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# 移除 apparmor 配置（如有）
+APPARMOR_PROFILE_DEST='/etc/apparmor.d/electerm'
+if [ -f "$APPARMOR_PROFILE_DEST" ]; then
+  rm -f "$APPARMOR_PROFILE_DEST"
+fi
+
+# 注：/usr/bin/electerm 软链与 /usr/share 下的文件均为打包文件，
+# 由 dpkg 在卸载时自动移除，无需在此手动处理。
