@@ -218,7 +218,7 @@ return theme && theme.uiThemeConfig
         ├─ 直接复用：--surface-0/1/2  ←  var(--main-dark) / var(--main) / var(--main-light)
         │
         └─ 派生：--border / --hover-bg  ←  color-mix(in srgb, var(--text) N%, transparent)
-        
+
 其余（圆角 / 阴影 / 间距 / 字号 / 动效 / 焦点环）→ 纯静态常量，与主题无关
 ```
 
