@@ -37,7 +37,10 @@ export function buildVisibleTreeRows ({
   sortTitle,
   sortHost
 }) {
-  const groupTree = bookmarkGroupTree || {}
+  const groupTree = bookmarkGroupTree || new Map()
+  const getGroup = id => groupTree instanceof Map
+    ? groupTree.get(id)
+    : groupTree[id]
   const rows = []
   const matchedRowKeys = []
   const expandedKeySet = new Set(expandedKeys || [])
@@ -72,7 +75,7 @@ export function buildVisibleTreeRows ({
     }
     const hasMatch = (group.bookmarkIds || []).some(bookmarkMatches) ||
       (group.bookmarkGroupIds || []).some(id => {
-        return groupHasMatchedBookmarks(groupTree[id])
+        return groupHasMatchedBookmarks(getGroup(id))
       })
     groupMatchCache.set(group.id, hasMatch)
     return hasMatch
@@ -100,7 +103,7 @@ export function buildVisibleTreeRows ({
       : `#${group.id}`
 
     for (const groupId of group.bookmarkGroupIds || []) {
-      visitGroup(groupTree[groupId], nextParentId, depth + 1)
+      visitGroup(getGroup(groupId), nextParentId, depth + 1)
     }
 
     const bookmarkIds = group.bookmarkIds || []

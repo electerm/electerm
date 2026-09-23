@@ -11,12 +11,20 @@ const { exec } = require('child_process')
 const log = require('../common/log')
 const { algDefault, algAlt } = require('./ssh2-alg')
 const { createHostVerifier } = require('./ssh-known-hosts')
+const { maybeProxyCommand } = require('./ssh-proxy-command')
 const sshTunnelFuncs = require('./ssh-tunnel')
 const deepCopy = require('json-deep-copy')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
 const globalState = require('./global-state')
 const iconv = require('iconv-lite')
+const {
+  X11_HELP_URL,
+  getX11Candidates,
+  probeXServer,
+  x11Hint,
+  x11CookieHint
+} = require('./x11')
 
 // Encodings that are equivalent to UTF-8 (no conversion needed)
 const utf8Aliases = new Set(['utf-8', 'utf8', 'utf-8-strict'])
@@ -33,7 +41,43 @@ class TerminalSshBase extends TerminalBase {
     const hasX11 = initOptions.x11 === true
     this.display = hasX11 ? await this.getDisplay() : undefined
     this.x11Cookie = hasX11 ? await this.getX11Cookie() : undefined
+    if (hasX11) {
+      // runs in the background: never delay the connection for a probe
+      this.checkX11().catch(e => log.error('x11 check error', e))
+    }
     return this.sshConnect()
+  }
+
+  /**
+   * x11 forwarding fails silently when the local side cannot serve it,
+   * so probe the display once per session and tell the user what to do
+   */
+  async checkX11 () {
+    const ok = await probeXServer(getX11Candidates(this.display))
+    if (!ok) {
+      return this.notifyX11(x11Hint())
+    }
+    // windows has no xauth at all, an empty cookie is expected there
+    if (!this.x11Cookie && process.platform !== 'win32') {
+      return this.notifyX11(x11CookieHint())
+    }
+  }
+
+  /**
+   * warn the user about x11 problems, at most once per session
+   * @param {string} text
+   */
+  notifyX11 (text) {
+    if (!text || this.x11Notified || !this.ws) {
+      return
+    }
+    this.x11Notified = true
+    this.ws.s({
+      action: 'x11-warning',
+      message: text,
+      url: X11_HELP_URL,
+      tabId: this.initOptions?.srcTabId
+    })
   }
 
   reTryAltAlg () {
@@ -569,16 +613,22 @@ class TerminalSshBase extends TerminalBase {
     }
     this.hostVerificationError = null
     const verifyTarget = this.getHostVerificationTarget(connectOptions)
-    connectOptions.hostVerifier = createHostVerifier({
-      ...verifyTarget,
-      confirm: async (options) => {
-        const results = await this.onKeyboardEvent(options)
-        return results && results[0] === (options.confirmResult || 'trust')
-      },
-      onError: (err) => {
-        this.hostVerificationError = err
-      }
-    })
+    if (this.skipHostVerification && connectOptions.sock) {
+      // proxied connection (netbird ssh proxy / proxyCommand):
+      // the child serves its own endpoint with an ephemeral host key
+      delete connectOptions.hostVerifier
+    } else {
+      connectOptions.hostVerifier = createHostVerifier({
+        ...verifyTarget,
+        confirm: async (options) => {
+          const results = await this.onKeyboardEvent(options)
+          return results && results[0] === (options.confirmResult || 'trust')
+        },
+        onError: (err) => {
+          this.hostVerificationError = err
+        }
+      })
+    }
     this.authPartiallySucceeded = false
     connectOptions.authHandler = this.createAuthHandler(connectOptions)
     return new Promise((resolve, reject) => {
@@ -626,6 +676,8 @@ class TerminalSshBase extends TerminalBase {
           const maxPort = portStart + maxRetry
           const retry = () => {
             if (start >= maxPort) {
+              // every local x endpoint refused us, the remote app is stuck
+              this.notifyX11(`A remote app asked for X11 forwarding, but electerm could not reach any local X server (display: ${this.display || 'not set'}). ${x11Hint()}`)
               return
             }
             const xserversock = new net.Socket()
@@ -664,6 +716,48 @@ class TerminalSshBase extends TerminalBase {
         })
         .connect(connectOptions)
     })
+  }
+
+  /**
+   * when connecting through a proxy command (netbird ssh proxy or
+   * user-defined proxyCommand option), surface the command's stderr
+   * (netbird prints the SSO login URL there) to the user
+   */
+  onProxyCommandMessage (text) {
+    log.log('ssh proxy command:', text.trim())
+    const url = text.match(/https?:\/\/\S+/)
+    if (url && this.ws && !this.proxyCommandUrlShown) {
+      this.proxyCommandUrlShown = true
+      this.ws.s({
+        action: 'ssh-proxy-command-message',
+        message: text.trim(),
+        url: url[0],
+        tabId: this.initOptions.srcTabId
+      })
+    }
+  }
+
+  /**
+   * if a proxy command applies (netbird auto-detect or explicit
+   * proxyCommand option), spawn it and return the bridged socket
+   */
+  async maybeProxyCommandSock () {
+    if (this.initOptions?.connectionHoppings?.length) {
+      return undefined
+    }
+    const info = await maybeProxyCommand(
+      this.initOptions,
+      this.connectOptions,
+      { onMessage: (text) => this.onProxyCommandMessage(text) }
+    )
+    if (!info) {
+      return undefined
+    }
+    this.proxyCommandDispose = info.dispose
+    // the proxy command serves its own ssh endpoint (random host key
+    // per run for netbird), known_hosts verification can not apply
+    this.skipHostVerification = true
+    return { socket: info.socket }
   }
 
   getShareOptions () {
@@ -788,6 +882,11 @@ class TerminalSshBase extends TerminalBase {
     }
     this.shellWindow = this.shellWindow || this.getShellWindow()
     this.shellOpts = this.shellOpts || this.buildShellOpts()
+    // dispose proxy command child from a previous attempt (retries re-enter here)
+    if (this.proxyCommandDispose) {
+      this.proxyCommandDispose()
+      this.proxyCommandDispose = null
+    }
     const info = initOptions.proxy
       ? await proxySock({
         readyTimeout: initOptions.readyTimeout,
@@ -795,7 +894,7 @@ class TerminalSshBase extends TerminalBase {
         port: initOptions.port,
         proxy: initOptions.proxy
       })
-      : undefined
+      : await this.maybeProxyCommandSock()
     const skipX11 = !!initOptions.connectionHoppings?.length
     const result = await this.doSshConnect(
       info,
@@ -903,6 +1002,15 @@ class TerminalSshBase extends TerminalBase {
     this.channel.stderr.on(event, cb)
   }
 
+  off (event, cb) {
+    try {
+      this.channel?.removeListener?.(event, cb)
+    } catch (_) {}
+    try {
+      this.channel?.stderr?.removeListener?.(event, cb)
+    } catch (_) {}
+  }
+
   write (data) {
     const encode = this.connectOptions?.encode || this.initOptions?.encode
     if (encode && !utf8Aliases.has(encode.toLowerCase()) && typeof data === 'string') {
@@ -930,6 +1038,9 @@ class TerminalSshBase extends TerminalBase {
   kill () {
     this.initOptions = null
     this.connectOptions = null
+    this.proxyCommandDispose = null
+    this.skipHostVerification = null
+    this.proxyCommandUrlShown = null
     this.alg = null
     this.shellWindow = null
     this.shellOpts = null
@@ -938,6 +1049,7 @@ class TerminalSshBase extends TerminalBase {
     this.privateKeyPath = null
     this.display = null
     this.x11Cookie = null
+    this.x11Notified = false
     this.conns = null
     this.jumpSshKeys = null
     this.jumpPrivateKeyPathFrom = null
@@ -948,6 +1060,10 @@ class TerminalSshBase extends TerminalBase {
   }
 
   doKill () {
+    if (this.proxyCommandDispose) {
+      this.proxyCommandDispose()
+      this.proxyCommandDispose = null
+    }
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }

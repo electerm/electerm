@@ -25,7 +25,7 @@ export default memo(function TransferList (props) {
   const bdProps = {
     count: len,
     size: 'small',
-    offset: [-10, -5],
+    offset: [0, 0],
     color,
     overflowCount: 99
   }

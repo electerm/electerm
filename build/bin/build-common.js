@@ -92,21 +92,63 @@ exports.patchAppImage = function patchAppImage () {
     fs.copyFileSync(iconSrc, iconDst)
   }
 
-  // Patch create-app.js to import and call installDesktopFile
+  // Patch create-app.js to import and call installDesktopFile.
+  //
+  // Both halves are checked and inserted independently, and every anchor is
+  // asserted to exist. A previous version anchored the import on
+  // `const log = require('../common/log')`; when that import was dropped from
+  // create-app.js the replace() silently matched nothing while the call was
+  // still inserted, so the AppImage shipped calling an undefined function:
+  //   ReferenceError: installDesktopFile is not defined
+  // Failing the build loudly is much better than shipping that again.
   const createAppPath = resolve(workLib, 'create-app.js')
   let code = fs.readFileSync(createAppPath, 'utf8')
-  if (!code.includes('installDesktopFile')) {
-    code = code.replace(
-      "const log = require('../common/log')",
-      "const log = require('../common/log')\n" +
-      "const { installDesktopFile } = require('./appimage-integration')"
-    )
-    code = code.replace(
-      'app.setName(packInfo.name)',
-      'app.setName(packInfo.name)\n  installDesktopFile()'
-    )
-    fs.writeFileSync(createAppPath, code)
+
+  const requireLine = "const { installDesktopFile } = require('./appimage-integration')"
+  const callLine = '  installDesktopFile()'
+  const hasRequire = code.includes(requireLine)
+  const hasCall = code.split('\n').some(line => line.trim() === 'installDesktopFile()')
+  // work/app is not always LF — match whatever the file already uses.
+  const eol = code.includes('\r\n') ? '\r\n' : '\n'
+
+  if (hasRequire && hasCall) {
+    console.log('[appimage] work/app already patched for desktop integration')
+    return
   }
+
+  if (!hasRequire) {
+    // Insert after the last top-level require() in the header, i.e. after the
+    // final import before `exports.createApp`. Stable no matter which imports
+    // get added to or removed from the file.
+    const bodyStart = code.indexOf('exports.createApp')
+    if (bodyStart === -1) {
+      throw new Error(
+        `[appimage] Cannot patch ${createAppPath}: "exports.createApp" not found`
+      )
+    }
+    const header = code.slice(0, bodyStart)
+    const requires = [...header.matchAll(/^.*require\(.*$/gm)]
+    if (requires.length === 0) {
+      throw new Error(
+        `[appimage] Cannot patch ${createAppPath}: no require() to anchor on`
+      )
+    }
+    const last = requires[requires.length - 1]
+    const at = last.index + last[0].length
+    code = header.slice(0, at) + eol + requireLine + header.slice(at) + code.slice(bodyStart)
+  }
+
+  if (!hasCall) {
+    const anchor = 'app.setName(packInfo.name)'
+    if (!code.includes(anchor)) {
+      throw new Error(
+        `[appimage] Cannot patch ${createAppPath}: "${anchor}" not found`
+      )
+    }
+    code = code.replace(anchor, `${anchor}${eol}${callLine}`)
+  }
+
+  fs.writeFileSync(createAppPath, code)
   console.log('[appimage] Patched work/app for desktop integration')
 }
 

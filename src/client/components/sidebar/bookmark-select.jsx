@@ -10,7 +10,7 @@ export default auto(function BookmarkSelect (props) {
   const {
     listStyle,
     openedSideBar,
-    leftSidebarWidth,
+    leftSidePanelWidth,
     expandedKeys,
     bookmarks,
     bookmarksMap,
@@ -20,7 +20,9 @@ export default auto(function BookmarkSelect (props) {
     return null
   }
   const onClickItem = (item) => {
-    if (!store.pinned) {
+    // A pinned (docked) panel stays open; anything else — including mobile,
+    // where pinning is not a reachable mode — dismisses on selection.
+    if (!(store.pinned && !store.isMobile)) {
       store.setOpenedSideBar('')
     }
     store.onSelectBookmark(item.id)
@@ -38,7 +40,7 @@ export default auto(function BookmarkSelect (props) {
     bookmarksMap,
     bookmarkGroups: store.getBookmarkGroupsTotal(),
     expandedKeys,
-    leftSidebarWidth,
+    leftSidePanelWidth,
     bookmarkGroupTree: store.bookmarkGroupTree,
     autoFocus,
     initLoadingData

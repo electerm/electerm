@@ -9,6 +9,9 @@
     "en-US"
   ],
   "asar": true,
+  "asarUnpack": [
+    "node_modules/node-pty/build/Release/**"
+  ],
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
     "target": [
@@ -64,6 +67,15 @@
       "schemes": [
         "electerm"
       ]
+    }
+  ],
+  "fileAssociations": [
+    {
+      "ext": "vv",
+      "name": "Virt Viewer connection file",
+      "description": "SPICE console connection file (virt-viewer / remote-viewer)",
+      "mimeType": "application/x-virt-viewer",
+      "role": "Viewer"
     }
   ],
   "appx": {

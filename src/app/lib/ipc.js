@@ -46,6 +46,7 @@ const {
   checkProtocolRegistration,
   getPendingDeepLink
 } = require('./deep-link')
+const { getPendingVvFile } = require('./vv-file-open')
 const {
   packInfo,
   appPath,
@@ -69,7 +70,13 @@ const { safeEncrypt, safeDecrypt } = require('./safe-storage')
 const { initCommandLine } = require('./command-line')
 const { watchFile, unwatchFile } = require('./watch-file')
 const lookup = require('../common/lookup')
-const { AIchat, AIchatWithTools, getStreamContent, stopStream } = require('./ai')
+const {
+  AIchat,
+  AIchatWithTools,
+  AIlistModels,
+  getStreamContent,
+  stopStream
+} = require('./ai')
 
 // Security: whitelist of safe environment variables for Linux/Mac/Windows
 const SAFE_ENV_KEYS = [
@@ -93,6 +100,23 @@ const SAFE_ENV_KEYS = [
   'DBUS_SESSION_BUS_ADDRESS', 'DESKTOP_SESSION', 'GNOME_DESKTOP_SESSION_ID', 'KDE_FULL_SESSION',
   'CI', 'DOCKER_HOST', 'CONTAINER'
 ]
+
+// Security: the dynamic IPC bridges (runGlobalAsync / runSync) only dispatch to
+// functions that are explicitly wired into the dispatch object as own properties.
+// Checking `hasOwnProperty` (instead of a hand-maintained name list) means the
+// allowlist can never drift from the real exports, and it blocks prototype-chain
+// pivots like 'constructor', 'toString', '__proto__', 'hasOwnProperty' (CWE-863 / CWE-749).
+function isExportedIpcFunc (obj, name) {
+  return Object.prototype.hasOwnProperty.call(obj, name) && typeof obj[name] === 'function'
+}
+
+// Only the main app window's webContents may use the dynamic IPC bridges. This blocks
+// any other renderer frame (webviews, popups, or an attacker page that navigated the
+// window) from reaching runGlobalAsync / runSync (CWE-863 / CWE-749).
+function isTrustedIpcSender (event) {
+  const win = globalState.get('win')
+  return !!win && event.sender === win.webContents
+}
 
 async function initAppServer () {
   const {
@@ -149,6 +173,10 @@ function initIpc () {
   }
 
   ipcMain.on('sync-func', (event, { name, args }) => {
+    if (!isTrustedIpcSender(event) || !isExportedIpcFunc(ipcSyncFuncs, name)) {
+      console.error('[security] blocked IPC call: ' + name)
+      return
+    }
     event.returnValue = ipcSyncFuncs[name](...args)
   })
   const asyncGlobals = {
@@ -208,6 +236,7 @@ function initIpc () {
     saveUserConfig,
     AIchat,
     AIchatWithTools,
+    AIlistModels,
     getStreamContent,
     stopStream,
     setTitle: (title) => {
@@ -231,6 +260,7 @@ function initIpc () {
     unregisterDeepLink,
     checkProtocolRegistration,
     getPendingDeepLink,
+    getPendingVvFile,
     getEnv: (key) => {
       if (key) {
         return SAFE_ENV_KEYS.includes(key) ? process.env[key] : ''
@@ -243,6 +273,10 @@ function initIpc () {
     }
   }
   ipcMain.handle('async', (event, { name, args }) => {
+    if (!isTrustedIpcSender(event) || !isExportedIpcFunc(asyncGlobals, name)) {
+      console.error('[security] blocked IPC call: ' + name)
+      return
+    }
     return asyncGlobals[name](...args)
   })
   ipcMain.handle('show-open-dialog-sync', async (event, ...args) => {

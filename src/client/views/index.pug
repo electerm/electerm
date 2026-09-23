@@ -23,6 +23,9 @@ html
       }
       .electerm-logo-bg {
         background: transparent 50% 50% no-repeat url("./images/electerm-watermark.png");
+        /* the watermark is 766 x 266; without a size it is cropped on narrow
+           panes (mobile), so scale it down to fit the pane width instead */
+        background-size: min(100%, 766px) auto;
       }
       .morph-shape {
         background: linear-gradient(45deg, #08c 0%, #09c 100%);

@@ -35,7 +35,10 @@ try {
   console.warn('Failed to remove cpu-features:', e?.message || e)
 }
 
-exec(resolve('./node_modules/.bin/electron-rebuild'))
+// Quoted, because this resolves to an absolute path and is handed to a shell.
+// An unquoted path containing a space is split into separate arguments, so the
+// rebuild never runs on a checkout under e.g. C:\Users\me\Project Code\electerm.
+exec(`"${resolve(__dirname, '../../node_modules/.bin/electron-rebuild')}"`)
 
 if (!existsSync(prePushPath)) {
   cp(prePushPathFrom, prePushPath)

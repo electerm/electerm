@@ -4,12 +4,15 @@
 
 import { auto } from 'manate/react'
 import { pick } from 'lodash-es'
-import { Tabs, Spin } from 'antd'
+import { Spin } from 'antd'
 import { lazy, Suspense } from 'react'
 import SettingModal from './setting-wrap'
+import LazyBoundary from '../common/lazy-boundary'
+import ResponsiveTabs from '../common/responsive-tabs'
 import {
   settingMap,
-  modals
+  modals,
+  settingPanelMobileBreakpoint
 } from '../../common/constants'
 const TabBookmarks = lazy(() => import('./tab-bookmarks'))
 const TabQuickCommands = lazy(() => import('./tab-quick-commands'))
@@ -17,6 +20,7 @@ const TabSettings = lazy(() => import('./tab-settings'))
 const TabThemes = lazy(() => import('./tab-themes'))
 const TabProfiles = lazy(() => import('./tab-profiles'))
 const TabWidgets = lazy(() => import('./tab-widgets'))
+const TabTriggers = lazy(() => import('./tab-triggers'))
 
 const Loading = () => <div style={{ padding: 20, textAlign: 'center' }}><Spin /></div>
 
@@ -25,6 +29,11 @@ const e = window.translate
 export default auto(function SettingModalWrap (props) {
   const selectItem = (item) => {
     window.store.setSettingItem(item)
+    // narrow panels drill into the right col content after picking a menu
+    // item — same 800px breakpoint as the setting panel media query
+    if (window.store.innerWidth <= settingPanelMobileBreakpoint) {
+      window.store.settingMobileView = 'content'
+    }
   }
 
   function renderTabs () {
@@ -33,14 +42,20 @@ export default auto(function SettingModalWrap (props) {
       settingMap.bookmarks,
       settingMap.terminalThemes
     ]
-    const { settingTab, settingItem, settingSidebarList, bookmarkSelectMode } = store
+    const { settingTab, settingItem, bookmarkSelectMode } = store
+    // settingSidebarList deep-copies the whole collection; the bookmarks tab
+    // ignores `list` (it renders from treeProps), so skip it there — with
+    // thousands of bookmarks that copy is the most expensive part of the render
+    const list = settingTab === settingMap.bookmarks
+      ? []
+      : store.settingSidebarList
     const props0 = {
       store,
       activeItemId: settingItem.id,
       type: settingTab,
       onClickItem: selectItem,
       shouldConfirmDel: tabsShouldConfirmDel.includes(settingTab),
-      list: settingSidebarList
+      list
     }
     const { bookmarks, bookmarkGroups, widgetInstances } = store
     const formProps = {
@@ -70,7 +85,7 @@ export default auto(function SettingModalWrap (props) {
         'config',
         'checkedKeys',
         'expandedKeys',
-        'leftSidebarWidth',
+        'leftSidePanelWidth',
         'initLoadingData'
       ])
     }
@@ -96,6 +111,11 @@ export default auto(function SettingModalWrap (props) {
         children: null
       },
       {
+        key: settingMap.triggers,
+        label: <span>{e('triggers')} <sup>Beta</sup></span>,
+        children: null
+      },
+      {
         key: settingMap.profiles,
         label: e(settingMap.profiles),
         children: null
@@ -113,55 +133,67 @@ export default auto(function SettingModalWrap (props) {
       onChange: store.handleChangeSettingTab,
       destroyOnHidden: true,
       className: 'setting-tabs',
-      type: 'card'
+      type: 'card',
+      // the panel turns into a phone style drill-down at 800px (same
+      // breakpoint as the media query in setting-wrap.styl), collapse the tab
+      // bar there too instead of letting antd hide the overflow tabs
+      isMobile: store.innerWidth <= settingPanelMobileBreakpoint
     }
     return (
       <>
-        <Tabs
+        <ResponsiveTabs
           {...tabsProps}
         />
-        <Suspense fallback={<Loading />}>
-          <TabQuickCommands
-            listProps={props0}
-            settingItem={settingItem}
-            formProps={formProps}
-            store={store}
-            settingTab={settingTab}
-          />
-          <TabBookmarks
-            treeProps={treeProps}
-            settingItem={settingItem}
-            formProps={formProps}
-            settingTab={settingTab}
-          />
-          <TabSettings
-            listProps={props0}
-            settingItem={settingItem}
-            settingTab={settingTab}
-            store={store}
-          />
-          <TabThemes
-            listProps={props0}
-            settingItem={settingItem}
-            formProps={formProps}
-            store={store}
-            settingTab={settingTab}
-          />
-          <TabProfiles
-            listProps={props0}
-            settingItem={settingItem}
-            formProps={formProps}
-            store={store}
-            settingTab={settingTab}
-          />
-          <TabWidgets
-            listProps={props0}
-            settingItem={settingItem}
-            formProps={formProps}
-            store={store}
-            settingTab={settingTab}
-          />
-        </Suspense>
+        <LazyBoundary>
+          <Suspense fallback={<Loading />}>
+            <TabQuickCommands
+              listProps={props0}
+              settingItem={settingItem}
+              formProps={formProps}
+              store={store}
+              settingTab={settingTab}
+            />
+            <TabTriggers
+              listProps={props0}
+              settingItem={settingItem}
+              store={store}
+              settingTab={settingTab}
+            />
+            <TabBookmarks
+              treeProps={treeProps}
+              settingItem={settingItem}
+              formProps={formProps}
+              settingTab={settingTab}
+            />
+            <TabSettings
+              listProps={props0}
+              settingItem={settingItem}
+              settingTab={settingTab}
+              store={store}
+            />
+            <TabThemes
+              listProps={props0}
+              settingItem={settingItem}
+              formProps={formProps}
+              store={store}
+              settingTab={settingTab}
+            />
+            <TabProfiles
+              listProps={props0}
+              settingItem={settingItem}
+              formProps={formProps}
+              store={store}
+              settingTab={settingTab}
+            />
+            <TabWidgets
+              listProps={props0}
+              settingItem={settingItem}
+              formProps={formProps}
+              store={store}
+              settingTab={settingTab}
+            />
+          </Suspense>
+        </LazyBoundary>
       </>
     )
   }
@@ -182,7 +214,6 @@ export default auto(function SettingModalWrap (props) {
       visible={show}
       useSystemTitleBar={useSystemTitleBar}
       innerWidth={innerWidth}
-      isMobile={props.store.isMobile}
     >
       {renderTabs()}
     </SettingModal>

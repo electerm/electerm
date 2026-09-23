@@ -4,6 +4,7 @@
 
 import { get, pick, debounce } from 'lodash-es'
 import copy from 'json-deep-copy'
+import { action } from 'manate'
 import {
   settingMap, packInfo, syncTypes, syncDataMaps
 } from '../common/constants'
@@ -13,6 +14,9 @@ import download from '../common/download'
 import { fixBookmarks } from '../common/db-fix'
 import dayjs from 'dayjs'
 import parseJsonSafe from '../common/parse-json-safe'
+import { runImportTask } from '../common/import-task'
+
+const e = window.translate
 
 const {
   version: packVer
@@ -46,6 +50,46 @@ function stripServerManagedKeys (conf) {
 
 function isJSON (str = '') {
   return str.startsWith('[')
+}
+
+/**
+ * Names of data types that are actually encrypted on upload when a
+ * sync password is set.  Only these types trigger the fail-closed
+ * check on download.
+ */
+const encryptedDataNames = new Set([
+  settingMap.bookmarks,
+  settingMap.profiles
+])
+
+/**
+ * Decrypt sync data with fail-closed semantics.
+ *
+ * Only bookmarks and profiles are encrypted on upload when a sync
+ * password is configured.  For those two types, plaintext JSON
+ * (content starting with '[') must never be silently accepted when a
+ * password is set — it could be attacker-injected data from a
+ * compromised sync backend.  Instead, we reject it so the user is
+ * alerted rather than silently importing untrusted data.
+ *
+ * For all other data types, plaintext JSON is expected even when a
+ * password is set, so we accept it without error.
+ */
+async function decryptSyncData (str, pass, dataName) {
+  if (!str) {
+    return str
+  }
+  if (isJSON(str)) {
+    if (pass && encryptedDataNames.has(dataName)) {
+      throw new Error(
+        'Sync data is plaintext but a sync password is configured. ' +
+        'This may indicate the data was tampered with or the sync backend is compromised. ' +
+        'Aborting sync download for safety.'
+      )
+    }
+    return str
+  }
+  return window.pre.runGlobalAsync('decryptAsync', str, pass)
 }
 
 async function fetchData (type, func, args, token, proxy) {
@@ -333,9 +377,7 @@ export default (Store) => {
       let serverItems = []
       if (serverStr) {
         try {
-          if (!isJSON(serverStr)) {
-            serverStr = await window.pre.runGlobalAsync('decryptAsync', serverStr, pass)
-          }
+          serverStr = await decryptSyncData(serverStr, pass, n)
           serverItems = JSON.parse(serverStr)
         } catch (e) {
           console.error(`Failed to parse server data for ${n}:`, e)
@@ -516,9 +558,7 @@ export default (Store) => {
               continue
             }
           }
-          if (!isJSON(str)) {
-            str = await window.pre.runGlobalAsync('decryptAsync', str, pass)
-          }
+          str = await decryptSyncData(str, pass, n)
           let arr = JSON.parse(str)
           if (n === settingMap.terminalThemes) {
             arr = store.fixThemes(arr)
@@ -581,9 +621,7 @@ export default (Store) => {
           continue
         }
       }
-      if (!isJSON(str)) {
-        str = await window.pre.runGlobalAsync('decryptAsync', str, pass)
-      }
+      str = await decryptSyncData(str, pass, n)
       let arr = JSON.parse(
         str
       )
@@ -694,15 +732,40 @@ export default (Store) => {
     const { store } = window
     const objs = JSON.parse(txt)
     const { names } = store.getDataSyncNames(true)
+    const fixed = {}
     for (const n of names) {
-      let arr = objs[n]
+      let arr = objs[n] || []
       if (n === settingMap.terminalThemes) {
         arr = store.fixThemes(arr)
       } else if (n === settingMap.bookmarks) {
         arr = fixBookmarks(arr)
       }
-      store.setItems(n, objs[n])
+      fixed[n] = arr
     }
+    // clear all targets first - importAll replaces data sets, not appends.
+    // watchers are stopped inside runImportTask, so this is silent until restart
+    action(() => {
+      for (const n of names) {
+        store.setItems(n, [])
+      }
+    })()
+    await runImportTask({
+      title: e('import'),
+      batch: 200,
+      stopWatchers: names,
+      // one chunked step per data set (bookmarks, groups, themes, ...),
+      // so the progress bar advances per batch instead of per data set
+      steps: names.map((n) => {
+        const arr = fixed[n]
+        return {
+          label: n,
+          items: arr,
+          process: (chunk) => {
+            store[n].push(...chunk)
+          }
+        }
+      })
+    })
     store.updateConfig(stripServerManagedKeys(objs.config))
     if (objs.config?.theme) {
       store.setTheme(objs.config.theme)
@@ -782,6 +845,8 @@ export default (Store) => {
       'addTimeStampToTermLog',
       'showHiddenFilesOnSftpStart',
       'terminalInfos',
+      'remoteMonitorBarEnabled',
+      'remoteMonitorBarItems',
       'filePropsEnabled',
       'hideIP',
       'terminalTimeout',

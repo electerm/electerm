@@ -3,9 +3,10 @@
  * Maps field types to React components
  */
 import React from 'react'
-import { Form, Input, InputNumber, Switch, Select, AutoComplete, Alert, Radio } from 'antd'
+import { Form, Input, InputNumber, Select, AutoComplete, Alert, Radio } from 'antd'
 import { ColorPickerItem } from './color-picker-item.jsx'
 import Password from '../../common/password.jsx'
+import SwitchLabel from '../../common/switch.jsx'
 import InputAutoFocus from '../../common/input-auto-focus.jsx'
 import ProxyField from './proxy.jsx'
 import X11Field from './x11.jsx'
@@ -15,9 +16,11 @@ import ConnectionHopping from './connection-hopping.jsx'
 import TerminalBackgroundField from './terminal-background.jsx'
 import ExecSettingsField from './exec-settings-field.jsx'
 import useQuickCmds from './quick-commands.jsx'
+import TriggersField from '../../triggers/triggers-field.jsx'
 import ProfileItem from './profile-item.jsx'
 import renderRunScripts from './run-scripts.jsx'
 import SerialPathSelector from './serial-path-selector.jsx'
+import VvFileField from './vv-file-field.jsx'
 import SshHostSelector from './ssh-host-selector.jsx'
 import SshAuthTypeSelector from './ssh-auth-type-selector.jsx'
 import SshAuthSelector from './ssh-auth-selector.jsx'
@@ -66,7 +69,7 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
         control = <InputNumber min={1} max={65535} step={1} {...item.props} />
         break
       case 'switch':
-        control = <Switch {...item.props} />
+        control = <SwitchLabel {...item.props} />
         break
       case 'select':
         control = <Select options={item.options} {...item.props} />
@@ -148,6 +151,8 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
       )
     case 'proxy':
       return <ProxyField key={name} bookmarks={ctxProps.bookmarks} />
+    case 'vvFile':
+      return <VvFileField key={name} form={form} />
     case 'x11':
       return <X11Field key={name} form={form} />
     case 'sshTunnels':
@@ -169,9 +174,11 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
     case 'execSettings':
       return <ExecSettingsField key={name} />
     case 'profileItem':
-      return <ProfileItem key={name} store={ctxProps.store} profileFilter={item.profileFilter} />
+      return <ProfileItem key={name} store={ctxProps.store} form={form} profileFilter={item.profileFilter} />
     case 'quickCommands':
       return <Fragment key={name}>{useQuickCmds(form, ctxProps.formData || {})}</Fragment>
+    case 'triggers':
+      return <TriggersField key={name} />
     case 'runScripts':
       return <Fragment key={name}>{renderRunScripts()}</Fragment>
     case 'serialPathSelector':

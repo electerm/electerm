@@ -126,5 +126,10 @@ ftp-root
 /AGENTS.md
 /.workbuddy
 .catpaw
+.workbuddy-ai
+/test-results*
+.codeartsdoer
+.kilo
+.cursor
 /.codebuddy
 /.test-build-num

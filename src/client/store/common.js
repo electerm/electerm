@@ -7,17 +7,21 @@ import Modal from '../components/common/modal'
 import { appendMandatoryGuardrails } from '../components/ai/ai-guardrails'
 import { debounce, some, get, pickBy } from 'lodash-es'
 import {
-  leftSidebarWidthKey,
+  leftSidePanelWidthKey,
+  leftSideBarOpenKey,
   rightSidebarWidthKey,
+  rightPanelPinnedKey,
   addPanelWidthLsKey,
-  dismissDelKeyTipLsKey,
   connectionMap,
   lastAiChatSessionIdKey,
   mobileBreakpoint,
-  splitMap
+  splitMap,
+  settingAiId,
+  settingSyncId
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 import { refs, refsStatic } from '../components/common/ref'
+import { requireTermOfUse } from '../common/term-of-use'
 import { action } from 'manate'
 import uid from '../common/uid'
 import deepCopy from 'json-deep-copy'
@@ -39,6 +43,18 @@ export default Store => {
     window.store.setConfig(ext)
   }
 
+  // The footer info icon is a toggle: the same click opens and closes the
+  // panel, so the trigger never has to be hunted down in the panel header.
+  Store.prototype.toggleInfoPanel = action(function () {
+    const { store } = window
+    const isOpen = store.rightPanelVisible && store.rightPanelTab === 'info'
+    store.rightPanelVisible = !isOpen
+    store.rightPanelTab = 'info'
+    if (!isOpen) {
+      store.openInfoPanelAction()
+    }
+  })
+
   Store.prototype.openInfoPanel = action(function () {
     const { store } = window
     store.rightPanelVisible = true
@@ -55,7 +71,9 @@ export default Store => {
   }
 
   Store.prototype.toggleAIConfig = function () {
-    window.store.showAIConfigModal = true
+    requireTermOfUse('ai', () => {
+      window.store.showAIConfigModal = true
+    })
   }
 
   Store.prototype.onResize = debounce(async function () {
@@ -98,6 +116,18 @@ export default Store => {
   }
 
   Store.prototype.setSettingItem = function (v) {
+    // entering the AI / sync setting page requires the term of use
+    // confirmation first (when the term is defined)
+    if (
+      v && (
+        v.id === settingAiId || v.id === settingSyncId
+      )
+    ) {
+      const type = v.id === settingAiId ? 'ai' : 'sync'
+      return requireTermOfUse(type, () => {
+        window.store.settingItem = v
+      })
+    }
     window.store.settingItem = v
   }
 
@@ -105,9 +135,26 @@ export default Store => {
     Object.assign(window.store._termSearchOptions, update)
   }
 
+  // Both panel widths are desktop-only preferences: on mobile the panel is a
+  // full-width drawer whose width is fixed, so a drag (or any other caller)
+  // must not overwrite the desktop value that is still in localStorage.
   Store.prototype.setLeftSidePanelWidth = function (v) {
-    ls.setItem(leftSidebarWidthKey, v)
-    window.store._leftSidebarWidth = v
+    if (window.store.isMobile) {
+      return
+    }
+    ls.setItem(leftSidePanelWidthKey, v)
+    window.store._leftSidePanelWidth = v
+  }
+
+  Store.prototype.toggleLeftSideBar = function () {
+    const { store } = window
+    const willOpen = !store._leftSideBarOpen
+    store._leftSideBarOpen = willOpen
+    ls.setItem(leftSideBarOpenKey, willOpen ? 'true' : 'false')
+    if (!willOpen) {
+      // hiding the bar also closes/unpins the side panel so no space is reserved
+      store.handleCloseSidebar()
+    }
   }
 
   Store.prototype.setAddPanelWidth = function (v) {
@@ -116,12 +163,21 @@ export default Store => {
   }
 
   Store.prototype.setRightSidePanelWidth = function (v) {
+    if (window.store.isMobile) {
+      return
+    }
     ls.setItem(rightSidebarWidthKey, v)
     window.store._rightPanelWidth = v
   }
-  Store.prototype.dismissDelKeyTip = function (v) {
-    ls.setItem(dismissDelKeyTipLsKey, 'y')
-    window.store.hideDelKeyTip = true
+
+  // Persist the pin the same way the left sidebar does (sidebarPinnedKey):
+  // pinned is a durable layout preference, not a per-session toggle. It matters
+  // more here because pinned and unpinned are visibly different modes — the
+  // unpinned panel is an overlay that clears the footer, the pinned one is a
+  // full-height dock.
+  Store.prototype.setRightPanelPinned = function (v) {
+    ls.setItem(rightPanelPinnedKey, v + '')
+    window.store.rightPanelPinned = v
   }
   Store.prototype.beforeExit = function (evt) {
     const { confirmBeforeExit } = window.store.config
@@ -181,7 +237,13 @@ export default Store => {
       type,
       authType
     } = tab
-    if (!profile || authType !== 'profiles') {
+    // SSH picks auth type explicitly (password/privateKey/profiles radio),
+    // other types only have the profile dropdown, so a selected profile
+    // always means profile auth for them
+    const useProfile = type === connectionMap.ssh
+      ? authType === 'profiles'
+      : true
+    if (!profile || !useProfile) {
       return tab
     }
     let p = window.store.profiles.find(x => x.id === profile)
@@ -212,10 +274,17 @@ export default Store => {
         ...tab,
         ...filtered
       }
+    } else if (type === connectionMap.ftp) {
+      const filtered = pickBy(p.ftp, (value) => value !== undefined && value !== '')
+      return {
+        ...tab,
+        ...filtered
+      }
     }
     delete p.rdp
     delete p.vnc
     delete p.telnet
+    delete p.ftp
     const filtered = pickBy(p, (value) => value !== undefined && value !== '')
     return {
       ...tab,
@@ -239,6 +308,26 @@ export default Store => {
     const { store } = window
     store.rightPanelVisible = true
     store.rightPanelTab = 'ai'
+    // Ask for AI config right away when AI is not configured yet.
+    // This has to happen here (a plain user action) instead of from
+    // AIChat's mount effect: a write issued there lands in the very commit
+    // that opened the panel, and that update is dropped, so the config
+    // modal never showed up on first open.
+    if (store.aiConfigMissing()) {
+      store.toggleAIConfig()
+    }
+  }
+
+  // Same toggle contract as toggleInfoPanel: the footer AI button opens and
+  // closes its own panel. The open path must go through handleOpenAIPanel so
+  // the missing-config prompt still fires; closing must not touch config.
+  Store.prototype.toggleAIPanel = function () {
+    const { store } = window
+    if (store.rightPanelVisible && store.rightPanelTab === 'ai') {
+      store.rightPanelVisible = false
+      return
+    }
+    store.handleOpenAIPanel()
   }
 
   Store.prototype.explainWithAi = function (txt) {
@@ -340,7 +429,10 @@ export default Store => {
           content: 'Understood. I will use this context as we continue.'
         })
       } else {
-        messages.push({ role: 'user', content: entry.prompt })
+        messages.push({
+          role: 'user',
+          content: entry.promptWithAttachments || entry.prompt
+        })
         if (entry.response) {
           messages.push({ role: 'assistant', content: entry.response })
         }
@@ -443,6 +535,11 @@ export default Store => {
     let i = len - 1
     for (;i >= 0; i--) {
       const f = profiles[i]
+      // migrate old rdp profile key userName -> username
+      if (f.rdp?.userName !== undefined) {
+        f.rdp.username = f.rdp.userName
+        delete f.rdp.userName
+      }
       if (f.name) {
         continue
       }

@@ -34,14 +34,25 @@ async function getDBVersion () {
 /**
  * get upgrade versions should be run as version upgrade
  */
+function parseUpgradeFile (f) {
+  const m = /^v(\d+\.\d+\.\d+)\.js$/.exec(f)
+  return m ? m[1] : null
+}
+
 async function getUpgradeVersionList () {
   const version = await getDBVersion()
-  const list = fs.readdirSync(__dirname)
+  let list = []
+  try {
+    list = fs.readdirSync(__dirname)
+  } catch (e) {
+    log.error('read upgrade dir fails', e)
+    return []
+  }
   return list.filter(f => {
-    const vv = f.replace('.js', '').replace('v', '')
-    return /^v\d/.test(f) && compare(vv, version) > 0 && compare(vv, packVersion) <= 0
+    const vv = parseUpgradeFile(f)
+    return vv && compare(vv, version) > 0 && compare(vv, packVersion) <= 0
   }).sort((a, b) => {
-    return compare(a, b)
+    return compare(parseUpgradeFile(a), parseUpgradeFile(b))
   })
 }
 async function versionShouldUpgrade () {
@@ -78,11 +89,23 @@ async function doUpgrade () {
   log.info('Upgrading...')
   for (const v of list) {
     const p = resolve(__dirname, v)
-    const run = require(p)
-    await run()
+    try {
+      const run = require(p)
+      await run()
+    } catch (e) {
+      // A single broken migration script must never brick app startup:
+      // log it, stamp its version so it is not retried forever, continue
+      log.error(`Upgrade script ${v} fails, skip it`, e)
+      const vv = parseUpgradeFile(v)
+      if (vv) {
+        await updateDBVersion(vv)
+      }
+    }
   }
   log.info('Upgrade end')
 }
 
 exports.checkDbUpgrade = shouldUpgrade
 exports.doUpgrade = doUpgrade
+exports.parseUpgradeFile = parseUpgradeFile
+exports.getUpgradeVersionList = getUpgradeVersionList

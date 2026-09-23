@@ -3,6 +3,7 @@
  */
 
 const { packInfo, isTest } = require('../common/app-props')
+const { findVvFile } = require('../common/vv-file')
 const { version } = packInfo
 
 let helpInfo
@@ -29,6 +30,8 @@ function parseCommandLine (argv, options) {
 electerm -sp 30976
 - load and run batch operation from json file:
 electerm -bo "/home/root/works.json"
+- open a .vv connection file (virt-viewer / Proxmox SPICE), connecting at once:
+electerm /path/to/console.vv
 
 ### other connection types
 - telnet:
@@ -93,6 +96,7 @@ exports.initCommandLine = function () {
   return {
     options,
     argv: program.args,
+    vvFile: findVvFile(process.argv),
     helpInfo
   }
 }

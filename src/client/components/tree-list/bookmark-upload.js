@@ -8,7 +8,9 @@ import { action } from 'manate'
 import uid from '../../common/uid'
 import time from '../../common/time'
 import { fixBookmarks } from '../../common/db-fix'
-import delay from '../../common/wait'
+import { runImportTask } from '../../common/import-task'
+
+const e = window.translate
 
 function fixBookmarksId (bookmarks) {
   return bookmarks.map(item => {
@@ -21,6 +23,7 @@ function fixBookmarksId (bookmarks) {
     return item
   }).filter(Boolean)
 }
+
 export const bookmarkUpload = action(async (file) => {
   const { store } = window
   const { bookmarks, bookmarkGroups } = store
@@ -58,50 +61,62 @@ export const bookmarkUpload = action(async (file) => {
 
   const fixed = fixBookmarks(bookmarks1)
 
-  fixed.forEach(bg => {
-    if (!bmTree.has(bg.id)) {
-      store.bookmarks.push(bg)
-    }
+  await runImportTask({
+    title: e('import'),
+    batch: 200,
+    stopWatchers: ['bookmarks', 'bookmarkGroups'],
+    steps: [
+      {
+        label: e('bookmarks'),
+        items: fixed,
+        process: (chunk) => {
+          chunk.forEach(bg => {
+            if (!bmTree.has(bg.id)) {
+              store.bookmarks.push(bg)
+            }
+          })
+        }
+      },
+      {
+        label: e('bookmarkCategory'),
+        items: bookmarkGroups1,
+        process: (chunk) => {
+          chunk.forEach(bg => {
+            if (!bmgTree.has(bg.id)) {
+              store.bookmarkGroups.push(bg)
+            } else {
+              const bg1 = store.bookmarkGroups.find(
+                b => b.id === bg.id
+              )
+              bg1.bookmarkIds = uniq(
+                [
+                  ...(bg1.bookmarkIds || []),
+                  ...(bg.bookmarkIds || [])
+                ]
+              )
+              bg1.bookmarkGroupIds = uniq(
+                [
+                  ...(bg1.bookmarkGroupIds || []),
+                  ...(bg.bookmarkGroupIds || [])
+                ]
+              )
+            }
+          })
+        }
+      },
+      {
+        label: e('bookmarks'),
+        weight: 1,
+        run: () => {
+          store.fixBookmarkGroups()
+        }
+      }
+    ]
   })
-
-  bookmarkGroups1.forEach(bg => {
-    if (!bmgTree.has(bg.id)) {
-      store.bookmarkGroups.push(bg)
-    } else {
-      const bg1 = store.bookmarkGroups.find(
-        b => b.id === bg.id
-      )
-      bg1.bookmarkIds = uniq(
-        [
-          ...(bg1.bookmarkIds || []),
-          ...(bg.bookmarkIds || [])
-        ]
-      )
-      bg1.bookmarkGroupIds = uniq(
-        [
-          ...(bg1.bookmarkGroupIds || []),
-          ...(bg.bookmarkGroupIds || [])
-        ]
-      )
-    }
-  })
-
-  store.fixBookmarkGroups()
 
   return false
 })
 
 export async function beforeBookmarkUpload (file) {
-  const names = [
-    'bookmarks',
-    'bookmarkGroups'
-  ]
-  for (const name of names) {
-    window[`watch${name}`].stop()
-  }
-  bookmarkUpload(file)
-  await delay(1000)
-  for (const name of names) {
-    window[`watch${name}`].start()
-  }
+  return bookmarkUpload(file)
 }

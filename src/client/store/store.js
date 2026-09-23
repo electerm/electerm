@@ -13,6 +13,7 @@ import bookmarkExtend from './bookmark'
 import commonExtend from './common'
 import itemExtend from './item'
 import quickCommandExtend from './quick-command'
+import triggerExtend from './trigger'
 import sessionExtend from './session'
 import settingExtend from './setting'
 import sidebarExtend from './sidebar'
@@ -42,6 +43,7 @@ import {
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import createTitle from '../common/create-title'
+import buildMap from '../common/build-map'
 import {
   theme
 } from 'antd'
@@ -59,18 +61,34 @@ class Store {
     return window.store.innerWidth
   }
 
-  get leftSidebarWidth () {
+  // Mobile turns a side panel into a full-screen drawer: it spans the whole
+  // viewport and its width is not user-adjustable. So the stored desktop width
+  // is ignored here, and so is the icon bar (the drawer covers it) — and the
+  // old 500px cap, which left a strip of terminal showing on windows between
+  // 500 and 600px, i.e. the top of the mobile range.
+  get leftSidePanelWidth () {
     const { store } = window
     if (store.isMobile) {
-      return Math.min(store.innerWidth - sidebarWidth, 500)
+      return store.innerWidth
     }
-    return store._leftSidebarWidth
+    return store._leftSidePanelWidth
   }
 
+  // width of the far-left icon bar (the ~43px vertical strip with the menu
+  // / bookmarks / settings icons). Distinct from leftSidePanelWidth, which is
+  // the expandable bookmarks/history panel. Controlled by _leftSideBarOpen on
+  // every platform: sidebarWidth when open, 0 when hidden.
+  get leftSideBarWidth () {
+    const { store } = window
+    return store._leftSideBarOpen ? sidebarWidth : 0
+  }
+
+  // Same as leftSidePanelWidth: full-screen drawer on mobile, width not
+  // user-adjustable.
   get rightPanelWidth () {
     const { store } = window
     if (store.isMobile) {
-      return Math.min(store.innerWidth, 500)
+      return store.innerWidth
     }
     return store._rightPanelWidth
   }
@@ -269,12 +287,7 @@ class Store {
     const {
       bookmarks
     } = window.store
-    return bookmarks.reduce((p, v) => {
-      return {
-        ...p,
-        [v.id]: v
-      }
-    }, {})
+    return buildMap(bookmarks)
   }
 
   hasSshConfig () {
@@ -287,12 +300,7 @@ class Store {
     const {
       bookmarkGroups
     } = window.store
-    return bookmarkGroups.reduce((p, v) => {
-      return {
-        ...p,
-        [v.id]: v
-      }
-    }, {})
+    return buildMap(bookmarkGroups)
   }
 
   get hasOldConnectionHoppingBookmark () {
@@ -312,6 +320,7 @@ bookmarkExtend(Store)
 commonExtend(Store)
 itemExtend(Store)
 quickCommandExtend(Store)
+triggerExtend(Store)
 sessionExtend(Store)
 settingExtend(Store)
 sidebarExtend(Store)

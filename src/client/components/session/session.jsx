@@ -1,14 +1,10 @@
 /**
  * terminal/sftp wrapper
  */
-import { createRef } from 'react'
+import { createRef, lazy, Suspense } from 'react'
 import { Component } from 'manate/react/class-components'
 import Term from '../terminal/terminal.jsx'
 import Sftp from '../sftp/sftp-entry'
-import RdpSession from '../rdp/rdp-session'
-import VncSession from '../vnc/vnc-session'
-import WebSession from '../web/web-session.jsx'
-import SpiceSession from '../spice/spice-session'
 import {
   FullscreenOutlined
 } from '@ant-design/icons'
@@ -31,8 +27,13 @@ import {
 import { refs } from '../common/ref'
 import sanitizeFilename from '../../common/sanitize-filename.js'
 import SessionControl from './session-control'
+import LazyBoundary from '../common/lazy-boundary'
 import './session.styl'
 
+const RdpSession = lazy(() => import('../rdp/rdp-session'))
+const VncSession = lazy(() => import('../vnc/vnc-session'))
+const WebSession = lazy(() => import('../web/web-session.jsx'))
+const SpiceSession = lazy(() => import('../spice/spice-session'))
 const e = window.translate
 const SplitterPane = Splitter.Panel
 
@@ -46,7 +47,6 @@ export default class SessionWrapper extends Component {
       key: Math.random(),
       splitSize: [50, 50],
       sessionOptions: null,
-      delKeyPressed: false,
       broadcastInput: false,
       keepaliveEnabled: false,
       wrapDisabled: false
@@ -58,10 +58,6 @@ export default class SessionWrapper extends Component {
 
   minWithForSplit = 640
   minHeightForSplit = 400
-
-  componentWillUnmount () {
-    clearTimeout(this.backspaceKeyPressedTimer)
-  }
 
   getDom = () => {
     return this.domRef.current
@@ -178,27 +174,6 @@ export default class SessionWrapper extends Component {
     e && e.dataTransfer && e.dataTransfer.clearData()
   }
 
-  onDelKeyPressed = () => {
-    this.setState({
-      delKeyPressed: true
-    })
-    this.backspaceKeyPressedTimer = setTimeout(() => {
-      this.setState({
-        delKeyPressed: false
-      })
-    }, 5000)
-  }
-
-  handleChangeDelMode = (backspaceMode) => {
-    this.setState({
-      backspaceMode
-    })
-  }
-
-  handleDismissDelKeyTip = () => {
-    window.store.dismissDelKeyTip()
-  }
-
   setCwd = (cwd) => {
     this.setState({
       cwd
@@ -265,9 +240,11 @@ export default class SessionWrapper extends Component {
         reloadTab: this.props.reloadTab
       }
       return (
-        <WebSession
-          {...webProps}
-        />
+        <LazyBoundary>
+          <WebSession
+            {...webProps}
+          />
+        </LazyBoundary>
       )
     }
     if (type === terminalRdpType || type === terminalVncType || type === terminalSpiceType) {
@@ -278,7 +255,7 @@ export default class SessionWrapper extends Component {
           'height',
           'width',
           'tabsHeight',
-          'leftSidebarWidth',
+          'leftSidePanelWidth',
           'pinned',
           'openedSideBar',
           'delTab',
@@ -295,23 +272,29 @@ export default class SessionWrapper extends Component {
       }
       if (type === terminalVncType) {
         return (
-          <VncSession
-            {...rdpProps}
-          />
+          <LazyBoundary>
+            <VncSession
+              {...rdpProps}
+            />
+          </LazyBoundary>
         )
       }
       if (type === terminalSpiceType) {
         return (
-          <SpiceSession
-            {...rdpProps}
-          />
+          <LazyBoundary>
+            <SpiceSession
+              {...rdpProps}
+            />
+          </LazyBoundary>
         )
       }
 
       return (
-        <RdpSession
-          {...rdpProps}
-        />
+        <LazyBoundary>
+          <RdpSession
+            {...rdpProps}
+          />
+        </LazyBoundary>
       )
     }
 
@@ -351,8 +334,7 @@ export default class SessionWrapper extends Component {
         this,
         [
           'onChangePane',
-          'setCwd',
-          'onDelKeyPressed'
+          'setCwd'
         ]),
       ...this.computePosition(),
       width,
@@ -498,6 +480,15 @@ export default class SessionWrapper extends Component {
     refs.get('term-' + this.props.tab.id)?.toggleSearch()
   }
 
+  handleZoomFontSize = (v) => {
+    const term = refs.get('term-' + this.props.tab.id)
+    if (!term?.term) {
+      return
+    }
+    term.zoom(v)
+    term.term.focus()
+  }
+
   toggleWrap = () => {
     const termRef = refs.get('term-' + this.props.tab.id)
     if (!termRef?.term) {
@@ -625,6 +616,7 @@ export default class SessionWrapper extends Component {
         <SessionControl
           tab={this.props.tab}
           isMobile={window.store.isMobile}
+          isTouchDevice={window.store.isTouchDevice}
           isDisabled={this.isDisabled()}
           isSshDisabled={this.isSshDisabled()}
           isNotTerminalType={this.isNotTerminalType()}
@@ -633,8 +625,6 @@ export default class SessionWrapper extends Component {
           keepaliveEnabled={this.state.keepaliveEnabled}
           broadcastInput={this.state.broadcastInput}
           wrapDisabled={this.state.wrapDisabled}
-          delKeyPressed={this.state.delKeyPressed}
-          hideDelKeyTip={this.props.hideDelKeyTip}
           onChangePane={(pane) => this.onChangePane(pane)}
           toggleCheckSftpPathFollowSsh={this.toggleCheckSftpPathFollowSsh}
           onSshSftpSplitView={this.handleSshSftpSplitView}
@@ -642,11 +632,13 @@ export default class SessionWrapper extends Component {
           toggleBroadcastInput={this.toggleBroadcastInput}
           toggleWrap={this.toggleWrap}
           onFullscreen={this.handleFullscreen}
+          onZoomFontSize={this.handleZoomFontSize}
           onOpenSearch={this.handleOpenSearch}
-          onDismissDelKeyTip={this.handleDismissDelKeyTip}
           onExitGracefully={this.handleExitGracefully}
         />
-        {this.renderViews()}
+        <Suspense fallback={null}>
+          {this.renderViews()}
+        </Suspense>
       </div>
     )
   }

@@ -1,11 +1,14 @@
 /**
  * Global tooltip that detects Unix timestamps in terminal selections
  * and displays their human-readable date/time near the cursor.
+ * Clicking the tooltip (or its copy icon) copies the formatted string.
  * Registered via refsStatic as 'unix-timestamp-tooltip'.
  */
 
 import { Component } from 'react'
+import { CopyOutlined } from '@ant-design/icons'
 import { refsStatic } from '../common/ref'
+import { copy } from '../../common/clipboard'
 
 export default class UnixTimestampTooltip extends Component {
   state = {
@@ -56,6 +59,24 @@ export default class UnixTimestampTooltip extends Component {
     }
   }
 
+  handleHide = () => {
+    this.setState({ visible: false })
+  }
+
+  /**
+   * Copy on mousedown instead of click: pressing the tooltip collapses the
+   * document selection, and the terminal drops its (DOM backed) selection on
+   * that change, which would unmount this tooltip before a click could land.
+   * preventDefault also keeps the terminal selection and focus untouched.
+   * The whole tooltip is the hit area, the icon is just the affordance.
+   */
+  handleCopy = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    copy(this.state.text)
+    this.handleHide()
+  }
+
   render () {
     const { visible, x, y, text } = this.state
     if (!visible) {
@@ -63,6 +84,10 @@ export default class UnixTimestampTooltip extends Component {
     }
     return (
       <div
+        className='unix-timestamp-tooltip pointer'
+        title={window.translate('copy')}
+        onMouseDown={this.handleCopy}
+        onMouseLeave={this.handleHide}
         style={{
           position: 'fixed',
           left: x,
@@ -73,12 +98,13 @@ export default class UnixTimestampTooltip extends Component {
           borderRadius: 4,
           fontSize: 12,
           whiteSpace: 'nowrap',
-          pointerEvents: 'none',
           transform: 'translateX(-50%)',
+          userSelect: 'none',
           zIndex: 9999
         }}
       >
         {text}
+        <CopyOutlined style={{ marginLeft: 6 }} />
       </div>
     )
   }

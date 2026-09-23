@@ -1,6 +1,8 @@
 /**
  * constants
  */
+import { isMacJs } from './platform.js'
+import { defaultThemeId, defaultThemeLightId } from './theme-defaults.js'
 import logoPath1Ref from '@electerm/electerm-resource/res/imgs/electerm-round-128x128.png'
 import logoPath2Ref from '@electerm/electerm-resource/res/imgs/electerm.png'
 import logoPath3Ref from '@electerm/electerm-resource/res/imgs/electerm-watermark.png'
@@ -29,6 +31,7 @@ export const termControlHeight = 32
 export const maxDragMove = 30
 export const splitDraggerWidth = 5
 export const minTerminalWidth = 90
+export const minTerminalFontSize = 5
 export const filePropMinWidth = 1
 export const contextMenuHeight = 28
 export const contextMenuWidth = 280
@@ -78,10 +81,11 @@ export const authTypeMap = buildConst([
 ])
 
 export const footerHeight = 36
+export const remoteMonitorBarHeight = 28
 export const quickCommandBoxHeight = 180
-export const isWin = typeof window.et.isWin === 'undefined' ? window.pre.isWin : window.et.isWin
-export const isMac = typeof window.et.isMac === 'undefined' ? window.pre.isMac : window.et.isMac
-export const isMacJs = /Macintosh|Mac|Mac OS|MacIntel|MacPPC|Mac68K/gi.test(window.navigator.userAgent)
+export const shortcutBarHeight = 44
+export const shortcutBarLsKey = 'shortcut-bar-buttons'
+export { isWin, isMac, isMacJs } from './platform.js'
 export const ctrlOrCmd = isMacJs ? 'cmd' : 'ctrl'
 export const typeMap = buildConst([
   'remote',
@@ -104,13 +108,15 @@ export const settingMap = buildConst([
   'addressBookmarks',
   'profiles',
   'widgets',
-  'workspaces'
+  'workspaces',
+  'triggers'
 ])
 
 export const staticNewItemTabs = new Set([
   'terminalThemes',
   'quickCommands',
-  'profiles'
+  'profiles',
+  'triggers'
 ])
 
 export const infoTabs = buildConst([
@@ -147,9 +153,11 @@ export const terminalFtpType = 'ftp'
 export const terminalSpiceType = 'spice'
 export const openedSidebarKey = 'opened-sidebar'
 export const sidebarPinnedKey = 'sidebar-pinned'
+export const leftSideBarOpenKey = 'left-side-bar-open'
 export const pinnedQuickCommandBarKey = 'pinned-quick-command-bar'
-export const leftSidebarWidthKey = 'left-sidebar-width'
+export const leftSidePanelWidthKey = 'left-sidebar-width'
 export const rightSidebarWidthKey = 'right-sidebar-width'
+export const rightPanelPinnedKey = 'right-panel-pinned'
 export const addPanelWidthLsKey = 'addPanelWidth'
 export const sftpDefaultSortSettingKey = 'sftp-default-sort'
 export const qmSortByFrequencyKey = 'qm-sort-by-frequency'
@@ -198,6 +206,9 @@ export const commonLineEndings = commonTxLineEndings
 export const maxBatchInput = 30
 export const windowControlWidth = 94
 export const mobileBreakpoint = 600
+// breakpoint matching the setting panel's `@media (max-width: 800px)` CSS —
+// must be kept in sync with setting-wrap.styl
+export const settingPanelMobileBreakpoint = 800
 export const baseUpdateCheckUrls = [
   packInfo.homepage,
   'https://gitee.com/github-zxdong262/electerm/raw/gh-pages'
@@ -209,6 +220,16 @@ export const syncTypes = buildConst([
   'cloud',
   'webdav'
 ])
+export const allowedSyncTypes = () => {
+  const custom = window.et.syncTypes
+  if (!Array.isArray(custom)) {
+    return Object.keys(syncTypes)
+  }
+  const list = custom.filter(type => syncTypes[type])
+  return list.length
+    ? list
+    : Object.keys(syncTypes)
+}
 export const syncTokenCreateUrls = {
   gitee: 'https://gitee.com/github-zxdong262/electerm/wikis/Create%20personal%20access%20token?sort_id=3028409',
   github: 'https://github.com/electerm/electerm/wiki/Create-personal-access-token',
@@ -222,6 +243,28 @@ export const settingShortcutsId = 'setting-shortcuts'
 export const settingAiId = 'setting-ai'
 export const settingCommonId = 'setting-common'
 export const settingPasswordsId = 'setting-passwords'
+// Built in items the user is not allowed to delete: the two settings tabs,
+// the default bookmark group and the two built in terminal themes.
+// Keep this an explicit id list. A prefix test like `id.startsWith('default')`
+// would also cover user facing seeds (default quick commands, default local
+// terminal bookmarks) that the user must be able to remove.
+export const undeletableIds = new Set([
+  settingSyncId,
+  settingCommonId,
+  defaultBookmarkGroupId,
+  defaultThemeId,
+  defaultThemeLightId
+])
+// settings that only apply to the desktop (electron) app,
+// hidden when window.et.isWebApp is true
+export const webAppHiddenSettings = [
+  'hotkey',
+  'opacity',
+  'useSystemTitleBar',
+  'checkUpdateOnStart',
+  'allowMultiInstance',
+  'disableDeveloperTool'
+]
 export const defaultEnvLang = 'en_US.UTF-8'
 export const fileActions = {
   cancel: 'cancel',
@@ -250,7 +293,6 @@ export const resolutionsLsKey = 'custom-resolution-key'
 export const checkedKeysLsKey = 'checked-keys'
 export const quickCommandLabelsLsKey = 'quick-command-label'
 export const localAddrBookmarkLsKey = 'local-addr-bookmark-keys'
-export const dismissDelKeyTipLsKey = 'dismiss-del-key-tip'
 export const treeSortLsKey = 'tree-sort'
 export const sshTunnelHelpLink = 'https://github.com/electerm/electerm/wiki/How-to-use-ssh-tunnel'
 export const proxyHelpLink = 'https://github.com/electerm/electerm/wiki/proxy-format'
@@ -259,6 +301,8 @@ export const connectionHoppingWikiLink = 'https://github.com/electerm/electerm/w
 export const aiConfigWikiLink = 'https://github.com/electerm/electerm/wiki/AI-model-config-guide'
 export const aiChatModeLsKey = 'ai-chat-mode'
 export const lastAiChatSessionIdKey = 'last-ai-chat-session-id'
+export const aiTermOfUseConfirmedLsKey = 'ai-term-of-use-confirmed'
+export const syncTermOfUseConfirmedLsKey = 'sync-term-of-use-confirmed'
 export const modals = {
   hide: 0,
   setting: 1
@@ -347,7 +391,8 @@ export const syncDataMaps = {
   quickCommands: ['quickCommands'],
   profiles: ['profiles'],
   addressBookmarks: ['addressBookmarks'],
-  workspaces: ['workspaces']
+  workspaces: ['workspaces'],
+  triggers: ['triggers']
 }
 export const terminalTypes = [
   'xterm-256color',

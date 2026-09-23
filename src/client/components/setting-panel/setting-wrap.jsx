@@ -5,7 +5,6 @@
 import { Component } from 'react'
 import Drawer from '../common/drawer'
 import { CloseCircleOutlined } from '@ant-design/icons'
-import { sidebarWidth } from '../../common/constants'
 import AppDrag from '../tabs/app-drag'
 import './setting-wrap.styl'
 
@@ -17,9 +16,6 @@ export default class SettingWrap extends Component {
   }
 
   renderRightClose () {
-    if (this.props.isMobile) {
-      return null
-    }
     return (
       <CloseCircleOutlined
         className='close-setting-wrap-icon close-setting-wrap'
@@ -33,7 +29,7 @@ export default class SettingWrap extends Component {
       open: this.props.visible,
       onClose: this.props.onCancel,
       className: 'setting-wrap',
-      size: this.props.innerWidth - sidebarWidth,
+      size: this.props.innerWidth - window.store.leftSideBarWidth,
       zIndex: 888,
       placement: 'left'
     }

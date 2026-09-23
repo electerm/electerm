@@ -152,6 +152,9 @@ export const spiceBookmarkSchema = {
   ...commonNetworkBookmarkProps,
   host: z.string().describe('Spice host address'),
   port: z.number().optional().describe('Spice port (default 5900)'),
+  tls: z.boolean().optional().describe('Connect over TLS, default false'),
+  ca: z.string().optional().describe('CA certificate in PEM format, used to verify the TLS peer'),
+  hostSubject: z.string().optional().describe('Expected TLS certificate subject, like CN=pve1,O=Example'),
   viewOnly: z.boolean().optional().describe('View only mode'),
   scaleViewport: z.boolean().optional().describe('Scale viewport to window, default is true')
 }

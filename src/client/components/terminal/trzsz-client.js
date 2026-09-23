@@ -8,14 +8,12 @@ import { filesize } from 'filesize'
 import { TransferClientBase } from './transfer-client-base.js'
 import { transferTypeMap } from '../../common/constants.js'
 
-const TRZSZ_SAVE_PATH_KEY = 'trzsz-save-path'
-
 /**
  * TrzszClient class handles trzsz UI and client-side logic
  */
 export class TrzszClient extends TransferClientBase {
   constructor (terminal) {
-    super(terminal, TRZSZ_SAVE_PATH_KEY)
+    super(terminal)
     this.transferStartTime = 0
     this.totalTransferred = 0
     this.totalSpeed = 0

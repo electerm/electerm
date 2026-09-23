@@ -5,11 +5,20 @@
 import React from 'react'
 import { Form, Select } from 'antd'
 import { formItemLayout } from '../../../common/form-layout'
+import { authTypeMap } from '../../../common/constants'
 
 const FormItem = Form.Item
 const e = window.translate
 
-export default function ProfileItem ({ store, profileFilter = (d) => d }) {
+export default function ProfileItem ({ store, form, profileFilter = (d) => d }) {
+  const handleChange = (value) => {
+    // applyProfile only resolves credentials when authType is 'profiles',
+    // selecting a profile here means bookmark auth should come from it
+    form?.setFieldsValue({
+      authType: value ? authTypeMap.profiles : authTypeMap.password
+    })
+  }
+
   const opts = {
     options: store.profiles
       .filter(profileFilter)
@@ -18,7 +27,8 @@ export default function ProfileItem ({ store, profileFilter = (d) => d }) {
         value: d.id
       })),
     placeholder: e('profiles'),
-    allowClear: true
+    allowClear: true,
+    onChange: handleChange
   }
 
   return (

@@ -38,6 +38,7 @@ function getReleaseInfo (
     timeout: 15000
   }
   if (agent) {
+    conf.httpAgent = agent
     conf.httpsAgent = agent
   }
   return rp(conf)
@@ -90,6 +91,7 @@ class Upgrade {
     this.localPath = localPath
     const readSteam = await rp({
       url: remotePath,
+      httpAgent: agent,
       httpsAgent: agent,
       responseType: 'stream'
     })
@@ -148,10 +150,15 @@ class Upgrade {
 
   onEnd (id, ws) {
     if (!this.onDestroy) {
-      openFile(this.localPath)
-      process.send({
-        showFileInFolder: this.localPath
-      })
+      // In test runs the download is only exercised for progress reporting;
+      // opening the installer (mounting a dmg, showing Finder) would steal
+      // GUI focus on CI runners and break every test that runs afterwards.
+      if (!process.env.NODE_TEST) {
+        openFile(this.localPath)
+        process.send({
+          showFileInFolder: this.localPath
+        })
+      }
       ws.s({
         id: 'transfer:end:' + id,
         data: this.dir

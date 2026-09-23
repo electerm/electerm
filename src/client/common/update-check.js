@@ -23,7 +23,7 @@ async function fetchData (url, options) {
 
 function getInfo (url) {
   const n = Date.now()
-  const tail = url.includes('?') ? '' : '?_=' + n
+  const tail = url.includes('?') ? '&_=' + n : '?_=' + n
   return fetchData(url + tail, {
     action: 'get-update-info',
     headers: {
@@ -87,16 +87,17 @@ export function getDownloadUrl (browserDownloadUrl, mirror) {
 }
 
 export async function getLatestReleaseInfo () {
-  let url = `${baseUpdateCheckUrls[0]}/data/electerm-github-release.json`
+  const { installSrc } = window.store
+  const src = installSrc ? '?src=' + encodeURIComponent(installSrc) : ''
+  let url = `${baseUpdateCheckUrls[0]}/data/electerm-github-release.json${src}`
   let res = await getInfo(url)
   if (!res?.release?.body) {
-    url = `${baseUpdateCheckUrls[1]}/data/electerm-github-release.json`
+    url = `${baseUpdateCheckUrls[1]}/data/electerm-github-release.json${src}`
     res = await getInfo(url)
   }
   if (!res || !res.release) {
     return undefined
   }
-  const { installSrc } = window.store
   const asset = (res.release.assets || []).find(r => r.name.includes(installSrc))
   return {
     body: res.release.body,

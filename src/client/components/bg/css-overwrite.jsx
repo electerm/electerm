@@ -7,6 +7,10 @@ import { generateMosaicBackground } from './shapes'
 
 const themeDomId = 'css-overwrite-terminal-backgrounds'
 
+// natural (intrinsic) width of images/electerm-watermark.png, used to keep the
+// default terminal background at its original size on wide terminals
+const watermarkWidth = 766
+
 function createBackgroundStyle (imagePath) {
   if (!imagePath || imagePath === '') {
     return ''
@@ -89,10 +93,25 @@ async function createStyleForTab (tab, props) {
         'background-image: none'
       )
     }
-  } else if (st !== 'none') {
+  } else if (st === 'none') {
+    // The [🚫] opt-out must be spelled out: this rule has a higher specificity
+    // than the global one, but an empty declaration block would still let the
+    // built-in default bg painted by createGlobalStyle show through.
+    styles.push('background-image: none')
+  } else {
     styles.push(
       `background-image: ${st}`,
       'background-position: center',
+      // createGlobalStyle's built-in default bg rule carries an auto-fit
+      // `background-size` (so the 766px wide watermark is not cropped on
+      // narrow panes), and for the active tab it targets this very same
+      // ::before. `background-size` is not reset by a rule that only sets
+      // `background-image`, so it would leak onto the user's image and scale
+      // it down to at most 766px, centred — a big image that used to fill the
+      // pane would no longer cover it. Stating the initial value keeps user
+      // images at their natural size, which is what they rendered at before
+      // the auto-fit was introduced.
+      'background-size: auto',
       `filter: ${createFilterStyle(props, tab)}`
     )
   }
@@ -104,8 +123,15 @@ async function createStyleForTab (tab, props) {
 async function createGlobalStyle (props) {
   const st = await createBackgroundStyle(props.terminalBackgroundImagePath)
   if (!st) {
+    // Default terminal bg = the electerm watermark (766 x 266 natural size).
+    // Without an explicit size the image is just centered at 1:1, so on narrow
+    // panes (mobile / thin split columns) it gets cropped on both sides.
+    // `min(100%, 766px) auto` keeps the aspect ratio and scales it down to fit
+    // the pane width, while leaving the desktop rendering (= natural size)
+    // untouched.
     return '#container .session-batch-active .xterm-screen::before {' +
     'background-image: url("./images/electerm-watermark.png");' +
+    `background-size: min(100%, ${watermarkWidth}px) auto;` +
     '}'
   }
 

@@ -60,7 +60,10 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
     } else {
       messages = [
         { role: 'system', content: buildAgentSystemPrompt(config) },
-        { role: 'user', content: chatEntry.prompt }
+        {
+          role: 'user',
+          content: chatEntry.promptWithAttachments || chatEntry.prompt
+        }
       ]
     }
     const toolCallsLog = []

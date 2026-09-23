@@ -60,6 +60,8 @@ export default Store => {
     })
     store.setSettingItem(getInitItem([], settingMap.bookmarks))
     store.openSettingModal()
+    // on mobile, jump straight to the new bookmark form instead of the menu
+    store.settingMobileView = 'content'
   }
 
   Store.prototype.onNewSshAI = function () {

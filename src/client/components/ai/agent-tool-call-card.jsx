@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tag } from 'antd'
 import {
   CaretDownOutlined,
@@ -9,6 +9,7 @@ import {
   CodeOutlined,
   DatabaseOutlined
 } from '@ant-design/icons'
+import CopyIcon from './copy-icon'
 
 const toolIcons = {
   send_terminal_command: CodeOutlined,
@@ -33,10 +34,18 @@ function formatResult (result) {
   }
 }
 
-export default function AgentToolCallCard ({ toolCall }) {
+export default function AgentToolCallCard ({ toolCall, autoCollapse }) {
   const [expanded, setExpanded] = useState(toolCall.status === 'running')
   const { name, args, status, result } = toolCall
   const Icon = toolIcons[name] || CodeOutlined
+
+  // Collapse every tool call once the agent session is done,
+  // user can still expand them again by clicking the header
+  useEffect(() => {
+    if (autoCollapse) {
+      setExpanded(false)
+    }
+  }, [autoCollapse])
 
   function renderStatus () {
     if (status === 'running') {
@@ -57,6 +66,20 @@ export default function AgentToolCallCard ({ toolCall }) {
     )
   }
 
+  function renderPre (text) {
+    return (
+      <div className='agent-tool-pre-wrap'>
+        <CopyIcon text={text} className='agent-tool-copy' />
+        <pre className='agent-tool-pre'>{text}</pre>
+      </div>
+    )
+  }
+
+  const argsText = args && Object.keys(args).length > 0
+    ? JSON.stringify(args, null, 2)
+    : ''
+  const resultText = formatResult(result)
+
   return (
     <div className={`agent-tool-call-card agent-tool-${status}`}>
       <div
@@ -71,16 +94,16 @@ export default function AgentToolCallCard ({ toolCall }) {
       </div>
       {expanded && (
         <div className='agent-tool-detail'>
-          {args && Object.keys(args).length > 0 && (
+          {argsText && (
             <div className='agent-tool-args'>
               <div className='agent-tool-label'>Arguments:</div>
-              <pre className='agent-tool-pre'>{JSON.stringify(args, null, 2)}</pre>
+              {renderPre(argsText)}
             </div>
           )}
-          {result && (
+          {resultText && (
             <div className='agent-tool-result'>
               <div className='agent-tool-label'>Result:</div>
-              <pre className='agent-tool-pre'>{formatResult(result)}</pre>
+              {renderPre(resultText)}
             </div>
           )}
         </div>

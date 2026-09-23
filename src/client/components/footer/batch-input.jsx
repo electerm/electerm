@@ -127,10 +127,12 @@ export default class BatchInput extends Component {
     }
     // Desktop: an input-shaped, read-only affordance. It is NOT a real input —
     // clicking it expands the panel where the user actually types.
+    // Borderless so it blends into the footer background.
     return (
       <Input
         size='small'
         readOnly
+        variant='borderless'
         placeholder={e('batchInput')}
         className='batch-input-holder'
         style={{ cursor: 'pointer' }}

@@ -4,6 +4,7 @@ import time from '../../common/time'
 
 export default class KeywordsTransport extends BookmarkTransport {
   name = 'keywords-highlight'
+
   beforeUpload = async (file) => {
     const { store } = this.props
     const txt = file.fileContent !== undefined
@@ -18,10 +19,6 @@ export default class KeywordsTransport extends BookmarkTransport {
     }
     setTimeout(this.props.resetKeywordForm, 100)
     return false
-  }
-
-  renderEdit () {
-    return null
   }
 
   handleDownload = () => {

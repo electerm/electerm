@@ -26,11 +26,23 @@
     border-radius 3px
     pre
       margin-bottom 0
-    // .code-block-actions
-    //   display block
-    // &:hover
-    //   .code-block-actions
-    //     display block
+
+// copy icons stay visible all the time, never hover only
+.copy-icon,
+.code-action-icon
+  color var(--text-dark)
+  font-size 14px
+  &:hover
+    color var(--primary)
+
+.code-block-actions
+  display flex
+  justify-content flex-end
+
+.ai-output-actions
+  display flex
+  justify-content flex-end
+  margin-top 6px
 
 .ai-stream-output
   position relative
@@ -78,6 +90,24 @@
 .send-to-ai-icon.disabled
   opacity 0.4
   cursor not-allowed
+
+.ai-chat-attachments
+  padding 0 2px
+  .ant-tag
+    margin 0
+    max-width 100%
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+
+.ai-chat-item-attachments
+  .ant-tag
+    margin-right 4px
+    margin-bottom 4px
+
+.ai-attachment-dragover
+  outline 2px dashed #1890ff
+  outline-offset -2px
 
 .ai-chat-sessions-wrap
   width 100%
@@ -205,9 +235,18 @@
   font-size 12px
   color var(--text-color-2)
 
+.agent-tool-pre-wrap
+  position relative
+
+.agent-tool-copy
+  position absolute
+  top 5px
+  right 6px
+  z-index 1
+
 .agent-tool-pre
   background var(--main-dark)
-  padding 6px 8px
+  padding 6px 26px 6px 8px
   border-radius 3px
   font-size 12px
   max-height 200px
@@ -230,3 +269,68 @@
     transform rotate(0deg)
   to
     transform rotate(360deg)
+
+.ai-chat-empty
+  position relative
+  width 100%
+  min-height 150px
+  display flex
+  align-items center
+  justify-content center
+  overflow hidden
+  padding 10px 0
+
+.ai-chat-empty-inner
+  text-align center
+  padding 0 12px
+  max-width 100%
+
+.ai-chat-watermark
+  width 86%
+  max-width 400px
+  aspect-ratio 766 / 266
+  margin 0 auto 14px
+  background-color var(--text)
+  opacity 0.55
+  pointer-events none
+  user-select none
+  -webkit-mask-image var(--ai-watermark)
+  mask-image var(--ai-watermark)
+  -webkit-mask-repeat no-repeat
+  mask-repeat no-repeat
+  -webkit-mask-position center
+  mask-position center
+  -webkit-mask-size contain
+  mask-size contain
+
+.ai-chat-empty-title
+  font-size 15px
+  font-weight 500
+
+.ai-chat-empty-hint
+  font-size 12px
+  margin-top 4px
+  color var(--text-dark)
+
+.ai-chat-empty-examples
+  margin-top 14px
+  display flex
+  flex-direction column
+  align-items center
+  gap 6px
+
+.ai-chat-empty-example
+  max-width 100%
+  font-size 12px
+  padding 5px 10px
+  border 1px solid var(--main-darker)
+  border-radius 14px
+  color var(--text-dark)
+  cursor pointer
+  transition all 0.2s
+  white-space nowrap
+  overflow hidden
+  text-overflow ellipsis
+  &:hover
+    border-color var(--primary)
+    color var(--text)

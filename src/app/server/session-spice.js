@@ -1,7 +1,7 @@
 const log = require('../common/log')
 const { TerminalBase } = require('./session-base')
 const globalState = require('./global-state')
-const { handleConnection } = require('./spice-proxy')
+const { handleConnection, createTcpConnection } = require('./spice-proxy')
 
 class TerminalSpice extends TerminalBase {
   channelCounter = 0
@@ -22,6 +22,9 @@ class TerminalSpice extends TerminalBase {
       host,
       port = 5900,
       proxy,
+      tls,
+      ca,
+      hostSubject,
       readyTimeout = 10000
     } = this.initOptions
 
@@ -29,7 +32,7 @@ class TerminalSpice extends TerminalBase {
     const connId = `${this.channelCounter}`
     this.wsMap.set(connId, ws)
 
-    log.debug(`[SPICE:${this.pid}] Starting SPICE channel #${connId} to ${host}:${port}, total channels: ${this.wsMap.size}`)
+    log.debug(`[SPICE:${this.pid}] Starting SPICE channel #${connId} to ${host}:${port}${tls ? ' (tls)' : ''}, total channels: ${this.wsMap.size}`)
 
     const cleanup = () => {
       this.wsMap.delete(connId)
@@ -43,6 +46,9 @@ class TerminalSpice extends TerminalBase {
       host,
       port,
       proxy,
+      tls,
+      ca,
+      hostSubject,
       readyTimeout,
       onCleanup: cleanup,
       channelId: `#${connId}`
@@ -53,40 +59,25 @@ class TerminalSpice extends TerminalBase {
   }
 
   test = async () => {
-    const net = require('net')
-    const proxySock = require('./socks')
     const {
       host,
       port = 5900,
       proxy,
+      tls,
+      ca,
+      hostSubject,
       readyTimeout = 10000
     } = this.initOptions
 
-    if (proxy) {
-      const proxyResult = await proxySock({
-        readyTimeout,
-        host,
-        port,
-        proxy
-      })
-      const socket = proxyResult.socket
-      socket.destroy()
-      return true
-    }
-
-    return new Promise((resolve, reject) => {
-      const socket = net.createConnection({ host, port }, () => {
-        socket.destroy()
-        resolve(true)
-      })
-      socket.on('error', (err) => {
-        reject(err)
-      })
-      socket.setTimeout(readyTimeout, () => {
-        socket.destroy()
-        reject(new Error('Connection timed out'))
-      })
+    const socket = await createTcpConnection(host, port, {
+      proxy,
+      readyTimeout,
+      tls,
+      ca,
+      hostSubject
     })
+    socket.destroy()
+    return true
   }
 
   kill = () => {

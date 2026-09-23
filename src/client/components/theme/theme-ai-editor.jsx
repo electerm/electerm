@@ -190,7 +190,7 @@ export default function ThemeAiEditor (props) {
   const textAreaProps = {
     value: description,
     onChange: ev => setDescription(ev.target.value),
-    placeholder: e('createThemeByAI'),
+    placeholder: e('description'),
     autoSize: { minRows: 4, maxRows: 8 },
     disabled: loading || disabled
   }
@@ -223,7 +223,7 @@ export default function ThemeAiEditor (props) {
       <div className='pd1t'>
         <Space>
           <Button {...generateBtnProps}>
-            {e('generate')}
+            {e('submit')}
           </Button>
           <HelpIcon link='https://github.com/electerm/electerm/wiki/Create-theme-by-AI' />
         </Space>

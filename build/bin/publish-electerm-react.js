@@ -8,9 +8,14 @@ tpack.version = pack.version
 const to = resolve(__dirname, '../web-app/')
 const from = resolve(__dirname, '../../src/client')
 
+// (re)generate build/web-app/README.md from the root README.md
+require('./gen-web-app-readme')
+
 echo('start build electerm-react pack and publish')
 fs.writeFileSync(resolve(to, 'package.json'), JSON.stringify(tpack, null, 2))
 rm('-rf', resolve(to, 'client'))
 cp('-r', from, to)
 cd(to)
-exec(`npm-publish  --token ${process.env.token} --access public`)
+// Trusted publishing: no --token. npm authenticates via the GitHub OIDC
+// token (requires permissions: id-token: write in the workflow).
+exec('npm-publish --access public --provenance')

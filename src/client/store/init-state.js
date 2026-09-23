@@ -9,16 +9,17 @@ import {
   infoTabs,
   openedSidebarKey,
   sidebarPinnedKey,
+  leftSideBarOpenKey,
   pinnedQuickCommandBarKey,
   sftpDefaultSortSettingKey,
   batchInputLsKey,
   expandedKeysLsKey,
   checkedKeysLsKey,
   localAddrBookmarkLsKey,
-  leftSidebarWidthKey,
+  leftSidePanelWidthKey,
   rightSidebarWidthKey,
+  rightPanelPinnedKey,
   addPanelWidthLsKey,
-  dismissDelKeyTipLsKey,
   qmSortByFrequencyKey,
   resolutionsLsKey,
   syncServerDataKey,
@@ -29,7 +30,6 @@ import {
 import * as ls from '../common/safe-local-storage'
 import { exclude } from 'manate'
 import initSettingItem from '../common/init-setting-item'
-import { getRandomDefaultColor } from '../common/rand-hex-color'
 
 const e = window.translate
 
@@ -39,13 +39,17 @@ function getDefaultBookmarkGroups (bookmarks) {
       title: e(defaultBookmarkGroupId),
       id: defaultBookmarkGroupId,
       bookmarkIds: bookmarks.map(d => d.id),
-      color: getRandomDefaultColor()
+      color: '#0088cc'
     })
   ]
 }
 
 export default () => {
   const layout = ls.getItem('layout') || splitMap.c1
+  // far-left icon bar is open by default; once the user toggles it, honor the
+  // saved preference ('true'/'false') from localStorage.
+  const storedSideBarOpen = ls.getItem(leftSideBarOpenKey)
+  const leftSideBarOpen = storedSideBarOpen === '' ? true : storedSideBarOpen === 'true'
   return {
     // common
     wsInited: false,
@@ -122,7 +126,7 @@ export default () => {
     terminalInfoProps: {},
     rightPanelVisible: false,
     rightPanelTab: 'info',
-    rightPanelPinned: false,
+    rightPanelPinned: ls.getItem(rightPanelPinnedKey) === 'true',
     _rightPanelWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
     showAIConfigModal: false,
 
@@ -131,6 +135,8 @@ export default () => {
     settingTab: settingMap.bookmarks, // setting tab
     bookmarkId: undefined,
     showModal: 0,
+    // mobile settings view: 'menu' (left col list, default) or 'content' (right col)
+    settingMobileView: 'menu',
 
     // setting sync related
     autoSyncReady: false,
@@ -162,9 +168,21 @@ export default () => {
     pinnedQuickCommandBar: ls.getItem(pinnedQuickCommandBarKey) === 'y',
     qmSortByFrequency: ls.getItem(qmSortByFrequencyKey) === 'yes',
 
+    // declarative auto triggers (global; bookmark/session ones live on the tab)
+    triggers: [],
+    triggerSessionOpen: false,
+
+    // touch-only shortcut bar (see components/terminal/shortcut-bar-entry.jsx)
+    shortcutBarVisible: false,
+    // px the bar is lifted above a page-overlaying system input panel
+    // (iOS / HarmonyOS) — see shortcut-bar.jsx
+    shortcutBarKbOffset: 0,
+
     // sidebar
     openedSideBar: ls.getItem(openedSidebarKey) || '',
-    _leftSidebarWidth: parseInt(ls.getItem(leftSidebarWidthKey), 10) || 300,
+    _leftSidePanelWidth: parseInt(ls.getItem(leftSidePanelWidthKey), 10) || 300,
+    // whether the far-left icon bar is open (hide/show works on every platform)
+    _leftSideBarOpen: leftSideBarOpen,
     addPanelWidth: parseInt(ls.getItem(addPanelWidthLsKey), 10) || 300,
     menuOpened: false,
     pinned: ls.getItem(sidebarPinnedKey) === 'true',
@@ -176,6 +194,9 @@ export default () => {
 
     // editor
     showEditor: false,
+    // set to true to mount the text editor component,
+    // so its code is only loaded when user really needs it
+    textEditorRequested: false,
 
     // file/info modal
     showFileModal: false,
@@ -202,8 +223,12 @@ export default () => {
     isMaximized: window.pre.runSync('isMaximized'),
     hasNodePty: window.pre.runSync('nodePtyCheck'),
     isMobile: window.innerWidth <= mobileBreakpoint,
+    // reflects the input device actually in use, not screen capability — a
+    // capability probe only proves the screen can be touched, not whether the
+    // user operates it by touch. Seeded false and left to main.jsx, which sets
+    // mouse → false / touch → true on the first real pointer event.
+    isTouchDevice: false,
     fullscreen: false,
-    hideDelKeyTip: ls.getItem(dismissDelKeyTipLsKey) === 'y',
     tabsHeight: 36,
 
     // widgets

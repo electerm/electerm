@@ -3,6 +3,42 @@
 // Breakpoint: 600px (see mobileBreakpoint in constants.js)
 // ---------------------------------------------------------------------------
 .is-mobile
+  // Keep every terminal footer row on the same positioning reference as the
+  // touch shortcut bar. Mobile browsers change the visual viewport when their
+  // chrome or soft keyboard opens; mixing absolute footer rows with the fixed
+  // shortcut row makes the monitor/shortcut stack detach from the footer.
+  .main-footer,
+  .remote-monitor-bar
+    position fixed
+
+  // Side panels are full-screen drawers on mobile: they start at the viewport
+  // edge (the left one covers the icon bar too, so no strip of terminal is left
+  // showing) and run to the bottom edge — footer included. On desktop the
+  // footer is reserved *beside* the panel because it holds the panel's own
+  // trigger; on mobile the drawer is dismissed from its header (✕ / the
+  // bookmark/history tabs) instead, so there is nothing to keep clear. The
+  // inline width already comes from store.leftSidePanelWidth / rightPanelWidth,
+  // which are the viewport width here.
+  // Both are on the fixed frame (the right panel explicitly: its bottom edge
+  // must not drift from the fixed footer when the visual viewport changes), and
+  // both have to outrank the footer's 200 — it comes later in the DOM, so at an
+  // equal rank it would paint over the drawer. The left drawer lives inside
+  // .sidebar, which is its own stacking context (z-index 100), so lifting the
+  // drawer alone is not enough: the whole sidebar column has to clear the
+  // footer. The right panel is a root-level child, so its own z-index suffices.
+  // The icon bar takes no extra room from this: it is 43px wide and the footer
+  // starts at 44px.
+  .sidebar
+    z-index 250
+  .sidebar-list
+    left 0
+    bottom 0
+    z-index 250
+  .right-side-panel
+    position fixed
+    bottom 0
+    z-index 250
+
   // ---- 1. Tabs: show only current tab + dropdown, close icon always visible
   .tabs.mobile-tabs
     display flex
@@ -81,7 +117,7 @@
         position fixed
         left 0
         right 0
-        bottom 36px
+        bottom calc(var(--footer-stack-height, 36px) + var(--shortcut-bar-h, 0px) + var(--shortcut-bar-kb-offset, 0px))
         z-index 200
         background var(--main)
         padding 8px 10px
@@ -93,7 +129,8 @@
   // ---- 3. Footer encode select: show icon, click to open dropdown
   //        match antd Button small icon size (~14px) used by sibling icons
   .mobile-encode-trigger,
-  .terminal-info-icon
+  .terminal-info-icon,
+  .show-sidebar-icon
     font-size 14px !important
     line-height 36px
     padding 0 4px
@@ -161,28 +198,50 @@
   .upgrade-panel
     max-width calc(100vw - 20px)
 
-  // ---- 9. Terminal touch support: prevent the browser's native long-press
-  //        callout (iOS "Copy/Look Up" menu) and text-selection gesture from
-  //        interfering with xterm's own touch handling and our custom
-  //        long-press context-menu detection. xterm.js already sets
-  //        user-select:none on .xterm; we additionally suppress the iOS
-  //        callout and set touch-action so the browser does not compete with
-  //        xterm for touch gesture interpretation.
+// ---------------------------------------------------------------------------
+// Terminal touch selection (behaviour in mixins/term-touch.js).
+//
+// Scoped to is-touch-device on top of the narrow-window is-mobile case: a
+// tablet held in landscape is wider than the 600px mobile breakpoint but is
+// still touch-primary and needs the same suppression, while store.isTouchDevice
+// keeps it off for anything mouse-driven (it follows the input in use — see
+// main.jsx).
+//
+// - the browser's native long-press callout (iOS "Copy/Look Up" menu) and its
+//   own text-selection gesture would fight xterm for the touch stream and
+//   swallow the long press that starts a selection;
+// - xterm already sets user-select:none on .xterm; touch-action:none stops the
+//   browser scrolling/zooming the page out from under a selection drag, since
+//   xterm does its own scrolling from gesture events.
+// ---------------------------------------------------------------------------
+.is-mobile,
+.is-touch-device
   .term-wrap
     -webkit-touch-callout none
     -webkit-tap-highlight-color transparent
     .xterm
       -webkit-touch-callout none
+      -webkit-user-select none
+      user-select none
       touch-action none
 
 // ---------------------------------------------------------------------------
 // Touch-primary devices only (feature-detected via pointer media query, not
-// UA sniffing or viewport width). iOS Safari and Android Chrome auto-zoom the
-// page when focusing an input with font-size < 16px, and never zoom back out
-// on blur, leaving the page stuck zoomed. Desktop browsers (even with
-// touchscreens or narrow windows) report pointer: fine and never force-zoom,
-// so this never matches them. Force 16px on all focusable form fields (antd
-// inputs default to 14px) to prevent the zoom.
+// UA sniffing or viewport width). Desktop browsers (even with touchscreens or
+// narrow windows) report pointer: fine, so this never matches them.
+//
+// 1. iOS Safari and Android Chrome auto-zoom the page when focusing an input
+//    with font-size < 16px, and never zoom back out on blur, leaving the page
+//    stuck zoomed. Force 16px on all focusable form fields (antd inputs default
+//    to 14px) to prevent the zoom.
+//
+// 2. Mobile browsers also inflate text to improve readability
+//    (-webkit-text-size-adjust defaults to auto). Inside a fixed-size container
+//    this makes the text taller than its wrapper, so it gets clipped — the
+//    clearest victim is the antd small Switch, whose track is only 16px tall /
+//    28px wide with overflow:hidden; the "sort by frequency" label gets blown
+//    past the track and chopped. Pin to 100% so the declared font-size is
+//    honored.
 // ---------------------------------------------------------------------------
 @media (pointer: coarse)
   input,
@@ -193,3 +252,6 @@
   .ant-input-number-input,
   .ant-select-selection-search-input
     font-size 16px !important
+  html
+    -webkit-text-size-adjust 100%
+    text-size-adjust 100%

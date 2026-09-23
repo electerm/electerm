@@ -12,6 +12,7 @@ import { mode2permission, permission2mode } from '../../common/mode2permission'
 import FileIcon from './file-icon'
 import { filesize } from 'filesize'
 import { refsStatic } from '../common/ref'
+import LazyBoundary from '../common/lazy-boundary'
 import './file-compare-modal.styl'
 
 const e = window.translate
@@ -21,7 +22,7 @@ const formatTime = time
 const CodeCompare = lazy(() => import('./code-compare'))
 
 const Loading = () => (
-  <div style={{ padding: 40, textAlign: 'center' }}>
+  <div className='aligncenter pd3'>
     <Spin />
   </div>
 )
@@ -169,9 +170,11 @@ export default class FileCompareModal extends React.PureComponent {
         key: 'code',
         label: e('code'),
         children: (
-          <Suspense fallback={<Loading />}>
-            <CodeCompare file1={file1} file2={file2} tab={tab} />
-          </Suspense>
+          <LazyBoundary>
+            <Suspense fallback={<Loading />}>
+              <CodeCompare file1={file1} file2={file2} tab={tab} />
+            </Suspense>
+          </LazyBoundary>
         )
       }
     ]

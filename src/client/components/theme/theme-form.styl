@@ -1,10 +1,8 @@
-.theme-editor-txt
-  .editor-u-textarea
-    display block !important
-  .editor-u-picker
-    display none !important
-.theme-editor-color-picker
-  .editor-u-textarea
-    display none !important
-  .editor-u-picker
-    display block !important
+// setting panel > UI themes > theme form
+//
+// The three editor tabs need ~395px for their translated labels ("Edit with
+// color picker" / "Edit with text editor" / "AI") while a 320px phone leaves
+// the panel only ~257px. Below the app's mobile breakpoint (600px, see
+// constants.js) ResponsiveTabs replaces the bar with a single "current tab +
+// dropdown" selector (common/responsive-tabs.jsx), so the labels stay readable
+// everywhere instead of being collapsed to icons.

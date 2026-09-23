@@ -72,6 +72,13 @@ export async function loadImageAddon () {
   return window.xtermAddons.ImageAddon
 }
 
+export async function loadSerializeAddon () {
+  if (window.xtermAddons.SerializeAddon) return window.xtermAddons.SerializeAddon
+  const mod = await import('@xterm/addon-serialize')
+  window.xtermAddons.SerializeAddon = mod.SerializeAddon
+  return window.xtermAddons.SerializeAddon
+}
+
 export function getTerminal () {
   return window.xtermAddons.Terminal
 }

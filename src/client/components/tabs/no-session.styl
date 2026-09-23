@@ -1,28 +1,51 @@
 .no-sessions
   background var(--main)
   text-align center
-  padding 50px 0
+  // stack buttons / logo / history; the history flexes to fill the remaining
+  // height, so the layout adapts to logo size and button wrapping without any
+  // fixed pixel offsets.
+  display flex
+  flex-direction column
   position absolute
   top 36px
   left 0
   right 0
   bottom 0
+  padding 50px 0
   z-index 11
 .no-session-btns
+  flex-shrink 0
   display flex
   flex-wrap wrap
   justify-content center
   align-items center
   gap 8px
   padding-bottom 8px
+.no-session-logo
+  flex-shrink 0
+  padding 32px 0
 .no-session-history
-  position absolute
-  top 320px
-  bottom 80px
-  left 0
-  right 0
+  flex 1
+  min-height 0
+  display flex
+  flex-direction column
+  overflow hidden
   .sidebar-panel-history
-    overflow-y auto
+    // override the global sidebar absolute positioning (top:112px) so the
+    // history fills this flex item instead.
+    position static
+    flex 1
+    min-height 0
     .pd2x
       width 400px
       margin 0 auto
+.is-mobile
+  .no-sessions
+    padding 20px 0
+  .no-session-logo
+    padding 8px 0
+  .no-session-history
+    .sidebar-panel-history
+      .pd2x
+        width auto
+        max-width 400px

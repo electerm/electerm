@@ -17,6 +17,13 @@ import generate from '../common/id-with-stamp'
 import uid from '../common/uid'
 import newTerm, { updateCount } from '../common/new-terminal.js'
 import { action } from 'manate'
+import { shouldCaptureTerminalReloadState } from '../components/terminal/ssh-reload-state.js'
+
+function captureSshSessionState (tab, config) {
+  return shouldCaptureTerminalReloadState(tab, config)
+    ? refs.get(`term-${tab.id}`)?.getReloadState?.()
+    : undefined
+}
 
 export default Store => {
   Store.prototype.nextTabCount = function () {
@@ -96,12 +103,21 @@ export default Store => {
     const oldTab = tabs[index]
     const oldBatch = oldTab.batch
 
+    // Reload state is captured only for a shell terminal refresh/reconnect
+    // (ssh, local, telnet, serial). Closing a tab goes through removeTabs
+    // and never reaches this code path.
+    const reloadState = captureSshSessionState(oldTab, store.config)
+
     // Create copy of old tab with new ID
     const newTab = {
       ...oldTab,
       tabCount: store.nextTabCount(),
       id: generate(), // Need to create new ID
       status: statusMap.processing // Reset status
+    }
+    delete newTab._reloadState
+    if (reloadState) {
+      newTab._reloadState = reloadState
     }
 
     // Add new tab at next index
@@ -111,17 +127,24 @@ export default Store => {
     // Remove old tab
     tabs.splice(index, 1)
 
-    setTimeout(() => {
-      if (store.activeTabId === tabId) {
-        store.activeTabId = newTab.id
-      }
+    // Update active tab id synchronously (same as addTab) so the new tab's
+    // container is already visible (display:block) by the time its Terminal
+    // mounts. Deferring this via setTimeout(0) left the container hidden at
+    // mount time, causing the initial fit()/createTerm() to use xterm's
+    // default 80x24 size instead of the real fitted size - which then got
+    // baked into the remote pty and only partially corrected later, leaving
+    // full-screen apps like tmux/vim rendering at the wrong size.
+    if (store.activeTabId === tabId) {
+      store.activeTabId = newTab.id
+    }
 
-      // Update batch current tab ID if needed
-      const batchProp = `activeTabId${oldBatch}`
-      if (store[batchProp] === tabId) {
-        store[batchProp] = newTab.id
-      }
-    }, 0)
+    // Update batch current tab ID if needed
+    const batchProp = `activeTabId${oldBatch}`
+    if (store[batchProp] === tabId) {
+      store[batchProp] = newTab.id
+    }
+
+    return newTab
   }
 
   Store.prototype.reloadAllTabs = function () {
@@ -146,12 +169,17 @@ export default Store => {
     }
 
     const sourceTab = tabs[targetIndex]
+    const sessionState = captureSshSessionState(sourceTab, store.config)
     const duplicatedTab = {
       ...deepCopy(sourceTab),
       id: generate(),
       tabCount: store.nextTabCount(),
       status: statusMap.processing,
       isTransporting: undefined
+    }
+    delete duplicatedTab._reloadState
+    if (sessionState) {
+      duplicatedTab._reloadState = sessionState
     }
 
     // Insert the duplicated tab after the source tab
@@ -161,6 +189,17 @@ export default Store => {
     // Set the duplicated tab as current
     store.activeTabId = duplicatedTab.id
     store[`activeTabId${sourceTab.batch}`] = duplicatedTab.id
+  }
+
+  // only toggles the flag: the tabs bar renders pinned tabs first,
+  // store.tabs order itself is never changed by pinning
+  Store.prototype.pinTab = function (tabId, isPinned = true) {
+    const { store } = window
+    const tab = store.tabs.find(t => t.id === tabId)
+    if (!tab || Boolean(tab.isPinned) === isPinned) {
+      return
+    }
+    tab.isPinned = isPinned
   }
 
   Store.prototype.closeOtherTabs = function (id) {
@@ -343,7 +382,19 @@ export default Store => {
     const { store } = window
     const { tabs } = store
     newTab.tabCount = store.nextTabCount()
-    newTab.batch = batch ?? newTab.batch ?? window.openTabBatch ?? window.store.currentLayoutBatch
+    // Sanitize batch: MCP/AI callers may pass a missing, string, or
+    // out-of-range batch which would crash Sessions (sizes[batch]
+    // undefined). Clamp to a valid pane index for the current layout.
+    let batchNum = batch ?? newTab.batch ?? window.openTabBatch ?? window.store.currentLayoutBatch
+    batchNum = Number(batchNum)
+    const maxBatch = (splitConfig[store.layout] && splitConfig[store.layout].children) || 1
+    if (!Number.isInteger(batchNum) || batchNum < 0 || batchNum >= maxBatch) {
+      batchNum = Number(window.store.currentLayoutBatch) || 0
+      if (!Number.isInteger(batchNum) || batchNum < 0 || batchNum >= maxBatch) {
+        batchNum = 0
+      }
+    }
+    newTab.batch = batchNum
     if (!newTab.id) {
       newTab.id = generate()
     }
@@ -358,7 +409,6 @@ export default Store => {
     } else {
       tabs.push(newTab)
     }
-    const batchNum = newTab.batch
     store[`activeTabId${batchNum}`] = newTab.id
     store.activeTabId = newTab.id
     store.currentLayoutBatch = batchNum
@@ -375,7 +425,8 @@ export default Store => {
     'execLinuxArgs',
     'setEnv',
     'runScripts',
-    'interactiveValues'
+    'interactiveValues',
+    'triggers'
   ]
 
   Store.prototype.ipcOpenTab = function (parsed) {
@@ -436,12 +487,17 @@ export default Store => {
     const defaultStatus = statusMap.processing
     const { layout, currentLayoutBatch } = store
     const ntb = deepCopy(tab)
+    const sessionState = captureSshSessionState(tab, store.config)
     Object.assign(ntb, {
       id: generate(),
       status: defaultStatus,
       isTransporting: undefined,
       pane: paneMap.terminal
     })
+    delete ntb._reloadState
+    if (sessionState) {
+      ntb._reloadState = sessionState
+    }
     let maxBatch = splitConfig[layout].children
     if (maxBatch < 2) {
       maxBatch = 2
@@ -529,7 +585,9 @@ export default Store => {
       'sshSftpSplitView',
       'sshTunnelResults',
       'displayRaw',
-      'autoReConnect'
+      'autoReConnect',
+      '_reloadState',
+      'isPinned'
     ]
     const { history } = store
     const index = history.filter(d => d.id && d.tab).findIndex(d => {

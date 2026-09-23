@@ -1,18 +1,24 @@
+import { memo } from 'react'
 import TreeExpander from './tree-expander'
 import TreeListItem from './tree-list-item'
 import TreeItemOp from './tree-item-op'
 import { treeLevelIndent } from './tree-list-layout'
 import createName from '../../common/create-title'
 
-export default function TreeListRow (props) {
+// memoized: VirtualTreeList re-renders every scroll frame and re-invokes
+// renderItem for the whole visible window; without memo each row (including
+// the antd Popconfirm/Tooltip in TreeItemOp) re-renders per frame.
+// `expanded` is a boolean (not the expandedKeys array) because the array is
+// mutated in place, so identity-based memo comparison would miss changes.
+function TreeListRow (props) {
   const {
     row,
     keyword,
-    expandedKeys,
+    expanded,
     activeItemId,
     searchSelectedRowKey,
     staticList,
-    leftSidebarWidth,
+    leftSidePanelWidth,
     handleExpand,
     handleUnExpand,
     del,
@@ -34,7 +40,6 @@ export default function TreeListRow (props) {
     item?.bookmarkIds?.length ||
     item?.bookmarkGroupIds?.length
   )
-  const isGroupExpanded = Boolean(keyword) || expandedKeys.includes(item.id)
   const itemProps = {
     item,
     isGroup,
@@ -43,7 +48,7 @@ export default function TreeListRow (props) {
     itemColor: item?.color,
     itemDescription: item?.description,
     itemLevel: item?.level,
-    leftSidebarWidth,
+    leftSidePanelWidth,
     staticList,
     selectedItemId: activeItemId,
     searchSelected: searchSelectedRowKey === row.key,
@@ -94,7 +99,7 @@ export default function TreeListRow (props) {
           level={parentId}
           group={item}
           hasChildren={groupHasChildren}
-          shouldOpen={isGroupExpanded}
+          shouldOpen={expanded}
           onExpand={handleExpand}
           onUnExpand={handleUnExpand}
         />
@@ -114,3 +119,5 @@ export default function TreeListRow (props) {
     </div>
   )
 }
+
+export default memo(TreeListRow)

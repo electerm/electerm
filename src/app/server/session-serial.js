@@ -64,7 +64,7 @@ class TerminalSerial extends TerminalBase {
 
   on (event, cb) {
     if (event === 'data' && this.rxLineEnding && this.rxLineEnding !== 'none') {
-      this.port.on('data', (data) => {
+      const wrapper = (data) => {
         const str = Buffer.isBuffer(data) ? data.toString('latin1') : String(data)
         let processed
         if (this.rxLineEnding === 'lf_to_crlf') {
@@ -75,9 +75,47 @@ class TerminalSerial extends TerminalBase {
           processed = str
         }
         cb(Buffer.isBuffer(data) ? Buffer.from(processed, 'latin1') : processed)
-      })
+      }
+      if (!this._onWrappers) {
+        this._onWrappers = new Map()
+      }
+      let list = this._onWrappers.get(cb)
+      if (!list) {
+        list = []
+        this._onWrappers.set(cb, list)
+      }
+      list.push({ event, wrapper })
+      this.port.on(event, wrapper)
     } else {
       this.port.on(event, cb)
+    }
+  }
+
+  off (event, cb) {
+    try {
+      const list = this._onWrappers?.get(cb)
+      if (list) {
+        const remaining = []
+        for (const entry of list) {
+          if (entry.event === event) {
+            try {
+              this.port?.removeListener?.(event, entry.wrapper)
+            } catch (_) {}
+          } else {
+            remaining.push(entry)
+          }
+        }
+        if (remaining.length) {
+          this._onWrappers.set(cb, remaining)
+        } else {
+          this._onWrappers.delete(cb)
+        }
+      }
+      try {
+        this.port?.removeListener?.(event, cb)
+      } catch (_) {}
+    } catch (_) {
+      // ignore removal errors during teardown
     }
   }
 

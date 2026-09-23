@@ -1,36 +1,18 @@
-.rdp-session-wrap
-  display: flex
-  flex-direction: column
-  justify-content: center
-  align-items: center
-  .session-v-info
-    position: absolute
-    top: 0
-    left: 0
-    width: 100%
-  &.scale-viewport
-    .rdp-scroll-wrapper canvas
-      width: 100% !important
-      height: 100% !important
-      object-fit: contain
+// RDP only styling — the session layout (control bar, viewport, fit mode)
+// lives in the shared remote session shell: common/remote-session-shell.styl
 
-.s-scroll-wrapper
-  &::-webkit-scrollbar
-    width 16px
-    height 16px
-    background var(--main-darker)
-  &::-webkit-scrollbar-track
-    background var(--main-darker)
-    box-shadow inset 0 0 5px var(--main-darker)
-  &::-webkit-scrollbar-thumb
-    background var(--primary)
-    border-radius 0
-  &::-webkit-scrollbar-corner
-    background var(--main-darker)
-.rdp-scroll-wrapper
-  position relative
-  background var(--main)
-  z-index 299
+// fit: the canvas box fills the viewport and the remote surface is letterboxed
+// inside it with object-fit: contain, so the aspect ratio is kept and the
+// letterbox keeps the app background
+.rdp-session-wrap
+  &.fit
+    .rdp-canvas
+      object-fit contain
+
+// fit off: rendered at the remote desktop size, the viewport scrolls
+.rdp-canvas
+  display block
+  outline none
 
 .rdp-file-transfer-btn
   font-size: 16px
@@ -45,9 +27,6 @@
   &:hover
     color: var(--text)
 
-canvas
-  outline: none
-
 @keyframes rdp-download-flash
   0%, 100%
     color: var(--primary)
@@ -58,5 +37,3 @@ canvas
 
 .rdp-download-flash
   animation: rdp-download-flash 1s ease-in-out infinite
-
-

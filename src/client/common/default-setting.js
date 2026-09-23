@@ -58,6 +58,18 @@ export default {
     'network',
     'disks'
   ],
+  remoteMonitorBarEnabled: false,
+  remoteMonitorBarItems: [
+    'hostname',
+    'cpu',
+    'cpuHistory',
+    'memory',
+    'upload',
+    'download',
+    'uptime',
+    'users',
+    'disks'
+  ],
   filePropsEnabled: [
     'name',
     'size',
@@ -66,8 +78,8 @@ export default {
   hideIP: false,
   dataSyncSelected: 'all',
   nameAI: '',
-  baseURLAI: 'https://api.atlascloud.ai/v1',
-  modelAI: 'deepseek-chat',
+  baseURLAI: 'https://fluxionai.world/v1',
+  modelAI: 'deepseek-v4-flash-0731',
   roleAI: '终端专家,提供不同系统下命令,简要解释用法,用markdown格式',
   apiPathAI: '/chat/completions',
   proxyAI: '',
@@ -75,9 +87,22 @@ export default {
   sshSftpSplitView: false,
   showCmdSuggestions: false,
   autoReconnectTerminal: false,
+  restoreTerminalSessionOnReload: false,
   startDirectoryLocal: '',
   allowMultiInstance: false,
   disableDeveloperTool: false,
   dragDropBehavior: 'ask',
-  switchTabOnHover: false
+  switchTabOnHover: false,
+  disableTabIndex: false,
+  disableShortcutBar: false,
+  disableConfirmForLargeClipboardContent: false,
+  leftSideBarIcons: [
+    'newBookmark',
+    'quickConnect',
+    'bookmarks',
+    'terminalThemes',
+    'setting',
+    'settingSync',
+    'widgets'
+  ]
 }

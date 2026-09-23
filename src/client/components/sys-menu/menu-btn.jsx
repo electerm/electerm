@@ -65,6 +65,7 @@ class MenuBtn extends PureComponent {
   renderContext = () => {
     const items = [
       {
+        key: 'onNewSsh',
         func: 'onNewSsh',
         icon: 'CodeFilled',
         text: e('newBookmark'),
@@ -73,6 +74,7 @@ class MenuBtn extends PureComponent {
     ]
     if (window.store.hasNodePty) {
       items.push({
+        key: 'addTab',
         func: 'addTab',
         icon: 'RightSquareFilled',
         text: e('newTab'),
@@ -83,6 +85,7 @@ class MenuBtn extends PureComponent {
     //   type: 'hr'
     // },
     items.push({
+      key: 'bookmarks',
       noCloseMenu: true,
       icon: 'BookOutlined',
       text: e('bookmarks'),
@@ -90,18 +93,21 @@ class MenuBtn extends PureComponent {
     })
     items.push(
       {
+        key: 'history',
         noCloseMenu: true,
         icon: 'ClockCircleOutlined',
         text: e('history'),
         submenu: 'History'
       },
       {
+        key: 'sessions',
         noCloseMenu: true,
         icon: 'BarsOutlined',
         text: e('sessions'),
         submenu: 'Tabs'
       },
       {
+        key: 'layout',
         icon: 'AppstoreOutlined',
         text: e('layout'),
         submenu: 'Layout'
@@ -110,16 +116,19 @@ class MenuBtn extends PureComponent {
       //   type: 'hr'
       // },
       {
+        key: 'openAbout',
         func: 'openAbout',
         icon: 'InfoCircleOutlined',
         text: e('about')
       },
       {
+        key: 'openSetting',
         func: 'openSetting',
         icon: 'SettingOutlined',
         text: e('settings')
       },
       {
+        key: 'openDevTools',
         func: 'openDevTools',
         icon: 'LeftSquareFilled',
         text: e('toggledevtools')
@@ -128,19 +137,23 @@ class MenuBtn extends PureComponent {
       //   type: 'hr'
       // },
       {
+        key: 'zoom',
         module: 'Zoom'
       },
       {
+        key: 'minimize',
         func: 'minimize',
         icon: 'SwitcherFilled',
         text: e('minimize')
       },
       {
+        key: 'maximize',
         func: 'maximize',
         icon: 'LayoutFilled',
         text: e('maximize')
       },
       {
+        key: 'reload',
         func: 'reload',
         icon: 'ReloadOutlined',
         text: e('reload')
@@ -149,6 +162,7 @@ class MenuBtn extends PureComponent {
       //   type: 'hr'
       // },
       {
+        key: 'onCheckUpdate',
         func: 'onCheckUpdate',
         icon: 'UpCircleOutlined',
         text: e('checkForUpdate')
@@ -157,17 +171,32 @@ class MenuBtn extends PureComponent {
       //   type: 'hr'
       // },
       {
+        key: 'restart',
         func: 'restart',
         icon: 'RedoOutlined',
         text: e('restart')
       },
       {
+        key: 'close',
         func: 'close',
         icon: 'CloseOutlined',
         text: e('close')
       }
     )
-    return items
+    return this.filterMenus(items)
+  }
+
+  // Only show menus listed in window.et.sysMenus, when it is defined,
+  // eg: window.et.sysMenus = ['onNewSsh', 'bookmarks', 'openSetting', 'close']
+  // available keys: onNewSsh, addTab, bookmarks, history, sessions, layout,
+  // openAbout, openSetting, openDevTools, zoom, minimize, maximize, reload,
+  // onCheckUpdate, restart, close
+  filterMenus = (items) => {
+    const { sysMenus } = window.et || {}
+    if (!Array.isArray(sysMenus)) {
+      return items
+    }
+    return items.filter(d => d.type === 'hr' || sysMenus.includes(d.key))
   }
 
   renderMenu () {

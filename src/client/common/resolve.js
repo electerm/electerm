@@ -13,24 +13,30 @@ export const isWslDistroRoot = (path) => {
 }
 
 export default function resolve (basePath, nameOrDot) {
+  // Callers can hand this a value that is not a path yet (a session path that
+  // is still loading, a missing tab option, ...). Reading `.includes` off it
+  // used to throw and take the whole renderer down with a white screen, so
+  // anything that is not a string is treated as an empty path here.
+  const base = typeof basePath === 'string' ? basePath : ''
+  const name = typeof nameOrDot === 'string' ? nameOrDot : ''
   const hasWinDrive = (path) => /^[a-zA-Z]:/.test(path)
-  const isWin = basePath.includes('\\') || nameOrDot.includes('\\') || hasWinDrive(basePath) || hasWinDrive(nameOrDot)
+  const isWin = base.includes('\\') || name.includes('\\') || hasWinDrive(base) || hasWinDrive(name)
   const sep = isWin ? '\\' : '/'
-  if (/^[a-zA-Z]:/.test(nameOrDot)) {
-    return nameOrDot.replace(/^\//, '').replace(/\//g, sep)
+  if (/^[a-zA-Z]:/.test(name)) {
+    return name.replace(/^\//, '').replace(/\//g, sep)
   }
-  if (nameOrDot.startsWith('/')) {
-    return nameOrDot.replace(/\\/g, sep)
+  if (name.startsWith('/')) {
+    return name.replace(/\\/g, sep)
   }
-  if (nameOrDot.startsWith('\\\\')) {
-    return nameOrDot
+  if (name.startsWith('\\\\')) {
+    return name
   }
-  if (nameOrDot === '..') {
-    if (isWslDistroRoot(basePath)) {
+  if (name === '..') {
+    if (isWslDistroRoot(base)) {
       return '/'
     }
-    const baseEndsWithSep = basePath.endsWith(sep)
-    const parts = basePath.split(sep)
+    const baseEndsWithSep = base.endsWith(sep)
+    const parts = base.split(sep)
     if (parts.length > 1) {
       parts.pop()
       if (isWin && parts.length === 1) {
@@ -40,10 +46,10 @@ export default function resolve (basePath, nameOrDot) {
     }
     return '/'
   }
-  if (isWslDistroRoot(basePath) && !basePath.endsWith(sep)) {
-    return basePath + sep + nameOrDot
+  if (isWslDistroRoot(base) && !base.endsWith(sep)) {
+    return base + sep + name
   }
-  const result = basePath.endsWith(sep) ? basePath + nameOrDot : basePath + sep + nameOrDot
+  const result = base.endsWith(sep) ? base + name : base + sep + name
   return isWin && result.length === 3 && result.endsWith(':\\') ? '/' : result
 }
 

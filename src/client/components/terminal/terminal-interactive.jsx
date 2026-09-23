@@ -5,6 +5,11 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import wait from '../../common/wait'
 import TermInteractiveUI from './terminal-interactive-ui'
+import ExternalLink from '../common/external-link.jsx'
+import { notification } from '../common/notification'
+
+// x11 warnings already shown, keyed by message text
+const shownX11Warnings = new Set()
 
 export default function TermInteractive () {
   const [current, setCurrent] = useState(null)
@@ -13,6 +18,54 @@ export default function TermInteractive () {
 
   function updateTab (data) {
     window.store.updateTab(data.tabId, data.update)
+  }
+
+  function notifyProxyCommandMessage (data) {
+    const lines = (data.message || '').split('\n')
+    const title = lines[0] || 'ssh proxy command'
+    const body = lines.slice(1).join('\n').trim()
+    // make any http(s) link in the message clickable (SSO login url)
+    const renderBody = (text) => {
+      const parts = text.split(/(https?:\/\/\S+)/)
+      return (
+        <pre className='pd0 mg0 overflow-auto'>
+          {
+            parts.map((part, i) => /^https?:\/\//.test(part)
+              ? <ExternalLink key={i} to={part}>{part}</ExternalLink>
+              : part)
+          }
+        </pre>
+      )
+    }
+    notification.info({
+      message: title,
+      description: body
+        ? renderBody(body)
+        : undefined,
+      duration: 30
+    })
+  }
+
+  function notifyX11Warning (data) {
+    // one notification per distinct message, several tabs may report it
+    if (shownX11Warnings.has(data.message)) {
+      return
+    }
+    shownX11Warnings.add(data.message)
+    notification.warning({
+      message: 'X11 forwarding',
+      description: (
+        <div className='pd0 mg0'>
+          <div>{data.message}</div>
+          {
+            data.url
+              ? <ExternalLink to={data.url}>{data.url}</ExternalLink>
+              : null
+          }
+        </div>
+      ),
+      duration: 30
+    })
   }
 
   function processNext () {
@@ -47,6 +100,20 @@ export default function TermInteractive () {
       e.data.includes('ssh-tunnel-result')
     ) {
       updateTab(JSON.parse(e.data))
+    } else if (
+      e &&
+      e.data &&
+      typeof e.data === 'string' &&
+      e.data.includes('ssh-proxy-command-message')
+    ) {
+      notifyProxyCommandMessage(JSON.parse(e.data))
+    } else if (
+      e &&
+      e.data &&
+      typeof e.data === 'string' &&
+      e.data.includes('x11-warning')
+    ) {
+      notifyX11Warning(JSON.parse(e.data))
     }
   }
 

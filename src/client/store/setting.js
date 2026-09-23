@@ -14,6 +14,7 @@ import { buildNewTheme } from '../common/terminal-theme'
 import getInitItem from '../common/init-setting-item'
 import newTerm from '../common/new-terminal'
 import settingList from '../common/setting-list'
+import { requireTermOfUse } from '../common/term-of-use'
 
 const e = window.translate
 
@@ -39,6 +40,7 @@ export default Store => {
     })
     store.setSettingItem(item)
     store.openSettingModal()
+    store.settingMobileView = 'content'
   }
 
   Store.prototype.handleOpenQuickCommandsSetting = function () {
@@ -103,11 +105,17 @@ export default Store => {
     ) {
       return store.hideSettingModal()
     }
-    store.storeAssign({
-      settingTab: settingMap.setting
+    requireTermOfUse('sync', () => {
+      store.storeAssign({
+        settingTab: settingMap.setting
+      })
+      store.setSettingItem(settingList().find(d => d.id === settingSyncId))
+      store.openSettingModal()
+      // on mobile, jump straight to the sync form instead of the menu list
+      if (store.isMobile) {
+        store.settingMobileView = 'content'
+      }
     })
-    store.setSettingItem(settingList().find(d => d.id === settingSyncId))
-    store.openSettingModal()
   }
 
   Store.prototype.openTerminalThemes = function () {
@@ -125,6 +133,15 @@ export default Store => {
     store.openSettingModal()
   }
 
+  Store.prototype.openTriggers = function () {
+    const { store } = window
+    store.storeAssign({
+      settingTab: settingMap.triggers
+    })
+    store.setSettingItem({ id: '', name: settingMap.triggers })
+    store.openSettingModal()
+  }
+
   Store.prototype.openSettingModal = function () {
     const { store } = window
     if (store.isSecondInstance) {
@@ -133,12 +150,20 @@ export default Store => {
       )
     }
     store.showModal = modals.setting
+    // mobile always lands on the left col menu first
+    store.settingMobileView = 'menu'
+  }
+
+  Store.prototype.backToSettingMenu = function () {
+    window.store.settingMobileView = 'menu'
   }
 
   Store.prototype.hideSettingModal = function () {
     const { store } = window
     store.showModal = modals.hide
     store.setSettingItem({})
+    // reset so a later open starts from the menu on mobile
+    store.settingMobileView = 'menu'
   }
 
   Store.prototype.loadFontList = async function () {
@@ -158,5 +183,7 @@ export default Store => {
       settingTab
     })
     store.setSettingItem(item)
+    // a new tab means a new menu to pick from on mobile
+    store.settingMobileView = 'menu'
   }
 }

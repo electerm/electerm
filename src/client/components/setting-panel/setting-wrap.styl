@@ -67,34 +67,103 @@
 .setting-col
   ::-webkit-scrollbar
     width 0
-@media (max-width: 1100px)
+@media (max-width: 800px)
   .setting-col
     position fixed
     top 128px
     bottom 0
-    left 43px
+    left var(--left-side-bar-width, 43px)
     right 0
-    overflow-y scroll
+    display flex
+    flex-direction column
+    overflow hidden
   .setting-row
     position static
     top auto
+  // right close button is redundant with the left one on mobile
+  .close-setting-wrap:not(.alt-close-setting-wrap)
+    display none
+  // menu view by default: the left col list fills the panel
   .setting-row-left
+    flex 1
+    min-height 0
+    overflow-y auto
+    position static
+    top auto
+    bottom auto
     left auto
     width auto
-    bottom auto
-    padding 138px 10px 10px 10px
+    padding 10px
   .setting-row-right
-    left auto
+    display none
+    position static
+    top auto
     right auto
     bottom auto
-    top auto
+    left auto
+    width auto
     padding 10px
-    position static
-    overflow visible
-  .setting-col-content
-    overflow visible
+  // content view: fixed breadcrumb on top, right col content scrolls below
+  .setting-view-content
+    .setting-mobile-back
+      display flex
+    .setting-row-left
+      display none
+    .setting-row-right
+      display flex
+      flex-direction column
+      flex 1
+      min-height 0
+      overflow hidden
+      position static
+      top auto
+      right auto
+      bottom auto
+      left auto
+      width auto
+      padding 10px
+    .setting-col-content
+      flex 1
+      overflow-y auto
+      min-height 0
   .setting-tabs-bookmarks
     .setting-row-left
       width auto
     .setting-row-right
       left auto
+
+// breadcrumb used on the narrow (mobile) content view; hidden by default and
+// re-shown by `.setting-view-content` inside the 800px media query above
+.setting-mobile-back
+  display none
+  flex-shrink 0
+  align-items center
+  gap 4px
+  padding 8px 10px
+  background var(--main)
+  border-bottom 1px solid var(--main-light)
+  z-index 10
+.setting-mobile-back-btn
+  display flex
+  align-items center
+  gap 4px
+  height 24px
+  padding 0 6px
+  font-size 13px
+  color var(--primary)
+  background transparent
+  border 0
+  border-radius 4px
+  cursor pointer
+  &:hover
+    background var(--primary)
+    color var(--primary-contrast)
+.setting-mobile-back-sep
+  color var(--text-dark)
+  font-size 13px
+  line-height 24px
+  padding 0 2px
+.setting-mobile-back-current
+  font-size 13px
+  min-width 0
+  max-width 60%

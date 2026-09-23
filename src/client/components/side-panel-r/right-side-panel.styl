@@ -2,13 +2,23 @@
   position absolute
   right 0
   top 36px
-  bottom 0
+  // Unpinned is an overlay, so stop above the footer: the footer is app chrome
+  // and holds the very icon that toggles this panel, so a full-height overlay
+  // would bury its own trigger. 36px is footerHeight (common/constants.js).
+  // Two cases move or remove the footer, and are handled where their sibling
+  // rules already live — see shortcut-bar.styl (.shortcut-bar-on lifts the
+  // footer) and term-fullscreen.styl (rdp/vnc/spice fullscreen hides it).
+  bottom 36px
   z-index 200
   background var(--main)
   color var(--text)
   border-left 1px solid var(--main-darker)
+  // Pinned is a dock, not an overlay: it owns the whole right column, top to
+  // bottom. The layout squeezes the terminal out of the way instead
+  // (layout.jsx reserves rightPanelWidth), so covering the footer is intended.
   &.right-side-panel-pinned
     top 0
+    bottom 0
 
   .drag-handle
     left 0

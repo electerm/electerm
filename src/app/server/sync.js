@@ -21,6 +21,7 @@ async function doSync (type, func, args, token, proxy) {
   const agent = createProxyAgent(proxy)
   const conf = agent
     ? {
+        httpAgent: agent,
         httpsAgent: agent
       }
     : {

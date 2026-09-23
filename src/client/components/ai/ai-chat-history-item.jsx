@@ -6,15 +6,18 @@ import { runAgentLoop } from './agent'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import {
   Alert,
-  Tooltip
+  Tooltip,
+  Tag
 } from 'antd'
 import {
   CopyOutlined,
   CloseOutlined,
   CaretDownOutlined,
-  CaretRightOutlined
+  CaretRightOutlined,
+  PaperClipOutlined
 } from '@ant-design/icons'
 import { copy } from '../../common/clipboard'
+import { formatSize } from './ai-attachments'
 
 export default function AIChatHistoryItem ({ item }) {
   const [showOutput, setShowOutput] = useState(true)
@@ -81,7 +84,12 @@ export default function AIChatHistoryItem ({ item }) {
           content: 'Understood. I will use this context as we continue.'
         })
       } else {
-        messages.push({ role: 'user', content: entry.prompt })
+        messages.push({
+          role: 'user',
+          // promptWithAttachments carries the inlined file blocks;
+          // falls back to the plain prompt for legacy entries
+          content: entry.promptWithAttachments || entry.prompt
+        })
         if (entry.response && entry.id !== item.id) {
           messages.push({ role: 'assistant', content: entry.response })
         }
@@ -271,6 +279,21 @@ export default function AIChatHistoryItem ({ item }) {
     )
   }
 
+  function renderAttachments () {
+    if (!item.attachments || !item.attachments.length) {
+      return null
+    }
+    return (
+      <div className='ai-chat-item-attachments mg1b'>
+        {item.attachments.map(a => (
+          <Tag key={a.name + a.size} title={`${a.name} (${formatSize(a.size)})`}>
+            <PaperClipOutlined /> {a.name}
+          </Tag>
+        ))}
+      </div>
+    )
+  }
+
   function renderToolCalls () {
     if (mode !== 'agent' || !toolCalls || !toolCalls.length) {
       return null
@@ -278,7 +301,7 @@ export default function AIChatHistoryItem ({ item }) {
     return (
       <div className='agent-tool-calls'>
         {toolCalls.map((tc) => (
-          <AgentToolCallCard key={tc.id} toolCall={tc} />
+          <AgentToolCallCard key={tc.id} toolCall={tc} autoCollapse={!isStreaming} />
         ))}
       </div>
     )
@@ -291,6 +314,7 @@ export default function AIChatHistoryItem ({ item }) {
           <Alert {...alertProps} />
         </Tooltip>
       </div>
+      {renderAttachments()}
       {renderToolCalls()}
       {showOutput && <AIOutput item={item} />}
       {renderStopButton()}

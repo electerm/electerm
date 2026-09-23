@@ -9,7 +9,8 @@ import {
   CloseOutlined,
   Loading3QuartersOutlined,
   BorderlessTableOutlined,
-  LockOutlined
+  LockOutlined,
+  PushpinFilled
 } from '@ant-design/icons'
 import {
   Tooltip,
@@ -239,8 +240,15 @@ class Tab extends Component {
     }
   }
 
-  handleReloadTab = async () => {
-    window.store.reloadTab(this.props.tab.id)
+  handleReloadTab = async (e) => {
+    // stop propagation so the parent tab-title click doesn't re-activate
+    // this tab by its now-stale (removed) id after reloadTab replaces it
+    e && e.stopPropagation()
+    const { tab, batch } = this.props
+    const newTab = window.store.reloadTab(tab.id)
+    if (newTab) {
+      window.store.clickTab(newTab.id, batch)
+    }
   }
 
   handleReloadAll = () => {
@@ -309,8 +317,13 @@ class Tab extends Component {
     window.store.closeTabsRight(this.props.tab.id)
   }
 
+  togglePin = () => {
+    const { tab } = this.props
+    window.store.pinTab(tab.id, !tab.isPinned)
+  }
+
   renderContext = () => {
-    const { tabs, tabIndex } = this.props
+    const { tabs, tabIndex, tab } = this.props
     const len = tabs.length
     const index = tabIndex
     const noRight = index >= len - 1
@@ -358,6 +371,13 @@ class Tab extends Component {
         key: 'doRename',
         icon: <iconsMap.EditOutlined />,
         label: e('rename')
+      },
+      !window.store.isMobile && {
+        key: 'togglePin',
+        icon: tab.isPinned
+          ? <iconsMap.PushpinFilled />
+          : <iconsMap.PushpinOutlined />,
+        label: tab.isPinned ? e('unpin') : e('pin')
       },
       {
         key: 'handleReloadTab',
@@ -541,7 +561,12 @@ class Tab extends Component {
                 )
               }
               <span className='tab-title'>
-                <span className='iblock mg1r tab-count' style={styleTag}>{tabCount}</span>
+                {!(config && config.disableTabIndex)
+                  ? (
+                    <span className='iblock mg1r tab-count' style={styleTag}>{tabCount}</span>
+                    )
+                  : null}
+                {tab.isPinned && <PushpinFilled className='tab-pin' />}
                 <span className='mg1r'>{title}</span>
               </span>
             </div>

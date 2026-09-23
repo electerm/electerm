@@ -2,6 +2,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { auto } from 'manate/react'
 import AIChatHistoryItem from './ai-chat-history-item'
+import AiChatEmpty from './ai-chat-empty'
 
 export default auto(function AIChatHistory ({ history }) {
   const historyRef = useRef(null)
@@ -12,7 +13,7 @@ export default auto(function AIChatHistory ({ history }) {
     }
   }, [history])
   if (!history.length) {
-    return <div />
+    return <AiChatEmpty />
   }
   return (
     <div ref={historyRef} className='ai-history-wrap'>

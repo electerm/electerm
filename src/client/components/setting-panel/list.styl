@@ -45,6 +45,18 @@
 .theme-item:hover
     .list-item-remove
       right 24px
+// touch screens have no hover — always reveal the hover-only action icons
+.is-touch-device
+  .list-item-edit
+  .list-item-apply
+  .list-item-remove
+  .list-item-bookmark
+  .list-item-duplicate
+  .list-item-autorun
+    display block
+  .theme-item
+    .list-item-remove
+      right 24px
 .setting-tabs-setting
   .item-list-unit
     .list-item-remove

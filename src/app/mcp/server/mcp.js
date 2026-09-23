@@ -11,6 +11,7 @@ class McpServer {
     // supported, otherwise responds with the newest we support.
     this.supportedProtocolVersions = options.supportedProtocolVersions || [
       '2025-11-25',
+      '2025-06-18',
       '2024-11-05'
     ]
   }

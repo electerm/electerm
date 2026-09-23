@@ -11,7 +11,9 @@ const opacityDomId = 'opacity-style'
  * @returns {null}
  */
 export default function Opacity ({ opacity }) {
-  // Default to 1 if opacity is not provided
+  // Default to 1 if opacity is not provided.
+  // window opacity is electron-only: this component is lazy-loaded and never
+  // rendered (nor loaded) in web app — see main.jsx
   const currentOpacity = opacity !== undefined ? opacity : 1
   const prevRef = useRef(null)
 

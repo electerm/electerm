@@ -21,6 +21,12 @@ import dataCompare from '../common/data-compare'
 
 export default store => {
   for (const name of dbNamesForWatch) {
+    // ai chat history changes on every streaming tick (200ms polls,
+    // per-chunk agent updates); debounce to coalesce them into one
+    // db write after the stream pauses
+    const schedule = name === 'aiChatHistory'
+      ? func => debounce(func, 1000)
+      : undefined
     window[`watch${name}`] = autoRun(async () => {
       const n = store.getItems(name)
       if (window.migrating) {
@@ -31,6 +37,16 @@ export default store => {
         old,
         n
       )
+      const newOrder = (n || []).map(d => d.id)
+      // with large collections (thousands of bookmarks) this autoRun fires
+      // often; when neither content nor order changed, skip the deep-copy
+      // snapshot and the DB writes entirely
+      const orderChanged = !old ||
+        old.length !== (n || []).length ||
+        old.some((d, i) => d.id !== newOrder[i])
+      if (!updated.length && !added.length && !removed.length && !orderChanged) {
+        return store[name]
+      }
       // Update snapshot immediately before async DB writes to prevent
       // race conditions: a second autoRun firing before the first
       // completes would see stale oldState and re-insert the same items,
@@ -41,11 +57,12 @@ export default store => {
         ...updated.map(item => update(item.id, item, name, false)),
         added.length ? insert(name, added) : Promise.resolve()
       ])
-      const newOrder = (n || []).map(d => d.id)
-      await update(
-        `${name}:order`,
-        newOrder
-      )
+      if (orderChanged) {
+        await update(
+          `${name}:order`,
+          newOrder
+        )
+      }
       if (name === 'bookmarks') {
         store.bookmarksMap = new Map(
           n.map(d => [d.id, d])
@@ -64,7 +81,7 @@ export default store => {
         }
       }
       return store[name]
-    })
+    }, schedule)
     window[`watch${name}`].start()
   }
 

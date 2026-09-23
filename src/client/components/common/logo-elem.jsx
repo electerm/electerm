@@ -9,7 +9,7 @@ import './logo.styl'
 
 export default function LogoElem () {
   return (
-    <h1 className='mg3y font50'>
+    <h1 className='logo-elem mg3y font50'>
       <span className='iblock pd3 morph-shape mg1l mg1r'>
         <img src={logoPath2} className='iblock mwm-100 mg1l mg1r logo-filter logo-img' />
       </span>

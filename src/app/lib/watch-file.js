@@ -19,6 +19,10 @@ const onWatch = _.debounce(() => {
 }, 300, { leading: false, trailing: true })
 
 exports.watchFile = (path) => {
+  const prev = globalState.get('watchFilePath')
+  if (prev && prev !== path) {
+    fs.unwatchFile(prev, onWatch)
+  }
   globalState.set('watchFilePath', path)
   fs.watchFile(path, onWatch)
 }
@@ -29,8 +33,8 @@ exports.unwatchFile = (path) => {
 }
 
 exports.cleanWatchFile = () => {
-  globalState.set('watchFilePath', '')
   const filePath = globalState.get('watchFilePath')
+  globalState.set('watchFilePath', '')
   if (!filePath) {
     return
   }

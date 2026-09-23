@@ -15,7 +15,7 @@ export default function ProfileFormRdp (props) {
         {...formItemLayout}
         label={e('username')}
         hasFeedback
-        name={['rdp', 'userName']}
+        name={['rdp', 'username']}
       >
         <Input />
       </FormItem>

@@ -7,11 +7,10 @@ import {
 } from '@ant-design/icons'
 import message from '../common/message'
 import { notification } from '../common/notification'
+import SwitchLabel from '../common/switch'
 import {
   Select,
-  Switch,
   Button,
-  Table,
   Space,
   Tag
 } from 'antd'
@@ -22,7 +21,8 @@ import InputNumberConfirm from '../common/input-number-confirm'
 import TextareaConfirm from '../common/textarea-confirm'
 import {
   settingMap,
-  proxyHelpLink
+  proxyHelpLink,
+  webAppHiddenSettings
 } from '../../common/constants'
 import defaultSettings from '../../common/default-setting'
 import Link from '../common/external-link'
@@ -34,6 +34,7 @@ import delay from '../../common/wait.js'
 import isColorDark from '../../common/is-color-dark'
 import DeepLinkControl from './deep-link-control'
 import HotkeySetting from './hotkey'
+import SettingLeftSidebarIcons from './setting-left-sidebar-icons'
 import './setting.styl'
 
 const { Option } = Select
@@ -192,10 +193,9 @@ export default class SettingCommon extends Component {
     const checked = !!this.props.config[name]
     return (
       <div className='pd2b' key={'rt' + name}>
-        <Switch
+        <SwitchLabel
           checked={checked}
-          checkedChildren={e(name)}
-          unCheckedChildren={e(name)}
+          label={e(name)}
           onChange={v => this.onChangeValue(v, name)}
         />
         {isNumber(extra) ? null : extra}
@@ -320,59 +320,16 @@ export default class SettingCommon extends Component {
     const {
       enableGlobalProxy
     } = this.props.config
-    const helps = `http# http://proxy-server-over-tcp.com:3128
-      https#https://proxy-server-over-tls.com:3129
-      socks(v5)#socks://username:password@some-socks-proxy.com:9050 (username & password are optional)
-      socks5#socks5://username:password@some-socks-proxy.com:9050 (username & password are optional)
-      socks5h#socks5h://username:password@some-socks-proxy.com:9050 (username & password are optional)
-      socks4#socks4://some-socks-proxy.com:9050
-      socks4a#socks4a://some-socks-proxy.com:9050`
-      .split('\n')
-      .filter(d => d.trim())
-      .map(d => {
-        const [protocol, example] = d.split('#')
-        return {
-          protocol, example
-        }
-      })
-    const cols = Object.keys(helps[0]).map(k => {
-      return {
-        title: k,
-        dataIndex: k,
-        key: k,
-        render: (k) => k || ''
-      }
-    })
-    const table = (
-      <div>
-        <Table
-          columns={cols}
-          dataSource={helps}
-          bordered
-          pagination={false}
-          size='small'
-          rowKey='protocol'
-        />
-        <div>
-          <Link to={proxyHelpLink}>{proxyHelpLink}</Link>
-        </div>
-      </div>
-    )
-    const style = {
-      height: '414px',
-      width: '500px'
-    }
     return (
       <div className='pd1b'>
         <div className='pd1b'>
           <span className='pd1r'>
             {e('global')} {e('proxy')}
             <HelpIcon
-              title={table}
-              style={{ body: { style } }}
+              link={proxyHelpLink}
             />
           </span>
-          <Switch
+          <SwitchLabel
             checked={enableGlobalProxy}
             onChange={v => {
               this.onChangeValue(v, 'enableGlobalProxy')
@@ -456,6 +413,7 @@ export default class SettingCommon extends Component {
     const {
       langs = []
     } = window.et
+    const isWebApp = !!window.et.isWebApp
     const terminalThemes = props.store.getSidebarList(settingMap.terminalThemes)
     const pops = {
       onStartSessions: props.config.onStartSessions,
@@ -471,9 +429,19 @@ export default class SettingCommon extends Component {
     return (
       <div className='form-wrap pd1y pd2x'>
         <h2>{e('settings')}</h2>
-        <HotkeySetting
-          {...hotkeyProps}
+        <SettingLeftSidebarIcons
+          config={props.config}
+          store={props.store}
         />
+        {
+          isWebApp
+            ? null
+            : (
+              <HotkeySetting
+                {...hotkeyProps}
+              />
+              )
+        }
         <div className='pd1b'>{e('onStartBookmarks')}</div>
         <div className='pd2b'>
           <StartSession
@@ -498,12 +466,14 @@ export default class SettingCommon extends Component {
           }, e('keepaliveIntervalDesc'))
         }
         {
-          this.renderNumber('opacity', {
-            step: 0.05,
-            min: 0,
-            max: 1,
-            cls: 'opacity'
-          }, e('opacity'))
+          isWebApp
+            ? null
+            : this.renderNumber('opacity', {
+              step: 0.05,
+              min: 0,
+              max: 1,
+              cls: 'opacity'
+            }, e('opacity'))
         }
 
         <div className='pd2b'>
@@ -604,8 +574,12 @@ export default class SettingCommon extends Component {
             'allowMultiInstance',
             'disableDeveloperTool',
             'switchTabOnHover',
+            'disableTabIndex',
+            'disableShortcutBar',
             'debug'
-          ].map(this.renderToggle)
+          ]
+            .filter(name => !isWebApp || !webAppHiddenSettings.includes(name))
+            .map(this.renderToggle)
         }
         {
           window.et.isWebApp ? null : <DeepLinkControl />

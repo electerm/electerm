@@ -1,6 +1,7 @@
 import { PureComponent, createRef } from 'react'
 import { createTerm } from '../terminal/terminal-apis'
 import deepCopy from 'json-deep-copy'
+import { pick } from 'lodash-es'
 import clone from '../../common/to-simple-obj'
 import { handleErr } from '../../common/fetch'
 import {
@@ -13,9 +14,7 @@ import {
   DownloadOutlined
 } from '@ant-design/icons'
 import {
-  Spin,
   Select,
-  Switch,
   Tooltip
 } from 'antd'
 import * as ls from '../../common/safe-local-storage'
@@ -23,7 +22,12 @@ import scanCode from './code-scan'
 import resolutions from './resolutions'
 import { readClipboardAsync } from '../../common/clipboard'
 import RemoteFloatControl from '../common/remote-float-control'
+import RemoteSessionShell from '../common/remote-session-shell'
+import { eventToRemotePos } from '../common/remote-pointer'
+import SwitchLabel from '../common/switch'
 import HelpIcon from '../common/help-icon'
+import Modal from '../common/modal'
+import RdpCredForm from './rdp-cred-form'
 import { FileTransferManager, createFileLogger } from './file-transfer'
 import { notification } from '../common/notification'
 import message from '../common/message'
@@ -65,7 +69,8 @@ export default class RdpSession extends PureComponent {
       ...resObj,
       hasRemoteFiles: false,
       downloadBtnDisabled: true,
-      uploadReady: false
+      uploadReady: false,
+      showCredPrompt: false
     }
     this.session = null
     this.fileTransfer = null
@@ -98,6 +103,12 @@ export default class RdpSession extends PureComponent {
 
   runInitScript = () => { }
 
+  // fullscreen always fills the screen, the per tab setting only applies
+  // windowed; the switch is not reachable in fullscreen anyway
+  getFit = () => {
+    return !!this.props.fullscreen || !!this.state.scaleViewport
+  }
+
   setStatus = status => {
     const id = this.props.tab?.id
     this.props.editTab(id, {
@@ -121,13 +132,25 @@ export default class RdpSession extends PureComponent {
     return `ws://${host}:${port}/${type}/${id}?token=${tokenElecterm}${extra}`
   }
 
-  remoteInit = async () => {
+  remoteInit = async (credOverride) => {
     this.setState({
       loading: true
     })
     const { config } = this.props
     const { id } = this.props
-    const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
+    const tab = {
+      ...window.store.applyProfile(deepCopy(this.props.tab || {})),
+      ...credOverride
+    }
+    // keep resolved credentials for the connect-time prompt
+    this.tab = tab
+    if (!tab.username) {
+      this.setState({
+        loading: false,
+        showCredPrompt: true
+      })
+      return
+    }
     const {
       type,
       term: terminalType
@@ -192,6 +215,9 @@ export default class RdpSession extends PureComponent {
       const builder = new window.ironRdp.SessionBuilder()
       builder.username(username)
       builder.password(password)
+      if (tab.domain) {
+        builder.serverDomain(tab.domain)
+      }
       builder.destination(destination)
       builder.proxyAddress(proxyAddress)
       builder.authToken('none')
@@ -277,12 +303,16 @@ export default class RdpSession extends PureComponent {
         this.log(`Session ended: ${info.reason()}`, 'info')
         this.onSessionEnd()
       }).catch((e) => {
-        this.log(`Session error: ${this.formatError(e)}`, 'error')
+        this.showError(e)
         this.onSessionEnd()
       })
     } catch (e) {
-      this.log(`Connection failed: ${this.formatError(e)}`, 'error')
-      this.setState({ loading: false })
+      this.showError(e)
+      this.setState({
+        loading: false,
+        // let the user retry with different credentials on auth failure
+        showCredPrompt: this.isAuthError(e) ? true : this.state.showCredPrompt
+      })
       this.setStatus(statusMap.error)
     }
   }
@@ -305,6 +335,73 @@ export default class RdpSession extends PureComponent {
       } catch (_) { }
     }
     return e?.message || e?.toString() || String(e)
+  }
+
+  // WrongPassword(1) / LogonFailure(2)
+  isAuthError = (err) => {
+    if (err && typeof err === 'object' && '__wbg_ptr' in err && err.kind) {
+      try {
+        const kind = err.kind()
+        return kind === 1 || kind === 2
+      } catch (_) { }
+    }
+    return false
+  }
+
+  // map known IronErrorKind codes to a user-friendly message
+  errText = (err) => {
+    if (this.isAuthError(err)) {
+      return window.translate('loginFail') + ` (${this.formatError(err)})`
+    }
+    return this.formatError(err)
+  }
+
+  showError = (err) => {
+    const text = this.errText(err)
+    this.log(`Connection failed: ${this.formatError(err)}`, 'error')
+    message.error(text, 10)
+  }
+
+  onCredSubmit = (res) => {
+    this.setState({
+      showCredPrompt: false
+    })
+    // tear down the failed attempt before reconnecting
+    this.cleanup()
+    // reconnect with the provided credentials, not persisted to the bookmark
+    this.remoteInit(res)
+  }
+
+  onCredCancel = () => {
+    this.setState({
+      showCredPrompt: false
+    })
+    this.setStatus(statusMap.error)
+  }
+
+  renderCredPrompt = () => {
+    const {
+      showCredPrompt
+    } = this.state
+    if (!showCredPrompt) {
+      return null
+    }
+    const confirmProps = {
+      title: window.translate('credentialsRequired'),
+      footer: null,
+      open: true,
+      onCancel: this.onCredCancel
+    }
+    return (
+      <Modal
+        {...confirmProps}
+      >
+        <RdpCredForm
+          initialValues={pick(this.tab, ['username', 'password'])}
+          handleFinish={this.onCredSubmit}
+        />
+      </Modal>
+    )
   }
 
   syncLocalToRemote = async () => {
@@ -368,30 +465,14 @@ export default class RdpSession extends PureComponent {
     canvas.addEventListener('mousemove', (e) => {
       if (!this.session) return
       try {
-        const rect = canvas.getBoundingClientRect()
-        const { scaleViewport } = this.state
-        let scaleX = canvas.width / rect.width
-        let scaleY = canvas.height / rect.height
-        let offsetX = 0
-        let offsetY = 0
-        if (scaleViewport) {
-          const containerRatio = rect.width / rect.height
-          const canvasRatio = canvas.width / canvas.height
-          let renderWidth, renderHeight
-          if (containerRatio > canvasRatio) {
-            renderHeight = rect.height
-            renderWidth = rect.height * canvasRatio
-            offsetX = (rect.width - renderWidth) / 2
-          } else {
-            renderWidth = rect.width
-            renderHeight = rect.width / canvasRatio
-            offsetY = (rect.height - renderHeight) / 2
-          }
-          scaleX = canvas.width / renderWidth
-          scaleY = canvas.height / renderHeight
-        }
-        const x = Math.round((e.clientX - rect.left - offsetX) * scaleX)
-        const y = Math.round((e.clientY - rect.top - offsetY) * scaleY)
+        // the canvas is rendered with object-fit: contain, so the pointer has
+        // to be mapped through the real surface rect (see remote-pointer.js)
+        const { x, y } = eventToRemotePos(
+          e,
+          canvas,
+          canvas.width,
+          canvas.height
+        )
         const event = window.ironRdp.DeviceEvent.mouseMove(x, y)
         const tx = new window.ironRdp.InputTransaction()
         tx.addEvent(event)
@@ -615,12 +696,7 @@ export default class RdpSession extends PureComponent {
     this.setupInputHandlers()
   }
 
-  renderControl = () => {
-    const contrlProps = this.getControlProps({
-      fixedPosition: false,
-      showExitFullscreen: false,
-      className: 'mg1l'
-    })
+  renderControlLeft = () => {
     const {
       id,
       hasRemoteFiles,
@@ -634,68 +710,73 @@ export default class RdpSession extends PureComponent {
     const scaleProps = {
       checked: this.state.scaleViewport,
       onChange: this.handleScaleViewChange,
-      unCheckedChildren: window.translate('scaleViewport'),
-      checkedChildren: window.translate('scaleViewport'),
+      label: window.translate('scaleViewport'),
       className: 'mg1l'
     }
     const uploadTitle = window.translate('upload') || 'Upload files to remote'
     const downloadTitle = window.translate('download') || 'Download files from remote'
     return (
-      <div
-        className='pd1 fix session-v-info block'
-      >
-        <div className='fleft'>
-          <ReloadOutlined
-            onClick={this.handleReInit}
-            className='mg2r mg1l pointer'
+      <>
+        <ReloadOutlined
+          onClick={this.handleReInit}
+          className='mg2r mg1l pointer'
+        />
+        <Select
+          {...sleProps}
+        >
+          {
+            this.getAllRes().map(d => {
+              const v = d.id
+              return (
+                <Option
+                  key={v}
+                  value={v}
+                >
+                  {d.width}x{d.height}
+                </Option>
+              )
+            })
+          }
+        </Select>
+        <EditOutlined
+          onClick={this.handleEditResolutions}
+          className='mg2r mg1l pointer'
+        />
+        {this.renderInfo()}
+        <SwitchLabel
+          {...scaleProps}
+        />
+        <Tooltip title={uploadTitle}>
+          <UploadOutlined
+            onClick={this.handleUploadButtonClick}
+            className={`mg1r mg2l pointer rdp-file-transfer-btn${uploadReady ? ' rdp-download-flash' : ''}`}
           />
-          <Select
-            {...sleProps}
-          >
-            {
-              this.getAllRes().map(d => {
-                const v = d.id
-                return (
-                  <Option
-                    key={v}
-                    value={v}
-                  >
-                    {d.width}x{d.height}
-                  </Option>
-                )
-              })
-            }
-          </Select>
-          <EditOutlined
-            onClick={this.handleEditResolutions}
-            className='mg2r mg1l pointer'
+        </Tooltip>
+        <Tooltip title={downloadTitle}>
+          <DownloadOutlined
+            onClick={this.handleDownloadButtonClick}
+            className={`mg2r mg1l pointer rdp-file-transfer-btn${hasRemoteFiles ? ' rdp-download-flash' : ' rdp-download-disabled'}`}
           />
-          {this.renderInfo()}
-          <Switch
-            {...scaleProps}
-          />
-          <Tooltip title={uploadTitle}>
-            <UploadOutlined
-              onClick={this.handleUploadButtonClick}
-              className={`mg1r mg2l pointer rdp-file-transfer-btn${uploadReady ? ' rdp-download-flash' : ''}`}
-            />
-          </Tooltip>
-          <Tooltip title={downloadTitle}>
-            <DownloadOutlined
-              onClick={this.handleDownloadButtonClick}
-              className={`mg2r mg1l pointer rdp-file-transfer-btn${hasRemoteFiles ? ' rdp-download-flash' : ' rdp-download-disabled'}`}
-            />
-          </Tooltip>
-          <HelpIcon
-            link='https://github.com/electerm/electerm/wiki/RDP-File-Transfer'
-            className='mg2r mg1l'
-          />
-        </div>
-        <div className='fright'>
-          {this.props.fullscreenIcon()}
-          <RemoteFloatControl {...contrlProps} />
-        </div>
-      </div>
+        </Tooltip>
+        <HelpIcon
+          link='https://github.com/electerm/electerm/wiki/RDP-File-Transfer'
+          className='mg2r mg1l'
+        />
+      </>
+    )
+  }
+
+  renderControlRight = () => {
+    const contrlProps = this.getControlProps({
+      fixedPosition: false,
+      showExitFullscreen: false,
+      className: 'mg1l'
+    })
+    return (
+      <>
+        {this.props.fullscreenIcon()}
+        <RemoteFloatControl {...contrlProps} />
+      </>
     )
   }
 
@@ -713,47 +794,26 @@ export default class RdpSession extends PureComponent {
   }
 
   render () {
-    const { width: w, height: h } = this.props
-    const { width, height, loading, scaleViewport } = this.state
-    const innerWidth = w - 10
-    const innerHeight = h - 80
-    const wrapperStyle = {
-      width: innerWidth + 'px',
-      height: innerHeight + 'px',
-      overflow: scaleViewport ? 'hidden' : 'auto'
-    }
-    const canvasProps = {
-      width,
-      height,
-      tabIndex: 0
-    }
-    const cls = `rdp-session-wrap session-v-wrap${scaleViewport ? ' scale-viewport' : ''}`
-    const sessProps = {
-      className: cls,
-      style: {
-        width: w + 'px',
-        height: h + 'px'
-      }
-    }
+    const { width, height, loading } = this.state
     const controlProps = this.getControlProps()
     return (
-      <Spin spinning={loading}>
-        <div
-          {...sessProps}
-        >
-          {this.renderControl()}
-          <RemoteFloatControl {...controlProps} />
-          <div
-            style={wrapperStyle}
-            className='rdp-scroll-wrapper s-scroll-wrapper'
-          >
-            <canvas
-              {...canvasProps}
-              ref={this.canvasRef}
-            />
-          </div>
-        </div>
-      </Spin>
+      <RemoteSessionShell
+        loading={loading}
+        fit={this.getFit()}
+        wrapClassName='rdp-session-wrap'
+        controlLeft={this.renderControlLeft()}
+        controlRight={this.renderControlRight()}
+        floatControl={<RemoteFloatControl {...controlProps} />}
+        overlay={this.renderCredPrompt()}
+      >
+        <canvas
+          className='rdp-canvas'
+          width={width}
+          height={height}
+          tabIndex={0}
+          ref={this.canvasRef}
+        />
+      </RemoteSessionShell>
     )
   }
 }

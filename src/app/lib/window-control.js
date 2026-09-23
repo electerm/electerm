@@ -50,6 +50,29 @@ exports.unmaximize = () => {
   globalState.get('win').setBounds(oldRectangle)
 }
 
+// macOS only. After switching between apps in native fullscreen, the Spaces
+// transition can leave the window frame itself stuck at an intermediate
+// (about half height) size — no resize event follows, and the terminal keeps
+// rendering in the top half. When fullscreen content bounds do not cover the
+// screen, snap the window back to the full screen bounds; the resulting
+// resize event lets the renderer recover with its normal logic.
+exports.repairFullScreenGeometry = () => {
+  const win = globalState.get('win')
+  if (!win || !win.isFullScreen()) {
+    return false
+  }
+  const { screen } = require('electron')
+  const display = screen.getDisplayMatching(win.getBounds())
+  const { width, height } = win.getContentBounds()
+  const { width: screenWidth, height: screenHeight } = display.bounds
+  // Small tolerance for the menu bar / rounding on some displays.
+  if (width >= screenWidth - 2 && height >= screenHeight - 2) {
+    return false
+  }
+  win.setBounds(display.bounds)
+  return true
+}
+
 exports.getWindowSize = async () => {
   return exports.getWindowSizeDep()
 }

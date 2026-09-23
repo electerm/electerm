@@ -13,6 +13,7 @@ import Modal from '../common/modal'
 import resolve from '../../common/resolve'
 import { safeGetItem } from '../../common/safe-local-storage.js'
 import { refsStatic, refs } from '../common/ref'
+import { takePendingTextEditorData } from './open-text-editor'
 
 const e = window.translate
 
@@ -27,6 +28,19 @@ export default class TextEditor extends PureComponent {
 
   componentDidMount () {
     refsStatic.add('text-editor', this)
+    // editor may be mounted by an open request,
+    // consume the pending data now
+    const data = takePendingTextEditorData()
+    if (data) {
+      this.openEditor(data)
+    }
+  }
+
+  componentWillUnmount () {
+    // the entry can be unmounted (a failed chunk load releases the mount
+    // latch); without this a later request would find this dead instance and
+    // call openEditor on it, so the modal would never show up
+    refsStatic.remove('text-editor')
   }
 
   setStateProxy = (state, cb) => {

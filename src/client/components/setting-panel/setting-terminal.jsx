@@ -4,9 +4,9 @@ import {
   LoadingOutlined
 } from '@ant-design/icons'
 import message from '../common/message'
+import SwitchLabel from '../common/switch'
 import {
   Select,
-  Switch,
   Button,
   AutoComplete,
   Tooltip,
@@ -123,10 +123,9 @@ export default class SettingTerminal extends Component {
     const txt = label || e(name)
     return (
       <div className={cls} key={'rt' + name}>
-        <Switch
+        <SwitchLabel
           checked={checked}
-          checkedChildren={txt}
-          unCheckedChildren={txt}
+          label={txt}
           onChange={v => this.onChangeValue(v, name)}
         />
       </div>
@@ -510,7 +509,7 @@ export default class SettingTerminal extends Component {
         {
           this.renderNumber('fontSize', {
             step: 1,
-            min: 9
+            min: 5
           }, `${e('default')} ${e('fontSize')}`, 400)
         }
         <div className='pd2b'>
@@ -572,12 +571,18 @@ export default class SettingTerminal extends Component {
             'rightClickSelectsWord',
             'pasteWhenContextMenu',
             'copyWhenSelect',
+            'disableConfirmForLargeClipboardContent',
             'ctrlOrMetaOpenTerminalLink',
             'sftpPathFollowSsh',
             'sshSftpSplitView',
             'showCmdSuggestions',
-            'autoReconnectTerminal'
+            'autoReconnectTerminal',
+            'restoreTerminalSessionOnReload'
           ].map(d => this.renderToggle(d))
+        }
+        {
+          // label differs from the config key
+          this.renderToggle('remoteMonitorBarEnabled', 'pd2b', e('monitorBar'))
         }
         <div className='pd1b'>{e('dragDropBehavior')}</div>
         <Select

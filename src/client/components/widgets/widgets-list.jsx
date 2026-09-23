@@ -10,12 +10,15 @@ import WidgetInstances from './widget-instances'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
 import {
+  settingPanelMobileBreakpoint
+} from '../../common/constants'
+import {
   auto
 } from 'manate/react'
 
 const e = window.translate
 
-export default auto(function WidgetsList ({ activeItemId, store }) {
+export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) {
   const { widgetInstances } = store
   const [tab, setTab] = useState('widgets') // or instances
   const [widgets, setWidgets] = useState([])
@@ -50,7 +53,14 @@ export default auto(function WidgetsList ({ activeItemId, store }) {
   }
 
   const onClickWidget = (widget) => {
+    if (onClickItem) {
+      return onClickItem(widget)
+    }
     window.store.setSettingItem(widget)
+    // narrow panels drill into the right col content after picking a widget
+    if (window.store.innerWidth <= settingPanelMobileBreakpoint) {
+      window.store.settingMobileView = 'content'
+    }
   }
 
   const renderWidgetItem = (widget, i) => {

@@ -26,6 +26,15 @@ function parseNames (str) {
 const linuxListUser = 'cat /etc/passwd'
 const linuxListGroup = 'cat /etc/group'
 
+// The local shell (node-bash) only exists on desktop builds; web/mobile builds
+// (electerm-web in a browser, electerm-ios/electerm-android) ship without it, so
+// `fs.run` rejects. These owner/group lists are a best-effort nicety for the
+// local file panel, and every rejection would surface as a spurious error
+// notification on those platforms — skip the probe entirely when we know there
+// is no local shell. `hasNodePty === false` is the explicit signal reported by
+// the server (see checkNodePty); an absent flag keeps desktop behaviour intact.
+const noLocalShell = isWin || window.et.hasNodePty === false
+
 export async function remoteListUsers (pid) {
   const users = await runCmd(pid, linuxListUser)
     .catch(console.error)
@@ -45,7 +54,7 @@ export async function remoteListGroups (pid) {
 }
 
 export async function localListUsers () {
-  if (isWin) {
+  if (noLocalShell) {
     return {}
   } else if (isMac) {
     const g = await window.fs.run('dscl . -list /Users UniqueID')
@@ -72,7 +81,7 @@ export async function localListUsers () {
 }
 
 export async function localListGroups () {
-  if (isWin) {
+  if (noLocalShell) {
     return {}
   } else if (isMac) {
     const g = await window.fs.run('dscl . list /Groups PrimaryGroupID')

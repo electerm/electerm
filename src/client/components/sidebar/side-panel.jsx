@@ -15,26 +15,31 @@ export default function SidePanel (props) {
     }
     const el1 = document.querySelector('.sessions')
     if (el1) {
-      el1.style.left = (nw + 43) + 'px'
+      el1.style.left = (nw + props.leftSideBarWidth) + 'px'
     }
-  }, [props.leftSidebarWidth])
+  }, [props.leftSidePanelWidth, props.leftSideBarWidth])
   const dragProps = {
-    min: 343,
+    min: 200,
     max: 600,
-    width: props.leftSidebarWidth,
+    width: props.leftSidePanelWidth,
     onDragEnd,
     onDragMove,
     left: true
   }
+  // Mobile panels are full-screen drawers: the width is the viewport and is not
+  // adjustable, so the resize handle is not rendered at all — a handle there
+  // would sit on the screen edge and drag a size the panel does not use (see
+  // store.leftSidePanelWidth, which ignores the stored width on mobile).
+  const dragHandle = props.isMobile
+    ? null
+    : <DragHandle {...dragProps} />
   return (
     <div
       {...props.sideProps}
       ref={panelRef}
       draggable={false}
     >
-      <DragHandle
-        {...dragProps}
-      />
+      {dragHandle}
       {props.children}
     </div>
   )

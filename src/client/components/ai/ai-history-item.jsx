@@ -30,7 +30,7 @@ export default function AiHistoryItem (props) {
       onClick={() => onSelect(item)}
       className='pointer'
     >
-      {displayItem}
+      <span className='ai-history-label'>{displayItem}</span>
     </Tag>
   )
 

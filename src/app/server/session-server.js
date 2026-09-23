@@ -54,6 +54,43 @@ function verify (req) {
   }
 }
 
+// True when the buffered data ends mid-way through a multi-byte UTF-8
+// sequence (CJK chars are 3 bytes). Slow SSH servers (embedded router CLIs)
+// often deliver one char split across TCP segments; flushing such a buffer
+// right away would push a partial char to the client. Only the tail of the
+// last buffer is inspected (at most 4 bytes), so this is O(1).
+function hasIncompleteTrailingUtf8 (bufs) {
+  const last = bufs[bufs.length - 1]
+  if (!last) {
+    return false
+  }
+  const buf = Buffer.isBuffer(last) ? last : Buffer.from(last)
+  const len = buf.length
+  if (!len) {
+    return false
+  }
+  // Count trailing continuation bytes (10xxxxxx), at most 3
+  let cont = 0
+  while (cont < 3 && cont < len && (buf[len - 1 - cont] & 0xc0) === 0x80) {
+    cont++
+  }
+  const leadIdx = len - 1 - cont
+  if (leadIdx < 0) {
+    // Whole buffer is continuation bytes; the lead byte was in a chunk that
+    // was already flushed, so holding can not reassemble anything.
+    return false
+  }
+  const lead = buf[leadIdx]
+  if (lead < 0xc0) {
+    // ASCII last byte, or stray continuations after ASCII: nothing to wait for
+    return false
+  }
+  // Expected continuation count for this lead byte:
+  // 110xxxxx -> 1, 1110xxxx -> 2, 11110xxx -> 3
+  const needed = lead < 0xe0 ? 1 : lead < 0xf0 ? 2 : 3
+  return cont < needed
+}
+
 appDec(app)
 
 if (type === 'rdp') {
@@ -188,8 +225,28 @@ if (type === 'rdp') {
       }
     }
 
-    // In the WebSocket setup, replace the data handler:
-    term.on('data', function (data) {
+    // Detach listeners from a previous WS connection for the same term.
+    // Reconnects create a new WS but reuse the same term instance; without
+    // this each reconnect stacks another 'data' handler, duplicating output
+    // and pinning closed sockets/buffers in memory.
+    if (term._wsDataHandler && typeof term.off === 'function') {
+      try {
+        term.off('data', term._wsDataHandler)
+      } catch (_) {}
+    }
+    if (term._wsPortDataHandler && term.port) {
+      try {
+        term.port.removeListener('data', term._wsPortDataHandler)
+      } catch (_) {}
+    }
+    if (term._wsCloseHandler && typeof term.off === 'function') {
+      try {
+        term.off('close', term._wsCloseHandler)
+        term.off('exit', term._wsCloseHandler)
+      } catch (_) {}
+    }
+
+    const onTermData = function (data) {
       // Check if zmodem session is active and handle data
       if (zmodemManager.isActive(pid)) {
         // Let zmodem handle the data, but still log it
@@ -262,6 +319,18 @@ if (type === 'rdp') {
       // burst is already in flight (elapsed < flushIntervalMs) get batched.
       const elapsed = Date.now() - lastFlushTime
       if (elapsed >= flushIntervalMs) {
+        // Never fast-flush a buffer that ends mid-way through a multi-byte
+        // UTF-8 char: a slow peer (router CLI) may deliver one char split
+        // across TCP segments, and the remaining bytes usually land within a
+        // few ms. Hold one coalescing window so they get concatenated first
+        // (the completing chunk then flushes immediately via this same fast
+        // path). Bounded by the timeout, so it can not stick.
+        if (hasIncompleteTrailingUtf8(dataBuffer)) {
+          if (!sendTimeout) {
+            sendTimeout = setTimeout(flushBufferedData, flushIntervalMs)
+          }
+          return
+        }
         if (sendTimeout) {
           clearTimeout(sendTimeout)
           sendTimeout = null
@@ -274,23 +343,52 @@ if (type === 'rdp') {
       if (!sendTimeout) {
         sendTimeout = setTimeout(flushBufferedData, flushIntervalMs - elapsed)
       }
-    })
+    }
+    term._wsDataHandler = onTermData
+    term.on('data', onTermData)
 
     // For serial terminals, register a raw data listener directly on the port to
     // feed binary XMODEM data to xmodemManager without rxLineEnding transformation.
     if (term.port) {
-      term.port.on('data', function (rawData) {
+      const onPortData = function (rawData) {
         if (xmodemManager.isActive(pid)) {
           term.writeLog(rawData)
           xmodemManager.handleData(pid, rawData, term, ws)
         }
-      })
+      }
+      term._wsPortDataHandler = onPortData
+      term.port.on('data', onPortData)
     }
 
     let onCloseCalled = false
     function onClose () {
       if (onCloseCalled) return
       onCloseCalled = true
+      // Detach this connection's listeners so a reconnect does not stack
+      // duplicates on the reused term instance.
+      if (term._wsDataHandler && typeof term.off === 'function') {
+        try {
+          term.off('data', term._wsDataHandler)
+        } catch (_) {}
+      }
+      if (term._wsDataHandler === onTermData) {
+        term._wsDataHandler = null
+      }
+      if (term._wsPortDataHandler && term.port) {
+        try {
+          term.port.removeListener('data', term._wsPortDataHandler)
+        } catch (_) {}
+        term._wsPortDataHandler = null
+      }
+      if (typeof term.off === 'function') {
+        try {
+          term.off('close', onClose)
+          term.off('exit', onClose)
+        } catch (_) {}
+      }
+      if (term._wsCloseHandler === onClose) {
+        term._wsCloseHandler = null
+      }
       // Cancel any pending batched send
       if (sendTimeout) {
         clearTimeout(sendTimeout)
@@ -310,6 +408,7 @@ if (type === 'rdp') {
       cleanup()
     }
 
+    term._wsCloseHandler = onClose
     term.on('close', onClose)
     if (term.isLocal && isWin) {
       term.on('exit', onClose)
@@ -346,6 +445,9 @@ if (type === 'rdp') {
             // Not JSON, treat as regular terminal input
           }
         }
+        // Let an active zmodem session observe Ctrl-C (transfer abort);
+        // the keystroke itself is still written through untouched.
+        zmodemManager.handleUserInput(pid, msg)
         term.write(msg)
       } catch (ex) {
         log.error(ex)

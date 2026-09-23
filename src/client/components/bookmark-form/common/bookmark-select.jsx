@@ -1,5 +1,6 @@
 // bookmark select tree (copied from legacy)
 import createTitle from '../../../common/create-title'
+import buildMap from '../../../common/build-map'
 import { TreeSelect } from 'antd'
 
 const e = window.translate
@@ -16,9 +17,9 @@ const hoppingProps = [
 
 function buildTreeData (bookmarkGroups, tree) {
   const cats = bookmarkGroups
-  const btree = cats.reduce((p, k) => ({ ...p, [k.id]: k }), {})
+  const btree = buildMap(cats)
   function buildSubCats (id) {
-    const x = btree[id]
+    const x = btree.get(id)
     if (!x) return ''
     const y = {
       key: x.id,
@@ -34,7 +35,7 @@ function buildTreeData (bookmarkGroups, tree) {
     return y
   }
   function buildLeaf (id) {
-    const x = tree[id]
+    const x = tree.get(id)
     if (!x) return ''
     return { value: x.id, key: x.id, title: createTitle(x) }
   }
@@ -58,10 +59,10 @@ function buildTreeData (bookmarkGroups, tree) {
 
 export default function BookmarkSelect (props) {
   const { bookmarks, bookmarkGroups } = props
-  const tree = bookmarks.reduce((p, k) => ({ ...p, [k.id]: k }), {})
+  const tree = buildMap(bookmarks)
 
   function onSelect (id) {
-    const item = tree[id]
+    const item = tree.get(id)
     if (item) {
       const selected = hoppingProps.reduce((p, k) => {
         if (item[k] !== undefined) {

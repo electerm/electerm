@@ -4,12 +4,16 @@ import TabsWrap from '../tabs/index'
 import {
   splitConfig,
   quickCommandBoxHeight,
-  footerHeight
+  footerHeight,
+  remoteMonitorBarHeight,
+  shortcutBarHeight
 } from '../../common/constants'
 import layoutAlg from './layout-alg'
 import calcSessionSize from './session-size-alg'
 import TermSearch from '../terminal/term-search'
 import Footer from '../footer/footer-entry'
+import RemoteMonitorBar from '../remote-monitor/remote-monitor-bar-entry'
+import { isRemoteMonitorBarVisible } from '../remote-monitor/visibility'
 import SessionsWrap from '../session/sessions'
 import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import pixed from './pixed'
@@ -31,53 +35,38 @@ export default auto(function Layout (props) {
     const {
       width,
       height,
+      isMobile,
       pinnedQuickCommandBar,
-      // tabsHeight,
-      leftSidebarWidth,
-      // infoPanelPinned,
+      leftSidePanelWidth,
+      leftSideBarWidth,
       pinned,
       rightPanelVisible,
       rightPanelPinned,
       rightPanelWidth,
       resizeTrigger,
-      inActiveTerminal
+      inActiveTerminal,
+      shortcutBarVisible,
+      shortcutBarKbOffset
     } = props.store
-    const h = height - footerHeight - (inActiveTerminal && pinnedQuickCommandBar ? quickCommandBoxHeight : 0) + resizeTrigger
-    const l = pinned ? 43 + leftSidebarWidth : 43
-    const r = rightPanelVisible && rightPanelPinned ? rightPanelWidth : 0
+    const monitorHeight = isRemoteMonitorBarVisible(props.store) ? remoteMonitorBarHeight : 0
+    const h = height - footerHeight - monitorHeight - (inActiveTerminal && pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight + shortcutBarKbOffset : 0) + resizeTrigger
+    const l = pinned && !isMobile ? leftSideBarWidth + leftSidePanelWidth : leftSideBarWidth
+    const r = rightPanelVisible && rightPanelPinned && !isMobile ? rightPanelWidth : 0
     return {
       height: h,
       top: 0,
       left: l,
-      width: width - l - r
+      width: Math.max(0, width - l - r)
     }
   }
 
-  const buildLayoutStyles = () => {
-    const {
-      layout,
-      height,
-      width,
-      pinnedQuickCommandBar,
-      leftSidebarWidth,
-      rightPanelVisible,
-      rightPanelPinned,
-      rightPanelWidth,
-      pinned
-    } = props.store
-    const l = pinned ? leftSidebarWidth : 0
-    const r = rightPanelPinned && rightPanelVisible ? rightPanelWidth : 0
-    const w = width - l - r - 42
-    const h = height - footerHeight - (pinnedQuickCommandBar ? quickCommandBoxHeight : 0)
-    return layoutAlg(layout, w, h)
-  }
   const layoutSize = calcLayoutStyle()
   const {
     width,
     height
   } = layoutSize
   const pixedLayoutStyle = pixed(layoutSize)
-  const styles = buildLayoutStyles(conf, layout)
+  const styles = layoutAlg(layout, width, height)
   const layoutProps = {
     layout,
     ...styles,
@@ -93,7 +82,14 @@ export default auto(function Layout (props) {
     const { tabs } = store
     const tabsBatch = {}
     for (const tab of tabs) {
-      const { batch } = tab
+      let { batch } = tab
+      // Guard against tabs with missing/invalid batch (e.g. created by
+      // MCP/AI operations before sanitization). Route them to pane 0
+      // instead of crashing or disappearing.
+      batch = Number(batch)
+      if (!Number.isInteger(batch) || batch < 0 || batch >= sizes.length) {
+        batch = 0
+      }
       if (!tabsBatch[batch]) {
         tabsBatch[batch] = []
       }
@@ -110,12 +106,11 @@ export default auto(function Layout (props) {
           'isMaximized',
           'config',
           'resolutions',
-          'hideDelKeyTip',
           'fileOperation',
           'pinnedQuickCommandBar',
           'tabsHeight',
           'appPath',
-          'leftSidebarWidth',
+          'leftSidePanelWidth',
           'addPanelWidth',
           'pinned',
           'openedSideBar',
@@ -153,9 +148,16 @@ export default auto(function Layout (props) {
     'pinnedQuickCommandBar',
     'qmSortByFrequency',
     'inActiveTerminal',
-    'leftSidebarWidth',
+    'leftSidePanelWidth',
+    'leftSideBarWidth',
     'openedSideBar',
-    'currentQuickCommands'
+    'currentQuickCommands',
+    // the quick-command popup mirrors the footer's horizontal extent, so it
+    // needs the same right-panel state the footer uses
+    'rightPanelVisible',
+    'rightPanelPinned',
+    'rightPanelWidth',
+    'isMobile'
   ])
   const sessionsProps = {
     styles: styles.wrapStyles,
@@ -171,13 +173,12 @@ export default auto(function Layout (props) {
       'activeTabId3',
       'batch',
       'resolutions',
-      'hideDelKeyTip',
       'fileOperation',
       'file',
       'pinnedQuickCommandBar',
       'tabsHeight',
       'appPath',
-      'leftSidebarWidth',
+      'leftSidePanelWidth',
       'pinned',
       'openedSideBar',
       'config',
@@ -198,6 +199,11 @@ export default auto(function Layout (props) {
     <QuickCommandsFooterBox
       key='QuickCommandsFooterBox'
       {...qmProps}
+    />,
+    <RemoteMonitorBar
+      key='RemoteMonitorBar'
+      store={store}
+      style={{ left: layoutSize.left, width, height: remoteMonitorBarHeight }}
     />,
     <Footer
       key='Footer'

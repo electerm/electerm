@@ -44,13 +44,24 @@ class TerminalLocal extends TerminalBase {
     delete env.ELECTRON_RUN_AS_NODE
     delete env.NODE_OPTIONS
     delete env.ELECTRON_NO_ATTACH_CONSOLE
+    // temp PEM of system CAs for the server process (WebDAV sync, #4347) —
+    // not meant for user shells, and a bad keychain cert makes any Node/bun
+    // tool in the terminal print "ignoring extra certs ... load failed"
+    delete env.NODE_EXTRA_CA_CERTS
     this.term = pty.spawn(exec, argv, {
       name: term,
       encoding: null,
       cols: cols || 80,
       rows: rows || 24,
       cwd,
-      env
+      env,
+      // Use the OpenConsole conpty.dll shipped with node-pty instead of the
+      // legacy Windows Console Host (kernel32 CreatePseudoConsole) conpty.
+      // The legacy console-host conpty can stall output and deliver Ctrl+C to
+      // the whole process group (killing the shell too) after a full-screen
+      // TUI like opencode exits, leaving the terminal tab unresponsive.
+      // The OpenConsole conpty.dll does not have this problem.
+      useConptyDll: true
     })
     this.term.termType = termType
     globalState.setSession(this.pid, this)
@@ -63,6 +74,21 @@ class TerminalLocal extends TerminalBase {
 
   on (event, cb) {
     this.term.on(event, cb)
+  }
+
+  off (event, cb) {
+    try {
+      if (!this.term) {
+        return
+      }
+      if (typeof this.term.removeListener === 'function') {
+        this.term.removeListener(event, cb)
+      } else if (typeof this.term.off === 'function') {
+        this.term.off(event, cb)
+      }
+    } catch (_) {
+      // ignore removal errors during teardown
+    }
   }
 
   write (data) {

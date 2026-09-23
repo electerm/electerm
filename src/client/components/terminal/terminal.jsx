@@ -1,116 +1,67 @@
 import { Component, createRef } from 'react'
-import { isEqual, pick, debounce, throttle } from 'lodash-es'
-import clone from '../../common/to-simple-obj.js'
-import resolve from '../../common/resolve.js'
+import { isEqual, pick } from 'lodash-es'
 import {
   Spin,
   Dropdown,
   Button
 } from 'antd'
-import message from '../common/message'
-import { notification } from '../common/notification'
-import ShowItem from '../common/show-item.jsx'
-import Modal from '../common/modal'
 import classnames from 'classnames'
 import './terminal.styl'
 import {
-  statusMap,
   paneMap,
-  typeMap,
-  isWin,
-  rendererTypes,
-  isMac,
-  isMacJs,
-  connectionMap,
-  terminalSerialType
+  connectionMap
 } from '../../common/constants.js'
-import deepCopy from 'json-deep-copy'
-import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
-import AttachAddon from './attach-addon-custom.js'
-import getProxy from '../../common/get-proxy.js'
-import { ZmodemClient } from './zmodem-client.js'
-import { TrzszClient } from './trzsz-client.js'
-import { XmodemClient } from './xmodem-client.js'
-import DropFileModal from './drop-file-modal.jsx'
-import keyControlPressed from '../../common/key-control-pressed.js'
-import NormalBuffer from './normal-buffer.jsx'
-import { createTerm, resizeTerm, startTerminalLogFile, toggleTerminalLog } from './terminal-apis.js'
-import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
-import { KeywordHighlighterAddon } from './highlight-addon.js'
-import { getFilePath, isUnsafeFilename } from '../../common/file-drop-utils.js'
-import { getFolderFromFilePath } from '../sftp/file-read.js'
-import { CommandTrackerAddon } from './command-tracker-addon.js'
-import { Osc52Addon } from './osc52-addon.js'
-import AIIcon from '../icons/ai-icon.jsx'
-import { isAIDisabled } from '../../common/ai-feature.js'
 import {
   AimOutlined
 } from '@ant-design/icons'
-import {
-  getShellIntegrationCommand,
-  detectRemoteShell,
-  detectShellType
-} from './shell.js'
-import iconsMap from '../sys-menu/icons-map.jsx'
-import { refs, refsStatic } from '../common/ref.js'
-import ExternalLink from '../common/external-link.jsx'
+import { refs } from '../common/ref.js'
+import NormalBuffer from './normal-buffer.jsx'
 import createDefaultLogPath from '../../common/default-log-path.js'
 import SearchResultBar from './terminal-search-bar'
 import RemoteFloatControl from '../common/remote-float-control'
 import ReconnectOverlay from './reconnect-overlay.jsx'
 import TerminalErrorHandle from './terminal-error-handle.jsx'
-import {
-  loadTerminal,
-  loadFitAddon,
-  loadWebLinksAddon,
-  loadWebglAddon,
-  loadSearchAddon,
-  loadLigaturesAddon,
-  loadUnicode11Addon,
-  loadImageAddon
-} from './xterm-loader.js'
-import {
-  createRendererThemeConfig,
-  handleTerminalColorQuery
-} from './terminal-color-query.mjs'
+import DropFileModal from './drop-file-modal.jsx'
+import TerminalSelectText from './terminal-select-text.jsx'
+import { StartupQueue } from './startup-queue.js'
+import { detectRemoteShell } from './shell-detect.js'
+import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
+import { applyMixins } from './mixins/index.js'
+import { initMixin } from './mixins/term-init.js'
+import { resizeMixin } from './mixins/term-resize.js'
+import { themeMixin } from './mixins/term-theme.js'
+import { attachMixin } from './mixins/term-attach.js'
+import { socketMixin } from './mixins/term-socket.js'
+import { configMixin } from './mixins/term-config.jsx'
+import { contextMenuMixin } from './mixins/term-context-menu.jsx'
+import { contentMixin } from './mixins/term-content.js'
+import { logMixin } from './mixins/term-log.jsx'
+import { touchMixin } from './mixins/term-touch.js'
+import { fileDropMixin } from './mixins/term-file-drop.js'
+import { suggestionsMixin } from './mixins/term-suggestions.js'
 
 const e = window.translate
 
-// Expands \n \t \r \\ and \xHH hex byte escapes, used to let users type
-// control bytes (e.g. \x01 = Ctrl+A) in the serial "closeSequence" field.
-function expandCloseSequence (text) {
-  let result = ''
-  for (let i = 0; i < text.length; i++) {
-    if (text[i] === '\\' && i + 1 < text.length) {
-      const next = text[i + 1]
-      if (next === 'n') {
-        result += '\n'
-        i++
-      } else if (next === 't') {
-        result += '\t'
-        i++
-      } else if (next === 'r') {
-        result += '\r'
-        i++
-      } else if (next === '\\') {
-        result += '\\'
-        i++
-      } else if (next === 'x' && /^[0-9a-fA-F]{2}$/.test(text.slice(i + 2, i + 4))) {
-        result += String.fromCharCode(parseInt(text.slice(i + 2, i + 4), 16))
-        i += 3
-      } else {
-        result += text[i]
-      }
-    } else {
-      result += text[i]
-    }
-  }
-  return result
-}
+// The terminal behaviour, grouped by concern - see ./mixins/index.js
+const mixins = [
+  initMixin,
+  resizeMixin,
+  themeMixin,
+  attachMixin,
+  socketMixin,
+  configMixin,
+  contextMenuMixin,
+  contentMixin,
+  logMixin,
+  touchMixin,
+  fileDropMixin,
+  suggestionsMixin
+]
 
 class Term extends Component {
   constructor (props) {
     super(props)
+    applyMixins(this, mixins)
     this.state = {
       loading: false,
       hasSelection: false,
@@ -129,19 +80,72 @@ class Term extends Component {
       terminalError: null,
       dropFileModalVisible: false,
       droppedFiles: [],
-      fontSizeChanged: false
+      fontSizeChanged: false,
+      // touch-only: the buffer snapshot shown by the select-text overlay
+      selectTextVisible: false,
+      selectTextContent: ''
     }
     this.id = `term-${this.props.tab.id}`
     refs.add(this.id, this)
     this.currentInput = ''
-    this.shellInjected = false
-    this.shellType = null
+    // Owns the shell integration injection + cd + runScripts sequence.
+    this.startupQueue = new StartupQueue(this, { detectRemoteShell })
   }
 
   domRef = createRef()
 
+  timers = {}
+
+  // Config keys that cannot be applied by a re-render - they are pushed into
+  // the live xterm options instead.
+  terminalConfigProps = [
+    {
+      name: 'rightClickSelectsWord',
+      type: 'glob'
+    },
+    {
+      name: 'fontSize',
+      type: 'glob_local'
+    },
+    {
+      name: 'fontFamily',
+      type: 'glob_local'
+    }
+  ]
+
+  // ---- Mobile touch support (behaviour lives in mixins/term-touch.js) ----
+  // Only used while store.isTouchDevice is true, so a mouse-driven desktop
+  // never touches any of it. Per-instance state has to stay a class field
+  // here — a mixin may only export functions, see ./mixins/index.js.
+  longPressTimer = null
+  touchStartPos = null
+  longPressFired = false
+  longPressThreshold = 500 // ms
+  // a finger drifts further than a mouse while holding still, so the tolerance
+  // is looser than the old 10px to stop long presses being read as scrolls
+  longPressMoveTolerance = 12 // px
+  // { anchor: {col, absRow}, moved, clientX, clientY, target } while a
+  // long-press selection is being dragged out
+  dragSelect = null
+  lastDragTouch = null
+  autoScrollDir = 0
+  dragFrame = 0
+  tapCount = 0
+  lastTapTime = 0
+  lastTapPos = null
+  // the read-only textarea of the select-text overlay
+  selectTextRef = createRef()
+
+  terminalColorQueryDisposables = []
+
   componentDidMount () {
-    this.initTerminal()
+    // xterm and every addon are dynamic imports: a failed chunk fetch would
+    // otherwise end as a silent unhandled rejection with a permanently blank
+    // terminal pane
+    this.initTerminal().catch(e => {
+      console.error(e)
+      this.handleError({ message: e.message })
+    })
     if (this.props.tab.enableSsh === false) {
       this.props.tab.pane = paneMap.fileManager
     }
@@ -186,6 +190,12 @@ class Term extends Component {
       prevProps,
       this.props
     )
+    if (
+      prevProps.tab?.triggers !== this.props.tab?.triggers &&
+      this.triggerManager
+    ) {
+      this.refreshTriggers()
+    }
     const themeChanged = !isEqual(
       this.props.themeConfig,
       prevProps.themeConfig
@@ -206,6 +216,12 @@ class Term extends Component {
     clearTimeout(this.longPressTimer)
     this.longPressTimer = null
     this.touchStartPos = null
+    this.stopAutoScroll()
+    window.cancelAnimationFrame(this.dragFrame)
+    this.dragFrame = 0
+    this.dragSelect = null
+    this.lastDragTouch = null
+    this.lastTapPos = null
     if (window.store.activeTerminalId === this.props.tab.id) {
       window.store.activeTerminalId = ''
     }
@@ -213,10 +229,16 @@ class Term extends Component {
       this.term.parent = null
     }
     this.disposeTerminalColorQueryHandlers()
+    this.startupQueue?.dispose()
+    try {
+      this._notifyOnDataDebounced?.cancel?.()
+    } catch (_) {}
+    this._notifyOnDataDebounced = null
     window.cancelAnimationFrame(this.timers.themeRaf)
     this.timers.themeRaf = null
     Object.keys(this.timers).forEach(k => {
       clearTimeout(this.timers[k])
+      clearInterval(this.timers[k])
       this.timers[k] = null
     })
     this.onClose = true
@@ -224,11 +246,17 @@ class Term extends Component {
       this.socket.close()
       this.socket = null
     }
+    if (this.attachAddon) {
+      try {
+        this.attachAddon.dispose?.()
+      } catch (_) {}
+      this.attachAddon = null
+    }
     if (this.term) {
       this.term.dispose()
       this.term = null
     }
-    this.attachAddon = null
+    this.disposeTriggerManager?.()
     this.fitAddon = null
     this.zmodemClient = null
     this.trzszClient = null
@@ -236,1483 +264,62 @@ class Term extends Component {
     this.searchAddon = null
     this.fitAddon = null
     this.cmdAddon = null
+    this.serializeAddon = null
     this.imageAddon = null
     this.webglContextLossDisposable?.dispose?.()
     this.webglContextLossDisposable = null
+    try {
+      this.webglAddon?.dispose?.()
+    } catch (_) {}
     this.webglAddon = null
     this.webglRecovering = false
   }
 
-  terminalConfigProps = [
-    {
-      name: 'rightClickSelectsWord',
-      type: 'glob'
-    },
-    {
-      name: 'fontSize',
-      type: 'glob_local'
-    },
-    {
-      name: 'fontFamily',
-      type: 'glob_local'
-    }
-  ]
+  // ---- small helpers other mixins build on ----
 
-  initAttachAddon = async () => {
-    this.attachAddon = new AttachAddon(
-      this.term,
-      this.socket,
-      isWin && !this.isRemote()
-    )
-    this.attachAddon.decoder = new TextDecoder(
-      this.encode || this.props.tab.encode || 'utf-8'
-    )
-    await this.attachAddon.activate(this.term)
-    if (this.osc52Addon) {
-      this.osc52Addon.setSendData(this.attachAddon._sendData.bind(this.attachAddon))
-    }
-  }
-
-  getValue = (props, type, name) => {
-    return type === 'glob'
-      ? props.config[name]
-      : props.tab[name] || props.config[name]
-  }
-
-  checkConfigChange = (prevProps, props) => {
-    for (const k of this.terminalConfigProps) {
-      const { name, type } = k
-      const prev = this.getValue(prevProps, type, name)
-      const curr = this.getValue(props, type, name)
-      if (
-        prev !== curr
-      ) {
-        this.term.options[name] = curr
-        if (['fontFamily', 'fontSize'].includes(name)) {
-          this.onResize()
-        }
-        if (name === 'fontSize') {
-          this.originalFontSize = curr
-          this.setState({ fontSizeChanged: false })
-        }
-      }
-    }
-
-    // Handle renderer type changes (dom <-> webGL) by reloading the
-    // renderer and refreshing the theme so the background color is
-    // correct for the new renderer.
-    if (
-      prevProps.config.rendererType !== props.config.rendererType &&
-      this.term
-    ) {
-      this.reloadWebglRenderer('renderer type change')
-        .then(() => this.applyTerminalTheme())
-        .catch(e => console.error('renderer type change failed', e))
-    }
-
-    // Check for shell integration related config changes
-    const prevShowSuggestions = prevProps.config.showCmdSuggestions
-    const currShowSuggestions = props.config.showCmdSuggestions
-    const prevSftpFollow = prevProps.sftpPathFollowSsh
-    const currSftpFollow = props.sftpPathFollowSsh
-
-    if (
-      (!prevShowSuggestions && currShowSuggestions) ||
-      (!prevSftpFollow && currSftpFollow)
-    ) {
-      // Config was toggled to true, try to inject shell integration if not already done
-      if (this.canInjectShellIntegration() && !this.shellInjected) {
-        // If there's an active execution queue, add to it
-        if (this.executionQueue && this.executionQueue.length > 0) {
-          this.executionQueue.unshift({
-            type: 'shell_integration',
-            execute: async () => {
-              await this.injectShellIntegration()
-              if (currSftpFollow) {
-                this.attachAddon._sendData('\r')
-              }
-            }
-          })
-        } else {
-          // No active queue, inject directly
-          this.injectShellIntegration().then(() => {
-            if (currSftpFollow) {
-              this.attachAddon._sendData('\r')
-            }
-          })
-        }
-      } else if (this.shellInjected && currSftpFollow) {
-        this.getCwd()
-      }
-    }
-    if (
-      !prevSftpFollow &&
-      currSftpFollow &&
-      this.isLocal() &&
-      isWin
-    ) {
-      return this.warnSftpFollowUnsupported()
-    }
-  }
-
-  timers = {}
-
-  getDomId = () => {
+  getDomId () {
     return `term-${this.props.tab.id}`
   }
 
-  zoom = (v) => {
-    const { term } = this
-    if (!term) {
-      return
-    }
-    term.options.fontSize = term.options.fontSize + v
-    window.store.triggerResize()
-    if (this.originalFontSize == null) {
-      this.originalFontSize = term.options.fontSize - v
-    }
-    this.setState({
-      fontSizeChanged: term.options.fontSize !== this.originalFontSize
-    })
-  }
-
-  handleResetFontSize = () => {
-    const { term } = this
-    if (!term || this.originalFontSize == null) {
-      return
-    }
-    term.options.fontSize = this.originalFontSize
-    window.store.triggerResize()
-    this.setState({ fontSizeChanged: false })
-    term.focus()
-  }
-
-  isActiveTerminal = () => {
+  isActiveTerminal () {
     return this.props.tab.id === this.props.activeTabId &&
     this.props.tab.pane === paneMap.terminal
   }
 
-  clearShortcut = (e) => {
-    e.stopPropagation()
-    this.onClear()
-  }
-
-  // selectAllShortcut = (e) => {
-  //   e.stopPropagation()
-  //   this.term.selectAll()
-  // }
-
-  copyShortcut = (e) => {
-    const sel = this.term.getSelection()
-    if (sel) {
-      e.stopPropagation()
-      this.copySelectionToClipboard()
-      return false
-    }
-  }
-
-  searchShortcut = (e) => {
-    e.stopPropagation()
-    this.toggleSearch()
-  }
-
-  pasteSelectedShortcut = (e) => {
-    e.stopPropagation()
-    this.tryInsertSelected()
-  }
-
-  pasteTextTooLong = () => {
-    if (window.et.isWebApp) {
-      return false
-    }
-    const text = readClipboard()
-    return text.length > 500
-  }
-
-  askUserConfirm = () => {
-    Modal.confirm({
-      title: e('paste'),
-      content: (
-        <div>
-          <p>{e('paste')}:</p>
-          <div className='paste-text'>
-            <pre>
-              <code>{readClipboard()}</code>
-            </pre>
-          </div>
-        </div>
-      ),
-      okText: e('ok'),
-      cancelText: e('cancel'),
-      onOk: () => this.onPaste(true)
-    })
-  }
-
-  warnSftpFollowUnsupported = () => {
-    message.warning(
-      <span>
-        Fish shell/windows shell is not supported for SFTP follow SSH path feature. See: <ExternalLink to='https://github.com/electerm/electerm/wiki/Warning-about-sftp-follow-ssh-path-function'>wiki</ExternalLink>
-      </span>
-      , 7)
-  }
-
-  pasteShortcut = (e) => {
-    if (this.pasteTextTooLong()) {
-      this.askUserConfirm()
-      e.preventDefault()
-      e.stopPropagation()
-      return false
-    }
-    if (isMac) {
-      return true
-    }
-    if (!this.isRemote()) {
-      return true
-    }
-    if (this.term.buffer.active.type !== 'alternate') {
-      return false
-    }
-    return true
-  }
-
-  showNormalBufferShortcut = (e) => {
-    e.stopPropagation()
-    this.openNormalBuffer()
-  }
-
-  runQuickCommand = (cmd, inputOnly = false) => {
-    if (this.term && this.attachAddon) {
-      this.attachAddon._sendData(cmd + (inputOnly ? '' : '\r'))
-      this.term.focus()
-    }
-  }
-
-  cd = (p) => {
-    if (isUnsafeFilename(p)) {
-      return message.error('File name contains unsafe characters')
-    }
-    const isWinPath = /^[a-zA-Z]:\\/.test(p)
-    this.runQuickCommand(isWinPath ? `cd /d "${p}"` : `cd "${p}"`)
-  }
-
-  onDrop = e => {
-    const dt = e.dataTransfer
-    const fromFile = dt.getData('fromFile')
-    const notSafeMsg = 'File name contains unsafe characters'
-    const isSshTerminal = this.props.tab.type === connectionMap.ssh
-    const isSerialTerminal = this.props.tab.type === connectionMap.serial
-
-    if (fromFile) {
-      try {
-        const fileData = JSON.parse(fromFile)
-        const filePath = resolve(fileData.path, fileData.name)
-        if (isUnsafeFilename(filePath)) {
-          message.error(notSafeMsg)
-          return
-        }
-        if (isSshTerminal) {
-          const behavior = this.props.config.dragDropBehavior || 'ask'
-          if (behavior === 'ask') {
-            this.setState({
-              dropFileModalVisible: true,
-              droppedFiles: [{ path: filePath, isRemote: true }]
-            })
-          } else {
-            this.handleDropFileAction(behavior, [{ path: filePath, isRemote: true }])
-          }
-          return
-        }
-        if (isSerialTerminal) {
-          this.setState({
-            dropFileModalVisible: true,
-            droppedFiles: [{ path: filePath, isRemote: false }]
-          })
-          return
-        }
-        this.attachAddon._sendData(`"${filePath}" `)
-        return
-      } catch (e) {
-        console.error('Failed to parse fromFile data:', e)
-      }
-    }
-
-    const files = dt.files
-    if (files && files.length) {
-      const arr = Array.from(files)
-      const filePaths = arr.map(f => getFilePath(f))
-
-      const hasUnsafeFilename = filePaths.some(path => isUnsafeFilename(path))
-      if (hasUnsafeFilename) {
-        message.error(notSafeMsg)
-        return
-      }
-
-      if (isSshTerminal) {
-        const behavior = this.props.config.dragDropBehavior || 'ask'
-        if (behavior === 'ask') {
-          this.setState({
-            dropFileModalVisible: true,
-            droppedFiles: filePaths.map(path => ({ path, isRemote: false }))
-          })
-        } else {
-          this.handleDropFileAction(behavior, filePaths.map(path => ({ path, isRemote: false })))
-        }
-        return
-      }
-
-      if (isSerialTerminal) {
-        this.setState({
-          dropFileModalVisible: true,
-          droppedFiles: filePaths.map(path => ({ path, isRemote: false }))
-        })
-        return
-      }
-
-      const filesAll = filePaths.map(path => `"${path}"`).join(' ')
-      this.attachAddon._sendData(filesAll)
-    }
-  }
-
-  handleDropFileModalCancel = () => {
-    this.setState({
-      dropFileModalVisible: false,
-      droppedFiles: []
-    })
-  }
-
-  handleDropFileAction = (action, filesOverride) => {
-    const droppedFiles = filesOverride || this.state.droppedFiles
-    if (!droppedFiles || !droppedFiles.length) {
-      this.handleDropFileModalCancel()
-      return
-    }
-
-    const filePaths = droppedFiles.map(f => f.path)
-
-    switch (action) {
-      case 'trz': {
-        if (this.trzszClient && this.trzszClient.isActive) {
-          message.warning('A transfer is already in progress')
-          this.handleDropFileModalCancel()
-          return
-        }
-        window._apiControlSelectFile = filePaths
-        this.attachAddon._sendData('trz\r')
-        break
-      }
-      case 'rz':{
-        if (this.zmodemClient && this.zmodemClient.isActive) {
-          message.warning('A transfer is already in progress')
-          this.handleDropFileModalCancel()
-          return
-        }
-        window._apiControlSelectFile = filePaths
-        this.attachAddon._sendData('rz\r')
-        break
-      }
-      case 'xmodem': {
-        if (this.xmodemClient && this.xmodemClient.isActive) {
-          message.warning('A transfer is already in progress')
-          this.handleDropFileModalCancel()
-          return
-        }
-        // Use XMODEM send with the dropped files
-        window._apiControlSelectFile = filePaths
-        if (this.xmodemClient) {
-          this.xmodemClient.initiateSend()
-        }
-        break
-      }
-      case 'inputOnly':
-      default: {
-        const filesAll = filePaths.map(path => `"${path}"`).join(' ')
-        this.attachAddon._sendData(filesAll)
-        break
-      }
-    }
-
-    this.handleDropFileModalCancel()
-  }
-
-  onSelection = () => {
-    if (
-      !this.props.config.copyWhenSelect ||
-      window.store.onOperation
-    ) {
-      return false
-    }
-    this.copySelectionToClipboard()
-  }
-
-  copySelectionToClipboard = () => {
-    const txt = this.term.getSelection()
-    if (txt) {
-      copy(txt)
-    }
-  }
-
-  tryInsertSelected = () => {
-    const txt = this.term.getSelection()
-    if (txt) {
-      this.attachAddon._sendData(txt)
-    }
-  }
-
-  webLinkHandler = (event, url) => {
-    if (event?.button === 2) {
-      return false
-    }
-    if (!this.props.config.ctrlOrMetaOpenTerminalLink) {
-      return window.openLink(url, '_blank')
-    }
-    if (keyControlPressed(event)) {
-      window.openLink(url, '_blank')
-    }
-  }
-
-  // ---- Mobile touch support ----
-  // On touch devices, long-press should (1) select the word under the finger
-  // and (2) open the context menu — mirroring desktop right-click behaviour.
-  // xterm.js only uses touch events for scrolling, so we add explicit
-  // long-press detection here.
-  longPressTimer = null
-  touchStartPos = null
-  longPressFired = false
-  longPressThreshold = 500 // ms
-  longPressMoveTolerance = 10 // px
-
-  onTouchStart = (e) => {
-    if (e.touches.length !== 1) {
-      return
-    }
-    const touch = e.touches[0]
-    this.touchStartPos = {
-      clientX: touch.clientX,
-      clientY: touch.clientY,
-      target: e.currentTarget
-    }
-    this.longPressFired = false
-    clearTimeout(this.longPressTimer)
-    this.longPressTimer = setTimeout(() => {
-      this.handleLongPress()
-    }, this.longPressThreshold)
-  }
-
-  onTouchMove = (e) => {
-    if (!this.touchStartPos) {
-      return
-    }
-    const touch = e.touches[0]
-    const dx = touch.clientX - this.touchStartPos.clientX
-    const dy = touch.clientY - this.touchStartPos.clientY
-    if (Math.sqrt(dx * dx + dy * dy) > this.longPressMoveTolerance) {
-      clearTimeout(this.longPressTimer)
-      this.longPressTimer = null
-      this.touchStartPos = null
-    }
-  }
-
-  onTouchEnd = () => {
-    const wasTap = this.touchStartPos && !this.longPressFired
-    clearTimeout(this.longPressTimer)
-    this.longPressTimer = null
-    this.touchStartPos = null
-    // xterm's own touch (Gesture) handler calls preventDefault()/stopPropagation()
-    // on touchstart/touchend, which suppresses the synthesised mousedown xterm
-    // relies on to focus its hidden helper textarea. As a result a tap never
-    // focuses the terminal on touch devices, so the soft keyboard never opens
-    // and you cannot type. Focus explicitly on a clean tap (not a long-press,
-    // not a scroll) so mobile input works. The focus() runs synchronously inside
-    // this user-gesture handler, so iOS/Android will show the keyboard.
-    if (wasTap && this.term) {
-      this.term.focus()
-    }
-  }
-
-  handleLongPress = () => {
-    if (!this.touchStartPos || this.state.loading) {
-      return
-    }
-    this.longPressFired = true
-    const { clientX, clientY, target } = this.touchStartPos
-
-    // Select the word at the touch position (same as desktop right-click word
-    // select) so the user can immediately copy or act on it.
-    this.selectWordAt(clientX, clientY)
-
-    // Respect pasteWhenContextMenu: when enabled, long-press pastes instead
-    // of showing the menu (same as desktop right-click).
-    if (this.props.config.pasteWhenContextMenu) {
-      this.onPaste()
-      return
-    }
-
-    // Dispatch a synthetic contextmenu event so antd Dropdown's contextMenu
-    // trigger opens the menu at the exact finger position.
-    const event = new MouseEvent('contextmenu', {
-      bubbles: true,
-      cancelable: true,
-      clientX,
-      clientY
-    })
-    target.dispatchEvent(event)
-  }
-
-  selectWordAt = (clientX, clientY) => {
-    if (!this.term) {
-      return
-    }
-    const termElement = this.term.element
-    if (!termElement) {
-      return
-    }
-    const rect = termElement.getBoundingClientRect()
-    const x = clientX - rect.left
-    const y = clientY - rect.top
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
-      return
-    }
-
-    const cellWidth = rect.width / this.term.cols
-    const cellHeight = rect.height / this.term.rows
-    const col = Math.floor(x / cellWidth)
-    const row = Math.floor(y / cellHeight)
-
-    const buffer = this.term.buffer.active
-    const line = buffer.getLine(row)
-    if (!line) {
-      return
-    }
-
-    const text = line.translateToString(true)
-    const wordSeparator = this.props.config.terminalWordSeparator ||
-      ' ./\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~ ?'
-
-    // If the touched cell is empty or a separator, nothing to select
-    if (col >= text.length || wordSeparator.includes(text[col])) {
-      return
-    }
-
-    // Find word start
-    let start = col
-    while (start > 0 && !wordSeparator.includes(text[start - 1])) {
-      start--
-    }
-    // Find word end
-    let end = col
-    while (end < text.length && !wordSeparator.includes(text[end])) {
-      end++
-    }
-
-    if (end > start) {
-      this.term.select(start, row, end - start)
-    }
-  }
-
-  onContextMenuInner = e => {
-    e.preventDefault()
-    if (this.state.loading) {
-      return
-    }
-    if (this.props.config.pasteWhenContextMenu) {
-      return this.onPaste()
-    }
-  }
-
-  onCopy = () => {
-    const selected = this.term.getSelection()
-    copy(selected)
-    this.term.focus()
-  }
-
-  onSelectAll = () => {
-    this.term.selectAll()
-  }
-
-  onClear = () => {
-    const shouldClear = this.searchAddon &&
-      window.store.termSearchOpen &&
-      window.store.termSearch
-    if (
-      shouldClear
-    ) {
-      this.searchAddon.clearDecorations()
-    }
-    this.term.clear()
-    this.term.focus()
-    if (shouldClear) {
-      this.searchAddon._lineCache.clear()
-      this.timers.clearSearchTimer = setTimeout(() => {
-        refsStatic.get('term-search')?.next()
-      }, 100)
-    }
-  }
-
-  isRemote = () => {
+  isRemote () {
     return this.props.tab?.host
   }
 
-  onPaste = async (skipTextLengthCheck) => {
-    let selected = await readClipboardAsync()
-    if (!skipTextLengthCheck && selected.length > 500) {
-      return this.askUserConfirm()
-    }
-    if (isWin && this.isRemote()) {
-      selected = selected.replace(/\r\n/g, '\n')
-    }
-    this.term.paste(selected || '')
-    this.term.focus()
-  }
-
-  onPasteSelected = () => {
-    const selected = this.term.getSelection()
-    this.term.paste(selected || '')
-    this.term.focus()
-  }
-
-  toggleSearch = () => {
-    window.store.toggleTerminalSearch()
-  }
-
-  toggleKeepalive = () => {
-    if (!this.attachAddon) {
-      return false
-    }
-    this._keepaliveEnabled = !this._keepaliveEnabled
-    this.attachAddon.setKeepalive(this._keepaliveEnabled)
-    return this._keepaliveEnabled
-  }
-
-  onSearchResultsChange = ({ resultIndex, resultCount }) => {
-    window.store.storeAssign({
-      termSearchMatchCount: resultCount,
-      termSearchMatchIndex: resultIndex
-    })
-
-    this.updateSearchResults(resultIndex)
-  }
-
-  updateSearchResults = (resultIndex) => {
-    const matches = this.searchAddon._resultTracker.searchResults.map((result, i) => {
-      return result.row
-    })
-
-    this.setState({
-      searchResults: matches,
-      matchIndex: resultIndex,
-      totalLines: this.term.buffer.active.length
-    })
-  }
-
-  searchPrev = (searchInput, options) => {
-    this.searchAddon.findPrevious(
-      searchInput, options
-    )
-  }
-
-  searchNext = (searchInput, options) => {
-    this.searchAddon.findNext(
-      searchInput, options
-    )
-  }
-
-  explainWithAi = () => {
-    window.store.explainWithAi(
-      this.term.getSelection()
-    )
-  }
-
-  getTerminalBufferText = () => {
-    const { addTimeStampToTermLog } = this.state
-    const buffer = this.term.buffer.active
-    const len = buffer.length
-    const rawLines = []
-    for (let i = 0; i < len; i++) {
-      const line = buffer.getLine(i)
-      rawLines.push(line ? line.translateToString(false) : '')
-    }
-    // trim trailing blank lines before applying timestamps
-    while (rawLines.length && !rawLines[rawLines.length - 1].trim()) {
-      rawLines.pop()
-    }
-    if (!addTimeStampToTermLog) {
-      return rawLines.join('\n')
-    }
-    return rawLines.map(text => {
-      const now = new Date()
-      const ts = `[${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(now.getMilliseconds()).padStart(3, '0')}] `
-      return ts + text
-    }).join('\n')
-  }
-
-  syncTermInfo = (stateUpdate) => {
-    this.setState(stateUpdate)
-    const infoUpdate = pick(stateUpdate, ['saveTerminalLogToFile', 'addTimeStampToTermLog', 'logPath', 'logFileName'])
-    if (Object.keys(infoUpdate).length) {
-      refs.get('term-info-' + this.props.tab.id)?.setState(infoUpdate)
-    }
-  }
-
-  openLogSaveDialog = async (titleKey) => {
-    const { logName } = this.props
-    const result = await window.api.saveDialog({
-      title: e(titleKey),
-      defaultPath: logName + '.log',
-      filters: [
-        { name: 'Log files', extensions: ['log'] }
-      ],
-      properties: ['createDirectory', 'showOverwriteConfirmation']
-    })
-    if (result.canceled || !result.filePath) {
-      return null
-    }
-    return result.filePath
-  }
-
-  onSaveTerminalLog = async () => {
-    const filePath = await this.openLogSaveDialog('saveTerminalLogToFile')
-    if (!filePath) {
-      return
-    }
-    const content = this.getTerminalBufferText()
-    await window.fs.writeFile(filePath, content).catch(window.store.onError)
-    const { addTimeStampToTermLog } = this.state
-    startTerminalLogFile(this.pid, filePath, addTimeStampToTermLog).catch(window.store.onError)
-    const { path: logPath, name: logFileName } = getFolderFromFilePath(filePath, false)
-    this.syncTermInfo({ saveTerminalLogToFile: true, logPath, logFileName })
-    notification.success({
-      message: e('saveTerminalLogToFile'),
-      description: <ShowItem to={filePath}>{filePath}</ShowItem>,
-      duration: 5
-    })
-  }
-
-  onRecord = async () => {
-    const filePath = await this.openLogSaveDialog('record')
-    if (!filePath) {
-      return
-    }
-    const { addTimeStampToTermLog } = this.state
-    startTerminalLogFile(this.pid, filePath, addTimeStampToTermLog).catch(window.store.onError)
-    const { path: logPath, name: logFileName } = getFolderFromFilePath(filePath, false)
-    this.syncTermInfo({ saveTerminalLogToFile: true, logPath, logFileName })
-    this.setState({ recording: true, recordingFilePath: filePath })
-    notification.success({
-      message: e('record'),
-      description: <ShowItem to={filePath}>{filePath}</ShowItem>,
-      duration: 5
-    })
-  }
-
-  onStopRecord = () => {
-    const { recordingFilePath } = this.state
-    toggleTerminalLog(this.pid).catch(window.store.onError)
-    this.syncTermInfo({ saveTerminalLogToFile: false })
-    this.setState({ recording: false, recordingFilePath: '' })
-    notification.success({
-      message: e('stopRecord'),
-      description: <ShowItem to={recordingFilePath}>{recordingFilePath}</ShowItem>
-    })
-  }
-
-  renderContextMenu = () => {
-    const { hasSelection, recording } = this.state
-    const copyed = true
-    const copyShortcut = this.getShortcut('terminal_copy')
-    const pasteShortcut = this.getShortcut('terminal_paste')
-    const clearShortcut = this.getShortcut('terminal_clear')
-    const searchShortcut = this.getShortcut('terminal_search')
-    const selectAllShortcut = isMacJs ? 'meta+a' : 'ctrl+shift+a'
-    const isSerial = this.props.tab?.type === connectionMap.serial
-    const items = [
-      {
-        key: 'onCopy',
-        icon: <iconsMap.CopyOutlined />,
-        label: e('copy'),
-        disabled: !hasSelection,
-        extra: copyShortcut
-      },
-      {
-        key: 'onPaste',
-        icon: <iconsMap.SwitcherOutlined />,
-        label: e('paste'),
-        disabled: !copyed,
-        extra: pasteShortcut
-      },
-      {
-        key: 'onPasteSelected',
-        icon: <iconsMap.SwitcherOutlined />,
-        label: e('pasteSelected'),
-        disabled: !hasSelection
-      },
-      {
-
-        key: 'onSelectAll',
-        icon: <iconsMap.CheckSquareOutlined />,
-        label: e('selectall'),
-        extra: selectAllShortcut
-      },
-      ...(
-        isAIDisabled()
-          ? []
-          : [{
-              key: 'explainWithAi',
-              icon: <AIIcon />,
-              label: e('explainWithAi'),
-              disabled: !hasSelection
-            }]
-      ),
-      {
-        key: 'onClear',
-        icon: <iconsMap.ReloadOutlined />,
-        label: e('clear'),
-        extra: clearShortcut
-      },
-      {
-        key: 'toggleSearch',
-        icon: <iconsMap.SearchOutlined />,
-        label: e('search'),
-        extra: searchShortcut
-      },
-      {
-        key: 'onSaveTerminalLog',
-        icon: <iconsMap.SaveOutlined />,
-        label: e('saveTerminalLogToFile')
-      },
-      {
-        key: recording ? 'onStopRecord' : 'onRecord',
-        icon: recording ? <iconsMap.StopOutlined /> : <iconsMap.PlayCircleFilled />,
-        label: e(recording ? 'stopRecord' : 'record')
-      }
-    ]
-    if (isSerial) {
-      items.push(
-        {
-          type: 'divider'
-        },
-        {
-          key: 'onXmodemSend',
-          icon: <iconsMap.CloudUploadOutlined />,
-          label: 'XMODEM Send'
-        },
-        {
-          key: 'onXmodemReceive',
-          icon: <iconsMap.CloudDownloadOutlined />,
-          label: 'XMODEM Receive'
-        }
-      )
-    }
-    return items
-  }
-
-  onContextMenu = ({ key }) => {
-    this[key]()
-  }
-
-  onXmodemSend = () => {
-    if (this.xmodemClient) {
-      this.xmodemClient.initiateSend()
-    }
-    this.term.focus()
-  }
-
-  onXmodemReceive = () => {
-    if (this.xmodemClient) {
-      this.xmodemClient.initiateReceive()
-    }
-    this.term.focus()
-  }
-
-  notifyOnData = debounce(() => {
-    window.store.notifyTabOnData(this.props.tab.id)
-  }, 1000)
-
-  parse (rawText) {
-    let result = ''
-    const len = rawText.length
-    for (let i = 0; i < len; i++) {
-      if (rawText[i] === '\b') {
-        result = result.slice(0, -1)
-      } else {
-        result += rawText[i]
-      }
-    }
-    return result
-  }
-
-  getCmd = () => {
-    return this.cmdAddon.getCurrentCommand()
-  }
-
-  getCwd = () => {
-    // Use shell integration CWD if available
-    if (this.cmdAddon && this.cmdAddon.hasShellIntegration()) {
-      const cwd = this.cmdAddon.getCwd()
-      if (cwd) {
-        this.setCwd(cwd)
-        return cwd
-      }
-    }
-    // Fallback: no longer needed with shell integration
-    return ''
-  }
-
-  setCwd = (cwd) => {
-    this.props.setCwd(cwd, this.state.id)
-  }
-
-  getCursorPosition = () => {
-    if (!this.term) return null
-
-    // Get the active buffer and cursor position
-    const buffer = this.term.buffer.active
-    const cursorRow = buffer.cursorY
-    const cursorCol = buffer.cursorX
-
-    // Get dimensions from term element
-    const termElement = this.term.element
-    if (!termElement) return null
-
-    // Get the exact position of the terminal element
-    const termRect = termElement.getBoundingClientRect()
-
-    // Calculate cell dimensions
-    const cellWidth = termRect.width / this.term.cols
-    const cellHeight = termRect.height / this.term.rows
-
-    // Calculate absolute position relative to terminal element
-    const left = Math.floor(termRect.left + (cursorCol * cellWidth))
-    const top = Math.floor(termRect.top + ((cursorRow + 1) * cellHeight))
-
-    return {
-      cellWidth,
-      cellHeight,
-      left,
-      top
-    }
-  }
-
-  closeSuggestions = () => {
-    refsStatic
-      .get('terminal-suggestions')
-      ?.closeSuggestions()
-  }
-
-  openSuggestions = (cursorPos, data) => {
-    refsStatic
-      .get('terminal-suggestions')
-      ?.openSuggestions(cursorPos, data)
-  }
-
-  /**
-   * Read current input directly from terminal buffer
-   * This is more reliable than tracking character-by-character
-   */
-  getCurrentInput = () => {
-    if (!this.term) return ''
-
-    const buffer = this.term.buffer.active
-    const cursorY = buffer.cursorY
-    const cursorX = buffer.cursorX
-
-    // Get the current line from buffer (baseY + cursorY gives absolute position)
-    const absoluteY = buffer.baseY + cursorY
-    const line = buffer.getLine(absoluteY)
-    if (!line) return ''
-
-    // Get text from start of line up to cursor position
-    const lineText = line.translateToString(true, 0, cursorX)
-
-    // Try to extract command after prompt
-    // Common prompt endings with trailing space
-    const promptEndings = ['$ ', '# ', '> ', '% ', '] ', ') ']
-
-    let commandStart = 0
-    for (const ending of promptEndings) {
-      const idx = lineText.lastIndexOf(ending)
-      if (idx !== -1 && idx + ending.length > commandStart) {
-        commandStart = idx + ending.length
-      }
-    }
-
-    return lineText.slice(commandStart)
-  }
-
-  setCurrentInput = (value) => {
-    this.currentInput = value
-  }
-
-  /**
-   * Handle special input events for command history tracking
-   * The actual input reading is done via getCurrentInput from buffer
-   */
-  handleInputEvent = (d) => {
-    // Handle Enter - add command to history
-    if (d === '\r' || d === '\n') {
-      const currentCmd = this.getCurrentInput()
-      if (currentCmd && currentCmd.trim() && this.shouldUseManualHistory()) {
-        window.store.addCmdHistory(currentCmd.trim())
-      }
-      if (currentCmd && currentCmd.trim() === 'exit') {
-        this.userTypeExit = true
-      }
-      this.closeSuggestions()
-    }
-  }
-
-  onPasswordPromptDetected = () => {
-    window.store.notifyTabPasswordPrompt(this.props.tab.id)
-    if (!this.props.config.showCmdSuggestions) {
-      return
-    }
-    const cursorPos = this.getCursorPosition()
-    if (cursorPos) {
-      refsStatic
-        .get('terminal-suggestions')
-        ?.openPasswordSuggestions(cursorPos)
-    }
-  }
-
-  onPasswordPromptCancelled = () => {
-    window.store.clearTabPasswordPrompt(this.props.tab.id)
-    const suggestions = refsStatic.get('terminal-suggestions')
-    if (suggestions?.state?.passwordMode) {
-      suggestions.closeSuggestions()
-    }
-  }
-
-  onData = (d) => {
-    this.handleInputEvent(d)
-    // Skip normal suggestion logic when in password mode
-    const suggestions = refsStatic.get('terminal-suggestions')
-    if (suggestions?.state?.passwordMode) {
-      if (d === '\r' || d === '\n') {
-        this.closeSuggestions()
-      }
-      return
-    }
-    if (this.props.config.showCmdSuggestions) {
-      if (d === '\r' || d === '\n') {
-        this.closeSuggestions()
-        return
-      }
-      // Debounce the suggestion opening to avoid expensive work
-      // (buffer read + getBoundingClientRect + React re-render) on every keystroke
-      this._debouncedOpenSuggestions()
-    } else {
-      this.closeSuggestions()
-    }
-  }
-
-  _debouncedOpenSuggestions = debounce(function () {
-    const data = this.getCurrentInput()
-    if (!data) {
-      this.closeSuggestions()
-      return
-    }
-    const cursorPos = this.getCursorPosition()
-    this.openSuggestions(cursorPos, data)
-  }, 80)
-
-  /**
-   * Called by AttachAddonCustom after data is written to the terminal buffer.
-   * This fires after server echo arrives, so getCurrentInput() reflects the
-   * latest state. We trigger a debounced suggestion refresh so the dropdown
-   * updates correctly after backspace, delete, and other edits that rely on
-   * server-side echo to update the buffer.
-   */
-  onTerminalWrite = () => {
-    if (!this.props.config.showCmdSuggestions) {
-      return
-    }
-    const suggestions = refsStatic.get('terminal-suggestions')
-    if (suggestions?.state?.showSuggestions && !suggestions?.state?.passwordMode) {
-      this._debouncedOpenSuggestions()
-    }
-  }
-
-  loadRenderer = async (term, config) => {
-    // xterm 6.x: only the built-in DOM renderer and the WebGL addon exist
-    // (the canvas renderer addon was removed in 6.x). 'dom' = no addon loaded
-    // (built-in DOM renderer). Legacy 'canvas' settings fall back to DOM.
-    if (config.rendererType === rendererTypes.webGL) {
-      try {
-        const WebglAddon = await loadWebglAddon()
-        const webglAddon = new WebglAddon()
-        this.webglAddon = webglAddon
-        // On macOS native fullscreen the GPU/WebGL context can be lost when
-        // the window migrates across Spaces. Without a listener xterm keeps
-        // drawing into a dead context and every terminal goes black while the
-        // rest of the UI stays alive. Rebuild the addon to recover.
-        this.webglContextLossDisposable = webglAddon.onContextLoss(this.handleWebglContextLoss)
-        term.loadAddon(webglAddon)
-      } catch (e) {
-        console.error('render with webgl failed, fallback to dom renderer')
-        console.error(e)
-        // built-in DOM renderer is used (no addon loaded)
-        this.webglAddon = null
-      }
-    }
-  }
-
-  reloadWebglRenderer = (reason = 'reload') => {
-    console.warn(`webgl renderer ${reason}, rebuilding`)
-    try {
-      this.webglContextLossDisposable?.dispose?.()
-      this.webglContextLossDisposable = null
-    } catch (e) {
-      console.error(e)
-    }
-    try {
-      this.webglAddon?.dispose?.()
-    } catch (e) {
-      console.error(e)
-    }
-    this.webglAddon = null
-    const { term } = this
-    const { config } = this.props
-    return this.loadRenderer(term, config)
-      .then(() => {
-        term.refresh(0, term.rows - 1)
-      })
-      .catch(e => {
-        console.error(`webgl renderer ${reason} failed`, e)
-      })
-  }
-
-  handleWebglContextLoss = (webglAddon = this.webglAddon) => {
-    if (this.webglRecovering || !webglAddon) {
-      return
-    }
-    this.webglRecovering = true
-    this.reloadWebglRenderer('context loss')
-      .finally(() => {
-        this.webglRecovering = false
-      })
-  }
-
-  terminalColorQueryDisposables = []
-
-  disposeTerminalColorQueryHandlers = () => {
-    this.terminalColorQueryDisposables.forEach(disposable => disposable?.dispose?.())
-    this.terminalColorQueryDisposables.length = 0
-  }
-
-  getVisibleTerminalBackground = () => {
-    const uiThemeConfig = window.store?.getUiThemeConfig?.() || {}
-    // The store value (uiThemeConfig.main) is always immediately up-to-date
-    // when the theme changes, because it reads directly from store.config.theme.
-    // The CSS --main variable lags behind because UiTheme's useEffect runs
-    // asynchronously after componentDidUpdate. So we prioritise the store
-    // value, and only fall back to CSS (for custom-CSS edge cases) or the
-    // terminal theme background (last resort).
-    const root = document.documentElement
-    const cssMain = root && window.getComputedStyle
-      ? window.getComputedStyle(root).getPropertyValue('--main').trim()
-      : ''
-    return uiThemeConfig.main || cssMain || this.props.themeConfig.background
-  }
-
-  getVisibleTerminalForeground = () => {
-    const uiThemeConfig = window.store?.getUiThemeConfig?.() || {}
-    return uiThemeConfig.text
-  }
-
-  registerTerminalColorQueryHandlers = (term, themeConfig = {}) => {
-    this.disposeTerminalColorQueryHandlers()
-    if (!term?.parser?.registerOscHandler) {
-      return
-    }
-    const background = this.getVisibleTerminalBackground()
-    const foregroundFallback = this.getVisibleTerminalForeground()
-    this.terminalColorQueryDisposables.push(
-      term.parser.registerOscHandler(10, data => {
-        return handleTerminalColorQuery(term, 10, themeConfig.foreground, foregroundFallback, data)
-      }),
-      term.parser.registerOscHandler(11, data => {
-        return handleTerminalColorQuery(term, 11, background, themeConfig.background, data)
-      })
-    )
-  }
-
-  getRendererThemeConfig = (themeConfig = this.props.themeConfig) => {
-    return createRendererThemeConfig(
-      deepCopy(themeConfig),
-      this.props.config.rendererType,
-      this.getVisibleTerminalBackground()
-    )
-  }
-
-  /**
-   * Apply the current renderer theme to the terminal and trigger a repaint.
-   * When `deferred` is true (WebGL mode), a second repaint is scheduled on
-   * the next animation frame so the theme picks up CSS --main changes that
-   * UiTheme's useEffect applies asynchronously after componentDidUpdate.
-   * The optional `term` parameter is used during initTerminal, where
-   * this.term hasn't been assigned yet.
-   */
-  applyTerminalTheme = (deferred = false, term = this.term) => {
-    if (!term || this.onClose) {
-      return
-    }
-    term.options.theme = this.getRendererThemeConfig(this.props.themeConfig)
-    term.refresh(0, term.rows - 1)
-    if (deferred && this.props.config.rendererType === rendererTypes.webGL) {
-      window.cancelAnimationFrame(this.timers.themeRaf)
-      this.timers.themeRaf = window.requestAnimationFrame(() => {
-        if (!this.term || this.onClose) {
-          return
-        }
-        this.term.options.theme = this.getRendererThemeConfig(this.props.themeConfig)
-        this.term.refresh(0, this.term.rows - 1)
-      })
-    }
-  }
-
-  initTerminal = async () => {
-    const { themeConfig, tab = {}, config = {} } = this.props
-    const tc = this.getRendererThemeConfig(themeConfig)
-    const Terminal = await loadTerminal()
-    const term = new Terminal({
-      allowProposedApi: true,
-      scrollback: config.scrollback,
-      rightClickSelectsWord: config.rightClickSelectsWord || false,
-      fontFamily: tab.fontFamily || config.fontFamily,
-      theme: tc,
-      allowTransparency: true,
-      wordSeparator: config.terminalWordSeparator,
-      cursorStyle: config.cursorStyle,
-      cursorBlink: config.cursorBlink,
-      fontSize: tab.fontSize || config.fontSize,
-      screenReaderMode: config.screenReaderMode
-    })
-
-    term.parent = this
-    term.onSelectionChange(this.onSelection)
-    term.open(this.domRef.current, true)
-    this.registerTerminalColorQueryHandlers(term, themeConfig)
-    await this.loadRenderer(term, config)
-    // Re-apply the theme after the renderer is loaded. The Terminal was
-    // constructed before UiTheme's useEffect ran, so the initial theme
-    // may have a stale background. Pass `term` directly because this.term
-    // is not assigned yet. Use deferred=true so a second repaint picks up
-    // any CSS --main changes applied by UiTheme's useEffect.
-    if (config.rendererType === rendererTypes.webGL) {
-      this.applyTerminalTheme(true, term)
-    }
-
-    const FitAddon = await loadFitAddon()
-    this.fitAddon = new FitAddon()
-    this.cmdAddon = new CommandTrackerAddon()
-    this.cmdAddon.onCommandExecuted((cmd) => {
-      if (cmd && cmd.trim()) {
-        window.store.addCmdHistory(cmd.trim())
-      }
-    })
-    this.cmdAddon.onCwdChanged((cwd) => {
-      this.setCwd(cwd)
-    })
-    const SearchAddon = await loadSearchAddon()
-    this.searchAddon = new SearchAddon()
-    const LigaturesAddon = await loadLigaturesAddon()
-    const ligtureAddon = new LigaturesAddon()
-    this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
-    const Unicode11Addon = await loadUnicode11Addon()
-    const unicode11Addon = new Unicode11Addon()
-    term.loadAddon(unicode11Addon)
-    term.loadAddon(ligtureAddon)
-    term.unicode.activeVersion = '11'
-    term.loadAddon(this.fitAddon)
-    term.loadAddon(this.searchAddon)
-    term.loadAddon(this.cmdAddon)
-    this.osc52Addon = new Osc52Addon()
-    term.loadAddon(this.osc52Addon)
-    if (tab.enableTerminalImage) {
-      const ImageAddon = await loadImageAddon()
-      this.imageAddon = new ImageAddon({
-        pixelLimit: 33554432
-      })
-      term.loadAddon(this.imageAddon)
-    }
-    term.onData(this.onData)
-    this.term = term
-    term.onSelectionChange(this.onSelectionChange)
-    term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
-    // 容器不可见（隐藏标签 display:none）时不 fit，避免算出 0 列把 shell
-    // 提示符逐字符错误换行；待标签激活可见后由 fitAndRefresh 重新适配。
-    if (this.isElementVisible()) {
-      this.fitAddon.fit()
-    }
-    await this.remoteInit(term)
-  }
-
-  onSelectionChange = () => {
-    const hasSelection = this.term.hasSelection()
-    const txt = hasSelection ? this.term.getSelection().trim() : ''
-    this.setState({ hasSelection })
-    refsStatic.get('unix-timestamp-tooltip')?.onSelection(txt)
-  }
-
-  // setActive = () => {
-  //   const name = `activeTabId${this.props.batch}`
-  //   const tabId = this.props.tab.id
-  //   window.store.storeAssign({
-  //     activeTabId: tabId,
-  //     [name]: tabId
-  //   })
-  // }
-
-  runInitScript = async () => {
-    window.store.triggerResize()
-    const {
-      startDirectory,
-      runScripts
-    } = this.props.tab
-
-    const scripts = runScripts ? [...runScripts] : []
-    const startFolder = startDirectory || window.initFolder
-    if (startFolder) {
-      scripts.unshift({ script: `cd "${startFolder}"`, delay: 0 })
-    }
-
-    // Create unified execution queue
-    this.executionQueue = []
-
-    // Add shell integration injection to queue if needed
-    if (this.canInjectShellIntegration()) {
-      this.executionQueue.push({
-        type: 'shell_integration',
-        execute: async () => {
-          await this.injectShellIntegration()
-        }
-      })
-    }
-
-    // Add delayed scripts to queue
-    scripts.forEach(script => {
-      this.executionQueue.push({
-        type: 'delayed_script',
-        script: script.script,
-        delay: script.delay || 0,
-        execute: () => {
-          if (script.script) {
-            this.attachAddon._sendData(script.script + '\r')
-          }
-        }
-      })
-    })
-
-    this.processExecutionQueue()
-  }
-
-  shouldUseManualHistory = () => {
-    return !this.cmdAddon || !this.cmdAddon.hasShellIntegration()
-  }
-
-  canInjectShellIntegration = () => {
-    const { config } = this.props
-    const canInject = (config.showCmdSuggestions || this.props.sftpPathFollowSsh) &&
-    (
-      this.isSsh() ||
-      (this.isLocal() && !isWin)
-    )
-    return canInject
-  }
-
-  isSsh = () => {
+  isSsh () {
     const { host, type } = this.props.tab
     return host && (type === 'ssh' || type === undefined)
   }
 
-  isLocal = () => {
+  isLocal () {
     const { host, type } = this.props.tab
     return !host &&
       (type === 'local' || type === undefined)
   }
 
-  /**
-   * Process the unified execution queue one item at a time
-   */
-  processExecutionQueue = async () => {
-    if (!this.executionQueue || this.executionQueue.length === 0) {
-      return
-    }
-
-    const item = this.executionQueue.shift()
-
-    try {
-      if (item.type === 'shell_integration') {
-        await item.execute()
-      } else if (item.type === 'delayed_script') {
-        item.execute()
-        // Wait for the specified delay before processing next item
-        if (item.delay > 0) {
-          await new Promise(resolve => {
-            this.timers.timerDelay = setTimeout(resolve, item.delay)
-          })
-        }
-      }
-    } catch (error) {
-      console.error('[Shell Integration] Error processing queue item:', item.type, error)
-    }
-
-    // Process next item
-    this.processExecutionQueue()
+  isTelnet () {
+    return this.props.tab?.type === connectionMap.telnet
   }
 
-  /**
-   * Inject shell integration commands from client-side
-   * This replaces the server-side source xxx.xxx approach
-   * Uses output suppression to hide the injection command
-   * Returns a promise that resolves when injection is complete
-   */
-  injectShellIntegration = async () => {
-    if (this.shellInjected) {
-      return Promise.resolve()
+  isSerial () {
+    return this.props.tab?.type === connectionMap.serial
+  }
+
+  isShellTerminal () {
+    const { type } = this.props.tab || {}
+    if (!type) {
+      return true
     }
-
-    let shellType
-    if (this.isLocal()) {
-      const { config } = this.props
-      const localShell = isMac ? config.execMac : config.execLinux
-      shellType = detectShellType(localShell)
-    } else if (this.isSsh()) {
-      shellType = await detectRemoteShell(this.pid)
-    }
-
-    this.shellType = shellType
-    if (shellType === 'fish') {
-      if (this.props.sftpPathFollowSsh) {
-        this.warnSftpFollowUnsupported()
-      }
-      return Promise.resolve()
-    }
-
-    // Don't inject for sh type shells unless sftpPathFollowSsh is true
-    if (shellType === 'sh' && !this.props.sftpPathFollowSsh) {
-      return Promise.resolve()
-    }
-
-    const integrationCmd = getShellIntegrationCommand(shellType)
-
-    return new Promise((resolve) => {
-      // Wait for initial data (prompt/banner) to arrive before injecting
-      this.attachAddon.onInitialData(() => {
-        if (this.attachAddon) {
-          // Start suppressing output before sending the integration command
-          // This hides the command and its output until OSC 633 is detected
-          const suppressionTimeout = this.isSsh() ? 5000 : 3000
-          // Pass callback to resolve the promise after suppression ends
-          this.attachAddon.startOutputSuppression(suppressionTimeout, () => {
-            this.shellInjected = true
-            resolve()
-          })
-          this.attachAddon._sendData(integrationCmd)
-        } else {
-          resolve()
-        }
-      })
-    })
+    return (
+      type === connectionMap.ssh ||
+      type === connectionMap.local ||
+      type === connectionMap.telnet ||
+      type === connectionMap.serial
+    )
   }
 
   setStatus = status => {
@@ -1722,393 +329,7 @@ class Term extends Component {
     })
   }
 
-  openNormalBuffer = () => {
-    const normal = this.term.buffer.normal
-    const len = normal.length
-    const lines = new Array(len).fill('').map((x, i) => {
-      return normal.getLine(i).translateToString(false)
-    })
-    this.setState({
-      lines
-    })
-  }
-
-  closeNormalBuffer = () => {
-    this.setState({
-      lines: []
-    })
-    this.term.focus()
-  }
-
-  onBufferChange = buf => {
-    this.bufferMode = buf.type
-  }
-
-  buildWsUrl = (port) => {
-    const { host, tokenElecterm } = this.props.config
-    const { id } = this.props.tab
-    if (window.et.buildWsUrl) {
-      return window.et.buildWsUrl(
-        host,
-        port,
-        tokenElecterm,
-        id
-      )
-    }
-    return `ws://${host}:${port}/terminals/${id}?token=${tokenElecterm}`
-  }
-
-  remoteInit = async (term = this.term) => {
-    this.setState({
-      loading: true,
-      terminalError: null
-    })
-    const { cols, rows } = term
-    const { config } = this.props
-    const {
-      keywords = []
-    } = config
-    const { logName } = this.props
-    const tab = window.store.applyProfileToTabs(deepCopy(this.props.tab || {}))
-    const {
-      srcId, from = 'bookmarks',
-      type,
-      term: terminalType,
-      displayRaw,
-      id
-    } = tab
-    const { savePassword } = this.state
-    const termType = type
-    const extra = this.props.sessionOptions
-    // Determine if this is a local terminal (no host)
-    const isLocalType = !tab.host
-    // Build exec settings: only for local type, prefer tab settings over config
-    let execOpts = {}
-    let execPropName = 'execLinux'
-    if (isWin) {
-      execPropName = 'execWindows'
-    } else if (isMac) {
-      execPropName = 'execMac'
-    }
-    if (isLocalType) {
-      // Check flat properties on tab first (bookmark data), then fall back to config
-      if (tab[execPropName]) {
-        // Use bookmark's exec setting directly
-        execOpts = {
-          [execPropName]: tab[execPropName],
-          [`${execPropName}Args`]: tab[`${execPropName}Args`] || []
-        }
-      } else if (config[execPropName]) {
-        // Use global config exec settings
-        execOpts = {
-          [execPropName]: config[execPropName],
-          [`${execPropName}Args`]: config[`${execPropName}Args`] || []
-        }
-      }
-    }
-    const keepaliveInterval = tab.keepaliveInterval || config.keepaliveInterval
-    const opts = clone({
-      cols,
-      rows,
-      term: terminalType || config.terminalType,
-      saveTerminalLogToFile: config.saveTerminalLogToFile,
-      ...tab,
-      ...extra,
-      ...execOpts,
-      logName,
-      sessionLogPath: this.state.logPath,
-      ...pick(config, [
-        'addTimeStampToTermLog',
-        'keepaliveCountMax',
-        'keyword2FA',
-        'debug'
-      ]),
-      keepaliveInterval,
-      tabId: id,
-      uid: id,
-      srcTabId: tab.id,
-      termType,
-      readyTimeout: config.sshReadyTimeout,
-      proxy: getProxy(tab, config),
-      type: tab.host
-        ? typeMap.remote
-        : typeMap.local
-    })
-    const isAutoReconnect = !!(tab.autoReConnect && this.props.config.autoReconnectTerminal)
-    const r = await createTerm(opts)
-      .catch(err => {
-        if (!isAutoReconnect) {
-          const text = err.message
-          this.handleError({ message: text, from, srcId })
-        }
-      })
-    // Guard: component was unmounted while createTerm was pending.
-    // The child process is already running; connect briefly to trigger its cleanup.
-    if (this.onClose) {
-      if (r && r.port) {
-        try {
-          const tmpSock = new WebSocket(this.buildWsUrl(r.port))
-          tmpSock.onopen = () => tmpSock.close()
-        } catch (_e) {}
-      }
-      return
-    }
-    if (typeof r === 'string' && r.includes('fail')) {
-      return this.promote()
-    }
-    if (savePassword) {
-      window.store.editItem(srcId, extra, from)
-    }
-    this.setState({
-      loading: false
-    })
-    if (!r) {
-      if (isAutoReconnect) {
-        this.scheduleAutoReconnect(3000)
-        return
-      }
-      this.setStatus(statusMap.error)
-      return
-    }
-    this.port = r.port
-    this.setStatus(statusMap.success)
-    refs.get('sftp-' + id)?.initData(id, r.port)
-    term.pid = id
-    this.pid = id
-    const wsUrl = this.buildWsUrl(r.port)
-    const socket = new WebSocket(wsUrl)
-    socket.onclose = this.oncloseSocket
-    socket.onerror = this.onerrorSocket
-    this.socket = socket
-    this.initSocketEvents()
-    this.term = term
-    socket.onopen = async () => {
-      await this.initAttachAddon()
-      this.runInitScript()
-    }
-    // term.onRrefresh(this.onRefresh)
-    term.onResize(this.onResizeTerminal)
-    // xterm 6.x exposes buffer change as a public event (IBufferNamespace.onBufferChange).
-    // Previously this reached into the private _onBufferChange._listeners array.
-    term.buffer.onBufferChange(this.onBufferChange)
-    const WebLinksAddon = await loadWebLinksAddon()
-    term.loadAddon(new WebLinksAddon(this.webLinkHandler))
-    term.focus()
-    this.zmodemClient = new ZmodemClient(this)
-    this.zmodemClient.init(socket)
-    this.trzszClient = new TrzszClient(this)
-    this.trzszClient.init(socket)
-    this.xmodemClient = new XmodemClient(this)
-    this.xmodemClient.init(socket)
-    // 仅在可见时 fit，隐藏标签跳过，避免 0 列损坏提示符。
-    if (this.isElementVisible()) {
-      this.fitAddon.fit()
-    }
-    term.displayRaw = displayRaw
-    term.loadAddon(
-      new KeywordHighlighterAddon(keywords)
-    )
-  }
-
-  handleError = ({ message: errorMessage, from, srcId }) => {
-    this.setState({
-      terminalError: {
-        message: errorMessage || 'Failed to create terminal session',
-        from,
-        srcId
-      }
-    })
-  }
-
-  handleEditBookmarkFromError = () => {
-    const error = this.state.terminalError
-    if (!error || error.from !== 'bookmarks' || !error.srcId) {
-      return
-    }
-    const item = window.store.bookmarksMap?.get(error.srcId) ||
-      window.store.bookmarks?.find(d => d.id === error.srcId)
-    if (!item) {
-      return
-    }
-    window.store.openBookmarkEdit(item)
-  }
-
-  initSocketEvents = () => {
-    const originalSend = this.socket.send
-    this.socket.send = (data) => {
-      // Call original send first
-      originalSend.call(this.socket, data)
-
-      // Broadcast to other terminals
-      this.broadcastSocketData(data)
-    }
-  }
-
-  canReceiveBroadcast = (termRef) => {
-    return (
-      termRef.socket &&
-      termRef.props?.tab.pane === paneMap.terminal
-    )
-  }
-
-  broadcastSocketData = (data) => {
-    if (!this.isActiveTerminal() || !this.props.broadcastInput) {
-      return
-    }
-
-    window.refs.forEach((termRef, refId) => {
-      if (
-        refId !== this.id &&
-        refId.startsWith('term-') &&
-        this.canReceiveBroadcast(termRef)
-      ) {
-        termRef.socket.send(data)
-      }
-    })
-  }
-
-  // 判断终端挂载容器当前是否真实可见（非 display:none）。
-  // 隐藏标签的 clientWidth/clientHeight 为 0，此时不应 fit，否则会算出 0 列。
-  isElementVisible = () => {
-    const el = this.domRef.current
-    if (!el) {
-      return false
-    }
-    return el.clientWidth > 0 && el.clientHeight > 0
-  }
-
-  // 重新适配终端尺寸并强制重绘可见区域。
-  // 仅当容器真正可见时才 fit：隐藏标签(display:none)下 clientWidth 为 0，
-  // 若在此时 fit 会算出 0/极小列数，使 shell 提示符被逐字符错误换行，
-  // 出现快速连续打开多个连接时的虚假/重复提示符。因此隐藏态跳过 fit，
-  // 保留 xterm 默认 80x24，待标签激活可见后再 fit 重绘，从根上避免换行损坏。
-  fitAndRefresh = () => {
-    if (!this.term || !this.fitAddon || this.onClose) {
-      return
-    }
-    if (!this.isElementVisible()) {
-      return
-    }
-    try {
-      this.fitAddon.fit()
-      this.term.refresh(0, this.term.rows - 1)
-    } catch (e) {
-      console.info('resize failed', e)
-    }
-  }
-
-  onResize = throttle(() => {
-    this.fitAndRefresh()
-  }, 200)
-
-  onerrorSocket = err => {
-    console.error('onerrorSocket', err)
-  }
-
-  oncloseSocket = () => {
-    if (this.onClose || this.props.tab.enableSsh === false) {
-      return
-    }
-    this.setStatus(
-      statusMap.error
-    )
-    if (this.userTypeExit) {
-      return this.props.delTab(this.props.tab.id)
-    }
-    const { autoReconnectTerminal } = this.props.config
-    if (autoReconnectTerminal) {
-      this.scheduleAutoReconnect(3000)
-    }
-  }
-
-  scheduleAutoReconnect = (delay = 3000) => {
-    clearTimeout(this.timers.reconnectTimer)
-    clearInterval(this.timers.reconnectCountdown)
-    const seconds = Math.round(delay / 1000)
-    this.setState({ reconnectCountdown: seconds })
-    let remaining = seconds
-    this.timers.reconnectCountdown = setInterval(() => {
-      remaining -= 1
-      if (remaining <= 0) {
-        clearInterval(this.timers.reconnectCountdown)
-        this.timers.reconnectCountdown = null
-      }
-      this.setState({ reconnectCountdown: remaining <= 0 ? null : remaining })
-    }, 1000)
-    this.timers.reconnectTimer = setTimeout(() => {
-      clearInterval(this.timers.reconnectCountdown)
-      this.timers.reconnectCountdown = null
-      this.setState({ reconnectCountdown: null })
-      if (this.onClose || !this.props.config.autoReconnectTerminal) {
-        return
-      }
-      const reconnectCount = (this.props.tab.autoReConnect || 0) + 1
-      this.props.reloadTab({ ...this.props.tab, autoReConnect: reconnectCount })
-    }, delay)
-  }
-
-  handleCancelAutoReconnect = () => {
-    clearTimeout(this.timers.reconnectTimer)
-    clearInterval(this.timers.reconnectCountdown)
-    this.timers.reconnectTimer = null
-    this.timers.reconnectCountdown = null
-    this.setState({ reconnectCountdown: null })
-  }
-
-  batchInput = (cmd) => {
-    this.attachAddon._sendData(cmd + '\r')
-  }
-
-  onResizeTerminal = size => {
-    const { cols, rows } = size
-    resizeTerm(this.pid, cols, rows)
-  }
-
-  handleCancel = () => {
-    const { id } = this.props.tab
-    this.props.delTab(id)
-  }
-
-  /**
-   * Manually triggered from the "exit gracefully" control in
-   * session-control.jsx (serial tabs only). Writes the configured key
-   * sequence (default \x01ky = Ctrl+A, k, y to kill a GNU screen window) to
-   * the socket, waits a bit so the remote end (e.g. a Bluetooth console
-   * adapter) can release cleanly, then closes the tab.
-   */
-  exitGracefully = async () => {
-    const { tab } = this.props
-    if (tab.type !== terminalSerialType) {
-      return
-    }
-    if (!this.onClose && this.attachAddon?._sendData) {
-      try {
-        const data = expandCloseSequence(tab.closeSequence || '\\x01ky')
-        if (data) {
-          this.attachAddon._sendData(data)
-        }
-      } catch (err) {
-        console.error('send close sequence failed', err)
-      }
-      const delay = Number(tab.closeSequenceDelay)
-      await new Promise(resolve => setTimeout(resolve, Number.isFinite(delay) && delay >= 0 ? delay : 500))
-    }
-    this.props.delTab(tab.id)
-  }
-
-  handleShowInfo = () => {
-    const { logName, tab } = this.props
-    const infoProps = {
-      logName,
-      id: tab.id,
-      pid: tab.id,
-      isRemote: this.isRemote(),
-      isActive: this.isActiveTerminal()
-    }
-    Object.assign(window.store.terminalInfoProps, infoProps)
-  }
-
-  renderResetFontSizeButton = () => {
+  renderResetFontSizeButton () {
     if (!this.state.fontSizeChanged) {
       return null
     }
@@ -2123,25 +344,6 @@ class Term extends Component {
         icon={<AimOutlined />}
       />
     )
-  }
-
-  // getPwd = async () => {
-  //   const { sessionId, config } = this.props
-  //   const { pid } = this.state
-  //   const prps = {
-  //     host: config.host,
-  //     port: config.port,
-  //     pid,
-  //     sessionId
-  //   }
-  //   const result = await runCmds(prps, ['pwd'])
-  //     .catch(window.store.onError)
-  //   return result ? result[0].trim() : ''
-  // }
-
-  switchEncoding = encode => {
-    this.encode = encode
-    this.attachAddon.decoder = new TextDecoder(encode)
   }
 
   render () {
@@ -2235,6 +437,14 @@ class Term extends Component {
             onCancel={this.handleDropFileModalCancel}
           />
           {spin}
+          <TerminalSelectText
+            visible={this.state.selectTextVisible}
+            text={this.state.selectTextContent}
+            textareaRef={this.selectTextRef}
+            onSelectAll={this.handleSelectTextAll}
+            onCopy={this.handleSelectTextCopy}
+            onClose={this.handleSelectTextClose}
+          />
         </div>
       </Dropdown>
     )

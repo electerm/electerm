@@ -57,7 +57,8 @@ function parseHexColor (color) {
   return [
     parseInt(expanded.slice(0, 2), 16),
     parseInt(expanded.slice(2, 4), 16),
-    parseInt(expanded.slice(4, 6), 16)
+    parseInt(expanded.slice(4, 6), 16),
+    alpha
   ]
 }
 
@@ -82,10 +83,15 @@ function parseRgbColor (color) {
   if (alpha === null || alpha <= 0) {
     return null
   }
-  return channels
+  return [...channels, alpha]
 }
 
 export function parseColorToRgb (color) {
+  const rgba = parseColorToRgba(color)
+  return rgba ? rgba.slice(0, 3) : null
+}
+
+export function parseColorToRgba (color) {
   if (typeof color !== 'string') {
     return null
   }
@@ -102,6 +108,52 @@ export function colorToOscRgb (color) {
     return ''
   }
   return `rgb:${rgb.map(toHexByte).join('/')}`
+}
+
+/**
+ * Blend a (possibly translucent) selection colour over an opaque background,
+ * producing the colour in xterm's internal format ({ css, rgba } where
+ * rgba = r<<24 | g<<16 | b<<8 | a).
+ *
+ * xterm derives its DOM selection colour as blend(theme.background,
+ * selectionBackground) into `selectionBackgroundOpaque`, and separately forces
+ * any opaque selectionBackground down to 0.3 alpha in
+ * `selectionBackgroundTransparent` (xterm#2737). electerm renders the terminal
+ * background via CSS and hands xterm a transparent background, so the blend
+ * must be redone over the real visible background — starting from the
+ * *configured* colour so an opaque selection stays opaque (xterm's forced
+ * 0.3-alpha variant would make every selection translucent).
+ *
+ * `selectionColor` is a CSS colour string from the terminal theme, e.g.
+ * themeConfig.selectionBackground; `visibleBackground` is an opaque colour
+ * string.
+ */
+export function blendSelectionOverBackground (visibleBackground, selectionColor) {
+  const bg = parseColorToRgb(visibleBackground)
+  const sel = parseColorToRgba(selectionColor)
+  if (!bg || !sel) {
+    return null
+  }
+  const [br, bgg, bb] = bg
+  const [sr, sg, sb, sa] = sel
+  const toCss = (r, g, b, alpha) =>
+    `#${[r, g, b, alpha].map(toHexByte).join('')}`
+  if (sa >= 1) {
+    // Fully opaque: use the configured colour as-is, just normalised to
+    // 8-digit hex so both the overlay and per-cell inline styles agree.
+    return {
+      css: toCss(sr, sg, sb, 255),
+      rgba: (sr << 24 | sg << 16 | sb << 8 | 255) >>> 0
+    }
+  }
+  const r = br + Math.round((sr - br) * sa)
+  const g = bgg + Math.round((sg - bgg) * sa)
+  const b = bb + Math.round((sb - bb) * sa)
+  const alpha = Math.round(sa * 255)
+  return {
+    css: toCss(r, g, b, alpha),
+    rgba: (r << 24 | g << 16 | b << 8 | alpha) >>> 0
+  }
 }
 
 export function buildOscColorResponse (identifier, color, fallbackColor) {

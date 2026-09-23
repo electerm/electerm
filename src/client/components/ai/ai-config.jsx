@@ -7,8 +7,8 @@ import {
   Space,
   Dropdown
 } from 'antd'
-import { useEffect, useState } from 'react'
-import { DownOutlined } from '@ant-design/icons'
+import { useEffect, useMemo, useState } from 'react'
+import { DownOutlined, ReloadOutlined } from '@ant-design/icons'
 import Link from '../common/external-link'
 import AiCache from './ai-cache'
 import {
@@ -17,11 +17,50 @@ import {
 import Password from '../common/password'
 import AiHistory, { addHistoryItem } from './ai-history'
 import message from '../common/message'
-import { getAIPresets } from './ai-config-props'
+import { getAIPresets } from './ai-presets'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 
 const STORAGE_KEY_CONFIG = 'ai_config_history'
 const EVENT_NAME_CONFIG = 'ai-config-history-update'
+const STORAGE_KEY_MODELS = 'ai_models_cache'
+
+// Model lists fetched from `<baseURL>/models`, cached per API URL
+function normalizeBaseURL (url) {
+  return (url || '').trim().replace(/\/+$/, '')
+}
+
+function readModelsCache () {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY_MODELS)
+    const parsed = raw ? JSON.parse(raw) : null
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch (e) {
+    return {}
+  }
+}
+
+function getCachedModels (baseURL) {
+  const key = normalizeBaseURL(baseURL)
+  if (!key) {
+    return []
+  }
+  const models = readModelsCache()[key]
+  return Array.isArray(models) ? models : []
+}
+
+function saveModelsToCache (baseURL, models) {
+  const key = normalizeBaseURL(baseURL)
+  if (!key) {
+    return
+  }
+  try {
+    const cache = readModelsCache()
+    cache[key] = models
+    window.localStorage.setItem(STORAGE_KEY_MODELS, JSON.stringify(cache))
+  } catch (e) {
+    // storage full or disabled, keep it in memory only
+  }
+}
 
 const e = window.translate
 const defaultRoles = [
@@ -39,6 +78,15 @@ const proxyOptions = [
   { value: 'https://proxy.example.com:3128' }
 ]
 
+// The wire protocol is detected from the path:
+// /chat/completions -> OpenAI compatible, /responses -> OpenAI Responses API,
+// /messages -> Anthropic Claude Messages API
+const apiPathOptions = [
+  { value: '/chat/completions', label: '/chat/completions (OpenAI)' },
+  { value: '/responses', label: '/responses (OpenAI Responses)' },
+  { value: '/messages', label: '/messages (Anthropic)' }
+]
+
 const authHeaderOptions = [
   { value: 'Authorization: Bearer' },
   { value: 'x-api-key' },
@@ -50,13 +98,22 @@ const authHeaderOptions = [
 export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig }) {
   const [form] = Form.useForm()
   const [testing, setTesting] = useState(false)
+  const [loadingModels, setLoadingModels] = useState(false)
+  const [cachedModels, setCachedModels] = useState([])
   const baseURLAI = Form.useWatch('baseURLAI', form)
+  const presets = useMemo(() => getAIPresets(), [])
+  const currentPreset = presets.find(p => p.baseURLAI === baseURLAI)
 
   useEffect(() => {
     if (initialValues) {
       form.setFieldsValue(initialValues)
     }
   }, [initialValues])
+
+  // Restore the model list previously fetched for this API URL
+  useEffect(() => {
+    setCachedModels(getCachedModels(baseURLAI))
+  }, [baseURLAI])
 
   function filter () {
     return true
@@ -105,8 +162,45 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     }
   }
 
+  async function handleLoadModels () {
+    const values = form.getFieldsValue()
+    const baseURL = normalizeBaseURL(values.baseURLAI)
+    if (!baseURL) {
+      message.error('Please input API URL first')
+      return
+    }
+    setLoadingModels(true)
+    try {
+      const res = await window.pre.runGlobalAsync(
+        'AIlistModels',
+        baseURL,
+        values.apiKeyAI,
+        values.authHeaderNameAI,
+        values.proxyAI
+      )
+      if (res && res.error) {
+        message.error(res.error)
+      } else if (res && res.models && res.models.length) {
+        setCachedModels(res.models)
+        saveModelsToCache(baseURL, res.models)
+        message.success(`Got ${res.models.length} models`)
+        if (!values.modelAI) {
+          form.setFieldsValue({ modelAI: res.models[0] })
+        }
+      } else {
+        message.error('No models found in response')
+      }
+    } catch (e) {
+      if (e.message) {
+        message.error(e.message)
+      }
+    } finally {
+      setLoadingModels(false)
+    }
+  }
+
   function handleSelectPreset (preset) {
-    const fields = ['nameAI', 'baseURLAI', 'apiPathAI', 'modelAI', 'authHeaderNameAI', 'modelAI', 'apiKeyAI']
+    const fields = ['nameAI', 'baseURLAI', 'apiPathAI', 'modelAI', 'authHeaderNameAI', 'apiKeyAI']
     const values = {}
     fields.forEach(f => {
       if (preset[f] !== undefined) {
@@ -117,7 +211,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   }
 
   function renderPresetMenu () {
-    const presets = getAIPresets()
     const items = presets.map(p => ({
       key: p.id,
       label: p.nameAI,
@@ -126,7 +219,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     return (
       <Dropdown menu={{ items }} trigger={['click']}>
         <Button>
-          {e('presets') || 'Presets'} <DownOutlined />
+          {e('presets')} <DownOutlined />
         </Button>
       </Dropdown>
     )
@@ -145,13 +238,39 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   }
 
   function renderApiKeyLabel () {
-    if (baseURLAI === 'https://api.atlascloud.ai/v1') {
-      return <span className='bold'>API Key (<Link to='https://www.atlascloud.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'>get API key from atlascloud</Link>)</span>
-    }
-    if (baseURLAI === 'https://ai.electerm.org/api/ai') {
-      return <span className='bold'>API Key (<Link to='https://ai.electerm.org?utm=electerm'>get API key from ai.electerm.org(free)</Link>)</span>
+    const siteUrl = currentPreset?.siteUrl
+    if (siteUrl) {
+      const name = currentPreset?.nameAI || baseURLAI
+      return <span className='bold'>API Key (<Link to={siteUrl}>get API key from {name}</Link>)</span>
     }
     return 'API Key'
+  }
+
+  function renderModelInput () {
+    const presetModels = (currentPreset?.modelAIs || [])
+      .map(o => (typeof o === 'string' ? o : o.value))
+    const values = [...presetModels, ...cachedModels].filter(Boolean)
+    const options = [...new Set(values)].map(value => ({ value }))
+    const title = 'Fetch model list from API URL'
+    return (
+      <AutoComplete
+        options={options}
+        filterOption={filter}
+      >
+        <Input
+          placeholder='Enter or select AI model'
+          suffix={
+            <ReloadOutlined
+              spin={loadingModels}
+              className='pointer ai-model-reload'
+              title={title}
+              onMouseDown={e => e.preventDefault()}
+              onClick={handleLoadModels}
+            />
+          }
+        />
+      </AutoComplete>
+    )
   }
 
   if (!showAIConfig) {
@@ -219,8 +338,11 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
               ]}
               noStyle
             >
-              <Input
+              <AutoComplete
+                options={apiPathOptions}
+                filterOption={filter}
                 placeholder='/chat/completions'
+                popupMatchSelectWidth={false}
                 style={{ width: '25%' }}
               />
             </Form.Item>
@@ -231,9 +353,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           name='modelAI'
           rules={[{ required: true, message: 'Please input or select a model!' }]}
         >
-          <Input
-            placeholder='Enter or select AI model'
-          />
+          {renderModelInput()}
         </Form.Item>
 
         <Form.Item

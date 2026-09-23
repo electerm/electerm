@@ -6,11 +6,12 @@ import {
   SearchOutlined,
   FullscreenOutlined,
   PaperClipOutlined,
-  CloseOutlined,
   ApartmentOutlined,
   MoreOutlined,
   ColumnWidthOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  PlusOutlined,
+  MinusOutlined
 } from '@ant-design/icons'
 import { Tooltip, Popover } from 'antd'
 import classnames from 'classnames'
@@ -29,6 +30,7 @@ export default function SessionControl (props) {
   const {
     tab,
     isMobile,
+    isTouchDevice,
     isDisabled,
     isSshDisabled,
     isNotTerminalType,
@@ -37,8 +39,6 @@ export default function SessionControl (props) {
     keepaliveEnabled,
     broadcastInput,
     wrapDisabled,
-    delKeyPressed,
-    hideDelKeyTip,
     onChangePane,
     toggleCheckSftpPathFollowSsh,
     onSshSftpSplitView,
@@ -47,8 +47,8 @@ export default function SessionControl (props) {
     toggleWrap,
     onFullscreen,
     onOpenSearch,
-    onDismissDelKeyTip,
-    onExitGracefully
+    onExitGracefully,
+    onZoomFontSize
   } = props
 
   if (isNotTerminalType) {
@@ -108,26 +108,11 @@ export default function SessionControl (props) {
     )
   }
 
-  function renderDelTip (isS) {
-    if (!isS || hideDelKeyTip || !delKeyPressed) {
-      return null
-    }
-    return (
-      <div className='type-tab'>
-        <span className='mg1r'>Try <b>Shift + Backspace</b>?</span>
-        <CloseOutlined
-          onClick={onDismissDelKeyTip}
-          className='pointer'
-        />
-      </div>
-    )
-  }
-
   function renderSftpPathFollowControl () {
     if (isDisabled) {
       return null
     }
-    const { pane, enableSsh, sshSftpSplitView } = tab
+    const { enableSsh } = tab
     const checkTxt = e('sftpPathFollowSsh')
     const checkProps = {
       onClick: toggleCheckSftpPathFollowSsh,
@@ -138,8 +123,6 @@ export default function SessionControl (props) {
         }
       )
     }
-    const isS = pane === paneMap.terminal ||
-      sshSftpSplitView
     return (
       <>
         {
@@ -153,7 +136,6 @@ export default function SessionControl (props) {
               )
             : null
         }
-        {renderDelTip(isS)}
       </>
     )
   }
@@ -275,6 +257,28 @@ export default function SessionControl (props) {
     )
   }
 
+  function renderFontSizeIcons () {
+    // touch screens have no ctrl +/- shortcut to resize the terminal font,
+    // so the icons only show there — driven by store.isTouchDevice, which
+    // follows the input the user is actually using (see main.jsx).
+    if (!isTouchDevice) {
+      return null
+    }
+    const cls = 'mg1r icon-info iblock pointer spliter font-size-control-icon'
+    return (
+      <>
+        <MinusOutlined
+          className={cls}
+          onClick={() => onZoomFontSize(-1)}
+        />
+        <PlusOutlined
+          className={cls}
+          onClick={() => onZoomFontSize(1)}
+        />
+      </>
+    )
+  }
+
   function renderTermControls () {
     const { pane } = tab
     if (pane !== paneMap.terminal) {
@@ -282,6 +286,7 @@ export default function SessionControl (props) {
     }
     return (
       <div className='fright term-controls'>
+        {renderFontSizeIcons()}
         {renderFullscreenIcon()}
         {renderSearchIcon()}
       </div>

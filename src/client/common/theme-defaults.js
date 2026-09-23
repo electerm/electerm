@@ -81,7 +81,7 @@ const defaultThemeDarkTerminal = () => {
     background: '#20111b',
     cursor: '#b5bd68',
     cursorAccent: '#1d1f21',
-    selectionBackground: 'rgba(255, 255, 255, 0.3)',
+    selectionBackground: 'rgba(200, 200, 200, 0.6)',
     black: '#575757',
     red: '#FF2C6D',
     green: '#19f9d8',
@@ -101,9 +101,12 @@ const defaultThemeDarkTerminal = () => {
   }
 }
 
+export const defaultThemeId = 'default'
+export const defaultThemeLightId = 'defaultLight'
+
 export function defaultTheme () {
   return {
-    id: 'default',
+    id: defaultThemeId,
     name: 'default',
     themeConfig: defaultThemeDarkTerminal(),
     uiThemeConfig: defaultThemeDark()
@@ -112,7 +115,7 @@ export function defaultTheme () {
 
 export function defaultThemeLight () {
   return {
-    id: 'defaultLight',
+    id: defaultThemeLightId,
     name: 'default light',
     themeConfig: defaultThemeLightTerminal(),
     uiThemeConfig: defaultThemeLightFunc()

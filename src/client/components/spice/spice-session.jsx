@@ -9,12 +9,11 @@ import {
 import {
   ReloadOutlined
 } from '@ant-design/icons'
-import {
-  Spin,
-  Switch
-} from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import RemoteFloatControl from '../common/remote-float-control'
+import RemoteSessionShell from '../common/remote-session-shell'
+import { eventToRemotePos } from '../common/remote-pointer'
+import SwitchLabel from '../common/switch'
 import './spice.styl'
 
 async function loadSpiceModule () {
@@ -44,10 +43,45 @@ export default class SpiceSession extends PureComponent {
 
   componentDidMount () {
     this.remoteInit()
+    this.attachMouseScaleFix()
   }
 
   componentWillUnmount () {
+    this.detachMouseScaleFix()
     this.cleanup()
+  }
+
+  // The spice client sends event.offsetX/offsetY to the remote as-is, but when
+  // the canvas is CSS-scaled (fit mode), those are display pixels instead of
+  // remote surface pixels. On high resolution remote screens the pointer then
+  // only reaches the top-left region. Convert display coords to surface coords
+  // before the lib's handlers run (same mapping as rdp, see remote-pointer.js).
+  handleMouseScaleFix = (e) => {
+    const canvas = this.domRef.current?.querySelector('canvas')
+    if (!canvas || !canvas.width || !canvas.height) return
+    const { x, y } = eventToRemotePos(e, canvas, canvas.width, canvas.height)
+    Object.defineProperty(e, 'offsetX', {
+      value: x
+    })
+    Object.defineProperty(e, 'offsetY', {
+      value: y
+    })
+  }
+
+  attachMouseScaleFix = () => {
+    this.domRef.current?.addEventListener(
+      'mousemove',
+      this.handleMouseScaleFix,
+      true
+    )
+  }
+
+  detachMouseScaleFix = () => {
+    this.domRef.current?.removeEventListener(
+      'mousemove',
+      this.handleMouseScaleFix,
+      true
+    )
   }
 
   cleanup = () => {
@@ -83,11 +117,28 @@ export default class SpiceSession extends PureComponent {
   }
 
   calcCanvasSize = () => {
-    const { width, height } = this.props
-    return {
-      width: width - 10,
-      height: height - 80
+    const { width, height } = this.viewSize || {}
+    if (width && height) {
+      return { width, height }
     }
+    const { width: w, height: h } = this.props
+    return {
+      width: w - 10,
+      height: h - 80
+    }
+  }
+
+  // fullscreen always fills the screen, the per tab setting only applies
+  // windowed; the switch is not reachable in fullscreen anyway
+  getFit = () => {
+    if (this.props.fullscreen) {
+      return true
+    }
+    return !!this.state.scaleViewport
+  }
+
+  handleViewportResize = (width, height) => {
+    this.viewSize = { width, height }
   }
 
   handleSendCtrlAltDel = () => {
@@ -123,36 +174,38 @@ export default class SpiceSession extends PureComponent {
     }
   }
 
-  renderControl = () => {
+  renderControlLeft = () => {
+    const scaleProps = {
+      checked: this.state.scaleViewport,
+      onChange: this.handleScaleViewChange,
+      label: window.translate('scaleViewport'),
+      className: 'mg1l'
+    }
+    return (
+      <>
+        <ReloadOutlined
+          onClick={this.handleReInit}
+          className='mg2r mg1l pointer'
+        />
+        {this.renderInfo()}
+        <SwitchLabel
+          {...scaleProps}
+        />
+      </>
+    )
+  }
+
+  renderControlRight = () => {
     const contrlProps = this.getControlProps({
       fixedPosition: false,
       showExitFullscreen: false,
       className: 'mg1l'
     })
-    const scaleProps = {
-      checked: this.state.scaleViewport,
-      onChange: this.handleScaleViewChange,
-      unCheckedChildren: window.translate('scaleViewport'),
-      checkedChildren: window.translate('scaleViewport'),
-      className: 'mg1l'
-    }
     return (
-      <div className='pd1 fix session-v-info'>
-        <div className='fleft'>
-          <ReloadOutlined
-            onClick={this.handleReInit}
-            className='mg2r mg1l pointer'
-          />
-          {this.renderInfo()}
-          <Switch
-            {...scaleProps}
-          />
-        </div>
-        <div className='fright'>
-          {this.props.fullscreenIcon()}
-          <RemoteFloatControl {...contrlProps} />
-        </div>
-      </div>
+      <>
+        {this.props.fullscreenIcon()}
+        <RemoteFloatControl {...contrlProps} />
+      </>
     )
   }
 
@@ -259,41 +312,24 @@ export default class SpiceSession extends PureComponent {
   }
 
   render () {
-    const { width: w, height: h } = this.props
-    const { loading, scaleViewport } = this.state
-    const { width: innerWidth, height: innerHeight } = this.calcCanvasSize()
-    const wrapperStyle = {
-      width: innerWidth + 'px',
-      height: innerHeight + 'px',
-      overflow: scaleViewport ? 'hidden' : 'auto'
-    }
-    const cls = `spice-session-wrap session-v-wrap${scaleViewport ? ' scale-viewport' : ''}`
+    const { loading } = this.state
     const contrlProps = this.getControlProps()
-    const sessProps = {
-      className: cls,
-      style: {
-        width: w + 'px',
-        height: h + 'px'
-      }
-    }
     return (
-      <Spin spinning={loading}>
+      <RemoteSessionShell
+        loading={loading}
+        fit={this.getFit()}
+        wrapClassName='spice-session-wrap'
+        onViewportResize={this.handleViewportResize}
+        controlLeft={this.renderControlLeft()}
+        controlRight={this.renderControlRight()}
+        floatControl={<RemoteFloatControl {...contrlProps} />}
+      >
         <div
-          {...sessProps}
-        >
-          {this.renderControl()}
-          <RemoteFloatControl {...contrlProps} />
-          <div
-            style={wrapperStyle}
-            className='spice-scroll-wrapper s-scroll-wrapper'
-          >
-            <div
-              ref={this.domRef}
-              id={this.screenId}
-            />
-          </div>
-        </div>
-      </Spin>
+          className='spice-session-mount'
+          id={this.screenId}
+          ref={this.domRef}
+        />
+      </RemoteSessionShell>
     )
   }
 }

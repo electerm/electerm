@@ -1,0 +1,273 @@
+<h1 align="center" style="padding-top: 60px;padding-bottom: 40px;">
+    <a href="https://electerm.org">
+        <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.png", alt="" />
+    </a>
+</h1>
+
+[![GitHub version](https://badgers.space/github/release/electerm/electerm?corner_radius=m)](https://github.com/electerm/electerm/releases)
+[![Build Status](https://github.com/electerm/electerm/actions/workflows/mac-test-1.yml/badge.svg)](https://github.com/electerm/electerm/actions)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/electerm/electerm/blob/master/LICENSE)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
+[![star](https://atomgit.com/electerm/electerm/star/badge.svg)](https://atomgit.com/electerm/electerm)
+
+[English](../../README.md) | [中文](README_cn.md) | [日本語](README_jp.md)
+
+
+开源终端/ssh/telnet/serialport/RDP/VNC/Spice/sftp/ftp客户端(Linux, Mac, Windows, Android, HarmonyOS, iOS)。
+
+除了主流的 Windows/macOS/Linux/Android，electerm 还支持鸿蒙(HarmonyOS)、iOS，以及老旧系统——如 Ubuntu 18、Windows 7、macOS 10+，以及国产特殊 Linux 发行版如 UOS、麒麟(Kylin)、龙芯(LoongArch，含旧世界与新世界)，同时还支持 RISC-V (riscv64) 与 PowerPC 64位小端 (ppc64le) Linux。
+
+<p>
+  <a href="https://electerm.org">主页 / 下载</a> ·
+  <a href="https://theme.electerm.org">主题</a> ·
+  <a href="https://github.com/electerm/electerm-web-docker">Docker</a> ·
+  <a href="https://demo.electerm.org">在线演示</a> ·
+  <a href="https://github.com/electerm/electerm-android">Android</a> ·
+  <a href="https://github.com/electerm/electerm-harmony">鸿蒙</a> ·
+  <a href="https://apps.apple.com/cn/app/electerm/id6792971552">App Store</a> ·
+  <a href="https://appgallery.huawei.com/app/detail?id=org.electerm.electerm">华为应用市场</a> ·
+  <a href="https://www.microsoft.com/store/apps/9NCN7272GTFF">微软商店</a> ·
+  <a href="https://snapcraft.io/electerm">Snap 商店</a> ·
+  <a href="https://repos.electerm.org/deb">deb 仓库</a> ·
+  <a href="https://repos.electerm.org/rpm">rpm 仓库</a>
+</p>
+
+<div>🌐 <strong><a href="https://cloud.electerm.org">electerm 在线版</a></strong> — 公共免费在线 electerm 应用</div>
+<div>🤖 <strong><a href="https://ai.electerm.org">electerm AI</a></strong> — 免费为 electerm 用户提供 AI</div>
+<div>💻 <strong><a href="https://github.com/electerm/electerm-web">electerm-web</a></strong> — 运行于浏览器(支持移动设备)的 web app 版本</div>
+
+## 赞助商
+
+<div align="center">
+  <a href="https://www.atlascloud.ai/?ref=PCAEL2&utm_source=github&utm_medium=link&utm_campaign=electerm">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/atlas-cloud.png?raw=true" alt="Atlas Cloud" width="260" />
+  </a>
+</div>
+
+[Atlas Cloud](https://www.atlascloud.ai/?ref=PCAEL2&utm_source=github&utm_medium=link&utm_campaign=electerm) 提供与 OpenAI 兼容的 AI API 和模型访问，用于在 electerm 中实现 AI 驱动的工作流程。
+
+----
+
+<div align="center">
+  <a href="https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM&aff=7H7DERHU3GFF">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/fluxionai.png?raw=true" alt="FluxionAI" width="210" />
+  </a>
+</div>
+
+[Fluxion AI](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM&aff=7H7DERHU3GFF) — 通往全球领先 AI 模型的统一入口，一个 API，多路分发，用量与价格透明，国产模型 — 4折，Claude & OpenAI — 3折。[通过合作链接注册即得 $3 API 额度](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM&aff=7H7DERHU3GFF)。
+
+----
+
+<div align="center">
+  <br />
+  <br />
+  <a href="https://go.apimart.ai/gh-electerm">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apimart.jpg?raw=true" alt="ApiMart" width="200" />
+  </a>
+  <br />
+  <br />
+</div>
+
+感谢 APIMart 赞助 electerm！APIMart 是一个低成本的 AI 图像和视频生成 API 平台 —— GPT-Image-2 低至 $0.006/张，1 美元可生成 160+ 张图片。一个异步 API 同时支持图像和视频：提交任务，获取任务 ID，通过轮询或回调获取结果。可批量生成数万张图片而不超时，切换模型无需修改代码。按量付费，无月费 —— [点击这里注册开始使用](https://go.apimart.ai/gh-electerm)。
+
+----
+
+<div align="center">
+  <a href="https://www.apismart.ai">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apismart400x400.png?raw=true" alt="ApiSmart" width="200" />
+  </a>
+</div>
+
+[ApiSmart](https://www.apismart.ai) 提供统一访问领先 AI 模型的途径 through a single API. 使用一个 API key 连接 LLM、image 和 video 模型，通过 OpenAI 兼容接口，无需管理多个提供方。切换模型轻松，简化计费，提高可靠性与智能路由和自动故障转移。构建和扩展 AI 应用程序更快。
+
+----
+
+<div align="center">
+
+<a href="https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img align="middle" src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg" alt="DigitalOcean Referral Badge" /></a>&nbsp;&nbsp;&nbsp;<a href="https://oss-directory.vercel.app"><img align="middle" src="https://github.com/electerm/electerm-resource/blob/master/static/images/vercel-oss-2005.png?raw=true" alt="Vercel OSS Program" /></a>
+
+</div>
+
+<div align="center">
+  <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.gif", alt="" />
+</div>
+
+## 功能特性
+
+- 可作为终端/文件管理器，以及 ssh/sftp/ftp/telnet/serialport/RDP/VNC/Spice 客户端
+- 支持 Window 7+(X64/ARM64), 鸿蒙, 安卓, iOS, Mac OS 10.15+(x64/arm64), Linux(x64/arm64/riscv64/ppc64le/Loong64 新世界 & 旧世界), 甚至 glibc 2.17+ 的老旧 Linux 如 UOS/Kylin/Ubuntu 18.04 等
+- 全局快捷键切换窗口显隐(类似 guake, 默认快捷键 `ctrl + 2`)
+- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 🇮🇩 🇵🇱 多国语言支持([electerm-locales](https://github.com/electerm/electerm-locales), 欢迎提交代码)
+- 双击直接编辑(小)远程文件.
+- 全类型认证方式: publicKey, password, ssh agent, 证书, otp, netbird 等.
+- 支持 Zmodem(rz, sz), 以及 [Trzsz](https://github.com/trzsz/trzsz)(trz/tsz).
+- 支持 ssh 相关特性: 隧道, 连接跳转.
+- 可定制 UI: 主题, 背景图片, 透明窗口(Mac, win).
+- 全局/会话级代理.
+- 快捷命令/触发器执行预设任务与自动化操作
+- 同步数据(含书签)到 github/gitee 私人 gist, webdav/custom server/electerm cloud
+- 支持快速输入/镜像输入到一个或多个终端
+- AI助手集成（支持多种 LLM API 格式：OpenAI Chat Completions、OpenAI Responses、Anthropic Messages），协助命令建议、脚本编写、以及解释所选终端内容, 创建书签/主题，以及agent模式直接进行终端操作
+- MCP (Model Context Protocol) 组件，用于AI助手和外部工具集成 - 详见 [MCP Widget Usage Guide](https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide)
+- 支持命令行使用: 请参阅[wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
+- 深度链接支持: 使用 `telnet://192.168.2.31:34554` 或 `ssh://user@host:22` 等URL打开连接 - 详见 [深度链接支持 wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)
+
+
+## 安装
+
+- Mac OS用户: `brew install --cask electerm`
+- Snap: `sudo snap install electerm --classic`
+- 一些Linux发行版的内置软件商店(Ubuntu, Deepin, Mint...).
+- 不支持`rpm`, `deb`, or `snap` 的Linux发行版可以尝试 `tar.gz`版本.
+- Windows用户可以从[windows store](https://www.microsoft.com/store/apps/9NCN7272GTFF), 命令行安装工具 [winget](https://github.com/microsoft/winget-cli)，以及[scoop](https://github.com/lukesampson/scoop) :
+
+```powershell
+# winget https://github.com/microsoft/winget-cli
+winget install electerm.electerm
+
+# scoop https://github.com/lukesampson/scoop
+scoop bucket add dorado https://github.com/chawyehsu/dorado
+scoop install dorado/electerm
+```
+
+- 从Debian软件源安装 (适用于Debian/Ubuntu系统) 使用 `apt` 命令
+
+查看 [https://repos.electerm.org/deb](https://repos.electerm.org/deb)
+
+- 从npm安装
+
+```bash
+npm i -g electerm
+```
+
+## 升级
+
+- 自动升级: 点击新版本的升级按钮.
+- 下载: 重新下载最新版安装.
+- Npm: 如果是从npm安装 再次运行`npm i -g electerm` 即可.
+- 如果从Linux发行版软件商店或者Snap安装，可能有自动升级机制.
+
+## 已知问题
+
+[https://github.com/electerm/electerm/wiki/Know-issues](https://github.com/electerm/electerm/wiki/Know-issues)
+
+## 疑难解答
+
+[https://github.com/electerm/electerm/wiki/Troubleshoot](https://github.com/electerm/electerm/wiki/Troubleshoot)
+
+## 讨论区
+
+[![Discord](https://img.shields.io/badge/Discord-Join-blue?logo=discord)](https://discord.gg/855W7g8EVd)
+
+[Discussion board](https://github.com/electerm/electerm/discussions)
+
+![electerm-wechat-group-qr.jpg](https://electerm.org/electerm-wechat-group-qr.jpg)
+
+## 支持
+
+欢迎[提交问题/建议](https://github.com/electerm/electerm/issues), [展开讨论](https://github.com/electerm/electerm/discussions/new), [修复或者创建语言文件](https://github.com/electerm/electerm-locales)或者贡献代码。
+
+## 赞助项目
+
+github sponsor
+
+[https://github.com/sponsors/electerm](https://github.com/sponsors/electerm)
+
+kofi
+
+[https://ko-fi.com/zhaoxudong](https://ko-fi.com/zhaoxudong)
+
+微信赞赏码
+
+[![wechat donate](https://electerm.org/electerm-wechat-donate.png)](https://github.com/electerm)
+
+TRON TRN20
+
+[![TRN20 donate](https://github.com/electerm/electerm-resource/blob/master/static/images/trn20.png?raw=true)]
+
+地址: TXk3pQNmQu1vihH76RaEFnK9wg13x4LLCZ
+
+## 开发
+
+```bash
+# May only works in Linux
+# needs nodejs/npm, suggest using nvm to install nodejs/npm
+# with nodejs 24.x
+
+git clone git@github.com:electerm/electerm.git
+cd electerm
+npm config set legacy-peer-deps true
+npm i
+
+# start vite dev server, requires port 5570
+npm start
+
+# in a separate terminal session run app
+npm run app
+
+# code format check
+npm run lint
+
+# code format fix
+npm run fix
+```
+
+## 测试
+
+```bash
+npm run b
+npm run prepare-test
+cp ./build/.sample.env ./.env
+
+# edit .env, fill your test host/username/password, may only works in mac OS
+npm run test
+```
+
+## 测试构建
+
+```bash
+# May only works in Linux
+# Install yarn first(to do yarn autoclean)
+# See https://yarnpkg.com/en/docs/install
+
+# Build linux only with -l
+npm i
+npm run b
+npm run pb
+./node_modules/.bin/electron-builder --linux tar.gz
+# or replace tar.gz to rpm/deb/AppImage
+# check dist/ folder
+
+# build for linux arm/
+./node_modules/.bin/electron-builder --linux --arm64
+```
+
+## 使用视频
+
+- [https://electerm.org/videos](https://electerm.org/videos)
+
+## 变更历史
+
+Visit [Releases](https://github.com/electerm/electerm/releases).
+
+## 联系作者
+
+[zxdong@gmail.com](mailto:zxdong@gmail.com)
+
+## 许可证
+
+MIT
+
+## 收藏历史
+
+<p>
+ <a href="https://www.star-history.com/electerm/electerm"><img src="https://api.star-history.com/badge?repo=electerm/electerm" alt="Star History Rank" /></a>
+</p>
+
+<a href="https://www.star-history.com/?repos=electerm%2Felecterm&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=electerm/electerm&type=date&legend=top-left&sealed_token=DvPlttPaLtq6RPIWRANYX08-8ZJyrJalhombrkDcg1IwWOMPMIplgi85q0FiwrbhE3lRIi_yxvOWdell731CGQvzlfJMt2Sa6VfCvQ80BwEtQ6RpPchEiw" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=electerm/electerm&type=date&legend=top-left&sealed_token=DvPlttPaLtq6RPIWRANYX08-8ZJyrJalhombrkDcg1IwWOMPMIplgi85q0FiwrbhE3lRIi_yxvOWdell731CGQvzlfJMt2Sa6VfCvQ80BwEtQ6RpPchEiw" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=electerm/electerm&type=date&legend=top-left&sealed_token=DvPlttPaLtq6RPIWRANYX08-8ZJyrJalhombrkDcg1IwWOMPMIplgi85q0FiwrbhE3lRIi_yxvOWdell731CGQvzlfJMt2Sa6VfCvQ80BwEtQ6RpPchEiw" />
+ </picture>
+</a>

@@ -1,28 +1,30 @@
 import { auto } from 'manate/react'
 import {
   Select,
-  Dropdown
+  Dropdown,
+  Badge
 } from 'antd'
-import { InfoCircleOutlined, TranslationOutlined } from '@ant-design/icons'
+import { BarChartOutlined, TranslationOutlined, DoubleRightOutlined, FunctionOutlined } from '@ant-design/icons'
 import './footer.styl'
 import { statusMap } from '../../common/constants'
 import BatchInput from './batch-input'
 import encodes from '../bookmark-form/common/encodes'
 import { refs } from '../common/ref'
 import Qm from '../quick-commands/quick-commands-select'
+import TriggerSessionModal from '../triggers/trigger-session-modal'
 import AIIcon from '../icons/ai-icon'
 import { isAIDisabled } from '../../common/ai-feature'
 import CmdHistory from './cmd-history'
+
+const e = window.translate
 
 const {
   Option
 } = Select
 
-const e = window.translate
-
 export default auto(function FooterEntry (props) {
   function handleInfoPanel () {
-    window.store.openInfoPanel()
+    window.store.toggleInfoPanel()
   }
 
   function batchInput (cmd, selectedTabIds) {
@@ -77,11 +79,46 @@ export default auto(function FooterEntry (props) {
     )
   }
 
+  function renderTriggers () {
+    const { store } = props
+    const tab = store.currentTab
+    let count = 0
+    try {
+      count = tab ? store.getEffectiveTriggers(tab).length : store.triggers.length
+    } catch (err) {
+      count = 0
+    }
+    return (
+      <div className='terminal-footer-unit terminal-footer-triggers'>
+        <Badge
+          count={count}
+          size='small'
+          offset={[-2, 2]}
+        >
+          <FunctionOutlined
+            onClick={() => store.toggleTriggerSessionModal(true)}
+            className='pointer font14 terminal-trigger-icon'
+            title={e('triggers')}
+          />
+        </Badge>
+        <TriggerSessionModal store={store} />
+      </div>
+    )
+  }
+
+  function handleAIPanel () {
+    window.store.toggleAIPanel()
+  }
+
   function renderAIIcon () {
+    const { rightPanelVisible, rightPanelTab } = props.store
+    // same contract as the info icon: lit while its panel is open
+    const active = rightPanelVisible && rightPanelTab === 'ai'
     return (
       <div className='terminal-footer-unit terminal-footer-ai'>
         <AIIcon
-          onClick={window.store.handleOpenAIPanel}
+          onClick={handleAIPanel}
+          className={active ? 'active' : ''}
         />
       </div>
     )
@@ -96,6 +133,7 @@ export default auto(function FooterEntry (props) {
       defaultValue: props.store.currentTab?.encode,
       onSelect: handleSwitchEncoding,
       size: 'small',
+      variant: 'borderless',
       popupMatchSelectWidth: false
     }
     if (props.store.isMobile) {
@@ -146,11 +184,15 @@ export default auto(function FooterEntry (props) {
     if (loading) {
       return null
     }
+    const { rightPanelVisible, rightPanelTab } = props.store
+    // keep the icon lit while its panel is open so it reads as "click to close"
+    const active = rightPanelVisible && rightPanelTab === 'info'
     return (
       <div className='terminal-footer-unit terminal-footer-info'>
-        <InfoCircleOutlined
+        <BarChartOutlined
           onClick={handleInfoPanel}
-          className='pointer font18 terminal-info-icon'
+          className={'pointer font14 terminal-info-icon' + (active ? ' active' : '')}
+          title={e('info')}
         />
       </div>
     )
@@ -164,35 +206,69 @@ export default auto(function FooterEntry (props) {
     )
   }
 
+  function handleShowSidebar () {
+    window.store.toggleLeftSideBar()
+  }
+
   const {
-    leftSidebarWidth,
+    leftSidePanelWidth,
+    leftSideBarWidth,
     openedSideBar,
-    inActiveTerminal
+    inActiveTerminal,
+    rightPanelVisible,
+    rightPanelPinned,
+    rightPanelWidth,
+    isMobile
   } = props.store
-  const w = 43 + leftSidebarWidth
-  const sideProps = openedSideBar
-    ? {
-        className: 'main-footer',
-        style: {
-          left: `${w}px`
-        }
-      }
-    : {
-        className: 'main-footer'
-      }
+  const w = leftSideBarWidth + leftSidePanelWidth
+  // icon bar hidden: show a control on the left of the footer to bring the
+  // sidebar back
+  const showSidebarIcon = leftSideBarWidth === 0
+    ? (
+      <div className='terminal-footer-unit terminal-footer-show-sidebar'>
+        <DoubleRightOutlined
+          className='pointer font18 show-sidebar-icon'
+          onClick={handleShowSidebar}
+        />
+      </div>
+      )
+    : null
+  // The footer mirrors the space layout.jsx reserves on both sides.
+  // Left: reserve while the panel is open OR pinned. A pinned left panel is
+  // always open, so this is a superset of the pin state — and it is what keeps
+  // the footer from painting over the panel, which spans bottom 0 in both
+  // states. Right: reserve only for a pinned panel, because the unpinned right
+  // panel is an overlay that stops above the footer and so never needs the
+  // space. Mobile reserves nothing on either side, matching layout.jsx, and the
+  // right panel has no pin control there at all.
+  const footerStyle = {}
+  if (openedSideBar && !isMobile) {
+    footerStyle.left = `${w}px`
+  }
+  if (rightPanelVisible && rightPanelPinned && !isMobile) {
+    footerStyle.right = `${rightPanelWidth}px`
+  }
+  const sideProps = {
+    className: 'main-footer',
+    style: footerStyle
+  }
   if (
     !inActiveTerminal
   ) {
     return (
-      <div className='main-footer' {...sideProps} />
+      <div className='main-footer' {...sideProps}>
+        {showSidebarIcon}
+      </div>
     )
   }
   return (
     <div {...sideProps}>
       <div className='terminal-footer-flex'>
+        {showSidebarIcon}
         {!isAIDisabled() && renderAIIcon()}
         {renderCmdHistory()}
         {renderQuickCommands()}
+        {renderTriggers()}
         {renderBatchInputs()}
         {renderEncodingInfo()}
         {renderInfoIcon()}

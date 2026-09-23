@@ -1,5 +1,145 @@
 import { loadAttachAddon } from './xterm-loader.js'
 
+// Cursor-positioning sequences stripped from the head of surviving output
+// after a drop. These are either relative (ESC[nA rewinds n rows) or restore
+// state saved by content we just discarded (ESC[8 / CSI u); left in place
+// they yank the cursor back into already-rendered history and overwrite it.
+// Safe leading sequences (colours, erase, cursor visibility, etc.) are kept.
+const ESC = String.fromCharCode(27)
+const CURSOR_CSI_FINALS = new Set([
+  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', '`', 'a', 'd', 'e', 'f', 's', 'u'
+])
+const CURSOR_ESC_FINALS = new Set(['7', '8', 'D', 'E', 'M'])
+
+// Upper bound on output buffered while suppression is active (UTF-16 code
+// units). Past this the rest of the hidden output is dropped instead of
+// growing the buffer without limit.
+const MAX_SUPPRESSED_CHARS = 200000
+
+function ansiSequenceEnd (str, start) {
+  const type = str[start + 1]
+  if (!type) {
+    return -1
+  }
+  if (type === '[') {
+    for (let i = start + 2; i < str.length; i++) {
+      const code = str.charCodeAt(i)
+      if (code >= 0x40 && code <= 0x7e) {
+        return i + 1
+      }
+    }
+    return -1
+  }
+  if (type === ']' || type === 'P' || type === '^' || type === '_') {
+    for (let i = start + 2; i < str.length; i++) {
+      if (str.charCodeAt(i) === 7) {
+        return i + 1
+      }
+      if (str[i] === ESC && str[i + 1] === '\\') {
+        return i + 2
+      }
+    }
+    return -1
+  }
+  for (let i = start + 1; i < str.length; i++) {
+    const code = str.charCodeAt(i)
+    if (code >= 0x30 && code <= 0x7e) {
+      return i + 1
+    }
+    if (code < 0x20 || code > 0x2f) {
+      return start + 2
+    }
+  }
+  return -1
+}
+
+export function stripLeadingCursorOps (str) {
+  let index = 0
+  let safePrefix = ''
+  while (index < str.length) {
+    if (str[index] === '\r') {
+      index += 1
+      continue
+    }
+    if (str[index] !== ESC) {
+      break
+    }
+    const end = ansiSequenceEnd(str, index)
+    if (end < 0) {
+      break
+    }
+    const type = str[index + 1]
+    const final = str[end - 1]
+    const isCursorOp = type === '['
+      ? CURSOR_CSI_FINALS.has(final)
+      : CURSOR_ESC_FINALS.has(type)
+    if (!isCursorOp) {
+      safePrefix += str.slice(index, end)
+    }
+    index = end
+  }
+  return safePrefix + str.slice(index)
+}
+
+function startAfterPartialAnsi (str, start) {
+  if (start <= 0) {
+    return start
+  }
+  const esc = str.lastIndexOf(ESC, start - 1)
+  const newline = str.lastIndexOf('\n', start - 1)
+  if (esc <= newline) {
+    return start
+  }
+  const end = ansiSequenceEnd(str, esc)
+  return end < 0 || end > start ? Math.max(start, end < 0 ? str.length : end) : start
+}
+
+function truncationMarker (dropped) {
+  const kb = Math.round(dropped / 1024)
+  return `\r\n...[electerm] output truncated, ${kb}K skipped...\r\n`
+}
+
+export function truncateTerminalOutput (str, maxChars) {
+  if (str.length <= maxChars) {
+    return { output: str, dropped: 0 }
+  }
+  if (maxChars < truncationMarker(str.length).length) {
+    return { output: '', dropped: str.length }
+  }
+  let marker = truncationMarker(str.length - maxChars)
+  let output = ''
+  let dropped = str.length
+  for (let i = 0; i < 3; i++) {
+    const payloadBudget = Math.max(0, maxChars - marker.length)
+    let start = Math.max(0, str.length - payloadBudget)
+    const newline = str.indexOf('\n', start)
+    if (newline >= 0 && newline < str.length - 1) {
+      start = newline + 1
+    } else {
+      start = startAfterPartialAnsi(str, start)
+      if (start > 0 && str.charCodeAt(start) >= 0xdc00 && str.charCodeAt(start) <= 0xdfff) {
+        start += 1
+      }
+    }
+    output = stripLeadingCursorOps(str.slice(start))
+    dropped = str.length - output.length
+    const nextMarker = truncationMarker(dropped)
+    if (nextMarker === marker && marker.length + output.length <= maxChars) {
+      break
+    }
+    marker = nextMarker
+  }
+  if (marker.length + output.length > maxChars) {
+    output = output.slice(marker.length + output.length - maxChars)
+    dropped = str.length - output.length
+    marker = truncationMarker(dropped)
+  }
+  return {
+    output: (marker + output).slice(0, maxChars),
+    dropped
+  }
+}
+
 export default class AttachAddonCustom {
   constructor (term, socket, isWindowsShell) {
     this.term = term
@@ -7,6 +147,7 @@ export default class AttachAddonCustom {
     this.isWindowsShell = isWindowsShell
     this.outputSuppressed = false
     this.suppressedData = []
+    this.suppressedChars = 0
     this.suppressTimeout = null
     this.onSuppressionEndCallback = null
     this.hasReceivedInitialData = false
@@ -17,6 +158,10 @@ export default class AttachAddonCustom {
     this.decoder = new TextDecoder('utf-8')
     this._lastDataTime = Date.now()
     this._lastInputTime = Date.now()
+    // Set for the lifetime of the connection; every async helper below
+    // bails out on it so a disposed addon can never leave a pending promise
+    // (and the startup queue waiting on it) hanging.
+    this.disposed = false
     this._keepaliveTimer = null
     this._keepaliveInterval = 3000
     this._lastOutputLine = ''
@@ -29,7 +174,7 @@ export default class AttachAddonCustom {
     // second) collapse into a few term.write() calls per frame instead of
     // blocking the main thread on every WebSocket message.
     this._writeBuffer = []
-    this._bufferBytes = 0
+    this._bufferChars = 0
     this._flushScheduled = false
     this._flushTimer = null
     // Coalescing window. Output is flushed at most once per interval.
@@ -41,14 +186,34 @@ export default class AttachAddonCustom {
     // command result) is flushed immediately instead of paying the
     // coalescing delay. 0 = the first chunk ever flushes immediately.
     this._lastFlushTime = 0
-    // Soft cap on buffered-but-unflushed bytes. Under a sustained flood the
-    // producer outruns the renderer; once pending output exceeds this we drop
-    // the OLDEST data (preserving the newest, visible tail and the line
-    // currently being rewritten). Normal interactive output is many orders of
-    // magnitude smaller and is never dropped.
-    this._maxBufferBytes = 256 * 1024
-    this._droppedBytes = 0
+    // Soft cap on buffered-but-unflushed characters (UTF-16 code units, not
+    // bytes — see _enqueueWrite). Under a sustained flood the producer outruns
+    // the renderer; once pending output exceeds this we drop the OLDEST data
+    // (preserving the newest, visible tail and the line currently being
+    // rewritten). Normal interactive output is many orders of magnitude
+    // smaller and is never dropped.
+    //
+    // 2M, up from 256K: TUI apps (claude, codex, ...) repaint by rewinding
+    // with ESC[nA, and Ink-style rewinds reach 50+ rows. At 256K the cap was
+    // tripped routinely by ordinary TUI output, and dropping out of the middle
+    // of such a stream corrupted the screen — surviving frames still carried
+    // rewinds that then pointed at output we never wrote (see
+    // _dropOldestUntil, which now strips them). 2M is ~200 full-screen
+    // repaints of a 200x50 terminal, so only genuinely runaway output (yes,
+    // `cat` of a huge file) trips it.
+    this._maxBufferChars = 2 * 1024 * 1024
+    this._droppedChars = 0
     this._droppedWarned = false
+    // Automation taps: subscribers receive the decoded string BEFORE write
+    // coalescing (see writeToTerminal). Suppressed output never reaches taps.
+    this._dataTaps = new Set()
+  }
+
+  addDataTap = (fn) => {
+    this._dataTaps.add(fn)
+    return () => {
+      this._dataTaps.delete(fn)
+    }
   }
 
   _initBase = async () => {
@@ -58,6 +223,10 @@ export default class AttachAddonCustom {
   }
 
   onInitialData = (callback) => {
+    if (this.disposed) {
+      // Never let a caller wait on a dead connection.
+      return
+    }
     if (this.hasReceivedInitialData) {
       callback()
     } else {
@@ -65,9 +234,72 @@ export default class AttachAddonCustom {
     }
   }
 
+  // Timestamp of the last chunk that arrived from the shell, updated even
+  // while output is suppressed. This is what "has the terminal gone quiet?"
+  // is measured against.
+  getLastOutputTime = () => {
+    return this._lastDataTime
+  }
+
+  /**
+   * Resolve once the shell has produced no output for `idleMs`.
+   * Used to pace queued startup work (shell integration injection, run
+   * scripts) so the next command is never typed into a shell that is still
+   * drawing the previous prompt - that race is what made run scripts get
+   * dropped when sftp path following was on.
+   * Never rejects and never hangs: resolves false on timeout or when the
+   * connection is gone.
+   */
+  waitForOutputIdle = ({ idleMs = 400, timeoutMs = 3000 } = {}) => {
+    if (this.disposed || !this.term) {
+      return Promise.resolve(false)
+    }
+    return new Promise((resolve) => {
+      let done = false
+      const finish = (result) => {
+        if (done) {
+          return
+        }
+        done = true
+        clearInterval(pollTimer)
+        clearTimeout(capTimer)
+        resolve(result)
+      }
+      const step = Math.max(50, Math.min(idleMs, 200))
+      const pollTimer = setInterval(() => {
+        if (this.disposed || !this.term) {
+          return finish(false)
+        }
+        if (Date.now() - this._lastDataTime >= idleMs) {
+          finish(true)
+        }
+      }, step)
+      const capTimer = setTimeout(() => finish(false), Math.max(idleMs, timeoutMs))
+    })
+  }
+
   startOutputSuppression = (timeout = 3000, onEnd = null, discardOnTimeout = false) => {
+    if (this.disposed) {
+      onEnd?.()
+      return
+    }
+    // A suppression may already be running (e.g. the 500ms keepalive one).
+    // Starting another must end it first - otherwise its timer stays armed
+    // and fires in the middle of the new window, ending it early and
+    // flushing half-collected output (the shell integration echo) to screen.
+    if (this.outputSuppressed) {
+      const previous = this.onSuppressionEndCallback
+      this.onSuppressionEndCallback = null
+      if (this.suppressTimeout) {
+        clearTimeout(this.suppressTimeout)
+        this.suppressTimeout = null
+      }
+      this.outputSuppressed = false
+      previous?.()
+    }
     this.outputSuppressed = true
     this.suppressedData = []
+    this.suppressedChars = 0
     this.onSuppressionEndCallback = onEnd
     this.suppressTimeout = setTimeout(() => {
       if (!discardOnTimeout) {
@@ -84,23 +316,19 @@ export default class AttachAddonCustom {
     }
     this.outputSuppressed = false
 
-    if (!discard && this.suppressedData.length > 0) {
-      for (const data of this.suppressedData) {
+    const pending = this.suppressedData
+    this.suppressedData = []
+    this.suppressedChars = 0
+    if (!discard && pending.length > 0 && this.term) {
+      for (const data of pending) {
         this.writeToTerminalDirect(data)
       }
     }
-    this.suppressedData = []
 
     if (this.onSuppressionEndCallback) {
       const callback = this.onSuppressionEndCallback
       this.onSuppressionEndCallback = null
       callback()
-    }
-  }
-
-  onShellIntegrationDetected = () => {
-    if (this.outputSuppressed) {
-      this.stopOutputSuppression(true)
     }
   }
 
@@ -177,20 +405,21 @@ export default class AttachAddonCustom {
     }
   }
 
-  checkForShellIntegration = (str) => {
+  // Index of the first OSC 633 sequence in the chunk, or -1.
+  indexOfShellIntegration = (str) => {
     const ESC = String.fromCharCode(27)
-    return str.includes(ESC + ']633;')
+    return str.indexOf(ESC + ']633;')
   }
 
   writeToTerminalDirect = (data) => {
     const { term } = this
-    if (term.parent?.onZmodem) {
+    if (!term || term.parent?.onZmodem) {
       return
     }
     if (typeof data === 'string') {
       return term.write(data)
     }
-    term?.write(data)
+    term.write(data)
   }
 
   writeToTerminal = (data) => {
@@ -216,8 +445,15 @@ export default class AttachAddonCustom {
     let str = data
     if (typeof data !== 'string') {
       try {
+        // Decode in streaming mode: slow SSH servers (e.g. embedded router
+        // CLIs) often deliver a multi-byte UTF-8 char (CJK = 3 bytes) split
+        // across TCP segments, and the server-side idle fast path may forward
+        // the first segment immediately. Without { stream: true } the decoder
+        // would turn each partial fragment into U+FFFD instead of carrying the
+        // trailing bytes over to the next chunk and reassembling the char.
         str = this.decoder.decode(
-          data instanceof ArrayBuffer ? data : new Uint8Array(data)
+          data instanceof ArrayBuffer ? data : new Uint8Array(data),
+          { stream: true }
         )
       } catch (e) {
         str = ''
@@ -225,11 +461,23 @@ export default class AttachAddonCustom {
     }
 
     if (this.outputSuppressed) {
-      if (this.checkForShellIntegration(str)) {
-        this.onShellIntegrationDetected()
+      const oscIdx = this.indexOfShellIntegration(str)
+      if (oscIdx !== -1) {
+        // Shell integration is confirmed active. The pty often coalesces the
+        // tail of the echoed injection command and the first OSC 633 output
+        // into one chunk, so write only from the first OSC sequence on —
+        // everything before it is echo and stays hidden. A leading newline
+        // keeps the fresh prompt off the injection-time prompt line.
+        this.stopOutputSuppression(true)
+        this._enqueueWrite('\r\n' + str.slice(oscIdx))
         return
       }
-      this.suppressedData.push(data)
+      // Bounded: a slow login banner or a chatty MOTD during the injection
+      // window must not buffer without limit while output is hidden.
+      if (this.suppressedChars < MAX_SUPPRESSED_CHARS) {
+        this.suppressedChars += str.length
+        this.suppressedData.push(data)
+      }
       return
     }
 
@@ -246,6 +494,18 @@ export default class AttachAddonCustom {
 
     // Coalesce the actual write (see _enqueueWrite). notifyOnData /
     // onTerminalWrite fire once per flush instead of once per chunk.
+    // Automation taps run here on the decoded string, before coalescing
+    // (and after the suppression early-return above, so suppressed
+    // keepalive/shell-integration echo never triggers automations).
+    if (this._dataTaps.size) {
+      for (const fn of this._dataTaps) {
+        try {
+          fn(str)
+        } catch (e) {
+          console.error('[dataTap]', e)
+        }
+      }
+    }
     this._enqueueWrite(str)
   }
 
@@ -257,13 +517,13 @@ export default class AttachAddonCustom {
       return
     }
     this._writeBuffer.push(str)
-    this._bufferBytes += str.length
-    if (this._bufferBytes > this._maxBufferBytes) {
+    this._bufferChars += str.length
+    if (this._bufferChars > this._maxBufferChars) {
       this._dropOldestUntil()
     }
     // A hidden window gets its timers throttled by Chromium (Electron's
     // backgroundThrottling defaults to true), which would stall the flush
-    // timer and force the byte cap to drop real output. Nothing is painted
+    // timer and force the cap to drop real output. Nothing is painted
     // while hidden, so coalescing buys nothing — flush synchronously.
     if (document.hidden) {
       clearTimeout(this._flushTimer)
@@ -291,38 +551,23 @@ export default class AttachAddonCustom {
   // exceeds the cap we drop the OLDEST chunks (preserving the newest, visible
   // tail and the line currently being rewritten). The first kept chunk is
   // trimmed to the next newline so we never render a half line / broken escape.
+  //
+  // Dropping is lossy but must never corrupt the stream. The discarded tail
+  // usually ended mid-repaint, so a surviving frame can still open with a
+  // rewind (ESC[nA) or a cursor restore (ESC[8) aimed at output we never
+  // wrote — left in, those yank the cursor back over already-rendered history
+  // and overwrite it, which is far worse than the dropped data. Stripping them
+  // (see stripLeadingCursorOps) degrades output to appending from wherever the
+  // cursor actually is.
   _dropOldestUntil = () => {
-    const buf = this._writeBuffer
-    let kept = 0
-    let cutIdx = buf.length
-    for (let i = buf.length - 1; i >= 0; i--) {
-      if (kept + buf[i].length > this._maxBufferBytes) {
-        cutIdx = i + 1
-        break
-      }
-      kept += buf[i].length
-    }
-    if (cutIdx <= 0) {
+    const buffered = this._writeBuffer.join('')
+    if (buffered.length <= this._maxBufferChars) {
       return
     }
-    let dropped = 0
-    for (let i = 0; i < cutIdx; i++) {
-      dropped += buf[i].length
-    }
-    if (cutIdx < buf.length) {
-      const first = buf[cutIdx]
-      const nl = first.indexOf('\n')
-      if (nl >= 0 && nl < first.length - 1) {
-        dropped += nl + 1
-        buf[cutIdx] = first.slice(nl + 1)
-      } else {
-        dropped += buf[cutIdx].length
-        cutIdx += 1
-      }
-    }
-    this._writeBuffer = buf.slice(cutIdx)
-    this._bufferBytes -= dropped
-    this._droppedBytes += dropped
+    const { output, dropped } = truncateTerminalOutput(buffered, this._maxBufferChars)
+    this._writeBuffer = [output]
+    this._bufferChars = output.length
+    this._droppedChars += dropped
     if (!this._droppedWarned) {
       this._droppedWarned = true
       console.warn('[AttachAddon] Heavy output detected; coalescing writes and dropping intermediate output to keep the UI responsive.')
@@ -335,11 +580,11 @@ export default class AttachAddonCustom {
     const buf = this._writeBuffer
     if (!buf.length || !this.term) {
       this._writeBuffer = []
-      this._bufferBytes = 0
+      this._bufferChars = 0
       return
     }
     this._writeBuffer = []
-    this._bufferBytes = 0
+    this._bufferChars = 0
     const data = buf.length === 1 ? buf[0] : buf.join('')
     const { term } = this
     this._lastFlushTime = Date.now()
@@ -425,16 +670,29 @@ export default class AttachAddonCustom {
   }
 
   dispose = () => {
+    if (this.disposed) {
+      return
+    }
+    this.disposed = true
     this._stopKeepalive()
     clearTimeout(this._echoCheckTimer)
     this._echoCheckTimer = null
+    // End any pending suppression *before* dropping `term`, so the callback
+    // (and the promise the startup queue is awaiting) is released instead of
+    // hanging forever on a connection that is already gone.
+    this.stopOutputSuppression(true)
+    this.onInitialDataCallback = null
     if (this._flushTimer) {
       clearTimeout(this._flushTimer)
       this._flushTimer = null
     }
     this._flushScheduled = false
     this._writeBuffer = []
-    this._bufferBytes = 0
+    this._bufferChars = 0
+    this._dataTaps.clear()
+    // Reset the streaming decoder so any partial multi-byte sequence held
+    // over from this connection can not leak into a reused instance.
+    this.decoder = new TextDecoder('utf-8')
     this.term = null
     this._disposables.forEach(d => d.dispose())
     this._disposables.length = 0

@@ -29,7 +29,9 @@ import {
   PlayCircleFilled,
   StopOutlined,
   DownloadOutlined,
-  SwapOutlined
+  SwapOutlined,
+  PushpinOutlined,
+  PushpinFilled
 } from '@ant-design/icons'
 import IconHolder from './icon-holder'
 
@@ -62,5 +64,7 @@ export default {
   PlayCircleFilled,
   StopOutlined,
   DownloadOutlined,
-  SwapOutlined
+  SwapOutlined,
+  PushpinOutlined,
+  PushpinFilled
 }

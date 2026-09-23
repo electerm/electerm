@@ -5,33 +5,18 @@
 import { PureComponent } from 'react'
 import {
   ExportOutlined,
-  ImportOutlined,
-  EditOutlined
+  ImportOutlined
 } from '@ant-design/icons'
 import { Button, Space } from 'antd'
 import Upload from '../common/upload'
+import { beforeBookmarkUpload } from './bookmark-upload'
 
 const e = window.translate
 
 export default class BookmarkTransport extends PureComponent {
-  beforeUpload = async (file) => {}
+  beforeUpload = beforeBookmarkUpload
 
   handleDownload = () => {}
-
-  handleToggleEdit = () => {
-    window.store.bookmarkSelectMode = true
-  }
-
-  renderEdit () {
-    return (
-      <Button
-        icon={<EditOutlined />}
-        onClick={this.handleToggleEdit}
-        title={e('edit')}
-        key='edit-and-del'
-      />
-    )
-  }
 
   renderExport () {
     return (
@@ -62,19 +47,11 @@ export default class BookmarkTransport extends PureComponent {
   }
 
   render () {
-    const edit = this.renderEdit()
-    if (edit === null) {
-      return (
-        <Space.Compact>
-          {this.renderExport()}
-          {this.renderImport()}
-        </Space.Compact>
-      )
-    }
-    return [
-      edit,
-      this.renderExport(),
-      this.renderImport()
-    ]
+    return (
+      <Space.Compact>
+        {this.renderExport()}
+        {this.renderImport()}
+      </Space.Compact>
+    )
   }
 }

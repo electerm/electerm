@@ -1,5 +1,5 @@
 import { auto } from 'manate/react'
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import Layout from '../layout/layout'
 import FileInfoModal from '../sftp/file-info-modal'
 import FileCompareModal from '../sftp/file-compare-modal'
@@ -10,7 +10,6 @@ import Sidebar from '../sidebar'
 import CssOverwrite from '../bg/css-overwrite'
 import UiTheme from './ui-theme'
 import CustomCss from '../bg/custom-css.jsx'
-import Resolutions from '../rdp/resolution-edit'
 import TerminalInteractive from '../terminal/terminal-interactive'
 import ConfirmModalStore from '../file-transfer/conflict-resolve.jsx'
 import TransferQueue from '../file-transfer/transfer-queue'
@@ -19,18 +18,21 @@ import TerminalCmdSuggestions from '../terminal/terminal-command-dropdown'
 import TransportsActionStore from '../file-transfer/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
-import { isMac, isWin, textTerminalBgValue } from '../../common/constants'
+import {
+  footerHeight,
+  isMac,
+  isWin,
+  remoteMonitorBarHeight,
+  textTerminalBgValue
+} from '../../common/constants'
 import { isAIDisabled } from '../../common/ai-feature'
 import { ConfigProvider } from 'antd'
 import { NotificationContainer } from '../common/notification'
-import InfoModal from '../sidebar/info-modal.jsx'
 import RightSidePanel from '../side-panel-r/side-panel-r'
 import ConnectionHoppingWarning from './connection-hopping-warnning'
 import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
 import AIChat from '../ai/ai-chat-entry'
-import AIConfigModal from '../ai/ai-config-modal'
-import Opacity from '../common/opacity'
 import MoveItemModal from '../tree-list/move-item-modal'
 import InputContextMenu from '../common/input-context-menu'
 import WorkspaceSaveModal from '../tabs/workspace-save-modal'
@@ -38,12 +40,22 @@ import BookmarkFromHistoryModal from '../bookmark-form/bookmark-from-history-mod
 import AutoSync from '../setting-sync/auto-sync'
 import BatchOpRunner from '../batch-op/batch-op-runner'
 import UnixTimestampTooltip from '../terminal/unix-timestamp-tooltip'
+import ImportProgress from '../common/import-progress.jsx'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
 import TerminalInfo from '../terminal-info/terminal-info-entry'
+import ShortcutBarEntry from '../terminal/shortcut-bar-entry'
+import LazyBoundary from '../common/lazy-boundary'
+import { isRemoteMonitorBarVisible } from '../remote-monitor/visibility'
 import '../../common/fs.js'
 import './term-fullscreen.styl'
+
+const Resolutions = lazy(() => import('../rdp/resolution-edit'))
+const InfoModal = lazy(() => import('../sidebar/info-modal.jsx'))
+const AIConfigModal = lazy(() => import('../ai/ai-config-modal'))
+// window opacity is electron-only: lazy so the web app never loads the chunk
+const Opacity = lazy(() => import('../common/opacity'))
 
 export default auto(function Index (props) {
   useEffect(() => {
@@ -82,6 +94,31 @@ export default auto(function Index (props) {
     store.checkForDbUpgrade()
     store.handleGetSerials()
     store.checkPendingDeepLink()
+    store.checkPendingVvFile()
+  }, [])
+
+  // Track the actual input modality rather than a static capability probe:
+  // a touch-capable laptop is a mouse machine until a real touch happens,
+  // and a tablet stays touch even though it can also pair a mouse. Stored in
+  // `store.isTouchDevice` (seeded false — no upfront probe, which only says
+  // the screen *can* be touched, not what the user operates with); the
+  // `is-touch-device` class drives always-visible hover-only action icons, so
+  // it must follow the device the user is actually operating.
+  useEffect(() => {
+    const { store } = window
+    const handlePointer = (e) => {
+      if (e.pointerType === 'mouse') {
+        store.isTouchDevice = false
+      } else if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        store.isTouchDevice = true
+      }
+    }
+    document.addEventListener('pointerdown', handlePointer)
+    document.addEventListener('pointermove', handlePointer)
+    return () => {
+      document.removeEventListener('pointerdown', handlePointer)
+      document.removeEventListener('pointermove', handlePointer)
+    }
   }, [])
 
   const { store } = props
@@ -99,9 +136,11 @@ export default auto(function Index (props) {
     transferToConfirm,
     openResolutionEdit,
     rightPanelTitle,
-    rightPanelTab
+    rightPanelTab,
+    widgetInstances
   } = store
   const upgradeInfo = deepCopy(store.upgradeInfo)
+  const remoteMonitorBarVisible = isRemoteMonitorBarVisible(store)
   const cls = classnames({
     loaded: configLoaded,
     'not-webapp': !window.et.isWebApp,
@@ -110,16 +149,30 @@ export default auto(function Index (props) {
     'is-mac': isMac,
     'not-mac': !isMac,
     'is-win': isWin,
-    pinned,
+    // The left sidebar dock is desktop-only (see sidebar/index.jsx). This
+    // class drives the docked-layout CSS — the footer's left offset and the
+    // sidebar panel's top padding — so it has to follow the same gate as the
+    // layout maths in layout.jsx, or a pin persisted from a desktop session
+    // would restyle the mobile layout.
+    pinned: pinned && !store.isMobile,
     'not-win': !isWin,
     'qm-pinned': pinnedQuickCommandBar,
     fullscreen,
+    // terminal fullscreen keeps the footer visible (rdp/vnc/spice fullscreen
+    // does not — the footer would be an empty bar there)
+    'fs-with-footer': fullscreen && store.inActiveTerminal,
     'is-main': !isSecondInstance,
     'is-mobile': store.isMobile,
-    'is-desktop': !store.isMobile
+    'is-desktop': !store.isMobile,
+    'is-touch-device': store.isTouchDevice,
+    'remote-monitor-bar-on': remoteMonitorBarVisible
   })
   const ext1 = {
-    className: cls
+    className: cls,
+    style: {
+      '--left-side-bar-width': store.leftSideBarWidth + 'px',
+      '--footer-stack-height': `${footerHeight + (remoteMonitorBarVisible ? remoteMonitorBarHeight : 0)}px`
+    }
   }
   // Get active tab IDs
   const activeTabIds = [
@@ -168,7 +221,8 @@ export default auto(function Index (props) {
       'settingTab',
       'settingItem',
       'isSyncingSetting',
-      'leftSidebarWidth',
+      'leftSidePanelWidth',
+      'leftSideBarWidth',
       'transferTab',
       'sidebarPanelTab',
       'openWidgetsModal'
@@ -177,7 +231,10 @@ export default auto(function Index (props) {
     fileTransfers: copiedTransfer,
     transferHistory: copiedHistory,
     upgradeInfo,
-    pinned
+    pinned,
+    isMobile: store.isMobile,
+    leftSideBarIcons: config.leftSideBarIcons,
+    widgetInstancesLength: widgetInstances.length
   }
 
   const infoModalProps = {
@@ -203,21 +260,8 @@ export default auto(function Index (props) {
     rightPanelPinned: store.rightPanelPinned,
     rightPanelWidth: store.rightPanelWidth,
     title: rightPanelTitle,
-    rightPanelTab
-  }
-  const terminalInfoProps = {
     rightPanelTab,
-    ...deepCopy(store.terminalInfoProps),
-    ...pick(
-      config,
-      [
-        'host',
-        'port',
-        'saveTerminalLogToFile',
-        'terminalInfos',
-        'sessionLogPath'
-      ]
-    )
+    isMobile: store.isMobile
   }
   const sshConfigProps = {
     ...pick(store, [
@@ -256,13 +300,23 @@ export default auto(function Index (props) {
           {...confsCss}
           configLoaded={configLoaded}
         />
-        <Opacity opacity={config.opacity} />
+        {window.et.isWebApp
+          ? null
+          : (
+            <LazyBoundary>
+              <Suspense fallback={null}>
+                <Opacity opacity={config.opacity} />
+              </Suspense>
+            </LazyBoundary>
+            )}
         <TerminalInteractive />
         <UiTheme
           {...themeProps}
         />
         <CustomCss customCss={config.customCss} configLoaded={configLoaded} />
-        <TextEditor />
+        {store.textEditorRequested && (
+          <TextEditor />
+        )}
         <UpdateCheck
           skipVersion={config.skipVersion}
           upgradeInfo={upgradeInfo}
@@ -288,11 +342,23 @@ export default auto(function Index (props) {
           config={config}
         />
         <Remote2RemoteHandlers />
-        <Resolutions {...resProps} />
-        <InfoModal {...infoModalProps} />
+        {openResolutionEdit && (
+          <LazyBoundary>
+            <Suspense fallback={null}>
+              <Resolutions {...resProps} />
+            </Suspense>
+          </LazyBoundary>
+        )}
+        {store.showInfoModal && (
+          <LazyBoundary>
+            <Suspense fallback={null}>
+              <InfoModal {...infoModalProps} />
+            </Suspense>
+          </LazyBoundary>
+        )}
         <RightSidePanel {...rightPanelProps}>
           {!isAIDisabled() && <AIChat {...aiChatProps} />}
-          <TerminalInfo key={store.activeTabId} {...terminalInfoProps} />
+          <TerminalInfo key={store.activeTabId} store={store} {...deepCopy(store.terminalInfoProps)} />
         </RightSidePanel>
         <SshConfigLoadNotify {...sshConfigProps} />
         <LoadSshConfigs
@@ -307,7 +373,15 @@ export default auto(function Index (props) {
         <BookmarkFromHistoryModal />
         <NotificationContainer />
         <BatchOpRunner />
-        {!isAIDisabled() && <AIConfigModal store={store} />}
+        <ImportProgress />
+        <ShortcutBarEntry store={store} />
+        {!isAIDisabled() && store.showAIConfigModal && (
+          <LazyBoundary>
+            <Suspense fallback={null}>
+              <AIConfigModal store={store} />
+            </Suspense>
+          </LazyBoundary>
+        )}
         <UnixTimestampTooltip />
       </div>
     </ConfigProvider>

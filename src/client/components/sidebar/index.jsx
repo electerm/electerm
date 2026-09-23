@@ -1,27 +1,21 @@
+import { useEffect } from 'react'
 import {
-  BookOutlined,
-  CloudSyncOutlined,
   InfoCircleOutlined,
-  PictureOutlined,
-  PlusCircleOutlined,
-  SettingOutlined,
   UpCircleOutlined,
-  AppstoreOutlined,
-  ThunderboltOutlined,
-  AimOutlined
+  AimOutlined,
+  MenuFoldOutlined
 } from '@ant-design/icons'
-import { Tooltip, Popover } from 'antd'
+import { Tooltip } from 'antd'
 import SideBarPanel from './sidebar-panel'
-import TransferList from './transfer-list'
 import MenuBtn from '../sys-menu/menu-btn'
-import QuickConnect from '../tabs/quick-connect'
 import {
-  sidebarWidth,
   settingMap,
   modals
 } from '../../common/constants'
 import SideIcon from './side-icon'
 import SidePanel from './side-panel'
+import LeftSidebarIcons from './left-sidebar-icons'
+import TransferList from './transfer-list'
 import hasActiveInput from '../../common/has-active-input'
 import './sidebar.styl'
 
@@ -34,7 +28,10 @@ export default function Sidebar (props) {
     settingTab,
     settingItem,
     isSyncingSetting,
-    leftSidebarWidth,
+    // expandable bookmarks/history panel
+    leftSidePanelWidth,
+    // far-left icon bar (43px; 0 when hidden)
+    leftSideBarWidth,
     pinned,
     fileTransfers,
     openedSideBar,
@@ -44,43 +41,58 @@ export default function Sidebar (props) {
     showInfoModal,
     sidebarPanelTab,
     openWidgetsModal,
-    zoom
+    zoom,
+    leftSideBarIcons,
+    widgetInstancesLength,
+    isMobile
   } = props
 
   const { store } = window
 
+  // pinned is desktop-only, like the right panel's: on mobile the panel spans
+  // the viewport and there is no pin control to unpin it, so a pin persisted
+  // from a desktop session must not turn into a mode the user cannot leave.
+  const pinnedActive = pinned && !isMobile
+
   const handleClickOutside = (event) => {
-    // Don't close if pinned or has active input
-    if (store.pinned || hasActiveInput()) {
+    const { store } = window
+    // Nothing to dismiss when the panel is closed or pinned; also ignore
+    // clicks while typing in an input so the panel is not yanked away
+    // mid-interaction. Read the pin live rather than from the render scope:
+    // this listener is attached once, so a captured value would go stale.
+    if (!store.openedSideBar || (store.pinned && !store.isMobile) || hasActiveInput()) {
       return
     }
+    const target = event.target
+    // Never treat the panel itself or the bookmark toggle button as "outside".
+    // The very click that toggles the panel open lands on that button, so this
+    // guard makes the toggle immune to event-ordering races — and, in dev hot
+    // reloads, to stale listeners left behind by an older build.
+    if (target.closest && (
+      target.closest('.sidebar-panel') ||
+      target.closest('.bookmark-sidebar-toggle')
+    )) {
+      return
+    }
+    store.setOpenedSideBar('')
+  }
 
-    // Check if click is outside the sidebar panel
-    const sidebarPanel = document.querySelector('.sidebar-panel')
-    if (sidebarPanel && !sidebarPanel.contains(event.target)) {
-      store.setOpenedSideBar('')
+  // One always-on document listener for click-outside dismissal, attached
+  // once. Previously the listener was added/removed from inside the bookmark
+  // click handler, so it leaked when the panel was closed via the ✕ icon and
+  // then instantly re-closed the panel on the next bookmark-icon click.
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside)
+    return () => {
       document.removeEventListener('click', handleClickOutside)
     }
-  }
+  }, [])
 
   const handleClickBookmark = () => {
     if (showModal) {
       store.showModal = 0
     }
-    if (pinned) {
-      return
-    }
-    if (openedSideBar === 'bookmarks') {
-      // Remove listener when closing
-      document.removeEventListener('click', handleClickOutside)
-      store.setOpenedSideBar('')
-    } else {
-      // Add listener when opening, with slight delay to avoid conflict with this click
-      setTimeout(() => {
-        document.addEventListener('click', handleClickOutside)
-      }, 0)
-      store.setOpenedSideBar('bookmarks')
-    }
+    store.openLeftSidePanel()
   }
 
   const handleShowUpgrade = () => {
@@ -89,6 +101,10 @@ export default function Sidebar (props) {
 
   const handleZoomReset = () => {
     store.onZoomReset()
+  }
+
+  const handleToggleSidebar = () => {
+    store.toggleLeftSideBar()
   }
 
   const {
@@ -115,16 +131,16 @@ export default function Sidebar (props) {
     ? {
         className: 'sidebar-list',
         style: {
-          width: `${leftSidebarWidth}px`
+          width: `${leftSidePanelWidth}px`
         }
       }
     : {
         className: 'sidebar-list'
       }
   const sidebarProps = {
-    className: `sidebar type-${openedSideBar}`,
+    className: `sidebar type-${openedSideBar}${leftSideBarWidth === 0 ? ' collapsed' : ''}`,
     style: {
-      width: sidebarWidth,
+      width: leftSideBarWidth,
       height
     }
   }
@@ -139,67 +155,23 @@ export default function Sidebar (props) {
         <div className='control-icon-wrap'>
           <MenuBtn store={store} config={store.config} />
         </div>
-        <SideIcon
-          title={e('newBookmark')}
-        >
-          <PlusCircleOutlined
-            className='font22 iblock control-icon'
-            onClick={onNewSsh}
-          />
-        </SideIcon>
-        <Popover
-          content={<QuickConnect inputOnly />}
-          trigger='click'
-          placement='right'
-        >
-          <div className='control-icon-wrap' title={e('quickConnect')}>
-            <ThunderboltOutlined
-              className='font20 iblock control-icon'
-            />
-          </div>
-        </Popover>
-        <SideIcon
-          title={e(settingMap.bookmarks)}
-          active={bookmarksActive}
-        >
-          <BookOutlined
-            onClick={handleClickBookmark}
-            className='font20 iblock control-icon'
-          />
-        </SideIcon>
+        <LeftSidebarIcons
+          iconIds={leftSideBarIcons}
+          handleClickBookmark={handleClickBookmark}
+          onNewSsh={onNewSsh}
+          openSetting={openSetting}
+          openSettingSync={openSettingSync}
+          openTerminalThemes={openTerminalThemes}
+          openWidgetsModal={openWidgetsModal}
+          bookmarksActive={bookmarksActive}
+          themeActive={themeActive}
+          settingActive={settingActive}
+          syncActive={syncActive}
+          widgetsActive={widgetsActive}
+          isSyncingSetting={isSyncingSetting}
+          widgetInstancesLength={widgetInstancesLength}
+        />
         <TransferList {...transferProps} />
-        <SideIcon
-          title={e(settingMap.terminalThemes)}
-          active={themeActive}
-        >
-          <PictureOutlined
-            className='font20 iblock pointer control-icon'
-            onClick={openTerminalThemes}
-          />
-        </SideIcon>
-        <SideIcon
-          title={e(settingMap.setting)}
-          active={settingActive}
-        >
-          <SettingOutlined className='iblock font20 control-icon' onClick={openSetting} />
-        </SideIcon>
-        <SideIcon
-          title={e('settingSync')}
-          active={syncActive}
-        >
-          <CloudSyncOutlined
-            className='iblock font20 control-icon'
-            onClick={openSettingSync}
-            spin={isSyncingSetting}
-          />
-        </SideIcon>
-        <SideIcon
-          title={e('widgets')}
-          active={widgetsActive}
-        >
-          <AppstoreOutlined className='iblock font20 control-icon' onClick={openWidgetsModal} />
-        </SideIcon>
-
         <SideIcon
           title={e('about')}
           active={showInfoModal}
@@ -207,6 +179,14 @@ export default function Sidebar (props) {
           <InfoCircleOutlined
             className='iblock font16 control-icon open-about-icon'
             onClick={openAbout}
+          />
+        </SideIcon>
+        <SideIcon
+          title={e('hide')}
+        >
+          <MenuFoldOutlined
+            className='iblock font16 control-icon hide-sidebar-icon'
+            onClick={handleToggleSidebar}
           />
         </SideIcon>
         {
@@ -246,11 +226,14 @@ export default function Sidebar (props) {
       <SidePanel
         sideProps={sideProps}
         setLeftSidePanelWidth={setLeftSidePanelWidth}
-        leftSidebarWidth={leftSidebarWidth}
+        leftSidePanelWidth={leftSidePanelWidth}
+        leftSideBarWidth={leftSideBarWidth}
+        isMobile={isMobile}
       >
         <SideBarPanel
-          pinned={pinned}
+          pinned={pinnedActive}
           sidebarPanelTab={sidebarPanelTab}
+          isMobile={isMobile}
         />
       </SidePanel>
     </div>
