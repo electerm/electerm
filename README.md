@@ -39,7 +39,7 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS
 
 <div align="center">
   <a href="https://www.atlascloud.ai/?ref=PCAEL2&utm_source=github&utm_medium=link&utm_campaign=electerm">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/atlas-cloud.png?raw=true" alt="Atlas Cloud" height="200" />
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/atlas-cloud.png?raw=true" alt="Atlas Cloud" width="260" />
   </a>
 </div>
 
@@ -49,7 +49,7 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS
 
 <div align="center">
   <a href="https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/fluxionai.png?raw=true" alt="FluxionAI" width="200" />
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/fluxionai.png?raw=true" alt="FluxionAI" width="210" />
   </a>
 </div>
 
