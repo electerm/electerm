@@ -40,7 +40,7 @@
 
 <div align="center">
   <a href="https://www.atlascloud.ai/?ref=PCAEL2&utm_source=github&utm_medium=link&utm_campaign=electerm">
-      <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm-banner-1.jpg", alt="" />
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/atlas-cloud.png?raw=true" alt="Atlas Cloud" width="260" />
   </a>
 </div>
 
@@ -54,7 +54,7 @@
   </a>
 </div>
 
-[Fluxion AI](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM) — 通往全球领先 AI 模型的统一入口，一个 API，多路分发，用量与价格透明，国产模型 — 6折，Claude & OpenAI — 3折。[通过合作链接注册即得 $3 API 额度](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM)。
+[Fluxion AI](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM) — 通往全球领先 AI 模型的统一入口，一个 API，多路分发，用量与价格透明，国产模型 — 4折，Claude & OpenAI — 3折。[通过合作链接注册即得 $3 API 额度](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM)。
 
 ----
 
