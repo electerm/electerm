@@ -48,12 +48,12 @@
 ----
 
 <div align="center">
-  <a href="https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm">
+  <a href="https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM">
     <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/fluxionai.png?raw=true" alt="FluxionAI" height="180" />
   </a>
 </div>
 
-[Fluxion AI](https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm) — 世界をリードする AI モデルへの統一ゲートウェイ。[こちらから登録して始めましょう](https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm)。
+[Fluxion AI](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM) — 世界をリードする AI モデルへの単一ゲートウェイ、1つの API、マルチルート配信、透明な利用量と料金、中国モデル — 60% OFF、Claude & OpenAI — 70% OFF。[パートナーリンクから登録で $3 分の API クレジットをプレゼント](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM)。
 
 ----
 

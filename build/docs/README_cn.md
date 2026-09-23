@@ -49,12 +49,12 @@
 ----
 
 <div align="center">
-  <a href="https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm">
+  <a href="https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM">
     <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/fluxionai.png?raw=true" alt="FluxionAI" height="180" />
   </a>
 </div>
 
-[Fluxion AI](https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm) — 通往全球领先 AI 模型的统一入口。[点击这里注册开始使用](https://fluxionai.world/register?aff=7H7DERHU3GFF&utm_source=github&utm_medium=link&utm_campaign=electerm)。
+[Fluxion AI](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM) — 通往全球领先 AI 模型的统一入口，一个 API，多路分发，用量与价格透明，国产模型 — 6折，Claude & OpenAI — 3折。[通过合作链接注册即得 $3 API 额度](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM)。
 
 ----
 
