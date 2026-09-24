@@ -88,7 +88,7 @@
 | 3 | 🟠 | 阴影不成体系 | **22 种** `box-shadow` 写法，含 `inset 0 0 5px var(--main-darker)`、`0 0 3px 3px var(--main-lighter)` 这类「用背景色假装阴影」 |
 | 4 | 🔴 | **4 个变量被引用但从未定义（静默失效）** | `--border`（`sidebar.styl:57` + 2 处 jsx 带兜底）、`--text-color-2`（`ai.styl:157,236`）、`--text-color-secondary`（`cmd-history.styl:65`）、`--hover-bg`（`tree-list.styl:136`，带兜底） |
 | 5 | 🔴 | **`darker()` 产生非法颜色 → 29 处声明整条失效** | `ui-theme.jsx` L11-29 缺上界钳制。`darker('#121214',0.3)='#0'`、`darker('#ededed',-0.3)='#1393939'`。注入的 `#theme-css` 覆盖了 `theme.styl:15-16` 的合法兜底值 |
-| 6 | 🟠 | 默认主题有 3 份副本且值不一致 | `theme.styl:2` = `#141314`；`common/theme-defaults.js:31` = `#121214`；`common/ui-theme.js:6` = `#141314` |
+| 6 | 🟠 | 默认主题有 3 份副本且值不一致 | `theme.styl:2` = `#141314`；`common/theme-defaults.js:31` = `#121214`；`common/ui-theme.js:6` = `#141314`。**Step 2 已对齐前两处**；第三处经实测确认为**死代码**（见 §3.1），处置决策见 §6.3 |
 | 7 | 🟠 | antd 桥接不完整 | `store.js:271` 硬编码 `borderRadius: 3`；`store.js:280` `motion: false` 关闭全部 antd 动效；`basic.styl:7` 全局 12px 与 antd 默认 14px 冲突 |
 | 8 | 🟠 | 几乎零动效 | 67 个 `.styl` 中 `transition` 仅 **8 个文件**有 |
 | 9 | 🟠 | 硬编码颜色残留 | **33 处**：`ai.styl`9、`sys-menu.styl`6、`tabs.styl`6、`tree-list.styl`3、`term-search.styl`2、`color-picker.styl`2、`terminal.styl`/`info.styl`/`remote-float-control.styl`/`drag-handle.styl`/`login.styl` 各 1；另有 `cmd-history.styl:32,85` 的 `red`/`blue` 命名色 |
@@ -472,14 +472,21 @@ grep -c "color-mix" work/app/assets/css/style-5.5.26.css
 
 ### 3.1 合并 3 份默认主题副本
 
-现状：`theme.styl:1-16`、`common/ui-theme.js:5-18`（`defaultUiThemeStylus`）、`common/theme-defaults.js:18-33` 各存一份，且 `main` 值不一致。
+原现状：`theme.styl:1-16`、`common/ui-theme.js:5-18`（`defaultUiThemeStylus`）、`common/theme-defaults.js:18-33` 各存一份，且 `main` 值不一致。
 
-处理：
+处理（**Step 2 已执行，含一处基于实测的方案调整**）：
 
 1. 以 `theme-defaults.js` 为**唯一来源**。
-2. `common/ui-theme.js` 的 `defaultUiThemeStylus`（L5-18）改为由 `theme-defaults.js` 生成（去掉第三份副本），`getUiThemeConfig()`（L20-32）默认参数同步。
-3. `theme.styl` 的 `:root` 只保留「配置加载前的兜底值」，`--main` 从 `#141314` 改为与 `theme-defaults.js` 一致的 `#121214`。
+2. ~~`common/ui-theme.js` 的 `defaultUiThemeStylus` 改为由 `theme-defaults.js` 生成~~ → **实测发现该文件是死代码，用户决策：本步不动、仅记录**（见下方证据）。
+3. ✅ `theme.styl` 的 `:root` 只保留「配置加载前的兜底值」，`--main` 已从 `#141314` 改为与 `theme-defaults.js` 一致的 `#121214`。
 4. 浅色主题的 12 个 key **保持不动**（约束 A 禁止扩展）。
+
+> 🔎 **死代码实锤（2026-09-24 实测，四重证据）**：`common/ui-theme.js`（导出 `getUiThemeConfig` / `convertTheme`）
+> ① `src/**` 全库 grep：**零 import**（theme-form/theme-ai-editor/store 用的 `convertTheme` 全部来自 `common/terminal-theme.js`）；
+> ② `src/test/**` 零引用；③ `build/vite/conf.js` alias 无映射；④ **打包产物** `work/app/assets/js/electerm-5.5.26.js` 中无 `defaultUiThemeStylus` 字符串（bundler 按引用打包，未进入产物 = 编译期也确认无引用）。
+> 该文件是 `11fc3c25`（"new UI theme control method that use css vars"）重构后被 `terminal-theme.js` 取代的历史遗留，**上游同样未引用**。
+> **影响**：其中 `--main #141314` 的不一致是**纯纸面问题**（不参与运行时），因此"值不一致"随第 3 条落地已无实际影响。
+> **后续建议**（独立小 commit，不混入美化）：直接删除该文件；或提 issue 请上游删除。风险提示：若上游将来修改此文件，merge 会出现 modify/delete 冲突（易识别易解决）。
 
 ### 3.2 补齐死变量 / 清理 antd 残留名
 
@@ -1259,7 +1266,7 @@ console.log(f('#121214',0.3), f('#ededed',-0.3), f('#121214',-0.3))"
 | --- | --- | --- | --- | --- |
 | 准备 | Step 0 基线快照 | — | — | ✅ 已完成 |
 | Layer 1 | Step 1 新增 tokens | 1 | 🟢 | ✅ **已完成** |
-| Layer 2 | Step 2–8 统一层 | 7 | 🟢🟢🟢🟡🟠🟠🟢🟢 | ⏳ 待执行 |
+| Layer 2 | Step 2–8 统一层 | 7 | 🟢🟢🟢🟡🟠🟠🟢🟢 | **Step 2 ✅ 已完成**，Step 3–8 ⏳ 待执行 |
 | 单测 | Step 9 新增 4 个 spec | 1 | 🟢 | ⏳ 待执行 |
 | Layer 3 | Step 10–26 逐区域精修 | 17 | 🟢（2 个 🟠） | ⏳ 待执行 |
 | 可选 | Step 27 方案 B | 1 | 🟢 | ⏳ 待执行 |
@@ -1344,15 +1351,19 @@ npm run t
 
 ---
 
-### 6.3 Step 2 · 合并 3 份默认主题副本
+### 6.3 Step 2 · 合并 3 份默认主题副本　✅ **已执行**
+
+> **执行结果**：`theme.styl:2` `--main` `#141314` → `#121214`（产物验证：CSS 中 `--main` 静态定义**恰好 1 处**且值已对齐；全库 styl 无其他 `--main` 定义点）。
+> **方案调整（用户决策）**：原计划改写 `common/ui-theme.js` 的第三份副本，实测发现该文件为**死代码**（四重证据见 §3.1），
+> 改写会给它加 import、造成"活代码"误导 → **本步不动、仅记录**，删除动作留作后续独立 commit。
+> `npm run test-unit-ci` ✅ fail 0。视觉变化：`#141314` → `#121214` 差 2 个色阶，肉眼不可辨。
 
 **改什么**：
 
-| 文件 | 行号 | 改动 |
-| --- | --- | --- |
-| `src/client/common/ui-theme.js` | L5-18 | 删除 `defaultUiThemeStylus` 常量，改为由 `theme-defaults.js` 生成 |
-| `src/client/common/ui-theme.js` | L20 | `getUiThemeConfig(conf = …)` 默认参数改为从 `theme-defaults.js` 取 |
-| `src/client/css/includes/theme.styl` | L2 | `--main #141314` → `#121214`（与 `theme-defaults.js:31` 对齐） |
+| 文件 | 行号 | 改动 | 状态 |
+| --- | --- | --- | --- |
+| `src/client/css/includes/theme.styl` | L2 | `--main #141314` → `#121214`（与 `theme-defaults.js:31` 对齐） | ✅ 已执行 |
+| ~~`src/client/common/ui-theme.js`~~ | ~~L5-18, L20~~ | ~~删除 `defaultUiThemeStylus`、改由 `theme-defaults.js` 生成~~ | ❌ **未执行**：实测为死代码（§3.1 四重证据），用户决策不动、仅记录 |
 
 **怎么验证**：
 
