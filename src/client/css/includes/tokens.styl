@@ -1,4 +1,4 @@
-// 设计 token（美化规范 §2 · Layer 1）
+// 设计 token（美化规范 §2 · Layer 1，v4「Tinted Console」深度设计层）
 //
 // 全部为新增变量，不覆盖任何既有变量：
 //   · 派生变量跟随 --text / --main / --primary 自动适配任意主题（含 310 个 iTerm 主题）
@@ -8,31 +8,42 @@
 //    ui-theme.jsx 的 darker() 缺上界钳制，会产出非法颜色（如 '#0'），
 //    引用它会让整条声明失效。详见规范 §2.1 / §3.9。
 //
-// ⚠️ color-mix() 必须用 unquote() 包裹：
-//    Stylus 的 `in` 是运算符，直接写会报 "illegal unary in"。
+// ⚠️ 含 `in` 的 color-mix(...) 必须用 unquote() 包裹：
+//    Stylus 的 `in` 是运算符，裸写会报 "illegal unary in"。
 :root
-  // ---- 派生：表面色阶（沿用既有主题 key）----
-  --surface-0 var(--main-dark)
-  --surface-1 var(--main)
+  // ---- v4 派生：品牌浸染表面色阶（4 级，色相跟随主题）----
+  --surface-0 unquote('color-mix(in srgb, var(--primary) 4%, var(--main-dark))')
+  --surface-1 unquote('color-mix(in srgb, var(--primary) 2%, var(--main))')
   --surface-2 var(--main-light)
+  --surface-3 unquote('color-mix(in srgb, var(--text) 6%, var(--main))')
 
   // ---- 派生：分隔、边框、交互态 ----
-  --border unquote('color-mix(in srgb, var(--text) 14%, transparent)')
-  --border-strong unquote('color-mix(in srgb, var(--text) 24%, transparent)')
-  --hover-bg unquote('color-mix(in srgb, var(--text) 8%, transparent)')
-  --active-bg unquote('color-mix(in srgb, var(--primary) 18%, transparent)')
+  --border unquote('color-mix(in srgb, var(--text) 12%, transparent)')
+  --border-strong unquote('color-mix(in srgb, var(--text) 22%, transparent)')
+  --hover-bg unquote('color-mix(in srgb, var(--text) 7%, transparent)')
+  --active-bg unquote('color-mix(in srgb, var(--primary) 16%, transparent)')
+  --accent-wash unquote('color-mix(in srgb, var(--primary) 10%, var(--main))')
 
-  // ---- 静态：圆角 ----
+  // ---- v4 派生：光晕激活态（激活/选中/按下共用；焦点环保持描边式）----
+  --accent-glow unquote('0 0 0 1px color-mix(in srgb, var(--primary) 45%, transparent), 0 2px 16px color-mix(in srgb, var(--primary) 30%, transparent)')
+
+  // ---- v4 派生：状态色底芯片（14% 色底 + 同色彩字）----
+  --success-bg unquote('color-mix(in srgb, var(--success) 14%, var(--main))')
+  --error-bg unquote('color-mix(in srgb, var(--error) 14%, var(--main))')
+  --warn-bg unquote('color-mix(in srgb, var(--warn) 14%, var(--main))')
+  --info-bg unquote('color-mix(in srgb, var(--info) 14%, var(--main))')
+
+  // ---- 静态：圆角（v4：整体上调一档）----
   --radius-xs 4px
-  --radius-sm 6px
-  --radius 8px
-  --radius-lg 12px
+  --radius-sm 8px
+  --radius 10px
+  --radius-lg 14px
   --radius-pill 999px
 
-  // ---- 静态：阴影与遮罩 ----
-  --shadow-1 0 1px 2px rgba(0, 0, 0, .30)
-  --shadow-2 0 4px 12px rgba(0, 0, 0, .34)
-  --shadow-3 0 16px 40px rgba(0, 0, 0, .45)
+  // ---- 静态：阴影与遮罩（v4：略加深）----
+  --shadow-1 0 1px 2px rgba(0, 0, 0, .32)
+  --shadow-2 0 4px 14px rgba(0, 0, 0, .36)
+  --shadow-3 0 18px 48px rgba(0, 0, 0, .5)
   --mask rgba(0, 0, 0, .45)
 
   // ---- 静态：间距 / 字号 ----
@@ -50,3 +61,6 @@
   --dur-1 120ms
   --dur-2 180ms
   --ease cubic-bezier(.4, 0, .2, 1)
+
+  // ---- v4 静态：等宽点缀（仅用于新增声明：路径/大小/次数/版本号）----
+  --font-mono ui-monospace, 'SF Mono', Menlo, Consolas, 'Noto Sans Mono CJK SC', monospace

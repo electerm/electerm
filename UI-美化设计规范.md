@@ -17,6 +17,7 @@
 | v1 | 初版：现状分析、3 层方案、11 区域精修、落地顺序 |
 | v2 | 深度复核后修订，含 3 处方案级修正（token 派生、焦点环、单测层） |
 | **v3** | **按 5.5.26 实测代码全面校准**：17 项修订（见下） |
+| **v4** | **深度设计定案（2026-09-24 用户确认）**：新增「Tinted Console」品牌浸染层 —— 浸染色阶 4 级 / --accent-glow 光晕 / 状态色底芯片 / 渐变强调线 / 等宽点缀。全部 color-mix 派生，红线不变（新增属性仅 transform）。见 §2.8；预览草图：美化效果预览草图-v4深度版.html |
 
 ### v3 的 17 项修订（来源：审计文档 §十）
 
@@ -294,6 +295,10 @@ return theme && theme.uiThemeConfig
 
 ### 2.2 变量清单
 
+> ⚙️ **v4 调整说明**：本节 v3 数值中，`--border` 14%→**12%**、`--hover-bg` 8%→**7%**、`--active-bg` 18%→**16%**、
+> 圆角 sm 6→**8** / 基准 8→**10** / lg 12→**14**、阴影三档略加深；`--surface-0/1` 从直接引用改为 **primary 浸染**（§2.8）。
+> 下表保留 v3 记录，**以 §2.3 / §2.8 的 v4 值为准**。
+
 #### A. 派生变量（跟随主题自动适配）
 
 | 变量 | 表达式 | 深色主题解 | 浅色主题解 |
@@ -343,33 +348,44 @@ return theme && theme.uiThemeConfig
 > 实测：`unquote()` 包裹后，产物里 `color-mix(in srgb, var(--text) 14%, transparent)` 原样保留（已验证）。
 
 ```stylus
-// src/client/css/includes/tokens.styl
+// src/client/css/includes/tokens.styl（v4「Tinted Console」定稿，66 行）
 // 全部新增 token。派生变量跟随 --text/--main/--primary 自动适配任意主题（含 310 个 iTerm 主题）。
 // ⚠️ 禁止在此引用 --main-darker / --main-lighter（见规范 §2.1：darker() 会产出非法颜色）
-// ⚠️ color-mix() 必须用 unquote() 包裹：Stylus 的 `in` 是运算符
+// ⚠️ 含 `in` 的 color-mix(...) 必须用 unquote() 包裹：Stylus 的 `in` 是运算符
 :root
-  // ---- 派生：表面色阶（沿用既有主题 key）----
-  --surface-0 var(--main-dark)
-  --surface-1 var(--main)
+  // ---- v4 派生：品牌浸染表面色阶（4 级，色相跟随主题）----
+  --surface-0 unquote('color-mix(in srgb, var(--primary) 4%, var(--main-dark))')
+  --surface-1 unquote('color-mix(in srgb, var(--primary) 2%, var(--main))')
   --surface-2 var(--main-light)
+  --surface-3 unquote('color-mix(in srgb, var(--text) 6%, var(--main))')
 
   // ---- 派生：分隔、边框、交互态 ----
-  --border unquote('color-mix(in srgb, var(--text) 14%, transparent)')
-  --border-strong unquote('color-mix(in srgb, var(--text) 24%, transparent)')
-  --hover-bg unquote('color-mix(in srgb, var(--text) 8%, transparent)')
-  --active-bg unquote('color-mix(in srgb, var(--primary) 18%, transparent)')
+  --border unquote('color-mix(in srgb, var(--text) 12%, transparent)')
+  --border-strong unquote('color-mix(in srgb, var(--text) 22%, transparent)')
+  --hover-bg unquote('color-mix(in srgb, var(--text) 7%, transparent)')
+  --active-bg unquote('color-mix(in srgb, var(--primary) 16%, transparent)')
+  --accent-wash unquote('color-mix(in srgb, var(--primary) 10%, var(--main))')
 
-  // ---- 静态：圆角 ----
+  // ---- v4 派生：光晕激活态（激活/选中/按下共用；焦点环保持描边式）----
+  --accent-glow unquote('0 0 0 1px color-mix(in srgb, var(--primary) 45%, transparent), 0 2px 16px color-mix(in srgb, var(--primary) 30%, transparent)')
+
+  // ---- v4 派生：状态色底芯片（14% 色底 + 同色彩字）----
+  --success-bg unquote('color-mix(in srgb, var(--success) 14%, var(--main))')
+  --error-bg unquote('color-mix(in srgb, var(--error) 14%, var(--main))')
+  --warn-bg unquote('color-mix(in srgb, var(--warn) 14%, var(--main))')
+  --info-bg unquote('color-mix(in srgb, var(--info) 14%, var(--main))')
+
+  // ---- 静态：圆角（v4：整体上调一档）----
   --radius-xs 4px
-  --radius-sm 6px
-  --radius 8px
-  --radius-lg 12px
+  --radius-sm 8px
+  --radius 10px
+  --radius-lg 14px
   --radius-pill 999px
 
-  // ---- 静态：阴影与遮罩 ----
-  --shadow-1 0 1px 2px rgba(0, 0, 0, .30)
-  --shadow-2 0 4px 12px rgba(0, 0, 0, .34)
-  --shadow-3 0 16px 40px rgba(0, 0, 0, .45)
+  // ---- 静态：阴影与遮罩（v4：略加深）----
+  --shadow-1 0 1px 2px rgba(0, 0, 0, .32)
+  --shadow-2 0 4px 14px rgba(0, 0, 0, .36)
+  --shadow-3 0 18px 48px rgba(0, 0, 0, .5)
   --mask rgba(0, 0, 0, .45)
 
   // ---- 静态：间距 / 字号 ----
@@ -387,6 +403,9 @@ return theme && theme.uiThemeConfig
   --dur-1 120ms
   --dur-2 180ms
   --ease cubic-bezier(.4, 0, .2, 1)
+
+  // ---- v4 静态：等宽点缀（仅用于新增声明：路径/大小/次数/版本号）----
+  --font-mono ui-monospace, 'SF Mono', Menlo, Consolas, 'Noto Sans Mono CJK SC', monospace
 ```
 
 > ⚠️ **不要**在 `tokens.styl` 里重复定义 `--main-darker` / `--main-lighter`（由 `ui-theme.jsx` 运行时派生，重复定义会争抢优先级）。
@@ -466,6 +485,24 @@ npm run compile && npm run t
 grep -c "color-mix" work/app/assets/css/style-5.5.26.css
 ```
 
+### 2.8 v4 深度设计层「Tinted Console」★（2026-09-24 用户定案）
+
+v3 解决「散值收敛」，观感含蓄；v4 在**同一安全边界内**增加品牌个性层。四要素：
+
+| 要素 | token / 手法 | 应用位置 |
+| --- | --- | --- |
+| **品牌浸染色阶** | `--surface-0/1/3` 改为 `color-mix(primary 2-6%, 底色)`（色相跟随主题） | 标签栏/图标栏(s0)、内容区/弹窗/列表容器(s1)、更高浮起/输入底(s3)；`--accent-wash`(10%) 用于表头洗染 |
+| **光晕激活态** | `--accent-glow`（1px 主色环 + 16px 柔光）+ 渐变强调线（`background-image: linear-gradient(90deg, var(--primary), transparent)`） | 激活标签顶部、快捷键条按下态、首页 Logo/背景光晕、主按钮 hover 投影；**焦点环保持描边式**（§3.6，光晕静音版 = outline + act 底） |
+| **状态色底芯片** | `--success-bg / --error-bg / --warn-bg / --info-bg`（14% 色底）+ 同色彩字 + 左 3px 色条（inset） | 消息/通知、传输队列状态、监控详情、批量操作结果 |
+| **等宽点缀** | `--font-mono`（**仅用于新增声明**） | 文件大小、命令次数、版本号、路径 |
+
+**配套值调整（v4 定案，覆盖 v3 同名值）**：`--border` 12%、`--hover-bg` 7%、`--active-bg` 16%、
+圆角 xs4 / sm8 / 10 / lg14（**整体上调一档**，§3.3 映射表目标值同步）、阴影三档加深（.32/.36/.5）。
+**新增允许属性**：`transform: translateY(-1px)`（主按钮/快捷键条 hover 上浮；合成器处理，**零布局位移**）。
+
+**安全性声明**：全部 color-mix 从既有 12 个主题 key 派生 → 约束 A 零触碰、310 个 iTerm 主题自动适配；
+零类名改动、零 DOM 变更；视觉前后对照见 `美化效果预览草图-v4深度版.html`（含浅色主题切换）。
+
 ---
 
 ## 三、Layer 2 · 统一层
@@ -502,7 +539,7 @@ grep -c "color-mix" work/app/assets/css/style-5.5.26.css
 
 ### 3.3 收敛圆角与阴影（影响面最大）
 
-**圆角只允许 5 个值**：`--radius-xs`(4) / `--radius-sm`(6) / `--radius`(8) / `--radius-lg`(12) / `--radius-pill`(999)。
+**圆角只允许 5 个值**（v4：整体上调一档）：`--radius-xs`(4) / `--radius-sm`(8) / `--radius`(10) / `--radius-lg`(14) / `--radius-pill`(999)。
 
 **收敛映射表**（按 5.5.26 实测的 12 种写法）：
 
@@ -1271,6 +1308,10 @@ console.log(f('#121214',0.3), f('#ededed',-0.3), f('#121214',-0.3))"
 | Layer 3 | Step 10–26 逐区域精修 | 17 | 🟢（2 个 🟠） | ⏳ 待执行 |
 | 可选 | Step 27 方案 B | 1 | 🟢 | ⏳ 待执行 |
 
+> **v4 定案（2026-09-24）**：区域精修（Step 10–26）一律按 **§2.8 四要素**执行（浸染底 / 光晕 / 状态芯片 / 渐变线 / 等宽点缀），
+> 并在 **Step 14 增加「无会话首页 hero」**（`no-session.styl`：顶部品牌光晕 + 主色实心主按钮 + ghost 次按钮）。
+> token 取值以 §2.3（v4 定稿）为准。
+
 **每步通用验证模板**：
 
 ```bash
@@ -1321,7 +1362,7 @@ grep -rlc "transition" --include=*.styl src/client | wc -l
 
 | 文件 | 改动 |
 | --- | --- |
-| `src/client/css/includes/tokens.styl` | **新建**（51 行），内容 = §2.3（⚠️ `color-mix` 必须 `unquote()` 包裹） |
+| `src/client/css/includes/tokens.styl` | **新建**（v4 定稿 **66 行**，含浸染色阶/光晕/状态芯片/等宽 token，见 §2.3） |
 | `src/client/css/includes/index.styl` | **首行**插入 `@require './tokens'`（原 3 行 → 4 行） |
 
 > **顺序说明**：`includes/index.styl` 被 `basic.styl:1` 首先 `@require`，`includes/theme.styl` 在其后（`basic.styl:2`）。
