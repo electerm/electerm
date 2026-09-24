@@ -10,14 +10,14 @@
   padding 0 16px
   transition background var(--dur-1) var(--ease), color var(--dur-1) var(--ease)
   &:hover
-    background #08c
-    color #eee
+    background var(--primary)
+    color var(--primary-contrast)
     cursor pointer
   &.disabled
     color var(--text-disabled)
     &:hover
-      color #777
-      background #333
+      color var(--text-disabled)
+      background var(--surface-2)
       cursor not-allowed
   &.zoom-item
     height 36px
@@ -60,8 +60,8 @@
   text-overflow ellipsis
   transition background var(--dur-1) var(--ease), color var(--dur-1) var(--ease)
   &:hover, &.active
-    background-color #08c
-    color #eee
+    background-color var(--primary)
+    color var(--primary-contrast)
 .bookmarks-sub-context-menu
   width 380px
   padding 20px 10px 10px 20px

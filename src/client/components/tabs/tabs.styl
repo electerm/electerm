@@ -81,11 +81,11 @@
     height 36px
 @keyframes blink
   0%
-    background-color #e0e0e0
+    background-color transparent
   50%
-    background-color #ffffff
+    background-color var(--primary)
   100%
-    background-color #e0e0e0
+    background-color transparent
 
 .tab-terminal-feed
 .tab-traffic
@@ -139,7 +139,7 @@
   transition background 120ms ease, color 120ms ease
   &:hover
     background var(--error)
-    color #fff
+    color var(--primary-contrast)
 
 // touch screens have no hover — always reveal the close icon
 .is-touch-device
@@ -224,7 +224,7 @@
       background var(--main-dark)
   .window-control-close:hover
     background var(--error)
-    color #fff
+    color var(--primary-contrast)
 
 .system-ui
   .window-controls
@@ -273,7 +273,7 @@
     background var(--main-dark)
   &.active
     background var(--primary)
-    color #fff
+    color var(--primary-contrast)
 
 .workspace-menu-content
   max-height 300px

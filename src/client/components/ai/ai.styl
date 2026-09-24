@@ -106,7 +106,7 @@
     margin-bottom 4px
 
 .ai-attachment-dragover
-  outline 2px dashed #1890ff
+  outline 2px dashed var(--primary)
   outline-offset -2px
 
 .ai-chat-sessions-wrap
@@ -129,12 +129,12 @@
   cursor pointer
   transition all 0.2s
   &:hover
-    border-color #1890ff
+    border-color var(--primary)
     background var(--main-dark)
     .ai-chat-session-delete
       opacity 1
   &.active
-    border-color #1890ff
+    border-color var(--primary)
     background rgba(24, 144, 255, 0.06)
 
 .ai-chat-session-content
@@ -210,14 +210,14 @@
   margin-left auto
 
 .agent-tool-status-running
-  color #1890ff
+  color var(--primary)
   animation spin 1s linear infinite
 
 .agent-tool-status-completed
-  color #52c41a
+  color var(--success)
 
 .agent-tool-status-error
-  color #ff4d4f
+  color var(--error)
 
 .agent-tool-detail
   padding 0 8px 8px
@@ -256,13 +256,13 @@
   margin-bottom 0
 
 .agent-tool-running
-  border-color #1890ff
+  border-color var(--primary)
 
 .agent-tool-completed
-  border-color #52c41a
+  border-color var(--success)
 
 .agent-tool-error
-  border-color #ff4d4f
+  border-color var(--error)
 
 @keyframes spin
   from

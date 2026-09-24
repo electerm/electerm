@@ -27,8 +27,8 @@
   &.selected
   &.item-dragover
   &:hover
-    background #000
-    color #eee
+    background var(--surface-0)
+    color var(--text)
     cursor pointer
   &.item-dragover-top
     border 2px solid var(--primary)
@@ -79,7 +79,7 @@
   height 12px
   margin-right 6px
   border-radius var(--radius-xs)
-  border 1px solid #1a1a1a
+  border 1px solid var(--border)
   vertical-align middle
 
 .move-item-tree-wrap
@@ -134,7 +134,7 @@
   white-space nowrap
   font-size 12px
   &:hover
-    background var(--hover-bg, rgba(0,0,0,.04))
+    background var(--hover-bg)
   &.active
     color var(--primary)
 
