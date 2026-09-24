@@ -67,6 +67,12 @@ exports.createWindow = async function (userConfig) {
   // Safety net: verify the window is actually visible on a connected
   // display and move it to the primary display if not.
   ensureWindowVisible(win, screen)
+  // 系统标题栏模式下隐藏 Electron 原生菜单栏（编辑/视图/窗口/帮助），
+  // 避免其与系统标题栏叠加；仅隐藏显示，不删除 Menu 对象，
+  // role 快捷键（复制/粘贴/撤销等）仍由应用菜单提供
+  if (useSystemTitleBar && !isMac) {
+    win.setMenuBarVisibility(false)
+  }
   // hides the traffic lights
   if (isMac) {
     win.setWindowButtonVisibility(true)

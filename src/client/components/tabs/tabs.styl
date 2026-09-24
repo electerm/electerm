@@ -213,14 +213,14 @@
     &:before
       position absolute
       content ''
-      left -4px
-      top 2px
-      width 8px
+      // 标准「恢复」图标：背面完整矩形与正面框右下错位 3px 重叠，
+      // 露出背面右边/下边成双窗口，状态一眼可辨；currentColor 使 hover
+      // 时背面与正面一起变 --primary
+      left 3px
+      top 3px
+      width 10px
       height 7px
-      // currentColor 使 hover 时背面矩形与正面一起变 var(--primary)
       border 1px solid currentColor
-      border-top none
-      border-right none
 
 .control-icon:hover
   color var(--text-light)
