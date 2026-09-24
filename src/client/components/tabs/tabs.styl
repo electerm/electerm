@@ -182,7 +182,9 @@
   z-index 900
   border-radius 0 0 var(--radius-xs) var(--radius-xs)
   padding 0
-  background var(--main)
+  background var(--surface-0)
+  // 与标签栏同底色，消除接缝；左侧 1px 发丝线分隔按钮区与标签区
+  box-shadow inset 1px 0 0 0 var(--border)
   -webkit-app-region no-drag
 
 .window-control-box
@@ -226,7 +228,7 @@
   .window-control-minimize
   .window-control-maximize
     &:hover
-      background var(--main-dark)
+      background var(--hover-bg)
   .window-control-close:hover
     background var(--error)
     color var(--primary-contrast)
