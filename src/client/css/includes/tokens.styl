@@ -67,3 +67,9 @@
 
   // ---- v4 派生：首页品牌光晕（no-session 首页顶部 radial 浸染）----
   --hero-glow unquote('radial-gradient(560px 220px at 50% 0, color-mix(in srgb, var(--primary) 14%, transparent), transparent 72%)')
+
+// ---- v4 方案 B：浅色主题精确阴影分档（ui-theme.jsx 按 main 明暗切换 .theme-light）----
+.theme-light
+  --shadow-1 0 1px 2px rgba(0, 0, 0, .06)
+  --shadow-2 0 4px 12px rgba(0, 0, 0, .10)
+  --shadow-3 0 18px 48px rgba(0, 0, 0, .14)

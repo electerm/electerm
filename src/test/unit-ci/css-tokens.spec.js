@@ -34,11 +34,11 @@ for (const f of definitionFiles) {
 
 // 上游 5.5.26 运行时注入 / jsx 内联注入的变量白名单
 const whitelist = new Set([
-  'left-side-bar-width',      // main.jsx:173
-  'footer-stack-height',      // main.jsx:174
-  'shortcut-bar-h',           // shortcut-bar.jsx:160
-  'shortcut-bar-kb-offset',   // shortcut-bar.jsx:148
-  'ai-watermark'              // ai-chat-empty.jsx:23
+  'left-side-bar-width', // main.jsx:173
+  'footer-stack-height', // main.jsx:174
+  'shortcut-bar-h', // shortcut-bar.jsx:160
+  'shortcut-bar-kb-offset', // shortcut-bar.jsx:148
+  'ai-watermark' // ai-chat-empty.jsx:23
 ])
 
 // 收集全部 var(--x) 引用（含 var(--x, fallback) 形式，取逗号前的变量名）
@@ -73,11 +73,13 @@ describe('css-tokens: var() 引用必须有定义', () => {
     assert.deepEqual(missing, [], `以下变量被引用但从未定义:\n${missing.join('\n')}`)
   })
 
-  it('tokens.styl 无重复定义（同名 token 只出现一次）', () => {
+  it('tokens.styl 顶层（:root）无重复定义（.theme-light 覆盖块除外）', () => {
     const tokensFile = files.find(f => /[\\/]tokens\.styl$/.test(f))
     const names = fs.readFileSync(tokensFile, 'utf8')
       .split('\n')
-      .map(l => (l.match(/^\s*--([a-z0-9-]+)\s/) || [])[1])
+      // 仅统计 0 缩进行（:root 顶层定义）；.theme-light 内的缩进覆盖是合法的分档
+      .filter(l => /^--[a-z0-9-]+\s/.test(l))
+      .map(l => (l.match(/^--([a-z0-9-]+)\s/) || [])[1])
       .filter(Boolean)
     const dup = names.filter((n, i) => names.indexOf(n) !== i)
     assert.deepEqual(dup, [], `重复定义: ${dup.join(', ')}`)

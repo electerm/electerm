@@ -62,6 +62,10 @@ export default function UiTheme (props) {
     const style = document.getElementById(themeDomId)
     const css = await buildTheme(themeConfig)
     style.innerHTML = css
+    // v4 方案 B：浅色主题精确阴影分档（美化设计规范 §2.6/§6.12）
+    document.documentElement.classList.toggle(
+      'theme-light', !isColorDark((themeConfig && themeConfig.main) || '#000')
+    )
   }
 
   useEffect(() => {
