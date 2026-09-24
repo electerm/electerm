@@ -1,6 +1,11 @@
 .context-menu
   position: relative
   width 280px
+  border-radius var(--radius)
+  // 描边环用 box-shadow 而非 border：280px 是 content-box 宽度，加 border 会变 282px
+  box-shadow 0 0 0 1px var(--border), var(--shadow-2)
+  background var(--surface-2)
+  overflow hidden
 
 .context-item
   -webkit-app-region no-drag
