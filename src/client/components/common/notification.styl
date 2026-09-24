@@ -5,7 +5,7 @@
   z-index 9999
 
 .notification
-  background var(--main-lighter)
+  background var(--surface-2)
   color var(--text)
   border-radius var(--radius-sm)
   margin-bottom 10px
@@ -13,6 +13,20 @@
   box-shadow var(--shadow-2)
   width 400px
   position relative
+
+// v4 状态色底芯片（根节点带 type 类，见 notification.jsx:137）
+.notification.success
+  background var(--success-bg)
+  box-shadow inset 3px 0 0 0 var(--success), var(--shadow-2)
+.notification.error
+  background var(--error-bg)
+  box-shadow inset 3px 0 0 0 var(--error), var(--shadow-2)
+.notification.warning
+  background var(--warn-bg)
+  box-shadow inset 3px 0 0 0 var(--warn), var(--shadow-2)
+.notification.info
+  background var(--info-bg)
+  box-shadow inset 3px 0 0 0 var(--info), var(--shadow-2)
 
 .notification-content
   width 100%

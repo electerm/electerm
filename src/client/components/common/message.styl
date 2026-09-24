@@ -23,6 +23,20 @@
     .message-close
       opacity 1
 
+// v4 状态色底芯片：14% 色底 + 左 3px 状态条（美化设计规范 §2.8）
+.message-item:has(.msg-icon.success)
+  background var(--success-bg)
+  box-shadow inset 3px 0 0 0 var(--success), var(--shadow-2)
+.message-item:has(.msg-icon.error)
+  background var(--error-bg)
+  box-shadow inset 3px 0 0 0 var(--error), var(--shadow-2)
+.message-item:has(.msg-icon.warning)
+  background var(--warn-bg)
+  box-shadow inset 3px 0 0 0 var(--warn), var(--shadow-2)
+.message-item:has(.msg-icon.info)
+  background var(--info-bg)
+  box-shadow inset 3px 0 0 0 var(--info), var(--shadow-2)
+
 .message-content-wrap
   display flex
   align-items center
