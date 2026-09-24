@@ -52,6 +52,7 @@ const {
   TEST_USERNAME,
   TEST_PASSWORD
 } = require('./lib/ssh-test-server')
+const { createTrustingWs } = require('./lib/ssh-session-harness')
 
 // The app writes trusted host keys to ~/.ssh/known_hosts — point HOME at a
 // throwaway dir so a test run never touches the developer's real file
@@ -85,36 +86,8 @@ const READY_TIMEOUT = 30000
 // session() harness
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Minimal ws stub for session(): answers the host-key confirmation with
- * "trust" (the throwaway HOME has an empty known_hosts, so every test server
- * is an unknown host) and any other prompt with an empty answer, so a prompt
- * can never hang the run.
- */
-function createTrustingWs () {
-  let pending
-  const prompts = []
-  return {
-    prompts,
-    s (payload) {
-      if (payload && payload.action === 'session-interactive') {
-        pending = payload.options
-        prompts.push(payload.options)
-      }
-    },
-    once (handler) {
-      const options = pending
-      queueMicrotask(() => {
-        handler({
-          results: options && options.mode === 'confirm'
-            ? ['trust']
-            : ['']
-        })
-      })
-    },
-    close () {}
-  }
-}
+// createTrustingWs() answers the host-key confirmation with "trust" — the
+// throwaway HOME has an empty known_hosts, so every test server is unknown.
 
 function connect (port, options = {}) {
   const {
@@ -180,8 +153,6 @@ function waitForData (term, pattern, command, timeout = 8000) {
 }
 
 function closeSession (term) {
-  // kill() drops this.conn before ending it, so end the transport explicitly
-  term.endConns && term.endConns()
   term.kill()
 }
 

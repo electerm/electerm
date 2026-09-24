@@ -42,6 +42,10 @@ async function startServer () {
       }
       return ctx.reject(['password'])
     })
+    // killing the proxy command child (see session-ssh kill()) resets its
+    // socket to this in-process server instead of closing it cleanly, and an
+    // unhandled socket error here would crash the whole run
+    client.on('error', () => {})
     client.on('ready', () => {
       client.on('session', (accept) => {
         const sshSession = accept()
