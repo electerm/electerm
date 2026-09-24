@@ -312,6 +312,53 @@ function buildRequest (format, { model, messages, tools, stream, maxTokens } = {
 }
 
 /* ------------------------------------------------------------------ *
+ * Token usage
+ * ------------------------------------------------------------------ */
+
+const positiveNumber = (v) => (
+  typeof v === 'number' && isFinite(v) && v > 0 ? v : 0
+)
+
+// Normalized token usage for the three protocols, or null when the provider
+// did not report any. Only non streaming responses carry it here -- the SSE
+// parser is not asked for `stream_options.include_usage`, so streaming
+// callers fall back to the client side estimate.
+function parseUsage (format, data) {
+  if (!data || typeof data !== 'object') {
+    return null
+  }
+  const u = data.usage
+  if (!u || typeof u !== 'object') {
+    return null
+  }
+  let promptTokens
+  let completionTokens
+  if (format === FORMAT_ANTHROPIC) {
+    // cached prompt tokens are billed and counted separately from input_tokens
+    promptTokens = positiveNumber(u.input_tokens) +
+      positiveNumber(u.cache_read_input_tokens) +
+      positiveNumber(u.cache_creation_input_tokens)
+    completionTokens = positiveNumber(u.output_tokens)
+  } else if (format === FORMAT_OPENAI_RESPONSES) {
+    promptTokens = positiveNumber(u.input_tokens)
+    completionTokens = positiveNumber(u.output_tokens)
+  } else {
+    promptTokens = positiveNumber(u.prompt_tokens)
+    completionTokens = positiveNumber(u.completion_tokens)
+  }
+  const totalTokens = positiveNumber(u.total_tokens) ||
+    (promptTokens + completionTokens)
+  if (!totalTokens) {
+    return null
+  }
+  return {
+    promptTokens,
+    completionTokens,
+    totalTokens
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * Non streaming response parsing
  * ------------------------------------------------------------------ */
 
@@ -699,6 +746,7 @@ exports.detectFormat = detectFormat
 exports.headersForFormat = headersForFormat
 exports.buildRequest = buildRequest
 exports.parseResponse = parseResponse
+exports.parseUsage = parseUsage
 exports.createStreamParser = createStreamParser
 exports.streamResultToMessage = streamResultToMessage
 exports.textFromContent = textFromContent

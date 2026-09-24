@@ -334,3 +334,78 @@
   &:hover
     border-color var(--primary)
     color var(--text)
+
+// context size indicator, right hand side of the ai chat toolbar
+.ai-context-indicator
+  display inline-flex
+  align-items center
+  gap 4px
+  flex-shrink 0
+  font-size 11px
+  line-height 1
+  color var(--text-color-2)
+  cursor default
+  user-select none
+
+.ai-context-bar
+  display inline-block
+  width 34px
+  height 5px
+  border-radius 3px
+  background var(--main-darker)
+  overflow hidden
+  flex-shrink 0
+
+.ai-context-bar-fill
+  display block
+  height 100%
+  border-radius 3px
+  background var(--primary)
+  transition width 0.2s
+
+.ai-context-count
+  color var(--text-dark)
+  font-variant-numeric tabular-nums
+
+.ai-context-percent
+  font-variant-numeric tabular-nums
+
+.ai-context-warn
+  .ai-context-bar-fill
+    background #faad14
+  .ai-context-percent
+    color #faad14
+
+.ai-context-danger
+  .ai-context-bar-fill
+    background #ff4d4f
+  .ai-context-percent
+    color #ff4d4f
+    font-weight 500
+
+.ai-context-tip
+  font-size 12px
+  min-width 210px
+
+.ai-context-tip-title
+  font-weight 500
+  margin-bottom 4px
+
+.ai-context-tip-row
+  display flex
+  justify-content space-between
+  gap 12px
+
+.ai-context-tip-total
+  font-weight 500
+  border-top 1px solid rgba(128, 128, 128, 0.35)
+  margin-top 2px
+  padding-top 2px
+
+.ai-context-tip-note
+  margin-top 4px
+  opacity 0.75
+
+.ai-context-tip-warn
+  margin-top 4px
+  color #faad14

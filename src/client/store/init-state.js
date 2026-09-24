@@ -95,6 +95,10 @@ export default () => {
     _batchInputSelectedTabIds: new Set(),
     aiChatHistory: [],
     agentRunning: false,
+    // live context accounting while an agent loop is running: the agent
+    // carries tool schemas and tool results that the session history does
+    // not, so it publishes its own figure here (see components/ai/agent.js)
+    aiContextInfo: null,
     currentChatSessionId: window.localStorage.getItem(lastAiChatSessionIdKey) || '',
     showChatSessions: false,
 

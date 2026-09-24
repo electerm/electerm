@@ -1,6 +1,7 @@
 import {
   Form,
   Input,
+  InputNumber,
   Button,
   AutoComplete,
   Alert,
@@ -354,6 +355,19 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           rules={[{ required: true, message: 'Please input or select a model!' }]}
         >
           {renderModelInput()}
+        </Form.Item>
+
+        <Form.Item
+          label='Context length'
+          name='contextLengthAI'
+          tooltip='How many tokens this model can hold in one request. Leave empty to guess from the model name; the chat panel uses it to show how full the context is.'
+        >
+          <InputNumber
+            placeholder='auto (detect from model name)'
+            min={1000}
+            step={1000}
+            style={{ width: '100%' }}
+          />
         </Form.Item>
 
         <Form.Item

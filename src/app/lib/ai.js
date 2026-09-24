@@ -9,6 +9,7 @@ const {
   headersForFormat,
   buildRequest,
   parseResponse,
+  parseUsage,
   createStreamParser
 } = require('./ai-format')
 
@@ -130,7 +131,10 @@ exports.AIchatWithTools = async (messages, model, baseURL, path, apiKey, proxy, 
     if (error) {
       return { error }
     }
-    return { message }
+    // `usage` lets the agent panel report the real context size instead of
+    // an estimate -- the request carried the tool schemas, so it is the
+    // only number that accounts for them.
+    return { message, usage: parseUsage(fmt, response.data) }
   } catch (e) {
     log.error('AI chat with tools error', e)
     return { error: formatError(e) }
@@ -212,7 +216,8 @@ exports.AIchat = async (
 
       return {
         response: message.content === undefined ? '' : message.content,
-        isStream: false
+        isStream: false,
+        usage: parseUsage(fmt, response.data)
       }
     }
   } catch (e) {

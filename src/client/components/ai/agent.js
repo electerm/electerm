@@ -1,5 +1,6 @@
 import { agentTools, executeToolCall } from './agent-tools'
 import { appendMandatoryGuardrails } from './ai-guardrails'
+import { buildAgentMessages, summarizeContext } from './ai-context'
 
 const MAX_ITERATIONS = 150
 
@@ -47,27 +48,35 @@ async function callBackendAIchatWithTools (messages, config) {
   )
 }
 
+// Publish the size of the context the agent is carrying so the panel can show
+// it. An agent request is not just the conversation: it also carries every
+// tool schema, and each iteration appends the tool results, which is what
+// actually fills the window. `usage` is the provider's own count for the
+// previous request and is kept for comparison -- the estimate is what the
+// *next* request will cost, so that is the number on display.
+function publishContext (messages, config, usage) {
+  const info = summarizeContext(messages, {
+    model: config.modelAI,
+    contextLength: window.store.config.contextLengthAI,
+    tools: agentTools
+  })
+  if (usage && usage.promptTokens) {
+    info.measuredTokens = usage.promptTokens
+  }
+  window.store.aiContextInfo = info
+}
+
 export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming, conversationMessages = null) {
   window.store.agentRunning = true
   try {
-    let messages
-    if (conversationMessages && conversationMessages.length > 1) {
-      // Replace system message with agent system prompt, keep conversation history
-      messages = [
-        { role: 'system', content: buildAgentSystemPrompt(config) },
-        ...conversationMessages.filter(m => m.role !== 'system')
-      ]
-    } else {
-      messages = [
-        { role: 'system', content: buildAgentSystemPrompt(config) },
-        {
-          role: 'user',
-          content: chatEntry.promptWithAttachments || chatEntry.prompt
-        }
-      ]
-    }
+    const messages = buildAgentMessages({
+      systemPrompt: buildAgentSystemPrompt(config),
+      conversationMessages,
+      prompt: chatEntry.promptWithAttachments || chatEntry.prompt
+    })
     const toolCallsLog = []
     let accumulatedContent = ''
+    let lastUsage = null
 
     setIsStreaming(true)
     updateChatEntry(chatEntry, {
@@ -84,7 +93,11 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
         return
       }
 
+      publishContext(messages, config, lastUsage)
       const result = await callBackendAIchatWithTools(messages, config)
+      if (result.usage) {
+        lastUsage = result.usage
+      }
 
       if (result.error) {
         setIsStreaming(false)
@@ -104,6 +117,7 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
       }
 
       messages.push(assistantMessage)
+      publishContext(messages, config, lastUsage)
 
       if (assistantMessage.content) {
         accumulatedContent += (accumulatedContent ? '\n\n' : '') + assistantMessage.content
@@ -176,5 +190,8 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
     })
   } finally {
     window.store.agentRunning = false
+    // hand the panel back to the session based estimate: tool results are not
+    // carried into the next turn, so the agent figure stops being meaningful
+    window.store.aiContextInfo = null
   }
 }

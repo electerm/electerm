@@ -1,8 +1,11 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { Flex, Input, Segmented, Button, Tag, message } from 'antd'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
 import AiChatSessions from './ai-chat-sessions'
+import AiContextIndicator from './ai-context-indicator'
+import { buildSessionMessages, summarizeContext, getUsageLevel, formatPercent } from './ai-context'
+import { appendMandatoryGuardrails } from './ai-guardrails'
 import uid from '../../common/uid'
 import { pick } from 'lodash-es'
 import {
@@ -52,6 +55,48 @@ export default function AIChat (props) {
   const sessionHistory = (props.aiChatHistory || []).filter(
     h => h.chatSessionId === currentChatSessionId
   )
+
+  const config = props.config || {}
+
+  // Size of the context the *next* message will carry: every entry of this
+  // session, from the last compression onwards, built by the same helper the
+  // sender uses. While an agent loop is running its own, much larger, figure
+  // is published to the store (tool schemas and tool results included) and
+  // takes precedence.
+  const sessionContextInfo = useMemo(() => {
+    if (!currentChatSessionId) {
+      return null
+    }
+    const lang = config.languageAI || window.store.getLangName()
+    const role = appendMandatoryGuardrails(
+      (config.roleAI || '') + `;用[${lang}]回复`
+    )
+    const messages = buildSessionMessages({
+      history: props.aiChatHistory,
+      chatSessionId: currentChatSessionId,
+      role
+    })
+    if (!messages || messages.length < 2) {
+      return null
+    }
+    return summarizeContext(messages, {
+      model: config.modelAI,
+      contextLength: config.contextLengthAI
+    })
+  }, [
+    props.aiChatHistory,
+    // length as well as identity: sending a message pushes onto the existing
+    // array, so the reference alone would not change
+    props.aiChatHistory.length,
+    currentChatSessionId,
+    config.roleAI,
+    config.languageAI,
+    config.modelAI,
+    config.contextLengthAI
+  ])
+
+  const contextInfo = props.aiContextInfo || sessionContextInfo
+  const contextLevel = getUsageLevel(contextInfo && contextInfo.percent)
 
   function handlePromptChange (e) {
     setPrompt(e.target.value)
@@ -179,6 +224,13 @@ export default function AIChat (props) {
     }
   }
 
+  function renderCompressTitle () {
+    if ((contextLevel === 'warn' || contextLevel === 'danger') && contextInfo) {
+      return `Context is ${formatPercent(contextInfo.percent)} full — compress to summarize the session`
+    }
+    return 'Summarize this session into a single message, dropping the older history'
+  }
+
   function handleShowHistory () {
     window.store.toggleChatSessions()
   }
@@ -259,34 +311,39 @@ export default function AIChat (props) {
       </Flex>
 
       <Flex vertical className='ai-chat-input'>
-        <Flex className='ai-chat-toolbar mg1b' align='left' gap={4}>
-          <Button
-            size='small'
-            icon={<PlusOutlined />}
-            onClick={handleNewChat}
-            className='mg1r new-chat-btn'
-          >
-            {e('new')}
-          </Button>
-          {sessionHistory.length >= 2 && (
+        <Flex className='ai-chat-toolbar mg1b' align='center' justify='space-between' gap={4}>
+          <Flex align='center' gap={4}>
             <Button
               size='small'
-              icon={<CompressOutlined />}
-              onClick={handleCompressSession}
-              loading={compressing}
-              className='mg1r'
+              icon={<PlusOutlined />}
+              onClick={handleNewChat}
+              className='new-chat-btn'
             >
-              {e('compress')}
+              {e('new')}
             </Button>
-          )}
-          <Button
-            size='small'
-            icon={<HistoryOutlined />}
-            onClick={handleShowHistory}
-            type={props.showChatSessions ? 'primary' : 'default'}
-          >
-            {e('history')}
-          </Button>
+            {sessionHistory.length >= 2 && (
+              <Button
+                size='small'
+                icon={<CompressOutlined />}
+                onClick={handleCompressSession}
+                loading={compressing}
+                type={contextLevel === 'warn' ? 'primary' : 'default'}
+                danger={contextLevel === 'danger'}
+                title={renderCompressTitle()}
+              >
+                {e('compress')}
+              </Button>
+            )}
+            <Button
+              size='small'
+              icon={<HistoryOutlined />}
+              onClick={handleShowHistory}
+              type={props.showChatSessions ? 'primary' : 'default'}
+            >
+              {e('history')}
+            </Button>
+          </Flex>
+          <AiContextIndicator info={contextInfo} />
         </Flex>
         {attachments.length > 0 && (
           <Flex wrap='wrap' gap={4} className='ai-chat-attachments mg1b'>

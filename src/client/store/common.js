@@ -5,6 +5,7 @@
 import handleError from '../common/error-handler'
 import Modal from '../components/common/modal'
 import { appendMandatoryGuardrails } from '../components/ai/ai-guardrails'
+import { buildSessionMessages } from '../components/ai/ai-context'
 import { debounce, some, get, pickBy } from 'lodash-es'
 import {
   leftSidePanelWidthKey,
@@ -25,7 +26,7 @@ import { requireTermOfUse } from '../common/term-of-use'
 import { action } from 'manate'
 import uid from '../common/uid'
 import deepCopy from 'json-deep-copy'
-import { aiConfigsArr } from '../components/ai/ai-config-props'
+import { aiConfigsArr, optionalAIConfigsArr } from '../components/ai/ai-config-props'
 
 const e = window.translate
 const { assign } = Object
@@ -353,7 +354,10 @@ export default Store => {
     if (index === -1) {
       return
     }
-    window.store.aiChatHistory.splice(index, 1)
+    // Reassign instead of splice: the store only notifies subscribers on a
+    // property write, so an in-place mutation leaves the panel rendering the
+    // list it already had.
+    window.store.aiChatHistory = store.aiChatHistory.filter(d => d.id !== id)
   }
 
   Store.prototype.startNewChat = action(function () {
@@ -388,6 +392,9 @@ export default Store => {
 
   Store.prototype.compressChatSession = async function (sessionId) {
     const { store } = window
+    if (!sessionId) {
+      return
+    }
     const sessionEntries = store.aiChatHistory
       .filter(h => h.chatSessionId === sessionId)
       .sort((a, b) => a.timestamp - b.timestamp)
@@ -411,33 +418,14 @@ export default Store => {
 
     const firstEntry = sessionEntries[0]
     const lang = firstEntry.languageAI || store.getLangName()
-    const messages = [
-      { role: 'system', content: appendMandatoryGuardrails(firstEntry.roleAI + `;用[${lang}]回复`) }
-    ]
-
-    // Start from the last compress entry to include its summary as context
-    const startIndex = lastCompressIndex >= 0 ? lastCompressIndex : 0
-    for (let i = startIndex; i < sessionEntries.length; i++) {
-      const entry = sessionEntries[i]
-      if (entry.compressed) {
-        messages.push({
-          role: 'user',
-          content: `Here is a summary of our previous conversation for context:\n\n${entry.response}`
-        })
-        messages.push({
-          role: 'assistant',
-          content: 'Understood. I will use this context as we continue.'
-        })
-      } else {
-        messages.push({
-          role: 'user',
-          content: entry.promptWithAttachments || entry.prompt
-        })
-        if (entry.response) {
-          messages.push({ role: 'assistant', content: entry.response })
-        }
-      }
-    }
+    // Same message list the chat turn would send (including the response of
+    // every entry), so the summary describes the conversation the model
+    // actually saw.
+    const messages = buildSessionMessages({
+      history: store.aiChatHistory,
+      chatSessionId: sessionId,
+      role: appendMandatoryGuardrails(firstEntry.roleAI + `;用[${lang}]回复`)
+    })
 
     const summaryPrompt = 'Please summarize the above conversation concisely. Include key information, decisions, context, and any important details that would be needed to continue this conversation effectively.'
     messages.push({ role: 'user', content: summaryPrompt })
@@ -484,8 +472,10 @@ export default Store => {
       compressed: true
     }
 
-    // Append compress entry, preserve existing history
-    store.aiChatHistory.push(compressedEntry)
+    // Append compress entry, preserve existing history. Reassign rather than
+    // push for the same reason as removeAiHistory -- the panel has to see the
+    // new context size, which is the whole point of compressing.
+    store.aiChatHistory = [...store.aiChatHistory, compressedEntry]
   }
 
   Store.prototype.toggleChatSessions = action(function () {
@@ -566,7 +556,9 @@ export default Store => {
   }
 
   Store.prototype.aiConfigMissing = function () {
-    return aiConfigsArr.filter(k => k !== 'apiKeyAI' && k !== 'proxyAI' && k !== 'nameAI').some(k => !window.store.config[k])
+    return aiConfigsArr
+      .filter(k => !optionalAIConfigsArr.includes(k))
+      .some(k => !window.store.config[k])
   }
 
   Store.prototype.clearHistory = function () {

@@ -6,6 +6,7 @@ const {
   headersForFormat,
   buildRequest,
   parseResponse,
+  parseUsage,
   createStreamParser,
   streamResultToMessage,
   FORMAT_OPENAI_CHAT,
@@ -818,5 +819,56 @@ describe('cross format round trip (agent loop contract)', () => {
       type: 'object',
       properties: {}
     })
+  })
+})
+
+describe('parseUsage', () => {
+  it('reads openai chat usage', () => {
+    assert.deepEqual(
+      parseUsage(FORMAT_OPENAI_CHAT, {
+        usage: { prompt_tokens: 1200, completion_tokens: 40, total_tokens: 1240 }
+      }),
+      { promptTokens: 1200, completionTokens: 40, totalTokens: 1240 }
+    )
+  })
+
+  it('reads openai responses usage', () => {
+    assert.deepEqual(
+      parseUsage(FORMAT_OPENAI_RESPONSES, {
+        usage: { input_tokens: 900, output_tokens: 30, total_tokens: 930 }
+      }),
+      { promptTokens: 900, completionTokens: 30, totalTokens: 930 }
+    )
+  })
+
+  it('adds cached anthropic prompt tokens to the input count', () => {
+    assert.deepEqual(
+      parseUsage(FORMAT_ANTHROPIC, {
+        usage: {
+          input_tokens: 100,
+          output_tokens: 10,
+          cache_read_input_tokens: 8000,
+          cache_creation_input_tokens: 200
+        }
+      }),
+      { promptTokens: 8300, completionTokens: 10, totalTokens: 8310 }
+    )
+  })
+
+  it('derives the total when the provider omits it', () => {
+    assert.deepEqual(
+      parseUsage(FORMAT_OPENAI_CHAT, {
+        usage: { prompt_tokens: 5, completion_tokens: 6 }
+      }),
+      { promptTokens: 5, completionTokens: 6, totalTokens: 11 }
+    )
+  })
+
+  it('is null when there is nothing to report', () => {
+    assert.equal(parseUsage(FORMAT_OPENAI_CHAT, null), null)
+    assert.equal(parseUsage(FORMAT_OPENAI_CHAT, 'data: [DONE]'), null)
+    assert.equal(parseUsage(FORMAT_OPENAI_CHAT, { choices: [] }), null)
+    assert.equal(parseUsage(FORMAT_OPENAI_CHAT, { usage: {} }), null)
+    assert.equal(parseUsage(FORMAT_OPENAI_CHAT, { usage: { total_tokens: 0 } }), null)
   })
 })
