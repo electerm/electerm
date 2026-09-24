@@ -6,7 +6,7 @@ body
   background var(--main)
   font-size 12px
   line-height 1.5715
-  font-family -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
+  font-family -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Noto Sans CJK SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
   font-variant: tabular-nums
   color var(--text)
 
@@ -60,3 +60,17 @@ tr.dnd-after > td
   .sync-suggest-action
     color var(--success)
     font-weight 500
+
+// keyboard focus visibility (美化设计规范 §3.6) — same outline style as
+// common/item-filter.styl so there is one focus language app-wide.
+// :focus-visible only: mouse clicks never show the ring, Tab always does.
+:focus-visible
+  outline 1px solid var(--primary)
+  outline-offset 1px
+
+// global reduced-motion fallback (§3.7) — the only allowed !important addition
+@media (prefers-reduced-motion: reduce)
+  *
+    animation-duration .01ms !important
+    animation-iteration-count 1 !important
+    transition-duration .01ms !important
