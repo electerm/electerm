@@ -24,10 +24,10 @@
 
 .vertical
   .term-wrap.not-first-term
-    border-top 1px solid var(--main-lighter)
+    border-top 1px solid var(--border)
 .horizontal
   .term-wrap.not-first-term
-    border-left 1px solid var(--main-lighter)
+    border-left 1px solid var(--border)
 
 #container
   .xterm
@@ -89,7 +89,7 @@
   height 40px
   padding 0 10px
   font-size 14px
-  background var(--main-lighter)
+  background var(--surface-2)
   .terminal-select-text-btns
     a
       margin-left 16px
@@ -141,7 +141,7 @@
   height 32px
   line-height 32px
   box-shadow var(--shadow-2)
-  background var(--main-lighter)
+  background var(--surface-2)
 .batch-input-wrap
   width calc(100% - 80px)
 
@@ -157,7 +157,7 @@
   background var(--main)
   border-radius var(--radius-sm)
   &.reverse .terminal-suggestions-list
-    border-top 1px solid var(--main-lighter)
+    border-top 1px solid var(--border)
     border-bottom none
 
 .terminal-suggestions-list
@@ -166,7 +166,7 @@
   overflow-y auto
   max-height 268px
   max-width 300px
-  border-bottom 1px solid var(--main-lighter)
+  border-bottom 1px solid var(--border)
 
 .terminal-suggestions-sticky
   flex-shrink 0
@@ -182,7 +182,7 @@
   color var(--text)
   transition background var(--dur-1) var(--ease), color var(--dur-1) var(--ease)
   &:hover
-    background-color var(--main-lighter)
+    background-color var(--hover-bg)
     .suggestion-delete
       visibility visible
 
