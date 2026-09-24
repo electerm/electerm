@@ -42,7 +42,7 @@
   max-width 200px
   line-height 36px
   margin 0 1px 0 0
-  border-radius 3px 3px 0 0
+  border-radius var(--radius) var(--radius) 0 0
   background var(--main-dark)
   text-align center
   color var(--text-dark)
@@ -58,7 +58,7 @@
   &.active-all
     font-weight bold
     .tab-count
-      border-radius 15px
+      border-radius var(--radius-pill)
       font-weight bold
   &:hover
     .tab-close
@@ -95,7 +95,7 @@
   top 2px
   width 5px
   height 5px
-  border-radius 5px
+  border-radius var(--radius-sm)
   background-color var(--text-dark)
   &.success
     background-color var(--success)
@@ -175,7 +175,7 @@
   right 0
   top 0
   z-index 900
-  border-radius 0 0 3px 3px
+  border-radius 0 0 var(--radius-xs) var(--radius-xs)
   padding 0
   background var(--main)
   -webkit-app-region no-drag
@@ -234,7 +234,7 @@
   font-size 14px
 
 .tab-count
-  border-radius 10px 2px 2px 10px
+  border-radius var(--radius-pill)
   padding 0 4px
   height 20px
   line-height 21px
@@ -250,7 +250,7 @@
 // Layout and Workspace dropdown styles
 .layout-workspace-dropdown
   background var(--main)
-  border-radius 4px
+  border-radius var(--radius-sm)
   box-shadow 0 2px 8px rgba(0, 0, 0, 0.15)
   min-width 200px
   padding 8px
@@ -264,7 +264,7 @@
 .layout-menu-item
   padding 6px 12px
   cursor pointer
-  border-radius 4px
+  border-radius var(--radius-sm)
   display flex
   align-items center
   gap 8px
@@ -290,7 +290,7 @@
 .workspace-item
   padding 6px 12px
   cursor pointer
-  border-radius 4px
+  border-radius var(--radius-sm)
   display flex
   align-items center
   justify-content space-between
