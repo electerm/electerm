@@ -182,8 +182,9 @@
   z-index 900
   border-radius 0 0 var(--radius-xs) var(--radius-xs)
   padding 0
-  background var(--surface-0)
-  // 与标签栏同底色，消除接缝；左侧 1px 发丝线分隔按钮区与标签区
+  // 透明底：与标签栏永久无缝（任何主题/任何变量状态都不会出现色差补丁）
+  background transparent
+  // 左侧 1px 发丝线分隔按钮区与标签区
   box-shadow inset 1px 0 0 0 var(--border)
   -webkit-app-region no-drag
 
