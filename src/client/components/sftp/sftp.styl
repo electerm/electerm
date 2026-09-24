@@ -15,15 +15,19 @@
   margin-bottom 4px
   &:nth-child(even)
     .sftp-file-prop
-      background var(--main)
+      background var(--surface-2)
   &:hover
     .sftp-file-prop
-      background-color var(--primary)
-      color var(--primary-contrast)
+      background-color var(--hover-bg)
+      color var(--text)
+    .sftp-file-prop:first-child
+      box-shadow inset 2px 0 0 0 var(--primary)
   &.selected
     .sftp-file-prop
-      background-color var(--primary)
-      color var(--primary-contrast)
+      background-color var(--active-bg)
+      color var(--text)
+    .sftp-file-prop:first-child
+      box-shadow inset 2px 0 0 0 var(--primary)
 .sftp-history
   position absolute
   left 0
@@ -38,13 +42,13 @@
   border-radius var(--radius-xs)
   &.focused
     height auto
-    border 1px solid var(--main-darker)
+    border 1px solid var(--border-strong)
     box-shadow var(--shadow-2)
 
 .sftp-history-item
   padding 5px 10px
   cursor pointer
-  border-bottom 1px solid var(--main-darker)
+  border-bottom 1px solid var(--border)
   &:hover
     background var(--primary)
     color var(--primary-contrast)
@@ -176,7 +180,7 @@
     width 100%
     background var(--main)
     height 40px
-    border-top 1px solid var(--main-darker)
+    border-top 1px solid var(--border)
 
 .file-header-context-menu
   position fixed
