@@ -1560,7 +1560,12 @@ npm run compile && npm run t
 
 ---
 
-### 6.8 Step 7 · 动效基线
+### 6.8 Step 7 · 动效基线　✅ **已执行**（7a: a017f37d / 7b: 26ae226c）
+
+> **执行结果**：transition 文件数 8 → **19**。7a 高频核心（sidebar 图标/清除、right-panel 控件、sftp 行、
+> cmd-history 行与图标、session 页签）+ 7b 其余（sys-menu 菜单项、terminal-info、tree-list、设置列表、
+> 命令建议行、快捷键条按钮）+ `.animate-fast` .2s → var(--dur-2) ×2 + modal 0.2s → var(--dur-2) ×2。
+> 全部为新增声明、零值变更；tabs.styl 原有 transition 保留。compile + 450/450 通过。
 
 **改什么**：按 §3.5，对主要交互元素补 `transition`。
 
