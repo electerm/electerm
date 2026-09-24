@@ -1521,7 +1521,13 @@ npm run t
 
 ---
 
-### 6.7 Step 6 · 修复 antd 桥接（🟠 影响所有 antd 组件）
+### 6.7 Step 6 · 修复 antd 桥接（🟠 影响所有 antd 组件）　✅ **已执行**
+
+> **执行结果**：`store.js` getter 替换完成。radius 对齐 v4 token：base **8**（=--radius-sm）、SM **4**（=--radius-xs）、LG **14**（=--radius-lg，与弹窗一致）；
+> 补 `colorBgContainer` / `colorBgElevated` / `colorBorder` / `fontSize: 13` / `controlHeight: 30`；**删除 `motion: false`**（恢复 antd 动效）。
+> 验证：lint 通过、compile 通过、450/450 单测；bundle 复核 `motion:!` 0 处、`borderRadiusLG` 已注入。
+> ⚠️ 观感回归点（需目视）：全部 antd 组件圆角 3→8、字号 14→13、**动效恢复**（快速开关弹窗 5 次测卡顿）、
+> 浅色主题 algorithm 切换、SFTP 表格/下拉的 colorBgElevated/colorBorder 新映射。
 
 **改什么**：`src/client/store/store.js` L266-283，按 §3.4 替换整个 getter。
 

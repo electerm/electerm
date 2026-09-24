@@ -268,16 +268,24 @@ class Store {
     const themeConf = store.getUiThemeConfig()
     return {
       token: {
-        borderRadius: 3,
+        // align with design tokens (see 美化设计规范 §2.3/§3.4):
+        // radius base=--radius-sm(8), SM=--radius-xs(4), LG=--radius-lg(14)
+        borderRadius: 8,
+        borderRadiusSM: 4,
+        borderRadiusLG: 14,
         colorPrimary: themeConf.primary,
         colorBgBase: themeConf.main,
+        colorBgContainer: themeConf.main,
+        colorBgElevated: themeConf['main-light'],
+        colorBorder: themeConf['main-light'],
         colorError: themeConf.error,
         colorInfo: themeConf.info,
         colorSuccess: themeConf.success,
         colorWarning: themeConf.warn,
         colorTextBase: themeConf.text,
         colorLink: themeConf['text-light'],
-        motion: false
+        fontSize: 13,
+        controlHeight: 30
       },
       algorithm: isColorDark(themeConf.main) ? theme.darkAlgorithm : theme.defaultAlgorithm
     }
