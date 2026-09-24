@@ -89,6 +89,7 @@ module.exports = exports.default = {
   switchTabOnHover: false,
   disableShortcutBar: false,
   disableConfirmForLargeClipboardContent: false,
+  doubleClickToOpenBookmark: false,
   leftSideBarIcons: [
     'newBookmark',
     'quickConnect',

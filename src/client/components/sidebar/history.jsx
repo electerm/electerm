@@ -25,6 +25,12 @@ export default auto(function HistoryPanel (props) {
   const {
     history
   } = store
+  // doubleClickToOpenBookmark: a single click only marks the row, the session
+  // opens on a double click. Touch devices have no double click, so the setting
+  // is ignored there. Read here rather than in HistoryItem because this
+  // component is `auto` — it re-renders when the input modality flips.
+  const openOnDoubleClick = !!store.config.doubleClickToOpenBookmark &&
+    !store.isTouchDevice
   let arr = store.config.disableConnectionHistory ? [] : history
   if (sortByFrequency) {
     arr = [...arr].sort((a, b) => { return b.count - a.count })
@@ -75,6 +81,7 @@ export default auto(function HistoryPanel (props) {
               <HistoryItem
                 key={item.id}
                 item={item}
+                openOnDoubleClick={openOnDoubleClick}
               />
             )
           })

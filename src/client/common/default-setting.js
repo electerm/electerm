@@ -96,6 +96,7 @@ export default {
   disableTabIndex: false,
   disableShortcutBar: false,
   disableConfirmForLargeClipboardContent: false,
+  doubleClickToOpenBookmark: false,
   leftSideBarIcons: [
     'newBookmark',
     'quickConnect',

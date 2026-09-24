@@ -2,11 +2,13 @@
  * bookmark select
  */
 
+import { useState } from 'react'
 import { auto } from 'manate/react'
 import TreeList from '../tree-list/tree-list'
 
 export default auto(function BookmarkSelect (props) {
   const { store, from, autoFocus } = props
+  const [activeItemId, setActiveItemId] = useState('')
   const {
     listStyle,
     openedSideBar,
@@ -19,7 +21,7 @@ export default auto(function BookmarkSelect (props) {
   if (from === 'sidebar' && openedSideBar !== 'bookmarks') {
     return null
   }
-  const onClickItem = (item) => {
+  const openBookmark = (item) => {
     // A pinned (docked) panel stays open; anything else — including mobile,
     // where pinning is not a reachable mode — dismisses on selection.
     if (!(store.pinned && !store.isMobile)) {
@@ -27,10 +29,20 @@ export default auto(function BookmarkSelect (props) {
     }
     store.onSelectBookmark(item.id)
   }
+  // doubleClickToOpenBookmark: a single click only marks the row, the session
+  // opens on a double click. Touch devices have no double click, so the setting
+  // is ignored there. This is the sidebar list only — the settings bookmarks tab
+  // keeps selecting for editing on a single click.
+  const openOnDoubleClick = !!store.config.doubleClickToOpenBookmark &&
+    !store.isTouchDevice
   const base = {
     bookmarks: bookmarks || [],
     type: 'bookmarks',
-    onClickItem,
+    activeItemId: openOnDoubleClick ? activeItemId : undefined,
+    onClickItem: openOnDoubleClick
+      ? item => setActiveItemId(item.id)
+      : openBookmark,
+    onDoubleClickItem: openOnDoubleClick ? openBookmark : undefined,
     listStyle,
     staticList: true
   }

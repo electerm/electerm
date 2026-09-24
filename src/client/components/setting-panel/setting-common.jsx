@@ -574,6 +574,7 @@ export default class SettingCommon extends Component {
             'allowMultiInstance',
             'disableDeveloperTool',
             'switchTabOnHover',
+            'doubleClickToOpenBookmark',
             'disableTabIndex',
             'disableShortcutBar',
             'debug'

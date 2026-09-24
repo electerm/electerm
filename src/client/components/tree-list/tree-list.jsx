@@ -158,7 +158,11 @@ export default class ItemListTree extends Component {
         : matchedRowKeys[0]
       const row = rows.find(item => item.key === rowKey)
       if (row?.item?.id) {
-        this.selectBookmarkById(row.item.id)
+        // Enter is a deliberate activation, so it opens the bookmark even when
+        // doubleClickToOpenBookmark makes a single click only mark the row. The
+        // settings bookmarks tab passes no onDoubleClickItem, so there Enter
+        // still selects for editing, exactly like a click.
+        this.selectBookmarkById(row.item.id, this.props.onDoubleClickItem)
       }
     }
   }
@@ -404,7 +408,9 @@ export default class ItemListTree extends Component {
     }
   }
 
-  selectBookmarkById = (id) => {
+  // `act` overrides what a selection does; only the Enter path passes it, so a
+  // click keeps whatever meaning the consumer gave onClickItem.
+  selectBookmarkById = (id, act) => {
     const { store } = window
     store.storeAssign({
       currentBookmarkGroupId: findBookmarkGroupId(store.bookmarkGroups, id)
@@ -414,7 +420,28 @@ export default class ItemListTree extends Component {
       d => d.id === id
     )
     if (bookmark) {
-      this.props.onClickItem(bookmark)
+      (act || this.props.onClickItem)(bookmark)
+    }
+  }
+
+  handleDoubleClick = (e) => {
+    // only the static list (the sidebar) passes this, so the bookmark edit page
+    // keeps its single click to select behaviour
+    const { onDoubleClickItem, bookmarks } = this.props
+    if (!onDoubleClickItem) {
+      return
+    }
+    const item = findParentBySel(e.target, '.tree-item')
+    // a group toggles on a single click, so a double click would just toggle it
+    // twice and land back where it started
+    if (!item || item.getAttribute('data-is-group') === 'true') {
+      return
+    }
+    const bookmark = bookmarks.find(
+      d => d.id === item.getAttribute('data-item-id')
+    )
+    if (bookmark) {
+      onDoubleClickItem(bookmark)
     }
   }
 
@@ -917,6 +944,7 @@ export default class ItemListTree extends Component {
           className='item-list-wrap'
           style={listStyle}
           ref={this.listRef}
+          onDoubleClick={this.handleDoubleClick}
         >
           {this.renderVirtualTreeContent(rows, editor)}
           {this.renderEditorOverlay(editor)}
