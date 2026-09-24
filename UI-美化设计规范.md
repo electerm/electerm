@@ -1447,7 +1447,12 @@ npm run compile && npm run t
 
 ---
 
-### 6.5 Step 4 · 修复 `darker()`（🟡 低风险，但必须独立提交）
+### 6.5 Step 4 · 修复 `darker()`（🟡 低风险，但必须独立提交）　✅ **已执行**
+
+> **执行结果**：`ui-theme.jsx` 的 `darker()` 补 `clamp`（上下界）+ `padStart(6,'0')`。
+> 6 组断言全过（`#121214,0.3→#000000`、`#ededed,-0.3→#ffffff`、`#121214,-0.3→#5e5e60` 不变、`#ededed,0.3→#a0a0a0` 不变、白/黑端点钳制），
+> bundle 含修复、lint 通过、450/450 单测通过。
+> **单测说明**：`darker()` 未导出且在 JSX/ESM 内，CJS 单测无法直接引用 → 按规范"可选"处理，以 node 断言 + bundle grep 替代。
 
 **改什么**：`src/client/components/main/ui-theme.jsx` L11-29，按 §3.9 的 3 处改动（上下界钳制 + `padStart(6,'0')`）。
 
