@@ -337,10 +337,16 @@ return theme && theme.uiThemeConfig
 
 新建 `src/client/css/includes/tokens.styl`，在 `css/includes/index.styl` **首行** `@require './tokens'`（这样它在 `box/text/font-size/theme` 之前展开）。
 
+> 🔴 **必须注意（实测踩坑）**：`color-mix(in srgb, …)` **不能用裸写法**。
+> Stylus 的 `in` 是运算符，直接写会报 `ParseError: illegal unary "in", missing left-hand operand`，**编译直接失败**。
+> 必须用 `unquote('…')` 包裹（Stylus 官方推荐的"输出原始 CSS 函数"写法），产物中不会被改写。
+> 实测：`unquote()` 包裹后，产物里 `color-mix(in srgb, var(--text) 14%, transparent)` 原样保留（已验证）。
+
 ```stylus
 // src/client/css/includes/tokens.styl
 // 全部新增 token。派生变量跟随 --text/--main/--primary 自动适配任意主题（含 310 个 iTerm 主题）。
 // ⚠️ 禁止在此引用 --main-darker / --main-lighter（见规范 §2.1：darker() 会产出非法颜色）
+// ⚠️ color-mix() 必须用 unquote() 包裹：Stylus 的 `in` 是运算符
 :root
   // ---- 派生：表面色阶（沿用既有主题 key）----
   --surface-0 var(--main-dark)
@@ -348,10 +354,10 @@ return theme && theme.uiThemeConfig
   --surface-2 var(--main-light)
 
   // ---- 派生：分隔、边框、交互态 ----
-  --border        color-mix(in srgb, var(--text) 14%, transparent)
-  --border-strong color-mix(in srgb, var(--text) 24%, transparent)
-  --hover-bg      color-mix(in srgb, var(--text) 8%, transparent)
-  --active-bg     color-mix(in srgb, var(--primary) 18%, transparent)
+  --border unquote('color-mix(in srgb, var(--text) 14%, transparent)')
+  --border-strong unquote('color-mix(in srgb, var(--text) 24%, transparent)')
+  --hover-bg unquote('color-mix(in srgb, var(--text) 8%, transparent)')
+  --active-bg unquote('color-mix(in srgb, var(--primary) 18%, transparent)')
 
   // ---- 静态：圆角 ----
   --radius-xs 4px
@@ -361,10 +367,10 @@ return theme && theme.uiThemeConfig
   --radius-pill 999px
 
   // ---- 静态：阴影与遮罩 ----
-  --shadow-1 0 1px 2px rgba(0,0,0,.30)
-  --shadow-2 0 4px 12px rgba(0,0,0,.34)
-  --shadow-3 0 16px 40px rgba(0,0,0,.45)
-  --mask rgba(0,0,0,.45)
+  --shadow-1 0 1px 2px rgba(0, 0, 0, .30)
+  --shadow-2 0 4px 12px rgba(0, 0, 0, .34)
+  --shadow-3 0 16px 40px rgba(0, 0, 0, .45)
+  --mask rgba(0, 0, 0, .45)
 
   // ---- 静态：间距 / 字号 ----
   --sp-1 4px
@@ -380,7 +386,7 @@ return theme && theme.uiThemeConfig
   // ---- 静态：动效 ----
   --dur-1 120ms
   --dur-2 180ms
-  --ease cubic-bezier(.4,0,.2,1)
+  --ease cubic-bezier(.4, 0, .2, 1)
 ```
 
 > ⚠️ **不要**在 `tokens.styl` 里重复定义 `--main-darker` / `--main-lighter`（由 `ui-theme.jsx` 运行时派生，重复定义会争抢优先级）。
@@ -390,9 +396,20 @@ return theme && theme.uiThemeConfig
 | 检查项 | 结果 | 结论 |
 | --- | --- | --- |
 | Electron 版本 | `42.8.1`（`package.json`） | Chromium ≥ 140，`color-mix()` 需 Chrome 111+ → ✅ 支持 |
-| vite `build.target` | `'esnext'`（`build/vite/conf.js`） | ✅ 不会被降级 |
+| vite `build.target` | `'esnext'`（`build/vite/conf.js:62`） | ✅ 不会被降级 |
+| **Stylus 能否解析裸 `color-mix(in srgb, …)`** | ❌ **不能**：`in` 是 Stylus 运算符 → `ParseError: illegal unary "in"` | 🔴 **必须用 `unquote('…')` 包裹**（§2.3） |
 | 现有 `color-mix` 使用 | **0 处** | 首次引入，无冲突 |
-| CSS 压缩 | esbuild 生产默认，无 postcss/autoprefixer | ✅ esbuild 不改写 `color-mix` |
+| CSS 压缩 | esbuild 生产默认，无 postcss/autoprefixer | ✅ esbuild **不改写** `color-mix`（Step 1 实测：4 处原样保留） |
+
+**Step 1 实测验收值**（2026-09-24）：
+
+| 指标 | 结果 |
+| --- | --- |
+| `grep -c color-mix style-5.5.26.css` | **4**（4 个派生变量各 1 处） |
+| 18 个新 token 是否全部进入产物 | ✅ 全部存在，且**每个只定义 1 次**（无重复） |
+| CSS 体积 | 78,359 → **79,056 字节**（+697 B，+0.9%） |
+| `npm run test-unit-ci` | ✅ **450/450 通过** |
+| 视觉变化 | ✅ **零**（本步只新增变量定义，无任何选择器消费它们） |
 
 **必须验证**（Step 1 的验收条件之一）：
 
@@ -1238,14 +1255,14 @@ console.log(f('#121214',0.3), f('#ededed',-0.3), f('#121214',-0.3))"
 
 ### 6.0 总览
 
-| 阶段 | 步骤 | 提交数 | 风险 |
-| --- | --- | --- | --- |
-| 准备 | Step 0 基线快照 | — | — |
-| Layer 1 | Step 1 新增 tokens | 1 | 🟢 |
-| Layer 2 | Step 2–8 统一层 | 7 | 🟢🟢🟢🟡🟠🟠🟢🟢 |
-| 单测 | Step 9 新增 4 个 spec | 1 | 🟢 |
-| Layer 3 | Step 10–26 逐区域精修 | 17 | 🟢（2 个 🟠） |
-| 可选 | Step 27 方案 B | 1 | 🟢 |
+| 阶段 | 步骤 | 提交数 | 风险 | 状态 |
+| --- | --- | --- | --- | --- |
+| 准备 | Step 0 基线快照 | — | — | ✅ 已完成 |
+| Layer 1 | Step 1 新增 tokens | 1 | 🟢 | ✅ **已完成** |
+| Layer 2 | Step 2–8 统一层 | 7 | 🟢🟢🟢🟡🟠🟠🟢🟢 | ⏳ 待执行 |
+| 单测 | Step 9 新增 4 个 spec | 1 | 🟢 | ⏳ 待执行 |
+| Layer 3 | Step 10–26 逐区域精修 | 17 | 🟢（2 个 🟠） | ⏳ 待执行 |
+| 可选 | Step 27 方案 B | 1 | 🟢 | ⏳ 待执行 |
 
 **每步通用验证模板**：
 
@@ -1288,14 +1305,17 @@ grep -rlc "transition" --include=*.styl src/client | wc -l
 
 ---
 
-### 6.2 Step 1 · 新增 `tokens.styl`（零视觉变化）
+### 6.2 Step 1 · 新增 `tokens.styl`（零视觉变化）　✅ **已执行**
+
+> **执行结果**：`color-mix` 4 处存活 · 18 个 token 全部入产物且无重复 · CSS +697 B（78,359 → 79,056）· 单测 450/450 · 视觉零变化。
+> **过程中发现并已回写文档**：裸 `color-mix(in srgb, …)` 会让 Stylus 编译失败，必须 `unquote()` 包裹（§2.3 / §2.4）。
 
 **改什么**：
 
 | 文件 | 改动 |
 | --- | --- |
-| `src/client/css/includes/tokens.styl` | **新建**，内容 = §2.3 |
-| `src/client/css/includes/index.styl` | **首行**插入 `@require './tokens'` |
+| `src/client/css/includes/tokens.styl` | **新建**（51 行），内容 = §2.3（⚠️ `color-mix` 必须 `unquote()` 包裹） |
+| `src/client/css/includes/index.styl` | **首行**插入 `@require './tokens'`（原 3 行 → 4 行） |
 
 > **顺序说明**：`includes/index.styl` 被 `basic.styl:1` 首先 `@require`，`includes/theme.styl` 在其后（`basic.styl:2`）。
 > 把 `tokens` 放在 `index.styl` 首行 → 产物中 token 声明先于 `theme.styl` 的兜底值出现，可读性最好。

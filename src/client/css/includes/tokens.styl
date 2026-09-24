@@ -1,0 +1,52 @@
+// 设计 token（美化规范 §2 · Layer 1）
+//
+// 全部为新增变量，不覆盖任何既有变量：
+//   · 派生变量跟随 --text / --main / --primary 自动适配任意主题（含 310 个 iTerm 主题）
+//   · 静态变量与主题无关
+//
+// ⚠️ 禁止在此引用 --main-darker / --main-lighter：
+//    ui-theme.jsx 的 darker() 缺上界钳制，会产出非法颜色（如 '#0'），
+//    引用它会让整条声明失效。详见规范 §2.1 / §3.9。
+//
+// ⚠️ color-mix() 必须用 unquote() 包裹：
+//    Stylus 的 `in` 是运算符，直接写会报 "illegal unary in"。
+:root
+  // ---- 派生：表面色阶（沿用既有主题 key）----
+  --surface-0 var(--main-dark)
+  --surface-1 var(--main)
+  --surface-2 var(--main-light)
+
+  // ---- 派生：分隔、边框、交互态 ----
+  --border unquote('color-mix(in srgb, var(--text) 14%, transparent)')
+  --border-strong unquote('color-mix(in srgb, var(--text) 24%, transparent)')
+  --hover-bg unquote('color-mix(in srgb, var(--text) 8%, transparent)')
+  --active-bg unquote('color-mix(in srgb, var(--primary) 18%, transparent)')
+
+  // ---- 静态：圆角 ----
+  --radius-xs 4px
+  --radius-sm 6px
+  --radius 8px
+  --radius-lg 12px
+  --radius-pill 999px
+
+  // ---- 静态：阴影与遮罩 ----
+  --shadow-1 0 1px 2px rgba(0, 0, 0, .30)
+  --shadow-2 0 4px 12px rgba(0, 0, 0, .34)
+  --shadow-3 0 16px 40px rgba(0, 0, 0, .45)
+  --mask rgba(0, 0, 0, .45)
+
+  // ---- 静态：间距 / 字号 ----
+  --sp-1 4px
+  --sp-2 8px
+  --sp-3 12px
+  --sp-4 16px
+  --sp-5 24px
+  --fs-xs 11px
+  --fs-sm 12px
+  --fs 13px
+  --fs-lg 16px
+
+  // ---- 静态：动效 ----
+  --dur-1 120ms
+  --dur-2 180ms
+  --ease cubic-bezier(.4, 0, .2, 1)
