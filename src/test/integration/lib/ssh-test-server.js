@@ -7,6 +7,9 @@
  *   - exec channels (runs commands locally, real stdout/stderr/exit code)
  *   - interactive shell (minimal line-based REPL for terminal tabs)
  *   - SFTP subsystem confined to a per-run temp directory
+ *   - optional `algorithms` pinning ({ kex, cipher, hmac, ... }), so a spec can
+ *     emulate an old device that only offers e.g. diffie-hellman-group1-sha1
+ *     or aes128-cbc/hmac-sha1
  *
  * The host key is a FIXED test-only keypair (embedded below) so the
  * matching known_hosts entry only has to be seeded once — see
@@ -359,9 +362,9 @@ function attachSftp (sftp, rootDir) {
   })
 }
 
-function startTestSshServer ({ port = TEST_PORT, rootDir } = {}) {
+function startTestSshServer ({ port = TEST_PORT, rootDir, algorithms } = {}) {
   const clients = new Set()
-  const server = new Server({ hostKeys: [HOST_KEY_PRIVATE] }, (client) => {
+  const server = new Server({ hostKeys: [HOST_KEY_PRIVATE], algorithms }, (client) => {
     clients.add(client)
     client.on('close', () => clients.delete(client))
     client.on('authentication', (ctx) => {

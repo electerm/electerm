@@ -31,6 +31,17 @@ const utf8Aliases = new Set(['utf-8', 'utf8', 'utf-8-strict'])
 
 const failMsg = 'All configured authentication methods failed'
 const csFailMsg = 'no matching C->S cipher'
+// ssh2 handshake failures that mean "no algorithm in common". algAlt() is a
+// strict superset of algDefault(), so retrying with it can only add options,
+// never remove them. Old devices/routers often need it for the cipher, MAC or
+// host key (not just the C->S cipher), so any of them triggers the retry.
+const algFailMsgs = [
+  csFailMsg,
+  'no matching S->C cipher',
+  'no matching C->S MAC',
+  'no matching S->C MAC',
+  'no matching host key format'
+]
 
 class TerminalSshBase extends TerminalBase {
   async remoteInitProcess () {
@@ -908,7 +919,7 @@ class TerminalSshBase extends TerminalBase {
     const err = result
     log.error('error when do sshConnect', err, this.privateKeyPath)
     if (
-      err.message.includes(csFailMsg) &&
+      algFailMsgs.some(msg => err.message.includes(msg)) &&
       !this.altAlg
     ) {
       return this.reTryAltAlg()
