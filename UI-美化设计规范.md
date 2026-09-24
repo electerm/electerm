@@ -1476,7 +1476,15 @@ npm run compile && npm run t
 
 ---
 
-### 6.6 Step 5 · 收敛圆角与阴影（🟠 观感变化最大）
+### 6.6 Step 5 · 收敛圆角与阴影（🟠 观感变化最大）　✅ **已执行**（5a: e9cefc37 / 5b: 见 git log）
+
+> **执行结果**：
+> **5a 圆角**：45 处 px 散值 → token（xs×10 / sm×26 / 10×3 / lg×1 / pill×5），源码层 px 圆角清零（唯一残留为 mobile.styl 注释文字）；
+> 保留几何项：`border-radius 0`×6、`100%` 正圆、info.styl 形变 blob。
+> **5b 阴影**：17 处散值 → 3 档 token（shadow-2×13 / shadow-1×3 / shadow-3×1）；
+> 保留功能项：dnd/激活指示条（inset 0 ±2px 0 0 primary）×5、焦点环（inset 0 0 0 1px primary）×2、
+> 书签状态光晕（0 0 8px 2px / 0 0 0 0 primary）×2、`none`×2。
+> 每步 compile + 450/450 单测通过。
 
 **改什么**：按 §3.3 的两张映射表逐文件替换。
 
