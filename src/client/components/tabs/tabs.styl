@@ -214,7 +214,9 @@
       top 3px
       width 8px
       height 4px
-      border 1px solid text
+      // 修复：原为 `solid text`（无效颜色，描边不渲染），
+      // 导致最大化后恢复态图标与最大化态无法区分
+      border 1px solid var(--text)
       border-top none
       border-right none
 
