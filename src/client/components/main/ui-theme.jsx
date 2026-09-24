@@ -17,15 +17,19 @@ function darker (color, amount = 0.1) {
   }
 
   const num = parseInt(color, 16)
+  // clamp both ends: no upper clamp produced illegal colors like
+  // '#1393939' (8 chars) for lighten, missing padStart produced '#0'
+  // for darken — either way every var(--main-darker/-lighter) consumer
+  // died at computed-value time (see 美化设计规范 §3.9)
+  const clamp = (v) => Math.min(255, Math.max(0, v))
 
-  let r = (num >> 16) - Math.round(255 * amount)
-  if (r < 0) r = 0
-  let b = ((num >> 8) & 0x00FF) - Math.round(255 * amount)
-  if (b < 0) b = 0
-  let g = (num & 0x0000FF) - Math.round(255 * amount)
-  if (g < 0) g = 0
+  const r = clamp((num >> 16) - Math.round(255 * amount))
+  const b = clamp(((num >> 8) & 0x00FF) - Math.round(255 * amount))
+  const g = clamp((num & 0x0000FF) - Math.round(255 * amount))
 
-  return (usePound ? '#' : '') + (g | (b << 8) | (r << 16)).toString(16)
+  const hex = (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0')
+
+  return (usePound ? '#' : '') + hex
 }
 
 function buildTheme (themeConfig) {
