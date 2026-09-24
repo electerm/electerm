@@ -204,19 +204,21 @@
   border 1px solid var(--text)
   cursor pointer
   transition border-color var(--dur-1) var(--ease)
+  // 恢复态（is-max）：完整正面矩形 + 左下露出的背面矩形（只画左边线和
+  // 底边线，被正面遮挡的边不画）。错位 2px——原 left -3px/top 3px 时背
+  // 面线与正面左边/底边仅差 1px，视觉上叠成“回”字；且主元素不再缩高，
+  // 消除状态切换时按钮 1px 抖动
   &.is-max
-    height 6px
     position relative
     &:before
       position absolute
       content ''
-      left -3px
-      top 3px
+      left -4px
+      top 2px
       width 8px
-      height 4px
-      // 修复：原为 `solid text`（无效颜色，描边不渲染），
-      // 导致最大化后恢复态图标与最大化态无法区分
-      border 1px solid var(--text)
+      height 7px
+      // currentColor 使 hover 时背面矩形与正面一起变 var(--primary)
+      border 1px solid currentColor
       border-top none
       border-right none
 
