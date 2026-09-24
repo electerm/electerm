@@ -84,7 +84,18 @@ describe('migrate/upgrade version file parsing', () => {
 
   before(() => {
     migrateIndex = require('../../app/migrate/index')
+    // upgrade/index 依赖 lib/db，会创建第二份 NeDB 实例，默认与本 spec 顶部
+    // 的 DATA_PATH 指向同一批 .nedb 文件。两份实例 autoload 后的
+    // crashSafeWriteFile compaction（写 .nedb~ 再 rename）并发同一文件时，
+    // rename 会竞态抛 ENOENT；并行测试下这些后台活动拖到测试结束之后，
+    // 变成 uncaughtException 把本文件退出码顶成 1（即"全过却文件级失败"的
+    // flaky 根因）。本 spec 只使用 upgrade/index 的 parseUpgradeFile 纯函数，
+    // 其 db 实例不参与任何断言——require 前把 DATA_PATH 切到独立空目录，
+    // 两实例文件集分离即根除竞态，断言语义不受影响。
+    const upgradeDataPath = fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-upgrade-test-'))
+    process.env.DATA_PATH = upgradeDataPath
     upgradeIndex = require('../../app/upgrade/index')
+    process.env.DATA_PATH = tmpDataPath
     compare = require('../../app/common/version-compare')
   })
 
