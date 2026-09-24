@@ -9,7 +9,7 @@
   z-index 200
   width 0
   overflow-y scroll
-  background var(--main)
+  background var(--surface-1)
   .item-list-unit:hover
     .list-item-remove
       display none !important
@@ -22,7 +22,7 @@
   width 36px
   z-index 100
   bottom 0
-  background var(--main-dark)
+  background var(--surface-0)
   display flex
   flex-direction column
 
@@ -93,11 +93,14 @@
   text-align center
   &.active
     .control-icon
-      color var(--text-light)
+      color var(--text)
+      background var(--active-bg)
+      box-shadow inset 2px 0 0 0 var(--primary)
   .control-icon
     color var(--text-dark)
     cursor pointer
-    transition color var(--dur-1) var(--ease)
+    border-radius var(--radius-xs)
+    transition color var(--dur-1) var(--ease), background var(--dur-1) var(--ease)
     &:hover
       color var(--text-light)
 .sidebar-list
@@ -140,7 +143,7 @@
       color var(--success)
 //btns
 .btns
-  background var(--main-dark)
+  background var(--surface-0)
   border-color var(--primary)
   .open-about-icon
     color var(--text-dark)
