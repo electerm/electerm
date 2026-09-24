@@ -67,8 +67,12 @@ const fileName = `electerm-${base}-test.${num}-linux-amd64.deb`
 echo(`[deb-fast] 测试版本：${debVersion}  ->  dist/${fileName}`)
 
 // 2. 重编译客户端到 work/app/assets（源码变更时必需）
+// 注：--prepare 或首次运行会整目录重建 work/app（连带清掉刚编译的 assets），
+// 此时先跳过，等 prepare 完成后在第 3 步末尾统一编译
 if (skipCompile) {
   echo('[deb-fast] 跳过 compile（--skip-compile）')
+} else if (!appReady()) {
+  echo('[deb-fast] work/app 未就绪，compile 移至 prepare 之后执行')
 } else {
   // 清理 vite 产出的版本化目录（js/css/chunk/assets），避免 3.15.186 等历史残留
   // 用 fs 直接删，避免 shell 引号导致 glob 不展开的问题
@@ -102,6 +106,9 @@ if (forcePrepare || !appReady()) {
   run(`npx electron-rebuild -f -m "${workApp}"`)
   // 清理 windows 专用文件（省体积）
   run(`rm -rf "${path.join(workApp, 'node_modules/node-pty/lib/windows*')}" "${path.join(workApp, 'node_modules/node-pty/deps/winpty')}"`)
+  // prepare 整目录重建了 work/app，渲染层 assets 需要重新编译
+  // （修复 --prepare / 首次运行时 assets 被连带删除导致 "Cannot GET /index.html" 的问题）
+  run('npm run compile')
 } else {
   echo('[deb-fast] work/app 已就绪，跳过 prepare')
 }
