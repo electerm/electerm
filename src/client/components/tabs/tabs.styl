@@ -3,8 +3,8 @@
   position relative
   height 36px
   overflow hidden
-  background var(--main-dark)
-  border-bottom 1px solid var(--main-light)
+  background var(--surface-0)
+  border-bottom 1px solid var(--border)
   z-index 12
   ::-webkit-scrollbar
     width 0
@@ -43,17 +43,21 @@
   line-height 36px
   margin 0 1px 0 0
   border-radius var(--radius) var(--radius) 0 0
-  background var(--main-dark)
+  background var(--surface-0)
   text-align center
   color var(--text-dark)
-  transition background 120ms ease, color 120ms ease, box-shadow 120ms ease
+  transition background var(--dur-1) var(--ease), color var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease)
   &.tab-last
     margin-right 5px
   .tab-close
     display none
   &.active
     color var(--text)
-    background var(--main)
+    background var(--surface-1)
+    background-image linear-gradient(90deg, var(--primary), transparent 78%)
+    background-repeat no-repeat
+    background-size 100% 2px
+    background-position 0 0
     box-shadow inset 0 2px 0 0 var(--primary)
   &.active-all
     font-weight bold
@@ -61,6 +65,7 @@
       border-radius var(--radius-pill)
       font-weight bold
   &:hover
+    background var(--hover-bg)
     .tab-close
       display block
   &.dragover-tab::after
@@ -127,7 +132,7 @@
   right 5px
   cursor pointer
   top 50%
-  background var(--main)
+  background var(--hover-bg)
   margin-top -8px
   border-radius 100%
   color var(--text)
@@ -136,7 +141,7 @@
   text-align center
   line-height 16px
   font-size 10px
-  transition background 120ms ease, color 120ms ease
+  transition background var(--dur-1) var(--ease), color var(--dur-1) var(--ease)
   &:hover
     background var(--error)
     color var(--primary-contrast)
@@ -150,7 +155,7 @@
   display inline-block
   vertical-align middle
   margin 0 3px 0 3px
-  transition color 120ms ease, background 120ms ease
+  transition color var(--dur-1) var(--ease), background var(--dur-1) var(--ease)
   &.empty
     font-size 20px
     margin-left 20px
@@ -184,7 +189,7 @@
   display inline-block
   padding 5px 10px
   color var(--text)
-  transition background 120ms ease, color 120ms ease
+  transition background var(--dur-1) var(--ease), color var(--dur-1) var(--ease)
   &:hover
     color var(--primary)
     cursor pointer
@@ -195,7 +200,7 @@
   height 7px
   border 1px solid var(--text)
   cursor pointer
-  transition border-color 120ms ease
+  transition border-color var(--dur-1) var(--ease)
   &.is-max
     height 6px
     position relative
@@ -249,7 +254,7 @@
 
 // Layout and Workspace dropdown styles
 .layout-workspace-dropdown
-  background var(--main)
+  background var(--surface-1)
   border-radius var(--radius-sm)
   box-shadow var(--shadow-2)
   min-width 200px
@@ -270,10 +275,10 @@
   gap 8px
   color var(--text)
   &:hover
-    background var(--main-dark)
+    background var(--hover-bg)
   &.active
-    background var(--primary)
-    color var(--primary-contrast)
+    background var(--active-bg)
+    color var(--text)
 
 .workspace-menu-content
   max-height 300px
@@ -296,7 +301,7 @@
   justify-content space-between
   color var(--text)
   &:hover
-    background var(--main-dark)
+    background var(--hover-bg)
   .workspace-delete-icon
     opacity 0
     color var(--text-dark)
