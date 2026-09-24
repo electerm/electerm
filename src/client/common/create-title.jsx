@@ -28,8 +28,12 @@ export default function createTitle (res, hide = true) {
   const h = hide && window.store.config.hideIP ? maskHost(host) : host
   const fixTitle = `${username || ''}@${h}:${port}`
   const extra = host || path ? (path || fixTitle) : (url || '')
+  // onlyShowTitleInTab: a session that was given its own title shows just that
+  // title. One without a title is left alone and keeps the host/user fallback,
+  // otherwise the tab would read as empty.
+  const onlyTitle = title && window.store.config.onlyShowTitleInTab
   let f = title
-    ? `${title}` + (extra ? ` - ${extra}` : '')
+    ? `${title}` + (extra && !onlyTitle ? ` - ${extra}` : '')
     : extra
   if (connectionHoppings && connectionHoppings.length) {
     f = `[⋙]${f}`

@@ -88,6 +88,7 @@ module.exports = exports.default = {
   dragDropBehavior: 'ask',
   switchTabOnHover: false,
   disableShortcutBar: false,
+  onlyShowTitleInTab: false,
   disableConfirmForLargeClipboardContent: false,
   doubleClickToOpenBookmark: false,
   leftSideBarIcons: [

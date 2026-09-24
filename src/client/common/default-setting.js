@@ -94,6 +94,7 @@ export default {
   dragDropBehavior: 'ask',
   switchTabOnHover: false,
   disableTabIndex: false,
+  onlyShowTitleInTab: false,
   disableShortcutBar: false,
   disableConfirmForLargeClipboardContent: false,
   doubleClickToOpenBookmark: false,
