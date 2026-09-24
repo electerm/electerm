@@ -35,7 +35,7 @@
   font-size 16px
   transition background var(--dur-1) var(--ease), color var(--dur-1) var(--ease)
   &:active
-    background var(--main-lighter)
+    background var(--hover-bg)
   &:hover
     color var(--text-light)
 
@@ -69,8 +69,9 @@
   white-space nowrap
   transition background var(--dur-1) var(--ease), color var(--dur-1) var(--ease)
   &:active
-    background var(--primary)
-    color var(--primary-contrast)
+    background var(--active-bg)
+    color var(--text)
+    box-shadow var(--accent-glow)
   &:hover
     color var(--text-light)
 
@@ -181,7 +182,7 @@
   font-size 13px
   cursor pointer
   &:active
-    background var(--main-lighter)
+    background var(--hover-bg)
   &:hover
     color var(--text-light)
   &.added
