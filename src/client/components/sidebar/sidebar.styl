@@ -1,6 +1,6 @@
 
 .animate-fast
-  animation-duration .2s
+  animation-duration var(--dur-2)
 .sidebar-panel
   position absolute
   left 0
@@ -97,6 +97,7 @@
   .control-icon
     color var(--text-dark)
     cursor pointer
+    transition color var(--dur-1) var(--ease)
     &:hover
       color var(--text-light)
 .sidebar-list
