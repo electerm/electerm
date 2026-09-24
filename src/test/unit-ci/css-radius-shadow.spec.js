@@ -47,7 +47,8 @@ const SHADOW_ATOM = [
   /^0 0 8px 2px var\(--primary\)$/,
   /^0 0 0 1px var\(--border\)$/,
   /^inset 3px 0 0 0 var\(--(success|error|warn|info)\)$/,
-  /^inset 0 1px 0 0 var\(--border\)$/
+  /^inset 0 1px 0 0 var\(--border\)$/,
+  /^inset 1px 0 0 0 var\(--border\)$/
 ]
 
 function shadowOk (value) {
