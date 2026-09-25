@@ -39,9 +39,12 @@
   display flex
   justify-content flex-end
 
+// left aligned on purpose: the streaming stop/loading icon is pinned to the
+// bottom right of .chat-history-item, so a right aligned copy icon would sit
+// on top of it while a response is streaming
 .ai-output-actions
   display flex
-  justify-content flex-end
+  justify-content flex-start
   margin-top 6px
 
 .ai-stream-output
