@@ -105,6 +105,18 @@ export default auto(function CmdHistory (props) {
     setKeyword(e.target.value)
   }
 
+  // The row action menu is anchored to its row, and rc-trigger re-aligns it on
+  // every scroll of the trigger's scrollable ancestors. The rows live in a
+  // 190px-tall scrolling list, so a wheel over the list drags the open menu
+  // along with the row — out of the popup and eventually off the screen, while
+  // the row it belongs to is long gone. Close it instead: the menu is only
+  // meaningful next to the row it was opened on.
+  function handleListScroll () {
+    if (menuOpenCmd) {
+      setMenuOpenCmd('')
+    }
+  }
+
   const historyArray = (terminalCommandHistory || []).slice().reverse()
 
   let filtered = filterArray(historyArray, keyword)
@@ -152,6 +164,7 @@ export default auto(function CmdHistory (props) {
             <Dropdown
               menu={getMenuProps(item.cmd)}
               trigger={['click']}
+              open={menuOpenCmd === item.cmd}
               onOpenChange={(open) => setMenuOpenCmd(open ? item.cmd : '')}
             >
               <Button
@@ -203,7 +216,7 @@ export default auto(function CmdHistory (props) {
         />
       </div>
       {renderHeader()}
-      <div className='cmd-history-list'>
+      <div className='cmd-history-list' onScroll={handleListScroll}>
         {renderList()}
       </div>
     </div>
