@@ -2,8 +2,8 @@
  * cmd history trigger button with popover
  */
 
-import { useState, useEffect } from 'react'
-import { Button, Empty, Popover, Dropdown } from 'antd'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { Button, Empty, Popover } from 'antd'
 import { auto } from 'manate/react'
 import SwitchLabel from '../common/switch'
 import { copy } from '../../common/clipboard'
@@ -31,8 +31,15 @@ export default auto(function CmdHistory (props) {
   const [sortByFrequency, setSortByFrequency] = useState(() => {
     return getItemJSON(SORT_BY_FREQ_KEY, false)
   })
-  // cmd of the item whose action menu is open / being acted on
-  const [menuOpenCmd, setMenuOpenCmd] = useState('')
+  // The item action menu is a part of this panel, not of the row it acts on:
+  // the row's ⋯ icon only reports which command was picked and where that row
+  // sits ({ cmd, top, rowTop }), and the panel renders the single menu for it.
+  // A menu per row cannot be closed with the panel — the popover content stops
+  // being re-rendered the moment the popover closes, so a per-row menu portaled
+  // to the body is left floating on its own.
+  const [menu, setMenu] = useState(null)
+  const panelRef = useRef(null)
+  const menuRef = useRef(null)
   const [quickCommandCmd, setQuickCommandCmd] = useState('')
   const [multiTabCmd, setMultiTabCmd] = useState('')
   const { terminalCommandHistory } = props.store
@@ -41,7 +48,33 @@ export default auto(function CmdHistory (props) {
     setItemJSON(SORT_BY_FREQ_KEY, sortByFrequency)
   }, [sortByFrequency])
 
+  // The menu hangs below its row, which for the last rows would put it past the
+  // bottom of the window — the panel itself is not clipped, so lift the menu
+  // above its row instead. The layout effect runs before paint, so the
+  // correction is never visible.
+  useLayoutEffect(() => {
+    const el = menuRef.current
+    if (!el || !menu) {
+      return
+    }
+    const rect = el.getBoundingClientRect()
+    if (rect.bottom > window.innerHeight - 4) {
+      const above = menu.rowTop - rect.height
+      if (above !== menu.top) {
+        setMenu({
+          ...menu,
+          top: above
+        })
+      }
+    }
+  }, [menu])
+
+  function closeMenu () {
+    setMenu(null)
+  }
+
   function handleRunCommand (cmd) {
+    closeMenu()
     window.store.runCmdFromHistory(cmd)
   }
 
@@ -55,6 +88,7 @@ export default auto(function CmdHistory (props) {
   }
 
   function handleMenuAction (key, cmd) {
+    closeMenu()
     if (key === 'delete') {
       window.store.deleteCmdHistory(cmd)
     } else if (key === 'quickCommand') {
@@ -65,33 +99,49 @@ export default auto(function CmdHistory (props) {
     }
   }
 
-  function getMenuProps (cmd) {
-    return {
-      items: [
-        {
-          key: 'delete',
-          icon: <DeleteOutlined />,
-          label: e('del'),
-          danger: true
-        },
-        {
-          key: 'quickCommand',
-          icon: <PlusOutlined />,
-          label: e('addQuickCommands')
-        },
-        {
-          key: 'multiTab',
-          icon: <CodeOutlined />,
-          label: e('runInAllTerminals')
-        }
-      ],
-      onClick: ({ key, domEvent }) => {
-        // the menu renders in a portal but React events still bubble through
-        // the row, which would run the command
-        domEvent.stopPropagation()
-        handleMenuAction(key, cmd)
+  function getMenuItems () {
+    return [
+      {
+        key: 'delete',
+        icon: <DeleteOutlined />,
+        label: e('del'),
+        danger: true
+      },
+      {
+        key: 'quickCommand',
+        icon: <PlusOutlined />,
+        label: e('addQuickCommands')
+      },
+      {
+        key: 'multiTab',
+        icon: <CodeOutlined />,
+        label: e('runInAllTerminals')
       }
+    ]
+  }
+
+  // the ⋯ icon only reports the picked command and its position; the panel owns
+  // the menu itself
+  function handleToggleMenu (ev, cmd) {
+    // the row would otherwise run the command
+    ev.stopPropagation()
+    if (menu && menu.cmd === cmd) {
+      closeMenu()
+      return
     }
+    const row = ev.currentTarget.closest('.cmd-history-item')
+    const panel = panelRef.current
+    if (!row || !panel) {
+      return
+    }
+    const rowRect = row.getBoundingClientRect()
+    const panelTop = panel.getBoundingClientRect().top
+    setMenu({
+      cmd,
+      // below the row by default, above it when there is no room left
+      top: rowRect.bottom - panelTop,
+      rowTop: rowRect.top - panelTop
+    })
   }
 
   function filterArray (array, keyword) {
@@ -105,15 +155,23 @@ export default auto(function CmdHistory (props) {
     setKeyword(e.target.value)
   }
 
-  // The row action menu is anchored to its row, and rc-trigger re-aligns it on
-  // every scroll of the trigger's scrollable ancestors. The rows live in a
-  // 190px-tall scrolling list, so a wheel over the list drags the open menu
-  // along with the row — out of the popup and eventually off the screen, while
-  // the row it belongs to is long gone. Close it instead: the menu is only
-  // meaningful next to the row it was opened on.
+  // The menu is anchored to its row, and rc-trigger re-aligns it on every
+  // scroll of the trigger's scrollable ancestors. The rows live in a 190px-tall
+  // scrolling list, so a wheel over the list drags an open menu along with the
+  // row — out of the popup and eventually off the screen, while the row it
+  // belongs to is long gone. Close it instead: the menu is only meaningful next
+  // to the row it was opened on.
   function handleListScroll () {
-    if (menuOpenCmd) {
-      setMenuOpenCmd('')
+    if (menu) {
+      closeMenu()
+    }
+  }
+
+  // closing the popover hides the menu with it; dropping the selection too
+  // keeps it from coming back on the next open
+  function handlePopoverOpenChange (open) {
+    if (!open) {
+      closeMenu()
     }
   }
 
@@ -141,7 +199,7 @@ export default auto(function CmdHistory (props) {
     return filtered.map((item, index) => {
       const cls = classNames(
         'cmd-history-item',
-        { 'menu-open': menuOpenCmd === item.cmd }
+        { 'menu-open': menu && menu.cmd === item.cmd }
       )
       return (
         <div
@@ -161,24 +219,52 @@ export default auto(function CmdHistory (props) {
               className='cmd-history-item-copy'
               onClick={(ev) => handleCopyCommand(item.cmd, ev)}
             />
-            <Dropdown
-              menu={getMenuProps(item.cmd)}
-              trigger={['click']}
-              open={menuOpenCmd === item.cmd}
-              onOpenChange={(open) => setMenuOpenCmd(open ? item.cmd : '')}
-            >
-              <Button
-                type='text'
-                size='small'
-                icon={<MoreOutlined />}
-                className='cmd-history-item-more'
-                onClick={(ev) => ev.stopPropagation()}
-              />
-            </Dropdown>
+            <Button
+              type='text'
+              size='small'
+              icon={<MoreOutlined />}
+              className={classNames(
+                'cmd-history-item-more',
+                { active: menu && menu.cmd === item.cmd }
+              )}
+              onClick={(ev) => handleToggleMenu(ev, item.cmd)}
+            />
           </div>
         </div>
       )
     })
+  }
+
+  // the panel's own action menu: it renders inside the popover content, so it
+  // is hidden and revealed with the panel instead of outliving it
+  function renderItemMenu () {
+    if (!menu) {
+      return null
+    }
+    return (
+      <div
+        ref={menuRef}
+        className='cmd-history-item-menu'
+        style={{ top: `${menu.top}px` }}
+        onClick={ev => ev.stopPropagation()}
+      >
+        {
+          getMenuItems().map(item => (
+            <div
+              key={item.key}
+              className={classNames(
+                'cmd-history-menu-item',
+                { danger: item.danger }
+              )}
+              onClick={() => handleMenuAction(item.key, menu.cmd)}
+            >
+              <span className='cmd-history-menu-icon'>{item.icon}</span>
+              <span className='cmd-history-menu-label'>{item.label}</span>
+            </div>
+          ))
+        }
+      </div>
+    )
   }
 
   function renderHeader () {
@@ -205,7 +291,7 @@ export default auto(function CmdHistory (props) {
   }
 
   const content = (
-    <div className='cmd-history-popover-content pd2'>
+    <div ref={panelRef} className='cmd-history-popover-content pd2'>
       <div className='cmd-history-search pd2b'>
         <InputAutoFocus
           value={keyword}
@@ -219,6 +305,7 @@ export default auto(function CmdHistory (props) {
       <div className='cmd-history-list' onScroll={handleListScroll}>
         {renderList()}
       </div>
+      {renderItemMenu()}
     </div>
   )
 
@@ -228,6 +315,7 @@ export default auto(function CmdHistory (props) {
         content={content}
         trigger='click'
         placement='topLeft'
+        onOpenChange={handlePopoverOpenChange}
       >
         <Button
           size='small'

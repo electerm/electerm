@@ -1,7 +1,9 @@
 .cmd-history-popover-content
+  position relative
   max-height 300px
   width 300px
-  overflow hidden
+  // deliberately not clipped: the item action menu is a child of the panel, but
+  // it hangs below its row and may reach past the panel's edge
   display flex
   flex-direction column
 .cmd-history-search
@@ -77,12 +79,48 @@
 .cmd-history-item-more
   cursor pointer
   padding 2px 4px
+  &.active
+    color var(--primary)
 
 .cmd-history-item-copy
   cursor pointer
   padding 2px 4px
   &:hover
     color blue
+
+// The item action menu is part of this panel: it is rendered inside
+// `.cmd-history-popover-content` (not in a body-level portal) so that it can
+// never outlive the popover. It hangs below the row whose ⋯ icon was clicked —
+// the component lifts it above that row when it would fall off the window.
+.cmd-history-item-menu
+  position absolute
+  right 8px
+  z-index 10
+  min-width 156px
+  padding 4px 0
+  border-radius 4px
+  background var(--main)
+  border 1px solid var(--main-darker)
+  box-shadow 0 2px 8px rgba(0, 0, 0, 0.35)
+
+.cmd-history-menu-item
+  display flex
+  align-items center
+  gap 8px
+  padding 5px 10px
+  cursor pointer
+  white-space nowrap
+  &:hover
+    background var(--main-lighter)
+  &.danger
+    color var(--error)
+
+.cmd-history-menu-icon
+  font-size 13px
+  line-height 1
+
+.cmd-history-menu-label
+  flex 1
 
 .multi-tab-run-cmd
   font-size 12px

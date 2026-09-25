@@ -80,7 +80,7 @@ async function openItemMenu (client, term) {
 /** Delete a history item through its action menu (⋯ -> Delete). */
 async function deleteHistoryItem (client, term) {
   await openItemMenu(client, term)
-  await client.click(`.ant-dropdown-menu-item:has-text("${e('del')}")`)
+  await client.click(`.cmd-history-menu-item:has-text("${e('del')}")`)
   await delay(600)
 }
 
@@ -220,7 +220,7 @@ describe('cmd-history', function () {
     // ── action menu -> create quick command ───────────────────────────────────
     await openHistoryPopover(client)
     await openItemMenu(client, cmd)
-    await client.click(`.ant-dropdown-menu-item:has-text("${e('addQuickCommands')}")`)
+    await client.click(`.cmd-history-menu-item:has-text("${e('addQuickCommands')}")`)
     await delay(2000)
 
     // the shared quick command form, prefilled with the history command
@@ -245,7 +245,7 @@ describe('cmd-history', function () {
     // ── action menu -> run in multiple terminals ──────────────────────────────
     await openHistoryPopover(client)
     await openItemMenu(client, cmd)
-    await client.click(`.ant-dropdown-menu-item:has-text("${e('runInAllTerminals')}")`)
+    await client.click(`.cmd-history-menu-item:has-text("${e('runInAllTerminals')}")`)
     await delay(2000)
     expect(await client.countElem('.multi-tab-run-cmd')).equal(1)
 
