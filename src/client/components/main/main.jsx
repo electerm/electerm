@@ -29,6 +29,7 @@ import { isAIDisabled } from '../../common/ai-feature'
 import { ConfigProvider } from 'antd'
 import { NotificationContainer } from '../common/notification'
 import RightSidePanel from '../side-panel-r/side-panel-r'
+import CmdHistory from '../footer/cmd-history'
 import ConnectionHoppingWarning from './connection-hopping-warnning'
 import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
@@ -360,6 +361,9 @@ export default auto(function Index (props) {
         <RightSidePanel {...rightPanelProps}>
           {!isAIDisabled() && <AIChat {...aiChatProps} />}
           <TerminalInfo key={store.activeTabId} store={store} {...deepCopy(store.terminalInfoProps)} />
+          {/* the cmd history panel has two homes; the footer popover is the
+              other one, and both are the same component (see cmd-history.jsx) */}
+          <CmdHistory store={store} inline />
         </RightSidePanel>
         <SshConfigLoadNotify {...sshConfigProps} />
         <LoadSshConfigs

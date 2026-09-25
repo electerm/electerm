@@ -1,5 +1,10 @@
 /**
- * cmd history trigger button with popover
+ * cmd history panel with popover
+ *
+ * The panel has two homes: the footer popover (default) and the right side
+ * panel. Which one it is in is a stored preference (store.cmdHistoryInRightPanel),
+ * so the same component renders both — `inline` drops the trigger/popover and
+ * lets the right panel's own container wrap the panel body.
  */
 
 import { useState, useEffect, useLayoutEffect, useRef } from 'react'
@@ -14,12 +19,15 @@ import {
   UnorderedListOutlined,
   MoreOutlined,
   PlusOutlined,
-  CodeOutlined
+  CodeOutlined,
+  VerticalLeftOutlined,
+  VerticalAlignBottomOutlined
 } from '@ant-design/icons'
 import InputAutoFocus from '../common/input-auto-focus'
 import { getItemJSON, setItemJSON } from '../../common/safe-local-storage'
 import QuickCommandCreateModal from '../quick-commands/quick-command-create-modal'
 import MultiTabRunModal from './multi-tab-run-modal'
+import { refsStatic } from '../common/ref'
 import classNames from 'classnames'
 import './cmd-history.styl'
 
@@ -27,6 +35,7 @@ const e = window.translate
 const SORT_BY_FREQ_KEY = 'electerm-cmd-history-sort-by-frequency'
 
 export default auto(function CmdHistory (props) {
+  const { store, inline } = props
   const [keyword, setKeyword] = useState('')
   const [sortByFrequency, setSortByFrequency] = useState(() => {
     return getItemJSON(SORT_BY_FREQ_KEY, false)
@@ -42,11 +51,27 @@ export default auto(function CmdHistory (props) {
   const menuRef = useRef(null)
   const [quickCommandCmd, setQuickCommandCmd] = useState('')
   const [multiTabCmd, setMultiTabCmd] = useState('')
-  const { terminalCommandHistory } = props.store
+  // Footer mode only. The popover is controlled so that the trigger can be
+  // repurposed (open the right panel instead, when the history lives there) and
+  // so that "move back to footer" can open it again from the store.
+  const [open, setOpen] = useState(false)
+  const { terminalCommandHistory } = store
 
   useEffect(() => {
     setItemJSON(SORT_BY_FREQ_KEY, sortByFrequency)
   }, [sortByFrequency])
+
+  // "move back to footer" happens in the right panel, which cannot reach this
+  // component through props — it goes through the store, which needs a handle
+  useEffect(() => {
+    if (inline) {
+      return
+    }
+    refsStatic.add('CmdHistory', {
+      openPopover: () => setOpen(true)
+    })
+    return () => refsStatic.remove('CmdHistory')
+  }, [inline])
 
   // The menu hangs below its row, which for the last rows would put it past the
   // bottom of the window — the panel itself is not clipped, so lift the menu
@@ -169,10 +194,29 @@ export default auto(function CmdHistory (props) {
 
   // closing the popover hides the menu with it; dropping the selection too
   // keeps it from coming back on the next open
-  function handlePopoverOpenChange (open) {
-    if (!open) {
+  function handlePopoverOpenChange (nextOpen) {
+    if (!nextOpen) {
       closeMenu()
+      setOpen(false)
+      return
     }
+    // While the history lives in the right panel this trigger never opens the
+    // popover: it opens and closes the right panel, exactly like the info and
+    // AI triggers do (store.toggleCmdHistoryPanel).
+    if (store.cmdHistoryInRightPanel) {
+      window.store.toggleCmdHistoryPanel()
+      return
+    }
+    setOpen(true)
+  }
+
+  // Dock the panel into the right side panel. The popover has to be closed on
+  // the way out, or it would be left behind pointing at a panel that is no
+  // longer in the footer.
+  function handleMoveToRightPanel () {
+    closeMenu()
+    setOpen(false)
+    window.store.moveCmdHistoryToRightPanel()
   }
 
   const historyArray = (terminalCommandHistory || []).slice().reverse()
@@ -267,6 +311,32 @@ export default auto(function CmdHistory (props) {
     )
   }
 
+  // The two "move" icons are mirror images and sit in the same slot: the
+  // popover offers to dock the panel into the right side panel, the docked
+  // panel offers to hand it back to the footer popover. The glyphs are antd's
+  // "align" pair — an arrow into a bar on the right, an arrow into a bar at the
+  // bottom — so each points at the edge the panel is going to.
+  // Note VerticalLeftOutlined is the one whose bar is on the right (arrow
+  // pointing right); VerticalRightOutlined is its mirror and points left.
+  function renderMoveIcon () {
+    if (inline) {
+      return (
+        <VerticalAlignBottomOutlined
+          className='cmd-history-move-icon pointer'
+          title={e('moveToFooter')}
+          onClick={() => window.store.moveCmdHistoryToFooter()}
+        />
+      )
+    }
+    return (
+      <VerticalLeftOutlined
+        className='cmd-history-move-icon pointer'
+        title={e('moveToRightPanel')}
+        onClick={handleMoveToRightPanel}
+      />
+    )
+  }
+
   function renderHeader () {
     if (!historyArray.length) {
       return null
@@ -281,17 +351,29 @@ export default auto(function CmdHistory (props) {
             label={e('sortByFrequency')}
           />
         </div>
-        <UnorderedListOutlined
-          className='cmd-history-clear-icon pointer clear-ai-icon icon-hover'
-          title={e('clear')}
-          onClick={handleClearAll}
-        />
+        <div className='cmd-history-header-actions'>
+          {renderMoveIcon()}
+          <UnorderedListOutlined
+            className='cmd-history-clear-icon pointer clear-ai-icon icon-hover'
+            title={e('clear')}
+            onClick={handleClearAll}
+          />
+        </div>
       </div>
     )
   }
 
   const content = (
-    <div ref={panelRef} className='cmd-history-popover-content pd2'>
+    <div
+      ref={panelRef}
+      className={classNames(
+        'cmd-history-popover-content',
+        inline
+          // docked: fill the right panel instead of sizing itself like a popup
+          ? 'cmd-history-in-panel'
+          : 'pd2'
+      )}
+    >
       <div className='cmd-history-search pd2b'>
         <InputAutoFocus
           value={keyword}
@@ -309,20 +391,11 @@ export default auto(function CmdHistory (props) {
     </div>
   )
 
-  return (
+  // The modals are siblings of the panel, never children of the popover: the
+  // content of a closed popover is no longer re-rendered, so a modal opened
+  // from inside one could not be closed once the popover went away.
+  const modals = (
     <>
-      <Popover
-        content={content}
-        trigger='click'
-        placement='topLeft'
-        onOpenChange={handlePopoverOpenChange}
-      >
-        <Button
-          size='small'
-          type='text'
-          icon={<HistoryOutlined />}
-        />
-      </Popover>
       {
         quickCommandCmd
           ? (
@@ -346,6 +419,46 @@ export default auto(function CmdHistory (props) {
             )
           : null
       }
+    </>
+  )
+
+  // docked in the right side panel: no trigger, no popover — the right panel
+  // decides when this is on screen, via store.rightPanelTab
+  if (inline) {
+    if (store.rightPanelTab !== 'cmdHistory') {
+      return null
+    }
+    return (
+      <>
+        {content}
+        {modals}
+      </>
+    )
+  }
+
+  const rightPanelActive = store.rightPanelVisible &&
+    store.rightPanelTab === 'cmdHistory'
+
+  return (
+    <>
+      <Popover
+        content={content}
+        trigger='click'
+        placement='topLeft'
+        open={open}
+        onOpenChange={handlePopoverOpenChange}
+      >
+        <Button
+          size='small'
+          type='text'
+          className={classNames(
+            'cmd-history-trigger',
+            { active: rightPanelActive }
+          )}
+          icon={<HistoryOutlined />}
+        />
+      </Popover>
+      {modals}
     </>
   )
 })

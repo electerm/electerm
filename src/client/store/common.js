@@ -12,6 +12,7 @@ import {
   leftSideBarOpenKey,
   rightSidebarWidthKey,
   rightPanelPinnedKey,
+  cmdHistoryInRightPanelKey,
   addPanelWidthLsKey,
   connectionMap,
   lastAiChatSessionIdKey,
@@ -179,6 +180,50 @@ export default Store => {
   Store.prototype.setRightPanelPinned = function (v) {
     ls.setItem(rightPanelPinnedKey, v + '')
     window.store.rightPanelPinned = v
+  }
+
+  // The cmd history panel has two homes: the footer popover (the default) and
+  // the right side panel. Which one it is in is a durable preference, persisted
+  // like the right panel pin — the footer trigger has to keep landing where the
+  // user last put the panel, or the choice would only survive until the next
+  // reload.
+  Store.prototype.setCmdHistoryInRightPanel = function (v) {
+    ls.setItem(cmdHistoryInRightPanelKey, v + '')
+    window.store.cmdHistoryInRightPanel = v
+  }
+
+  Store.prototype.openCmdHistoryPanel = function () {
+    const { store } = window
+    store.rightPanelVisible = true
+    store.rightPanelTab = 'cmdHistory'
+  }
+
+  // Same toggle contract as toggleInfoPanel/toggleAIPanel: while the history
+  // lives in the right panel, the footer trigger opens and closes it.
+  Store.prototype.toggleCmdHistoryPanel = function () {
+    const { store } = window
+    if (store.rightPanelVisible && store.rightPanelTab === 'cmdHistory') {
+      store.rightPanelVisible = false
+      return
+    }
+    store.openCmdHistoryPanel()
+  }
+
+  Store.prototype.moveCmdHistoryToRightPanel = function () {
+    const { store } = window
+    store.setCmdHistoryInRightPanel(true)
+    store.openCmdHistoryPanel()
+  }
+
+  // Hand the panel back to the footer popover and open it there: the move has
+  // to be visible, otherwise the panel just looks like it vanished.
+  Store.prototype.moveCmdHistoryToFooter = function () {
+    const { store } = window
+    store.setCmdHistoryInRightPanel(false)
+    if (store.rightPanelTab === 'cmdHistory') {
+      store.rightPanelVisible = false
+    }
+    refsStatic.get('CmdHistory')?.openPopover()
   }
   Store.prototype.beforeExit = function (evt) {
     const { confirmBeforeExit } = window.store.config

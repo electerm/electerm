@@ -29,6 +29,11 @@ const e = require('./common/lang')
 /** Open the command-history popover in the footer.
  *  Closes any currently-open popover first so we get a clean open. */
 async function openHistoryPopover (client) {
+  // The history panel has two homes — the footer popover and the right side
+  // panel — and the choice is a persisted preference, so a developer who left it
+  // docked would otherwise get the right panel here instead of the popover.
+  await client.evaluate(() => window.store.setCmdHistoryInRightPanel(false))
+  await delay(200)
   // Click outside any popover to ensure it is closed before reopening
   await client.click('.session-current .term-wrap')
   await delay(400)

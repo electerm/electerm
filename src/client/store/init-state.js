@@ -19,6 +19,7 @@ import {
   leftSidePanelWidthKey,
   rightSidebarWidthKey,
   rightPanelPinnedKey,
+  cmdHistoryInRightPanelKey,
   addPanelWidthLsKey,
   qmSortByFrequencyKey,
   resolutionsLsKey,
@@ -131,6 +132,7 @@ export default () => {
     rightPanelVisible: false,
     rightPanelTab: 'info',
     rightPanelPinned: ls.getItem(rightPanelPinnedKey) === 'true',
+    cmdHistoryInRightPanel: ls.getItem(cmdHistoryInRightPanelKey) === 'true',
     _rightPanelWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
     showAIConfigModal: false,
 

@@ -151,7 +151,9 @@ export default store => {
       window.pre.runGlobalAsync('setTitle', title)
       window.store.currentLayoutBatch = tab.batch
     }
-    if (tab && store.rightPanelVisible) {
+    // refreshing the info panel on tab switch only concerns the info tab: the
+    // right panel can also be showing the AI chat or the cmd history
+    if (tab && store.rightPanelVisible && store.rightPanelTab === 'info') {
       window.store.openInfoPanelAction()
     }
     return store.activeTabId

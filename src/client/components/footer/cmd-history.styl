@@ -6,6 +6,15 @@
   // it hangs below its row and may reach past the panel's edge
   display flex
   flex-direction column
+  // Docked in the right side panel the panel *is* the container, so the history
+  // fills it instead of sizing itself like a popup. The parent
+  // (.right-side-panel-content) is an absolutely positioned box with top and
+  // bottom set, so 100% resolves to a real height and the list scrolls inside
+  // it rather than scrolling the panel.
+  &.cmd-history-in-panel
+    width 100%
+    max-height none
+    height 100%
 .cmd-history-search
   flex-shrink 0
   position sticky
@@ -18,6 +27,19 @@
   justify-content space-between
   padding-bottom 8px
 
+.cmd-history-header-actions
+  display flex
+  align-items center
+  gap 6px
+
+// The footer trigger stays lit while the history is docked in the right panel,
+// same contract as the info and AI icons
+.cmd-history-trigger
+  &.active
+    color var(--success)
+    .anticon
+      color var(--success)
+
 .cmd-history-sort
   display flex
   align-items center
@@ -25,6 +47,13 @@
 
 .cmd-history-sort-label
   user-select none
+
+.cmd-history-move-icon
+  font-size 14px
+  padding 4px
+  cursor pointer
+  &:hover
+    color var(--primary)
 
 .cmd-history-clear-icon
   font-size 14px
