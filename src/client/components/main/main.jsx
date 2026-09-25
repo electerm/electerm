@@ -30,6 +30,7 @@ import { ConfigProvider } from 'antd'
 import { NotificationContainer } from '../common/notification'
 import RightSidePanel from '../side-panel-r/side-panel-r'
 import CmdHistory from '../footer/cmd-history'
+import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import ConnectionHoppingWarning from './connection-hopping-warnning'
 import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
@@ -130,6 +131,7 @@ export default auto(function Index (props) {
     pinned,
     isSecondInstance,
     pinnedQuickCommandBar,
+    quickCommandsInRightPanel,
     installSrc,
     fileTransfers,
     uiThemeConfig,
@@ -157,7 +159,9 @@ export default auto(function Index (props) {
     // would restyle the mobile layout.
     pinned: pinned && !store.isMobile,
     'not-win': !isWin,
-    'qm-pinned': pinnedQuickCommandBar,
+    // the pinned quick-command box only shapes the layout while it is actually
+    // in the footer — docked in the right panel it renders there instead
+    'qm-pinned': pinnedQuickCommandBar && !quickCommandsInRightPanel,
     fullscreen,
     // terminal fullscreen keeps the footer visible (rdp/vnc/spice fullscreen
     // does not — the footer would be an empty bar there)
@@ -364,6 +368,9 @@ export default auto(function Index (props) {
           {/* the cmd history panel has two homes; the footer popover is the
               other one, and both are the same component (see cmd-history.jsx) */}
           <CmdHistory store={store} inline />
+          {/* same for the quick command panel: the footer box is the other home
+              (see quick-commands-box.jsx) */}
+          <QuickCommandsFooterBox store={store} inline />
         </RightSidePanel>
         <SshConfigLoadNotify {...sshConfigProps} />
         <LoadSshConfigs

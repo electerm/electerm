@@ -22,6 +22,12 @@ describe('quick commands execution', function () {
 
     await delay(3500)
 
+    // The quick-command panel has two homes — the footer box and the right side
+    // panel — and the choice is a persisted preference, so a developer who left
+    // it docked would otherwise get the right panel here instead of the box.
+    await client.evaluate(() => window.store.setQuickCommandsInRightPanel(false))
+    await delay(200)
+
     const initialContent = await getTerminalContent(client)
     await client.evaluate(() => {
       window.store.addQuickCommand({

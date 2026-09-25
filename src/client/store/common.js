@@ -13,6 +13,7 @@ import {
   rightSidebarWidthKey,
   rightPanelPinnedKey,
   cmdHistoryInRightPanelKey,
+  quickCommandsInRightPanelKey,
   addPanelWidthLsKey,
   connectionMap,
   lastAiChatSessionIdKey,
@@ -224,6 +225,56 @@ export default Store => {
       store.rightPanelVisible = false
     }
     refsStatic.get('CmdHistory')?.openPopover()
+  }
+
+  // The quick command panel has the same two homes as the cmd history one, and
+  // the same durable preference: the footer popup (the default) and the right
+  // side panel. The footer popup is not a popover but a floating box driven by
+  // store.openQuickCommandBar, so "docked" is expressed by the preference alone
+  // and the box itself decides which of its two forms to render.
+  Store.prototype.setQuickCommandsInRightPanel = function (v) {
+    ls.setItem(quickCommandsInRightPanelKey, v + '')
+    window.store.quickCommandsInRightPanel = v
+  }
+
+  Store.prototype.openQuickCommandsPanel = function () {
+    const { store } = window
+    store.rightPanelVisible = true
+    store.rightPanelTab = 'quickCommands'
+  }
+
+  // Same toggle contract as toggleInfoPanel/toggleAIPanel/toggleCmdHistoryPanel:
+  // while the panel lives in the right panel, the footer Q opens and closes it.
+  Store.prototype.toggleQuickCommandsPanel = function () {
+    const { store } = window
+    if (store.rightPanelVisible && store.rightPanelTab === 'quickCommands') {
+      store.rightPanelVisible = false
+      return
+    }
+    store.openQuickCommandsPanel()
+  }
+
+  Store.prototype.moveQuickCommandsToRightPanel = function () {
+    const { store } = window
+    store.setQuickCommandsInRightPanel(true)
+    // the footer box would otherwise be left floating over a terminal it no
+    // longer owns; the pin is deliberately kept, so handing the panel back
+    // restores the exact shape it had before
+    store.openQuickCommandBar = false
+    store.openQuickCommandsPanel()
+  }
+
+  // Hand the panel back to the footer and open it there: the move has to be
+  // visible, otherwise the panel just looks like it vanished. A pin that was
+  // left on while docked brings the box back pinned, which is what the user
+  // last asked for.
+  Store.prototype.moveQuickCommandsToFooter = function () {
+    const { store } = window
+    store.setQuickCommandsInRightPanel(false)
+    if (store.rightPanelTab === 'quickCommands') {
+      store.rightPanelVisible = false
+    }
+    store.openQuickCommandBar = true
   }
   Store.prototype.beforeExit = function (evt) {
     const { confirmBeforeExit } = window.store.config

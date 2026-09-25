@@ -37,6 +37,7 @@ export default auto(function Layout (props) {
       height,
       isMobile,
       pinnedQuickCommandBar,
+      quickCommandsInRightPanel,
       leftSidePanelWidth,
       leftSideBarWidth,
       pinned,
@@ -49,7 +50,14 @@ export default auto(function Layout (props) {
       shortcutBarKbOffset
     } = props.store
     const monitorHeight = isRemoteMonitorBarVisible(props.store) ? remoteMonitorBarHeight : 0
-    const h = height - footerHeight - monitorHeight - (inActiveTerminal && pinnedQuickCommandBar ? quickCommandBoxHeight : 0) - (shortcutBarVisible ? shortcutBarHeight + shortcutBarKbOffset : 0) + resizeTrigger
+    // a pin left on while the panel is docked in the right side panel reserves
+    // nothing: the footer box is not rendered then (quick-commands-box.jsx)
+    const qmPinnedHeight = inActiveTerminal &&
+      pinnedQuickCommandBar &&
+      !quickCommandsInRightPanel
+      ? quickCommandBoxHeight
+      : 0
+    const h = height - footerHeight - monitorHeight - qmPinnedHeight - (shortcutBarVisible ? shortcutBarHeight + shortcutBarKbOffset : 0) + resizeTrigger
     const l = pinned && !isMobile ? leftSideBarWidth + leftSidePanelWidth : leftSideBarWidth
     const r = rightPanelVisible && rightPanelPinned && !isMobile ? rightPanelWidth : 0
     return {
@@ -141,24 +149,9 @@ export default auto(function Layout (props) {
   const footerProps = {
     store
   }
-  const qmProps = pick(store, [
-    'quickCommandTags',
-    'qmSortByFrequency',
-    'openQuickCommandBar',
-    'pinnedQuickCommandBar',
-    'qmSortByFrequency',
-    'inActiveTerminal',
-    'leftSidePanelWidth',
-    'leftSideBarWidth',
-    'openedSideBar',
-    'currentQuickCommands',
-    // the quick-command popup mirrors the footer's horizontal extent, so it
-    // needs the same right-panel state the footer uses
-    'rightPanelVisible',
-    'rightPanelPinned',
-    'rightPanelWidth',
-    'isMobile'
-  ])
+  const qmProps = {
+    store
+  }
   const sessionsProps = {
     styles: styles.wrapStyles,
     sizes,

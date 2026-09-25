@@ -148,6 +148,9 @@ class Store {
     if (rightPanelTab === 'cmdHistory') {
       return window.translate('cmdHistory')
     }
+    if (rightPanelTab === 'quickCommands') {
+      return window.translate('quickCommands')
+    }
     return createTitle(window.store.currentTab)
   }
 

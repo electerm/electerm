@@ -1,17 +1,29 @@
 /**
- * quick commands footer selection wrap
+ * quick commands panel
+ *
+ * The panel has two homes: the floating footer box (default) and the right side
+ * panel. Which one it is in is a stored preference
+ * (store.quickCommandsInRightPanel), so the same component renders both —
+ * `inline` drops the floating box and lets the right panel's own container wrap
+ * the panel body.
  */
 
 import { useState } from 'react'
-import { quickCommandLabelsLsKey, pinnedQuickCommandBarKey } from '../../common/constants'
-import { sortBy } from 'lodash-es'
+import { auto } from 'manate/react'
+import {
+  quickCommandLabelsLsKey,
+  pinnedQuickCommandBarKey
+} from '../../common/constants'
+import { sortBy, pick } from 'lodash-es'
 import { Button, Input, Select, Space, Flex } from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import CmdItem from './quick-command-item'
 import {
   EditOutlined,
   CloseCircleOutlined,
-  PushpinOutlined
+  PushpinOutlined,
+  VerticalLeftOutlined,
+  VerticalAlignBottomOutlined
 } from '@ant-design/icons'
 import classNames from 'classnames'
 import onDropFunc from './on-drop'
@@ -22,9 +34,42 @@ const e = window.translate
 const addQuickCommands = 'addQuickCommands'
 const { Option } = Select
 
-export default function QuickCommandsFooterBox (props) {
+export default auto(function QuickCommandsFooterBox (props) {
+  const { store, inline } = props
   const [keyword, setKeyword] = useState('')
   const [label, setLabel] = useState(ls.getItem(quickCommandLabelsLsKey, ''))
+  // read through the store so the panel re-renders on its own: it is rendered
+  // in two different places (footer box and right panel), and only one of them
+  // gets props from the layout
+  const {
+    openQuickCommandBar,
+    pinnedQuickCommandBar,
+    qmSortByFrequency,
+    quickCommandsInRightPanel,
+    inActiveTerminal,
+    leftSidePanelWidth,
+    leftSideBarWidth,
+    openedSideBar,
+    rightPanelVisible,
+    rightPanelPinned,
+    rightPanelWidth,
+    isMobile
+  } = pick(store, [
+    'openQuickCommandBar',
+    'pinnedQuickCommandBar',
+    'qmSortByFrequency',
+    'quickCommandsInRightPanel',
+    'inActiveTerminal',
+    'leftSidePanelWidth',
+    'leftSideBarWidth',
+    'openedSideBar',
+    'rightPanelVisible',
+    'rightPanelPinned',
+    'rightPanelWidth',
+    'isMobile'
+  ])
+  const all = store.currentQuickCommands
+  const quickCommandTags = store.quickCommandTags
 
   function handleTogglePinned () {
     const current = !window.store.pinnedQuickCommandBar
@@ -58,12 +103,12 @@ export default function QuickCommandsFooterBox (props) {
     setLabel(v)
   }
 
-  // function filterFunc (v, opt) {
-  //   const c = opt.props.children.toLowerCase()
-  //   const m = opt.props.cmd.toLowerCase()
-  //   const vv = v.toLowerCase()
-  //   return c.includes(vv) || m.includes(vv)
-  // }
+  // Dock the panel into the right side panel. The footer box unmounts on the
+  // way out (it is gated on quickCommandsInRightPanel), so there is nothing to
+  // clean up here — unlike the cmd history popover, which has to be closed.
+  function handleMoveToRightPanel () {
+    window.store.moveQuickCommandsToRightPanel()
+  }
 
   function onDragOver (e) {
     e.preventDefault()
@@ -114,9 +159,6 @@ export default function QuickCommandsFooterBox (props) {
   }
 
   function renderItem (item) {
-    const {
-      qmSortByFrequency
-    } = props
     return (
       <CmdItem
         item={item}
@@ -156,26 +198,69 @@ export default function QuickCommandsFooterBox (props) {
     })
   }
 
-  const {
-    openQuickCommandBar,
-    pinnedQuickCommandBar,
-    qmSortByFrequency,
-    inActiveTerminal,
-    leftSidePanelWidth,
-    leftSideBarWidth,
-    openedSideBar,
-    rightPanelVisible,
-    rightPanelPinned,
-    rightPanelWidth,
-    isMobile
-  } = props
-  if ((!openQuickCommandBar && !pinnedQuickCommandBar) || !inActiveTerminal) {
-    return null
+  // The two "move" icons are mirror images and sit in the same slot: the footer
+  // box offers to dock the panel into the right side panel, the docked panel
+  // offers to hand it back to the footer. Same glyph pair as the cmd history
+  // panel (cmd-history.jsx), so the two panels read the same way.
+  // Note VerticalLeftOutlined is the one whose bar is on the right (arrow
+  // pointing right); VerticalAlignBottomOutlined points at the footer.
+  function renderMoveIcon () {
+    if (inline) {
+      return (
+        <VerticalAlignBottomOutlined
+          className='qm-move-icon pointer'
+          title={e('moveToFooter')}
+          onClick={() => window.store.moveQuickCommandsToFooter()}
+        />
+      )
+    }
+    return (
+      <VerticalLeftOutlined
+        className='qm-move-icon pointer'
+        title={e('moveToRightPanel')}
+        onClick={handleMoveToRightPanel}
+      />
+    )
   }
-  const all = props.currentQuickCommands
-  // if (!all.length) {
-  //   return renderNoCmd()
-  // }
+
+  // Docked, the right panel owns the pin and the close button (both live in its
+  // title bar), so the panel keeps only the actions that are about the quick
+  // commands themselves. A pin left over from the footer is kept in the store
+  // and comes back with the panel, so nothing is silently lost.
+  function renderActions () {
+    const tp = pinnedQuickCommandBar
+      ? 'primary'
+      : 'text'
+    return (
+      <div className='qm-panel-actions mg2l'>
+        {renderMoveIcon()}
+        <Space.Compact>
+          {
+            !inline && (
+              <Button
+                onClick={handleTogglePinned}
+                icon={<PushpinOutlined />}
+                type={tp}
+              />
+            )
+          }
+          <Button
+            onClick={window.store.handleOpenQuickCommandsSetting}
+            icon={<EditOutlined />}
+          />
+          {
+            !inline && (
+              <Button
+                onClick={handleClose}
+                icon={<CloseCircleOutlined />}
+              />
+            )
+          }
+        </Space.Compact>
+      </div>
+    )
+  }
+
   const keyword0 = keyword.toLowerCase()
   const filtered = filterArray(all, keyword0, label)
   const sorted = qmSortByFrequency
@@ -188,9 +273,6 @@ export default function QuickCommandsFooterBox (props) {
     className: 'qm-label-select',
     allowClear: true
   }
-  const tp = pinnedQuickCommandBar
-    ? 'primary'
-    : 'text'
   const cls = classNames('qm-list-wrap')
   const type = qmSortByFrequency ? 'primary' : 'default'
   // Mirrors the footer's left offset. Mobile reserves nothing for the side
@@ -214,56 +296,71 @@ export default function QuickCommandsFooterBox (props) {
     className: 'qm-wrap-tooltip',
     style: qmStyle
   }
+
+  const content = (
+    <div className='pd2'>
+      <Flex justify='space-between' className='qm-flex'>
+        <Input.Search
+          value={keyword}
+          onChange={handleChange}
+          placeholder=''
+          className='qm-search-input'
+        />
+        <Flex gap='small'>
+          <Select
+            {...sprops}
+          >
+            {quickCommandTags.map(
+              renderTag
+            )}
+          </Select>
+          <Button
+            type={type}
+            onClick={window.store.handleSortByFrequency}
+          >
+            {e('sortByFrequency')}
+          </Button>
+        </Flex>
+        {renderActions()}
+      </Flex>
+      <div className={cls}>
+        {sorted.map(renderItem)}
+        {
+          !sorted.length && renderNoCmd()
+        }
+      </div>
+    </div>
+  )
+
+  // docked in the right side panel: no floating box, no pin/close of its own —
+  // the right panel decides when this is on screen, via store.rightPanelTab
+  if (inline) {
+    if (store.rightPanelTab !== 'quickCommands') {
+      return null
+    }
+    return (
+      <div className='qm-panel-in-right-panel'>
+        {content}
+      </div>
+    )
+  }
+
+  // Dormant while the panel is docked: the box would otherwise float over the
+  // terminal with nothing to show for it, and a pin left on would keep
+  // reserving the strip of height it occupies (see layout.jsx).
+  if (
+    quickCommandsInRightPanel ||
+    (!openQuickCommandBar && !pinnedQuickCommandBar) ||
+    !inActiveTerminal
+  ) {
+    return null
+  }
+
   return (
     <div
       {...qmProps}
     >
-      <div className='pd2'>
-        <Flex justify='space-between' className='qm-flex'>
-          <Input.Search
-            value={keyword}
-            onChange={handleChange}
-            placeholder=''
-            className='qm-search-input'
-          />
-          <Flex gap='small'>
-            <Select
-              {...sprops}
-            >
-              {props.quickCommandTags.map(
-                renderTag
-              )}
-            </Select>
-            <Button
-              type={type}
-              onClick={window.store.handleSortByFrequency}
-            >
-              {e('sortByFrequency')}
-            </Button>
-          </Flex>
-          <Space.Compact className='mg2l'>
-            <Button
-              onClick={handleTogglePinned}
-              icon={<PushpinOutlined />}
-              type={tp}
-            />
-            <Button
-              onClick={window.store.handleOpenQuickCommandsSetting}
-              icon={<EditOutlined />}
-            />
-            <Button
-              onClick={handleClose}
-              icon={<CloseCircleOutlined />}
-            />
-          </Space.Compact>
-        </Flex>
-        <div className={cls}>
-          {sorted.map(renderItem)}
-          {
-            !sorted.length && renderNoCmd()
-          }
-        </div>
-      </div>
+      {content}
     </div>
   )
-}
+})

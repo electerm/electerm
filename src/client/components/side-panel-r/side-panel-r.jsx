@@ -5,7 +5,8 @@ import {
   CloseCircleOutlined,
   PushpinOutlined,
   BarChartOutlined,
-  HistoryOutlined
+  HistoryOutlined,
+  ThunderboltOutlined
 } from '@ant-design/icons'
 import {
   Typography,
@@ -58,12 +59,14 @@ export default memo(function RightSidePanel (
   // from a desktop session must not turn the panel into a dock here — that
   // would make it full height over the footer for no reachable reason.
   const pinned = rightPanelPinned && !isMobile
-  // one glyph per tab, so the panel says what it is showing
-  const tag = rightPanelTab === 'ai'
-    ? <Tag className='mg1r'>AI</Tag>
-    : rightPanelTab === 'cmdHistory'
-      ? <HistoryOutlined className='mg1r' />
-      : <BarChartOutlined className='mg1r' />
+  // one glyph per tab, so the panel says what it is showing; the info tab is
+  // the fallback, since a stale or unknown tab falls back to it everywhere else
+  const tagMap = {
+    ai: <Tag className='mg1r'>AI</Tag>,
+    cmdHistory: <HistoryOutlined className='mg1r' />,
+    quickCommands: <ThunderboltOutlined className='mg1r' />
+  }
+  const tag = tagMap[rightPanelTab] || <BarChartOutlined className='mg1r' />
 
   function onDragEnd (nw) {
     window.store.setRightSidePanelWidth(nw)

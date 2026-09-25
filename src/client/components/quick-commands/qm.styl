@@ -2,6 +2,58 @@
   max-height calc(100vh - 100px)
   overflow-y scroll
   padding 20px 0 10px 0
+
+// Docked in the right side panel the panel *is* the container, so the quick
+// commands fill it instead of sizing themselves like the footer box. The parent
+// (.right-side-panel-content) is an absolutely positioned box with top and
+// bottom set, so 100% resolves to a real height and the list scrolls inside it
+// rather than scrolling the panel.
+.qm-panel-in-right-panel
+  display flex
+  flex-direction column
+  width 100%
+  height 100%
+  > .pd2
+    display flex
+    flex-direction column
+    height 100%
+    min-height 0
+    width 100%
+  .qm-flex
+    flex-shrink 0
+    // the footer box is as wide as the footer; the right panel is not, and the
+    // search + label + sort + actions row does not fit in one line there
+    flex-wrap wrap
+  // ...so give the search a line of its own and let it fill it, instead of
+  // sitting at its footer width with a gap beside it. `flex-basis: 100%` is what
+  // forces the wrap; the controls then share the line below.
+  .qm-search-input
+    flex 1 1 100%
+    max-width none
+  .qm-list-wrap
+    flex 1
+    min-height 0
+    max-height none
+    overflow-y auto
+
+.qm-panel-actions
+  display flex
+  align-items center
+  gap 6px
+
+.qm-move-icon
+  font-size 14px
+  padding 4px
+  cursor pointer
+  &:hover
+    color var(--primary)
+
+// The footer Q stays lit while the panel is docked in the right panel, same
+// contract as the info, AI and cmd history icons
+.quick-command-trigger
+  &.active
+    color var(--success)
+
 .qm-wrap-tooltip
   background var(--main)
   position absolute
@@ -80,6 +132,12 @@
     width 100%
   .qm-label-select
     width 100%
+  // The docked panel's search claims a whole row with `flex-basis: 100%`, which
+  // is a width only while `.qm-flex` is a row. Here it is a column, so the same
+  // basis would be 100% of the *height* and would push the controls off the
+  // panel. Same specificity as the rule above it, declared later, so it wins.
+  .qm-panel-in-right-panel .qm-search-input
+    flex none
 
 // On mobile, stack the quick-command row (name / delay / command / remove)
 // vertically instead of side by side — the horizontal Space.Compact layout
