@@ -12,13 +12,6 @@ import {
 import resolve from '../../common/resolve'
 import sanitizeFilename from '../../common/sanitize-filename'
 import { refsTransfers, refsStatic, refs } from '../common/ref'
-import {
-  zipCmd,
-  unzipCmd,
-  rmCmd,
-  mvCmd,
-  mkdirCmd
-} from './zip'
 import './transfer.styl'
 
 const { assign } = Object
@@ -279,9 +272,7 @@ export default class TransportAction extends Component {
       typeFrom,
       toFile = {}
     } = transfer
-    const toPath = transfer.zip
-      ? transfer.toPath
-      : this.newPath || transfer.toPath
+    const toPath = this.newPath || transfer.toPath
     const fromFile = transfer.fromFile || this.fromFile
     const fromMode = fromFile.mode
     const transferType = typeFrom === typeMap.local ? transferTypeMap.upload : transferTypeMap.download
@@ -408,12 +399,11 @@ export default class TransportAction extends Component {
         toPath
       } = this.props.transfer
       this.oldPath = toPath
-      const { newPath, newName } = this.handleRename(toPath, typeTo === typeMap.remote)
+      const { newPath } = this.handleRename(toPath, typeTo === typeMap.remote)
       this.update({
         toPath: newPath
       })
       this.newPath = newPath
-      this.newName = newName
     }
 
     const { typeFrom, typeTo } = this.props.transfer
@@ -423,119 +413,13 @@ export default class TransportAction extends Component {
     this.startTransfer()
   }
 
-  zipTransferFolder = async () => {
-    const {
-      transfer
-    } = this.props
-    const {
-      fromPath,
-      typeFrom
-    } = transfer
-    const toPath = this.oldPath || transfer.toPath
-    let p
-    let isFromRemote
-    if (typeFrom === typeMap.local) {
-      isFromRemote = false
-      p = await window.fs.zipFolder(fromPath)
-    } else {
-      isFromRemote = true
-      const terminalId = refs.get('sftp-' + this.tabId)?.terminalId
-      p = await zipCmd(terminalId, fromPath)
-    }
-    this.zipSrc = p
-    const { name } = getFolderFromFilePath(p, isFromRemote)
-    const { path } = getFolderFromFilePath(toPath, !isFromRemote)
-    const nTo = resolve(path, name)
-    this.zipPath = nTo
-    const newTrans1 = {
-      ...copy(transfer),
-      toPath: nTo,
-      fromPath: p
-    }
-    this.transferFile(newTrans1, this.unzipFile)
-  }
-
-  unzipFile = async () => {
-    const { transfer } = this.props
-    const {
-      typeTo
-    } = transfer
-    const toPath = this.zipPath
-    const fromPath = this.zipSrc
-    const isToRemote = typeTo === typeMap.remote
-    const {
-      path,
-      name,
-      targetPath
-    } = this.buildUnzipPath(transfer)
-    const {
-      newName,
-      terminalId
-    } = this
-    if (isToRemote) {
-      if (newName) {
-        await mkdirCmd(terminalId, path)
-      }
-      await unzipCmd(terminalId, toPath, path)
-      if (newName) {
-        const mvFrom = resolve(path, name)
-        const mvTo = resolve(targetPath, newName)
-        await mvCmd(terminalId, mvFrom, mvTo)
-      }
-    } else {
-      if (newName) {
-        await window.fs.mkdir(path)
-      }
-      await window.fs.unzipFile(toPath, path)
-      if (newName) {
-        const mvFrom = resolve(path, name)
-        const mvTo = resolve(targetPath, newName)
-        await window.fs.mv(mvFrom, mvTo)
-      }
-    }
-    await rmCmd(terminalId, !isToRemote ? fromPath : toPath)
-    await window.fs.rmrf(!isToRemote ? toPath : fromPath)
-    if (newName) {
-      if (isToRemote) {
-        await rmCmd(terminalId, path)
-      } else {
-        await window.fs.rmrf(path)
-      }
-    }
-    this.onEnd()
-  }
-
-  buildUnzipPath = (transfer) => {
-    const {
-      typeTo
-    } = transfer
-    const isToRemote = typeTo === typeMap.remote
-    const toPath = this.oldPath || transfer.toPath
-    const {
-      newName
-    } = this
-    const { path } = getFolderFromFilePath(toPath, isToRemote)
-    const oldName = getFolderFromFilePath(toPath, isToRemote).name
-    const np = newName
-      ? resolve(path, 'temp-' + newName)
-      : path
-    return {
-      targetPath: path,
-      path: np,
-      name: oldName
-    }
-  }
-
   startTransfer = async () => {
-    const { fromFile = this.fromFile, zip } = this.props.transfer
+    const { fromFile = this.fromFile } = this.props.transfer
     if (!fromFile) {
       return
     }
     if (!fromFile.isDirectory) {
       return this.transferFile()
-    }
-    if (zip) {
-      return this.zipTransferFolder()
     }
     if (!this.isFtp) {
       return this.transferFile()

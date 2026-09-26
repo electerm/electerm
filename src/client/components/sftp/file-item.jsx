@@ -902,12 +902,6 @@ export default class FileSection extends React.Component {
     this.transfer()
   }
 
-  zipAndTransfer = async () => {
-    this.transfer(transfer => {
-      transfer.zip = true
-    })
-  }
-
   newFile = () => {
     return this.newItem(false)
   }
@@ -1098,13 +1092,6 @@ export default class FileSection extends React.Component {
         icon: iconType,
         text: transferText
       })
-      // if (isDirectory && !this.props.isFtp) {
-      //   res.push({
-      //     func: 'zipAndTransfer',
-      //     icon: 'FileZipOutlined',
-      //     text: e('compressAndTransfer')
-      //   })
-      // }
     }
     if (!isDirectory && isRealFile && isLocal) {
       res.push({

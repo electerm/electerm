@@ -2,8 +2,7 @@ const fss = require('fs/promises')
 const fs = require('fs')
 const log = require('../common/log')
 const path = require('path')
-const { isWin, isMac, tempDir } = require('../common/runtime-constants')
-const uid = require('../common/uid')
+const { isWin, isMac } = require('../common/runtime-constants')
 const { promisify } = require('util')
 const { exec, spawn } = require('child_process')
 const execAsync = promisify(exec)
@@ -213,58 +212,6 @@ const openFile = (localFilePath) => {
   return spawnDetachedCommand(isMac ? 'open' : 'xdg-open', [localFilePath])
 }
 
-/**
- * zip file
- * @param {string} localFolerPath absolute path of a folder
- */
-const zipFolder = (localFolerPath) => {
-  const n = uid()
-  const p = path.resolve(tempDir, `electerm-temp-${n}.tar`)
-  const cwd = path.dirname(localFolerPath)
-  const file = path.basename(localFolerPath)
-  const tar = require('tar')
-  return tar.c({
-    gzip: false,
-    file: p,
-    cwd
-  }, [file])
-    .then(() => p)
-}
-
-const handleWindowsDrive = async (localFilePath, targetFolderPath) => {
-  const tar = require('tar')
-  const tempExtractDir = path.join(tempDir, `electerm-unzip-${uid()}`)
-  await fss.mkdir(tempExtractDir, { recursive: true })
-
-  try {
-    await tar.x({ file: localFilePath, C: tempExtractDir })
-    const items = await fss.readdir(tempExtractDir)
-
-    await Promise.all(items.map(async (item) => {
-      const from = path.join(tempExtractDir, item)
-      const to = path.join(targetFolderPath, item)
-      await mv(from, to)
-    }))
-  } finally {
-    await rmrf(tempExtractDir).catch(log.error)
-  }
-}
-
-/**
- * unzip file
- * @param {string} localFilePath absolute path of a zip file
- * @param {string} targetFolderPath absolute path of unzip target folder
- */
-const unzipFile = async (localFilePath, targetFolderPath) => {
-  const tar = require('tar')
-  if (isWin && isWinDrive(targetFolderPath)) {
-    await handleWindowsDrive(localFilePath, targetFolderPath)
-  } else {
-    await tar.x({ file: localFilePath, C: targetFolderPath })
-  }
-  return 1
-}
-
 async function listWindowsRootPath () {
   const drives = await new Promise((resolve, reject) => {
     const { exec } = require('child_process')
@@ -369,8 +316,6 @@ const fsExport = Object.assign(
     cp,
     mv,
     openFile,
-    zipFolder,
-    unzipFile,
     readCustom,
     writeCustom,
     openCustom,
