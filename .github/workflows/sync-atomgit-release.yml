@@ -1,0 +1,222 @@
+name: sync-release-to-atomgit
+
+# Mirror the latest GitHub release (tag + notes + all binary assets) to
+# https://atomgit.com/electerm/electerm, same idea as upload-release-assets-r2.yml.
+#
+# atomgit release attachments: single file <= 2GB, no documented total quota
+# (the 2GB git / 5GB LFS limits only apply to code storage, not attachments).
+# A full electerm release is ~4.4GB, so by default we keep only the newest
+# release on atomgit -- set keep_previous=true if you ever want them to pile up.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to sync, e.g. v5.5.35 (default: version in package.json)'
+        required: false
+        type: string
+      keep_previous:
+        description: 'Keep previously synced releases on atomgit (default: delete them)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    environment: build
+    env:
+      OWNER: electerm
+      REPO: electerm
+      # http push username, must be a real atomgit account (token owner),
+      # not the org name -- see jiacai2050/atomgit-action#atomgit_user
+      ATOMGIT_USER: zxdong262
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag
+        id: tag
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -eu
+          tag="${INPUT_TAG:-$RELEASE_TAG}"
+          if [ -z "$tag" ]; then
+            tag="v$(node -p "require('./package.json').version")"
+          fi
+          case "$tag" in
+            v*) ;;
+            *) tag="v$tag" ;;
+          esac
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "syncing $tag"
+
+      - name: Download release assets from GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -eu
+          mkdir -p ./release-assets
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir ./release-assets
+          echo "--- assets ---"
+          find ./release-assets -type f -exec ls -l {} + \
+            | awk '{printf "%12s  %s\n", $5, $9; t += $5}
+                   END {printf "total: %.2f GB\n", t / 1073741824}'
+
+      - name: Push tag to atomgit
+        env:
+          ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -eu
+          git push --force \
+            "https://${ATOMGIT_USER}:${ATOMGIT_TOKEN}@atomgit.com/${OWNER}/${REPO}.git" \
+            "refs/tags/${TAG}:refs/tags/${TAG}"
+
+      # Drop every release except the one we are about to sync, so we never
+      # stack 4.4GB per version. Runs after the download so a broken GitHub
+      # release does not cost us the copy we already have on atomgit.
+      - name: Clean previously synced releases
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.keep_previous }}
+        env:
+          ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -u
+          api="https://api.atomgit.com/api/v5/repos/${OWNER}/${REPO}"
+          auth="access_token=${ATOMGIT_TOKEN}"
+
+          curl -sS "${api}/releases?${auth}&per_page=100" \
+            | jq -r '.[].tag_name' | while read -r old; do
+            [ -n "$old" ] || continue
+            [ "$old" = "$TAG" ] && continue
+            echo "--- cleaning $old"
+            curl -sS "${api}/releases/${old}?${auth}" \
+              | jq -r '.assets[]? | "\(.id) \(.name)"' | while read -r id name; do
+              [ -n "$id" ] || continue
+              code="$(curl -sS -o /dev/null -w '%{http_code}' -X DELETE \
+                "${api}/releases/${old}/attach_files/${id}?${auth}" || echo 000)"
+              echo "  rm attachment $name ($id) -> $code"
+            done
+            # undocumented, best effort: an empty release is harmless
+            code="$(curl -sS -o /dev/null -w '%{http_code}' -X DELETE \
+              "${api}/releases/${old}?${auth}" || echo 000)"
+            echo "  rm release $old -> $code"
+          done
+
+      # Re-run safety: drop whatever a previous attempt left on this tag, so
+      # asset names stay unique and the asset count check below stays exact.
+      - name: Reset attachments on the sync tag
+        env:
+          ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -u
+          api="https://api.atomgit.com/api/v5/repos/${OWNER}/${REPO}"
+          auth="access_token=${ATOMGIT_TOKEN}"
+          curl -sS "${api}/releases/${TAG}?${auth}" \
+            | jq -r '.assets[]? | "\(.id) \(.name)"' | while read -r id name; do
+            [ -n "$id" ] || continue
+            code="$(curl -sS -o /dev/null -w '%{http_code}' -X DELETE \
+              "${api}/releases/${TAG}/attach_files/${id}?${auth}" || echo 000)"
+            echo "  rm stale attachment $name ($id) -> $code"
+          done
+
+      - name: Create release on atomgit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -u
+          api="https://api.atomgit.com/api/v5/repos/${OWNER}/${REPO}"
+          auth="access_token=${ATOMGIT_TOKEN}"
+
+          body="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body -q .body)"
+          jq -n --arg tag "$TAG" --arg body "$body" \
+            '{tag_name: $tag, name: $tag, body: $body}' > /tmp/release.json
+
+          code="$(curl -sS -o /tmp/release.out -w '%{http_code}' -X POST \
+            "${api}/releases?${auth}" \
+            -H 'Content-Type: application/json' \
+            -d @/tmp/release.json || echo 000)"
+          echo "create release -> $code"
+          cat /tmp/release.out || true
+          # 4xx means it already exists (POST returns 405 on re-run), not fatal
+          case "$code" in
+            200|201) echo "created" ;;
+            *) echo "::warning::release not created ($code), continuing" ;;
+          esac
+
+      - name: Upload assets to atomgit
+        env:
+          ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+          UPLOAD_JOBS: '4'
+        run: |
+          set -u
+          api="https://api.atomgit.com/api/v5/repos/${OWNER}/${REPO}"
+          auth="access_token=${ATOMGIT_TOKEN}"
+          export api auth TAG
+
+          upload_one() {
+            file="$1"
+            name="$(basename "$file")"
+            attempt=1
+            while [ "$attempt" -le 3 ]; do
+              info="$(curl -sSf "${api}/releases/${TAG}/upload_url?${auth}&file_name=${name}")" || {
+                echo "::warning::no upload url for ${name} (attempt ${attempt})"
+                sleep 10
+                attempt=$((attempt + 1))
+                continue
+              }
+              url="$(printf '%s' "$info" | jq -r '.url')"
+              hdr="$(mktemp)"
+              printf '%s' "$info" \
+                | jq -r '.headers | to_entries[] | "header = \"\(.key): \(.value)\""' > "$hdr"
+              if curl -sSf -X PUT "$url" -K "$hdr" \
+                  --data-binary "@${file}" \
+                  --retry 3 --retry-delay 5; then
+                rm -f "$hdr"
+                echo "ok   ${name}"
+                return 0
+              fi
+              rm -f "$hdr"
+              echo "::warning::upload failed for ${name} (attempt ${attempt}), retrying"
+              sleep 15
+              attempt=$((attempt + 1))
+            done
+            echo "::error::giving up on ${name}"
+            return 1
+          }
+          export -f upload_one
+
+          # skip the auto generated source archives
+          find ./release-assets -type f \
+            ! -name "${TAG}.tar.gz" \
+            ! -name "${TAG}.zip" \
+            | xargs -r -P "${UPLOAD_JOBS}" -I {} bash -c 'upload_one "$@"' _ {}
+
+      - name: Verify
+        env:
+          ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -eu
+          api="https://api.atomgit.com/api/v5/repos/${OWNER}/${REPO}"
+          res="$(curl -sS "${api}/releases/${TAG}?access_token=${ATOMGIT_TOKEN}&temp_download_url=true")"
+          echo "$res" | jq -r '(.assets // [])[] | "\(.name) -> \(.browser_download_url)"'
+          n="$(echo "$res" | jq '(.assets // []) | length')"
+          want="$(find ./release-assets -type f ! -name "${TAG}.tar.gz" ! -name "${TAG}.zip" | wc -l | tr -d ' ')"
+          echo "atomgit assets: $n / github assets: $want"
+          echo "https://atomgit.com/${OWNER}/${REPO}/releases"
+          [ "$n" = "$want" ] || { echo "::error::asset count mismatch"; exit 1; }
