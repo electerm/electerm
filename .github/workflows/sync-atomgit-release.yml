@@ -3,6 +3,12 @@ name: sync-release-to-atomgit
 # Mirror the latest GitHub release (tag + notes + all binary assets) to
 # https://atomgit.com/electerm/electerm, same idea as upload-release-assets-r2.yml.
 #
+# NOTE: the atomgit repo is a *mirror repository* (镜像仓库) of this GitHub repo,
+# so branches/tags arrive on their own and any git push is rejected with
+#   403 <CH.00905403> This operation is not allowed because the repository is an
+#   image repository.
+# We therefore only push release objects + attachments over the REST API.
+#
 # atomgit release attachments: single file <= 2GB, no documented total quota
 # (the 2GB git / 5GB LFS limits only apply to code storage, not attachments).
 # A full electerm release is ~4.4GB, so by default we keep only the newest
@@ -10,6 +16,8 @@ name: sync-release-to-atomgit
 on:
   release:
     types: [published]
+  push:
+    branches: [ atom ]
   workflow_dispatch:
     inputs:
       tag:
@@ -32,14 +40,9 @@ jobs:
     env:
       OWNER: electerm
       REPO: electerm
-      # http push username, must be a real atomgit account (token owner),
-      # not the org name -- see jiacai2050/atomgit-action#atomgit_user
-      ATOMGIT_USER: zxdong262
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Resolve tag
         id: tag
@@ -72,15 +75,25 @@ jobs:
             | awk '{printf "%12s  %s\n", $5, $9; t += $5}
                    END {printf "total: %.2f GB\n", t / 1073741824}'
 
-      - name: Push tag to atomgit
+      # The atomgit copy is a mirror repo: we cannot push the tag ourselves, it
+      # has to arrive via mirroring. Give the mirror a few minutes to catch up,
+      # then carry on either way (the release API only needs the tag name).
+      - name: Wait for tag to reach atomgit
         env:
-          ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
           TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          set -eu
-          git push --force \
-            "https://${ATOMGIT_USER}:${ATOMGIT_TOKEN}@atomgit.com/${OWNER}/${REPO}.git" \
-            "refs/tags/${TAG}:refs/tags/${TAG}"
+          set -u
+          url="https://atomgit.com/${OWNER}/${REPO}.git"
+          for i in $(seq 1 6); do
+            if git ls-remote --tags "$url" "refs/tags/${TAG}" \
+                 | grep -q "refs/tags/${TAG}$"; then
+              echo "tag ${TAG} is on atomgit mirror"
+              exit 0
+            fi
+            echo "waiting for mirror to publish ${TAG} (${i}/6)"
+            sleep 30
+          done
+          echo "::warning::${TAG} not visible on the atomgit mirror yet, continuing"
 
       # Drop every release except the one we are about to sync, so we never
       # stack 4.4GB per version. Runs after the download so a broken GitHub
