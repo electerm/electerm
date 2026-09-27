@@ -1,7 +1,7 @@
-name: atomgit-probe
+name: atomgit-probe2
 
-# TEMPORARY diagnostic workflow -- delete this file and the atom-probe branch
-# once the upload throughput question is answered.
+# TEMPORARY diagnostic -- throughput from a GitHub runner to the gitcode OBS
+# upload endpoint, default DNS vs the alternate IP people report as faster.
 on:
   push:
     branches: [ atom-probe ]
@@ -15,7 +15,7 @@ jobs:
       REPO: electerm
       TAG: v5.5.35
     steps:
-      - name: Probe atomgit upload endpoint
+      - name: Compare upload routes
         env:
           ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
         run: |
@@ -23,40 +23,37 @@ jobs:
           api="https://api.atomgit.com/api/v5/repos/${OWNER}/${REPO}"
           auth="access_token=${ATOMGIT_TOKEN}"
 
-          info="$(curl -sSf "${api}/releases/${TAG}/upload_url?${auth}&file_name=probe-small.bin")"
-          echo "--- upload_url response (headers redacted) ---"
-          echo "$info" | jq '{url: .url, header_keys: (.headers | keys)}'
-          url="$(echo "$info" | jq -r '.url')"
-          host="$(echo "$url" | sed -E 's#^https?://([^/]+).*#\1#')"
-          echo "upload host: ${host}"
-          echo "--- dns ---"
-          getent ahostsv4 "$host" | head -5 || true
-          for ip in 159.138.147.37; do
-            echo -n "connect to ${ip}:443 -> "
-            curl -sS -o /dev/null -m 20 -w 'connect=%{time_connect}s tls=%{time_appconnect}s code=%{http_code}\n' \
-              "https://${ip}/" -k --resolve "${host}:443:${ip}" || echo "failed"
-          done
+          info="$(curl -sSf "${api}/releases/${TAG}/upload_url?${auth}&file_name=probe-route.bin")"
+          host="$(echo "$info" | jq -r '.url' | sed -E 's#^https?://([^/]+).*#\1#')"
+          echo "host=${host}"
 
-          hdr="$(mktemp)"
-          echo "$info" | jq -r '.headers | to_entries[] | "header = \"\(.key): \(.value)\""' > "$hdr"
-          echo "--- headers sent ---"
-          cat "$hdr"
+          head -c $((8 * 1048576)) /dev/urandom > /tmp/p.bin
 
-          for mb in 1 20; do
-            head -c $((mb * 1048576)) /dev/urandom > /tmp/probe.bin
-            echo "--- PUT ${mb}MB ---"
-            curl -sS -X PUT "$url" -K "$hdr" --data-binary @/tmp/probe.bin \
-              -H 'Expect:' --connect-timeout 30 --max-time 300 \
-              -w 'code=%{http_code} connect=%{time_connect}s tls=%{time_appconnect}s total=%{time_total}s up=%{speed_upload}B/s\n' \
-              || echo "curl exit $?"
-          done
+          i=0
+          try() {
+            label="$1"; shift
+            i=$((i + 1))
+            echo "=== ${label} ==="
+            fresh="$(curl -sSf "${api}/releases/${TAG}/upload_url?${auth}&file_name=probe-route-${i}.bin")"
+            url="$(echo "$fresh" | jq -r '.url')"
+            hdr="$(mktemp)"
+            echo "$fresh" | jq -r '.headers | to_entries[] | "header = \"\(.key): \(.value)\""' > "$hdr"
+            curl -sS -X PUT "$url" -K "$hdr" --data-binary @/tmp/p.bin \
+              -H 'Expect:' -H 'x-obs-acl: private' \
+              --connect-timeout 20 --max-time 120 \
+              -w 'code=%{http_code} connect=%{time_connect}s total=%{time_total}s up=%{speed_upload}B/s\n' \
+              "$@" || echo "curl exit $?"
+            rm -f "$hdr"
+          }
 
-          echo "--- assets on atomgit now ---"
-          curl -sS "${api}/releases/${TAG}?${auth}" | jq -r '.assets[]? | "\(.id) \(.name)"'
+          try "default dns" 
+          try "alt ip 159.138.147.37" --resolve "${host}:443:159.138.147.37"
+          try "http1.1 default" --http1.1
+          try "ipv4 forced" -4
 
-          echo "--- cleanup probe attachment ---"
+          echo "=== cleanup ==="
           for id in $(curl -sS "${api}/releases/${TAG}?${auth}" \
-                        | jq -r '.assets[]? | select(.name=="probe-small.bin") | .id'); do
+                        | jq -r '.assets[]? | select(.name | startswith("probe-route")) | .id'); do
             curl -sS -o /dev/null -w "delete ${id} -> %{http_code}\n" -X DELETE \
               "${api}/releases/${TAG}/attach_files/${id}?${auth}"
           done
