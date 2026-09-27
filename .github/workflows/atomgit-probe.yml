@@ -1,7 +1,6 @@
-name: atomgit-probe2
+name: atomgit-probe3
 
-# TEMPORARY diagnostic -- throughput from a GitHub runner to the gitcode OBS
-# upload endpoint, default DNS vs the alternate IP people report as faster.
+# TEMPORARY diagnostic -- confirm sustained throughput for the real config.
 on:
   push:
     branches: [ atom-probe ]
@@ -15,7 +14,7 @@ jobs:
       REPO: electerm
       TAG: v5.5.35
     steps:
-      - name: Compare upload routes
+      - name: Sustained upload test
         env:
           ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
         run: |
@@ -23,37 +22,39 @@ jobs:
           api="https://api.atomgit.com/api/v5/repos/${OWNER}/${REPO}"
           auth="access_token=${ATOMGIT_TOKEN}"
 
-          info="$(curl -sSf "${api}/releases/${TAG}/upload_url?${auth}&file_name=probe-route.bin")"
+          info="$(curl -sSf "${api}/releases/${TAG}/upload_url?${auth}&file_name=probe-big.bin")"
           host="$(echo "$info" | jq -r '.url' | sed -E 's#^https?://([^/]+).*#\1#')"
           echo "host=${host}"
+          getent ahostsv4 "$host" | head -3
 
-          head -c $((8 * 1048576)) /dev/urandom > /tmp/p.bin
+          head -c $((32 * 1048576)) /dev/urandom > /tmp/p.bin
+          echo "payload: $(wc -c < /tmp/p.bin) bytes"
 
           i=0
           try() {
             label="$1"; shift
             i=$((i + 1))
             echo "=== ${label} ==="
-            fresh="$(curl -sSf "${api}/releases/${TAG}/upload_url?${auth}&file_name=probe-route-${i}.bin")"
+            fresh="$(curl -sSf "${api}/releases/${TAG}/upload_url?${auth}&file_name=probe-big-${i}.bin")"
             url="$(echo "$fresh" | jq -r '.url')"
             hdr="$(mktemp)"
             echo "$fresh" | jq -r '.headers | to_entries[] | "header = \"\(.key): \(.value)\""' > "$hdr"
             curl -sS -X PUT "$url" -K "$hdr" --data-binary @/tmp/p.bin \
-              -H 'Expect:' -H 'x-obs-acl: private' \
-              --connect-timeout 20 --max-time 120 \
-              -w 'code=%{http_code} connect=%{time_connect}s total=%{time_total}s up=%{speed_upload}B/s\n' \
+              -H 'Expect:' \
+              --connect-timeout 20 --max-time 180 \
+              -w 'code=%{http_code} total=%{time_total}s up=%{speed_upload}B/s\n' \
               "$@" || echo "curl exit $?"
             rm -f "$hdr"
           }
 
-          try "default dns" 
-          try "alt ip 159.138.147.37" --resolve "${host}:443:159.138.147.37"
-          try "http1.1 default" --http1.1
-          try "ipv4 forced" -4
+          try "A: alt ip"           --resolve "${host}:443:159.138.147.37"
+          try "B: alt ip + http1.1" --resolve "${host}:443:159.138.147.37" --http1.1
+          try "C: alt ip (repeat)"  --resolve "${host}:443:159.138.147.37"
+          try "D: default dns+h1.1" --http1.1
 
           echo "=== cleanup ==="
           for id in $(curl -sS "${api}/releases/${TAG}?${auth}" \
-                        | jq -r '.assets[]? | select(.name | startswith("probe-route")) | .id'); do
+                        | jq -r '.assets[]? | select(.name | startswith("probe-big")) | .id'); do
             curl -sS -o /dev/null -w "delete ${id} -> %{http_code}\n" -X DELETE \
               "${api}/releases/${TAG}/attach_files/${id}?${auth}"
           done
