@@ -170,7 +170,10 @@
   z-index 900
   border-radius 0 0 3px 3px
   padding 0
-  background var(--main)
+  // 透明底：按钮区透出标题栏底色，与标签栏永久无缝（消除按钮区与标签栏的底色接缝）
+  background transparent
+  // 左侧 1px 发丝线分隔按钮区与标签区（inset 不产生布局位移）
+  box-shadow inset 1px 0 0 0 var(--border)
   -webkit-app-region no-drag
 
 .window-control-box
@@ -212,7 +215,7 @@
   .window-control-minimize
   .window-control-maximize
     &:hover
-      background var(--main-dark)
+      background var(--hover-bg, rgba(0, 0, 0, 0.04))
   .window-control-close:hover
     background var(--error)
 
