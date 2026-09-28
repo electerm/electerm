@@ -188,18 +188,17 @@
   border 1px solid var(--text)
   cursor pointer
   &.is-max
-    height 6px
     position relative
     &:before
       position absolute
       content ''
-      left -3px
+      // 恢复图标：背面完整矩形与正面框右下错位 3px，露出右边/下边成双窗口，
+      // 与最大化态（单框）一眼可辨；currentColor 使 hover 时与正面一起变 --primary
+      left 3px
       top 3px
-      width 8px
-      height 4px
-      border 1px solid text
-      border-top none
-      border-right none
+      width 10px
+      height 7px
+      border 1px solid currentColor
 
 .control-icon:hover
   color var(--text-light)
