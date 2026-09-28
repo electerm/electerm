@@ -2,6 +2,12 @@ const os = require('os')
 const uid = require('../common/uid')
 const FtpSrv = require('@electerm/ftp-srv')
 
+// Passive data connections are opened by the client, so these ports have to be
+// reachable through whatever firewall sits between the client and us. Keep them
+// in a high, predictable range instead of letting the library scan from 1024.
+const PASV_MIN_PORT = 50000
+const PASV_MAX_PORT = 51000
+
 const widgetInfo = {
   name: 'Local FTP Server',
   description: 'A local FTP server to share files over FTP protocol.',
@@ -47,6 +53,12 @@ const widgetInfo = {
       description: 'Password for FTP authentication (used when anonymous is false)'
     },
     {
+      name: 'pasvUrl',
+      type: 'string',
+      default: '',
+      description: 'Address to advertise in PASV replies (leave empty to auto-detect). Set this when the machine has several network interfaces or is behind NAT.'
+    },
+    {
       name: 'autoRun',
       type: 'boolean',
       default: false,
@@ -75,7 +87,10 @@ function widgetRun (instanceConfig) {
     server = new FtpSrv({
       url: `ftp://${config.host}:${config.port}`,
       anonymous: config.anonymous,
-      root: config.directory
+      root: config.directory,
+      pasv_url: config.pasvUrl || undefined,
+      pasv_min: PASV_MIN_PORT,
+      pasv_max: PASV_MAX_PORT
     })
 
     if (!config.anonymous) {
