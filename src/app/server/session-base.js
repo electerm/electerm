@@ -54,7 +54,19 @@ class TerminalBase {
       if (row < 0) return
       const line = buffer.getLine(row)
       if (!line) return
-      const text = line.translateToString(true)
+      // A line wider than the terminal wraps over several rows, and every
+      // row after the first has isWrapped set. Log the whole line, not only
+      // its last row (#4496). translateToString(true) trims only empty cells,
+      // so a space at the wrap point is kept, while the empty cell a wide
+      // character leaves at the end of a row is not.
+      let first = row
+      while (first > 0 && buffer.getLine(first).isWrapped) {
+        first--
+      }
+      let text = ''
+      for (let i = first; i <= row; i++) {
+        text += buffer.getLine(i).translateToString(true)
+      }
       const dt = this.initOptions.addTimeStampToTermLog
         ? `[${time()}] `
         : ''
