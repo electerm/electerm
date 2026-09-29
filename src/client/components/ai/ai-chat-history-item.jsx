@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react'
 import AIOutput from './ai-output'
 import AIStopIcon from './ai-stop-icon'
 import AgentToolCallCard from './agent-tool-call-card'
@@ -20,7 +20,12 @@ import {
 import { copy } from '../../common/clipboard'
 import { formatSize } from './ai-attachments'
 
-export default function AIChatHistoryItem ({ item }) {
+// memo()'d: the panel holds the draft prompt in its own state, so every
+// keystroke re-renders the whole transcript. Without this the keystroke also
+// re-rendered (and re-parsed the markdown of) every message in it -- 50ms+ per
+// character in a long agent session. Entries are updated immutably
+// (store.updateAiHistoryEntry), so the reference comparison is meaningful.
+export default memo(function AIChatHistoryItem ({ item }) {
   const [showOutput, setShowOutput] = useState(true)
   const [isStreaming, setIsStreaming] = useState(false)
   const abortRef = useRef(false)
@@ -74,11 +79,9 @@ export default function AIChatHistoryItem ({ item }) {
         return window.store.onError(new Error(streamResponse.error))
       }
 
-      const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
-      if (index !== -1) {
-        window.store.aiChatHistory[index].response = streamResponse.content || ''
-        window.store.aiChatHistory = [...window.store.aiChatHistory]
-      }
+      window.store.updateAiHistoryEntry(item.id, {
+        response: streamResponse.content || ''
+      })
       setIsStreaming(streamResponse.hasMore)
       if (streamResponse.hasMore) {
         setTimeout(() => pollStreamContent(sid), 200)
@@ -112,17 +115,15 @@ export default function AIChatHistoryItem ({ item }) {
 
       if (aiResponse && aiResponse.isStream && aiResponse.sessionId) {
         setIsStreaming(true)
-        const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
-        if (index !== -1) {
-          window.store.aiChatHistory[index].sessionId = aiResponse.sessionId
-          window.store.aiChatHistory[index].response = aiResponse.content || ''
-        }
+        window.store.updateAiHistoryEntry(item.id, {
+          sessionId: aiResponse.sessionId,
+          response: aiResponse.content || ''
+        })
         pollStreamContent(aiResponse.sessionId)
       } else if (aiResponse && aiResponse.response) {
-        const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
-        if (index !== -1) {
-          window.store.aiChatHistory[index].response = aiResponse.response
-        }
+        window.store.updateAiHistoryEntry(item.id, {
+          response: aiResponse.response
+        })
       }
     } catch (error) {
       window.store.removeAiHistory(item.id)
@@ -147,10 +148,7 @@ export default function AIChatHistoryItem ({ item }) {
 
   useEffect(() => {
     if (item.pending) {
-      const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
-      if (index !== -1) {
-        window.store.aiChatHistory[index].pending = false
-      }
+      window.store.updateAiHistoryEntry(item.id, { pending: false })
       if (mode === 'agent') {
         startAgentRequest()
       } else {
@@ -284,4 +282,4 @@ export default function AIChatHistoryItem ({ item }) {
       {renderStopButton()}
     </div>
   )
-}
+})

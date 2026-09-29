@@ -52,8 +52,17 @@ export default function AIChat (props) {
     }
   }, [currentChatSessionId, props.rightPanelTab])
 
-  const sessionHistory = (props.aiChatHistory || []).filter(
-    h => h.chatSessionId === currentChatSessionId
+  // Memoized on purpose: `prompt` lives in this component's state, so every
+  // keystroke re-renders it. `AIChatHistory` is memo()'d, and a fresh array on
+  // each keystroke defeated that -- which also meant its scroll-to-bottom
+  // layout effect re-ran while typing, yanking the view down mid-scroll.
+  // Entries are updated immutably, so a new array identity really does mean
+  // the transcript changed.
+  const sessionHistory = useMemo(
+    () => (props.aiChatHistory || []).filter(
+      h => h.chatSessionId === currentChatSessionId
+    ),
+    [props.aiChatHistory, currentChatSessionId]
   )
 
   const config = props.config || {}
@@ -179,12 +188,14 @@ export default function AIChat (props) {
       id: chatId
     }
 
-    window.store.aiChatHistory.push(chatEntry)
+    // Reassign rather than push: the store only notifies on a property write,
+    // and the transcript is keyed off the array identity.
+    window.store.aiChatHistory = [...window.store.aiChatHistory, chatEntry]
     setPrompt('')
     setAttachments([])
 
     if (window.store.aiChatHistory.length > MAX_HISTORY) {
-      window.store.aiChatHistory.splice(MAX_HISTORY)
+      window.store.aiChatHistory = window.store.aiChatHistory.slice(0, MAX_HISTORY)
     }
   }, [prompt, attachments, mode, currentChatSessionId])
 

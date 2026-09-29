@@ -98,12 +98,7 @@ export default function AIOutput ({ item }) {
   }
 
   function handleToggleFlag () {
-    const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
-    if (index === -1) {
-      return
-    }
-    window.store.aiChatHistory[index].flagged = !window.store.aiChatHistory[index].flagged
-    window.store.aiChatHistory = [...window.store.aiChatHistory]
+    window.store.updateAiHistoryEntry(item.id, { flagged: !item.flagged })
   }
 
   function renderFlag () {

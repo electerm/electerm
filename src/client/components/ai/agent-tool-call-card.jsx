@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { Tag } from 'antd'
 import {
   CaretDownOutlined,
@@ -34,7 +34,11 @@ function formatResult (result) {
   }
 }
 
-export default function AgentToolCallCard ({ toolCall, autoCollapse }) {
+// memo()'d on the entry object: `formatResult` JSON.parses the whole tool
+// result on every render, and an agent turn can hold dozens of these. The
+// agent loop swaps in a new entry object when a call finishes
+// (runAgentLoop), so an unchanged card keeps its identity and is skipped.
+export default memo(function AgentToolCallCard ({ toolCall, autoCollapse }) {
   const [expanded, setExpanded] = useState(toolCall.status === 'running')
   const { name, args, status, result } = toolCall
   const Icon = toolIcons[name] || CodeOutlined
@@ -110,4 +114,4 @@ export default function AgentToolCallCard ({ toolCall, autoCollapse }) {
       )}
     </div>
   )
-}
+})

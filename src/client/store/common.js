@@ -444,6 +444,23 @@ export default Store => {
     })
   }
 
+  // Update one entry immutably. Both halves matter:
+  // - the store only notifies subscribers on a property write, so mutating the
+  //   entry in place leaves the panel rendering what it already had;
+  // - the transcript is memo()'d per entry, and a memo() comparison of an entry
+  //   that was mutated in place compares the object with itself, so React can
+  //   never see the change and the entry stops updating.
+  Store.prototype.updateAiHistoryEntry = function (id, updates) {
+    const { aiChatHistory } = window.store
+    const index = aiChatHistory.findIndex(d => d.id === id)
+    if (index === -1) {
+      return
+    }
+    const next = [...aiChatHistory]
+    next[index] = { ...next[index], ...updates }
+    window.store.aiChatHistory = next
+  }
+
   Store.prototype.removeAiHistory = function (id) {
     const { store } = window
     const index = store.aiChatHistory.findIndex(d => d.id === id)

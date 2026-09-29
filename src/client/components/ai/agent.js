@@ -27,11 +27,7 @@ Reply in ${lang} language.`)
 }
 
 function updateChatEntry (chatEntry, updates) {
-  const index = window.store.aiChatHistory.findIndex(i => i.id === chatEntry.id)
-  if (index !== -1) {
-    Object.assign(window.store.aiChatHistory[index], updates)
-    window.store.aiChatHistory = [...window.store.aiChatHistory]
-  }
+  window.store.updateAiHistoryEntry(chatEntry.id, updates)
 }
 
 async function callBackendAIchatWithTools (messages, config) {
@@ -150,28 +146,32 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
           args = {}
         }
 
-        const toolEntry = {
+        toolCallsLog.push({
           id: toolCall.id,
           name: toolCall.function.name,
           args,
           status: 'running',
           result: null
-        }
-        toolCallsLog.push(toolEntry)
+        })
         updateChatEntry(chatEntry, {
           toolCalls: [...toolCallsLog]
         })
 
-        let toolResult
+        let finished
         try {
-          toolResult = await executeToolCall(toolCall.function.name, args)
-          toolEntry.status = 'completed'
-          toolEntry.result = toolResult
+          const toolResult = await executeToolCall(toolCall.function.name, args)
+          finished = { status: 'completed', result: toolResult }
         } catch (err) {
-          toolEntry.status = 'error'
-          toolEntry.result = err.message
+          finished = { status: 'error', result: err.message }
         }
 
+        // Swap in a new entry object instead of mutating the running one: the
+        // tool call card is memo()'d on that object's identity, so an in-place
+        // mutation would leave the card showing "running" forever.
+        toolCallsLog[toolCallsLog.length - 1] = {
+          ...toolCallsLog[toolCallsLog.length - 1],
+          ...finished
+        }
         updateChatEntry(chatEntry, {
           toolCalls: [...toolCallsLog]
         })
@@ -179,7 +179,7 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
         messages.push({
           role: 'tool',
           tool_call_id: toolCall.id,
-          content: toolEntry.result
+          content: finished.result
         })
       }
     }
