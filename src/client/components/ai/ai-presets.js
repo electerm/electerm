@@ -115,6 +115,21 @@ export const defaultAIPresets = [
     siteUrl: 'https://www.orcarouter.ai/ref/ref_2c4884ca28b88a82593f'
   },
   {
+    id: 'cheaperinference',
+    nameAI: 'Cheaper Inference',
+    baseURLAI: 'https://api.cheaperinference.com/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'gpt-5.4-mini',
+    authHeaderNameAI: 'Authorization: Bearer',
+    modelAIs: [
+      { value: 'gpt-5.4-mini' },
+      { value: 'gpt-5.4' },
+      { value: 'claude-sonnet-5' },
+      { value: 'deepseek-v4-flash' }
+    ],
+    siteUrl: 'https://cheaperinference.com/signup'
+  },
+  {
     id: 'google',
     nameAI: 'Google Gemini',
     baseURLAI: 'https://generativelanguage.googleapis.com/v1beta/openai',
