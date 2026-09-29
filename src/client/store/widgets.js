@@ -4,7 +4,8 @@
 
 import message from '../components/common/message'
 import {
-  settingMap
+  settingMap,
+  settingPanelMobileBreakpoint
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import deepCopy from 'json-deep-copy'
@@ -27,10 +28,26 @@ export default Store => {
     const {
       widgetInstances
     } = window.store
-    const index = widgetInstances.findIndex(w => w.id === instanceId)
-    if (index > -1) {
-      widgetInstances.splice(index, 1)
+    // assigned, not spliced: an in-place mutation fires no subscriber, and the
+    // instance list, the sidebar badge and the detail panel all read this array
+    window.store.widgetInstances = widgetInstances.filter(w => w.id !== instanceId)
+  }
+
+  // Selecting a running instance in the widgets list shows its detail + log in
+  // the right column, the same way selecting a widget shows its run form.
+  Store.prototype.selectWidgetInstance = (instance) => {
+    const { store } = window
+    store.setSettingItem(instance)
+    // narrow panels drill into the right col content after picking an instance
+    if (window.store.innerWidth <= settingPanelMobileBreakpoint) {
+      window.store.settingMobileView = 'content'
     }
+  }
+
+  // back to the widget form — used when the instance being viewed is gone
+  Store.prototype.closeWidgetInstance = () => {
+    const { store } = window
+    store.setSettingItem(getInitItem([], settingMap.widgets))
   }
 
   Store.prototype.stopWidget = async (instanceId) => {
@@ -102,10 +119,11 @@ export default Store => {
             widgetId: result.widgetId,
             serverInfo: result.serverInfo,
             config: item.config,
+            startedAt: Date.now(),
             autoRun: true,
             autoRunId: item.id
           }
-          store.widgetInstances.push(instance)
+          store.widgetInstances = [...store.widgetInstances, instance]
         }
       } catch (err) {
         console.error(`Failed to autorun widget ${item.widgetId}:`, err)

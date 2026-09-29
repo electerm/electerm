@@ -1,0 +1,100 @@
+
+// hover popover on a running-instance row. A long path makes it wider than the
+// list column, and it then spills over the detail panel's heading, so it is
+// held to the column and wrapped instead.
+.wil-pop-info
+  max-width 220px
+  word-break break-all
+
+// widget manager: instance detail view (widget-instance-detail.jsx)
+.widget-instance-detail
+  display flex
+  flex-direction column
+  min-height 0
+  height 100%
+.wil-head
+  display flex
+  align-items center
+  justify-content space-between
+  gap 8px
+  margin-bottom 10px
+  flex-shrink 0
+.wil-head-title
+  min-width 0
+  font-size 14px
+.wil-descriptions
+  // the log is the point of this panel, so a long config list gives up room
+  // (and scrolls) instead of squeezing it: shrinkable, and allowed to go below
+  // its content height, with the pane holding a floor of its own
+  flex 0 1 auto
+  min-height 0
+  overflow auto
+  // long values (paths, URLs, keys) must wrap instead of widening the panel
+  .ant-descriptions-item-label
+    width 90px
+    white-space nowrap
+  .ant-descriptions-item-content
+    word-break break-all
+.wil-mono
+  font-family monospace
+  font-size 12px
+.wil-switch
+  margin 10px 0 6px
+  flex-shrink 0
+.wil-pane
+  flex 1
+  // a floor, so the log stays readable no matter how long the config list is
+  min-height 200px
+  overflow auto
+  padding 6px 8px
+  background var(--main-dark)
+  border 1px solid var(--main-light)
+  border-radius 4px
+  font-family monospace
+  font-size 12px
+  line-height 1.6
+.wil-line
+  display flex
+  gap 6px
+  white-space pre-wrap
+  word-break break-word
+  border-bottom 1px solid var(--main-light)
+  &:last-child
+    border-bottom 0
+.wil-time
+  flex-shrink 0
+  color var(--text-disabled)
+.wil-mark
+.wil-type
+  flex-shrink 0
+.wil-from
+  flex-shrink 0
+  color var(--text-dark)
+.wil-msg
+  min-width 0
+.wil-debug
+  color var(--text-dark)
+.wil-log
+  color var(--text)
+.wil-warn
+  color var(--warn)
+.wil-error
+  color var(--error)
+.wil-ok
+  color var(--success)
+  .wil-mark
+    color var(--success)
+.wil-fail
+  color var(--error)
+  .wil-mark
+    color var(--error)
+.wil-info
+  color var(--text-dark)
+.wil-empty
+  color var(--text-dark)
+  padding 6px 0
+.wil-path
+  flex-shrink 0
+  margin-top 6px
+  color var(--text-disabled)
+  font-size 11px

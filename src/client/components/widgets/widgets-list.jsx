@@ -138,10 +138,18 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
     )
   }
 
+  // clicking a running instance shows its detail + log in the right column
+  // (the widgets list above drills into the run form instead)
+  const onClickWidgetInstance = (instance) => {
+    window.store.selectWidgetInstance(instance)
+  }
+
   const renderInstancesSection = () => {
     return (
       <WidgetInstances
         widgetInstances={widgetInstances}
+        activeItemId={activeItemId}
+        onClickItem={onClickWidgetInstance}
       />
     )
   }

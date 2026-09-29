@@ -46,9 +46,11 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
         title: `${widget.info.name} (${result.instanceId})`,
         widgetId: result.widgetId,
         serverInfo: result.serverInfo,
-        config
+        config,
+        startedAt: Date.now()
       }
-      window.store.widgetInstances.push(instance)
+      // assigned, not pushed: see deleteWidgetInstance in store/widgets.js
+      window.store.widgetInstances = [...window.store.widgetInstances, instance]
       if (config.autoRun) {
         window.store.toggleAutoRunWidget(instance)
       }

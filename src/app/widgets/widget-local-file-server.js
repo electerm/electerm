@@ -118,11 +118,33 @@ function getDefaultConfig () {
   }, {})
 }
 
-function widgetRun (instanceConfig) {
+const noop = () => {}
+
+function widgetRun (instanceConfig, ctx = {}) {
+  const { log = noop, event = noop } = ctx
   const config = { ...getDefaultConfig(), ...instanceConfig }
   const instanceId = uid()
   let server = null
   const app = express()
+
+  // Registered before express.static (which start() adds later) so every
+  // request is reported, including the 404s that explain a client's problem.
+  app.use((req, res, next) => {
+    const startedAt = Date.now()
+    res.on('finish', () => {
+      const ok = res.statusCode < 400
+      event({
+        type: req.method,
+        ok,
+        from: req.socket && req.socket.remoteAddress,
+        msg: `${req.originalUrl} -> ${res.statusCode} (${Date.now() - startedAt}ms)`
+      })
+      if (!ok) {
+        log('warn', `${req.method} ${req.originalUrl} -> ${res.statusCode}`)
+      }
+    })
+    next()
+  })
 
   const start = () => {
     return new Promise((resolve, reject) => {
@@ -148,6 +170,7 @@ function widgetRun (instanceConfig) {
             path: directory
           }
           const msg = `${widgetInfo.name} is running at ${serverInfo.url}`
+          log('info', `serving ${serverInfo.path} on ${config.host}:${config.port}`)
           console.log(msg)
           console.log(`Serving files from: ${serverInfo.path}`)
           resolve({ serverInfo, msg, success: true })

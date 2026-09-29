@@ -220,6 +220,8 @@ export default () => {
     exePath: '',
     isPortable: false,
     installSrc: '',
+    // where running widgets write their logs, from the main process
+    widgetLogPath: '',
     showSshConfigModal: false,
 
     // batch inputs

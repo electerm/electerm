@@ -24,6 +24,7 @@ const {
   stopWidget,
   runWidgetFunc
 } = require('../widgets/load-widget')
+const widgetLog = require('../widgets/instance-log')
 const {
   checkMigrate,
   migrate
@@ -165,7 +166,10 @@ function initIpc () {
       installSrc,
       appPath,
       exePath,
-      isPortable
+      isPortable,
+      // where running widgets write their logs; the widget manager reads them
+      // straight off disk (see widgets/instance-log.js)
+      widgetLogPath: widgetLog.getLogDir()
     }
     initApp(langMap, config)
     initShortCut(globalShortcut, globalState.get('win'), config)

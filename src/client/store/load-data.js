@@ -276,6 +276,7 @@ export default (Store) => {
     store.appPath = globs.appPath
     store.exePath = globs.exePath
     store.isPortable = globs.isPortable
+    store.widgetLogPath = globs.widgetLogPath || ''
     store._config = globs.config
     window.et.langs = globs.langs
     store.zoom(store.config.zoom, false, true)

@@ -186,8 +186,11 @@ function getDefaultConfig () {
 }
 
 class ElectermMCPServer {
-  constructor (config) {
+  constructor (config, ctx = {}) {
     this.config = config
+    // instance log/event channels, see widgets/instance-log.js — optional so the
+    // server still works when constructed without one (tests)
+    this.ctx = ctx
     // API key is optional - skip auth if not provided
     this.instanceId = uid()
     this.httpServer = null
@@ -196,6 +199,18 @@ class ElectermMCPServer {
     this.pendingRequests = new Map()
     this.transports = {}
     this.taskManager = null
+  }
+
+  logLine (level, ...args) {
+    if (typeof this.ctx.log === 'function') {
+      this.ctx.log(level, ...args)
+    }
+  }
+
+  reportEvent (event) {
+    if (typeof this.ctx.event === 'function') {
+      this.ctx.event(event)
+    }
   }
 
   // Built-in blacklist: patterns that are always blocked regardless of user config.
@@ -1137,6 +1152,12 @@ class ElectermMCPServer {
         const authHeader = req.headers.authorization || ''
         const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
         if (!token || token !== this.config.apiKey) {
+          this.reportEvent({
+            type: 'auth',
+            ok: false,
+            from: req.socket && req.socket.remoteAddress,
+            msg: `${req.method} ${req.originalUrl} -> 401 Unauthorized`
+          })
           res.status(401).json({
             jsonrpc: '2.0',
             error: {
@@ -1166,6 +1187,12 @@ class ElectermMCPServer {
             sessionIdGenerator: () => uid(),
             onsessioninitialized: (sid) => {
               self.transports[sid] = transport
+              self.reportEvent({
+                type: 'session',
+                ok: true,
+                from: req.socket && req.socket.remoteAddress,
+                msg: `new session ${sid}`
+              })
             }
           })
 
@@ -1180,8 +1207,21 @@ class ElectermMCPServer {
         }
 
         await transport.handleRequest(req, res, req.body)
+        self.reportEvent({
+          type: 'request',
+          ok: res.statusCode < 400,
+          from: req.socket && req.socket.remoteAddress,
+          msg: `POST /mcp${sessionId ? ' (session ' + sessionId + ')' : ''} -> ${res.statusCode}`
+        })
       } catch (error) {
         console.error('Error handling MCP request:', error)
+        self.logLine('error', `request failed: ${error && error.message ? error.message : error}`)
+        self.reportEvent({
+          type: 'request',
+          ok: false,
+          from: req.socket && req.socket.remoteAddress,
+          msg: `POST /mcp -> 500 ${error && error.message ? error.message : error}`
+        })
         if (!res.headersSent) {
           res.status(500).json({
             jsonrpc: '2.0',
@@ -1199,6 +1239,12 @@ class ElectermMCPServer {
     app.get('/mcp', async (req, res) => {
       const sessionId = req.headers['mcp-session-id']
       if (!sessionId || !self.transports[sessionId]) {
+        self.reportEvent({
+          type: 'request',
+          ok: false,
+          from: req.socket && req.socket.remoteAddress,
+          msg: 'GET /mcp -> 400 invalid or missing session ID'
+        })
         res.status(400).send('Invalid or missing session ID')
         return
       }
@@ -1211,18 +1257,31 @@ class ElectermMCPServer {
     app.delete('/mcp', async (req, res) => {
       const sessionId = req.headers['mcp-session-id']
       if (!sessionId || !self.transports[sessionId]) {
+        self.reportEvent({
+          type: 'request',
+          ok: false,
+          from: req.socket && req.socket.remoteAddress,
+          msg: 'DELETE /mcp -> 400 invalid or missing session ID'
+        })
         res.status(400).send('Invalid or missing session ID')
         return
       }
 
       const transport = self.transports[sessionId]
       await transport.handleRequest(req, res)
+      self.reportEvent({
+        type: 'session',
+        ok: null,
+        from: req.socket && req.socket.remoteAddress,
+        msg: `session ${sessionId} terminated`
+      })
     })
 
     return new Promise((resolve, reject) => {
       this.httpServer = app.listen(port, host, (err) => {
         if (err) {
           console.error('MCP Server error:', err)
+          this.logLine('error', `listen failed: ${err.message}`)
           reject(err)
           return
         }
@@ -1235,6 +1294,7 @@ class ElectermMCPServer {
         }
         const authNote = self.config.apiKey ? '(API key required)' : '(no auth required)'
         const msg = `MCP Server is running at ${serverInfo.url} ${authNote}`
+        self.logLine('info', `${authNote}, ${Object.keys(self.config).length} config options applied`)
         resolve({
           serverInfo,
           msg,
@@ -1244,6 +1304,7 @@ class ElectermMCPServer {
 
       this.httpServer.on('error', (err) => {
         console.error('MCP Server error:', err)
+        this.logLine('error', `server error: ${err.message}`)
         reject(err)
       })
     })
@@ -1276,6 +1337,7 @@ class ElectermMCPServer {
         await this.transports[sessionId].close()
       } catch (e) {
         console.error(`Error closing transport ${sessionId}:`, e)
+        this.logLine('warn', `closing transport ${sessionId} failed: ${e.message}`)
       }
     }
     this.transports = {}
@@ -1305,9 +1367,9 @@ class ElectermMCPServer {
   }
 }
 
-function widgetRun (instanceConfig) {
+function widgetRun (instanceConfig, ctx = {}) {
   const config = { ...getDefaultConfig(), ...instanceConfig }
-  const mcpServer = new ElectermMCPServer(config)
+  const mcpServer = new ElectermMCPServer(config, ctx)
 
   return {
     instanceId: mcpServer.instanceId,

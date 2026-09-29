@@ -59,6 +59,8 @@ function getDefaultConfig () {
   }, {})
 }
 
+const noop = () => {}
+
 function getDefaultShell () {
   if (process.platform === 'win32') {
     return process.env.COMSPEC || 'powershell.exe'
@@ -225,13 +227,18 @@ function attachSftp (sftp, rootDir) {
   })
 }
 
-function widgetRun (instanceConfig) {
+function widgetRun (instanceConfig, ctx = {}) {
+  const { log = noop, event = noop } = ctx
   const config = { ...getDefaultConfig(), ...instanceConfig }
   const instanceId = uid()
   let server = null
   const activePtys = new Set()
+  // ssh2 only reports the peer address on the connection event, and the auth
+  // handler runs against the same client object, so carry it across here
+  const clientIps = new WeakMap()
 
   const attachSession = (client) => {
+    const from = clientIps.get(client)
     client.on('session', (accept) => {
       const session = accept()
       let ptyCols = 80
@@ -255,6 +262,12 @@ function widgetRun (instanceConfig) {
 
       session.on('shell', (acceptShell) => {
         const stream = acceptShell()
+        event({
+          type: 'shell',
+          ok: true,
+          from,
+          msg: `interactive shell (${ptyCols}x${ptyRows})`
+        })
         const pty = require('node-pty')
         term = pty.spawn(getDefaultShell(), [], {
           name: 'xterm-256color',
@@ -276,6 +289,12 @@ function widgetRun (instanceConfig) {
 
       session.on('exec', (acceptExec, rejectExec, info) => {
         const stream = acceptExec()
+        event({
+          type: 'exec',
+          ok: true,
+          from,
+          msg: info && info.command
+        })
         exec(info.command, { cwd: config.directory, maxBuffer: 16 * 1024 * 1024 }, (err, stdout, stderr) => {
           if (stdout) stream.write(stdout)
           if (stderr) stream.stderr.write(stderr)
@@ -286,6 +305,12 @@ function widgetRun (instanceConfig) {
       })
 
       session.on('sftp', (acceptSftp) => {
+        event({
+          type: 'sftp',
+          ok: true,
+          from,
+          msg: 'SFTP subsystem'
+        })
         attachSftp(acceptSftp(), config.directory)
       })
     })
@@ -301,16 +326,54 @@ function widgetRun (instanceConfig) {
     return new Promise((resolve, reject) => {
       server = new Server({ hostKeys: [hostKey] }, (client) => {
         client.on('authentication', (ctx) => {
+          const from = clientIps.get(client)
           if (ctx.method === 'password' &&
             ctx.username === config.username &&
             ctx.password === config.password) {
+            event({
+              type: 'auth',
+              ok: true,
+              from,
+              msg: `user ${ctx.username} accepted`
+            })
             ctx.accept()
             return
           }
+          event({
+            type: 'auth',
+            ok: false,
+            from,
+            msg: `user ${ctx.username} rejected (method ${ctx.method})`
+          })
           ctx.reject(['password'])
         })
-        client.on('ready', () => attachSession(client))
-        client.on('error', () => {})
+        client.on('ready', () => {
+          event({
+            type: 'session',
+            ok: true,
+            from: clientIps.get(client),
+            msg: 'authenticated, session ready'
+          })
+          attachSession(client)
+        })
+        client.on('error', (err) => {
+          event({
+            type: 'error',
+            ok: false,
+            from: clientIps.get(client),
+            msg: err && err.message ? err.message : String(err)
+          })
+        })
+      })
+
+      server.on('connection', (client, info) => {
+        clientIps.set(client, info && info.ip)
+        event({
+          type: 'connect',
+          ok: true,
+          from: info && info.ip,
+          msg: `client from ${info && info.ip}:${info && info.port}`
+        })
       })
 
       server.once('error', reject)
@@ -322,6 +385,7 @@ function widgetRun (instanceConfig) {
           path: config.directory
         }
         const msg = `${widgetInfo.name} is running at ${url}`
+        log('info', `sftp/shell root: ${config.directory}`)
         console.log(msg)
         console.log(`Serving directory (SFTP/shell cwd): ${config.directory}`)
         resolve({ serverInfo, msg, success: true })

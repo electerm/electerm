@@ -74,7 +74,53 @@ function getDefaultConfig () {
   }, {})
 }
 
-function widgetRun (instanceConfig) {
+const noop = () => {}
+
+// ftp-srv takes a pino-shaped logger (see its helpers/logger.js). Feeding it
+// into the instance log buys a command-level trace of the server for free —
+// including the client's own PASV/PORT/username lines — which is exactly what
+// is missing when a client cannot connect but the port is open. The library
+// masks PASS arguments itself.
+function createFtpLogger (log) {
+  const levelMap = {
+    trace: 'debug',
+    debug: 'debug',
+    info: 'info',
+    warn: 'warn',
+    error: 'error',
+    fatal: 'error'
+  }
+  const describe = (obj, msg) => {
+    const parts = []
+    if (msg) {
+      parts.push(msg)
+    }
+    if (obj instanceof Error) {
+      parts.push(obj.stack || obj.message)
+    } else if (typeof obj === 'string') {
+      parts.push(obj)
+    } else if (obj && typeof obj === 'object') {
+      parts.push(JSON.stringify(obj))
+    }
+    return parts.join(' ') || 'event'
+  }
+  const make = (bindings) => {
+    const logger = {
+      child: (b) => make({ ...bindings, ...b })
+    }
+    for (const name of Object.keys(levelMap)) {
+      logger[name] = (obj, msg) => {
+        const from = bindings.ip ? `[${bindings.ip}] ` : ''
+        log(levelMap[name], from + describe(obj, msg))
+      }
+    }
+    return logger
+  }
+  return make({})
+}
+
+function widgetRun (instanceConfig, ctx = {}) {
+  const { log = noop, event = noop } = ctx
   const config = { ...getDefaultConfig(), ...instanceConfig }
   const instanceId = uid()
   let server = null
@@ -90,20 +136,62 @@ function widgetRun (instanceConfig) {
       root: config.directory,
       pasv_url: config.pasvUrl || undefined,
       pasv_min: PASV_MIN_PORT,
-      pasv_max: PASV_MAX_PORT
+      pasv_max: PASV_MAX_PORT,
+      log: createFtpLogger(log)
     })
 
     if (!config.anonymous) {
-      server.on('login', ({ username, password }, resolve, reject) => {
+      server.on('login', ({ username, password, connection }, resolve, reject) => {
+        const from = connection && connection.ip
         if (username === config.username && password === config.password) {
+          event({
+            type: 'login',
+            ok: true,
+            from,
+            msg: `user ${username} accepted`
+          })
           return resolve({ root: config.directory })
         }
+        event({
+          type: 'login',
+          ok: false,
+          from,
+          msg: `user ${username} rejected: invalid username or password`
+        })
         return reject(new Error('Invalid username or password'))
       })
     }
 
+    server.on('connect', ({ connection, newConnectionCount }) => {
+      event({
+        type: 'connect',
+        ok: true,
+        from: connection && connection.ip,
+        msg: `control connection opened, ${newConnectionCount} active`
+      })
+    })
+
+    server.on('disconnect', ({ connection, newConnectionCount }) => {
+      event({
+        type: 'disconnect',
+        ok: null,
+        from: connection && connection.ip,
+        msg: `control connection closed, ${newConnectionCount} active`
+      })
+    })
+
     server.on('client-error', ({ connection, context, error }) => {
       console.log('FTP client error:', error)
+      event({
+        type: 'client-error',
+        ok: false,
+        from: connection && connection.ip,
+        msg: `${context}: ${error.message}`
+      })
+    })
+
+    server.on('server-error', ({ error }) => {
+      log('error', `server error: ${error && error.message ? error.message : error}`)
     })
 
     return new Promise((resolve, reject) => {
@@ -117,6 +205,7 @@ function widgetRun (instanceConfig) {
             path: config.directory
           }
           const msg = `${widgetInfo.name} is running at ${serverInfo.url}`
+          log('info', `passive data ports ${PASV_MIN_PORT}-${PASV_MAX_PORT}, advertised address: ${config.pasvUrl || 'auto-detected'}`)
           console.log(msg)
           console.log(`Serving files from: ${serverInfo.path}`)
           resolve({ serverInfo, msg, success: true })
