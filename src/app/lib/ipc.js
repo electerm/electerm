@@ -76,7 +76,8 @@ const {
   AIchatWithTools,
   AIlistModels,
   getStreamContent,
-  stopStream
+  stopStream,
+  abortAIRequest
 } = require('./ai')
 
 // Security: whitelist of safe environment variables for Linux/Mac/Windows
@@ -243,6 +244,7 @@ function initIpc () {
     AIlistModels,
     getStreamContent,
     stopStream,
+    abortAIRequest,
     setTitle: (title) => {
       const win = globalState.get('win')
       win && win.setTitle(packInfo.name + ' - ' + title)

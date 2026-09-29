@@ -153,6 +153,12 @@ export default function AIChat (props) {
     if (window.store.aiConfigMissing()) {
       window.store.toggleAIConfig()
     }
+    // Read the live flag rather than the rendered one. `submitDisabled` can be
+    // stale: the loop sets `agentRunning` from the new turn's mount effect, and
+    // manate's `auto` re-subscribes its listener on every render, so a write
+    // landing in that window never reaches the panel -- leaving the icon looking
+    // enabled while a run is in flight, which let a second agent turn through.
+    if (isAgent && window.store.agentRunning) return
     if (!prompt.trim() && !attachments.length) return
 
     const chatId = uid()

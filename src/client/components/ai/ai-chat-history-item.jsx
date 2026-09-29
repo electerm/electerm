@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react'
 import AIOutput from './ai-output'
 import AIStopIcon from './ai-stop-icon'
 import AgentToolCallCard from './agent-tool-call-card'
-import { runAgentLoop } from './agent'
+import { runAgentLoop, stopAgentRun } from './agent'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import { buildSessionMessages } from './ai-context'
 import {
@@ -28,6 +28,9 @@ import { formatSize } from './ai-attachments'
 export default memo(function AIChatHistoryItem ({ item }) {
   const [showOutput, setShowOutput] = useState(true)
   const [isStreaming, setIsStreaming] = useState(false)
+  // `current` is the stop flag; `requestId` is the HTTP request currently in
+  // flight (agent mode), so that stopping can cancel it rather than wait for it
+  // to come back.
   const abortRef = useRef(false)
   const {
     prompt,
@@ -133,6 +136,7 @@ export default memo(function AIChatHistoryItem ({ item }) {
 
   const startAgentRequest = useCallback(async () => {
     abortRef.current = false
+    abortRef.requestId = null
     const config = {
       modelAI,
       roleAI,
@@ -160,8 +164,8 @@ export default memo(function AIChatHistoryItem ({ item }) {
   async function handleStop (e) {
     e.stopPropagation()
     if (mode === 'agent') {
-      abortRef.current = true
       setIsStreaming(false)
+      await stopAgentRun(abortRef)
       return
     }
     if (!sessionId) return

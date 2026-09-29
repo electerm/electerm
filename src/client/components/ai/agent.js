@@ -1,8 +1,14 @@
 import { agentTools, executeToolCall } from './agent-tools'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import { buildAgentMessages, summarizeContext } from './ai-context'
+import uid from '../../common/uid'
 
 const MAX_ITERATIONS = 150
+
+// Which loop currently owns `store.agentRunning`. A stopped run keeps
+// unwinding for a moment (its last request has to settle), and it must not
+// clear the flag of a run the user started in the meantime.
+let activeRunId = null
 
 function buildAgentSystemPrompt (config) {
   const lang = config.languageAI || window.store.getLangName()
@@ -30,7 +36,7 @@ function updateChatEntry (chatEntry, updates) {
   window.store.updateAiHistoryEntry(chatEntry.id, updates)
 }
 
-async function callBackendAIchatWithTools (messages, config) {
+async function callBackendAIchatWithTools (messages, config, requestId) {
   return window.pre.runGlobalAsync(
     'AIchatWithTools',
     messages,
@@ -40,7 +46,11 @@ async function callBackendAIchatWithTools (messages, config) {
     config.apiKeyAI,
     config.proxyAI,
     agentTools,
-    config.authHeaderNameAI
+    config.authHeaderNameAI,
+    // `format` stays undefined (the main process detects it); `requestId` is
+    // the last argument so that exact request can be cancelled on stop.
+    undefined,
+    requestId
   )
 }
 
@@ -63,6 +73,8 @@ function publishContext (messages, config, usage) {
 }
 
 export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming, conversationMessages = null) {
+  const runId = uid()
+  activeRunId = runId
   window.store.agentRunning = true
   try {
     const messages = buildAgentMessages({
@@ -74,6 +86,14 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
     let accumulatedContent = ''
     let lastUsage = null
 
+    const isAborted = () => !!(abortRef && abortRef.current)
+    const markStopped = () => {
+      setIsStreaming(false)
+      updateChatEntry(chatEntry, {
+        response: accumulatedContent + '\n\n*(Agent stopped by user)*'
+      })
+    }
+
     setIsStreaming(true)
     updateChatEntry(chatEntry, {
       toolCalls: [],
@@ -81,16 +101,29 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
     })
 
     for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-      if (abortRef && abortRef.current) {
-        setIsStreaming(false)
-        updateChatEntry(chatEntry, {
-          response: accumulatedContent + '\n\n*(Agent stopped by user)*'
-        })
+      if (isAborted()) {
+        markStopped()
         return
       }
 
       publishContext(messages, config, lastUsage)
-      const result = await callBackendAIchatWithTools(messages, config)
+      const requestId = uid()
+      if (abortRef) {
+        abortRef.requestId = requestId
+      }
+      const result = await callBackendAIchatWithTools(messages, config, requestId)
+      if (abortRef && abortRef.requestId === requestId) {
+        abortRef.requestId = null
+      }
+
+      // Re-check after the await, before anything from the answer is used:
+      // stopping cancels the request, and neither the partial answer nor the
+      // resulting error belongs in the transcript.
+      if (isAborted()) {
+        markStopped()
+        return
+      }
+
       if (result.usage) {
         lastUsage = result.usage
       }
@@ -131,11 +164,8 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
       }
 
       for (const toolCall of assistantMessage.tool_calls) {
-        if (abortRef && abortRef.current) {
-          setIsStreaming(false)
-          updateChatEntry(chatEntry, {
-            response: accumulatedContent + '\n\n*(Agent stopped by user)*'
-          })
+        if (isAborted()) {
+          markStopped()
           return
         }
 
@@ -189,9 +219,45 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
       response: accumulatedContent + '\n\n*(Agent reached maximum iterations)*'
     })
   } finally {
-    window.store.agentRunning = false
-    // hand the panel back to the session based estimate: tool results are not
-    // carried into the next turn, so the agent figure stops being meaningful
-    window.store.aiContextInfo = null
+    if (abortRef) {
+      abortRef.requestId = null
+    }
+    // Only the run that still owns the flag may clear it -- a stopped run
+    // unwinds a moment later and must not unlock a newer one.
+    if (activeRunId === runId) {
+      activeRunId = null
+      window.store.agentRunning = false
+      // hand the panel back to the session based estimate: tool results are not
+      // carried into the next turn, so the agent figure stops being meaningful
+      window.store.aiContextInfo = null
+    }
+  }
+}
+
+// Stop the running agent loop, called by the panel's stop button.
+//
+// The loop itself only looks at `abortRef` between iterations, so on its own
+// that flag does nothing while a request is in flight -- and the panel keeps
+// the composer locked for as long as the provider takes to answer (which is
+// forever if it never does, these requests carry no timeout). So this also
+// cancels the in-flight request and releases the composer right away; the loop
+// then unwinds on its own and marks the entry as stopped.
+export async function stopAgentRun (abortRef) {
+  if (abortRef) {
+    abortRef.current = true
+  }
+  const requestId = abortRef && abortRef.requestId
+  if (abortRef) {
+    abortRef.requestId = null
+  }
+  activeRunId = null
+  window.store.agentRunning = false
+  window.store.aiContextInfo = null
+  if (requestId) {
+    try {
+      await window.pre.runGlobalAsync('abortAIRequest', requestId)
+    } catch (error) {
+      console.error('Error aborting agent request:', error)
+    }
   }
 }
