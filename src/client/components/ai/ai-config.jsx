@@ -5,11 +5,11 @@ import {
   Button,
   AutoComplete,
   Alert,
-  Space,
-  Dropdown
+  Select,
+  Space
 } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
-import { DownOutlined, ReloadOutlined } from '@ant-design/icons'
+import { ReloadOutlined } from '@ant-design/icons'
 import Link from '../common/external-link'
 import AiCache from './ai-cache'
 import {
@@ -20,6 +20,7 @@ import AiHistory, { addHistoryItem } from './ai-history'
 import message from '../common/message'
 import { getAIPresets } from './ai-presets'
 import { appendMandatoryGuardrails } from './ai-guardrails'
+import './ai-config.styl'
 
 const STORAGE_KEY_CONFIG = 'ai_config_history'
 const EVENT_NAME_CONFIG = 'ai-config-history-update'
@@ -211,18 +212,32 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     form.setFieldsValue(values)
   }
 
-  function renderPresetMenu () {
-    const items = presets.map(p => ({
-      key: p.id,
-      label: p.nameAI,
-      onClick: () => handleSelectPreset(p)
+  // A plain antd Select, on purpose: it already scrolls its list inside the
+  // viewport (a Dropdown menu grows past the bottom of a phone screen, so the
+  // tail of the 18 presets is unreachable there) and `showSearch` filters it.
+  // `optionFilterProp` is load-bearing: without it rc-select filters on the
+  // option *value* (our id), so "gemini" or "llama" match nothing. The label
+  // carries name and model, so filtering on it finds either.
+  // The label/select sizing lives in `.ai-preset-row` (ai-config.styl), because
+  // Space's `.ant-space-item` wrapper is the flex item, not the child.
+  function renderPresetSelect () {
+    const options = presets.map(p => ({
+      value: p.id,
+      label: p.modelAI ? `${p.nameAI} · ${p.modelAI}` : p.nameAI
     }))
     return (
-      <Dropdown menu={{ items }} trigger={['click']}>
-        <Button>
-          {e('presets')} <DownOutlined />
-        </Button>
-      </Dropdown>
+      <div className='alignright'>
+        <Space className='mg1b width-100 ai-preset-row'>
+          <span>{e('presets')}</span>
+          <Select
+            showSearch
+            optionFilterProp='label'
+            options={options}
+            value={currentPreset?.id}
+            onSelect={id => handleSelectPreset(presets.find(p => p.id === id))}
+          />
+        </Space>
+      </div>
     )
   }
 
@@ -294,9 +309,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         type='warning'
         className='mg2b'
       />
-      <div className='mg1b alignright'>
-        {renderPresetMenu()}
-      </div>
+      {renderPresetSelect()}
       <p>
         Full Url: {initialValues?.baseURLAI}{initialValues?.apiPathAI}
       </p>

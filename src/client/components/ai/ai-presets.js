@@ -68,21 +68,6 @@ export const defaultAIPresets = [
     siteUrl: 'https://platform.openai.com/api-keys?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
   },
   {
-    id: 'openai-responses',
-    nameAI: 'OpenAI (Responses API)',
-    baseURLAI: 'https://api.openai.com/v1',
-    apiPathAI: '/responses',
-    modelAI: 'gpt-4o',
-    authHeaderNameAI: 'Authorization: Bearer',
-    modelAIs: [
-      { value: 'gpt-4o' },
-      { value: 'gpt-4o-mini' },
-      { value: 'gpt-4.1' },
-      { value: 'o4-mini' }
-    ],
-    siteUrl: 'https://platform.openai.com/api-keys?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
-  },
-  {
     id: 'anthropic',
     nameAI: 'Anthropic Claude',
     baseURLAI: 'https://api.anthropic.com/v1',
