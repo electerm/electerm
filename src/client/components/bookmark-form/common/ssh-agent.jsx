@@ -9,26 +9,36 @@ const e = window.translate
 
 export default function SshAgent () {
   return (
-    <FormItem
-      {...formItemLayout}
-      label={e('useSshAgent')}
-    >
-      <Space align='center'>
-        <FormItem
-          name='useSshAgent'
-          valuePropName='checked'
-          noStyle
-        >
-          <SwitchLabel />
-        </FormItem>
-        <FormItem
-          name='sshAgent'
-          noStyle
-        >
-          <Input placeholder={e('SSH Agent Path')} />
-        </FormItem>
-        <HelpIcon link='https://github.com/electerm/electerm/wiki/ssh-agent' />
-      </Space>
-    </FormItem>
+    <>
+      <FormItem
+        {...formItemLayout}
+        label={e('useSshAgent')}
+      >
+        <Space align='center'>
+          <FormItem
+            name='useSshAgent'
+            valuePropName='checked'
+            noStyle
+          >
+            <SwitchLabel />
+          </FormItem>
+          <FormItem
+            name='sshAgent'
+            noStyle
+          >
+            <Input placeholder={e('SSH Agent Path')} />
+          </FormItem>
+          <HelpIcon link='https://github.com/electerm/electerm/wiki/ssh-agent' />
+        </Space>
+      </FormItem>
+      <FormItem
+        {...formItemLayout}
+        label={e('agentForward')}
+        name='agentForward'
+        valuePropName='checked'
+      >
+        <SwitchLabel />
+      </FormItem>
+    </>
   )
 }

@@ -62,6 +62,7 @@ export const sshBookmarkSchema = {
   enableSftp: z.boolean().optional().describe('Enable sftp, default is true'),
   useSshAgent: z.boolean().optional().describe('Use SSH agent, default is true'),
   sshAgent: z.string().optional().describe('SSH agent path'),
+  agentForward: z.boolean().optional().describe('Enable SSH agent forwarding (like ssh -A), requires SSH agent, default is false'),
   serverHostKey: z.array(z.string()).optional().describe('Server host key algorithms'),
   cipher: z.array(z.string()).optional().describe('Cipher list'),
   compress: z.array(z.string()).optional().describe('Compression algorithms'),

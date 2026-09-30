@@ -6,6 +6,7 @@ const defaultValues = {
     enableSsh: true,
     enableSftp: true,
     useSshAgent: true,
+    agentForward: false,
     x11: false,
     term: 'xterm-256color',
     displayRaw: false,

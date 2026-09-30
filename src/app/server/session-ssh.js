@@ -31,6 +31,9 @@ const utf8Aliases = new Set(['utf-8', 'utf8', 'utf-8-strict'])
 
 const failMsg = 'All configured authentication methods failed'
 const csFailMsg = 'no matching C->S cipher'
+// ssh2 fails the shell request when the server refuses agent forwarding
+// (AllowAgentForwarding no); OpenSSH and SecureCRT only warn, see openShell()
+const agentFwdFailMsg = 'Unable to request agent forwarding'
 // ssh2 handshake failures that mean "no algorithm in common". algAlt() is a
 // strict superset of algDefault(), so retrying with it can only add options,
 // never remove them. Old devices/routers often need it for the cipher, MAC or
@@ -108,6 +111,23 @@ class TerminalSshBase extends TerminalBase {
   getAgent () {
     const { initOptions } = this
     return initOptions.useSshAgent !== false ? (initOptions.sshAgent || process.env.SSH_AUTH_SOCK) : undefined
+  }
+
+  /**
+   * agent related ssh2 connect options.
+   * ssh2 refuses to start when agentForward is requested without a usable
+   * agent ("You must set a valid agent path to allow agent forwarding"), so
+   * the flag is only passed through when an agent is actually available.
+   */
+  getAgentOptions () {
+    const agent = this.getAgent()
+    if (agent && this.initOptions.agentForward === true) {
+      return {
+        agent,
+        agentForward: true
+      }
+    }
+    return { agent }
   }
 
   getAuthOrder (connectOptions) {
@@ -461,7 +481,7 @@ class TerminalSshBase extends TerminalBase {
       this.conns.push(this.conn)
       this.initHoppingOptions = {
         ...hopping,
-        agent: this.getAgent(),
+        ...this.getAgentOptions(),
         ...this.getShareOptions()
       }
       this.isLast = i === len - 1
@@ -541,12 +561,30 @@ class TerminalSshBase extends TerminalBase {
         tabId: this.initOptions.srcTabId
       })
     }
+    return this.openShell(shellWindow, shellOpts)
+  }
+
+  openShell (shellWindow, shellOpts) {
     return new Promise((resolve, reject) => {
       this.conn.shell(
         shellWindow,
         shellOpts,
         (err, channel) => {
           if (err) {
+            if (
+              err.message === agentFwdFailMsg &&
+              this.conn.config?.allowAgentFwd
+            ) {
+              // the server refused the agent forwarding request
+              // (AllowAgentForwarding no). ssh2 fails the whole shell for it
+              // while OpenSSH/SecureCRT only warn, so drop the flag and open
+              // the shell again on the same connection instead of dying.
+              log.log('server refused agent forwarding, retrying without it')
+              this.conn.config.allowAgentFwd = false
+              return this.openShell(shellWindow, shellOpts)
+                .then(resolve)
+                .catch(reject)
+            }
             return reject(err)
           }
           this.channel = channel
@@ -809,9 +847,7 @@ class TerminalSshBase extends TerminalBase {
     const { initOptions } = this
     const connectOptions = Object.assign(
       this.getShareOptions(),
-      {
-        agent: this.getAgent()
-      },
+      this.getAgentOptions(),
       _.pick(initOptions, [
         'host',
         'port',

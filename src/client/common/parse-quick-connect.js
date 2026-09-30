@@ -53,6 +53,7 @@ const TYPE_DEFAULT_VALUES = {
     enableSsh: true,
     enableSftp: true,
     useSshAgent: true,
+    agentForward: false,
     authType: 'password',
     term: 'xterm-256color',
     encode: 'utf-8',

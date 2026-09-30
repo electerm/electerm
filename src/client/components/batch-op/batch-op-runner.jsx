@@ -172,6 +172,7 @@ export default class BatchOpRunner extends Component {
       enableSsh: p.enableSsh !== false,
       useSshAgent: p.useSshAgent !== false,
       sshAgent: p.sshAgent || '',
+      agentForward: p.agentForward || false,
       term: p.term || 'xterm-256color',
       encode: p.encode || 'utf8',
       envLang: p.envLang || 'en_US.UTF-8',

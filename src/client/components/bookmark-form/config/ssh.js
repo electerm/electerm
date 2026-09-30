@@ -22,6 +22,7 @@ const sshConfig = {
       connectionHoppings: [],
       useSshAgent: true,
       sshAgent: '',
+      agentForward: false,
       serverHostKey: [],
       cipher: [],
       compress: [],

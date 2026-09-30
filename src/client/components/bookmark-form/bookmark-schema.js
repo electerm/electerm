@@ -20,6 +20,7 @@ const bookmarkSchema = {
     connectionHoppings: 'array - connection hopping definitions',
     useSshAgent: 'boolean - use SSH agent, default is true',
     sshAgent: 'string - ssh agent path',
+    agentForward: 'boolean - enable SSH agent forwarding (like ssh -A, needed to hop through a jump/bastion host), requires SSH agent, default is false',
     serverHostKey: 'array - server host key algorithms',
     cipher: 'array - cipher list',
     compress: 'array - compression algorithms (zlib@openssh.com, zlib, none)',
