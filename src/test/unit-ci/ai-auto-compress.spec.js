@@ -6,9 +6,11 @@ const assert = require('node:assert/strict')
 // decision and the rewrite are pinned here.
 
 let m
+let context
 
 before(async () => {
   m = await import('../../../src/client/components/ai/ai-auto-compress.js')
+  context = await import('../../../src/client/components/ai/ai-context.js')
 })
 
 describe('shouldAutoCompress', () => {
@@ -23,11 +25,15 @@ describe('shouldAutoCompress', () => {
     assert.equal(m.shouldAutoCompress({ percent: NaN }), false)
   })
 
+  // The boundary is read from ai-context.js rather than written out here: the
+  // module deliberately shares the danger level with the indicator, so a test
+  // that hard-coded 90 outlived the constant being lowered to 80 and went red.
   it('waits for the danger threshold', () => {
-    assert.equal(m.shouldAutoCompress({ percent: 50 }), false)
-    assert.equal(m.shouldAutoCompress({ percent: 89.9 }), false)
-    assert.equal(m.shouldAutoCompress({ percent: 90 }), true)
-    assert.equal(m.shouldAutoCompress({ percent: 120 }), true)
+    const danger = context.CONTEXT_DANGER_PERCENT
+    assert.equal(m.shouldAutoCompress({ percent: danger - 10 }), false)
+    assert.equal(m.shouldAutoCompress({ percent: danger - 0.1 }), false)
+    assert.equal(m.shouldAutoCompress({ percent: danger }), true)
+    assert.equal(m.shouldAutoCompress({ percent: danger + 40 }), true)
   })
 
   it('accepts an explicit threshold', () => {
