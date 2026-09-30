@@ -23,7 +23,7 @@ const CJK_RE = /[\u2e80-\u2eff\u3000-\u303f\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9f
 
 export const DEFAULT_CONTEXT_WINDOW = 128000
 export const CONTEXT_WARN_PERCENT = 70
-export const CONTEXT_DANGER_PERCENT = 90
+export const CONTEXT_DANGER_PERCENT = 80
 
 // Rough token count of a string. Never exact, never wildly wrong. Called on
 // the whole conversation every time it changes, so it stays a single pass

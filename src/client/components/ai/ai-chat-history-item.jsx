@@ -4,7 +4,14 @@ import AIStopIcon from './ai-stop-icon'
 import AgentToolCallCard from './agent-tool-call-card'
 import { runAgentLoop, stopAgentRun } from './agent'
 import { appendMandatoryGuardrails } from './ai-guardrails'
-import { buildSessionMessages } from './ai-context'
+import { buildSessionMessages, summarizeContext } from './ai-context'
+import {
+  shouldAutoCompress,
+  canCompact,
+  splitPendingTurn,
+  compactAskMessages
+} from './ai-auto-compress'
+import { summarizeMessages, autoCompressSession, autoCompressEnabled } from './ai-compress'
 import {
   Alert,
   Tooltip,
@@ -15,6 +22,7 @@ import {
   CloseOutlined,
   CaretDownOutlined,
   CaretRightOutlined,
+  CompressOutlined,
   PaperClipOutlined
 } from '@ant-design/icons'
 import { copy } from '../../common/clipboard'
@@ -46,7 +54,8 @@ export default memo(function AIChatHistoryItem ({ item }) {
     authHeaderNameAI,
     languageAI,
     mode,
-    toolCalls
+    toolCalls,
+    autoCompressCount
   } = item
 
   function toggleOutput () {
@@ -70,6 +79,61 @@ export default memo(function AIChatHistoryItem ({ item }) {
     excludeId: item.id
   }), [chatSessionId, item.id, item.timestamp])
 
+  // Everything a request needs beyond the message list; also what the
+  // compressor uses to reach the same provider (see ai-compress.js).
+  const requestConfig = useMemo(() => ({
+    modelAI,
+    roleAI,
+    baseURLAI,
+    apiPathAI,
+    apiKeyAI,
+    proxyAI,
+    languageAI,
+    authHeaderNameAI
+  }), [
+    modelAI,
+    roleAI,
+    baseURLAI,
+    apiPathAI,
+    apiKeyAI,
+    proxyAI,
+    languageAI,
+    authHeaderNameAI
+  ])
+
+  // The message list this turn actually sends. Normally the memoized session
+  // messages above, but when auto compress is on and the request would not fit
+  // the window, the earlier turns are replaced by a summary first. The live
+  // prompt survives untouched -- it is the question being answered, not
+  // history. The stored session is compacted separately once the answer is in
+  // (autoCompressSession below), so this is only about the request leaving now.
+  const buildOutgoingMessages = useCallback(async () => {
+    if (!autoCompressEnabled() || !conversationMessages) {
+      return conversationMessages
+    }
+    const info = summarizeContext(conversationMessages, {
+      model: modelAI,
+      contextLength: window.store.config.contextLengthAI
+    })
+    if (!shouldAutoCompress(info)) {
+      return conversationMessages
+    }
+    const { context } = splitPendingTurn(conversationMessages)
+    if (!canCompact(context)) {
+      return conversationMessages
+    }
+    // Marked before the request: summarizing a nearly full window takes a
+    // while, and the badge is the only sign that this turn is waiting on it.
+    // Cleared again if the summary comes back unusable.
+    window.store.updateAiHistoryEntry(item.id, { autoCompressCount: 1 })
+    const summary = await summarizeMessages(context, requestConfig)
+    if (!summary) {
+      window.store.updateAiHistoryEntry(item.id, { autoCompressCount: 0 })
+      return conversationMessages
+    }
+    return compactAskMessages(conversationMessages, summary)
+  }, [conversationMessages, modelAI, requestConfig, item.id])
+
   const pollStreamContent = useCallback(async (sid) => {
     try {
       const streamResponse = await window.pre.runGlobalAsync('getStreamContent', sid)
@@ -88,12 +152,16 @@ export default memo(function AIChatHistoryItem ({ item }) {
       setIsStreaming(streamResponse.hasMore)
       if (streamResponse.hasMore) {
         setTimeout(() => pollStreamContent(sid), 200)
+      } else {
+        // The answer is in the store now, so the session can be summarized for
+        // the turns that follow this one.
+        autoCompressSession(chatSessionId, requestConfig)
       }
     } catch (error) {
       window.store.removeAiHistory(item.id)
       window.store.onError(error)
     }
-  }, [item.id])
+  }, [item.id, chatSessionId, requestConfig])
 
   const startRequest = useCallback(async () => {
     try {
@@ -108,7 +176,7 @@ export default memo(function AIChatHistoryItem ({ item }) {
         proxyAI,
         true,
         authHeaderNameAI,
-        conversationMessages
+        await buildOutgoingMessages()
       )
 
       if (aiResponse && aiResponse.error) {
@@ -127,28 +195,21 @@ export default memo(function AIChatHistoryItem ({ item }) {
         window.store.updateAiHistoryEntry(item.id, {
           response: aiResponse.response
         })
+        // No stream to poll: the answer is in the store, so the session can be
+        // summarized for the turns that follow this one.
+        autoCompressSession(chatSessionId, requestConfig)
       }
     } catch (error) {
       window.store.removeAiHistory(item.id)
       window.store.onError(error)
     }
-  }, [prompt, modelAI, baseURLAI, apiPathAI, apiKeyAI, proxyAI, authHeaderNameAI, item.id, pollStreamContent, conversationMessages])
+  }, [prompt, modelAI, baseURLAI, apiPathAI, apiKeyAI, proxyAI, authHeaderNameAI, item.id, chatSessionId, requestConfig, pollStreamContent, buildOutgoingMessages])
 
   const startAgentRequest = useCallback(async () => {
     abortRef.current = false
     abortRef.requestId = null
-    const config = {
-      modelAI,
-      roleAI,
-      baseURLAI,
-      apiPathAI,
-      apiKeyAI,
-      proxyAI,
-      languageAI,
-      authHeaderNameAI
-    }
-    await runAgentLoop(item, config, abortRef, setIsStreaming, conversationMessages)
-  }, [modelAI, roleAI, baseURLAI, apiPathAI, apiKeyAI, proxyAI, languageAI, authHeaderNameAI, item.id, conversationMessages])
+    await runAgentLoop(item, requestConfig, abortRef, setIsStreaming, conversationMessages)
+  }, [item, requestConfig, conversationMessages])
 
   useEffect(() => {
     if (item.pending) {
@@ -260,6 +321,27 @@ export default memo(function AIChatHistoryItem ({ item }) {
     )
   }
 
+  // Auto compress happens on its own, with no visible step of its own, so the
+  // turn says so: the conversation was summarized and the request continued
+  // from the summary instead of the full history. Ask mode summarizes before
+  // sending, agent mode in the middle of the run (possibly more than once).
+  function renderAutoCompressBadge () {
+    if (!autoCompressCount) {
+      return null
+    }
+    return (
+      <div className='ai-auto-compress-badge mg1b'>
+        <Tag
+          color='blue'
+          title='The context filled up and was summarized automatically, this turn continued from the summary'
+        >
+          <CompressOutlined /> {window.translate('autoCompress')}
+          {autoCompressCount > 1 ? ` x${autoCompressCount}` : ''}
+        </Tag>
+      </div>
+    )
+  }
+
   function renderToolCalls () {
     if (mode !== 'agent' || !toolCalls || !toolCalls.length) {
       return null
@@ -281,6 +363,7 @@ export default memo(function AIChatHistoryItem ({ item }) {
         </Tooltip>
       </div>
       {renderAttachments()}
+      {renderAutoCompressBadge()}
       {renderToolCalls()}
       {showOutput && <AIOutput item={item} />}
       {renderStopButton()}

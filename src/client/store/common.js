@@ -6,6 +6,7 @@ import handleError from '../common/error-handler'
 import Modal from '../components/common/modal'
 import { appendMandatoryGuardrails } from '../components/ai/ai-guardrails'
 import { buildSessionMessages } from '../components/ai/ai-context'
+import { COMPRESS_SUMMARY_PROMPT } from '../components/ai/ai-auto-compress'
 import { debounce, some, get, pickBy } from 'lodash-es'
 import {
   leftSidePanelWidthKey,
@@ -17,6 +18,7 @@ import {
   addPanelWidthLsKey,
   connectionMap,
   lastAiChatSessionIdKey,
+  aiAutoCompressLsKey,
   mobileBreakpoint,
   splitMap,
   settingAiId,
@@ -503,9 +505,15 @@ export default Store => {
     store.startNewChat()
   })
 
+  // One compression per session at a time. The placeholder entry is published
+  // before the summary arrives, so a second call (auto compress firing while a
+  // manual one is still waiting on the provider) would summarize the
+  // placeholder and append a second one.
+  const compressingSessions = new Set()
+
   Store.prototype.compressChatSession = async function (sessionId) {
     const { store } = window
-    if (!sessionId) {
+    if (!sessionId || compressingSessions.has(sessionId)) {
       return
     }
     const sessionEntries = store.aiChatHistory
@@ -540,32 +548,18 @@ export default Store => {
       role: appendMandatoryGuardrails(firstEntry.roleAI + `;用[${lang}]回复`)
     })
 
-    const summaryPrompt = 'Please summarize the above conversation concisely. Include key information, decisions, context, and any important details that would be needed to continue this conversation effectively.'
-    messages.push({ role: 'user', content: summaryPrompt })
+    // The same closing request the agent loop's auto compression sends (see
+    // components/ai/ai-compress.js), so both paths summarize alike.
+    messages.push({ role: 'user', content: COMPRESS_SUMMARY_PROMPT })
 
-    const aiResponse = await window.pre.runGlobalAsync(
-      'AIchat',
-      summaryPrompt,
-      firstEntry.modelAI,
-      firstEntry.roleAI,
-      firstEntry.baseURLAI,
-      firstEntry.apiPathAI,
-      firstEntry.apiKeyAI,
-      firstEntry.proxyAI,
-      false,
-      firstEntry.authHeaderNameAI,
-      messages
-    )
-
-    if (aiResponse && aiResponse.error) {
-      return store.onError(new Error(aiResponse.error))
-    }
-
-    const summary = aiResponse.response || ''
+    // Show the entry before asking for the summary, and fill it in when the
+    // answer arrives. The request takes as long as any other AI request (much
+    // longer for a nearly full session), and a click that changes nothing on
+    // screen for that long reads as "compress did not work".
     const compressedEntry = {
       id: uid(),
       prompt: '*Compressed session summary*',
-      response: summary,
+      response: '*Summarizing the session…*',
       isStreaming: false,
       pending: false,
       sessionId: null,
@@ -589,7 +583,54 @@ export default Store => {
     // push for the same reason as removeAiHistory -- the panel has to see the
     // new context size, which is the whole point of compressing.
     store.aiChatHistory = [...store.aiChatHistory, compressedEntry]
+    compressingSessions.add(sessionId)
+
+    // Anything short of a usable summary takes the placeholder away again: an
+    // empty summary must never replace the conversation, and a half finished
+    // one must not look like a result.
+    const fail = (msg) => {
+      store.removeAiHistory(compressedEntry.id)
+      return store.onError(new Error(msg))
+    }
+
+    try {
+      const aiResponse = await window.pre.runGlobalAsync(
+        'AIchat',
+        COMPRESS_SUMMARY_PROMPT,
+        firstEntry.modelAI,
+        firstEntry.roleAI,
+        firstEntry.baseURLAI,
+        firstEntry.apiPathAI,
+        firstEntry.apiKeyAI,
+        firstEntry.proxyAI,
+        false,
+        firstEntry.authHeaderNameAI,
+        messages
+      )
+
+      if (aiResponse && aiResponse.error) {
+        return fail(aiResponse.error)
+      }
+
+      const summary = (aiResponse && aiResponse.response) || ''
+      if (!summary.trim()) {
+        return fail('Compression failed: empty summary from AI')
+      }
+      store.updateAiHistoryEntry(compressedEntry.id, { response: summary })
+    } finally {
+      compressingSessions.delete(sessionId)
+    }
   }
+
+  // Auto compression, both modes: ask turns and the agent loop read this flag
+  // before every request (see components/ai/ai-compress.js), and the panel's
+  // auto compress popover writes it. Persisted so the choice survives a reload.
+  Store.prototype.setAiAutoCompress = action(function (val) {
+    const { store } = window
+    const on = !!val
+    store.aiAutoCompress = on
+    ls.setItem(aiAutoCompressLsKey, on ? 'true' : 'false')
+  })
 
   Store.prototype.toggleChatSessions = action(function () {
     const { store } = window

@@ -131,3 +131,5 @@ ftp-root
 .codeartsdoer
 .kilo
 .cursor
+.lintcache
+.npmcache

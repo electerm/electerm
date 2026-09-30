@@ -289,6 +289,7 @@ export default auto(function Index (props) {
     rightPanelTab,
     agentRunning: store.agentRunning,
     aiContextInfo: store.aiContextInfo,
+    aiAutoCompress: store.aiAutoCompress,
     currentChatSessionId: store.currentChatSessionId,
     showChatSessions: store.showChatSessions
   }

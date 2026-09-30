@@ -1,9 +1,25 @@
 import { agentTools, executeToolCall } from './agent-tools'
 import { appendMandatoryGuardrails } from './ai-guardrails'
-import { buildAgentMessages, summarizeContext } from './ai-context'
+import { buildAgentMessages, summarizeContext, CONTEXT_DANGER_PERCENT } from './ai-context'
+import {
+  shouldAutoCompress,
+  canCompact,
+  applySummary
+} from './ai-auto-compress'
+import {
+  autoCompressEnabled,
+  summarizeMessages,
+  autoCompressSession
+} from './ai-compress'
 import uid from '../../common/uid'
 
 const MAX_ITERATIONS = 150
+
+// A summary request that failed (provider hiccup, rate limit) must not be
+// retried on every following iteration -- that would turn a full window into a
+// call per tool result. Only try again once the estimate has grown by this
+// share of the window.
+const AUTO_COMPRESS_RETRY_GROWTH_PERCENT = 5
 
 // Which loop currently owns `store.agentRunning`. A stopped run keeps
 // unwinding for a moment (its last request has to settle), and it must not
@@ -76,6 +92,13 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
   const runId = uid()
   activeRunId = runId
   window.store.agentRunning = true
+  const isAborted = () => !!(abortRef && abortRef.current)
+  // Auto compression bookkeeping, read by the finally block as well: how many
+  // times this run compacted itself, whether it failed on the way, and the
+  // size at the last summary attempt (AUTO_COMPRESS_RETRY_GROWTH_PERCENT)
+  let autoCompressCount = 0
+  let autoCompressAttemptTokens = 0
+  let runErrored = false
   try {
     const messages = buildAgentMessages({
       systemPrompt: buildAgentSystemPrompt(config),
@@ -86,7 +109,6 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
     let accumulatedContent = ''
     let lastUsage = null
 
-    const isAborted = () => !!(abortRef && abortRef.current)
     const markStopped = () => {
       setIsStreaming(false)
       updateChatEntry(chatEntry, {
@@ -107,6 +129,50 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
       }
 
       publishContext(messages, config, lastUsage)
+
+      // Auto compression, when the popover toggle is on: the request about to
+      // go out carries the whole conversation plus a tool result per step, and
+      // past ~90% of the window the provider rejects it outright. Replacing the
+      // conversation with a summary first keeps the run alive; the stored
+      // session is compacted at the end (autoCompressSession), because that is
+      // what the next turn starts from.
+      const info = window.store.aiContextInfo
+      // A failed summary is only worth retrying once the context has grown by
+      // this much -- but never more than the trigger itself, or a threshold
+      // below it would let the retry floor decide when to compress.
+      const growthPercent = Math.min(
+        AUTO_COMPRESS_RETRY_GROWTH_PERCENT,
+        CONTEXT_DANGER_PERCENT
+      )
+      const grewEnough = info &&
+        info.tokens - autoCompressAttemptTokens >=
+          (info.windowSize || 0) * growthPercent / 100
+      if (
+        autoCompressEnabled() &&
+        canCompact(messages) &&
+        shouldAutoCompress(info) &&
+        grewEnough
+      ) {
+        autoCompressAttemptTokens = info.tokens
+        // Shown before the request rather than after: summarizing a nearly full
+        // window takes a while, and this badge is the only sign of why the run
+        // is waiting. Taken back if the summary comes back unusable.
+        updateChatEntry(chatEntry, { autoCompressCount: autoCompressCount + 1 })
+        const summary = await summarizeMessages(messages, config)
+        if (isAborted()) {
+          markStopped()
+          return
+        }
+        if (summary) {
+          applySummary(messages, summary)
+          autoCompressCount++
+          lastUsage = null
+          publishContext(messages, config, null)
+        } else {
+          updateChatEntry(chatEntry, { autoCompressCount })
+        }
+      }
+
       const requestId = uid()
       if (abortRef) {
         abortRef.requestId = requestId
@@ -129,6 +195,7 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
       }
 
       if (result.error) {
+        runErrored = true
         setIsStreaming(false)
         updateChatEntry(chatEntry, {
           response: accumulatedContent + `\n\n**Error:** ${result.error}`
@@ -138,6 +205,7 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
 
       const assistantMessage = result.message
       if (!assistantMessage) {
+        runErrored = true
         setIsStreaming(false)
         updateChatEntry(chatEntry, {
           response: accumulatedContent || 'No response from AI.'
@@ -224,12 +292,21 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
     }
     // Only the run that still owns the flag may clear it -- a stopped run
     // unwinds a moment later and must not unlock a newer one.
-    if (activeRunId === runId) {
+    const ownsRun = activeRunId === runId
+    if (ownsRun) {
       activeRunId = null
       window.store.agentRunning = false
       // hand the panel back to the session based estimate: tool results are not
       // carried into the next turn, so the agent figure stops being meaningful
       window.store.aiContextInfo = null
+    }
+    // A run that compacted its live conversation leaves the stored session
+    // untouched, so the next turn would start from the full history again and
+    // pay for another summary. Compact the session as well -- once, after the
+    // run, when the turns it summarizes are complete. Skipped for a stopped or
+    // failed run: those transcripts are not a conversation worth keeping.
+    if (ownsRun && autoCompressCount > 0 && !runErrored && !isAborted()) {
+      await autoCompressSession(chatEntry.chatSessionId, config)
     }
   }
 }

@@ -27,6 +27,7 @@ import {
   syncServerDataKey,
   splitMap,
   lastAiChatSessionIdKey,
+  aiAutoCompressLsKey,
   mobileBreakpoint
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
@@ -97,6 +98,10 @@ export default () => {
     _batchInputSelectedTabIds: new Set(),
     aiChatHistory: [],
     agentRunning: false,
+    // ask turns and the agent loop compact their conversation when the window
+    // gets full; persisted here so the toggle survives a reload
+    // (see components/ai/ai-compress.js)
+    aiAutoCompress: ls.getItem(aiAutoCompressLsKey) === 'true',
     // live context accounting while an agent loop is running: the agent
     // carries tool schemas and tool results that the session history does
     // not, so it publishes its own figure here (see components/ai/agent.js)
