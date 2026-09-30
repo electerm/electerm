@@ -146,7 +146,9 @@ class TerminalBase {
     if (Buffer.isBuffer(data)) {
       const str = data.toString('binary')
       const normalized = str.replace(/\r(?!\n)/g, '\r\n')
-      this._vtTerm.write(normalized)
+      // Write bytes, not the 'binary' string: xterm reads a string as UTF-16,
+      // so each byte of a multi-byte UTF-8 character would become a character
+      this._vtTerm.write(Buffer.from(normalized, 'binary'))
     } else {
       const normalized = String(data).replace(/\r(?!\n)/g, '\r\n')
       this._vtTerm.write(normalized)
