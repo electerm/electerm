@@ -480,6 +480,17 @@ export default class SessionWrapper extends Component {
     refs.get('term-' + this.props.tab.id)?.toggleSearch()
   }
 
+  // touch-only: the toolbar menu icon opens the same context menu a right
+  // click (or a long press) does, anchored just below the icon itself
+  handleOpenContextMenu = (evt) => {
+    const term = refs.get('term-' + this.props.tab.id)
+    if (!term) {
+      return
+    }
+    const rect = evt.currentTarget.getBoundingClientRect()
+    term.openContextMenuAtPoint(rect.left, rect.bottom)
+  }
+
   handleZoomFontSize = (v) => {
     const term = refs.get('term-' + this.props.tab.id)
     if (!term?.term) {
@@ -625,6 +636,7 @@ export default class SessionWrapper extends Component {
           keepaliveEnabled={this.state.keepaliveEnabled}
           broadcastInput={this.state.broadcastInput}
           wrapDisabled={this.state.wrapDisabled}
+          pasteWhenContextMenu={!!this.props.config.pasteWhenContextMenu}
           onChangePane={(pane) => this.onChangePane(pane)}
           toggleCheckSftpPathFollowSsh={this.toggleCheckSftpPathFollowSsh}
           onSshSftpSplitView={this.handleSshSftpSplitView}
@@ -634,6 +646,7 @@ export default class SessionWrapper extends Component {
           onFullscreen={this.handleFullscreen}
           onZoomFontSize={this.handleZoomFontSize}
           onOpenSearch={this.handleOpenSearch}
+          onOpenContextMenu={this.handleOpenContextMenu}
           onExitGracefully={this.handleExitGracefully}
         />
         <Suspense fallback={null}>

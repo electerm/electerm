@@ -41,6 +41,10 @@
  *    `stopPropagation()` is enough to veto xterm's scroll for the duration of
  *    the drag. `preventDefault()` is not an option: React listens to
  *    `touchmove` passively, so it is ignored (with a console warning).
+ *
+ * A long press is not the only way in: the toolbar shows a touch-only menu
+ * icon next to the three-dot toggle (see session-control.jsx), which opens the
+ * same menu through openContextMenuAtPoint() below.
  */
 
 const DEFAULT_WORD_SEPARATOR = './\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~ ?'
@@ -503,6 +507,20 @@ export const touchMixin = {
       clientY
     })
     target.dispatchEvent(event)
+  },
+
+  /**
+   * Opens the menu from the toolbar icon, which lives outside the antd
+   * dropdown's trigger element — so the event is dispatched on the terminal's
+   * own node and bubbles up to it. The icon's corner is passed in as the point
+   * to drop the menu from, rather than the finger that tapped it.
+   */
+  openContextMenuAtPoint (clientX, clientY) {
+    this.openContextMenuAt(
+      clientX,
+      clientY,
+      this.domRef?.current || this.term?.element
+    )
   },
 
   cancelLongPress () {

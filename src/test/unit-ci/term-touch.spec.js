@@ -341,6 +341,52 @@ describe('term-touch: releasing a drag', () => {
   })
 })
 
+describe('term-touch: context menu from the toolbar icon', () => {
+  const menuTarget = (dispatched) => ({
+    dispatchEvent: (ev) => dispatched.push([ev.type, ev.clientX, ev.clientY])
+  })
+
+  test('dispatches a contextmenu on the terminal node at the given point', async () => {
+    setTouchDevice(true)
+    const dispatched = []
+    const ctx = await makeCtx({
+      domRef: { current: menuTarget(dispatched) }
+    })
+    ctx.openContextMenuAtPoint(12, 34)
+    assert.deepEqual(dispatched, [['contextmenu', 12, 34]])
+  })
+
+  test('falls back to the xterm element before the wrapper ref is set', async () => {
+    setTouchDevice(true)
+    const dispatched = []
+    const term = makeTerm({ element: menuTarget(dispatched) })
+    const ctx = await makeCtx({ term, domRef: { current: null } })
+    ctx.openContextMenuAtPoint(5, 6)
+    assert.deepEqual(dispatched, [['contextmenu', 5, 6]])
+  })
+
+  test('does nothing without a terminal node to dispatch on', async () => {
+    setTouchDevice(true)
+    const ctx = await makeCtx({
+      term: { cols: 80, rows: 24 },
+      domRef: { current: null }
+    })
+    // no throw is the assertion: nothing is mounted yet
+    ctx.openContextMenuAtPoint(1, 2)
+  })
+
+  test('stays shut when pasteWhenContextMenu makes the menu a paste', async () => {
+    setTouchDevice(true)
+    const dispatched = []
+    const ctx = await makeCtx({
+      domRef: { current: menuTarget(dispatched) },
+      props: { config: { pasteWhenContextMenu: true } }
+    })
+    ctx.openContextMenuAtPoint(1, 2)
+    assert.deepEqual(dispatched, [])
+  })
+})
+
 describe('term-touch: select-text overlay', () => {
   const fakeTextarea = (value, selectionStart = 0, selectionEnd = 0) => {
     const el = {
