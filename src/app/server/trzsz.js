@@ -118,7 +118,20 @@ class FileWriter {
 
   async writeFile (buf) {
     this._ensureStream()
-    const canContinue = this.writeStream.write(buf)
+    // Never hand the caller's buffer straight to the stream.
+    //
+    // In binary mode (tsz -b) the remote announces `escape_chars: []`, so
+    // TrzszBuffer.readBinary() returns a view over its own reusable arrBuf
+    // and unescapeData() passes that view through untouched. A WriteStream
+    // keeps the reference until the data actually reaches the file, so the
+    // very next protocol read (the next `#DATA:<len>\n` header, or the
+    // trailing `#MD5:` line) rewrites arrBuf offset 0 while this chunk is
+    // still queued — and the file on disk comes out with protocol text
+    // spliced into it. Copy so the bytes we queued are ours.
+    const chunk = Buffer.from(
+      buf instanceof ArrayBuffer ? new Uint8Array(buf) : buf
+    )
+    const canContinue = this.writeStream.write(chunk)
     if (!canContinue) {
       if (!this._drainPromise) {
         this._drainPromise = new Promise((resolve) => {
@@ -736,4 +749,9 @@ class TrzszManager {
   }
 }
 const trzszManager = new TrzszManager()
-module.exports = { trzszManager }
+module.exports = {
+  TrzszSession,
+  TrzszManager,
+  trzszManager,
+  TRZSZ_STATE
+}
