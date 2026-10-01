@@ -14,6 +14,12 @@
  * - Reject reserved Windows device names: CON, PRN, AUX, NUL, COM1-9, LPT1-9
  * - Limit filename length to 255 bytes (common filesystem limit)
  * - Fallback to 'unnamed' if result is empty
+ *
+ * Note for callers using this to build a path: the output is guaranteed to
+ * contain no path separator (`/` or `\`) and never to be `.` or `..`, because
+ * all of those are in ILLEGAL_CHARS or stripped as trailing dots. That is what
+ * makes `resolve(dir, sanitizeFilename(name))` stay inside `dir` — and it is
+ * load-bearing for path containment (CWE-22), not just cosmetics.
  */
 
 // Characters illegal on Windows (and problematic on many systems)

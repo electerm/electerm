@@ -94,6 +94,43 @@ function runTests (getFn) {
     // Tab (0x09) is a control char, replaced before space strip
     assert.strictEqual(s('\tfile.txt'), '_file.txt')
   })
+
+  // Path containment (CWE-22) depends on these: `resolve(dir, s(name))` can only
+  // stay inside `dir` because the output never carries a separator and is never
+  // a bare dot component. See src/client/common/safe-join.js.
+  it('removes path separators, so a traversal name cannot escape a directory', () => {
+    const s = getFn()
+    assert.strictEqual(s('../../outside.txt'), '.._.._outside.txt')
+    assert.strictEqual(s('..\\..\\outside.txt'), '.._.._outside.txt')
+    assert.strictEqual(s('/tmp/abs.sh'), '_tmp_abs.sh')
+    assert.strictEqual(s('a/b'), 'a_b')
+    assert.strictEqual(s('a\\b'), 'a_b')
+  })
+
+  it('never returns a bare "." or ".." path component', () => {
+    const s = getFn()
+    assert.strictEqual(s('.'), 'unnamed')
+    assert.strictEqual(s('..'), 'unnamed')
+    assert.strictEqual(s('...'), 'unnamed')
+    assert.strictEqual(s('  ..  '), 'unnamed')
+  })
+
+  it('output never contains a path separator, for hostile input', () => {
+    const s = getFn()
+    const hostile = [
+      '../../etc/cron.d/evil',
+      '..\\..\\win\\evil.dll',
+      '/etc/passwd',
+      'C:\\Users\\x\\.ssh\\authorized_keys',
+      '\\\\server\\share\\evil',
+      'a/../../b',
+      '\x00/../x',
+      'x'.repeat(300) + '/../../y'
+    ]
+    for (const name of hostile) {
+      assert.ok(!/[/\\]/.test(s(name)), `sanitizeFilename(${JSON.stringify(name)}) kept a separator`)
+    }
+  })
 }
 
 describe('sanitizeFilename', () => {

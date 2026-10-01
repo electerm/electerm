@@ -1,5 +1,5 @@
 import { Component } from 'react'
-import resolve from '../../common/resolve'
+import safeJoin from '../../common/safe-join'
 import { typeMap } from '../../common/constants'
 import { refsStatic } from '../common/ref'
 import Remote2RemoteHandler from './remote2remote-handler'
@@ -35,7 +35,10 @@ export default class Remote2RemoteHandlers extends Component {
   createHandler = ({ fromFile, targetPathBase, targetTab }) => {
     const handler = new Remote2RemoteHandler({
       fromFile,
-      toPath: resolve(targetPathBase, fromFile.name),
+      // `fromFile.name` comes straight off the source server's READDIR, so it
+      // is attacker-controlled. It is written to the target host as the victim
+      // below, so it must not be able to leave `targetPathBase`.
+      toPath: safeJoin(targetPathBase, fromFile.name),
       sourceHost: fromFile.host,
       sourceTabId: fromFile.tabId,
       title: fromFile.title,
@@ -58,7 +61,9 @@ export default class Remote2RemoteHandlers extends Component {
   }
 
   onRemote2RemoteDrop = ({ fromFiles, toFile, targetTab }) => {
-    const targetPathBase = resolve(toFile.path, toFile.name)
+    // `toFile.name` is an entry from the target panel's listing. The victim
+    // chose the panel, but the name is still server-supplied.
+    const targetPathBase = safeJoin(toFile.path, toFile.name)
     const targetHost = targetTab?.host
     let handled = false
     for (const fromFile of fromFiles) {
