@@ -99,8 +99,18 @@ jobs:
                    END {printf "total: %.2f GB\n", t / 1073741824}'
 
       # The atomgit copy is a mirror repo: we cannot push the tag ourselves, it
-      # has to arrive via mirroring. Give the mirror a few minutes to catch up,
-      # then carry on either way (the release API only needs the tag name).
+      # has to arrive via mirroring. Give the mirror a few minutes to catch up.
+      #
+      # This is fatal, not a warning. A release can only be created on atomgit
+      # for a tag that already exists there: POST /releases without a
+      # target_commitish asks atomgit to create the tag, and a mirror repo
+      # forbids creating refs, so it answers
+      #   400 "this operation is not allowed because the repository is an
+      #        image repository"
+      # Without the release object every upload_url call 404s, so the whole run
+      # is wasted. Seen 2026-10-01: the mirror had stopped syncing tags entirely
+      # (newest was v5.5.35 while GitHub was at v5.5.56) and the job ground for
+      # 27 minutes uploading nothing.
       - name: Wait for tag to reach atomgit
         env:
           TAG: ${{ steps.tag.outputs.tag }}
@@ -116,40 +126,14 @@ jobs:
             echo "waiting for mirror to publish ${TAG} (${i}/6)"
             sleep 30
           done
-          echo "::warning::${TAG} not visible on the atomgit mirror yet, continuing"
-
-      # Drop every release except the one we are about to sync, so we never
-      # stack 4.4GB per version. Runs after the download so a broken GitHub
-      # release does not cost us the copy we already have on atomgit.
-      - name: Clean previously synced releases
-        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.keep_previous }}
-        env:
-          ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
-          TAG: ${{ steps.tag.outputs.tag }}
-        run: |
-          set -u
-          api="https://api.atomgit.com/api/v5/repos/${OWNER}/${REPO}"
-          auth="access_token=${ATOMGIT_TOKEN}"
-
-          curl -sS "${api}/releases?${auth}&per_page=100" \
-            | jq -r '.[].tag_name' | while read -r old; do
-            [ -n "$old" ] || continue
-            [ "$old" = "$TAG" ] && continue
-            echo "--- cleaning $old"
-            # only type=attach has an id; the mirror's source archives have none
-            # and are skipped by jq (their id is null -> DELETE would 400)
-            curl -sS "${api}/releases/${old}?${auth}" \
-              | jq -r '(.assets // [])[] | select(.type == "attach") | "\(.id) \(.name)"' \
-              | while read -r id name; do
-              [ -n "$id" ] && [ "$id" != "null" ] || continue
-              code="$(curl -sS -o /dev/null -w '%{http_code}' -X DELETE \
-                "${api}/releases/${old}/attach_files/${id}?${auth}" || echo 000)"
-              echo "  rm attachment $name ($id) -> $code"
-            done
-            # DELETE /releases/:tag is 405 Method Not Allowed -- the release
-            # object itself cannot be removed, only emptied
-            echo "  (release $old kept, its attachments are gone)"
-          done
+          echo "::error::${TAG} is not on the atomgit mirror after 3 minutes"
+          echo "The mirror must publish the tag before a release can be created for it."
+          echo "Check 项目设置 -> 仓库镜像 at https://atomgit.com/${OWNER}/${REPO}"
+          echo "Newest tags the mirror currently has:"
+          git ls-remote --tags "$url" \
+            | awk '{print $2}' | sed 's#refs/tags/##' | grep -v '\^{}$' \
+            | sort -V | tail -5
+          exit 1
 
       # Re-run safety: drop whatever a previous attempt left on this tag, so
       # asset names stay unique and the asset count check below stays exact.
@@ -190,10 +174,18 @@ jobs:
             -d @/tmp/release.json || echo 000)"
           echo "create release -> $code"
           cat /tmp/release.out || true
-          # 4xx means it already exists (POST returns 405 on re-run), not fatal
+          # 200/201 = created, 405/409 = already there (re-run). Anything else is
+          # fatal: without the release object every upload_url call returns 404,
+          # and carrying on only discovers that one file at a time. A 400
+          # "image repository" here means the tag is missing on the mirror (see
+          # the step above).
           case "$code" in
             200|201) echo "created" ;;
-            *) echo "::warning::release not created ($code), continuing" ;;
+            405|409) echo "release already exists, reusing it" ;;
+            *)
+              echo "::error::cannot create release ${TAG} on atomgit (HTTP ${code})"
+              exit 1
+              ;;
           esac
 
       - name: Upload assets to atomgit
@@ -205,7 +197,11 @@ jobs:
           set -u
           api="https://api.atomgit.com/api/v5/repos/${OWNER}/${REPO}"
           auth="access_token=${ATOMGIT_TOKEN}"
-          export api auth TAG UPLOAD_IP
+          # set by upload_one when the release itself is missing, which no
+          # amount of retrying can fix
+          HARD_FAIL=/tmp/atomgit-upload-hard-fail
+          rm -f "$HARD_FAIL"
+          export api auth TAG UPLOAD_IP HARD_FAIL
 
           upload_one() {
             file="$1"
@@ -219,12 +215,29 @@ jobs:
 
             attempt=1
             while [ "$attempt" -le 4 ]; do
-              info="$(curl -sSf "${api}/releases/${TAG}/upload_url?${auth}&file_name=${name}")" || {
-                echo "::warning::no upload url for ${name} (attempt ${attempt})"
+              # Keep the status code so a 404 (no such release) can be told
+              # apart from a transient failure. A 404 is permanent -- retrying
+              # only repeats the same answer, and 51 files x 4 attempts x 3
+              # rounds is ~25 minutes of guaranteed-nothing.
+              uu="$(mktemp)"
+              code="$(curl -sS -o "$uu" -w '%{http_code}' \
+                "${api}/releases/${TAG}/upload_url?${auth}&file_name=${name}" \
+                || echo 000)"
+              if [ "$code" = "404" ]; then
+                rm -f "$uu"
+                echo "::error::release ${TAG} does not exist on atomgit (upload_url -> 404)"
+                : > "$HARD_FAIL"
+                return 1
+              fi
+              if [ "$code" != "200" ]; then
+                rm -f "$uu"
+                echo "::warning::no upload url for ${name} (attempt ${attempt}, HTTP ${code})"
                 sleep 10
                 attempt=$((attempt + 1))
                 continue
-              }
+              fi
+              info="$(cat "$uu")"
+              rm -f "$uu"
               url="$(printf '%s' "$info" | jq -r '.url')"
               host="$(printf '%s' "$url" | sed -E 's#^https?://([^/]+).*#\1#')"
               hdr="$(mktemp)"
@@ -295,6 +308,12 @@ jobs:
             echo "--- round ${round}: ${todo} file(s) to upload"
             xargs -r -P "${UPLOAD_JOBS}" -I {} bash -c 'upload_one "$@"' _ {} \
               < /tmp/todo.txt || echo "::warning::some uploads failed in round ${round}"
+            # a soft failure (one flaky PUT) deserves another round; a missing
+            # release does not
+            if [ -e "$HARD_FAIL" ]; then
+              echo "::error::aborting: release ${TAG} is missing on atomgit"
+              exit 1
+            fi
             round=$((round + 1))
           done
           echo "--- attach assets on atomgit now: $(remote_names | grep -c . || true)"
@@ -328,3 +347,45 @@ jobs:
             exit 1
           fi
           echo "all $(printf '%s' "$w") assets verified on atomgit"
+
+      # Drop every release except the one we just synced, so we never stack
+      # 4.4GB per version.
+      #
+      # This MUST run after Verify. It used to run before the upload, and on
+      # 2026-10-01 that cost real data: v5.5.35 was emptied from 51 attachments
+      # (4.37GB) down to 6 (0.66GB), then nothing was uploaded, because the
+      # v5.5.56 release could not be created. atomgit ended up emptier than it
+      # was before the run. Only ever destroy the old copy once the new one is
+      # confirmed good.
+      #
+      # Note a DELETE returning 500 means it did NOT take -- only 204 is a real
+      # delete, which is why those 6 files survived.
+      - name: Clean previously synced releases
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.keep_previous }}
+        env:
+          ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -u
+          api="https://api.atomgit.com/api/v5/repos/${OWNER}/${REPO}"
+          auth="access_token=${ATOMGIT_TOKEN}"
+
+          curl -sS "${api}/releases?${auth}&per_page=100" \
+            | jq -r '.[].tag_name' | while read -r old; do
+            [ -n "$old" ] || continue
+            [ "$old" = "$TAG" ] && continue
+            echo "--- cleaning $old"
+            # only type=attach has an id; the mirror's source archives have none
+            # and are skipped by jq (their id is null -> DELETE would 400)
+            curl -sS "${api}/releases/${old}?${auth}" \
+              | jq -r '(.assets // [])[] | select(.type == "attach") | "\(.id) \(.name)"' \
+              | while read -r id name; do
+              [ -n "$id" ] && [ "$id" != "null" ] || continue
+              code="$(curl -sS -o /dev/null -w '%{http_code}' -X DELETE \
+                "${api}/releases/${old}/attach_files/${id}?${auth}" || echo 000)"
+              echo "  rm attachment $name ($id) -> $code"
+            done
+            # DELETE /releases/:tag is 405 Method Not Allowed -- the release
+            # object itself cannot be removed, only emptied
+            echo "  (release $old kept, its attachments are gone)"
+          done
