@@ -79,13 +79,21 @@ function getShInlineIntegration () {
   return [
     'if [ -z "$ELECTERM_SHELL_INTEGRATION" ]',
     'then export ELECTERM_SHELL_INTEGRATION=1',
-    '__e_esc() { printf \'%s\' "$1" | sed \'s/\\\\/\\\\\\\\/g; s/;/\\\\x3b/g\'; }',
     // sh/dash/ash re-evaluate $(...) inside PS1 every time the prompt is
     // shown, but only if the $() stays literal — so PS1 must be assigned
     // single-quoted. printf interprets \033/\a, unlike PS1 backslash
     // escapes which dash does not expand.
-    '__e_ps1() { printf \'\\033]633;P;Cwd=%s\\a\\033]633;A\\a\' "$(__e_esc "$PWD")"; }',
-    'PS1=\'$(__e_ps1)\'"${PS1:-# }"',
+    //
+    // The prompt is deliberately self-contained: it must never call a shell
+    // function. On OpenWrt /etc/profile does `export PS1=...`, so PS1 is an
+    // environment variable and every child shell inherits it — while shell
+    // functions are not inherited. A `PS1='$(__e_ps1)'...` prompt therefore
+    // dies with "ash: __e_ps1: not found" on every prompt of any nested shell
+    // (ash, su, login, ...), and the exported ELECTERM_SHELL_INTEGRATION
+    // guard stops the child from ever defining the missing function.
+    // Inlining keeps it working there too, and printf is an ash builtin so
+    // this is cheaper than the old function + sed pair.
+    'PS1=\'$(printf "\\033]633;P;Cwd=%s\\a\\033]633;A\\a" "$PWD")\'"${PS1:-# }"',
     'fi'
   ].join('; ')
 }
