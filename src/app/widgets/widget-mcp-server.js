@@ -22,18 +22,9 @@ const {
 
 // Dangerous tab props that allow arbitrary command execution.
 // Must be stripped from any MCP tool args before forwarding to the renderer.
-// Mirrors src/client/store/tab.js dangerousTabProps.
-const dangerousTabProps = [
-  'execLinux',
-  'execMac',
-  'execWindows',
-  'execWindowsArgs',
-  'execMacArgs',
-  'execLinuxArgs',
-  'setEnv',
-  'runScripts',
-  'interactiveValues'
-]
+// Shared with src/client/store/tab.js and the quick connect parser so the
+// copies cannot drift apart.
+const dangerousTabProps = require('../common/dangerous-session-fields')
 
 function stripDangerousTabProps (obj) {
   return Object.fromEntries(

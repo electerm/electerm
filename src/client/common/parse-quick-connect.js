@@ -19,13 +19,38 @@
  * 192.168.1.100:22
  */
 
+import DANGEROUS_SESSION_FIELDS from './dangerous-session-fields'
+
 const SUPPORTED_PROTOCOLS = ['ssh', 'telnet', 'vnc', 'rdp', 'spice', 'serial', 'ftp', 'http', 'https', 'electerm']
 
 /**
- * Deny list for opts keys - these are parsed from the URL itself
- * and should not be overridable via the opts JSON parameter for safety
+ * Deny list for opts keys.
+ *
+ * `type` and `host` are parsed from the URL itself, so `opts` must not be able
+ * to override them. Everything else is a field that reaches
+ * child_process.spawn(), a shell, the environment or the terminal input stream
+ * - see common/dangerous-session-fields.js.
+ *
+ * Deliberately a deny list rather than an allow list: a quick connect string
+ * may legitimately carry any session option (encode, term, authType,
+ * agentForward, sshTunnels, ...), so an allow list would silently break every
+ * field it does not know about.
  */
-const OPTS_DENY_LIST = ['type', 'host']
+const OPTS_DENY_LIST = ['type', 'host', ...DANGEROUS_SESSION_FIELDS]
+
+/**
+ * Return a copy of an untrusted object without the denied keys.
+ * @param {object} obj - untrusted object
+ * @param {string[]} denyList - keys to drop
+ * @returns {object} a new object with the denied keys removed
+ */
+function withoutDenied (obj, denyList = OPTS_DENY_LIST) {
+  const out = { ...(obj || {}) }
+  denyList.forEach(key => {
+    delete out[key]
+  })
+  return out
+}
 
 /**
  * Default ports for each protocol
@@ -404,8 +429,22 @@ function parseQuickConnect (str) {
     if (optsStr) {
       try {
         const extraOpts = JSON.parse(optsStr)
-        OPTS_DENY_LIST.forEach(key => delete extraOpts[key])
-        Object.assign(opts, extraOpts)
+        if (
+          extraOpts &&
+          typeof extraOpts === 'object' &&
+          !Array.isArray(extraOpts)
+        ) {
+          Object.assign(opts, withoutDenied(extraOpts))
+        }
+        // a hop entry is spread into a sub-session (server/session-hop.js),
+        // so it is its own untrusted surface and needs the same filtering.
+        // Only the dangerous fields apply here - unlike the top level, a hop
+        // legitimately sets its own host and port.
+        if (Array.isArray(opts.connectionHoppings)) {
+          opts.connectionHoppings = opts.connectionHoppings
+            .filter(hop => hop && typeof hop === 'object' && !Array.isArray(hop))
+            .map(hop => withoutDenied(hop, DANGEROUS_SESSION_FIELDS))
+        }
       } catch (err) {
         console.error('Failed to parse opts:', err)
       }
@@ -452,5 +491,6 @@ export {
   getSupportedProtocols,
   SUPPORTED_PROTOCOLS,
   DEFAULT_PORTS,
-  OPTS_DENY_LIST
+  OPTS_DENY_LIST,
+  DANGEROUS_SESSION_FIELDS
 }

@@ -18,6 +18,7 @@ import uid from '../common/uid'
 import newTerm, { updateCount } from '../common/new-terminal.js'
 import { action } from 'manate'
 import { shouldCaptureTerminalReloadState } from '../components/terminal/ssh-reload-state.js'
+import dangerousSessionFields from '../common/dangerous-session-fields'
 
 function captureSshSessionState (tab, config) {
   return shouldCaptureTerminalReloadState(tab, config)
@@ -415,23 +416,9 @@ export default Store => {
     store.updateHistory(newTab)
   }
 
-  // Dangerous props that should not be accepted from IPC
-  const dangerousTabProps = [
-    'execLinux',
-    'execMac',
-    'execWindows',
-    'execWindowsArgs',
-    'execMacArgs',
-    'execLinuxArgs',
-    'setEnv',
-    'runScripts',
-    'interactiveValues',
-    'triggers'
-  ]
-
   Store.prototype.ipcOpenTab = function (parsed) {
     const safeTab = Object.fromEntries(
-      Object.entries(parsed).filter(([key]) => !dangerousTabProps.includes(key))
+      Object.entries(parsed).filter(([key]) => !dangerousSessionFields.includes(key))
     )
     return window.store.addTab(safeTab)
   }

@@ -17,23 +17,16 @@ import {
   validateBookmarkData
 } from '../components/bookmark-form/fix-bookmark-default'
 import newTerm from '../common/new-terminal'
+import dangerousSessionFields from '../common/dangerous-session-fields'
 
 // Dangerous props that must not be accepted from MCP/AI tool calls.
-// Mirrors the blocklist in src/client/store/tab.js (dangerousTabProps).
-// These allow arbitrary command execution if set (e.g. execLinux/execLinuxArgs
-// override the shell binary, setEnv injects environment variables, runScripts
-// executes scripts, interactiveValues injects interactive prompts).
-const dangerousTabProps = [
-  'execLinux',
-  'execMac',
-  'execWindows',
-  'execWindowsArgs',
-  'execMacArgs',
-  'execLinuxArgs',
-  'setEnv',
-  'runScripts',
-  'interactiveValues'
-]
+// Shared with src/client/store/tab.js and the quick connect parser so the
+// copies cannot drift apart. These allow arbitrary command execution if set
+// (execLinux/execLinuxArgs override the shell binary, setEnv injects
+// environment variables, runScripts executes scripts, interactiveValues
+// injects interactive prompts, triggers auto-answer terminal output,
+// proxyCommand is spawned before any SSH authentication).
+const dangerousTabProps = dangerousSessionFields
 
 // Tab/session UI state keys that must never be set by MCP/AI callers.
 // A crafted `batch` (missing, string, or out-of-range) used to crash the
