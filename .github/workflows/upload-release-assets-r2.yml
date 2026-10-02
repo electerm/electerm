@@ -10,28 +10,33 @@ jobs:
     environment: build
     steps:
       - name: Download all release assets
-        run: |
-          TAG_NAME="${{ github.event.release.tag_name || github.event.inputs.tag_name }}"
-          mkdir -p ./release-assets
-          gh release download "$TAG_NAME" --repo "${{ github.repository }}" -D ./release-assets
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.event.release.tag_name || github.event.inputs.tag_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          mkdir -p ./release-assets
+          gh release download "$TAG_NAME" --repo "$REPO" -D ./release-assets
 
       - name: List downloaded file
         run: ls -la ./release-assets
 
       - name: Configure AWS credentials for R2
+        env:
+          CF_R2_ACCESS_KEY_ID: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+          CF_R2_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+          CF_R2_ENDPOINT: ${{ secrets.CF_R2_ENDPOINT }}
         run: |
           mkdir -p ~/.aws
-          cat > ~/.aws/credentials << 'EOF'
+          cat > ~/.aws/credentials << EOF
           [default]
-          aws_access_key_id = ${{ secrets.CF_R2_ACCESS_KEY_ID }}
-          aws_secret_access_key = ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+          aws_access_key_id = ${CF_R2_ACCESS_KEY_ID}
+          aws_secret_access_key = ${CF_R2_SECRET_ACCESS_KEY}
           EOF
-          cat > ~/.aws/config << 'EOF'
+          cat > ~/.aws/config << EOF
           [default]
           region = auto
-          endpoint_url = ${{ secrets.CF_R2_ENDPOINT }}
+          endpoint_url = ${CF_R2_ENDPOINT}
           EOF
 
       - name: Delete existing r folder

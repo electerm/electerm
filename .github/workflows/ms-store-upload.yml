@@ -31,12 +31,14 @@ jobs:
       id: tag
       env:
         GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
+        REPO: ${{ github.repository }}
       shell: pwsh
       run: |
-        $tag = "${{ github.event.release.tag_name }}"
+        $tag = $env:RELEASE_TAG
         if (-not $tag) {
           Write-Host "No release tag from event, fetching latest release..."
-          $tag = (gh release view --repo "${{ github.repository }}" --json tagName -q '.tagName')
+          $tag = (gh release view --repo "$env:REPO" --json tagName -q '.tagName')
           if (-not $tag) { throw 'Could not determine release tag.' }
         }
         Write-Host "Release tag: $tag"
@@ -45,11 +47,13 @@ jobs:
     - name: Download APPX from release
       env:
         GH_TOKEN: ${{ github.token }}
+        TAG_NAME: ${{ steps.tag.outputs.tag_name }}
+        REPO: ${{ github.repository }}
       shell: pwsh
       run: |
-        $tag = "${{ steps.tag.outputs.tag_name }}"
+        $tag = $env:TAG_NAME
         New-Item -ItemType Directory -Force -Path dist | Out-Null
-        gh release download "$tag" --repo "${{ github.repository }}" --pattern '*.appx' -D dist
+        gh release download "$tag" --repo "$env:REPO" --pattern '*.appx' -D dist
         Write-Host 'Downloaded APPX files:'
         Get-ChildItem -Path dist -Filter '*.appx' -Recurse | Format-Table FullName, Length
 

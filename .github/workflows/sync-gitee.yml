@@ -16,9 +16,11 @@ jobs:
           fetch-depth: 0
 
       - name: Setup SSH
+        env:
+          GITEE_PRIVATE_SSH_TOKEN: ${{ secrets.GITEE_PRIVATE_SSH_TOKEN }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.GITEE_PRIVATE_SSH_TOKEN }}" > ~/.ssh/id_rsa
+          printf '%s\n' "$GITEE_PRIVATE_SSH_TOKEN" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan gitee.com >> ~/.ssh/known_hosts
 
