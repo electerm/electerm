@@ -3,11 +3,15 @@ name: sync-release-to-atomgit
 # Mirror the latest GitHub release (tag + notes + all binary assets) to
 # https://atomgit.com/electerm/electerm, same idea as upload-release-assets-r2.yml.
 #
-# NOTE: the atomgit repo is a *mirror repository* (镜像仓库) of this GitHub repo,
-# so branches/tags arrive on their own and any git push is rejected with
+# NOTE: the atomgit repo used to be a *mirror repository* (镜像仓库) of this GitHub
+# repo. That mirror was removed on 2026-10-02, which is what unblocked git push:
+# while it existed every push was rejected with
 #   403 <CH.00905403> This operation is not allowed because the repository is an
 #   image repository.
-# We therefore only push release objects + attachments over the REST API.
+# Nothing arrives on atomgit by itself any more -- no tags, no branches -- so we
+# push the release tag ourselves (which carries the commits it points at) and only
+# then create the release + attachments over the REST API. Branch mirroring is
+# deliberately not replaced: atomgit now tracks released tags only.
 #
 # atomgit release attachments: single file <= 2GB, no documented total quota
 # (the 2GB git / 5GB LFS limits only apply to code storage, not attachments).
@@ -25,8 +29,8 @@ name: sync-release-to-atomgit
 # empty shells plus their 4 source archives (a few KB). Attachments are the
 # only real space, and those we do delete.
 on:
-  # release:
-  #   types: [published]
+  release:
+    types: [published]
   push:
     branches: [ atom ]
   workflow_dispatch:
@@ -51,6 +55,9 @@ jobs:
     env:
       OWNER: electerm
       REPO: electerm
+      # The git push username is the *account*, not the org. Verified 2026-10-02:
+      # `ssh -T git@atomgit.com` answers "Welcome to GitCode, zxdong262".
+      ATOMGIT_USER: zxdong262
       # The attachment PUT goes to file.gitcode.com, which resolves to a
       # mainland-China Huawei OBS gateway (116.205.2.91). From a GitHub runner
       # that route crawls: measured 41 KB/s, and HTTP/2 makes it worse -- a 20MB
@@ -64,8 +71,15 @@ jobs:
       # ever goes away the connect fails and we fall back to plain DNS.
       UPLOAD_IP: 159.138.147.37
     steps:
+      # fetch-depth 0 is required, not a preference: a tag push from the default
+      # depth-1 clone is rejected with
+      #   ! [remote rejected] ... (shallow update not allowed)
+      # verified 2026-10-02 against the real repo. Full history is only ~20MB /
+      # ~10s here, so there is nothing to optimise.
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Resolve tag
         id: tag
@@ -85,6 +99,63 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "syncing $tag"
 
+      # Nothing arrives on atomgit on its own any more, so we push the release tag
+      # ourselves. Pushing a tag also carries the commits it points at, so the tag
+      # and the code land together in one step.
+      #
+      # Order matters twice over:
+      #  - before Create release, because POST /releases without a target_commitish
+      #    asks atomgit to create the tag itself, and that is exactly what used to
+      #    answer 400 "this operation is not allowed because the repository is an
+      #    image repository" back when this was a mirror repo.
+      #  - before Download release assets, so a failure here costs seconds instead
+      #    of pulling ~4.4GB first.
+      #
+      # Verified by hand 2026-10-02: a throwaway tag pushed to this repo over SSH
+      # as the zxdong262 account succeeded, and the push immediately made the
+      # commits the old mirror had been missing readable through the API.
+      - name: Push tag to atomgit
+        env:
+          ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          set -eu
+          # Keep the token out of the URL: git prints the URL on failure, and a
+          # credential helper is the supported way to feed it in anyway.
+          cred="$(mktemp)"
+          printf '#!/bin/sh\necho "username=%s"\necho "password=%s"\n' \
+            "$ATOMGIT_USER" "$ATOMGIT_TOKEN" > "$cred"
+          chmod +x "$cred"
+          trap 'rm -f "$cred"' EXIT
+
+          url="https://atomgit.com/${OWNER}/${REPO}.git"
+          echo "pushing ${TAG} to atomgit ..."
+          # --force: a re-run finds the tag already there, and a re-cut release
+          # must be able to move it.
+          if ! git -c credential.helper="$cred" push --force "$url" \
+                 "refs/tags/${TAG}:refs/tags/${TAG}"; then
+            echo "::error::could not push ${TAG} to atomgit over HTTPS with ATOMGIT_TOKEN"
+            echo "If that token has no code-push scope, add the account SSH key as an"
+            echo "ATOMGIT_SSH_KEY secret and point this step at"
+            echo "  git@atomgit.com:${OWNER}/${REPO}.git"
+            exit 1
+          fi
+
+          # The push reported success -- confirm atomgit actually serves the ref
+          # back before the release step starts depending on it.
+          for i in 1 2 3 4 5; do
+            if git ls-remote --tags "$url" "refs/tags/${TAG}" \
+                 | grep -q "refs/tags/${TAG}$"; then
+              echo "tag ${TAG} is on atomgit"
+              exit 0
+            fi
+            echo "waiting for ${TAG} to become readable (${i}/5)"
+            sleep 3
+          done
+          echo "::error::pushed ${TAG} but atomgit does not serve it back"
+          exit 1
+
       - name: Download release assets from GitHub
         env:
           GH_TOKEN: ${{ github.token }}
@@ -97,43 +168,6 @@ jobs:
           find ./release-assets -type f -exec ls -l {} + \
             | awk '{printf "%12s  %s\n", $5, $9; t += $5}
                    END {printf "total: %.2f GB\n", t / 1073741824}'
-
-      # The atomgit copy is a mirror repo: we cannot push the tag ourselves, it
-      # has to arrive via mirroring. Give the mirror a few minutes to catch up.
-      #
-      # This is fatal, not a warning. A release can only be created on atomgit
-      # for a tag that already exists there: POST /releases without a
-      # target_commitish asks atomgit to create the tag, and a mirror repo
-      # forbids creating refs, so it answers
-      #   400 "this operation is not allowed because the repository is an
-      #        image repository"
-      # Without the release object every upload_url call 404s, so the whole run
-      # is wasted. Seen 2026-10-01: the mirror had stopped syncing tags entirely
-      # (newest was v5.5.35 while GitHub was at v5.5.56) and the job ground for
-      # 27 minutes uploading nothing.
-      - name: Wait for tag to reach atomgit
-        env:
-          TAG: ${{ steps.tag.outputs.tag }}
-        run: |
-          set -u
-          url="https://atomgit.com/${OWNER}/${REPO}.git"
-          for i in $(seq 1 6); do
-            if git ls-remote --tags "$url" "refs/tags/${TAG}" \
-                 | grep -q "refs/tags/${TAG}$"; then
-              echo "tag ${TAG} is on atomgit mirror"
-              exit 0
-            fi
-            echo "waiting for mirror to publish ${TAG} (${i}/6)"
-            sleep 30
-          done
-          echo "::error::${TAG} is not on the atomgit mirror after 3 minutes"
-          echo "The mirror must publish the tag before a release can be created for it."
-          echo "Check 项目设置 -> 仓库镜像 at https://atomgit.com/${OWNER}/${REPO}"
-          echo "Newest tags the mirror currently has:"
-          git ls-remote --tags "$url" \
-            | awk '{print $2}' | sed 's#refs/tags/##' | grep -v '\^{}$' \
-            | sort -V | tail -5
-          exit 1
 
       # Re-run safety: drop whatever a previous attempt left on this tag, so
       # asset names stay unique and the asset count check below stays exact.
