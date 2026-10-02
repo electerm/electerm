@@ -27,6 +27,7 @@ export const initMixin = {
       allowProposedApi: true,
       scrollback: config.scrollback,
       rightClickSelectsWord: config.rightClickSelectsWord || false,
+      mouseEventsRequireAlt: config.mouseEventsRequireAlt || false,
       fontFamily: tab.fontFamily || config.fontFamily,
       theme: tc,
       allowTransparency: true,

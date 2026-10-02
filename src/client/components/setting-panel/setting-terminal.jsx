@@ -569,6 +569,7 @@ export default class SettingTerminal extends Component {
           [
             'cursorBlink',
             'rightClickSelectsWord',
+            'mouseEventsRequireAlt',
             'pasteWhenContextMenu',
             'copyWhenSelect',
             'disableConfirmForLargeClipboardContent',

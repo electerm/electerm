@@ -104,6 +104,10 @@ class Term extends Component {
       type: 'glob'
     },
     {
+      name: 'mouseEventsRequireAlt',
+      type: 'glob'
+    },
+    {
       name: 'fontSize',
       type: 'glob_local'
     },

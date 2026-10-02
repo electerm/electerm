@@ -819,6 +819,7 @@ export default (Store) => {
     const configSyncKeys = [
       'keepaliveInterval',
       'rightClickSelectsWord',
+      'mouseEventsRequireAlt',
       'pasteWhenContextMenu',
       'ctrlOrMetaOpenTerminalLink',
       'hotkey',
