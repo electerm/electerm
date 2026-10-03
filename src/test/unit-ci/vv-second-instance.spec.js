@@ -56,7 +56,7 @@ describe('second instance .vv dispatch', () => {
     assert.match(
       body,
       /findVvFile\(commandLine\)/,
-      "second-instance must scan its command line for a .vv"
+      'second-instance must scan its command line for a .vv'
     )
     assert.match(
       body,

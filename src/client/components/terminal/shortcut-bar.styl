@@ -17,41 +17,16 @@
   user-select none
   -webkit-user-select none
 
-.shortcut-bar-fixed
-  display flex
-  align-items stretch
-  flex-shrink 0
-  border-right 1px solid var(--main-lighter)
-
-.shortcut-bar-icon-btn
-  width 44px
-  display flex
-  align-items center
-  justify-content center
-  background transparent
-  border none
-  color var(--text)
-  cursor pointer
-  font-size 16px
-  &:active
-    background var(--main-lighter)
-  &:hover
-    color var(--text-light)
-
-.shortcut-bar-scroll
-  flex 1
-  display flex
-  align-items center
-  gap 6px
-  padding 0 8px
-  overflow-x auto
-  overflow-y hidden
-  scrollbar-width none
-  -webkit-overflow-scrolling touch
-  &::-webkit-scrollbar
-    display none
-
+// A held button now means "keep sending this key", so the platform must not
+// treat the hold as its own gesture:
+//   - the iOS callout (Copy/Look Up) and Android's text-selection handles
+//     would swallow it — same reason .term-wrap suppresses them;
+//   - touch-action keeps the hold from turning into a scroll of the page; the
+//     bar's own horizontal scroll lives on .shortcut-bar-scroll, which is a
+//     separate element, so this only affects the button itself.
 .shortcut-bar-btn
+  -webkit-touch-callout none
+  touch-action manipulation
   flex-shrink 0
   height 32px
   min-width 32px
@@ -71,6 +46,50 @@
     color var(--primary-contrast)
   &:hover
     color var(--text-light)
+  // held down and repeating: keep the :active look for as long as the key is
+  // being re-sent, so the user can see the auto-repeat is running
+  &.repeating
+    background var(--primary)
+    color var(--primary-contrast)
+
+.shortcut-bar-fixed
+  display flex
+  align-items stretch
+  flex-shrink 0
+  border-right 1px solid var(--main-lighter)
+
+.shortcut-bar-icon-btn
+  width 44px
+  display flex
+  align-items center
+  justify-content center
+  background transparent
+  border none
+  color var(--text)
+  cursor pointer
+  font-size 16px
+  -webkit-touch-callout none
+  touch-action manipulation
+  &:active
+    background var(--main-lighter)
+  &:hover
+    color var(--text-light)
+
+.shortcut-bar-scroll
+  flex 1
+  display flex
+  align-items center
+  gap 6px
+  padding 0 8px
+  overflow-x auto
+  overflow-y hidden
+  scrollbar-width none
+  -webkit-overflow-scrolling touch
+  // a press that turns into a drag is a scroll of the button row, which is
+  // exactly what this container does — the hold itself is handled in JS
+  touch-action pan-x
+  &::-webkit-scrollbar
+    display none
 
 // while the bar is visible, lift the footer + reserve space so nothing is
 // covered (terminal area is shrunk by layout.jsx via store.shortcutBarVisible;
