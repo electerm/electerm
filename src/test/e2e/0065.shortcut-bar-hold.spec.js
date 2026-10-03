@@ -296,6 +296,16 @@ test('shortcut bar repeats a key while it is held', async () => {
     //
     // Playwright's real input is required: a synthetic event runs no default
     // action, so it can never catch this at all.
+    //
+    // The section above hid the bar to check that a hide kills the repeat, and
+    // `!store.shortcutBarVisible` renders nothing — so the buttons have to be
+    // brought back first, or every lookup below finds an empty document. The
+    // wait is not decoration: the store write re-renders asynchronously, so a
+    // lookup in the same task as the write still sees the old tree.
+    await page.evaluate(() => {
+      window.store.shortcutBarVisible = true
+    })
+    await page.waitForSelector(BTN)
     await page.evaluate(() => {
       window.__focusinCount = 0
       window.addEventListener('focusin', () => { window.__focusinCount++ }, true)

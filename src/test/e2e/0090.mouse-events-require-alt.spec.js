@@ -27,8 +27,6 @@ const path = require('node:path')
 const appOptions = require('./common/app-options')
 const delay = require('./common/wait')
 
-const ROOT = path.resolve(__dirname, '../../..')
-
 // `ESC[<b;x;yM/m` is the SGR mouse report. Button code 64 == wheel.
 // eslint-disable-next-line no-control-regex
 const sgr = /\x1b\[<(\d+);(\d+);(\d+)([Mm])/
@@ -42,7 +40,6 @@ test('mouseEventsRequireAlt keeps drag-selection while forwarding wheel and opti
 
   const app = await electron.launch({
     ...appOptions,
-    executablePath: path.join(ROOT, 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron'),
     env: {
       ...appOptions.env,
       DATA_PATH: path.join(profileRoot, 'data'),
