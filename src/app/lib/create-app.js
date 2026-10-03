@@ -11,7 +11,8 @@ const { getUserConfigNoEnc, getDbConfig } = require('./get-config')
 const {
   setupDeepLinkHandlers
 } = require('./deep-link')
-const { setupVvFileHandlers } = require('./vv-file-open')
+const { setupVvFileHandlers, openVvFileFromOs } = require('./vv-file-open')
+const { findVvFile } = require('../common/vv-file')
 const { handleSingleInstance } = require('./single-instance')
 const { setupCrashReporter, setupCommandLineSwitches } = require('./crash-reporter')
 
@@ -58,6 +59,19 @@ exports.createApp = async function () {
     const newWindowFlag = commandLine.includes('--new-window')
     if (newWindowFlag) {
       createWindow(conf)
+      return
+    }
+    // A .vv handed to an ALREADY RUNNING electerm. Windows has no 'open-file'
+    // event: the association launches a second process with the path in argv,
+    // which arrives here. Without this the file is silently dropped and the
+    // window just comes to the front -- which is what a user double-clicking a
+    // .vv in the Proxmox UI sees as "it does not work".
+    //
+    // The socket path above (single-instance.js) already forwards the same
+    // payload; this is the fallback for when only Electron's own lock fired.
+    const vvFile = findVvFile(commandLine)
+    if (vvFile) {
+      openVvFileFromOs(vvFile)
       return
     }
     const win = globalState.get('win')
