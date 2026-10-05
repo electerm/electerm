@@ -25,7 +25,12 @@ function darker (color, amount = 0.1) {
   let g = (num & 0x0000FF) - Math.round(255 * amount)
   if (g < 0) g = 0
 
-  return (usePound ? '#' : '') + (g | (b << 8) | (r << 16)).toString(16)
+  // padded: a dark colour clamps every channel to 0, and an unpadded
+  // toString(16) then emits `#0` -- not a valid hex, which makes every
+  // `border ... var(--main-darker)` invalid at computed-value time, i.e. no
+  // border at all.
+  return (usePound ? '#' : '') +
+    (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0')
 }
 
 function buildTheme (themeConfig) {

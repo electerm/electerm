@@ -90,6 +90,7 @@
     "react-diff-viewer-continued": "4.4.0",
     "react-dom": "19.2.7",
     "react-markdown": "9.0.1",
+    "remark-gfm": "^4.0.1",
     "replace-in-file": "6.3.5",
     "shelljs": "0.8.5",
     "spice-client": "1.2.0",

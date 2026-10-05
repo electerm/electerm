@@ -59,6 +59,25 @@
   right 10px
   z-index 10
 
+// markdown (react-markdown, GFM) tables in the AI answer. Just enough to be a
+// usable table, using the theme's own colours.
+// display:block + overflow-x:auto is the load bearing part: .ai-history-wrap is
+// overflow-x hidden, so a table wider than the panel would otherwise be clipped
+// with no way to reach its right hand columns. width:max-content keeps it
+// shrink-to-fit while it still fits.
+.ai-stream-output
+  table
+    display block
+    width max-content
+    max-width 100%
+    overflow-x auto
+    border-collapse collapse
+  th,
+  td
+    border 1px solid var(--main-darker)
+    padding 4px 8px
+    text-align left
+
 
 .ai-chat-input
   position relative

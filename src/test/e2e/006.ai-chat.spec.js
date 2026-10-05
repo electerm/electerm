@@ -69,6 +69,20 @@ describe('AI Config and Suggestions', function () {
     const promptContent = await lastChatItem.locator('.ant-alert-title').textContent()
     expect(promptContent).toContain(testPrompt)
 
+    // The mock answer ends with a GFM table. react-markdown only parses
+    // CommonMark unless remark-gfm is enabled, in which case the table arrives
+    // as literal `| a | b |` text and never becomes a <table> at all.
+    const table = client.locator('.ai-stream-output table').last()
+    await expect(table).toBeVisible({ timeout: 15000 })
+    expect(await table.locator('thead th').count()).toBe(3)
+    expect(await table.locator('tbody tr').count()).toBe(2)
+    expect(await table.locator('thead th').first().textContent()).toBe('Name')
+    // and it must actually be styled, not just present
+    const thBorder = await table.locator('thead th').first().evaluate(
+      el => window.getComputedStyle(el).borderTopStyle
+    )
+    expect(thBorder).toBe('solid')
+
     // Test new chat functionality (clears the current conversation)
     await client.click('.ai-chat-toolbar .new-chat-btn')
     await delay(1000)

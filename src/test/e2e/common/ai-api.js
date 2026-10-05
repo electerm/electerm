@@ -111,7 +111,14 @@ app.post('/chat/completions', (req, res) => {
       '## Text Formatting\n' +
       '**Bold text** and *italic text*\n\n' +
       '> This is a blockquote\n\n' +
-      '[This is a link](https://example.com)'
+      '[This is a link](https://example.com)\n\n' +
+      // GFM table: react-markdown only does CommonMark on its own, so this
+      // only becomes a <table> if remark-gfm is wired up (see ai-output.jsx)
+      '## Table Example\n' +
+      '| Name | Type | Notes |\n' +
+      '| --- | --- | --- |\n' +
+      '| alpha | str | first |\n' +
+      '| beta | int | second |'
 
     // Split response into chunks and send as streaming data
     const chunks = mockResponse.split(' ')
@@ -152,7 +159,14 @@ app.post('/chat/completions', (req, res) => {
       '## Text Formatting\n' +
       '**Bold text** and *italic text*\n\n' +
       '> This is a blockquote\n\n' +
-      '[This is a link](https://example.com)'
+      '[This is a link](https://example.com)\n\n' +
+      // GFM table: react-markdown only does CommonMark on its own, so this
+      // only becomes a <table> if remark-gfm is wired up (see ai-output.jsx)
+      '## Table Example\n' +
+      '| Name | Type | Notes |\n' +
+      '| --- | --- | --- |\n' +
+      '| alpha | str | first |\n' +
+      '| beta | int | second |'
 
     res.json({
       choices: [{
