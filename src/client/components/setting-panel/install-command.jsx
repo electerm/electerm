@@ -6,6 +6,8 @@ import {
   WarningOutlined
 } from '@ant-design/icons'
 import message from '../common/message'
+import HelpIcon from '../common/help-icon'
+import { installCommandHelpLink } from '../../common/constants'
 
 // The row title and the two buttons come from electerm-locales
 // (`command` / `install` / `uninstall`); the descriptive lines are still plain
@@ -63,24 +65,15 @@ export default function InstallCommand () {
   // In a dev run process.execPath is Electron, so installing would point the
   // command at Electron. Say so rather than offering a button that breaks it.
   if (unpackaged) {
-    return (
-      <div className='pd2b'>
-        <div className='pd1b'>
-          <span className='inline-title'>electerm {t('command')}</span>
-        </div>
-        <div className='pd1b'>
-          <WarningOutlined className='mg1r' />
-          Only a packaged build can install the electerm command.
-        </div>
-      </div>
-    )
+    return null
   }
 
   return (
     <div className='pd2b'>
       <div className='pd1b'>
         <Space size='small' wrap>
-          <span className='inline-title'>electerm {t('command')}</span>
+          <span className='inline-title'>{t('install')} electerm {t('command')} to PATH</span>
+          <HelpIcon link={installCommandHelpLink} />
           <Tag
             variant='solid'
             icon={installed ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
@@ -98,10 +91,6 @@ export default function InstallCommand () {
               : null
           }
         </Space>
-      </div>
-      <div className='pd1b'>
-        Run <code>electerm</code> from a terminal to connect straight from the
-        command line.
       </div>
       {
         stale

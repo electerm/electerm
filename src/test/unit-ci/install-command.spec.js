@@ -781,4 +781,21 @@ describe('install-command: testability guard', () => {
       assert.equal(typeof lang[key], 'string', `${key} missing from en_us`)
     }
   })
+
+  test('the control links to the wiki page for the feature', () => {
+    const src = fs.readFileSync(
+      path.join(ROOT, 'src/client/components/setting-panel/install-command.jsx'),
+      'utf8'
+    )
+    assert.match(src, /HelpIcon link=\{installCommandHelpLink\}/)
+    const constants = fs.readFileSync(
+      path.join(ROOT, 'src/client/common/constants.js'),
+      'utf8'
+    )
+    assert.match(
+      constants,
+      /installCommandHelpLink = 'https:\/\/github\.com\/electerm\/electerm\/wiki\/Install-electerm-command'/,
+      'the wiki URL is a contract - a typo here ships a 404'
+    )
+  })
 })
