@@ -33,6 +33,7 @@ import HelpIcon from '../common/help-icon'
 import delay from '../../common/wait.js'
 import isColorDark from '../../common/is-color-dark'
 import DeepLinkControl from './deep-link-control'
+import InstallCommand from './install-command'
 import HotkeySetting from './hotkey'
 import SettingLeftSidebarIcons from './setting-left-sidebar-icons'
 import './setting.styl'
@@ -582,6 +583,9 @@ export default class SettingCommon extends Component {
           ]
             .filter(name => !isWebApp || !webAppHiddenSettings.includes(name))
             .map(this.renderToggle)
+        }
+        {
+          window.et.isWebApp ? null : <InstallCommand />
         }
         {
           window.et.isWebApp ? null : <DeepLinkControl />

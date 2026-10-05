@@ -69,6 +69,11 @@ const initApp = require('./init-app')
 const { encryptAsync, decryptAsync } = require('./enc')
 const { safeEncrypt, safeDecrypt } = require('./safe-storage')
 const { initCommandLine } = require('./command-line')
+const {
+  getCommandStatus,
+  installCommand,
+  uninstallCommand
+} = require('./install-command')
 const { watchFile, unwatchFile } = require('./watch-file')
 const lookup = require('../common/lookup')
 const {
@@ -255,6 +260,10 @@ function initIpc () {
     },
     changeHotkey: changeHotkeyReg(globalShortcut, globalState.get('win')),
     initCommandLine,
+    // No renderer-supplied options: the main process owns platform/execPath.
+    getElectermCommandStatus: () => getCommandStatus(),
+    installElectermCommand: () => installCommand(),
+    uninstallElectermCommand: () => uninstallCommand(),
     watchFile,
     unwatchFile,
     openFileWithEditor,
