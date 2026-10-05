@@ -742,29 +742,57 @@ export default (Store) => {
       }
       fixed[n] = arr
     }
-    // clear all targets first - importAll replaces data sets, not appends.
-    // watchers are stopped inside runImportTask, so this is silent until restart
-    action(() => {
-      for (const n of names) {
-        store.setItems(n, [])
-      }
-    })()
+    // Import replaces data sets, so the store has to end up holding exactly
+    // `fixed`. Keep a copy of what it holds now: if the import is cancelled or
+    // throws, this goes back, so the store and the watcher snapshots agree
+    // again and the watcher restart cannot be mistaken for a mass deletion.
+    const backup = new Map(
+      names.map(n => [n, copy(store.getItems(n))])
+    )
     await runImportTask({
       title: e('import'),
       batch: 200,
       stopWatchers: names,
-      // one chunked step per data set (bookmarks, groups, themes, ...),
-      // so the progress bar advances per batch instead of per data set
-      steps: names.map((n) => {
-        const arr = fixed[n]
-        return {
-          label: n,
-          items: arr,
-          process: (chunk) => {
-            store[n].push(...chunk)
+      // Clearing happens *inside* the task, i.e. while the watchers are
+      // stopped, rather than before it. Doing it earlier meant the empty store
+      // was already in place while the snapshots still described the full
+      // table, so any path that restarted a watcher without the import having
+      // finished (cancel, throw) deleted every record on disk.
+      steps: [
+        {
+          label: e('import'),
+          weight: 1,
+          run: () => {
+            action(() => {
+              for (const n of names) {
+                store.setItems(n, [])
+              }
+            })()
           }
-        }
-      })
+        },
+        // one chunked step per data set (bookmarks, groups, themes, ...),
+        // so the progress bar advances per batch instead of per data set
+        ...names.map((n) => {
+          const arr = fixed[n]
+          return {
+            label: n,
+            items: arr,
+            process: (chunk) => {
+              store[n].push(...chunk)
+            }
+          }
+        })
+      ],
+      // The import did not complete: put the store back the way it was so the
+      // watcher restart below is a no-op instead of deleting the untouched
+      // records. (import-task.js also reseeds each watcher before restarting.)
+      onAbort: () => {
+        action(() => {
+          for (const [n, arr] of backup) {
+            store.setItems(n, copy(arr))
+          }
+        })()
+      }
     })
     store.updateConfig(stripServerManagedKeys(objs.config))
     if (objs.config?.theme) {

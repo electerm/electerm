@@ -59,6 +59,14 @@ export function cancelImportTask () {
  * @param {string[]} options.stopWatchers db watcher names (window.watchXxx)
  *   to pause during the task, so chunked writes do not trigger a db diff
  *   per batch; watchers restart one per frame after the steps finish
+ * @param {Function} options.onAbort called as ({cancelled, error}) when the
+ *   task did NOT run to completion, BEFORE the watchers restart. A stopped
+ *   watcher cannot observe store changes, so its snapshot only describes the
+ *   db while the task ran to completion; after a cancel/throw the store may
+ *   hold a partial result while the snapshot still describes the pre-task
+ *   table. Restarting there would classify every untouched record as
+ *   `removed` and delete it, so the caller must use this hook to put the
+ *   store back in sync with the snapshot first.
  * @param {Function} options.onProgress called as (current, total) per batch
  * @returns {Promise<{cancelled: boolean, error: Error|null}>}
  */
@@ -72,6 +80,7 @@ export async function runImportTask (options) {
     useModal = true,
     modalMinTotal = 200,
     stopWatchers = [],
+    onAbort,
     onProgress
   } = options
   if (controller) {
@@ -134,23 +143,57 @@ export async function runImportTask (options) {
         update({ label })
       }
     }
+  } catch (err) {
+    error = err
+  }
+
+  // A watcher that was stopped cannot observe store changes, so its snapshot
+  // is only a faithful description of the db while the task ran to completion.
+  // After a cancel or a throw the store can hold a partial result while the
+  // snapshot still describes the pre-task table; the restart below would then
+  // diff "snapshot \ store" and delete every record the task never touched.
+  // Let the caller reconcile the store with the snapshot first.
+  const aborted = controller.cancelled || !!error
+  if (aborted && typeof onAbort === 'function') {
+    try {
+      await onAbort({ cancelled: controller.cancelled, error })
+    } catch (abortErr) {
+      // the abort hook is best effort - a failure there must not stop the
+      // watchers from coming back up
+      error = error || abortErr
+    }
+  }
+
+  try {
     // restart watchers one per frame - each start() synchronously diffs
     // + deep-copies its collection and writes to db, so restarting all at
     // once would freeze the UI right when the import "finishes"
     for (const name of stopWatchers) {
       await yieldToUI(batchIdle)
+      // after an abort the store was just put back to its pre-task state;
+      // make that the watcher's baseline so the restart is a no-op instead of
+      // a mass deletion. reseed() is a no-op for watchers that do not have it.
+      if (aborted) {
+        window[`watch${name}`]?.reseed?.()
+      }
       window[`watch${name}`]?.start()
       restarted.add(name)
       done += 1
       update({ label: name })
     }
-  } catch (err) {
-    error = err
+  } catch (restartErr) {
+    // a watcher failing to come back up is reported through the return value,
+    // like every other failure here, and must not mask the original error
+    error = error || restartErr
   } finally {
     // on error/cancel still make sure everything is restarted
     for (const name of stopWatchers) {
       if (!restarted.has(name)) {
-        window[`watch${name}`]?.start()
+        try {
+          window[`watch${name}`]?.start()
+        } catch (e) {
+          error = error || e
+        }
       }
     }
   }
