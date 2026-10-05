@@ -16,6 +16,18 @@ const globalState = require('./global-state')
 
 rp.defaults.proxy = false
 
+// GitHub and atomgit serve release assets from the same path shape:
+//   https://github.com/electerm/electerm/releases/download/<tag>/<file>
+//   https://atomgit.com/electerm/electerm/releases/download/<tag>/<file>
+// so only the two trailing segments (tag, file name) need carrying over.
+// The asset itself only exists on atomgit for the newest release: the sync
+// workflow empties every older release to stay under the attachment quota.
+function getAtomgitUrl (url) {
+  const arr = url.split('/')
+  const len = arr.length
+  return `https://atomgit.com/electerm/electerm/releases/download/${arr[len - 2]}/${arr[len - 1]}`
+}
+
 function getUrl (url, mirror) {
   if (mirror === 'gh-proxy') {
     return `https://electerm-mirror.html5beta.com/${url}`
@@ -25,6 +37,8 @@ function getUrl (url, mirror) {
     return `https://master.dl.sourceforge.net/project/electerm.mirror/${arr[len - 2]}/${arr[len - 1]}?viasf=1`
   } else if (mirror === 'r2') {
     return `https://electerm-store.html5beta.com/r/${url.split('/').pop()}`
+  } else if (mirror === 'atomgit') {
+    return getAtomgitUrl(url)
   } else {
     return url
   }

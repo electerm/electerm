@@ -28,6 +28,7 @@ const {
 const downloadMirrorList = [
   'github',
   'gh-proxy',
+  'atomgit',
   'sourceforge',
   'r2'
 ]
@@ -293,6 +294,7 @@ export default class Upgrade extends PureComponent {
         getPopupContainer={() => document.body}
         size='small'
         style={{ height: 32 }}
+        popupMatchSelectWidth={false}
       >
         {downloadMirrorList.map((opt) => (
           <Select.Option key={opt} value={opt}>{opt}</Select.Option>
