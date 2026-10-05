@@ -261,9 +261,13 @@ function initIpc () {
     changeHotkey: changeHotkeyReg(globalShortcut, globalState.get('win')),
     initCommandLine,
     // No renderer-supplied options: the main process owns platform/execPath.
-    getElectermCommandStatus: () => getCommandStatus(),
-    installElectermCommand: () => installCommand(),
-    uninstallElectermCommand: () => uninstallCommand(),
+    // `packaged` is the guard against a dev run, where execPath is Electron.
+    getElectermCommandStatus: () =>
+      getCommandStatus({ packaged: app.isPackaged }),
+    installElectermCommand: () =>
+      installCommand({ packaged: app.isPackaged }),
+    uninstallElectermCommand: () =>
+      uninstallCommand({ packaged: app.isPackaged }),
     watchFile,
     unwatchFile,
     openFileWithEditor,

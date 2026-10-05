@@ -6,9 +6,16 @@ import {
   WarningOutlined
 } from '@ant-design/icons'
 import message from '../common/message'
+import HelpIcon from '../common/help-icon'
+import { installCommandHelpLink } from '../../common/constants'
 
-// Text is intentionally plain English here; the maintainer wires up
-// window.translate keys for these labels.
+// The row title and the two buttons come from electerm-locales
+// (`command` / `install` / `uninstall`); the descriptive lines are still plain
+// English and the maintainer adds keys for them as needed.
+// window.translate is installed by entry/basic.js, so look it up at call time
+// rather than capturing it when this module is evaluated.
+const t = key => window.translate(key)
+
 export default function InstallCommand () {
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState(null)
@@ -43,37 +50,37 @@ export default function InstallCommand () {
     }
   }
 
-  const handleInstall = () => run('installElectermCommand', 'electerm command installed')
-  const handleUninstall = () => run('uninstallElectermCommand', 'electerm command removed')
+  const handleInstall = () =>
+    run('installElectermCommand', `electerm ${t('command')} installed`)
+  const handleUninstall = () =>
+    run('uninstallElectermCommand', `electerm ${t('command')} removed`)
 
   if (!status) {
     return null
   }
 
-  const { installed, inPath, binDir, stale, blocked } = status
+  const { installed, inPath, binDir, stale, blocked, unpackaged } = status
   const needsPath = installed && inPath === false
+
+  // In a dev run process.execPath is Electron, so installing would point the
+  // command at Electron. Say so rather than offering a button that breaks it.
+  if (unpackaged) {
+    return null
+  }
 
   return (
     <div className='pd2b'>
       <div className='pd1b'>
         <Space size='small' wrap>
-          <span className='inline-title'>electerm command line</span>
+          <span className='inline-title'>{t('install')} electerm {t('command')} to PATH</span>
+          <HelpIcon link={installCommandHelpLink} />
           <Tag
             variant='solid'
             icon={installed ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
             color={installed ? 'success' : 'default'}
           >
-            {installed ? 'Installed' : 'Not installed'}
+            {installed ? 'Installed' : (stale ? 'Outdated' : 'Not installed')}
           </Tag>
-          {
-            stale
-              ? (
-                <Tag variant='solid' color='warning' icon={<WarningOutlined />}>
-                  Outdated
-                </Tag>
-                )
-              : null
-          }
           {
             blocked
               ? (
@@ -85,10 +92,16 @@ export default function InstallCommand () {
           }
         </Space>
       </div>
-      <div className='pd1b'>
-        Run <code>electerm</code> from a terminal to connect straight from the
-        command line.
-      </div>
+      {
+        stale
+          ? (
+            <div className='pd1b'>
+              <WarningOutlined className='mg1r' />
+              This command points somewhere else now. Install again to update it.
+            </div>
+            )
+          : null
+      }
       {
         binDir
           ? (
@@ -116,10 +129,10 @@ export default function InstallCommand () {
           onClick={handleInstall}
           loading={loading}
         >
-          {installed ? 'Reinstall command' : 'Install command'}
+          {t('install')}
         </Button>
         {
-          installed
+          installed || stale
             ? (
               <Button
                 color='danger'
@@ -127,7 +140,7 @@ export default function InstallCommand () {
                 onClick={handleUninstall}
                 loading={loading}
               >
-                Uninstall
+                {t('uninstall')}
               </Button>
               )
             : null
