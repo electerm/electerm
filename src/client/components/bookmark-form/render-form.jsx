@@ -5,7 +5,7 @@ import sessionConfig from './config/session-config'
 import { connectionMap } from '../../common/constants'
 import FormRenderer from './form-renderer'
 
-export default function renderForm (type, props) {
+export default function renderForm (type, props, onForm) {
   const conf = sessionConfig[type] || sessionConfig[connectionMap.ssh]
-  return <FormRenderer config={conf} props={props} />
+  return <FormRenderer config={conf} props={props} onForm={onForm} />
 }

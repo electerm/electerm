@@ -22,13 +22,25 @@ import newTerm from '../../common/new-terminal'
 import { isValidIP } from '../../common/is-ip'
 import { action as manateAction } from 'manate'
 
-export default function FormRenderer ({ config, props }) {
+export default function FormRenderer ({ config, props, onForm }) {
   const initialValues = config.initValues(props)
   const [form] = Form.useForm()
   const [ips, setIps] = useState([])
   const [authType, setAuthType] = useState(initialValues.authType || authTypeMap.password)
   const [testing, setTesting] = useState(false)
   const action = useRef('submit')
+
+  // hand the form instance up so the header can read the current values
+  useEffect(() => {
+    if (onForm) {
+      onForm(form)
+    }
+    return () => {
+      if (onForm) {
+        onForm(null)
+      }
+    }
+  }, [onForm, form])
 
   useEffect(() => {
     const init = config.initValues(props)

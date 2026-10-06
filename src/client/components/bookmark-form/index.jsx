@@ -21,6 +21,7 @@ import { LoadingOutlined, BookOutlined, RobotOutlined } from '@ant-design/icons'
 import sessionConfig from './config/session-config'
 import renderForm from './render-form'
 import AIBookmarkForm from './ai-bookmark-form'
+import CopyBookmark from './copy-bookmark'
 import { isAIDisabled } from '../../common/ai-feature'
 import './bookmark-form.styl'
 
@@ -78,6 +79,19 @@ export default class BookmarkIndex2 extends PureComponent {
 
   handleChange = (e) => {
     this.setState({ bookmarkType: e.target.value })
+  }
+
+  // the form instance lives in FormRenderer, the copy menu lives in the header
+  handleFormReady = (form) => {
+    this.form = form
+  }
+
+  // same shape the form submits: saved bookmark + what is currently typed
+  getFormValues = () => {
+    return {
+      ...this.props.formData,
+      ...(this.form ? this.form.getFieldsValue() : {})
+    }
   }
 
   handleCancelAiMode = () => {
@@ -147,12 +161,16 @@ export default class BookmarkIndex2 extends PureComponent {
     )
   }
 
+  renderCopy () {
+    return <CopyBookmark getValues={this.getFormValues} />
+  }
+
   renderForm () {
     const { bookmarkType, aiMode } = this.state
     if (aiMode) {
       return this.renderAiForm()
     }
-    return renderForm(bookmarkType, this.props)
+    return renderForm(bookmarkType, this.props, this.handleFormReady)
   }
 
   render () {
@@ -180,6 +198,7 @@ export default class BookmarkIndex2 extends PureComponent {
             </span>
             {this.renderTitle(formData, isNew)}
             {this.renderAIButton(isNew)}
+            {this.renderCopy()}
           </p>
           {this.renderTypes(bookmarkType, isNew, keys)}
         </div>
