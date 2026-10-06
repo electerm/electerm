@@ -5,33 +5,9 @@
 import { useEffect, useRef } from 'react'
 import eq from 'fast-deep-equal'
 import isColorDark from '../../common/is-color-dark'
+import { darker } from '../../common/ui-theme-color.mjs'
 
 const themeDomId = 'theme-css'
-
-function darker (color, amount = 0.1) {
-  let usePound = false
-
-  if (color[0] === '#') {
-    color = color.slice(1)
-    usePound = true
-  }
-
-  const num = parseInt(color, 16)
-
-  let r = (num >> 16) - Math.round(255 * amount)
-  if (r < 0) r = 0
-  let b = ((num >> 8) & 0x00FF) - Math.round(255 * amount)
-  if (b < 0) b = 0
-  let g = (num & 0x0000FF) - Math.round(255 * amount)
-  if (g < 0) g = 0
-
-  // padded: a dark colour clamps every channel to 0, and an unpadded
-  // toString(16) then emits `#0` -- not a valid hex, which makes every
-  // `border ... var(--main-darker)` invalid at computed-value time, i.e. no
-  // border at all.
-  return (usePound ? '#' : '') +
-    (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0')
-}
 
 function buildTheme (themeConfig) {
   const keys = Object.keys(themeConfig || {})
