@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "5.5.68",
+  "version": "5.5.75",
   "description": "Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(Linux, Mac, Windows, Android, HarmonyOS, iOS).",
   "main": "app.js",
   "scripts": {
@@ -69,7 +69,7 @@
     "@xterm/addon-unicode11": "0.10.0-beta.292",
     "@xterm/addon-web-links": "0.13.0-beta.292",
     "@xterm/addon-webgl": "0.20.0-beta.291",
-    "@xterm/xterm": "6.1.0-beta.292",
+    "@xterm/xterm": "npm:@electerm/xterm@6.1.0-beta.292-electerm.1",
     "antd": "6.5.1",
     "classnames": "2.5.1",
     "cross-env": "7.0.3",

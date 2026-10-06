@@ -64,8 +64,13 @@ export class Osc52Addon {
     const target = data.substring(0, semicolonIdx)
     const payload = data.substring(semicolonIdx + 1)
 
-    // Only handle clipboard target ('c'), also accept 'c' among multiple targets
-    if (!target.includes('c')) return false
+    // Only handle clipboard target ('c'), also accept 'c' among multiple targets.
+    // An EMPTY target is the spec's "default selection", i.e. the clipboard, and is
+    // what tmux sends: `set -g mouse on` + a mouse drag + wheel (to select across
+    // screens) makes tmux emit `ESC ] 52 ; ; <base64> BEL` on release. Rejecting an
+    // empty target silently drops that payload, so copying from tmux never reaches
+    // the system clipboard.
+    if (target && !target.includes('c')) return false
 
     if (payload === '?') {
       // Read request - send clipboard content back
