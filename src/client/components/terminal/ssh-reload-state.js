@@ -46,13 +46,16 @@ export function createRestoreCwdCommand (cwd) {
   return safeCwd ? `cd -- ${quotePosixShellArg(safeCwd)}` : ''
 }
 
-export function createWindowsRestoreCwdCommand (cwd) {
+export function createWindowsRestoreCwdCommand (cwd, shell = '') {
   const safeCwd = sanitizeSshCwd(cwd)
   if (!safeCwd) {
     return ''
   }
+  if (/(?:^|[/\\])(?:powershell|pwsh)(?:\.exe)?$/i.test(shell)) {
+    return `Set-Location -LiteralPath '${safeCwd.replace(/'/g, "''")}'`
+  }
   // Strip control chars already handled by sanitize; escape embedded double
-  // quotes for cmd/powershell (`""` is accepted by both as a literal quote).
+  // quotes for CMD.
   const escaped = safeCwd.replace(/"/g, '""')
   return `cd /d "${escaped}"`
 }

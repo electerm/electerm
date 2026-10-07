@@ -141,7 +141,7 @@ export class StartupQueue {
 
   // ---- queue ----
 
-  runInitScript = () => {
+  runInitScript = (localShell) => {
     const { term } = this
     window.store.triggerResize()
     const {
@@ -158,7 +158,7 @@ export class StartupQueue {
     if (startFolder) {
       cwdCommand = this.isPosixShell()
         ? createRestoreCwdCommand(startFolder)
-        : createWindowsRestoreCwdCommand(startFolder) || `cd "${startFolder}"`
+        : createWindowsRestoreCwdCommand(startFolder, localShell || term.props.config.execWindows) || `cd "${startFolder}"`
     }
     if (cwdCommand) {
       scripts.unshift({ script: cwdCommand, delay: 0 })
