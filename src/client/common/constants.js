@@ -302,6 +302,17 @@ export const regexHelpLink = 'https://github.com/electerm/electerm/wiki/Terminal
 export const connectionHoppingWikiLink = 'https://github.com/electerm/electerm/wiki/Connection-Hopping-Behavior-Change-in-electerm-since-v1.50.65'
 export const aiConfigWikiLink = 'https://github.com/electerm/electerm/wiki/AI-model-config-guide'
 export const installCommandHelpLink = 'https://github.com/electerm/electerm/wiki/Install-electerm-command'
+
+// Toggle options that have a wiki page explaining what they actually change.
+// renderToggle() looks the config key up here and renders a HelpIcon only for
+// the keys listed, so a toggle without an explanation stays clean. Add a page
+// under https://github.com/electerm/electerm/wiki first, then add its key here.
+export const toggleWikiMap = {
+  mouseEventsRequireAlt:
+    'https://github.com/electerm/electerm/wiki/Mouse-events-require-alt',
+  sftpPathFollowSsh:
+    'https://github.com/electerm/electerm/wiki/Warning-about-sftp-follow-ssh-path-function'
+}
 export const aiChatModeLsKey = 'ai-chat-mode'
 export const aiAutoCompressLsKey = 'ai-auto-compress'
 export const lastAiChatSessionIdKey = 'last-ai-chat-session-id'

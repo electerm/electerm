@@ -18,7 +18,8 @@ import {
   noTerminalBgValue,
   rendererTypes,
   regexHelpLink,
-  terminalTypes
+  terminalTypes,
+  toggleWikiMap
 } from '../../common/constants'
 import defaultSettings from '../../common/default-setting'
 import ShowItem from '../common/show-item'
@@ -121,6 +122,8 @@ export default class SettingTerminal extends Component {
   renderToggle = (name, cls = 'pd2b', label) => {
     const checked = !!this.props.config[name]
     const txt = label || e(name)
+    // only toggles listed in toggleWikiMap get a help icon
+    const wiki = toggleWikiMap[name]
     return (
       <div className={cls} key={'rt' + name}>
         <SwitchLabel
@@ -128,6 +131,11 @@ export default class SettingTerminal extends Component {
           label={txt}
           onChange={v => this.onChangeValue(v, name)}
         />
+        {
+          wiki
+            ? <HelpIcon link={wiki} />
+            : null
+        }
       </div>
     )
   }
