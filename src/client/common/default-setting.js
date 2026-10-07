@@ -96,6 +96,7 @@ export default {
   disableTabIndex: false,
   onlyShowTitleInTab: false,
   disableShortcutBar: false,
+  autoDistributeTabs: false,
   disableConfirmForLargeClipboardContent: false,
   doubleClickToOpenBookmark: false,
   leftSideBarIcons: [
