@@ -87,6 +87,7 @@ module.exports = exports.default = {
   disableDeveloperTool: false,
   dragDropBehavior: 'ask',
   switchTabOnHover: false,
+  autoDistributeTabsWhenLayoutChange: false,
   disableShortcutBar: false,
   onlyShowTitleInTab: false,
   disableConfirmForLargeClipboardContent: false,

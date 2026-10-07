@@ -19,6 +19,7 @@ import newTerm, { updateCount } from '../common/new-terminal.js'
 import { action } from 'manate'
 import { shouldCaptureTerminalReloadState } from '../components/terminal/ssh-reload-state.js'
 import dangerousSessionFields from '../common/dangerous-session-fields'
+import { distributeTabsEvenly } from '../common/distribute-tabs'
 
 function captureSshSessionState (tab, config) {
   return shouldCaptureTerminalReloadState(tab, config)
@@ -496,34 +497,20 @@ export default Store => {
     store.addTab(ntb)
   }
 
-  // spread tabs over panes after switching to a layout with more panes
-  Store.prototype.distributeTabs = function (prevCount, newCount) {
+  // Spread tabs over the panes of a layout with more panes.
+  // Only used when leaving the single layout: once more than one pane is on
+  // screen the arrangement is the user's, and is left alone.
+  Store.prototype.distributeTabs = function (newCount) {
     const { store } = window
     const { tabs } = store
     if (tabs.length < 2) {
       return
     }
-    if (prevCount <= 1) {
-      // contiguous chunks keep the tab order: [A B C D E] -> [A B] [C D] [E]
-      const size = Math.ceil(tabs.length / newCount)
-      tabs.forEach((t, i) => {
-        t.batch = Math.min(Math.floor(i / size), newCount - 1)
-      })
-      return
-    }
-    // keep the user's arrangement, only fill the new empty panes
-    for (let b = prevCount; b < newCount; b++) {
-      const counts = Array.from({ length: b }, (_, i) =>
-        tabs.filter(t => t.batch === i).length
-      )
-      const max = Math.max(...counts)
-      if (max < 2) {
-        break
-      }
-      const donor = counts.indexOf(max)
-      const donorTabs = tabs.filter(t => t.batch === donor)
-      donorTabs[donorTabs.length - 1].batch = b
-    }
+    // contiguous chunks keep the tab order: [A B C D E] -> [A B] [C D] [E]
+    const batches = distributeTabsEvenly(tabs.length, newCount)
+    tabs.forEach((t, i) => {
+      t.batch = batches[i]
+    })
   }
 
   // make sure every pane has a valid active tab
@@ -582,10 +569,12 @@ export default Store => {
       }
     } else if (
       redistribute &&
-      store.config.autoDistributeTabs &&
-      newBatchCount > prevBatchCount
+      store.config.autoDistributeTabsWhenLayoutChange &&
+      prevBatchCount === 1 &&
+      newBatchCount > 1
     ) {
-      store.distributeTabs(prevBatchCount, newBatchCount)
+      // leaving the single layout: hand the tabs out evenly
+      store.distributeTabs(newBatchCount)
       store.fixActiveTabIds(newBatchCount)
     }
     store.focus()

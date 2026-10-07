@@ -52,13 +52,9 @@ async function load () {
   window.getLang = (lang = window.store?.config.language || window.initLanguage || 'en_us') => {
     return _get(window.langMap, `[${lang}].lang`)
   }
-  // keys not yet in the electerm-locales package
-  const fallbackText = {
-    autoDistributeTabs: 'Spread tabs over panes when switching to a layout with more panes'
-  }
   window.translate = txt => {
     const lang = window.getLang()
-    const str = _get(lang, `[${txt}]`) || fallbackText[txt] || txt
+    const str = _get(lang, `[${txt}]`) || txt
     return window.capitalizeFirstLetter(str)
   }
   await loadWorker()
