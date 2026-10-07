@@ -207,7 +207,7 @@ export const socketMixin = {
       // instead of leaving an unhandled rejection behind
       try {
         await this.initAttachAddon()
-        this.startupQueue.runInitScript()
+        this.startupQueue.runInitScript(opts[execPropName])
       } catch (e) {
         console.error(e)
         this.handleError({ message: e.message })
