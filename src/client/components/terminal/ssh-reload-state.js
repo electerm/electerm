@@ -46,18 +46,54 @@ export function createRestoreCwdCommand (cwd) {
   return safeCwd ? `cd -- ${quotePosixShellArg(safeCwd)}` : ''
 }
 
+// The shell setting is hand-entered config, so tolerate a quoted or padded
+// executable path before deciding which shell we are looking at.
+export function isPowerShellExecutable (shell = '') {
+  const shellPath = String(shell || '').trim().replace(/^"|"$/g, '')
+  return /(?:^|[/\\])(?:powershell|pwsh)(?:\.exe)?$/i.test(shellPath)
+}
+
 export function createWindowsRestoreCwdCommand (cwd, shell = '') {
   const safeCwd = sanitizeSshCwd(cwd)
   if (!safeCwd) {
     return ''
   }
-  if (/(?:^|[/\\])(?:powershell|pwsh)(?:\.exe)?$/i.test(shell)) {
+  if (isPowerShellExecutable(shell)) {
+    // -LiteralPath keeps `[`, `]` and `*` in a directory name from being read
+    // as a wildcard; '' is PowerShell's escape for a literal single quote.
     return `Set-Location -LiteralPath '${safeCwd.replace(/'/g, "''")}'`
   }
   // Strip control chars already handled by sanitize; escape embedded double
   // quotes for CMD.
   const escaped = safeCwd.replace(/"/g, '""')
   return `cd /d "${escaped}"`
+}
+
+/**
+ * The `cd <dir>` command for a terminal session, used when the user sends a
+ * directory from the file panel to the terminal.
+ *
+ * A local session knows which shell it spawned, so it can emit syntax that
+ * shell actually understands (PowerShell rejects CMD's `cd /d`). A remote tab
+ * cannot: the far side's shell is unknown from here, so it keeps the CMD form.
+ * Every branch quotes the path with the target shell's own rules - a directory
+ * name is attacker-influenced (it can come out of an unpacked archive), so a
+ * bare `cd "..."` would let `$(...)` and backticks run.
+ *
+ * Returns '' when the path is unusable. Callers must not fall back to
+ * interpolating the raw path into a command.
+ */
+export function createCdCommand (dir, { remote = false, shell = '' } = {}) {
+  const safeDir = sanitizeSshCwd(dir)
+  if (!safeDir) {
+    return ''
+  }
+  if (!/^[a-zA-Z]:\\/.test(safeDir)) {
+    return `cd ${quotePosixShellArg(safeDir)}`
+  }
+  return remote
+    ? `cd /d "${safeDir.replace(/"/g, '""')}"`
+    : createWindowsRestoreCwdCommand(safeDir, shell)
 }
 
 export function shouldCaptureTerminalReloadState (tab, config = {}) {

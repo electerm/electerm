@@ -5,6 +5,7 @@ import AttachAddon from '../attach-addon-custom.js'
 import { createTriggerManager } from '../automation/index.js'
 import { isWin } from '../../../common/constants.js'
 import { isUnsafeFilename } from '../../../common/file-drop-utils.js'
+import { createCdCommand } from '../ssh-reload-state.js'
 
 /**
  * Everything that writes to the session: the socket attach addon, encoding,
@@ -57,8 +58,15 @@ export const attachMixin = {
     if (isUnsafeFilename(p)) {
       return message.error('File name contains unsafe characters')
     }
-    const isWinPath = /^[a-zA-Z]:\\/.test(p)
-    this.runQuickCommand(isWinPath ? `cd /d "${p}"` : `cd "${p}"`)
+    // Same shell resolution the session used: the bookmark/profile override
+    // first, then the global setting. `localShell` is what actually spawned.
+    const cmd = createCdCommand(p, {
+      remote: !!this.isRemote(),
+      shell: this.localShell || this.props.tab.execWindows || this.props.config.execWindows
+    })
+    if (cmd) {
+      this.runQuickCommand(cmd)
+    }
   },
 
   initTriggerManager () {

@@ -36,7 +36,11 @@ describe('Windows startup directory', () => {
     )
   })
 
-  test('restores the captured directory in pwsh instead of the configured start directory', async () => {
+  // Reachability note: on a Windows *local* tab this precedence cannot occur in
+  // production - `_reloadState.cwd` is only ever populated from OSC 633, and
+  // canInjectShellIntegration() excludes `isLocal() && isWin`. What is under
+  // test here is the queue's argument handling, not a live scenario.
+  test('quotes a captured reload directory for pwsh', async () => {
     assert.equal(
       await startupCommand({ shell: 'C:\\Program Files\\PowerShell\\7\\pwsh.exe', cwd: 'C:\\start', reloadCwd: "D:\\[work]\\it's $data`" }),
       "Set-Location -LiteralPath 'D:\\[work]\\it''s $data`'\r"
@@ -50,6 +54,21 @@ describe('Windows startup directory', () => {
     }
     for (const shell of ['', 'cmd.exe', 'C:\\Windows\\System32\\cmd.exe']) {
       assert.equal(createWindowsRestoreCwdCommand('D:\\work', shell), 'cd /d "D:\\work"')
+    }
+  })
+
+  test('tolerates a quoted or padded PowerShell executable path', async () => {
+    const { createWindowsRestoreCwdCommand } = await loadCommands()
+    for (const shell of [
+      '  pwsh.exe  ',
+      '"C:\\Program Files\\PowerShell\\7\\pwsh.exe"',
+      'C:\\Program Files\\PowerShell\\7\\pwsh.exe'
+    ]) {
+      assert.equal(
+        createWindowsRestoreCwdCommand('D:\\work', shell),
+        "Set-Location -LiteralPath 'D:\\work'",
+        `for ${JSON.stringify(shell)}`
+      )
     }
   })
 
@@ -96,6 +115,30 @@ describe('Windows startup directory', () => {
       for (const cwd of ['', 'C:\\bad\npath', 'C:\\bad\rpath', 'C:\\bad\0path']) {
         assert.equal(createWindowsRestoreCwdCommand(cwd, shell), '')
       }
+    }
+  })
+
+  // A quick-connect link / CLI --opts can set startDirectory. The sanitizer
+  // rejects control characters, and the queue must not then fall back to
+  // typing the raw value - balanced quotes plus a newline would run a second
+  // command in the freshly opened shell.
+  test('types nothing when the start directory is unusable', async () => {
+    const { StartupQueue } = await import('../../client/components/terminal/startup-queue.js')
+    for (const cwd of ['C:\\ok"\ncalc\n"', 'C:\\bad\npath', 'C:\\bad\rpath']) {
+      const sent = []
+      const host = {
+        attachAddon: { _sendData: data => sent.push(data) },
+        props: {
+          tab: { type: 'local', startDirectory: cwd },
+          config: { execWindows: 'pwsh.exe', restoreTerminalSessionOnReload: false }
+        },
+        isLocal: () => true,
+        isSsh: () => false
+      }
+      const queue = new StartupQueue(host)
+      queue.runInitScript('pwsh.exe')
+      queue.dispose()
+      assert.deepEqual(sent, [], `no command for ${JSON.stringify(cwd)}`)
     }
   })
 })

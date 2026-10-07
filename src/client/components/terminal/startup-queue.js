@@ -156,9 +156,13 @@ export class StartupQueue {
     const startFolder = reloadCwd || startDirectory || window.initFolder
     let cwdCommand = ''
     if (startFolder) {
+      // No `|| cd "<raw>"` fallback: these helpers return '' for a path they
+      // refuse (control characters, over-long), and interpolating the raw value
+      // instead would hand `startDirectory` - which a quick-connect link can
+      // set - straight to the shell as a command.
       cwdCommand = this.isPosixShell()
         ? createRestoreCwdCommand(startFolder)
-        : createWindowsRestoreCwdCommand(startFolder, localShell || term.props.config.execWindows) || `cd "${startFolder}"`
+        : createWindowsRestoreCwdCommand(startFolder, localShell || term.props.config.execWindows)
     }
     if (cwdCommand) {
       scripts.unshift({ script: cwdCommand, delay: 0 })
