@@ -78,7 +78,8 @@ export const socketMixin = {
   async remoteInit (term = this.term) {
     this.setState({
       loading: true,
-      terminalError: null
+      terminalError: null,
+      sessionStopped: false
     })
     const { cols, rows } = term
     const { config } = this.props
@@ -192,6 +193,10 @@ export const socketMixin = {
         return
       }
       this.setStatus(statusMap.error)
+      // The pane is dead even though the socket never opened. The notice itself
+      // stays hidden while `terminalError` is set - the error alert is already
+      // the message.
+      this.setState({ sessionStopped: true })
       return
     }
     this.port = r.port
@@ -323,6 +328,7 @@ export const socketMixin = {
     if (this.userTypeExit) {
       return this.props.delTab(this.props.tab.id)
     }
+    this.setState({ sessionStopped: true })
     const { autoReconnectTerminal } = this.props.config
     if (autoReconnectTerminal) {
       this.scheduleAutoReconnect(3000)

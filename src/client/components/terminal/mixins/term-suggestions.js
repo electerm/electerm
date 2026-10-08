@@ -2,6 +2,13 @@ import { debounce } from 'lodash-es'
 import { refsStatic } from '../../common/ref.js'
 
 /**
+ * Lines that end the shell on purpose. `userTypeExit` decides whether a closed
+ * socket closes the tab straight away or shows the "session stopped" notice,
+ * so anything a user would type to leave has to be listed here.
+ */
+const exitCommandReg = /^(?:exit|logout)(?:\s|$)/
+
+/**
  * Command suggestions: reading the current input straight from the terminal
  * buffer, positioning the dropdown at the cursor, and the password prompt
  * variant triggered by the shell integration OSC sequences.
@@ -93,15 +100,21 @@ export const suggestionsMixin = {
    * The actual input reading is done via getCurrentInput from buffer
    */
   handleInputEvent (d) {
+    // Ctrl+D on an empty line is EOF, which ends the shell like `exit`. Typed
+    // anywhere else it is delete-char, so only an empty line counts.
+    if (d === '\x04') {
+      this.userTypeExit = !this.getCurrentInput().trim()
+    }
     // Handle Enter - add command to history
     if (d === '\r' || d === '\n') {
       const currentCmd = this.getCurrentInput()
       if (currentCmd && currentCmd.trim() && this.shouldUseManualHistory()) {
         window.store.addCmdHistory(currentCmd.trim())
       }
-      if (currentCmd && currentCmd.trim() === 'exit') {
-        this.userTypeExit = true
-      }
+      // Recomputed on every submitted line rather than only ever set: an
+      // `exit` that did not actually end the shell must not silence the next
+      // real disconnect.
+      this.userTypeExit = !!currentCmd && exitCommandReg.test(currentCmd.trim())
       this.closeSuggestions()
     }
   },

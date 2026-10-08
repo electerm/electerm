@@ -222,12 +222,21 @@
   max-height 200px
   overflow-y scroll
 
-.terminal-reconnect-overlay
+.terminal-session-stopped
   position absolute
-  bottom 6px
-  right 12px
-  font-size 11px
-  color rgba(255, 255, 255, 0.55)
+  left 50%
+  top 50%
+  transform translate(-50%, -50%)
+  padding 8px 14px
+  background var(--main)
+  color var(--text)
+  border 1px solid var(--main-lighter)
+  border-radius 4px
+  box-shadow 0 2px 8px rgba(0, 0, 0, 0.35)
+  font-size 12px
+  line-height 1.7
+  white-space nowrap
+  // keyboard-only affordance: never intercept a click meant for the terminal
   pointer-events none
   z-index 110
 
