@@ -91,6 +91,10 @@ class Telnet extends EventEmitter {
     this.passwordAttempted = false
     this.loginFailedCount = 0
     this.shellStream = null
+    // True once the server has agreed to the NAWS option (IAC DO NAWS).
+    // Window size suboptions are only ever sent while this is set, see
+    // sendWindowSize().
+    this.nawsAgreed = false
   }
 
   async connect (options = {}) {
@@ -179,10 +183,24 @@ class Telnet extends EventEmitter {
         })
       }
 
+      // NOTE: no unsolicited option negotiation here (#4575).
+      //
+      // This used to fire a burst of `IAC DO SGA`, `IAC WILL TERMINAL_TYPE`
+      // and `IAC WILL NAWS` as soon as the first IAC byte arrived from the
+      // server. Devices that only implement a subset of the telnet options
+      // (ZTE ZXR10 - see #4575; older Huawei/Cisco - see #3916) do not
+      // recognise those commands and let them leak into the login tty, where
+      // the login program echoes them as junk into the login line. The device
+      // usually negotiates right when it prints `login:`, so that burst ends
+      // up in the very same TCP segment as the auto typed credentials and the
+      // junk lands directly in front of the username - `login:+"admin` - and
+      // the device rejects the login.
+      //
+      // We now only answer options the server actually asks for (see
+      // handleTelnetCommand). A server that wants the window size or the
+      // terminal type asks for it (that is the documented flow of RFC 1073 /
+      // RFC 1091); one that never asks cannot use the answer anyway.
       this.once('telnetProtocol', () => {
-        this.emitTelnet(TelnetCommands.DO, TelnetOptions.SUPPRESS_GO_AHEAD)
-        this.emitTelnet(TelnetCommands.WILL, TelnetOptions.TERMINAL_TYPE)
-        this.emitTelnet(TelnetCommands.WILL, TelnetOptions.NEGO_WINDOW_SIZE)
         if (this.options.negotiationMandatory) {
           resolve()
         }
@@ -381,6 +399,7 @@ class Telnet extends EventEmitter {
 
       case TelnetCommands.DO:
         if (option === TelnetOptions.NEGO_WINDOW_SIZE) {
+          this.nawsAgreed = true
           this.emitTelnet(TelnetCommands.WILL, option)
           this.sendWindowSize()
         } else if (option === TelnetOptions.TERMINAL_TYPE) {
@@ -392,7 +411,10 @@ class Telnet extends EventEmitter {
 
       case TelnetCommands.WONT:
       case TelnetCommands.DONT:
-        // Do nothing
+        if (option === TelnetOptions.NEGO_WINDOW_SIZE) {
+          // Server no longer wants the window size - stop reporting it
+          this.nawsAgreed = false
+        }
         break
     }
   }
@@ -429,6 +451,12 @@ class Telnet extends EventEmitter {
   }
 
   sendWindowSize () {
+    // Only report the size after the server agreed to the NAWS option
+    // (RFC 1073) - pushing the suboption to a server that never asked for it
+    // is what gets echoed into the login line on legacy devices, see #4575
+    if (!this.nawsAgreed) {
+      return
+    }
     const { terminalWidth, terminalHeight } = this.options
     this.emitTelnetSuboption(TelnetOptions.NEGO_WINDOW_SIZE, Buffer.from([
       terminalWidth >> 8, terminalWidth & 0xff,
