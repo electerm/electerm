@@ -19,7 +19,7 @@ import NormalBuffer from './normal-buffer.jsx'
 import createDefaultLogPath from '../../common/default-log-path.js'
 import SearchResultBar from './terminal-search-bar'
 import RemoteFloatControl from '../common/remote-float-control'
-import ReconnectOverlay from './reconnect-overlay.jsx'
+import SessionStatusOverlay from './session-status-overlay.jsx'
 import TerminalErrorHandle from './terminal-error-handle.jsx'
 import DropFileModal from './drop-file-modal.jsx'
 import TerminalSelectText from './terminal-select-text.jsx'
@@ -77,6 +77,12 @@ class Term extends Component {
       matchIndex: -1,
       totalLines: 0,
       reconnectCountdown: null,
+      // True once this pane has no live session (socket closed, or the session
+      // failed to start). Not derivable from tab.status: store.updateTab mutates
+      // the tab in place, and nothing in this component's ancestor chain reads
+      // tab.status during render, so a status change does not re-render the
+      // pane. Setting it here is also what triggers that render.
+      sessionStopped: false,
       terminalError: null,
       dropFileModalVisible: false,
       droppedFiles: [],
@@ -429,8 +435,13 @@ class Term extends Component {
             showEditBookmarkButton={this.state.terminalError?.from === 'bookmarks' && !!this.state.terminalError?.srcId}
             onEditBookmark={this.handleEditBookmarkFromError}
           />
-          <ReconnectOverlay
+          <SessionStatusOverlay
+            // A failed start already has the error alert as its message; the
+            // notice would just stack on top of it.
+            stopped={this.state.sessionStopped && !this.state.terminalError}
             countdown={this.state.reconnectCountdown}
+            reloadShortcut={this.getShortcut('app_reloadCurrentTab')}
+            closeShortcut={this.getShortcut('app_closeCurrentTab')}
           />
           {this.renderResetFontSizeButton()}
           <DropFileModal
