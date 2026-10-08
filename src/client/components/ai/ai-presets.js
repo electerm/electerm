@@ -1,5 +1,18 @@
 export const defaultAIPresets = [
   {
+    id: 'packycode',
+    nameAI: 'PackyCode',
+    baseURLAI: 'https://cf.api.fan/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'deepseek-flash',
+    authHeaderNameAI: 'Authorization: Bearer',
+    siteUrl: 'https://www.packyapi.ai/register?aff=DOZI',
+    modelAIs: [
+      { value: 'deepseek-flash' },
+      { value: 'deepseek-v4-pro' }
+    ]
+  },
+  {
     id: 'fluxionai',
     nameAI: 'FluxionAI',
     baseURLAI: 'https://fluxionai.world/v1',
