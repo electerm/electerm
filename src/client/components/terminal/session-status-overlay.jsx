@@ -25,18 +25,18 @@ export default memo(function SessionStatusOverlay ({
     return null
   }
   return (
-    <div className='terminal-session-stopped'>
+    <div className='terminal-session-stopped pd1'>
       {
         reconnecting && (
-          <div className='terminal-session-stopped-status'>
+          <div className='pd1'>
             {e('autoReconnectTerminal')}: {countdown}s
           </div>
         )
       }
-      <div className='terminal-session-stopped-action'>
+      <div className='pd1'>
         {e('reload')}: {reloadShortcut}
       </div>
-      <div className='terminal-session-stopped-action'>
+      <div className='pd1'>
         {e('close')}: {closeShortcut}
       </div>
     </div>
