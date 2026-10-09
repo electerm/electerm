@@ -12,10 +12,9 @@ const e = window.translate
 
 export default auto(function WindowControl (props) {
   const {
-    isMaximized,
-    config
+    isMaximized
   } = props.store
-  if (config.useSystemTitleBar || isMacJs) {
+  if (props.store.isSystemTitleBar || isMacJs) {
     return null
   }
   const minimize = () => {

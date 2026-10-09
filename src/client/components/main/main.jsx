@@ -147,8 +147,8 @@ export default auto(function Index (props) {
   const cls = classnames({
     loaded: configLoaded,
     'not-webapp': !window.et.isWebApp,
-    'system-ui': store.config.useSystemTitleBar,
-    'not-system-ui': !store.config.useSystemTitleBar,
+    'system-ui': store.isSystemTitleBar,
+    'not-system-ui': !store.isSystemTitleBar,
     'is-mac': isMac,
     'not-mac': !isMac,
     'is-win': isWin,
