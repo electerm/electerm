@@ -62,7 +62,7 @@ export default class QuickCommandsItem extends PureComponent {
       {
         key: 'runInTabs',
         icon: <CodeOutlined />,
-        label: e('runInAllTerminals')
+        label: translateOr('runInTerminals', 'Run in terminals...')
       },
       {
         key: 'edit',

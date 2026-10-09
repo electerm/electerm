@@ -25,6 +25,7 @@ export default auto(function QmRunInTabs ({ store }) {
   return (
     <MultiTabRunModal
       store={store}
+      title={translateOr('runInTerminals', 'Run in terminals...')}
       preview={preview}
       onRun={tabIds => window.store.runQuickCommandItem(qm.id, tabIds)}
       onClose={handleClose}

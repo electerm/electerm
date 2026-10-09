@@ -6,7 +6,7 @@
  * target terminals, and the same selection state + `batchInput` terminal API
  * the footer batch input uses, so both entry points stay consistent.
  *
- * Pass `onRun(tabIds)` and `preview` to run something other than a single
+ * Pass `onRun(tabIds)`, `preview` and `title` to run something other than a single
  * command line, such as a quick command.
  */
 
@@ -26,7 +26,7 @@ import {
 const e = window.translate
 
 export default auto(function MultiTabRunModal (props) {
-  const { store, cmd, onClose, onRun, preview } = props
+  const { store, cmd, onClose, onRun, preview, title } = props
   const selectedTabIds = store.batchInputSelectedTabIds
   const tabs = store.tabs.filter(tab => {
     return tab.type !== terminalWebType &&
@@ -64,7 +64,7 @@ export default auto(function MultiTabRunModal (props) {
   return (
     <Modal
       open
-      title={e('runInAllTerminals')}
+      title={title || e('runInAllTerminals')}
       onCancel={onClose}
       destroyOnHidden
       width={520}
