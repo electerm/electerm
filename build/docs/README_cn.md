@@ -58,12 +58,12 @@
 ----
 
 <div align="center">
-  <a href="https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM&aff=7H7DERHU3GFF">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/fluxionai.png?raw=true" alt="FluxionAI" width="210" />
+  <a href="https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/sidrune.png?raw=true" alt="Sidrune" width="210" />
   </a>
 </div>
 
-[Fluxion AI](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM&aff=7H7DERHU3GFF) — 通往全球领先 AI 模型的统一入口，一个 API，多路分发，用量与价格透明，国产模型 — 4折，Claude & OpenAI — 3折。[通过合作链接注册即得 $3 API 额度](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM&aff=7H7DERHU3GFF)。
+[Sidrune AI](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF) — 一个入口，接入全球主流 AI 模型，统一 API、多线路选择；用量和费用，清晰可查, Claude & OpenAI — 3折。[通过合作链接注册即得 $3 API 额度](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF)。
 
 ----
 

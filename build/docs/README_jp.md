@@ -57,12 +57,12 @@
 ----
 
 <div align="center">
-  <a href="https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM&aff=7H7DERHU3GFF">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/fluxionai.png?raw=true" alt="FluxionAI" width="210" />
+  <a href="https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/sidrune.png?raw=true" alt="Sidrune" width="210" />
   </a>
 </div>
 
-[Fluxion AI](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM&aff=7H7DERHU3GFF) — 世界をリードする AI モデルへの単一ゲートウェイ、1つの API、マルチルート配信、透明な利用量と料金、中国モデル — 60% OFF、Claude & OpenAI — 70% OFF。[パートナーリンクから登録で $3 分の API クレジットをプレゼント](https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM&aff=7H7DERHU3GFF)。
+[Sidrune AI](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF) — 世界の主要AIモデルへの単一ゲートウェイ、統一API・マルチルート配信、透明な利用量と料金、Claude & OpenAI — 70% OFF。[パートナーリンクから登録で $3 分の API クレジットをプレゼント](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF)。
 
 ----
 

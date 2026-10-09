@@ -14,12 +14,12 @@ export const defaultAIPresets = [
   },
   {
     id: 'fluxionai',
-    nameAI: 'FluxionAI',
+    nameAI: 'Sidrune',
     baseURLAI: 'https://fluxionai.world/v1',
     apiPathAI: '/chat/completions',
     modelAI: 'deepseek-v4-flash-0731',
     authHeaderNameAI: 'Authorization: Bearer',
-    siteUrl: 'https://fluxionai.world/register?source=github&campaign=electerm-20260923&promo=ELECTERM&aff=7H7DERHU3GFF'
+    siteUrl: 'https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF'
   },
   {
     id: 'atlascloud',
