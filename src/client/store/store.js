@@ -137,6 +137,12 @@ class Store {
     return this._isSystemTitleBar
   }
 
+  // Windows + system title bar: native caption buttons overlaid on the tab
+  // bar (no separate title strip); the tab bar is the drag area
+  get isWindowControlsOverlay () {
+    return isWin && !window.et.isWebApp && this.isSystemTitleBar
+  }
+
   get shouldSendWindowMove () {
     return isWin &&
         !window.et.isWebApp &&

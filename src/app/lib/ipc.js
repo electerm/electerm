@@ -258,6 +258,13 @@ function initIpc () {
       const win = globalState.get('win')
       win && win.setBackgroundColor(color)
     },
+    // Windows + system title bar only (window controls overlay)
+    setTitleBarOverlay: (opts = {}) => {
+      const win = globalState.get('win')
+      if (win && process.platform === 'win32' && globalState.get('systemTitleBar')) {
+        win.setTitleBarOverlay(opts)
+      }
+    },
     changeHotkey: changeHotkeyReg(globalShortcut, globalState.get('win')),
     initCommandLine,
     // No renderer-supplied options: the main process owns platform/execPath.

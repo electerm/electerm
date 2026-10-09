@@ -212,7 +212,7 @@ export default auto(function SettingModalWrap (props) {
     <SettingModal
       onCancel={hideSettingModal}
       visible={show}
-      useSystemTitleBar={isSystemTitleBar}
+      useSystemTitleBar={isSystemTitleBar && !props.store.isWindowControlsOverlay}
       innerWidth={innerWidth}
     >
       {renderTabs()}

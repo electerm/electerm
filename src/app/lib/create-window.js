@@ -3,7 +3,7 @@ const {
 } = require('electron')
 const { resolve } = require('path')
 const {
-  isDev, packInfo, iconPath, isMac,
+  isDev, packInfo, iconPath, isMac, isWin,
   minWindowWidth, minWindowHeight
 } = require('../common/runtime-constants')
 const defaults = require('../common/default-setting')
@@ -20,6 +20,8 @@ const _ = require('./lodash.js')
 const getPort = require('./get-port')
 const globalState = require('./glob-state')
 const webviewHandler = require('./webview-handler')
+
+const titleBarOverlayHeight = 36
 
 // A crashed / reloaded renderer leaves the window object alive, and sending to
 // it then throws "Render frame was disposed before WebFrameMain could be
@@ -62,7 +64,14 @@ exports.createWindow = async function (userConfig) {
       devTools: !userConfig.disableDeveloperTool,
       spellcheck: false
     },
-    titleBarStyle: useSystemTitleBar ? 'default' : 'hidden',
+    titleBarStyle: useSystemTitleBar && !isWin ? 'default' : 'hidden',
+    // Windows + system title bar: keep the native frame (snapping, Snap
+    // Layouts) but drop the caption strip; Windows draws min/max/close over
+    // the tab bar, recolored from the UI theme by the renderer
+    // (setTitleBarOverlay). Height matches .tabs (36px).
+    ...(useSystemTitleBar && isWin
+      ? { titleBarOverlay: { color: '#000000', symbolColor: '#dddddd', height: titleBarOverlayHeight } }
+      : {}),
     icon: iconPath
   })
   // Safety net: verify the window is actually visible on a connected
@@ -71,6 +80,10 @@ exports.createWindow = async function (userConfig) {
   // hides the traffic lights
   if (isMac) {
     win.setWindowButtonVisibility(true)
+  } else if (useSystemTitleBar) {
+    // the system title bar would otherwise show Electron's default
+    // Edit/View/Window/Help menu bar; its keyboard accelerators still work
+    win.setMenuBarVisibility(false)
   }
 
   win.webContents.session.setSpellCheckerDictionaryDownloadURL('https://00.00/')
