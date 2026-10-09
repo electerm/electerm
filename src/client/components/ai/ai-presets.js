@@ -15,7 +15,7 @@ export const defaultAIPresets = [
   {
     id: 'fluxionai',
     nameAI: 'Sidrune',
-    baseURLAI: 'https://fluxionai.world/v1',
+    baseURLAI: 'https://sidrune.ai/v1',
     apiPathAI: '/chat/completions',
     modelAI: 'deepseek-v4-flash-0731',
     authHeaderNameAI: 'Authorization: Bearer',
