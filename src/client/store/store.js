@@ -127,6 +127,8 @@ class Store {
 
   // Title bar the window really has. config.useSystemTitleBar only takes effect
   // after a restart, so the UI follows the window frame, not the setting.
+  // Windows always has the system frame (see app/lib/title-bar.js), so this is
+  // always true there; the setting only decides the macOS/Linux chrome.
   get isSystemTitleBar () {
     if (window.et.isWebApp) {
       return !!this.config.useSystemTitleBar
@@ -137,26 +139,21 @@ class Store {
     return this._isSystemTitleBar
   }
 
-  // Windows + system title bar: native caption buttons overlaid on the tab
-  // bar (no separate title strip); the tab bar is the drag area
+  // Windows: the native caption buttons are drawn over the tab bar (window
+  // controls overlay), so there is no separate title strip and the tab bar is
+  // the drag area. Always on for the desktop app.
   get isWindowControlsOverlay () {
     return isWin && !window.et.isWebApp && this.isSystemTitleBar
   }
 
   // Whether the window has a title strip of its own to drag the window by —
-  // macOS' traffic-light area, or a Linux/Windows native title bar. In WCO
-  // mode isSystemTitleBar is still true (the frame really is the system one)
-  // but the caption buttons are drawn *over* the tab bar, so there is no strip
-  // and the tab bar has to be the drag area instead. This is the derived
-  // "is there a strip" question the UI asks; the name above is about the frame.
+  // macOS' traffic-light area, or a Linux native title bar. Windows never has
+  // one: isSystemTitleBar is true there (the frame really is the system one)
+  // but the caption buttons sit *over* the tab bar, so the tab bar is the drag
+  // area instead. This is the derived "is there a strip" question the UI asks;
+  // the name above is about the frame.
   get hasNativeTitleStrip () {
     return this.isSystemTitleBar && !this.isWindowControlsOverlay
-  }
-
-  get shouldSendWindowMove () {
-    return isWin &&
-        !window.et.isWebApp &&
-        !window.store.isSystemTitleBar
   }
 
   get batchInputSelectedTabIds () {

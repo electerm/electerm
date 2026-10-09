@@ -1,50 +1,12 @@
-import { useEffect, useRef } from 'react'
-
 export default function AppDrag (props) {
-  const isDraggingRef = useRef(false)
-
   function canOperate (e) {
     const {
       target
     } = e
     const { classList = [] } = target || {}
-    if (
-      !classList.contains('app-drag') &&
-      !classList.contains('tabs-inner') &&
-      !classList.contains('tabs-wrapper')
-    ) {
-      window.pre.runSync('windowMove', false)
-      return false
-    }
-    return true
-  }
-
-  useEffect(() => {
-    if (window.store.shouldSendWindowMove) {
-      return
-    }
-    document.addEventListener('mouseup', onMouseUp)
-    window.addEventListener('contextmenu', onMouseUp)
-
-    return () => {
-      document.removeEventListener('mouseup', onMouseUp)
-      window.removeEventListener('contextmenu', onMouseUp)
-    }
-  }, [])
-
-  function onMouseDown (e) {
-    // e.stopPropagation()
-    if (canOperate(e)) {
-      isDraggingRef.current = true
-      window.pre.runSync('windowMove', true)
-    }
-  }
-
-  function onMouseUp (e) {
-    if (isDraggingRef.current) {
-      isDraggingRef.current = false
-      window.pre.runSync('windowMove', false)
-    }
+    return classList.contains('app-drag') ||
+      classList.contains('tabs-inner') ||
+      classList.contains('tabs-wrapper')
   }
 
   function onDoubleClick (e) {
@@ -61,22 +23,18 @@ export default function AppDrag (props) {
       window.pre.runGlobalAsync('maximize')
     }
   }
+
+  // Every window electerm draws its own title bar for is either frameless
+  // (macOS/Linux) or a Windows window with the controls overlay; both have a
+  // native drag region, so the OS handles the drag here.
   const props0 = {
     className: 'app-drag',
-    onDoubleClick
-  }
-  if (
-    window.store.shouldSendWindowMove
-  ) {
-    Object.assign(props0, {
-      onMouseDown,
-      onMouseUp
-    })
-  } else {
-    props0.style = {
+    onDoubleClick,
+    style: {
       WebkitAppRegion: 'drag'
     }
   }
+
   return (
     <div
       {...props0}

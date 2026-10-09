@@ -10,15 +10,30 @@ const platforms = [true, false]
 const modes = [true, false]
 
 describe('title bar window options', () => {
-  test('electerm title bar: frameless and transparent, on every platform', () => {
+  test('Windows always: native frame + window controls overlay', () => {
+    // useSystemTitleBar is ignored on Windows: the frameless/transparent
+    // alternative loses the resize border, shadow and Aero Snap
     const expected = {
+      frame: true,
+      transparent: false,
+      titleBarStyle: 'hidden',
+      titleBarOverlay: {
+        color: windowBackground,
+        symbolColor: '#dddddd',
+        height: 36
+      }
+    }
+    for (const useSystemTitleBar of modes) {
+      assert.deepEqual(getTitleBarOptions(useSystemTitleBar, true), expected)
+    }
+  })
+
+  test('electerm title bar off Windows: frameless and transparent', () => {
+    assert.deepEqual(getTitleBarOptions(false, false), {
       frame: false,
       transparent: true,
       titleBarStyle: 'hidden'
-    }
-    for (const isWin of platforms) {
-      assert.deepEqual(getTitleBarOptions(false, isWin), expected)
-    }
+    })
   })
 
   test('system title bar off Windows: real frame, native title bar', () => {
@@ -29,27 +44,11 @@ describe('title bar window options', () => {
     })
   })
 
-  test('system title bar on Windows: frameless + window controls overlay', () => {
-    assert.deepEqual(getTitleBarOptions(true, true), {
-      frame: true,
-      transparent: false,
-      titleBarStyle: 'hidden',
-      titleBarOverlay: {
-        color: windowBackground,
-        symbolColor: '#dddddd',
-        height: 36
-      }
-    })
-  })
-
-  test('the overlay is only ever set for a system title bar on Windows', () => {
+  test('the overlay is set on every Windows window, and only there', () => {
     for (const useSystemTitleBar of modes) {
       for (const isWin of platforms) {
         const opts = getTitleBarOptions(useSystemTitleBar, isWin)
-        assert.equal(
-          'titleBarOverlay' in opts,
-          useSystemTitleBar && isWin
-        )
+        assert.equal('titleBarOverlay' in opts, isWin)
       }
     }
   })

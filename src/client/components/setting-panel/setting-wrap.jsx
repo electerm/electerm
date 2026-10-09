@@ -9,12 +9,6 @@ import AppDrag from '../tabs/app-drag'
 import './setting-wrap.styl'
 
 export default class SettingWrap extends Component {
-  renderDrag () {
-    return (
-      <AppDrag />
-    )
-  }
-
   renderRightClose () {
     return (
       <CloseCircleOutlined
@@ -43,7 +37,7 @@ export default class SettingWrap extends Component {
           onClick={this.props.onCancel}
         />
         {
-          this.props.useSystemTitleBar ? null : <AppDrag />
+          this.props.hasNativeTitleStrip ? null : <AppDrag />
         }
         {this.props.children}
       </Drawer>

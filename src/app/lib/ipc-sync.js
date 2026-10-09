@@ -8,7 +8,6 @@ const {
 } = require('electron')
 const log = require('../common/log')
 const constants = require('../common/runtime-constants')
-const windowMove = require('./window-drag-move.js')
 const globalState = require('./glob-state')
 const { transferKeys } = require('../server/transfer')
 const os = require('os')
@@ -46,7 +45,6 @@ module.exports = {
       return false
     }
   },
-  windowMove,
   // the title bar the window was created with - a changed setting only applies after restart
   isSystemTitleBar: () => !!globalState.get('systemTitleBar'),
   readClipboard: () => {

@@ -41,7 +41,11 @@ exports.createWindow = async function (userConfig) {
   globalState.set('requireAuth', !!userConfig.hashedPassword)
   const { width, height, x, y } = await getWindowSize()
   const { useSystemTitleBar = defaults.useSystemTitleBar } = userConfig
-  globalState.set('systemTitleBar', !!useSystemTitleBar)
+  // Windows always keeps the native frame (window controls overlay, see
+  // title-bar.js), so the renderer must treat the frame as the system one there
+  // regardless of the setting; useSystemTitleBar only decides the macOS/Linux
+  // chrome.
+  globalState.set('systemTitleBar', isWin || !!useSystemTitleBar)
   const win = new BrowserWindow({
     width,
     height,

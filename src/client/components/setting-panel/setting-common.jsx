@@ -22,7 +22,8 @@ import TextareaConfirm from '../common/textarea-confirm'
 import {
   settingMap,
   proxyHelpLink,
-  webAppHiddenSettings
+  webAppHiddenSettings,
+  isWin
 } from '../../common/constants'
 import defaultSettings from '../../common/default-setting'
 import Link from '../common/external-link'
@@ -582,7 +583,8 @@ export default class SettingCommon extends Component {
             'autoDistributeTabsWhenLayoutChange',
             'debug'
           ]
-            .filter(name => !isWebApp || !webAppHiddenSettings.includes(name))
+            .filter(name => (!isWebApp || !webAppHiddenSettings.includes(name)) &&
+              !(isWin && name === 'useSystemTitleBar'))
             .map(this.renderToggle)
         }
         {

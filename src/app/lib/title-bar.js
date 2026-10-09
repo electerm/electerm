@@ -14,29 +14,26 @@ const titleBarOverlayHeight = 36
 /**
  * Options deciding what the window's title bar looks like.
  *
- * - no system title bar: frameless and transparent, electerm draws its own
- *   title bar and window controls in the tab bar
+ * - Windows: always the native frame plus the window controls overlay.
+ *   `useSystemTitleBar` is ignored here: the frameless/transparent alternative
+ *   gives up the resize border, shadow and Aero Snap / Snap Layouts and needs
+ *   manual move/resize, so the system frame is always the better choice.
+ *   `titleBarStyle: 'hidden'` makes the window frameless even though `frame` is
+ *   true (Electron computes `has_frame_` as `frame && title_bar_style_ ==
+ *   kNormal`), so there is no caption strip. What survives is the thick frame —
+ *   resize border, shadow, Aero Snap / Snap Layouts — plus the native
+ *   min/max/close, which Windows draws over the tab bar through
+ *   `titleBarOverlay`. The renderer recolors them from the UI theme
+ *   (setTitleBarOverlay, see components/main/title-bar-overlay.js).
+ * - no system title bar, macOS/Linux: frameless and transparent, electerm draws
+ *   its own title bar and window controls in the tab bar
  * - system title bar, macOS/Linux: a real frame with the native title bar
- * - system title bar, Windows: `titleBarStyle: 'hidden'` makes the window
- *   frameless even though `frame` is true (Electron computes `has_frame_` as
- *   `frame && title_bar_style_ == kNormal`), so there is no caption strip.
- *   What survives is the thick frame — resize border, shadow, Aero Snap /
- *   Snap Layouts — plus the native min/max/close, which Windows draws over the
- *   tab bar through `titleBarOverlay`. The renderer recolors them from the UI
- *   theme (setTitleBarOverlay, see components/main/title-bar-overlay.js).
  *
- * @param {boolean} useSystemTitleBar
+ * @param {boolean} useSystemTitleBar ignored on Windows
  * @param {boolean} isWin
  * @returns {object} BrowserWindow options
  */
 function getTitleBarOptions (useSystemTitleBar, isWin) {
-  if (!useSystemTitleBar) {
-    return {
-      frame: false,
-      transparent: true,
-      titleBarStyle: 'hidden'
-    }
-  }
   if (isWin) {
     return {
       frame: true,
@@ -47,6 +44,13 @@ function getTitleBarOptions (useSystemTitleBar, isWin) {
         symbolColor: '#dddddd',
         height: titleBarOverlayHeight
       }
+    }
+  }
+  if (!useSystemTitleBar) {
+    return {
+      frame: false,
+      transparent: true,
+      titleBarStyle: 'hidden'
     }
   }
   return {
