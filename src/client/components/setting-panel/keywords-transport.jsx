@@ -1,4 +1,3 @@
-import { AppstoreAddOutlined } from '@ant-design/icons'
 import { Button, Dropdown, Space } from 'antd'
 import BookmarkTransport from '../tree-list/bookmark-transport'
 import download from '../../common/download'
