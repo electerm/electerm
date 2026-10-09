@@ -10,6 +10,7 @@ import {
   Tooltip
 } from 'antd'
 import classNames from 'classnames'
+import translateOr from '../../common/translate-fallback'
 
 const e = window.translate
 
@@ -44,11 +45,13 @@ export default class QuickCommandsItem extends PureComponent {
                       )
                     }
                     <div className='qm-tooltip-cmd-text'>
-                      <span className='qm-tooltip-label'>{e('quickCommand')}:</span>
-                      <code className='qm-tooltip-value'>{c.command}</code>
+                      <span className='qm-tooltip-label'>{c.type === 'key' ? translateOr('key', 'Key') : e('quickCommand')}:</span>
+                      <code className='qm-tooltip-value'>
+                        {c.type === 'key' ? c.key + (c.repeat > 1 ? ' ×' + c.repeat : '') : c.command}
+                      </code>
                     </div>
                     {
-                      c.delay && (
+                      c.delay > 0 && (
                         <div className='qm-tooltip-cmd-delay'>
                           <span className='qm-tooltip-label'>{e('delay')}:</span>
                           <span className='qm-tooltip-value'>{c.delay}ms</span>

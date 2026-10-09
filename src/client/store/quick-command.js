@@ -7,8 +7,8 @@ import {
   qmSortByFrequencyKey,
   isWin
 } from '../common/constants'
-import delay from '../common/wait'
-import generate from '../common/uid'
+import { quickCommandSteps } from '../common/quick-command-steps'
+import { runSteps } from '../components/terminal/automation/step-runner'
 import * as ls from '../common/safe-local-storage'
 import { debounce } from 'lodash-es'
 import { refs } from '../components/common/ref'
@@ -62,7 +62,7 @@ export default Store => {
     refs.get('term-' + tid)?.runQuickCommand(cmd, inputOnly)
   }
 
-  Store.prototype.runQuickCommandItem = debounce(async (id) => {
+  Store.prototype.runQuickCommandItem = debounce((id) => {
     const {
       store
     } = window
@@ -70,36 +70,32 @@ export default Store => {
     const qm = store.currentQuickCommands.find(
       a => a.id === id
     )
-    const { runQuickCommand } = store
+    if (!qm) {
+      return
+    }
     // Send every step to the tab the quick command started in. The steps are
     // spaced by delays, and the user can switch tabs in between.
     const tabId = store.activeTabId
-    const qms = qm && qm.commands
-      ? qm.commands
-      : (qm && qm.command
-          ? [
-              {
-                command: qm.command,
-                id: generate(),
-                delay: 100
-              }
-            ]
-          : []
-        )
-    for (const q of qms) {
-      let realCmd = isWin
-        ? q.command.replace(/\n/g, '\n\r')
-        : q.command
-
-      // Parse templates
-      realCmd = await parseTemplates(realCmd)
-
-      await delay(q.delay || 100)
-      runQuickCommand(realCmd, qm.inputOnly, tabId)
-      store.editQuickCommand(qm.id, {
-        clickCount: ((qm.clickCount || 0) + 1)
-      })
-    }
+    const getTerm = () => refs.get('term-' + tabId)
+    getTerm()?.term?.focus()
+    return runSteps(quickCommandSteps(qm, { isWin }), {
+      send: data => getTerm()?.attachAddon?._sendData(data),
+      isAlive: () => !!getTerm()?.attachAddon,
+      resolveText: parseTemplates,
+      getKeyOptions: () => ({
+        applicationCursor: !!getTerm()?.term?.modes?.applicationCursorKeysMode
+      }),
+      onStep: () => {
+        store.editQuickCommand(qm.id, {
+          clickCount: ((qm.clickCount || 0) + 1)
+        })
+      }
+    }).done.then(result => {
+      if (result.status === 'error') {
+        store.onError(result.error)
+      }
+      return result
+    })
   }, 200)
 
   Store.prototype.setQmSortByFrequency = function (v) {

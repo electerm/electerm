@@ -6,7 +6,6 @@ import {
 } from 'antd'
 import { RobotOutlined } from '@ant-design/icons'
 import message from '../common/message'
-import SwitchLabel from '../common/switch'
 import { useState } from 'react'
 import generate from '../../common/uid'
 import InputAutoFocus from '../common/input-auto-focus'
@@ -61,14 +60,14 @@ export default function QuickCommandForm (props) {
     const {
       name,
       commands,
-      inputOnly,
       labels,
       shortcut
     } = res
+    // each step has its own Enter setting now, which replaces inputOnly
     const update = deepCopy({
       name,
       commands,
-      inputOnly,
+      inputOnly: false,
       labels,
       shortcut
     })
@@ -99,8 +98,10 @@ export default function QuickCommandForm (props) {
   function handleAiGenerated (data) {
     const update = {
       name: data.name,
-      commands: data.commands,
-      inputOnly: data.inputOnly
+      commands: (data.commands || []).map(c => ({
+        ...c,
+        enter: !data.inputOnly
+      }))
     }
     if (data.labels.length) {
       update.labels = data.labels
@@ -117,9 +118,21 @@ export default function QuickCommandForm (props) {
     initialValues.commands = [{
       command: initialValues.command || '',
       id: generate(),
-      delay: 100
+      // very old single-command quick commands waited 100 ms
+      delay: initialValues.command ? 100 : 0
     }]
   }
+  // quick commands saved before per-step Enter follow the old inputOnly
+  initialValues.commands = initialValues.commands.map(c => {
+    if (c.type === 'key') {
+      return c
+    }
+    return {
+      ...c,
+      type: 'command',
+      enter: typeof c.enter === 'boolean' ? c.enter : !initialValues.inputOnly
+    }
+  })
   const editorProps = {
     data: {
       name: uid,
@@ -181,13 +194,6 @@ export default function QuickCommandForm (props) {
             {...editorProps}
           />
         </div>
-      </FormItem>
-      <FormItem
-        label={e('inputOnly')}
-        name='inputOnly'
-        valuePropName='checked'
-      >
-        <SwitchLabel />
       </FormItem>
       <FormItem>
         <p>

@@ -139,25 +139,57 @@
   .qm-panel-in-right-panel .qm-search-input
     flex none
 
-// On mobile, stack the quick-command row (name / delay / command / remove)
-// vertically instead of side by side — the horizontal Space.Compact layout
-// is too cramped on narrow screens.
-.is-mobile
-  .qm-cmd-row.ant-space-compact
+// step editor: one row per step (drag, #, type, name, command or key,
+// Enter or repeat, delay before, row actions)
+.qm-steps
+  .qm-step-row
     display flex
-    flex-direction column
-    align-items stretch
-    gap 8px
-    .ant-space-compact-item
+    align-items center
+    gap 6px
+    margin-bottom 6px
+  .qm-step-head
+    margin-bottom 2px
+    opacity 0.7
+    font-size 12px
+  .qm-step-drag
+    width 14px
+    flex none
+    cursor grab
+  .qm-step-index
+    width 22px
+    flex none
+    text-align right
+    opacity 0.7
+  .qm-step-type
+    width 116px
+    flex none
+  .qm-step-name
+    width 120px
+    flex none
+  .qm-step-value
+    flex 1
+    min-width 120px
+  .qm-step-option
+    width 84px
+    flex none
+  .qm-step-delay
+    width 110px
+    flex none
+  .qm-step-ops
+    width 84px
+    flex none
+    white-space nowrap
+
+// On mobile, stack each step's fields instead of one cramped row
+.is-mobile
+  .qm-steps
+    .qm-step-head
+      display none
+    .qm-step-row
+      flex-wrap wrap
+      padding-bottom 6px
+      border-bottom 1px solid var(--main-darker)
+    .qm-step-name
+    .qm-step-value
       width 100%
-    // reset the constrained widths so inputs fill the row when stacked
-    .qm-name-input
-      max-width none
-      width 100%
-    .ant-input-number
-      width 100% !important
-    // keep the drag handle + remove button on a tidy line of their own
-    > .drag
-      align-self flex-start
-    > button:last-child
-      align-self flex-end
+      flex 1 1 100%

@@ -190,7 +190,7 @@ export default auto(function QuickCommandsFooterBox (props) {
       const nameMatches = !keyword ||
         obj.name.toLowerCase().includes(keyword) ||
         (obj.commands || []).some(cmd =>
-          (cmd.command || '').toLowerCase().includes(keyword) ||
+          (cmd.command || cmd.key || '').toLowerCase().includes(keyword) ||
           (cmd.name || '').toLowerCase().includes(keyword)
         )
       const labelMatches = !label || (obj.labels || []).includes(label)

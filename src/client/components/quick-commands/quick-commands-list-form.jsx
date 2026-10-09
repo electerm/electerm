@@ -1,145 +1,240 @@
 import {
   Form,
   InputNumber,
-  Space,
+  Select,
+  Checkbox,
   Button,
-  Input
+  Input,
+  Tooltip
 } from 'antd'
-import { MinusCircleOutlined, PlusOutlined, HolderOutlined } from '@ant-design/icons'
+import {
+  PlusOutlined,
+  HolderOutlined,
+  DeleteOutlined,
+  VerticalAlignTopOutlined,
+  VerticalAlignBottomOutlined
+} from '@ant-design/icons'
 import HelpIcon from '../common/help-icon'
 import { copy } from '../../common/clipboard'
 import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../common/drop-position'
+import { keyOptions } from '../terminal/automation/key-sequences'
+import translateOr from '../../common/translate-fallback'
+import generate from '../../common/uid'
 import { useRef } from 'react'
 
 const FormItem = Form.Item
 const FormList = Form.List
 const e = window.translate
 
+const keySelectOptions = keyOptions.map(k => ({ value: k, label: k }))
+
+export function newStep (type = 'command') {
+  return type === 'key'
+    ? { id: generate(), type: 'key', key: 'Enter', repeat: 1, delay: 0 }
+    : { id: generate(), type: 'command', command: '', enter: true, delay: 0 }
+}
+
+// One step per row: type, name, command or key, Enter or repeat, and the
+// delay before the step. Rows are dragged by the handle only, so text in
+// the inputs can still be selected with the mouse.
+function StepRow (props) {
+  const { field, index, form, remove, add, drag, focused } = props
+  const type = Form.useWatch(['commands', field.name, 'type'], form)
+  const isKey = type === 'key'
+  const typeOptions = [
+    { value: 'command', label: e('command') },
+    { value: 'key', label: translateOr('key', 'Key') }
+  ]
+  function onTypeChange (v) {
+    const step = form.getFieldValue(['commands', field.name]) || {}
+    const next = newStep(v)
+    form.setFieldValue(['commands', field.name], {
+      ...next,
+      id: step.id || next.id,
+      name: step.name,
+      delay: step.delay
+    })
+  }
+  return (
+    <div
+      className='qm-step-row'
+      onDragOver={ev => drag.over(ev)}
+      onDragLeave={ev => drag.leave(ev)}
+      onDrop={ev => drag.drop(ev, index)}
+      onDragEnd={ev => drag.end(ev)}
+    >
+      <span
+        className='qm-step-drag drag'
+        draggable
+        onDragStart={ev => drag.start(ev, index)}
+      >
+        <HolderOutlined />
+      </span>
+      <span className='qm-step-index'>{index + 1}</span>
+      <FormItem name={[field.name, 'type']} noStyle>
+        <Select
+          className='qm-step-type'
+          options={typeOptions}
+          onChange={onTypeChange}
+          popupMatchSelectWidth={false}
+        />
+      </FormItem>
+      <FormItem
+        name={[field.name, 'name']}
+        noStyle
+        rules={[{ max: 100, message: '100 chars max' }]}
+      >
+        <Input
+          placeholder={e('name')}
+          className='qm-step-name'
+          maxLength={100}
+        />
+      </FormItem>
+      <div className='qm-step-value'>
+        {
+          isKey
+            ? (
+              <FormItem name={[field.name, 'key']} noStyle>
+                <Select
+                  showSearch
+                  options={keySelectOptions}
+                  className='width-100'
+                />
+              </FormItem>
+              )
+            : (
+              <FormItem name={[field.name, 'command']} noStyle>
+                <Input.TextArea
+                  autoSize={{ minRows: 1 }}
+                  placeholder={e('quickCommand')}
+                  className='qm-input'
+                  spellCheck={false}
+                  onFocus={() => {
+                    focused.current = index
+                  }}
+                />
+              </FormItem>
+              )
+        }
+      </div>
+      <div className='qm-step-option'>
+        {
+          isKey
+            ? (
+              <Tooltip title={translateOr('repeat', 'Repeat')}>
+                <FormItem name={[field.name, 'repeat']} noStyle>
+                  <InputNumber
+                    min={1}
+                    max={100}
+                    prefix='×'
+                    className='width-100'
+                  />
+                </FormItem>
+              </Tooltip>
+              )
+            : (
+              <FormItem
+                name={[field.name, 'enter']}
+                valuePropName='checked'
+                noStyle
+              >
+                <Checkbox>{e('enter')}</Checkbox>
+              </FormItem>
+              )
+        }
+      </div>
+      <Tooltip title={translateOr('delayBeforeStep', 'Wait before this step')}>
+        <FormItem name={[field.name, 'delay']} noStyle>
+          <InputNumber
+            min={0}
+            max={3600000}
+            step={100}
+            placeholder={100}
+            suffix='ms'
+            className='qm-step-delay'
+          />
+        </FormItem>
+      </Tooltip>
+      <span className='qm-step-ops'>
+        <Button
+          size='small'
+          type='text'
+          icon={<VerticalAlignTopOutlined />}
+          title={translateOr('insertAbove', 'Insert above')}
+          onClick={() => add(newStep(), index)}
+        />
+        <Button
+          size='small'
+          type='text'
+          icon={<VerticalAlignBottomOutlined />}
+          title={translateOr('insertBelow', 'Insert below')}
+          onClick={() => add(newStep(), index + 1)}
+        />
+        <Button
+          size='small'
+          type='text'
+          danger
+          icon={<DeleteOutlined />}
+          title={e('del')}
+          onClick={() => remove(field.name)}
+        />
+      </span>
+    </div>
+  )
+}
+
 export default function renderQm (form) {
   const focused = useRef(0)
   const dragIndexRef = useRef(null)
 
-  function handleDragStart (e, index) {
-    dragIndexRef.current = index
-    e.target.closest('.ant-space-compact')?.classList.add('qm-field-dragging')
-    e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/plain', String(index))
-  }
-
-  function handleDragOver (e, index) {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'move'
-    const el = e.target.closest('.ant-space-compact')
-    if (dragIndexRef.current !== index && el) {
-      setDropIndicator(el, isDropAfterHalf(e, el))
-    }
-  }
-
-  function handleDragLeave (e) {
-    const el = e.target.closest('.ant-space-compact')
-    if (el) {
-      clearDropIndicator(el)
-    }
-  }
-
-  function handleDrop (e, index, form) {
-    e.preventDefault()
-    const el = e.target.closest('.ant-space-compact')
-    clearDropIndicator(el)
-    const dragIndex = dragIndexRef.current
-    if (dragIndex === null || dragIndex === index) {
+  const drag = {
+    start (ev, index) {
+      dragIndexRef.current = index
+      ev.dataTransfer.effectAllowed = 'move'
+      ev.dataTransfer.setData('text/plain', String(index))
+      const row = ev.currentTarget.closest('.qm-step-row')
+      if (row) {
+        ev.dataTransfer.setDragImage(row, 10, 10)
+        row.classList.add('qm-field-dragging')
+      }
+    },
+    over (ev) {
+      if (dragIndexRef.current === null) {
+        return
+      }
+      ev.preventDefault()
+      ev.dataTransfer.dropEffect = 'move'
+      setDropIndicator(ev.currentTarget, isDropAfterHalf(ev, ev.currentTarget))
+    },
+    leave (ev) {
+      clearDropIndicator(ev.currentTarget)
+    },
+    drop (ev, index) {
+      ev.preventDefault()
+      const row = ev.currentTarget
+      clearDropIndicator(row)
+      const dragIndex = dragIndexRef.current
       dragIndexRef.current = null
-      return
+      if (dragIndex === null || dragIndex === index) {
+        return
+      }
+      // bottom half of the row => insert after it, so the last
+      // step can receive a drop (append to the end).
+      const commands = [...(form.getFieldValue('commands') || [])]
+      const [item] = commands.splice(dragIndex, 1)
+      let insertIndex = isDropAfterHalf(ev, row) ? index + 1 : index
+      if (dragIndex < insertIndex) {
+        insertIndex = insertIndex - 1
+      }
+      commands.splice(insertIndex, 0, item)
+      form.setFieldValue('commands', commands)
+    },
+    end (ev) {
+      dragIndexRef.current = null
+      ev.currentTarget.closest('.qm-step-row')?.classList.remove('qm-field-dragging')
     }
-    // bottom half of the row => insert after it, so the last
-    // sub-command can receive a drop (append to the end).
-    const insertAfter = isDropAfterHalf(e, el)
-    const commands = form.getFieldValue('commands') || []
-    const item = commands[dragIndex]
-    const newCommands = [...commands]
-    newCommands.splice(dragIndex, 1)
-    let insertIndex = insertAfter ? index + 1 : index
-    if (dragIndex < insertIndex) {
-      insertIndex = insertIndex - 1
-    }
-    newCommands.splice(insertIndex, 0, item)
-    form.setFieldValue('commands', newCommands)
-    dragIndexRef.current = null
   }
 
-  function handleDragEnd (e) {
-    const el = e.target.closest('.ant-space-compact')
-    el?.classList.remove('qm-field-dragging')
-    el?.classList.remove('qm-field-dragover')
-    dragIndexRef.current = null
-  }
-
-  function renderItem (field, i, add, remove, form) {
-    return (
-      <Space.Compact
-        align='center'
-        className='width-100 mg2b qm-cmd-row'
-        key={field.key}
-        draggable
-        onDragStart={(e) => handleDragStart(e, i)}
-        onDragOver={(e) => handleDragOver(e, i)}
-        onDragLeave={handleDragLeave}
-        onDrop={(e) => handleDrop(e, i, form)}
-        onDragEnd={handleDragEnd}
-      >
-        <HolderOutlined className='mg1r drag' />
-
-        <FormItem
-          label=''
-          name={[field.name, 'name']}
-          noStyle
-          rules={[{ max: 100, message: '60 chars max' }]}
-        >
-          <Input
-            placeholder={e('name')}
-            className='compact-input qm-name-input'
-            maxLength={100}
-          />
-        </FormItem>
-        <Space.Addon>{e('delay')}</Space.Addon>
-        <FormItem
-          label=''
-          name={[field.name, 'delay']}
-          required
-          noStyle
-        >
-          <InputNumber
-            min={1}
-            step={1}
-            max={65535}
-            placeholder={100}
-            className='compact-input'
-            suffix='ms'
-          />
-        </FormItem>
-        <FormItem
-          label=''
-          name={[field.name, 'command']}
-          required
-          className='mg2x'
-          noStyle
-        >
-          <Input.TextArea
-            autoSize={{ minRows: 1 }}
-            placeholder={e('quickCommand')}
-            className='compact-input qm-input'
-            onFocus={() => {
-              focused.current = i
-            }}
-          />
-        </FormItem>
-        <Button
-          icon={<MinusCircleOutlined />}
-          onClick={() => remove(field.name)}
-        />
-      </Space.Compact>
-    )
-  }
   const commonCmds = [
     { cmd: 'ls', desc: 'List directory contents' },
     { cmd: 'cd', desc: 'Change the current directory' },
@@ -192,24 +287,57 @@ export default function renderQm (form) {
         name='commands'
       >
         {
-          (fields, { add, remove }, { errors }) => {
+          (fields, { add, remove }) => {
             return (
-              <>
+              <div className='qm-steps'>
                 {
-                  fields.map((field, i) => {
-                    return renderItem(field, i, add, remove, form)
-                  })
+                  fields.length
+                    ? (
+                      <div className='qm-step-row qm-step-head'>
+                        <span className='qm-step-drag' />
+                        <span className='qm-step-index'>#</span>
+                        <span className='qm-step-type'>{e('type')}</span>
+                        <span className='qm-step-name'>{e('name')}</span>
+                        <span className='qm-step-value'>{e('quickCommand')}</span>
+                        <span className='qm-step-option' />
+                        <span className='qm-step-delay'>{translateOr('delay', 'Delay')}</span>
+                        <span className='qm-step-ops' />
+                      </div>
+                      )
+                    : null
                 }
-                <FormItem>
+                {
+                  fields.map((field, i) => (
+                    <StepRow
+                      key={field.key}
+                      field={field}
+                      index={i}
+                      form={form}
+                      remove={remove}
+                      add={add}
+                      drag={drag}
+                      focused={focused}
+                    />
+                  ))
+                }
+                <FormItem className='mg1t'>
                   <Button
                     type='dashed'
-                    onClick={() => add()}
+                    onClick={() => add(newStep())}
                     icon={<PlusOutlined />}
+                    className='mg1r'
                   >
                     {e('quickCommand')}
                   </Button>
+                  <Button
+                    type='dashed'
+                    onClick={() => add(newStep('key'))}
+                    icon={<PlusOutlined />}
+                  >
+                    {translateOr('key', 'Key')}
+                  </Button>
                 </FormItem>
-              </>
+              </div>
             )
           }
         }
