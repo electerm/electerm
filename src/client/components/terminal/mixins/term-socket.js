@@ -375,6 +375,21 @@ export const socketMixin = {
   },
 
   /**
+   * The two buttons on session-status-overlay. The shortcut versions in
+   * shortcut-control.jsx act on the *active* tab; these act on this pane's own
+   * tab, so a click can never hit a neighbour, and they go through the same
+   * store calls (reloadTab captures the buffer for replay, delTab removes the
+   * tab) as the shortcuts.
+   */
+  handleReloadStoppedSession () {
+    this.props.reloadTab(this.props.tab)
+  },
+
+  handleCloseStoppedSession () {
+    this.props.delTab(this.props.tab.id)
+  },
+
+  /**
    * Manually triggered from the "exit gracefully" control in
    * session-control.jsx (serial tabs only). Writes the configured key
    * sequence (default \x01ky = Ctrl+A, k, y to kill a GNU screen window) to

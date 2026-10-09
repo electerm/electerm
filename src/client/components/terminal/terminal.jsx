@@ -442,6 +442,8 @@ class Term extends Component {
             countdown={this.state.reconnectCountdown}
             reloadShortcut={this.getShortcut('app_reloadCurrentTab')}
             closeShortcut={this.getShortcut('app_closeCurrentTab')}
+            onReload={this.handleReloadStoppedSession}
+            onClose={this.handleCloseStoppedSession}
           />
           {this.renderResetFontSizeButton()}
           <DropFileModal
