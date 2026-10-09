@@ -125,10 +125,22 @@ class Store {
     return tab.props.tab
   }
 
+  // Title bar the window really has. config.useSystemTitleBar only takes effect
+  // after a restart, so the UI follows the window frame, not the setting.
+  get isSystemTitleBar () {
+    if (window.et.isWebApp) {
+      return !!this.config.useSystemTitleBar
+    }
+    if (this._isSystemTitleBar === undefined) {
+      this._isSystemTitleBar = !!window.pre.runSync('isSystemTitleBar')
+    }
+    return this._isSystemTitleBar
+  }
+
   get shouldSendWindowMove () {
     return isWin &&
         !window.et.isWebApp &&
-        !window.store.config.useSystemTitleBar
+        !window.store.isSystemTitleBar
   }
 
   get batchInputSelectedTabIds () {

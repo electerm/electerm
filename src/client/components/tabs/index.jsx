@@ -261,8 +261,7 @@ export default class Tabs extends Component {
   }
 
   renderContent () {
-    const { config } = this.props
-    if (config.useSystemTitleBar) {
+    if (window.store.isSystemTitleBar) {
       return this.renderContentInner()
     }
     return (
@@ -273,7 +272,7 @@ export default class Tabs extends Component {
   }
 
   renderContentInner () {
-    const { width, config } = this.props
+    const { width } = this.props
     const tabs = this.getSortedTabs()
     const len = tabs.length
     const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
@@ -281,7 +280,7 @@ export default class Tabs extends Component {
     const left = overflow
       ? '100%'
       : tabsWidthAll
-    const w1 = isMacJs && (config.useSystemTitleBar || window.et.isWebApp)
+    const w1 = isMacJs && (window.store.isSystemTitleBar || window.et.isWebApp)
       ? 30
       : this.getExtraTabWidth()
     const style = {
@@ -405,8 +404,7 @@ export default class Tabs extends Component {
         {currentTabEl}
       </div>
     )
-    const { config } = this.props
-    if (config.useSystemTitleBar) {
+    if (window.store.isSystemTitleBar) {
       return inner
     }
     return (

@@ -47,6 +47,8 @@ module.exports = {
     }
   },
   windowMove,
+  // the title bar the window was created with - a changed setting only applies after restart
+  isSystemTitleBar: () => !!globalState.get('systemTitleBar'),
   readClipboard: () => {
     return clipboard.readText()
   },

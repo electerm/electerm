@@ -40,6 +40,7 @@ exports.createWindow = async function (userConfig) {
   globalState.set('requireAuth', !!userConfig.hashedPassword)
   const { width, height, x, y } = await getWindowSize()
   const { useSystemTitleBar = defaults.useSystemTitleBar } = userConfig
+  globalState.set('systemTitleBar', !!useSystemTitleBar)
   const win = new BrowserWindow({
     width,
     height,
