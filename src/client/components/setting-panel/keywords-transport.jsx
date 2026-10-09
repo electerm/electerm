@@ -58,10 +58,11 @@ export default class KeywordsTransport extends BookmarkTransport {
         key='presets'
       >
         <Button
-          icon={<AppstoreAddOutlined />}
           title={e('presets')}
           className='keyword-presets-icon'
-        />
+        >
+          {e('presets')}
+        </Button>
       </Dropdown>
     )
   }
