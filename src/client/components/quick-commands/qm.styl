@@ -229,3 +229,35 @@
     .qm-step-value
       width 100%
       flex 1 1 100%
+
+// footer chip for a running quick command: blue progress part on the left,
+// red stop part filling the right end
+.terminal-footer-qm-run
+  display flex
+  align-items center
+  max-width 320px
+.qm-run-chip
+  display flex
+  align-items center
+  line-height 24px
+  border-radius 12px
+  overflow hidden
+  background var(--primary)
+  color var(--primary-contrast)
+  min-width 0
+  .qm-run-info
+    display flex
+    align-items center
+    padding 0 8px 0 10px
+    min-width 0
+  .qm-run-name
+    max-width 140px
+  .qm-run-stop
+    display flex
+    align-items center
+    align-self stretch
+    padding 0 10px 0 8px
+    background var(--error, #e5484d)
+    color #fff
+    &:hover
+      filter brightness(1.1)
