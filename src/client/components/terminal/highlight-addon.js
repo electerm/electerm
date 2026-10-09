@@ -2,12 +2,15 @@ export class KeywordHighlighterAddon {
   constructor (keywords) {
     this.keywords = keywords || []
     this.compiledPatterns = this.compilePatterns()
-    // Writes larger than this bypass keyword highlighting. Highlighting is meant
-    // for interactive command output; a large chunk is a command flood or
-    // download progress where scanning every byte (and rebuilding the result
-    // string) is pure overhead. Coupled with write coalescing in the attach
-    // addon, flood output skips this path entirely.
+    // Lines longer than this are written without highlighting. Write coalescing
+    // in the attach addon merges ordinary command output (e.g. `show running-config`)
+    // into chunks well over this size, so large writes are highlighted line by
+    // line instead of being skipped whole; only single huge lines are skipped.
     this.maxHighlightLength = 4096
+    // Writes larger than this bypass keyword highlighting entirely: a command
+    // flood or download progress, where scanning every byte (and rebuilding the
+    // result string) is pure overhead.
+    this.maxHighlightChunkLength = 256 * 1024
     // Compile the ANSI/OSC splitter once instead of allocating a new RegExp on
     // every write (this was the #1 allocation in the hot path under load).
     const ESC = String.fromCharCode(27) // \x1b
@@ -139,6 +142,22 @@ export class KeywordHighlighterAddon {
     return result
   }
 
+  // Highlight a write of any size: small writes in one pass, larger ones line
+  // by line so a long line can't make the whole chunk skip highlighting.
+  highlightChunk = (text) => {
+    if (this.compiledPatterns.length === 0 || text.length > this.maxHighlightChunkLength) {
+      return text
+    }
+    if (text.length <= this.maxHighlightLength) {
+      return this.highlightKeywords(text)
+    }
+    return text.split('\n').map(line => {
+      return line.length > this.maxHighlightLength
+        ? line
+        : this.highlightKeywords(line)
+    }).join('\n')
+  }
+
   activate (terminal) {
     this.terminal = terminal
     // Store the original write method properly bound to terminal
@@ -157,12 +176,7 @@ export class KeywordHighlighterAddon {
       if (terminal.displayRaw) {
         return self.originalWrite(self.escape(data))
       }
-      // Skip keyword highlighting for large writes (command floods, download
-      // progress). Highlighting targets interactive command output.
-      if (data.length > self.maxHighlightLength) {
-        return self.originalWrite(data)
-      }
-      self.originalWrite(self.highlightKeywords(data))
+      self.originalWrite(self.highlightChunk(data))
     }
   }
 
