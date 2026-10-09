@@ -27,6 +27,7 @@ import {
 } from '@ant-design/icons'
 import classNames from 'classnames'
 import onDropFunc from './on-drop'
+import translateOr from '../../common/translate-fallback'
 import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../common/drop-position'
 import './qm.styl'
 
@@ -92,6 +93,14 @@ export default auto(function QuickCommandsFooterBox (props) {
     ls.setItem(pinnedQuickCommandBarKey, 'n')
     window.store.pinnedQuickCommandBar = false
     window.store.openQuickCommandBar = false
+  }
+
+  // record what is typed in the active tab. The floating box would cover the
+  // terminal, so it closes unless pinned.
+  function handleRecord () {
+    const { store } = window
+    store.openQuickCommandBar = false
+    store.startQuickCommandRecording()
   }
 
   function handleChange (e) {
@@ -244,6 +253,13 @@ export default auto(function QuickCommandsFooterBox (props) {
               />
             )
           }
+          <Button
+            onClick={handleRecord}
+            icon={<span className='qm-rec-dot' />}
+            disabled={!!store.qmRecording}
+            title={translateOr('recordQuickCommand', 'Record quick command')}
+            className='qm-record-btn'
+          />
           <Button
             onClick={window.store.handleOpenQuickCommandsSetting}
             icon={<EditOutlined />}

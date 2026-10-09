@@ -121,6 +121,9 @@ export const suggestionsMixin = {
 
   onData (d) {
     this.handleInputEvent(d)
+    if (window.store.qmRecording) {
+      window.store.recordQuickCommandInput(this.props.tab.id, d)
+    }
     // Skip normal suggestion logic when in password mode
     const suggestions = refsStatic.get('terminal-suggestions')
     if (suggestions?.state?.passwordMode) {

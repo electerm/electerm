@@ -29,10 +29,19 @@ function processEscapeSequences (text) {
   return result
 }
 
+// keys this handler sends itself never reach the terminal's onData, so pass
+// them to a quick command recording here
+function recordInput (ctx, data) {
+  if (window.store.qmRecording && ctx.props?.tab) {
+    window.store.recordQuickCommandInput(ctx.props.tab.id, data)
+  }
+}
+
 function sendInputData (ctx, data) {
   if (!data) return
   if (ctx.attachAddon && ctx.attachAddon._sendData) {
     ctx.attachAddon._sendData(data)
+    recordInput(ctx, data)
   }
   // if (!ctx.onData) return
   // if (splitChars) {
@@ -191,6 +200,7 @@ export function shortcutExtend (Cls) {
       const altDelDelKey = delKey === 8 ? 127 : 8
       const char = String.fromCharCode(shiftKey ? delKey : altDelDelKey)
       this.socket.send(char)
+      recordInput(this, char)
       this.term.scrollToBottom()
       return false
     } else if (
@@ -206,6 +216,7 @@ export function shortcutExtend (Cls) {
       event.stopPropagation()
       const shiftEnterText = processEscapeSequences(this.props.config.shiftEnterMode || '\\n')
       this.socket.send(shiftEnterText)
+      recordInput(this, shiftEnterText)
       this.term.scrollToBottom()
       return false
     } else if (

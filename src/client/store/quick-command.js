@@ -9,6 +9,10 @@ import {
 } from '../common/constants'
 import { quickCommandSteps } from '../common/quick-command-steps'
 import { runSteps } from '../components/terminal/automation/step-runner'
+import { recordedSteps } from '../components/terminal/automation/record-steps'
+import generate from '../common/uid'
+import message from '../components/common/message'
+import translateOr from '../common/translate-fallback'
 import * as ls from '../common/safe-local-storage'
 import { debounce } from 'lodash-es'
 import { refs } from '../components/common/ref'
@@ -66,6 +70,10 @@ function publishRuns (tabId) {
   }
   store.runningQuickCommands = next
 }
+
+// the tab being recorded and what was typed in it, one chunk per onData call.
+// Kept out of the reactive store, the store only gets the step count.
+let recording = null
 
 // Send every step to one tab. The steps are spaced by delays, and the user
 // can switch tabs in between.
@@ -184,6 +192,49 @@ export default Store => {
     for (const entry of runs.get(tid) || []) {
       entry.run.stop()
     }
+  }
+
+  // record what the user types in a tab, to save as a quick command
+  Store.prototype.startQuickCommandRecording = function (tabId) {
+    const { store } = window
+    const tid = tabId || store.activeTabId
+    const term = refs.get('term-' + tid)
+    if (!term) {
+      return
+    }
+    recording = { tabId: tid, chunks: [] }
+    store.qmRecording = { tabId: tid, count: 0 }
+    term.term?.focus()
+  }
+
+  // called with every chunk of user input, from the terminal's onData
+  Store.prototype.recordQuickCommandInput = function (tabId, data) {
+    if (!recording || recording.tabId !== tabId) {
+      return
+    }
+    recording.chunks.push(data)
+    const { store } = window
+    const count = recordedSteps(recording.chunks).length
+    if (count !== store.qmRecording?.count) {
+      store.qmRecording = { tabId, count }
+    }
+  }
+
+  // save: open the recorded steps in the new quick command form
+  Store.prototype.stopQuickCommandRecording = function (save = true) {
+    const { store } = window
+    const r = recording
+    recording = null
+    store.qmRecording = null
+    if (!save || !r) {
+      return
+    }
+    const steps = recordedSteps(r.chunks, generate)
+    if (!steps.length) {
+      message.info(translateOr('nothingRecorded', 'Nothing was recorded'))
+      return
+    }
+    store.qmRecordedSteps = steps
   }
 
   Store.prototype.setQmSortByFrequency = function (v) {

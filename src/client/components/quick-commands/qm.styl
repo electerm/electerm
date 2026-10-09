@@ -261,3 +261,33 @@
     color #fff
     &:hover
       filter brightness(1.1)
+
+// footer chip while recording: a pulsing red dot, then save and cancel
+.qm-rec-chip
+  background var(--main-lighter)
+  color var(--text)
+  .qm-rec-save
+  .qm-rec-cancel
+    display flex
+    align-items center
+    align-self stretch
+    padding 0 10px
+    &:hover
+      filter brightness(1.1)
+  .qm-rec-save
+    background var(--primary)
+    color var(--primary-contrast)
+  .qm-rec-cancel
+    background var(--main-darker)
+.qm-rec-dot
+  display inline-block
+  width 10px
+  height 10px
+  border-radius 50%
+  background var(--error, #e5484d)
+  flex none
+  .qm-rec-chip &
+    animation qm-rec-pulse 1.2s ease-in-out infinite
+@keyframes qm-rec-pulse
+  50%
+    opacity 0.35

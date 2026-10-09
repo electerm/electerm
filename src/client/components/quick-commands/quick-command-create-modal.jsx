@@ -21,11 +21,12 @@ const QuickCommandForm = lazy(() => import('./quick-commands-form'))
 const e = window.translate
 
 export default function QuickCommandCreateModal (props) {
-  const { store, command, onClose } = props
+  // `commands` (a list of steps, e.g. a recording) or one `command`
+  const { store, command, commands, name, onClose } = props
   const formData = {
     id: '',
-    name: e('newQuickCommand'),
-    commands: [{
+    name: name || e('newQuickCommand'),
+    commands: commands || [{
       command,
       id: generate(),
       delay: 100

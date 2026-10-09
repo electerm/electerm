@@ -283,6 +283,10 @@ export default Store => {
       for (const id of removedIds) {
         window.store.stopQuickCommand(id)
       }
+      // keep what was recorded in a closed tab, the user can still save it
+      if (removedIds.includes(window.store.qmRecording?.tabId)) {
+        window.store.stopQuickCommandRecording()
+      }
     }
   }
 
