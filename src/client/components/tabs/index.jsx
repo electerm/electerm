@@ -21,6 +21,7 @@ import {
   tabMargin,
   extraTabWidth,
   windowControlWidth,
+  windowControlsOverlayWidth,
   isMacJs
 } from '../../common/constants'
 import WindowControl from './window-control'
@@ -261,7 +262,7 @@ export default class Tabs extends Component {
   }
 
   renderContent () {
-    if (window.store.isSystemTitleBar) {
+    if (window.store.isSystemTitleBar && !window.store.isWindowControlsOverlay) {
       return this.renderContentInner()
     }
     return (
@@ -357,9 +358,12 @@ export default class Tabs extends Component {
   }
 
   getExtraTabWidth = () => {
-    return this.shouldRenderWindowControl()
-      ? windowControlWidth
-      : 0
+    if (!this.shouldRenderWindowControl()) {
+      return 0
+    }
+    return window.store.isWindowControlsOverlay
+      ? windowControlsOverlayWidth
+      : windowControlWidth
   }
 
   renderWindowControl = () => {
@@ -404,7 +408,7 @@ export default class Tabs extends Component {
         {currentTabEl}
       </div>
     )
-    if (window.store.isSystemTitleBar) {
+    if (window.store.isSystemTitleBar && !window.store.isWindowControlsOverlay) {
       return inner
     }
     return (

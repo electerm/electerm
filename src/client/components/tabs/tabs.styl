@@ -19,6 +19,11 @@
 .not-system-ui.not-mac.not-webapp
   .tabs-extra
     right 96px
+// Windows system title bar: native min/max/close are drawn over the tab bar's
+// top-right (window controls overlay); keep the tab bar's own buttons clear
+.wco
+  .tabs-extra
+    right calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, calc(100vw - 140px)))
 .tabs-inner
   position relative
   z-index 2
@@ -301,7 +306,11 @@
   text-overflow ellipsis
   white-space nowrap
 
+// interactive elements inside a native drag region (-webkit-app-region drag)
+// must opt out or the OS swallows their clicks; Windows only has a native
+// drag region in window-controls-overlay mode (.wco)
 .not-webapp.not-win
+.not-webapp.wco
   .tab
   .tabs-add-btn
   .window-control-box

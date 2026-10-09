@@ -207,6 +207,8 @@ export const commonLineEndings = commonTxLineEndings
 
 export const maxBatchInput = 30
 export const windowControlWidth = 94
+// room for Windows' native min/max/close drawn over the tab bar (3 x 46px)
+export const windowControlsOverlayWidth = 140
 export const mobileBreakpoint = 600
 // breakpoint matching the setting panel's `@media (max-width: 800px)` CSS —
 // must be kept in sync with setting-wrap.styl
