@@ -1,6 +1,11 @@
+import { AppstoreAddOutlined } from '@ant-design/icons'
+import { Button, Dropdown, Space } from 'antd'
 import BookmarkTransport from '../tree-list/bookmark-transport'
 import download from '../../common/download'
 import time from '../../common/time'
+import { keywordPresets, mergeKeywordPreset } from '../../common/keyword-presets'
+
+const e = window.translate
 
 export default class KeywordsTransport extends BookmarkTransport {
   name = 'keywords-highlight'
@@ -27,5 +32,47 @@ export default class KeywordsTransport extends BookmarkTransport {
     const txt = JSON.stringify(arr, null, 2)
     const stamp = time(undefined, 'YYYY-MM-DD-HH-mm-ss')
     download('electerm-' + this.name + '-' + stamp + '.json', txt)
+  }
+
+  handleApplyPreset = ({ key }) => {
+    const { store } = this.props
+    const preset = keywordPresets.find(p => p.name === key)
+    if (!preset) {
+      return
+    }
+    store.setConfig({
+      keywords: mergeKeywordPreset(store.config.keywords, preset)
+    })
+    setTimeout(this.props.resetKeywordForm, 100)
+  }
+
+  renderPresets () {
+    const items = keywordPresets.map(p => ({
+      key: p.name,
+      label: <span title={p.description}>{p.name}</span>
+    }))
+    return (
+      <Dropdown
+        menu={{ items, onClick: this.handleApplyPreset }}
+        trigger={['click']}
+        key='presets'
+      >
+        <Button
+          icon={<AppstoreAddOutlined />}
+          title={e('presets')}
+          className='keyword-presets-icon'
+        />
+      </Dropdown>
+    )
+  }
+
+  render () {
+    return (
+      <Space.Compact>
+        {this.renderExport()}
+        {this.renderImport()}
+        {this.renderPresets()}
+      </Space.Compact>
+    )
   }
 }
