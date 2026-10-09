@@ -130,13 +130,14 @@ class Store {
   // Windows always has the system frame (see app/lib/title-bar.js), so this is
   // always true there; the setting only decides the macOS/Linux chrome.
   get isSystemTitleBar () {
+    const { store } = window
     if (window.et.isWebApp) {
-      return !!this.config.useSystemTitleBar
+      return !!store.config.useSystemTitleBar
     }
-    if (this._isSystemTitleBar === undefined) {
-      this._isSystemTitleBar = !!window.pre.runSync('isSystemTitleBar')
+    if (store._isSystemTitleBar === undefined) {
+      store._isSystemTitleBar = !!window.pre.runSync('isSystemTitleBar')
     }
-    return this._isSystemTitleBar
+    return store._isSystemTitleBar
   }
 
   // Windows: the native caption buttons are drawn over the tab bar (window
