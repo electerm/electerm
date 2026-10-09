@@ -63,4 +63,59 @@ describe('quick commands execution', function () {
     await expect(newContent.length).toBeGreaterThan(initialContent.length)
     await electronApp.close().catch(console.log)
   })
+
+  it('should send every step to the tab it started in, even after a tab switch', async function () {
+    const electronApp = await electron.launch(appOptions)
+    const client = await electronApp.firstWindow()
+    extendClient(client, electronApp)
+
+    await delay(3500)
+
+    const tabA = await client.evaluate(() => window.store.activeTabId)
+    await client.evaluate(() => window.store.addTab())
+    await delay(3500)
+    const tabB = await client.evaluate(() => window.store.activeTabId)
+    expect(tabB).not.toEqual(tabA)
+
+    await client.evaluate((id) => window.store.clickTab(id), tabA)
+    await delay(1000)
+
+    const qmId = 'qm-tab-' + Date.now()
+    await client.evaluate((id) => {
+      window.store.addQuickCommand({
+        id,
+        name: 'tab binding',
+        commands: [1, 2, 3].map(n => ({
+          id: id + '-' + n,
+          command: 'echo QMTAB-STEP' + n,
+          delay: n === 1 ? 100 : 2500
+        }))
+      })
+    }, qmId)
+    await delay(500)
+
+    log('run quick command in tab A, then switch to tab B mid-run')
+    await client.evaluate((id) => window.store.runQuickCommandItem(id), qmId)
+    await delay(1000)
+    await client.evaluate((id) => window.store.clickTab(id), tabB)
+    await delay(6000)
+
+    // which steps produced output in each tab
+    const outputs = await client.evaluate(({ tabA, tabB }) => {
+      const steps = id => {
+        const buf = window.refs.get('term-' + id)?.term?.buffer.active
+        const lines = []
+        const count = buf ? buf.length : 0
+        for (let i = 0; i < count; i++) {
+          lines.push(buf.getLine(i).translateToString(true).trim())
+        }
+        return [1, 2, 3].filter(n => lines.includes('QMTAB-STEP' + n))
+      }
+      return { a: steps(tabA), b: steps(tabB) }
+    }, { tabA, tabB })
+
+    expect(outputs.a).toEqual([1, 2, 3])
+    expect(outputs.b).toEqual([])
+    await electronApp.close().catch(console.log)
+  })
 })

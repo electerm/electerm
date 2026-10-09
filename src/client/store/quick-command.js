@@ -71,6 +71,9 @@ export default Store => {
       a => a.id === id
     )
     const { runQuickCommand } = store
+    // Send every step to the tab the quick command started in. The steps are
+    // spaced by delays, and the user can switch tabs in between.
+    const tabId = store.activeTabId
     const qms = qm && qm.commands
       ? qm.commands
       : (qm && qm.command
@@ -92,7 +95,7 @@ export default Store => {
       realCmd = await parseTemplates(realCmd)
 
       await delay(q.delay || 100)
-      runQuickCommand(realCmd, qm.inputOnly)
+      runQuickCommand(realCmd, qm.inputOnly, tabId)
       store.editQuickCommand(qm.id, {
         clickCount: ((qm.clickCount || 0) + 1)
       })
