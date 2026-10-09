@@ -148,6 +148,10 @@ export default auto(function Index (props) {
   const cls = classnames({
     loaded: configLoaded,
     'not-webapp': !window.et.isWebApp,
+    // the frame is the system one (macOS traffic lights, Linux/Windows title
+    // bar). Also true in Windows WCO mode, where the caption buttons are drawn
+    // over the tab bar and there is no title strip: the UI asks "is there a
+    // strip?" via store.hasNativeTitleStrip, not via this class.
     'system-ui': store.isSystemTitleBar,
     'not-system-ui': !store.isSystemTitleBar,
     wco: store.isWindowControlsOverlay,
@@ -323,10 +327,7 @@ export default auto(function Index (props) {
           {...themeProps}
         />
         {store.isWindowControlsOverlay && (
-          <TitleBarOverlay
-            {...themeProps}
-            opacity={config.opacity}
-          />
+          <TitleBarOverlay {...themeProps} />
         )}
         <CustomCss customCss={config.customCss} configLoaded={configLoaded} />
         {store.textEditorRequested && (

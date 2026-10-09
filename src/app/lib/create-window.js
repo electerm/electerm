@@ -20,8 +20,7 @@ const _ = require('./lodash.js')
 const getPort = require('./get-port')
 const globalState = require('./glob-state')
 const webviewHandler = require('./webview-handler')
-
-const titleBarOverlayHeight = 36
+const { getTitleBarOptions, windowBackground } = require('./title-bar')
 
 // A crashed / reloaded renderer leaves the window object alive, and sending to
 // it then throws "Render frame was disposed before WebFrameMain could be
@@ -52,9 +51,9 @@ exports.createWindow = async function (userConfig) {
     minWidth: minWindowWidth,
     minHeight: minWindowHeight,
     title: packInfo.name,
-    frame: useSystemTitleBar,
-    transparent: !useSystemTitleBar,
-    backgroundColor: '#333333',
+    backgroundColor: windowBackground,
+    // frame / transparent / titleBarStyle / titleBarOverlay, per platform
+    ...getTitleBarOptions(useSystemTitleBar, isWin),
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -64,14 +63,6 @@ exports.createWindow = async function (userConfig) {
       devTools: !userConfig.disableDeveloperTool,
       spellcheck: false
     },
-    titleBarStyle: useSystemTitleBar && !isWin ? 'default' : 'hidden',
-    // Windows + system title bar: keep the native frame (snapping, Snap
-    // Layouts) but drop the caption strip; Windows draws min/max/close over
-    // the tab bar, recolored from the UI theme by the renderer
-    // (setTitleBarOverlay). Height matches .tabs (36px).
-    ...(useSystemTitleBar && isWin
-      ? { titleBarOverlay: { color: '#000000', symbolColor: '#dddddd', height: titleBarOverlayHeight } }
-      : {}),
     icon: iconPath
   })
   // Safety net: verify the window is actually visible on a connected
@@ -80,9 +71,12 @@ exports.createWindow = async function (userConfig) {
   // hides the traffic lights
   if (isMac) {
     win.setWindowButtonVisibility(true)
-  } else if (useSystemTitleBar) {
-    // the system title bar would otherwise show Electron's default
-    // Edit/View/Window/Help menu bar; its keyboard accelerators still work
+  } else if (useSystemTitleBar && !isWin) {
+    // The system title bar would otherwise show Electron's default
+    // Edit/View/Window/Help menu bar; hide it (its keyboard accelerators still
+    // work). Windows is excluded on purpose: there the window is frameless
+    // (titleBarStyle 'hidden'), RootView::SetMenu bails out for a frameless
+    // window and no menu bar is ever created, so the call would be a no-op.
     win.setMenuBarVisibility(false)
   }
 

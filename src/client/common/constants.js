@@ -207,8 +207,29 @@ export const commonLineEndings = commonTxLineEndings
 
 export const maxBatchInput = 30
 export const windowControlWidth = 94
-// room for Windows' native min/max/close drawn over the tab bar (3 x 46px)
-export const windowControlsOverlayWidth = 140
+// Fallback room for Windows' native min/max/close drawn over the tab bar.
+// The real width is measured at runtime (getWindowControlsOverlayWidth) or, in
+// CSS, read from env(titlebar-area-*); this is only for when neither is
+// available. Keep the number in step with the env() fallback in
+// components/tabs/tabs.styl and css/mobile.styl.
+export const windowControlsOverlayWidthFallback = 140
+
+// Width the native caption buttons take from the right edge of the tab bar.
+// navigator.windowControlsOverlay reports the real titlebar rect, so the
+// layout does not have to hardcode it (Chromium's caption buttons are 46 DIP
+// each, but the OS can lay them out differently).
+export const getWindowControlsOverlayWidth = () => {
+  const overlay = window.navigator && window.navigator.windowControlsOverlay
+  if (overlay && typeof overlay.getTitlebarAreaRect === 'function') {
+    const rect = overlay.getTitlebarAreaRect()
+    const width = window.innerWidth - rect.x - rect.width
+    // 0 when the overlay is hidden (empty rect) — fall back then
+    if (width > 0 && width < window.innerWidth) {
+      return width
+    }
+  }
+  return windowControlsOverlayWidthFallback
+}
 export const mobileBreakpoint = 600
 // breakpoint matching the setting panel's `@media (max-width: 800px)` CSS —
 // must be kept in sync with setting-wrap.styl

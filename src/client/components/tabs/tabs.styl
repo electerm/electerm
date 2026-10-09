@@ -20,10 +20,19 @@
   .tabs-extra
     right 96px
 // Windows system title bar: native min/max/close are drawn over the tab bar's
-// top-right (window controls overlay); keep the tab bar's own buttons clear
+// top-right (window controls overlay). The strip they occupy is whatever the
+// titlebar area does not cover; 140px is the fallback for when the env() vars
+// are unavailable — it has to match windowControlsOverlayWidthFallback in
+// common/constants.js (the JS side of the same measurement).
 .wco
-  .tabs-extra
-    right calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, calc(100vw - 140px)))
+  --wco-controls-width calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, calc(100vw - 140px)))
+  // Only the pane whose tab bar sits under those buttons has to clear them —
+  // the same pane that owns the window controls (shouldRenderWindowControl in
+  // index.jsx). In a split layout the other panes' tab bars are not under the
+  // buttons, so their own buttons stay at their own right edge.
+  .tabs.wco-bar
+    .tabs-extra
+      right var(--wco-controls-width)
 .tabs-inner
   position relative
   z-index 2

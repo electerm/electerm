@@ -143,6 +143,16 @@ class Store {
     return isWin && !window.et.isWebApp && this.isSystemTitleBar
   }
 
+  // Whether the window has a title strip of its own to drag the window by —
+  // macOS' traffic-light area, or a Linux/Windows native title bar. In WCO
+  // mode isSystemTitleBar is still true (the frame really is the system one)
+  // but the caption buttons are drawn *over* the tab bar, so there is no strip
+  // and the tab bar has to be the drag area instead. This is the derived
+  // "is there a strip" question the UI asks; the name above is about the frame.
+  get hasNativeTitleStrip () {
+    return this.isSystemTitleBar && !this.isWindowControlsOverlay
+  }
+
   get shouldSendWindowMove () {
     return isWin &&
         !window.et.isWebApp &&

@@ -48,6 +48,12 @@
   &.not-system-ui.not-mac.not-webapp
     .tabs.mobile-tabs
       padding-right 94px
+  // Windows system title bar: the native caption buttons are drawn over the
+  // tab bar's top-right, so the pane that owns them has to keep its own add /
+  // tab-dropdown buttons clear of that strip (same width as the desktop rule)
+  &.wco
+    .tabs.mobile-tabs.wco-bar
+      padding-right var(--wco-controls-width)
   .mobile-tabs-inner
     flex 1
     min-width 0

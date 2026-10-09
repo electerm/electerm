@@ -21,7 +21,7 @@ import {
   tabMargin,
   extraTabWidth,
   windowControlWidth,
-  windowControlsOverlayWidth,
+  getWindowControlsOverlayWidth,
   isMacJs
 } from '../../common/constants'
 import WindowControl from './window-control'
@@ -262,7 +262,7 @@ export default class Tabs extends Component {
   }
 
   renderContent () {
-    if (window.store.isSystemTitleBar && !window.store.isWindowControlsOverlay) {
+    if (window.store.hasNativeTitleStrip) {
       return this.renderContentInner()
     }
     return (
@@ -362,8 +362,17 @@ export default class Tabs extends Component {
       return 0
     }
     return window.store.isWindowControlsOverlay
-      ? windowControlsOverlayWidth
+      ? getWindowControlsOverlayWidth()
       : windowControlWidth
+  }
+
+  // The pane whose tab bar sits under Windows' native caption buttons is the
+  // same pane that owns the window controls; only it has to clear that strip.
+  // The class is inert unless the root also has .wco.
+  tabsClassName = (extra) => {
+    return classNames('tabs', extra, {
+      'wco-bar': window.store.isWindowControlsOverlay && this.shouldRenderWindowControl()
+    })
   }
 
   renderWindowControl = () => {
@@ -408,7 +417,7 @@ export default class Tabs extends Component {
         {currentTabEl}
       </div>
     )
-    if (window.store.isSystemTitleBar && !window.store.isWindowControlsOverlay) {
+    if (window.store.hasNativeTitleStrip) {
       return inner
     }
     return (
@@ -441,7 +450,7 @@ export default class Tabs extends Component {
       ? <Tab {...tabProps} key={currentTab.id} />
       : null
     return (
-      <div className='tabs mobile-tabs' ref={this.tabsRef}>
+      <div className={this.tabsClassName('mobile-tabs')} ref={this.tabsRef}>
         {this.renderMobileTabsInner(currentTabEl)}
         {this.renderMobileTabsExtra(items)}
         {this.renderWindowControl()}
@@ -455,7 +464,7 @@ export default class Tabs extends Component {
       return this.renderMobileTabs()
     }
     return (
-      <div className='tabs' ref={this.tabsRef}>
+      <div className={this.tabsClassName()} ref={this.tabsRef}>
         {this.renderContent()}
         {
           this.renderWindowControl()
