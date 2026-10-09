@@ -106,7 +106,7 @@ function StepRow (props) {
               <FormItem name={[field.name, 'command']} noStyle>
                 <Input.TextArea
                   autoSize={{ minRows: 1 }}
-                  placeholder={e('quickCommand')}
+                  placeholder={e('command')}
                   className='qm-input'
                   spellCheck={false}
                   onFocus={() => {
@@ -275,7 +275,7 @@ export default function renderQm (form) {
   })
   const label = (
     <div>
-      {e('quickCommands')}
+      {translateOr('steps', 'Steps')}
       <HelpIcon
         title={cmds}
       />
@@ -298,7 +298,7 @@ export default function renderQm (form) {
                         <span className='qm-step-index'>#</span>
                         <span className='qm-step-type'>{e('type')}</span>
                         <span className='qm-step-name'>{e('name')}</span>
-                        <span className='qm-step-value'>{e('quickCommand')}</span>
+                        <span className='qm-step-value'>{e('command')} / {translateOr('key', 'Key')}</span>
                         <span className='qm-step-option' />
                         <span className='qm-step-delay'>{translateOr('delay', 'Delay')}</span>
                         <span className='qm-step-ops' />
@@ -327,7 +327,7 @@ export default function renderQm (form) {
                     icon={<PlusOutlined />}
                     className='mg1r'
                   >
-                    {e('quickCommand')}
+                    {e('command')}
                   </Button>
                   <Button
                     type='dashed'

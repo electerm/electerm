@@ -45,7 +45,7 @@ export default class QuickCommandsItem extends PureComponent {
                       )
                     }
                     <div className='qm-tooltip-cmd-text'>
-                      <span className='qm-tooltip-label'>{c.type === 'key' ? translateOr('key', 'Key') : e('quickCommand')}:</span>
+                      <span className='qm-tooltip-label'>{c.type === 'key' ? translateOr('key', 'Key') : e('command')}:</span>
                       <code className='qm-tooltip-value'>
                         {c.type === 'key' ? c.key + (c.repeat > 1 ? ' ×' + c.repeat : '') : c.command}
                       </code>
