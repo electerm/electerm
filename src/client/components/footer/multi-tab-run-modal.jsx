@@ -5,6 +5,9 @@
  * Reuses the footer batch input tab panel (`TabSelectList`) for picking the
  * target terminals, and the same selection state + `batchInput` terminal API
  * the footer batch input uses, so both entry points stay consistent.
+ *
+ * Pass `onRun(tabIds)` and `preview` to run something other than a single
+ * command line, such as a quick command.
  */
 
 import { auto } from 'manate/react'
@@ -23,7 +26,7 @@ import {
 const e = window.translate
 
 export default auto(function MultiTabRunModal (props) {
-  const { store, cmd, onClose } = props
+  const { store, cmd, onClose, onRun, preview } = props
   const selectedTabIds = store.batchInputSelectedTabIds
   const tabs = store.tabs.filter(tab => {
     return tab.type !== terminalWebType &&
@@ -44,6 +47,12 @@ export default auto(function MultiTabRunModal (props) {
     onSelectNone: store.selectNoneBatchInputTabs
   }
   function handleRun () {
+    if (onRun) {
+      // only the terminals listed here, never a web or remote desktop tab
+      onRun(selectedTabIds.filter(id => tabs.some(t => t.id === id)))
+      onClose()
+      return
+    }
     selectedTabIds.map(id => {
       return refs.get('term-' + id)
     }).forEach(term => {
@@ -76,7 +85,7 @@ export default auto(function MultiTabRunModal (props) {
         </Button>
       ]}
     >
-      <div className='multi-tab-run-cmd'>{cmd}</div>
+      <div className='multi-tab-run-cmd'>{preview || cmd}</div>
       <TabSelectList {...listProps} />
     </Modal>
   )

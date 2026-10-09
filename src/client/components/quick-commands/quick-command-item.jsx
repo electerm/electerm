@@ -7,18 +7,69 @@ import {
 } from 'react'
 import {
   Button,
+  Dropdown,
   Tooltip
 } from 'antd'
+import {
+  CaretRightOutlined,
+  CodeOutlined,
+  EditOutlined
+} from '@ant-design/icons'
 import classNames from 'classnames'
 import translateOr from '../../common/translate-fallback'
 
 const e = window.translate
 
 export default class QuickCommandsItem extends PureComponent {
+  state = {
+    menuOpen: false,
+    tipOpen: false
+  }
+
+  // the tooltip would otherwise sit on top of the right-click menu
+  handleMenuOpenChange = (menuOpen) => {
+    this.setState({ menuOpen, tipOpen: false })
+  }
+
+  handleTipOpenChange = (tipOpen) => {
+    this.setState({ tipOpen })
+  }
+
   handleSelect = () => {
     this.props.onSelect(
       this.props.item.id
     )
+  }
+
+  handleMenu = ({ key }) => {
+    const { id } = this.props.item
+    if (key === 'run') {
+      this.handleSelect()
+    } else if (key === 'runInTabs') {
+      window.store.openQmRunInTabs(id)
+    } else if (key === 'edit') {
+      window.store.editQuickCommandItem(id)
+    }
+  }
+
+  menuItems () {
+    return [
+      {
+        key: 'run',
+        icon: <CaretRightOutlined />,
+        label: translateOr('run', 'Run')
+      },
+      {
+        key: 'runInTabs',
+        icon: <CodeOutlined />,
+        label: e('runInAllTerminals')
+      },
+      {
+        key: 'edit',
+        icon: <EditOutlined />,
+        label: e('edit')
+      }
+    ]
   }
 
   renderTooltip () {
@@ -110,19 +161,27 @@ export default class QuickCommandsItem extends PureComponent {
       onDrop: handleDrop
     }
     return (
-      <Tooltip
-        title={this.renderTooltip()}
-        placement='top'
-        mouseEnterDelay={0.5}
-        classNames={{ root: 'qm-tooltip-overlay' }}
+      <Dropdown
+        trigger={['contextMenu']}
+        menu={{ items: this.menuItems(), onClick: this.handleMenu }}
+        onOpenChange={this.handleMenuOpenChange}
       >
-        <Button
-          key={id}
-          {...btnProps}
+        <Tooltip
+          open={this.state.tipOpen && !this.state.menuOpen}
+          onOpenChange={this.handleTipOpenChange}
+          title={this.renderTooltip()}
+          placement='top'
+          mouseEnterDelay={0.5}
+          classNames={{ root: 'qm-tooltip-overlay' }}
         >
-          {name}
-        </Button>
-      </Tooltip>
+          <Button
+            key={id}
+            {...btnProps}
+          >
+            {name}
+          </Button>
+        </Tooltip>
+      </Dropdown>
     )
   }
 }

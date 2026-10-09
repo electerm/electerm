@@ -16,6 +16,7 @@ import AIIcon from '../icons/ai-icon'
 import { isAIDisabled } from '../../common/ai-feature'
 import CmdHistory from './cmd-history'
 import QmRunStatus from '../quick-commands/qm-run-status'
+import QmRunInTabs from '../quick-commands/qm-run-in-tabs'
 
 const e = window.translate
 
@@ -265,6 +266,7 @@ export default auto(function FooterEntry (props) {
     return (
       <div className='main-footer' {...sideProps}>
         {showSidebarIcon}
+        <QmRunInTabs store={props.store} />
       </div>
     )
   }
@@ -276,6 +278,7 @@ export default auto(function FooterEntry (props) {
         {renderCmdHistory()}
         {renderQuickCommands()}
         <QmRunStatus store={props.store} />
+        <QmRunInTabs store={props.store} />
         {renderTriggers()}
         {renderBatchInputs()}
         {renderEncodingInfo()}
