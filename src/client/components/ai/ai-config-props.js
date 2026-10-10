@@ -1,4 +1,5 @@
 export const aiConfigsArr = [
+  'providerAI',
   'nameAI',
   'baseURLAI',
   'modelAI',
@@ -15,6 +16,7 @@ export const aiConfigsArr = [
 // config modal open when one of the *other* keys is unset, so anything
 // optional has to be listed here or the modal would pop up forever.
 export const optionalAIConfigsArr = [
+  'providerAI',
   'apiKeyAI',
   'proxyAI',
   'nameAI',

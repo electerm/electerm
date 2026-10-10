@@ -7,6 +7,7 @@ import AiContextIndicator from './ai-context-indicator'
 import SwitchLabel from '../common/switch'
 import { buildSessionMessages, summarizeContext, getUsageLevel } from './ai-context'
 import { appendMandatoryGuardrails } from './ai-guardrails'
+import { getAIProviderForChatSession } from '../../../app/common/ai-config'
 import uid from '../../common/uid'
 import { pick } from 'lodash-es'
 import {
@@ -164,6 +165,11 @@ export default function AIChat (props) {
     if (!prompt.trim() && !attachments.length) return
 
     const chatId = uid()
+    const providerAI = getAIProviderForChatSession(
+      window.store.aiChatHistory,
+      currentChatSessionId,
+      config.providerAI
+    )
     const block = buildAttachmentsBlock(attachments)
     const promptWithAttachments = block
       ? (prompt.trim() ? prompt + '\n\n' + block : block)
@@ -192,6 +198,7 @@ export default function AIChat (props) {
         'languageAI',
         'authHeaderNameAI'
       ]),
+      providerAI,
       timestamp: Date.now(),
       id: chatId
     }

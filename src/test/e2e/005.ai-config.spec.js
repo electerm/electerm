@@ -34,12 +34,14 @@ describe('AI Config and Suggestions', function () {
   })
 
   it.afterEach(async () => {
-    await client.evaluate(() => {
-      return window.store.setConfig({
-        showCmdSuggestions: false
+    if (client) {
+      await client.evaluate(() => {
+        return window.store.setConfig({
+          showCmdSuggestions: false
+        })
       })
-    })
-    await electronApp.close()
+    }
+    if (electronApp) await electronApp.close()
   })
 
   it('should open AI setting page and fill configuration', async function () {
@@ -69,6 +71,26 @@ describe('AI Config and Suggestions', function () {
 
     // Verify the setting panel is closed
     await expect(client.locator('.setting-wrap')).not.toBeVisible()
+  })
+
+  it('shows subscription choices and hides API-only fields when supported', async function () {
+    await client.evaluate(() => window.store.toggleAIConfig())
+    await expect(client.locator('.ai-config-modal .ai-config-form')).toBeVisible()
+    const support = await client.evaluate(() => window.pre.runGlobalAsync('getAISubscriptionStatus', 'chatgpt'))
+    const provider = client.locator('.ai-config-form .ant-select').first()
+    await provider.click()
+    const chatgptOption = client.getByText('ChatGPT subscription', { exact: true })
+    if (!support || !support.supported) {
+      await expect(chatgptOption).toHaveClass(/ant-select-item-option-disabled/)
+      return
+    }
+    await chatgptOption.click()
+    await expect(client.locator('.ai-subscription-account')).toBeVisible()
+    await expect(client.locator('#baseURLAI')).not.toBeVisible()
+    await expect(client.locator('#apiKeyAI')).not.toBeVisible()
+    await expect(client.locator('#authHeaderNameAI')).not.toBeVisible()
+    await expect(client.locator('#roleAI')).toBeVisible()
+    await expect(client.locator('#modelAI')).toBeVisible()
   })
 
   it('should verify AI functionality after configuration', async function () {

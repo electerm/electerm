@@ -21,6 +21,9 @@ import message from '../common/message'
 import { getAIPresets } from './ai-presets'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import './ai-config.styl'
+import AISubscriptionAccount from './ai-subscription-account'
+import { runAIchat, runAIlistModels } from './ai-request'
+import { getAIProviderBrand } from './get-brand'
 
 const STORAGE_KEY_CONFIG = 'ai_config_history'
 const EVENT_NAME_CONFIG = 'ai-config-history-update'
@@ -102,7 +105,9 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   const [testing, setTesting] = useState(false)
   const [loadingModels, setLoadingModels] = useState(false)
   const [cachedModels, setCachedModels] = useState([])
+  const [subscriptionSupported, setSubscriptionSupported] = useState(false)
   const baseURLAI = Form.useWatch('baseURLAI', form)
+  const providerAI = Form.useWatch('providerAI', form) || 'api'
   const presets = useMemo(() => getAIPresets(), [])
   const currentPreset = presets.find(p => p.baseURLAI === baseURLAI)
 
@@ -112,10 +117,17 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     }
   }, [initialValues])
 
+  useEffect(() => {
+    if (!window.pre || !window.pre.runGlobalAsync) return
+    window.pre.runGlobalAsync('getAISubscriptionStatus', 'chatgpt')
+      .then(status => setSubscriptionSupported(!!(status && status.supported)))
+      .catch(() => setSubscriptionSupported(false))
+  }, [])
+
   // Restore the model list previously fetched for this API URL
   useEffect(() => {
-    setCachedModels(getCachedModels(baseURLAI))
-  }, [baseURLAI])
+    setCachedModels(providerAI === 'api' ? getCachedModels(baseURLAI) : [])
+  }, [baseURLAI, providerAI])
 
   function filter () {
     return true
@@ -130,8 +142,8 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     try {
       const values = await form.validateFields()
       setTesting(true)
-      const res = await window.pre.runGlobalAsync(
-        'AIchat',
+      const res = await runAIchat(
+        providerAI,
         'Hi',
         values.modelAI,
         appendMandatoryGuardrails(values.roleAI),
@@ -167,24 +179,18 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   async function handleLoadModels () {
     const values = form.getFieldsValue()
     const baseURL = normalizeBaseURL(values.baseURLAI)
-    if (!baseURL) {
+    if (providerAI === 'api' && !baseURL) {
       message.error('Please input API URL first')
       return
     }
     setLoadingModels(true)
     try {
-      const res = await window.pre.runGlobalAsync(
-        'AIlistModels',
-        baseURL,
-        values.apiKeyAI,
-        values.authHeaderNameAI,
-        values.proxyAI
-      )
+      const res = await runAIlistModels(providerAI, baseURL, values.apiKeyAI, values.authHeaderNameAI, values.proxyAI)
       if (res && res.error) {
         message.error(res.error)
       } else if (res && res.models && res.models.length) {
         setCachedModels(res.models)
-        saveModelsToCache(baseURL, res.models)
+        if (providerAI === 'api') saveModelsToCache(baseURL, res.models)
         message.success(`Got ${res.models.length} models`)
         if (!values.modelAI) {
           form.setFieldsValue({ modelAI: res.models[0] })
@@ -245,6 +251,13 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     if (!item || typeof item !== 'object') return { label: 'Unknown', title: 'Unknown' }
     const name = item.nameAI || ''
     const model = item.modelAI || 'Default Model'
+    if (item.providerAI && item.providerAI !== 'api') {
+      const provider = getAIProviderBrand(item.providerAI).brand
+      return {
+        label: `${provider} · ${model}`,
+        title: `Provider: ${provider}\nModel: ${model}`
+      }
+    }
     const rolePrefix = item.roleAI ? item.roleAI.substring(0, 15) + '...' : ''
     const label = name || `[${model}] ${rolePrefix}`
     const title = name
@@ -309,10 +322,10 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         type='warning'
         className='mg2b'
       />
-      {renderPresetSelect()}
-      <p>
-        Full Url: {initialValues?.baseURLAI}{initialValues?.apiPathAI}
-      </p>
+      {providerAI === 'api' && renderPresetSelect()}
+      {providerAI === 'api' && (
+        <p>Full Url: {initialValues?.baseURLAI}{initialValues?.apiPathAI}</p>
+      )}
       <Form
         form={form}
         onFinish={handleSubmit}
@@ -320,48 +333,61 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         layout='vertical'
         className='ai-config-form'
       >
-        <Form.Item
-          label='Name'
-          name='nameAI'
-        >
-          <Input
-            placeholder='e.g. DeepSeek Relay, Local Ollama (optional)'
+        <Form.Item label='AI provider' name='providerAI' initialValue='api'>
+          <Select options={[
+            { value: 'api', label: 'API key / compatible provider' },
+            { value: 'chatgpt', label: 'ChatGPT subscription', disabled: !subscriptionSupported },
+            { value: 'supergrok', label: 'SuperGrok subscription', disabled: !subscriptionSupported }
+          ]}
           />
         </Form.Item>
-        <Form.Item label='API URL' required>
-          <Space.Compact className='width-100'>
-            <Form.Item
-              label='API URL'
-              name='baseURLAI'
-              noStyle
-              rules={[
-                { required: true, message: 'Please input or select API provider URL!' },
-                { type: 'url', message: 'Please enter a valid URL!' }
-              ]}
-            >
-              <Input
-                placeholder='Enter API provider URL'
-                style={{ width: '75%' }}
-              />
+        {providerAI !== 'api' && <AISubscriptionAccount key={providerAI} providerAI={providerAI} />}
+        {providerAI === 'api' && (
+          <Form.Item
+            label='Name'
+            name='nameAI'
+          >
+            <Input placeholder='e.g. DeepSeek Relay, Local Ollama (optional)' />
+          </Form.Item>
+        )}
+        {providerAI === 'api' && (
+          <>
+            <Form.Item label='API URL' required>
+              <Space.Compact className='width-100'>
+                <Form.Item
+                  label='API URL'
+                  name='baseURLAI'
+                  noStyle
+                  rules={[
+                    { required: true, message: 'Please input or select API provider URL!' },
+                    { type: 'url', message: 'Please enter a valid URL!' }
+                  ]}
+                >
+                  <Input
+                    placeholder='Enter API provider URL'
+                    style={{ width: '75%' }}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label='API PATH'
+                  name='apiPathAI'
+                  rules={[
+                    { required: true, message: 'Please input API PATH' }
+                  ]}
+                  noStyle
+                >
+                  <AutoComplete
+                    options={apiPathOptions}
+                    filterOption={filter}
+                    placeholder='/chat/completions'
+                    popupMatchSelectWidth={false}
+                    style={{ width: '25%' }}
+                  />
+                </Form.Item>
+              </Space.Compact>
             </Form.Item>
-            <Form.Item
-              label='API PATH'
-              name='apiPathAI'
-              rules={[
-                { required: true, message: 'Please input API PATH' }
-              ]}
-              noStyle
-            >
-              <AutoComplete
-                options={apiPathOptions}
-                filterOption={filter}
-                placeholder='/chat/completions'
-                popupMatchSelectWidth={false}
-                style={{ width: '25%' }}
-              />
-            </Form.Item>
-          </Space.Compact>
-        </Form.Item>
+          </>
+        )}
         <Form.Item
           label={e('modelAi')}
           name='modelAI'
@@ -383,25 +409,28 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           />
         </Form.Item>
 
-        <Form.Item
-          label={renderApiKeyLabel()}
-          name='apiKeyAI'
-        >
-          <Password placeholder='Enter your API key' />
-        </Form.Item>
-
-        <Form.Item
-          label='Auth Header'
-          name='authHeaderNameAI'
-          tooltip='Header format for API authentication. e.g. "Authorization: Bearer" sends "Authorization: Bearer <key>", "x-api-key" sends "x-api-key: <key>"'
-        >
-          <AutoComplete
-            options={authHeaderOptions}
-            filterOption={filter}
-          >
-            <Input placeholder='e.g. Authorization: Bearer' />
-          </AutoComplete>
-        </Form.Item>
+        {providerAI === 'api' && (
+          <>
+            <Form.Item
+              label={renderApiKeyLabel()}
+              name='apiKeyAI'
+            >
+              <Password placeholder='Enter your API key' />
+            </Form.Item>
+            <Form.Item
+              label='Auth Header'
+              name='authHeaderNameAI'
+              tooltip='Header format for API authentication. e.g. "Authorization: Bearer" sends "Authorization: Bearer <key>", "x-api-key" sends "x-api-key: <key>"'
+            >
+              <AutoComplete
+                options={authHeaderOptions}
+                filterOption={filter}
+              >
+                <Input placeholder='e.g. Authorization: Bearer' />
+              </AutoComplete>
+            </Form.Item>
+          </>
+        )}
 
         <Form.Item
           label={e('roleAI')}

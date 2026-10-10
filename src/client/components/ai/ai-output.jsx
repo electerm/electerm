@@ -10,7 +10,7 @@ import {
   FlagOutlined,
   FlagFilled
 } from '@ant-design/icons'
-import getBrand from './get-brand'
+import { getAIProviderBadgeLabel, getAIProviderBrand } from './get-brand'
 import CopyIcon from './copy-icon'
 
 const e = window.translate
@@ -23,7 +23,8 @@ export default function AIOutput ({ item }) {
     response,
     baseURLAI,
     nameAI,
-    modelAI
+    modelAI,
+    providerAI
   } = item
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function AIOutput ({ item }) {
     return null
   }
 
-  const { brand, brandUrl } = getBrand(baseURLAI)
+  const { brandUrl } = getAIProviderBrand(providerAI || 'api', baseURLAI)
 
   const renderCode = (props) => {
     const { node, className = '', children, ...rest } = props
@@ -126,11 +127,8 @@ export default function AIOutput ({ item }) {
   }
 
   function renderBrand () {
-    if (!brand) {
-      return null
-    }
-    const nameLabel = nameAI || modelAI
-    const label = nameLabel ? `${brand}:${nameLabel}` : brand
+    const label = getAIProviderBadgeLabel(providerAI || 'api', nameAI, modelAI, baseURLAI)
+    if (!label) return null
     return (
       <div className='pd1y'>
         <Link to={brandUrl}>

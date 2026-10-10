@@ -6,6 +6,7 @@ import handleError from '../common/error-handler'
 import Modal from '../components/common/modal'
 import { appendMandatoryGuardrails } from '../components/ai/ai-guardrails'
 import { buildSessionMessages } from '../components/ai/ai-context'
+import { runAIchat } from '../components/ai/ai-request'
 import { COMPRESS_SUMMARY_PROMPT } from '../components/ai/ai-auto-compress'
 import { debounce, some, get, pickBy } from 'lodash-es'
 import {
@@ -31,6 +32,7 @@ import { action } from 'manate'
 import uid from '../common/uid'
 import deepCopy from 'json-deep-copy'
 import { aiConfigsArr, optionalAIConfigsArr } from '../components/ai/ai-config-props'
+import { aiConfigMissing as isAIConfigMissing } from '../../app/common/ai-config'
 
 const e = window.translate
 const { assign } = Object
@@ -575,6 +577,7 @@ export default Store => {
       proxyAI: firstEntry.proxyAI,
       languageAI: firstEntry.languageAI,
       authHeaderNameAI: firstEntry.authHeaderNameAI,
+      providerAI: firstEntry.providerAI || 'api',
       timestamp: Date.now(),
       compressed: true
     }
@@ -594,8 +597,8 @@ export default Store => {
     }
 
     try {
-      const aiResponse = await window.pre.runGlobalAsync(
-        'AIchat',
+      const aiResponse = await runAIchat(
+        firstEntry.providerAI || 'api',
         COMPRESS_SUMMARY_PROMPT,
         firstEntry.modelAI,
         firstEntry.roleAI,
@@ -710,9 +713,14 @@ export default Store => {
   }
 
   Store.prototype.aiConfigMissing = function () {
+    const config = window.store.config
+    if (isAIConfigMissing(config)) {
+      return true
+    }
     return aiConfigsArr
       .filter(k => !optionalAIConfigsArr.includes(k))
-      .some(k => !window.store.config[k])
+      .filter(k => !['baseURLAI', 'modelAI', 'roleAI', 'apiPathAI', 'authHeaderNameAI', 'languageAI'].includes(k))
+      .some(k => !config[k])
   }
 
   Store.prototype.clearHistory = function () {
