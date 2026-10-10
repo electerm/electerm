@@ -10,6 +10,7 @@
 
 import { buildSessionMessages, summarizeContext } from './ai-context'
 import { appendMandatoryGuardrails } from './ai-guardrails'
+import { runAIchat } from './ai-request'
 import {
   COMPRESS_SUMMARY_PROMPT,
   shouldAutoCompress
@@ -28,8 +29,8 @@ export function autoCompressEnabled () {
 // callers read as "leave the conversation alone".
 export async function summarizeMessages (messages, config = {}) {
   try {
-    const result = await window.pre.runGlobalAsync(
-      'AIchat',
+    const result = await runAIchat(
+      config.providerAI || 'api',
       COMPRESS_SUMMARY_PROMPT,
       config.modelAI,
       config.roleAI,

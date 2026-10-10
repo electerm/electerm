@@ -2,6 +2,7 @@ const { StringDecoder } = require('string_decoder')
 const log = require('../common/log')
 const defaultSettings = require('../common/config-default')
 const { createProxyAgent } = require('./proxy-agent')
+const { getAISubscriptions } = require('./ai-subscriptions')
 const { errorMessageFromData } = require('./ai-response')
 const {
   detectFormat,
@@ -24,6 +25,7 @@ const streamingSessions = new Map()
 // Store for ongoing non-streaming tool requests (the agent loop). Keyed by the
 // request id the renderer generated for that single HTTP call.
 const pendingToolRequests = new Map()
+const pendingSubscriptionRequests = new Set()
 
 // Stop an ongoing streaming session
 exports.stopStream = (sessionId) => {
@@ -35,6 +37,11 @@ exports.stopStream = (sessionId) => {
   // Destroy the stream to stop receiving data
   if (session.stream && !session.stream.destroyed) {
     session.stream.destroy()
+  }
+  if (session.subscriptionRequestId) {
+    pendingSubscriptionRequests.delete(session.subscriptionRequestId)
+    session.stopped = true
+    getAISubscriptions().abort(session.subscriptionRequestId)
   }
 
   // Mark as completed (not an error, just stopped by user)
@@ -52,6 +59,9 @@ exports.stopStream = (sessionId) => {
 // panel stays locked until the provider decides to answer -- which may be
 // never, since these requests carry no timeout.
 exports.abortAIRequest = (requestId) => {
+  if (pendingSubscriptionRequests.has(requestId)) {
+    return getAISubscriptions().abort(requestId)
+  }
   const controller = pendingToolRequests.get(requestId)
   if (!controller) {
     return { error: 'Request not found' }
@@ -119,7 +129,10 @@ function extractModelList (data) {
   return models
 }
 
-exports.AIlistModels = async (baseURL, apiKey, authHeaderName, proxy) => {
+exports.AIlistModels = async (baseURL, apiKey, authHeaderName, proxy, options = {}) => {
+  if (options.providerAI && options.providerAI !== 'api') {
+    return getAISubscriptions().AIlistSubscriptionModels(options.providerAI, proxy)
+  }
   try {
     // Anthropic's /models needs the version header, other providers ignore it
     const extraHeaders = /x-api-key/i.test(authHeaderName || '')
@@ -139,7 +152,15 @@ exports.AIlistModels = async (baseURL, apiKey, authHeaderName, proxy) => {
   }
 }
 
-exports.AIchatWithTools = async (messages, model, baseURL, path, apiKey, proxy, tools, authHeaderName, format, requestId) => {
+exports.AIchatWithTools = async (messages, model, baseURL, path, apiKey, proxy, tools, authHeaderName, format, requestId, options = {}) => {
+  if (options.providerAI && options.providerAI !== 'api') {
+    if (requestId) pendingSubscriptionRequests.add(requestId)
+    try {
+      return await getAISubscriptions().chat({ providerAI: options.providerAI, messages, model, tools, proxy, requestId })
+    } finally {
+      if (requestId) pendingSubscriptionRequests.delete(requestId)
+    }
+  }
   // `requestId` is optional so existing callers keep working; when present the
   // request can be cancelled from the renderer via abortAIRequest.
   const controller = requestId ? new AbortController() : null
@@ -194,9 +215,52 @@ exports.AIchat = async (
   stream = true,
   authHeaderName = defaultSettings.authHeaderNameAI,
   messages = null,
-  format
+  format,
+  options = {}
 ) => {
   try {
+    if (options.providerAI && options.providerAI !== 'api') {
+      const subscriptions = getAISubscriptions()
+      const request = {
+        providerAI: options.providerAI,
+        messages: messages || [
+          { role: 'developer', content: role },
+          { role: 'user', content: prompt }
+        ],
+        model,
+        proxy
+      }
+      if (stream) {
+        const sessionId = Date.now().toString() + Math.random().toString(36).slice(2)
+        const requestId = `subscription-${sessionId}`
+        const sessionData = {
+          stream: null,
+          content: '',
+          completed: false,
+          error: null,
+          subscriptionRequestId: requestId
+        }
+        streamingSessions.set(sessionId, sessionData)
+        pendingSubscriptionRequests.add(requestId)
+        subscriptions.chat({
+          ...request,
+          requestId,
+          onContent: content => { sessionData.content = content }
+        }).then(result => {
+          if (sessionData.stopped) return
+          if (result.error) sessionData.error = result.error
+          else if (!result.aborted && result.message) sessionData.content = result.message.content || ''
+          sessionData.completed = true
+        }).catch(() => {
+          if (!sessionData.stopped) sessionData.error = 'Subscription request failed'
+          sessionData.completed = true
+        }).finally(() => pendingSubscriptionRequests.delete(requestId))
+        return { sessionId, isStream: true, hasMore: true, content: '' }
+      }
+      const result = await subscriptions.chat(request)
+      if (result.error || result.aborted) return result
+      return { response: result.message.content || '', isStream: false, usage: result.usage }
+    }
     const fmt = detectFormat(path, format)
     const client = createAIClient(baseURL, apiKey, proxy, authHeaderName, headersForFormat(fmt))
 

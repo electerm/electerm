@@ -72,6 +72,7 @@ module.exports = exports.default = {
   hideIP: false,
   dataSyncSelected: 'all',
   nameAI: '',
+  providerAI: 'api',
   baseURLAI: 'https://fluxionai.world/v1',
   modelAI: 'deepseek-v4-flash-0731',
   roleAI: '终端专家,提供不同系统下命令,简要解释用法,用markdown格式',

@@ -1,5 +1,6 @@
 import { agentTools, executeToolCall } from './agent-tools'
 import { appendMandatoryGuardrails } from './ai-guardrails'
+import { runAIchatWithTools } from './ai-request'
 import { buildAgentMessages, summarizeContext, CONTEXT_DANGER_PERCENT } from './ai-context'
 import {
   shouldAutoCompress,
@@ -53,8 +54,8 @@ function updateChatEntry (chatEntry, updates) {
 }
 
 async function callBackendAIchatWithTools (messages, config, requestId) {
-  return window.pre.runGlobalAsync(
-    'AIchatWithTools',
+  return runAIchatWithTools(
+    config.providerAI || 'api',
     messages,
     config.modelAI,
     config.baseURLAI,

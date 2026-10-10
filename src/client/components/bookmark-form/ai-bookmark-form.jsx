@@ -28,6 +28,7 @@ import generate from '../../common/id-with-stamp'
 import AiHistory, { addHistoryItem } from '../ai/ai-history.jsx'
 import { getItem, setItem } from '../../common/safe-local-storage'
 import { runImportTask } from '../../common/import-task'
+import { runAIchat } from '../ai/ai-request'
 
 const STORAGE_KEY_DESC = 'ai_bookmark_description'
 const STORAGE_KEY_HISTORY = 'ai_bookmark_history'
@@ -65,8 +66,8 @@ export default function AIBookmarkForm (props) {
       const config = window.store.config
       const prompt = buildPrompt(description)
 
-      const aiResponse = await window.pre.runGlobalAsync(
-        'AIchat',
+      const aiResponse = await runAIchat(
+        config.providerAI || 'api',
         prompt,
         config.modelAI,
         appendMandatoryGuardrails('You are a helpful assistant that generates bookmark configurations in JSON format.'),

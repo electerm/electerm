@@ -15,6 +15,7 @@ import { appendMandatoryGuardrails } from '../ai/ai-guardrails'
 import AiHistory, { addHistoryItem } from '../ai/ai-history.jsx'
 import HelpIcon from '../common/help-icon'
 import { getItem, setItem } from '../../common/safe-local-storage'
+import { runAIchat } from '../ai/ai-request'
 import {
   requiredThemeProps,
   validThemeProps,
@@ -157,8 +158,8 @@ export default function ThemeAiEditor (props) {
     try {
       const config = window.store.config
       const prompt = buildThemePrompt(description)
-      const aiResponse = await window.pre.runGlobalAsync(
-        'AIchat',
+      const aiResponse = await runAIchat(
+        config.providerAI || 'api',
         prompt,
         config.modelAI,
         appendMandatoryGuardrails('You are a helpful assistant that generates electerm terminal theme color palettes.'),

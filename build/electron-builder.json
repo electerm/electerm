@@ -12,6 +12,7 @@
   "asarUnpack": [
     "node_modules/node-pty/build/Release/**"
   ],
+  "afterPack": "build/bin/after-pack.js",
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
     "target": [

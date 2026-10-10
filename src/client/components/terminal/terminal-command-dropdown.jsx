@@ -3,6 +3,7 @@ import { refsStatic, refs } from '../common/ref'
 import SuggestionItem from './cmd-item'
 import { aiSuggestionsCache } from '../../common/cache'
 import { appendMandatoryGuardrails } from '../ai/ai-guardrails'
+import { runAIchat } from '../ai/ai-request'
 import { isAIDisabled } from '../../common/ai-feature'
 import classnames from 'classnames'
 import {
@@ -56,7 +57,8 @@ export default class TerminalCmdSuggestions extends Component {
       config
     } = window.store
     const prompt = `give me max 5 command suggestions for user input: "${cmd}", return pure json format result only, no extra words, no markdown format, follow this format: ["command1","command2"...]`
-    const cached = aiSuggestionsCache.get(cmd)
+    const cacheKey = this.getAiSuggestionsCacheKey(cmd)
+    const cached = aiSuggestionsCache.get(cacheKey)
     if (cached) {
       this.setState({
         loadingAiSuggestions: false,
@@ -65,8 +67,8 @@ export default class TerminalCmdSuggestions extends Component {
       return
     }
 
-    const aiResponse = aiSuggestionsCache.get(prompt) || await window.pre.runGlobalAsync(
-      'AIchat',
+    const aiResponse = await runAIchat(
+      config.providerAI || 'api',
       prompt,
       config.modelAI,
       appendMandatoryGuardrails(config.roleAI),
@@ -97,6 +99,17 @@ export default class TerminalCmdSuggestions extends Component {
       loadingAiSuggestions: false,
       aiSuggestions: this.parseAiSuggestions(aiResponse, cmd)
     })
+  }
+
+  getAiSuggestionsCacheKey (cmd) {
+    const config = window.store.config || {}
+    return JSON.stringify([
+      config.providerAI || 'api',
+      config.modelAI,
+      config.baseURLAI,
+      config.apiPathAI,
+      cmd
+    ])
   }
 
   openSuggestions = (cursorPosition, cmd) => {
@@ -186,7 +199,7 @@ export default class TerminalCmdSuggestions extends Component {
       aiSuggestions
     } = this.state
     if (aiSuggestions.length) {
-      aiSuggestionsCache.set(this.state.cmd, aiSuggestions)
+      aiSuggestionsCache.set(this.getAiSuggestionsCacheKey(this.state.cmd), aiSuggestions)
       aiSuggestions.forEach(item => {
         window.store.addCmdHistory(item.command, 'aiCmdHistory')
       })

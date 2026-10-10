@@ -89,6 +89,8 @@ const {
   stopStream,
   abortAIRequest
 } = require('./ai')
+const { getAISubscriptions } = require('./ai-subscriptions')
+const { createAISubscriptionIpc } = require('./ai-subscription-ipc')
 
 // Security: whitelist of safe environment variables for Linux/Mac/Windows
 const SAFE_ENV_KEYS = [
@@ -252,6 +254,7 @@ function initIpc () {
     AIchat,
     AIchatWithTools,
     AIlistModels,
+    ...createAISubscriptionIpc(getAISubscriptions()),
     getStreamContent,
     stopStream,
     abortAIRequest,

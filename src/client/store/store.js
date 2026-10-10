@@ -32,7 +32,7 @@ import isColorDark from '../common/is-color-dark'
 import { getReverseColor } from '../common/reverse-color'
 import { uniq } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
-import getBrand from '../components/ai/get-brand'
+import { getAIProviderBrand } from '../components/ai/get-brand'
 import {
   settingMap,
   terminalSshConfigType,
@@ -165,11 +165,12 @@ class Store {
     const {
       rightPanelTab,
       config: {
+        providerAI,
         baseURLAI
       }
     } = window.store
     if (rightPanelTab === 'ai') {
-      return getBrand(baseURLAI).brand || 'Custom AI Model'
+      return getAIProviderBrand(providerAI, baseURLAI).brand || 'Custom AI Model'
     }
     if (rightPanelTab === 'cmdHistory') {
       return window.translate('cmdHistory')

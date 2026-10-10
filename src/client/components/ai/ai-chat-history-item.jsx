@@ -27,6 +27,8 @@ import {
 } from '@ant-design/icons'
 import { copy } from '../../common/clipboard'
 import { formatSize } from './ai-attachments'
+import { runAIchat } from './ai-request'
+import { getAIProviderBrand } from './get-brand'
 
 // memo()'d: the panel holds the draft prompt in its own state, so every
 // keystroke re-renders the whole transcript. Without this the keystroke also
@@ -52,6 +54,7 @@ export default memo(function AIChatHistoryItem ({ item }) {
     apiKeyAI,
     proxyAI,
     authHeaderNameAI,
+    providerAI,
     languageAI,
     mode,
     toolCalls,
@@ -89,7 +92,8 @@ export default memo(function AIChatHistoryItem ({ item }) {
     apiKeyAI,
     proxyAI,
     languageAI,
-    authHeaderNameAI
+    authHeaderNameAI,
+    providerAI
   }), [
     modelAI,
     roleAI,
@@ -98,7 +102,8 @@ export default memo(function AIChatHistoryItem ({ item }) {
     apiKeyAI,
     proxyAI,
     languageAI,
-    authHeaderNameAI
+    authHeaderNameAI,
+    providerAI
   ])
 
   // The message list this turn actually sends. Normally the memoized session
@@ -165,8 +170,8 @@ export default memo(function AIChatHistoryItem ({ item }) {
 
   const startRequest = useCallback(async () => {
     try {
-      const aiResponse = await window.pre.runGlobalAsync(
-        'AIchat',
+      const aiResponse = await runAIchat(
+        providerAI || 'api',
         prompt,
         modelAI,
         buildRole(),
@@ -273,22 +278,32 @@ export default memo(function AIChatHistoryItem ({ item }) {
   }
 
   function renderTitle () {
+    const subscriptionMode = providerAI && providerAI !== 'api'
+    const providerBrand = subscriptionMode ? getAIProviderBrand(providerAI).brand : null
     return (
       <div>
-        {nameAI && (
-          <p>
-            <b>Name:</b> {nameAI}
-          </p>
-        )}
+        {subscriptionMode
+          ? (
+            <p>
+              <b>Provider:</b> {providerBrand}
+            </p>
+            )
+          : nameAI && (
+            <p>
+              <b>Name:</b> {nameAI}
+            </p>
+          )}
         <p>
           <b>Model:</b> {modelAI}
         </p>
         <p>
           <b>Role:</b> {roleAI}
         </p>
-        <p>
-          <b>Base URL:</b> {baseURLAI}
-        </p>
+        {!subscriptionMode && (
+          <p>
+            <b>Base URL:</b> {baseURLAI}
+          </p>
+        )}
         <p>
           <b>Time:</b> {new Date(item.timestamp).toLocaleString()}
         </p>

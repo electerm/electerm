@@ -21,3 +21,20 @@ export default function getBrand (baseURLAI) {
     }
   }
 }
+
+export function getAIProviderBrand (providerAI, baseURLAI) {
+  if (providerAI === 'chatgpt') {
+    return { brand: 'ChatGPT', brandUrl: 'https://chatgpt.com' }
+  }
+  if (providerAI === 'supergrok') {
+    return { brand: 'SuperGrok', brandUrl: 'https://grok.com' }
+  }
+  return getBrand(baseURLAI)
+}
+
+export function getAIProviderBadgeLabel (providerAI, nameAI, modelAI, baseURLAI) {
+  const { brand } = getAIProviderBrand(providerAI, baseURLAI)
+  if (!brand) return null
+  const nameLabel = providerAI && providerAI !== 'api' ? modelAI : (nameAI || modelAI)
+  return nameLabel ? `${brand}:${nameLabel}` : brand
+}

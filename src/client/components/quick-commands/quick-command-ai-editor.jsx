@@ -20,6 +20,7 @@ import HelpIcon from '../common/help-icon'
 import { getItem, setItem } from '../../common/safe-local-storage'
 import templates from './templates'
 import './quick-command-ai-editor.styl'
+import { runAIchat } from '../ai/ai-request'
 
 const STORAGE_KEY_DESC = 'ai_quick_command_description'
 const STORAGE_KEY_HISTORY = 'ai_quick_command_history'
@@ -171,8 +172,8 @@ export default function QuickCommandAiEditor (props) {
     setLoading(true)
     try {
       const config = window.store.config
-      const aiResponse = await window.pre.runGlobalAsync(
-        'AIchat',
+      const aiResponse = await runAIchat(
+        config.providerAI || 'api',
         buildPrompt(description),
         config.modelAI,
         appendMandatoryGuardrails('You are a helpful assistant that generates electerm quick commands.'),
