@@ -3,7 +3,6 @@
  */
 import '../css/basic.styl'
 import '../css/mobile.styl'
-import { get as _get } from 'lodash-es'
 import '../common/pre'
 
 const { isDev } = window.et
@@ -49,16 +48,26 @@ async function load () {
   const initLocale = window.pre.runSync('getInitLocale') || {}
   window.langMap = initLocale.langMap
   window.initLanguage = initLocale.language
+  // Plain property access instead of lodash `get`: importing lodash-es put six
+  // extra chunks in front of this file, and an ES module cannot execute until
+  // its imports have arrived -- ~90ms of the startup critical path for two
+  // lookups. Keep this module dependency-free so it runs as soon as it lands.
   window.getLang = (lang = window.store?.config.language || window.initLanguage || 'en_us') => {
-    return _get(window.langMap, `[${lang}].lang`)
+    return (window.langMap || {})[lang]?.lang
   }
   window.translate = txt => {
     const lang = window.getLang()
-    const str = _get(lang, `[${txt}]`) || txt
+    const str = (lang && lang[txt]) || txt
     return window.capitalizeFirstLetter(str)
   }
-  await loadWorker()
+  // Start the app bundle immediately instead of waiting for the worker's init
+  // handshake: the worker is only used once a session opens, and this `await`
+  // used to sit between "basic.js ran" and "request the app bundle" (measured:
+  // ~130ms of pure serial time). window.worker is assigned synchronously inside
+  // loadWorker(), so anything that needs it still finds it.
+  const workerReady = loadWorker()
   loadScript()
+  await workerReady
 }
 
 // window.addEventListener('load', load)

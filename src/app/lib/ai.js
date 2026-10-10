@@ -1,4 +1,3 @@
-const axios = require('axios')
 const { StringDecoder } = require('string_decoder')
 const log = require('../common/log')
 const defaultSettings = require('../common/config-default')
@@ -63,6 +62,12 @@ exports.abortAIRequest = (requestId) => {
 }
 
 const createAIClient = (baseURL, apiKey, proxy, authHeaderName, extraHeaders) => {
+  // Lazy: axios is only needed once the user actually talks to an AI provider,
+  // and this module is pulled in by ipc.js, which loads before the window is
+  // shown. Requiring it here keeps it off the startup path (~20ms of in-app
+  // module load; requiring axios standalone reports ~250ms, but most of that is
+  // first-require warm-up in a fresh process and does not happen in the app).
+  const axios = require('axios')
   const headerStr = authHeaderName || 'Authorization: Bearer'
   const parts = headerStr.split(': ')
   const headerKey = parts[0]

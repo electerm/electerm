@@ -33,7 +33,36 @@ const data = {
   version: pack.version,
   siteName: pack.name,
   isDev: false,
-  defaultAIPreset
+  defaultAIPreset,
+  // The entry bundle statically imports ~190 chunks. index.html is built here
+  // rather than by Vite, so Vite's automatic modulepreload injection never ran
+  // and the browser only discovers those chunks after the entry bundle has been
+  // fetched *and* parsed -- a second waterfall. Emit the hints ourselves so the
+  // fetches are queued during HTML parse. Only static imports count: the
+  // `__vite__mapDeps` table also lists lazy chunks, which must stay lazy.
+  preloadChunks: getEntryChunks()
+}
+
+function getEntryChunks () {
+  const entry = resolve(
+    __dirname,
+    `../../work/app/assets/js/electerm-${pack.version}.js`
+  )
+  try {
+    const src = fs.readFileSync(entry, 'utf-8')
+    const re = /from"(\.\.\/chunk\/[^"]+\.js)"/g
+    const found = new Set()
+    let m
+    while ((m = re.exec(src))) {
+      // the bundle refers to chunks as ../chunk/x.js (relative to js/); the
+      // preload href must be relative to index.html instead
+      found.add(m[1].replace(/^\.\.\//, ''))
+    }
+    return [...found]
+  } catch (e) {
+    // A missing entry bundle just means no preload hints; the app still boots.
+    return []
+  }
 }
 const htmlContent = pug.render(pugContent, {
   filename: entryPug,

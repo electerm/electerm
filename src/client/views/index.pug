@@ -37,6 +37,13 @@ html
 
     - if (!isDev)
       link(rel='stylesheet', href='css/style-' + version + '.css')
+      //- Start the app bundle fetch during HTML parse instead of after
+      //- basic.js has run. basic.js injects the <script> dynamically, so without
+      //- this hint the request only goes out ~130ms later -- and the bundle's
+      //- ~190 static chunk imports are not even discovered until it arrives.
+      link(rel='modulepreload', href='js/electerm-' + version + '.js')
+      each c in preloadChunks
+        link(rel='modulepreload', href=c)
       style(id='theme-css').
       style(id='custom-css').
   body

@@ -63,7 +63,12 @@ const {
 } = require('./window-control')
 const { openFileWithEditor } = require('./open-file-with-editor')
 const { loadFontList } = require('./font-list')
-const { checkDbUpgrade, doUpgrade } = require('../upgrade')
+// `../upgrade` pulls in the whole default-data set (db-defaults,
+// default-local-bookmarks, init-db, version-upgrade) and nothing needs it until
+// the renderer asks -- and it asks only *after* the UI has mounted. Require it
+// lazily so it stays off the pre-window startup path.
+let upgradeMod
+const upgrade = () => (upgradeMod || (upgradeMod = require('../upgrade')))
 const { listSerialPorts } = require('./serial-port')
 const initApp = require('./init-app')
 const { encryptAsync, decryptAsync } = require('./enc')
@@ -200,8 +205,8 @@ function initIpc () {
     init,
     listSerialPorts,
     loadFontList,
-    doUpgrade,
-    checkDbUpgrade,
+    doUpgrade: (...args) => upgrade().doUpgrade(...args),
+    checkDbUpgrade: (...args) => upgrade().checkDbUpgrade(...args),
     checkMigrate,
     migrate,
     getExitStatus: () => globalState.get('exitStatus'),
