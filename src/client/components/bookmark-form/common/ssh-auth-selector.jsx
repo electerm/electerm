@@ -47,7 +47,7 @@ export default function renderAuth (props) {
       <FormItem noStyle name={key}>
         <TextArea
           placeholder={e(desc)}
-          autoSize={{ minRows: 1 }}
+          rows={1}
         />
       </FormItem>
       <Upload

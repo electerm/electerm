@@ -6,6 +6,8 @@ import ShowItem from '../components/common/show-item'
 import { chooseSaveDirectory } from './choose-save-folder'
 import { DownloadOutlined } from '@ant-design/icons'
 
+const e = window.translate
+
 export default async function download (filename, text) {
   // iOS WKWebView: sandbox targets are invisible to the Files app and
   // blob-anchor downloads are a no-op — save to Documents (visible in
@@ -15,8 +17,8 @@ export default async function download (filename, text) {
     try {
       await window.et.saveTextNative(filename, text)
       return
-    } catch (e) {
-      console.log('native save failed, falling back to sandbox save:', e)
+    } catch (err) {
+      console.log('native save failed, falling back to sandbox save:', err)
     }
   }
   const opts = window.et.isWebApp
@@ -35,11 +37,16 @@ export default async function download (filename, text) {
   notification.success({
     message: <DownloadOutlined />,
     description: (
-      <ShowItem
-        to={filePath}
-      >
-        {filePath}
-      </ShowItem>
+      <>
+        <ShowItem
+          to={filePath}
+        >
+          {filePath}
+        </ShowItem>
+        <div className='mg1t'>
+          {e('exportDataWarn')}
+        </div>
+      </>
     )
   })
 }

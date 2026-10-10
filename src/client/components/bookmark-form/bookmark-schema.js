@@ -5,7 +5,7 @@ const bookmarkSchema = {
     port: 'number (default: 22) - SSH port',
     username: 'string (required) - SSH username',
     password: 'string - password for authentication',
-    privateKey: 'string - private key content or path for key-based auth',
+    privateKey: 'string - private key content (PEM/OpenSSH format) for key-based auth, not a file path',
     passphrase: 'string - passphrase for private key/certificate',
     certificate: 'string - certificate content',
     authType: 'string - auth type (password|privateKey|profiles), when have profile, should be profiles',
