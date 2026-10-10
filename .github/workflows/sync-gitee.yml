@@ -33,7 +33,9 @@ jobs:
       - name: Push to Gitee
         run: git push -f gitee HEAD:master
 
-      - name: Update version.html in gh-pages
+      - name: Update version.html and release info in gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get version from package.json using standard grep and sed
           VERSION=$(curl -s https://raw.githubusercontent.com/electerm/electerm/master/package.json | grep '"version":' | sed 's/.*"version": "\([^"]*\).*/\1/')
@@ -44,11 +46,29 @@ jobs:
 
           # Update version.html
           echo "v$VERSION" > version.html
+
+          # Regenerate data/electerm-github-release.json from the latest GitHub
+          # release so the gitee mirror never serves a stale changelog again.
+          # Keep ONLY the fields the client actually consumes
+          # (release.tag_name / body / published_at / assets[].name+browser_download_url)
+          # and drop everything else (size, created_at, author, urls, ...) to
+          # avoid shipping invalid or irrelevant data.
+          mkdir -p data
+          curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            https://api.github.com/repos/electerm/electerm/releases/latest \
+            | jq '{
+              release: {
+                tag_name: .tag_name,
+                body: .body,
+                published_at: .published_at,
+                assets: [.assets[] | {name: .name, browser_download_url: .browser_download_url}]
+              }
+            }' > data/electerm-github-release.json
           
           # Commit and push changes
-          git add version.html
-          git commit -m "Update version to v$VERSION"
+          git add version.html data/electerm-github-release.json
+          git commit -m "Update version to v$VERSION and release info"
           git push origin gh-pages
           
           # Also push to Gitee
-          git push gitee gh-pages
+          git push gitee gh-pages -f
