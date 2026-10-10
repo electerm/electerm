@@ -21,6 +21,8 @@ export default auto(function QmRecordStatus ({ store }) {
         store={store}
         commands={deepCopy(steps)}
         name={translateOr('recordedQuickCommand', 'Recorded quick command')}
+        labels={['recorded']}
+        isRecorded
         onClose={() => { window.store.qmRecordedSteps = null }}
       />
     )

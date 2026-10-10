@@ -22,7 +22,7 @@ const e = window.translate
 
 export default function QuickCommandCreateModal (props) {
   // `commands` (a list of steps, e.g. a recording) or one `command`
-  const { store, command, commands, name, onClose } = props
+  const { store, command, commands, name, labels, isRecorded, onClose } = props
   const formData = {
     id: '',
     name: name || e('newQuickCommand'),
@@ -30,7 +30,9 @@ export default function QuickCommandCreateModal (props) {
       command,
       id: generate(),
       delay: 100
-    }]
+    }],
+    labels: labels || [],
+    isRecorded
   }
   return (
     <Modal

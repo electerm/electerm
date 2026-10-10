@@ -75,6 +75,10 @@ export default function QuickCommandForm (props) {
       ...update,
       id: uid
     }
+    // a hidden flag so recordings can be listed on their own later
+    if (formData.isRecorded) {
+      update1.isRecorded = true
+    }
     if (formData.id) {
       store.editQuickCommand(formData.id, update)
     } else {
