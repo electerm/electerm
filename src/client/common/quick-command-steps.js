@@ -5,10 +5,19 @@
  * step types existed run as before. A command step sends Enter unless
  * `enter` is false. Steps saved before `enter` existed follow the quick
  * command's old `inputOnly` setting. A missing delay is 100 ms, as before,
- * and 0 is allowed.
+ * and 0 is allowed. A wait step saves its timeout in seconds, 10 when
+ * missing, and 0 waits with no limit.
  */
 
 export const defaultStepDelay = 100
+export const defaultWaitTimeout = 10
+
+export function waitTimeoutMs (step) {
+  const v = Number(step.timeout)
+  return step.timeout === undefined || step.timeout === null || step.timeout === '' || !Number.isFinite(v)
+    ? defaultWaitTimeout * 1000
+    : Math.max(0, Math.round(v * 1000))
+}
 
 export function stepDelay (step) {
   const v = Number(step.delay)
@@ -34,6 +43,14 @@ export function quickCommandSteps (qm, { isWin = false } = {}) {
         type: 'key',
         value: step.key || '',
         repeat: step.repeat,
+        delay: stepDelay(step)
+      }
+    }
+    if (step.type === 'wait') {
+      return {
+        type: 'wait',
+        value: step.text || '',
+        timeout: waitTimeoutMs(step),
         delay: stepDelay(step)
       }
     }

@@ -10,6 +10,7 @@ import {
 import { quickCommandSteps } from '../common/quick-command-steps'
 import { runSteps } from '../components/terminal/automation/step-runner'
 import { recordedSteps } from '../components/terminal/automation/record-steps'
+import { createOutputWatch } from '../components/terminal/automation/output-watch'
 import generate from '../common/uid'
 import message from '../components/common/message'
 import translateOr from '../common/translate-fallback'
@@ -63,6 +64,7 @@ function publishRuns (tabId) {
       name: last.qm.name,
       index: last.index,
       total: last.total,
+      waitFor: last.waitFor,
       count: visible.length
     }
   } else {
@@ -82,15 +84,25 @@ function runInTab (qm, tabId) {
   const getTerm = () => refs.get('term-' + tabId)
   const steps = quickCommandSteps(qm, { isWin })
   const entry = { qm, index: 0, total: steps.length, visible: false }
+  // wait steps read the tab's output from the start of the run
+  const watch = createOutputWatch()
+  const untap = steps.some(s => s.type === 'wait')
+    ? getTerm()?.attachAddon?.addDataTap?.(watch.push)
+    : null
   const run = runSteps(steps, {
-    send: data => getTerm()?.attachAddon?._sendData(data),
+    send: data => {
+      watch.mark()
+      getTerm()?.attachAddon?._sendData(data)
+    },
+    watchText: watch.watch,
     isAlive: () => !!getTerm()?.attachAddon,
     resolveText: parseTemplates,
     getKeyOptions: () => ({
       applicationCursor: !!getTerm()?.term?.modes?.applicationCursorKeysMode
     }),
-    onStep: (index) => {
+    onStep: (index, step) => {
       entry.index = index
+      entry.waitFor = step.type === 'wait' ? step.value : ''
       if (entry.visible) {
         publishRuns(tabId)
       }
@@ -110,6 +122,7 @@ function runInTab (qm, tabId) {
   }, showRunAfter)
   return run.done.then(result => {
     clearTimeout(timer)
+    untap?.()
     const set = runs.get(tabId)
     set.delete(entry)
     if (!set.size) {
@@ -120,6 +133,11 @@ function runInTab (qm, tabId) {
     }
     if (result.status === 'error') {
       store.onError(result.error)
+    } else if (result.status === 'timeout') {
+      const step = steps[result.index]
+      message.warning(
+        `${translateOr('waitTimedOut', 'Timed out waiting for')} "${step.value}" (${qm.name})`
+      )
     }
     return result
   })

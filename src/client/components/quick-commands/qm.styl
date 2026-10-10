@@ -168,7 +168,7 @@
     text-align right
     opacity 0.7
   .qm-step-type
-    width 108px
+    width 132px
     flex none
   .qm-step-name
     flex 0 1 120px
@@ -196,7 +196,7 @@
   @container (max-width: 640px) {
     .qm-steps .qm-step-row {
       display: grid;
-      grid-template-columns: 14px 18px 108px minmax(0, 1fr) 80px 96px;
+      grid-template-columns: 14px 18px 132px minmax(0, 1fr) 80px 96px;
       grid-template-areas:
         'drag idx type value value ops'
         '. . name name option delay';
@@ -235,7 +235,7 @@
 .terminal-footer-qm-run
   display flex
   align-items center
-  max-width 320px
+  max-width 440px
 .qm-run-chip
   display flex
   align-items center
@@ -252,6 +252,10 @@
     min-width 0
   .qm-run-name
     max-width 140px
+  // the name gives way first, the waiting text matters more
+  .qm-run-wait
+    max-width 200px
+    flex-shrink 0
   .qm-run-stop
     display flex
     align-items center

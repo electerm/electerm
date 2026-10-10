@@ -20,6 +20,23 @@ import translateOr from '../../common/translate-fallback'
 
 const e = window.translate
 
+function stepLabel (step) {
+  if (step.type === 'key') {
+    return translateOr('key', 'Key')
+  }
+  if (step.type === 'wait') {
+    return translateOr('waitForText', 'Wait for text')
+  }
+  return e('command')
+}
+
+function stepValue (step) {
+  if (step.type === 'key') {
+    return step.key + (step.repeat > 1 ? ' ×' + step.repeat : '')
+  }
+  return step.type === 'wait' ? step.text : step.command
+}
+
 export default class QuickCommandsItem extends PureComponent {
   state = {
     menuOpen: false,
@@ -96,9 +113,9 @@ export default class QuickCommandsItem extends PureComponent {
                       )
                     }
                     <div className='qm-tooltip-cmd-text'>
-                      <span className='qm-tooltip-label'>{c.type === 'key' ? translateOr('key', 'Key') : e('command')}:</span>
+                      <span className='qm-tooltip-label'>{stepLabel(c)}:</span>
                       <code className='qm-tooltip-value'>
-                        {c.type === 'key' ? c.key + (c.repeat > 1 ? ' ×' + c.repeat : '') : c.command}
+                        {stepValue(c)}
                       </code>
                     </div>
                     {

@@ -20,6 +20,7 @@ import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../com
 import { keyOptions } from '../terminal/automation/key-sequences'
 import translateOr from '../../common/translate-fallback'
 import generate from '../../common/uid'
+import { defaultWaitTimeout } from '../../common/quick-command-steps'
 import { useRef } from 'react'
 
 const FormItem = Form.Item
@@ -29,21 +30,29 @@ const e = window.translate
 const keySelectOptions = keyOptions.map(k => ({ value: k, label: k }))
 
 export function newStep (type = 'command') {
-  return type === 'key'
-    ? { id: generate(), type: 'key', key: 'Enter', repeat: 1, delay: 0 }
-    : { id: generate(), type: 'command', command: '', enter: true, delay: 0 }
+  if (type === 'key') {
+    return { id: generate(), type: 'key', key: 'Enter', repeat: 1, delay: 0 }
+  }
+  if (type === 'wait') {
+    return { id: generate(), type: 'wait', text: '', timeout: defaultWaitTimeout, delay: 0 }
+  }
+  return { id: generate(), type: 'command', command: '', enter: true, delay: 0 }
 }
 
-// One step per row: type, name, command or key, Enter or repeat, and the
-// delay before the step. Rows are dragged by the handle only, so text in
+const waitForTextLabel = () => translateOr('waitForText', 'Wait for text')
+
+// One step per row: type, name, command, key or text to wait for, then
+// Enter, repeat or timeout, and the delay before the step. Rows are dragged by the handle only, so text in
 // the inputs can still be selected with the mouse.
 function StepRow (props) {
   const { field, index, form, remove, add, drag, focused } = props
   const type = Form.useWatch(['commands', field.name, 'type'], form)
   const isKey = type === 'key'
+  const isWait = type === 'wait'
   const typeOptions = [
     { value: 'command', label: e('command') },
-    { value: 'key', label: translateOr('key', 'Key') }
+    { value: 'key', label: translateOr('key', 'Key') },
+    { value: 'wait', label: waitForTextLabel() }
   ]
   function onTypeChange (v) {
     const step = form.getFieldValue(['commands', field.name]) || {}
@@ -54,6 +63,83 @@ function StepRow (props) {
       name: step.name,
       delay: step.delay
     })
+  }
+  function renderValue () {
+    if (isKey) {
+      return (
+        <FormItem name={[field.name, 'key']} noStyle>
+          <Select
+            showSearch
+            options={keySelectOptions}
+            className='width-100'
+          />
+        </FormItem>
+      )
+    }
+    if (isWait) {
+      return (
+        <FormItem name={[field.name, 'text']} noStyle>
+          <Input
+            placeholder={translateOr('textToWaitFor', 'Text to wait for, such as Password:')}
+            className='qm-input'
+            spellCheck={false}
+          />
+        </FormItem>
+      )
+    }
+    return (
+      <FormItem name={[field.name, 'command']} noStyle>
+        <Input.TextArea
+          autoSize={{ minRows: 1 }}
+          placeholder={e('command')}
+          className='qm-input'
+          spellCheck={false}
+          onFocus={() => {
+            focused.current = index
+          }}
+        />
+      </FormItem>
+    )
+  }
+  function renderOption () {
+    if (isKey) {
+      return (
+        <Tooltip title={translateOr('repeat', 'Repeat')}>
+          <FormItem name={[field.name, 'repeat']} noStyle>
+            <InputNumber
+              min={1}
+              max={100}
+              prefix='×'
+              className='width-100'
+            />
+          </FormItem>
+        </Tooltip>
+      )
+    }
+    if (isWait) {
+      return (
+        <Tooltip title={translateOr('waitTimeout', 'Timeout in seconds, 0 waits with no limit')}>
+          <FormItem name={[field.name, 'timeout']} noStyle>
+            <InputNumber
+              min={0}
+              max={86400}
+              placeholder={defaultWaitTimeout}
+              suffix='s'
+              className='width-100'
+            />
+          </FormItem>
+        </Tooltip>
+      )
+    }
+    return (
+      <FormItem
+        name={[field.name, 'enter']}
+        valuePropName='checked'
+        noStyle
+      >
+        <Checkbox>{e('enter')}</Checkbox>
+      </FormItem>
+    )
   }
   return (
     <div
@@ -91,57 +177,10 @@ function StepRow (props) {
         />
       </FormItem>
       <div className='qm-step-value'>
-        {
-          isKey
-            ? (
-              <FormItem name={[field.name, 'key']} noStyle>
-                <Select
-                  showSearch
-                  options={keySelectOptions}
-                  className='width-100'
-                />
-              </FormItem>
-              )
-            : (
-              <FormItem name={[field.name, 'command']} noStyle>
-                <Input.TextArea
-                  autoSize={{ minRows: 1 }}
-                  placeholder={e('command')}
-                  className='qm-input'
-                  spellCheck={false}
-                  onFocus={() => {
-                    focused.current = index
-                  }}
-                />
-              </FormItem>
-              )
-        }
+        {renderValue()}
       </div>
       <div className='qm-step-option'>
-        {
-          isKey
-            ? (
-              <Tooltip title={translateOr('repeat', 'Repeat')}>
-                <FormItem name={[field.name, 'repeat']} noStyle>
-                  <InputNumber
-                    min={1}
-                    max={100}
-                    prefix='×'
-                    className='width-100'
-                  />
-                </FormItem>
-              </Tooltip>
-              )
-            : (
-              <FormItem
-                name={[field.name, 'enter']}
-                valuePropName='checked'
-                noStyle
-              >
-                <Checkbox>{e('enter')}</Checkbox>
-              </FormItem>
-              )
-        }
+        {renderOption()}
       </div>
       <Tooltip title={translateOr('delayBeforeStep', 'Wait before this step')}>
         <FormItem name={[field.name, 'delay']} noStyle>
@@ -333,8 +372,16 @@ export default function renderQm (form) {
                     type='dashed'
                     onClick={() => add(newStep('key'))}
                     icon={<PlusOutlined />}
+                    className='mg1r'
                   >
                     {translateOr('key', 'Key')}
+                  </Button>
+                  <Button
+                    type='dashed'
+                    onClick={() => add(newStep('wait'))}
+                    icon={<PlusOutlined />}
+                  >
+                    {waitForTextLabel()}
                   </Button>
                 </FormItem>
               </div>

@@ -128,7 +128,7 @@ export default function QuickCommandForm (props) {
   }
   // quick commands saved before per-step Enter follow the old inputOnly
   initialValues.commands = initialValues.commands.map(c => {
-    if (c.type === 'key') {
+    if (c.type === 'key' || c.type === 'wait') {
       return c
     }
     return {

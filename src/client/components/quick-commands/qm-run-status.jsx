@@ -13,13 +13,17 @@ export default auto(function QmRunStatus ({ store }) {
     return null
   }
   const progress = `${Math.min(run.index + 1, run.total)}/${run.total}`
+  const waiting = run.waitFor
+    ? `${translateOr('waitingFor', 'Waiting for')} "${run.waitFor}"`
+    : ''
   return (
     <div className='terminal-footer-unit terminal-footer-qm-run'>
-      <span className='qm-run-chip' title={run.name}>
+      <span className='qm-run-chip' title={waiting ? `${run.name}: ${waiting}` : run.name}>
         <span className='qm-run-info'>
           <LoadingOutlined className='mg1r' />
           <span className='elli qm-run-name'>{run.name}</span>
           <span className='mg1l'>{progress}</span>
+          {waiting ? <span className='mg1l elli qm-run-wait'>{waiting}</span> : null}
           {run.count > 1 ? <span className='mg1l'>+{run.count - 1}</span> : null}
         </span>
         <span
