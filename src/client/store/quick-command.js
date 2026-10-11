@@ -5,6 +5,8 @@
 import {
   settingMap,
   qmSortByFrequencyKey,
+  qmGroupByLabelKey,
+  qmCollapsedLabelsKey,
   isWin
 } from '../common/constants'
 import { quickCommandSteps } from '../common/quick-command-steps'
@@ -323,6 +325,21 @@ export default Store => {
   Store.prototype.setQmSortByFrequency = function (v) {
     window.store.qmSortByFrequency = v
     ls.setItem(qmSortByFrequencyKey, v ? 'yes' : 'no')
+  }
+
+  Store.prototype.setQmGroupByLabel = function (v) {
+    window.store.qmGroupByLabel = v
+    ls.setItem(qmGroupByLabelKey, v ? 'yes' : 'no')
+  }
+
+  Store.prototype.toggleQmLabelCollapsed = function (label) {
+    const { store } = window
+    const list = store.qmCollapsedLabels
+    const next = list.includes(label)
+      ? list.filter(l => l !== label)
+      : [...list, label]
+    store.qmCollapsedLabels = next
+    ls.setItemJSON(qmCollapsedLabelsKey, next)
   }
 
   Store.prototype.handleSortByFrequency = function () {

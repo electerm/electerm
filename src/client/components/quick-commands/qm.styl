@@ -86,6 +86,46 @@
   border-top 2px solid var(--primary)
 .qm-label-select
   min-width 120px
+
+// label headings in the quick command panel and the settings list
+.qm-label-head
+  display flex
+  align-items center
+  gap 6px
+  padding 2px 4px
+  opacity 0.8
+  user-select none
+  &:hover
+    opacity 1
+  .qm-label-caret
+    font-size 10px
+    transition transform 0.15s ease
+  .qm-label-name
+    min-width 0
+    font-weight 600
+  .qm-label-count
+    font-size 12px
+    opacity 0.6
+.qm-label-group:not(.collapsed) .qm-label-caret
+  transform rotate(90deg)
+.qm-label-icon.qm-no-label
+  opacity 0.5
+.qm-label-items
+  padding 4px 0 2px 18px
+.qm-label-group-list
+  .qm-label-head
+    padding 4px 8px
+  .qm-label-items
+    padding 0 0 0 12px
+.qm-list-labels
+  display flex
+  gap 6px
+  .qm-list-label-select
+    flex 1
+    min-width 0
+@media (prefers-reduced-motion: reduce)
+  .qm-label-head .qm-label-caret
+    transition none
 .qm-name-input
   max-width 160px
   min-width 80px

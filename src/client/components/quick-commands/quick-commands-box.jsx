@@ -18,10 +18,13 @@ import { sortBy, pick } from 'lodash-es'
 import { Button, Input, Select, Space, Flex } from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import CmdItem from './quick-command-item'
+import QmLabelGroup from './qm-label-group'
+import { groupByLabel, hasLabels } from '../../common/quick-command-groups'
 import {
   EditOutlined,
   CloseCircleOutlined,
   PushpinOutlined,
+  TagsOutlined,
   VerticalLeftOutlined,
   VerticalAlignBottomOutlined
 } from '@ant-design/icons'
@@ -183,6 +186,25 @@ export default auto(function QuickCommandsFooterBox (props) {
     )
   }
 
+  // under label headings, unless turned off or nothing has a label. A
+  // search opens every heading so no match is hidden.
+  function renderList (list) {
+    if (!store.qmGroupByLabel || !hasLabels(list)) {
+      return list.map(renderItem)
+    }
+    const collapsedLabels = store.qmCollapsedLabels
+    return groupByLabel(list, label ? [label] : []).map(g => (
+      <QmLabelGroup
+        key={'qmg-' + g.label}
+        label={g.label}
+        count={g.items.length}
+        collapsed={!keyword && collapsedLabels.includes(g.label)}
+      >
+        {g.items.map(renderItem)}
+      </QmLabelGroup>
+    ))
+  }
+
   function renderTag (tag) {
     return (
       <Option
@@ -336,11 +358,18 @@ export default auto(function QuickCommandsFooterBox (props) {
           >
             {e('sortByFrequency')}
           </Button>
+          <Button
+            type={store.qmGroupByLabel ? 'primary' : 'default'}
+            icon={<TagsOutlined />}
+            title={translateOr('groupByLabel', 'Group by label')}
+            onClick={() => window.store.setQmGroupByLabel(!store.qmGroupByLabel)}
+            className='qm-group-btn'
+          />
         </Flex>
         {renderActions()}
       </Flex>
       <div className={cls}>
-        {sorted.map(renderItem)}
+        {renderList(sorted)}
         {
           !sorted.length && renderNoCmd()
         }
