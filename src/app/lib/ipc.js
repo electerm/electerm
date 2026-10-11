@@ -41,6 +41,7 @@ const {
 const { saveUserConfig } = require('./user-config-controller')
 const { changeHotkeyReg, initShortCut } = require('./shortcut')
 const lastStateManager = require('./last-state')
+const { createDialogLastDir } = require('./dialog-last-dir')
 const {
   registerDeepLink,
   unregisterDeepLink,
@@ -129,6 +130,15 @@ function isTrustedIpcSender (event) {
   const win = globalState.get('win')
   return !!win && event.sender === win.webContents
 }
+
+// Electron 43 made file dialogs default to Downloads and stopped the OS from
+// restoring the last used directory, so we keep that memory ourselves. See
+// ./dialog-last-dir.js.
+const dialogLastDir = createDialogLastDir({
+  get: (key) => lastStateManager.get(key),
+  set: (key, value) => lastStateManager.set(key, value),
+  log: console
+})
 
 async function initAppServer () {
   const {
@@ -334,11 +344,22 @@ function initIpc () {
   })
   ipcMain.handle('show-open-dialog-sync', async (event, ...args) => {
     const win = BrowserWindow.fromWebContents(event.sender)
-    return dialog.showOpenDialogSync(win, ...args)
+    const opts = args[0] && typeof args[0] === 'object' ? args[0] : {}
+    const res = dialog.showOpenDialogSync(
+      win,
+      ...await dialogLastDir.withDefaultPath(args, 'open')
+    )
+    dialogLastDir.rememberOpenResult(opts, res)
+    return res
   })
   ipcMain.handle('show-save-dialog', async (event, ...args) => {
     const win = BrowserWindow.fromWebContents(event.sender)
-    return dialog.showSaveDialog(win, ...args)
+    const res = await dialog.showSaveDialog(
+      win,
+      ...await dialogLastDir.withDefaultPath(args, 'save')
+    )
+    dialogLastDir.rememberSaveResult(res)
+    return res
   })
 }
 
