@@ -61,7 +61,7 @@ jobs:
         WORKFLOW_NAME: linux-loong64
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
-      run: bash build/bin/build-linux-loong64.sh
+      run: bash src/build/bin/build-linux-loong64.sh
 
     - name: Verify output
       run: |

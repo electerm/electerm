@@ -110,7 +110,7 @@ dist
 /work/
 /version
 /*.txt
-/build/web-app/client
+/src/build/web-app/client
 /*.tar
 /*.gz
 .vscode

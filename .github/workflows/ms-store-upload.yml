@@ -504,5 +504,5 @@ jobs:
         }
 
         $key = "store-logs/ms-store-upload/${{ github.run_id }}-${{ github.run_attempt }}.log"
-        node build/bin/upload-file-to-r2.js "$env:MSSTORE_LOG_FILE" "$key"
+        node src/build/bin/upload-file-to-r2.js "$env:MSSTORE_LOG_FILE" "$key"
       shell: pwsh

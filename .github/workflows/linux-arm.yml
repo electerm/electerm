@@ -108,4 +108,4 @@ jobs:
         CF_R2_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
         BUILD_NUMBER: ${{ secrets.BUILD_NUMBER }}
         WORKFLOW_NAME: ${{ github.workflow }}
-      run: node build/bin/build-linux-arm
+      run: node src/build/bin/build-linux-arm

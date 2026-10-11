@@ -440,7 +440,7 @@ async function resetSftpPath (client, type, timeout = 25000) {
   const section = `.session-current .sftp-${type}-section`
   const pathInputSel = `${section} .sftp-title-wrap input`
   // Marker entries that only exist in the session home folders and are never
-  // removed by the test suite (see build/bin/clean-test-server-home.js).
+  // removed by the test suite (see src/build/bin/clean-test-server-home.js).
   // The local marker is platform specific: macOS homes have Library, Linux
   // CI homes do not, so fall back to .bashrc there.
   const isLinuxRunner = process.platform === 'linux'
