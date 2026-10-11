@@ -75,7 +75,7 @@
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
     "electerm-icons": "1.0.1",
-    "electron": "42.8.1",
+    "electron": "44.7.0",
     "electron-builder": "26.15.7",
     "filesize": "10.1.6",
     "filesize-parser": "1.5.1",

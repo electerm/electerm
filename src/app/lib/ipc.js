@@ -192,7 +192,29 @@ function initIpc () {
       console.error('[security] blocked IPC call: ' + name)
       return
     }
-    event.returnValue = ipcSyncFuncs[name](...args)
+    const result = ipcSyncFuncs[name](...args)
+    // Electron 44 made the clipboard module async: clipboard.readText() now
+    // returns a Promise. A Promise cannot be structured-cloned into a sync IPC
+    // reply, so assigning one to event.returnValue throws "An object could not
+    // be cloned." and the renderer's sendSync fails with "reply was never sent".
+    // Settling it here keeps window.pre.readClipboard() synchronous, which the
+    // client depends on -- hasFileInClipboardText() is called during render.
+    // Assigning event.returnValue asynchronously is supported: the renderer
+    // blocks until it is set.
+    if (result && typeof result.then === 'function') {
+      result.then(
+        (value) => {
+          event.returnValue = value
+        },
+        (err) => {
+          // Must always reply, or the renderer's sendSync blocks forever.
+          console.error('[ipc] sync-func ' + name + ' failed:', err)
+          event.returnValue = null
+        }
+      )
+    } else {
+      event.returnValue = result
+    }
   })
   const asyncGlobals = {
     confirmExit: () => {
