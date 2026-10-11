@@ -1,16 +1,8 @@
 const { resolve } = require('path')
 const { cp } = require('shelljs')
-const from = resolve(
-  __dirname,
-  '../../node_modules/@electerm/electerm-resource/tray-icons/*'
-)
 const from0 = resolve(
   __dirname,
   '../../node_modules/electerm-icons/icons'
-)
-const to1 = resolve(
-  __dirname,
-  '../../work/app/assets/images/'
 )
 const to2 = resolve(
   __dirname,
@@ -18,10 +10,6 @@ const to2 = resolve(
 )
 const arr = [
   {
-    from,
-    to: to1,
-    file: true
-  }, {
     from: from0,
     to: to2
   }
