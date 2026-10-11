@@ -1,10 +1,11 @@
 /**
  * asks for the value of a prompt step while a quick command runs. The
- * answer goes to the terminal and is not saved.
+ * answer goes to the terminal and is not saved. Run in several terminals,
+ * "send to all terminals" picks one dialog for all of them or one each.
  */
 import { useState } from 'react'
 import { auto } from 'manate/react'
-import { Input, Button } from 'antd'
+import { Input, Button, Checkbox } from 'antd'
 import Modal from '../common/modal'
 import translateOr from '../../common/translate-fallback'
 
@@ -29,6 +30,11 @@ function PromptForm ({ prompt }) {
       footer={null}
     >
       <div className='pd1y'>
+        {
+          prompt.tabTitle
+            ? <div className='pd1b qm-prompt-tab'>{prompt.tabTitle}</div>
+            : null
+        }
         <div className='pd1b'>
           {prompt.label || translateOr('enterValue', 'Enter a value')}
         </div>
@@ -41,9 +47,21 @@ function PromptForm ({ prompt }) {
           autoComplete='off'
           className='qm-prompt-input'
         />
-        <div className='pd1t alignright'>
+        <div className='pd1t qm-prompt-footer'>
+          {
+            prompt.multi
+              ? (
+                <Checkbox
+                  checked={prompt.shared}
+                  onChange={ev => window.store.setQmPromptShared(prompt.id, ev.target.checked)}
+                  className='qm-prompt-shared'
+                >
+                  {translateOr('sendToAllTerminals', 'Send to all terminals')}
+                </Checkbox>
+                )
+              : null
+          }
           <Button
-            className='mg1r'
             onClick={handleCancel}
           >
             {e('cancel')}

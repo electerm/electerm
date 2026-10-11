@@ -11,7 +11,7 @@ import { quickCommandSteps } from '../common/quick-command-steps'
 import { runSteps } from '../components/terminal/automation/step-runner'
 import { recordedSteps } from '../components/terminal/automation/record-steps'
 import { createOutputWatch } from '../components/terminal/automation/output-watch'
-import { sharedAsk } from '../components/terminal/automation/shared-ask'
+import { createAskGroup } from '../components/terminal/automation/ask-group'
 import generate from '../common/uid'
 import message from '../components/common/message'
 import translateOr from '../common/translate-fallback'
@@ -84,35 +84,42 @@ let recording = null
 const prompts = []
 
 function publishPrompts () {
-  window.store.qmPrompts = prompts.map(({ resolve, ...p }) => p)
+  window.store.qmPrompts = prompts.map(({ resolve, onShared, ...p }) => p)
 }
 
-function openPrompt (step, qm) {
+// tabId is set when each terminal gets its own dialog
+function openPrompt ({ step, qm, tabId, shared, multi, onShared }) {
   let resolve
   const answer = new Promise(_resolve => { resolve = _resolve })
+  const { tabs } = window.store
+  const tabIndex = tabs.findIndex(t => t.id === tabId)
   const prompt = {
     id: generate(),
     name: qm.name,
     label: step.value,
     hidden: step.hidden,
-    resolve
+    multi,
+    shared,
+    tabTitle: tabIndex < 0 ? '' : `${tabIndex + 1}. ${tabs[tabIndex].title}`,
+    resolve,
+    onShared
   }
   prompts.push(prompt)
   publishPrompts()
   return {
     answer,
-    cancel: () => answerPrompt(prompt.id, null)
+    close: () => removePrompt(prompt.id)
   }
 }
 
-function answerPrompt (id, value) {
+function removePrompt (id) {
   const i = prompts.findIndex(p => p.id === id)
   if (i < 0) {
-    return
+    return null
   }
   const [prompt] = prompts.splice(i, 1)
   publishPrompts()
-  prompt.resolve(value)
+  return prompt
 }
 
 // Send every step to one tab. The steps are spaced by delays, and the user
@@ -219,8 +226,13 @@ export default Store => {
     if (ids.includes(store.activeTabId)) {
       refs.get('term-' + store.activeTabId)?.term?.focus()
     }
-    const askInput = sharedAsk(step => openPrompt(step, qm))
-    return Promise.all(ids.map(tabId => runInTab(qm, tabId, askInput)))
+    const multi = ids.length > 1
+    const group = createAskGroup(({ step, tabId, shared }) => openPrompt({
+      step, qm, tabId, shared, multi, onShared: group.setShared
+    }))
+    return Promise.all(ids.map(tabId => runInTab(
+      qm, tabId, (step, index) => group.ask(step, index, tabId)
+    )))
   }, 200)
 
   // open the terminal picker for a quick command
@@ -247,9 +259,14 @@ export default Store => {
 
   // value is null when the user cancels
   Store.prototype.answerQmPrompt = function (id, value) {
-    answerPrompt(id, value)
+    removePrompt(id)?.resolve(value)
     const { store } = window
     refs.get('term-' + store.activeTabId)?.term?.focus()
+  }
+
+  // "send to all terminals" in a prompt dialog
+  Store.prototype.setQmPromptShared = function (id, shared) {
+    prompts.find(p => p.id === id)?.onShared(shared)
   }
 
   // stops every quick command running in the tab

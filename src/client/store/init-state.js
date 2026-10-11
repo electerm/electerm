@@ -185,7 +185,8 @@ export default () => {
     qmRecording: null,
     // recorded steps waiting in the save form
     qmRecordedSteps: null,
-    // prompt steps waiting for an answer: { id, name, label, hidden }
+    // prompt steps waiting for an answer:
+    // { id, name, label, hidden, multi, shared, tabTitle }
     qmPrompts: [],
     quickCommandId: '',
     openQuickCommandBar: false,
