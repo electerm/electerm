@@ -245,6 +245,8 @@
   background var(--primary)
   color var(--primary-contrast)
   min-width 0
+  // the width is set from qm-run-status.jsx while the text changes
+  transition width 0.2s ease
   .qm-run-info
     display flex
     align-items center
@@ -256,6 +258,8 @@
   .qm-run-wait
     max-width 200px
     flex-shrink 0
+    // a new waiting text slides in while the chip grows
+    animation qm-run-text-in 0.25s ease-out
   .qm-run-stop
     display flex
     align-items center
@@ -265,6 +269,16 @@
     color #fff
     &:hover
       filter brightness(1.1)
+
+@keyframes qm-run-text-in
+  from
+    opacity 0
+    transform translateX(-6px)
+@media (prefers-reduced-motion: reduce)
+  .qm-run-chip
+    transition none
+    .qm-run-wait
+      animation none
 
 // footer chip while recording: a pulsing red dot, then save and cancel
 .qm-rec-chip
