@@ -1,0 +1,149 @@
+diff --git a/crates/ironrdp-web/src/session.rs b/crates/ironrdp-web/src/session.rs
+index f9a1d90a..19848512 100644
+--- a/crates/ironrdp-web/src/session.rs
++++ b/crates/ironrdp-web/src/session.rs
+@@ -23,6 +23,7 @@ use ironrdp::connector::{self, ClientConnector, Credentials};
+ use ironrdp::displaycontrol::client::DisplayControlClient;
+ use ironrdp::dvc::DrdynvcClient;
+ use ironrdp::graphics::image_processing::PixelFormat;
++use ironrdp::pdu::geometry::InclusiveRectangle;
+ use ironrdp::pdu::input::fast_path::FastPathInputEvent;
+ use ironrdp::pdu::rdp::capability_sets::client_codecs_capabilities;
+ use ironrdp::pdu::rdp::client_info::{PerformanceFlags, TimezoneInfo};
+@@ -79,6 +80,7 @@ struct SessionBuilderInner {
+ 
+     use_display_control: bool,
+     enable_credssp: bool,
++    enable_server_pointer: bool,
+     outbound_message_size_limit: Option<usize>,
+ }
+ 
+@@ -113,6 +115,7 @@ impl Default for SessionBuilderInner {
+ 
+             use_display_control: false,
+             enable_credssp: true,
++            enable_server_pointer: false,
+             outbound_message_size_limit: None,
+         }
+     }
+@@ -230,6 +233,7 @@ impl iron_remote_desktop::SessionBuilder for SessionBuilder {
+             |kdc_proxy_url: String| { self.0.borrow_mut().kdc_proxy_url = Some(kdc_proxy_url) };
+             |display_control: bool| { self.0.borrow_mut().use_display_control = display_control };
+             |enable_credssp: bool| { self.0.borrow_mut().enable_credssp = enable_credssp };
++            |enable_server_pointer: bool| { self.0.borrow_mut().enable_server_pointer = enable_server_pointer };
+             |outbound_message_size_limit: f64| {
+                 let limit = if outbound_message_size_limit >= 0.0 && outbound_message_size_limit <= f64::from(u32::MAX) {
+                     #[expect(clippy::as_conversions, clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+@@ -333,6 +337,9 @@ impl iron_remote_desktop::SessionBuilder for SessionBuilder {
+         let enable_credssp = self.0.borrow().enable_credssp;
+         config.enable_credssp = enable_credssp;
+ 
++        let enable_server_pointer = self.0.borrow().enable_server_pointer;
++        config.enable_server_pointer = enable_server_pointer;
++
+         let (input_events_tx, input_events_rx) = mpsc::unbounded();
+ 
+         let clipboard = remote_clipboard_changed_callback.clone().map(|callback| {
+@@ -556,6 +563,13 @@ impl iron_remote_desktop::Session for Session {
+         // Timer interval for driving clipboard lock timeouts (5 second interval)
+         let mut cleanup_interval = IntervalStream::new(5_000).fuse();
+ 
++        // Graphics updates are coalesced into one dirty rectangle and painted at
++        // most once per tick (~60fps): painting every update as it arrives lets a
++        // screen-update flood monopolize the main thread and starve input handling
++        // (mouse/keyboard appear frozen while the picture keeps refreshing).
++        let mut draw_flush_interval = IntervalStream::new(16).fuse();
++        let mut pending_draw: Option<InclusiveRectangle> = None;
++
+         let disconnect_reason = 'outer: loop {
+             let outputs = select! {
+                 frame = framed.read_pdu().fuse() => {
+@@ -564,10 +578,25 @@ impl iron_remote_desktop::Session for Session {
+ 
+                     active_stage.process(&mut image, action, &payload)?
+                 }
+-                input_events = input_events.next() => {
+-                    let event = input_events.context("read next input events")?;
++                next_input_event = input_events.next() => {
++                    let event = next_input_event.context("read next input events")?;
++
++                    // Drain input events that are already queued: processing
++                    // only one event per loop iteration lets a burst of
++                    // mouse/keyboard input starve behind the graphics pipeline
++                    // when the server floods the client with frame updates.
++                    let mut batch = vec![event];
++                    while batch.len() < 64 {
++                        match input_events.try_next() {
++                            Ok(Some(next_event)) => batch.push(next_event),
++                            _ => break,
++                        }
++                    }
+ 
+-                    match event {
++                    let mut all_outputs: Vec<ActiveStageOutput> = Vec::new();
++                    for event in batch {
++                        let mut process_one = |event| -> Result<Vec<ActiveStageOutput>, anyhow::Error> {
++                            Ok(match event {
+                         RdpInputEvent::Cliprdr(message) => {
+                             if let Some(cliprdr) = active_stage.get_svc_processor_mut::<CliprdrClient>() {
+                                 if let Some(svc_messages) = match message {
+@@ -724,7 +753,11 @@ impl iron_remote_desktop::Session for Session {
+                             active_stage.graceful_shutdown()
+                                 .context("graceful shutdown")?
+                         }
+-                    }
++                        })
++                    };
++                    all_outputs.extend(process_one(event)?);
++                }
++                    all_outputs
+                 }
+                 _ = cleanup_interval.next() => {
+                     // Drive clipboard lock timeout cleanup
+@@ -747,6 +780,13 @@ impl iron_remote_desktop::Session for Session {
+                         Vec::new()
+                     }
+                 }
++                _ = draw_flush_interval.next() => {
++                    if let Some(region) = pending_draw.take() {
++                        let (region, buffer) = extract_partial_image(&image, region);
++                        gui.draw(&buffer, region).context("draw updated region")?;
++                    }
++                    Vec::new()
++                }
+             };
+ 
+             for out in outputs {
+@@ -757,9 +797,12 @@ impl iron_remote_desktop::Session for Session {
+                             .context("Send frame to writer task")?;
+                     }
+                     ActiveStageOutput::GraphicsUpdate(region) => {
+-                        // PERF: some copies and conversion could be optimized
+-                        let (region, buffer) = extract_partial_image(&image, region);
+-                        gui.draw(&buffer, region).context("draw updated region")?;
++                        // Coalesce into the dirty rectangle; it is painted by
++                        // the draw_flush_interval branch (see its definition).
++                        pending_draw = Some(match pending_draw.take() {
++                            Some(pending) => union_rectangles(pending, region),
++                            None => region,
++                        });
+                     }
+                     ActiveStageOutput::PointerDefault => {
+                         self.set_cursor_style(CursorStyle::Default)?;
+@@ -1296,6 +1339,16 @@ fn build_config(
+     }
+ }
+ 
++/// Smallest rectangle covering both inputs. Both must be valid image regions.
++fn union_rectangles(a: InclusiveRectangle, b: InclusiveRectangle) -> InclusiveRectangle {
++    InclusiveRectangle {
++        left: a.left.min(b.left),
++        top: a.top.min(b.top),
++        right: a.right.max(b.right),
++        bottom: a.bottom.max(b.bottom),
++    }
++}
++
+ async fn writer_task(
+     rx: mpsc::UnboundedReceiver<Vec<u8>>,
+     rdp_writer: WriteHalf<WebSocket>,

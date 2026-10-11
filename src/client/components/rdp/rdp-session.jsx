@@ -211,6 +211,11 @@ export default class RdpSession extends PureComponent {
 
       const desktopSize = new window.ironRdp.DesktopSize(width, height)
       const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', true)
+      // Render the mouse cursor locally: with a server-side pointer the
+      // cursor feedback depends on screen updates round-tripping back, so
+      // under heavy update load the session feels frozen even though input
+      // is delivered.
+      const disableServerPointerExt = new window.ironRdp.Extension('enable_server_pointer', false)
 
       const builder = new window.ironRdp.SessionBuilder()
       builder.username(username)
@@ -224,6 +229,7 @@ export default class RdpSession extends PureComponent {
       builder.desktopSize(desktopSize)
       builder.renderCanvas(canvas)
       builder.extension(enableCredsspExt)
+      builder.extension(disableServerPointerExt)
 
       this.fileTransfer = new FileTransferManager(
         () => this.session,

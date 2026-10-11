@@ -39,7 +39,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      'ironrdp-wasm': resolve(cwd, '../../../node_modules/ironrdp-wasm/pkg/rdp_client.js'),
+      // locally built ironrdp-wasm with input-drain/draw-throttle/local-cursor
+      // fixes — see src/build/vendor/ironrdp-wasm/README.md
+      'ironrdp-wasm': resolve(cwd, '../vendor/ironrdp-wasm/pkg/rdp_client.js'),
       // @xterm/addon-ligatures bundles lru-cache@11, which calls
       // channel()/tracingChannel() from node:diagnostics_channel at import time.
       // In the renderer (browser) context Vite stubs Node builtins and the call
