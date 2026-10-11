@@ -27,6 +27,9 @@ function stepLabel (step) {
   if (step.type === 'wait') {
     return translateOr('waitForText', 'Wait for text')
   }
+  if (step.type === 'prompt') {
+    return translateOr('askForInput', 'Ask for input')
+  }
   return e('command')
 }
 
@@ -34,7 +37,7 @@ function stepValue (step) {
   if (step.type === 'key') {
     return step.key + (step.repeat > 1 ? ' ×' + step.repeat : '')
   }
-  return step.type === 'wait' ? step.text : step.command
+  return step.type === 'wait' || step.type === 'prompt' ? step.text : step.command
 }
 
 export default class QuickCommandsItem extends PureComponent {

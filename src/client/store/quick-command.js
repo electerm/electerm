@@ -11,6 +11,7 @@ import { quickCommandSteps } from '../common/quick-command-steps'
 import { runSteps } from '../components/terminal/automation/step-runner'
 import { recordedSteps } from '../components/terminal/automation/record-steps'
 import { createOutputWatch } from '../components/terminal/automation/output-watch'
+import { sharedAsk } from '../components/terminal/automation/shared-ask'
 import generate from '../common/uid'
 import message from '../components/common/message'
 import translateOr from '../common/translate-fallback'
@@ -65,6 +66,7 @@ function publishRuns (tabId) {
       index: last.index,
       total: last.total,
       waitFor: last.waitFor,
+      asking: last.asking,
       count: visible.length
     }
   } else {
@@ -77,9 +79,45 @@ function publishRuns (tabId) {
 // Kept out of the reactive store, the store only gets the step count.
 let recording = null
 
+// prompt steps waiting for the user, oldest first. The store only gets what
+// the dialog shows, the resolve functions stay here.
+const prompts = []
+
+function publishPrompts () {
+  window.store.qmPrompts = prompts.map(({ resolve, ...p }) => p)
+}
+
+function openPrompt (step, qm) {
+  let resolve
+  const answer = new Promise(_resolve => { resolve = _resolve })
+  const prompt = {
+    id: generate(),
+    name: qm.name,
+    label: step.value,
+    hidden: step.hidden,
+    resolve
+  }
+  prompts.push(prompt)
+  publishPrompts()
+  return {
+    answer,
+    cancel: () => answerPrompt(prompt.id, null)
+  }
+}
+
+function answerPrompt (id, value) {
+  const i = prompts.findIndex(p => p.id === id)
+  if (i < 0) {
+    return
+  }
+  const [prompt] = prompts.splice(i, 1)
+  publishPrompts()
+  prompt.resolve(value)
+}
+
 // Send every step to one tab. The steps are spaced by delays, and the user
 // can switch tabs in between.
-function runInTab (qm, tabId) {
+function runInTab (qm, tabId, askInput) {
   const { store } = window
   const getTerm = () => refs.get('term-' + tabId)
   const steps = quickCommandSteps(qm, { isWin })
@@ -95,6 +133,7 @@ function runInTab (qm, tabId) {
       getTerm()?.attachAddon?._sendData(data)
     },
     watchText: watch.watch,
+    askInput,
     isAlive: () => !!getTerm()?.attachAddon,
     resolveText: parseTemplates,
     getKeyOptions: () => ({
@@ -103,6 +142,7 @@ function runInTab (qm, tabId) {
     onStep: (index, step) => {
       entry.index = index
       entry.waitFor = step.type === 'wait' ? step.value : ''
+      entry.asking = step.type === 'prompt'
       if (entry.visible) {
         publishRuns(tabId)
       }
@@ -179,7 +219,8 @@ export default Store => {
     if (ids.includes(store.activeTabId)) {
       refs.get('term-' + store.activeTabId)?.term?.focus()
     }
-    return Promise.all(ids.map(tabId => runInTab(qm, tabId)))
+    const askInput = sharedAsk(step => openPrompt(step, qm))
+    return Promise.all(ids.map(tabId => runInTab(qm, tabId, askInput)))
   }, 200)
 
   // open the terminal picker for a quick command
@@ -202,6 +243,13 @@ export default Store => {
     }
     store.setSettingItem(qm)
     store.openSettingModal()
+  }
+
+  // value is null when the user cancels
+  Store.prototype.answerQmPrompt = function (id, value) {
+    answerPrompt(id, value)
+    const { store } = window
+    refs.get('term-' + store.activeTabId)?.term?.focus()
   }
 
   // stops every quick command running in the tab

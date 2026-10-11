@@ -11,6 +11,8 @@ import {
   PlusOutlined,
   HolderOutlined,
   DeleteOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined,
   VerticalAlignTopOutlined,
   VerticalAlignBottomOutlined
 } from '@ant-design/icons'
@@ -36,23 +38,46 @@ export function newStep (type = 'command') {
   if (type === 'wait') {
     return { id: generate(), type: 'wait', text: '', timeout: defaultWaitTimeout, delay: 0 }
   }
+  if (type === 'prompt') {
+    return { id: generate(), type: 'prompt', text: '', hidden: true, enter: true, delay: 0 }
+  }
   return { id: generate(), type: 'command', command: '', enter: true, delay: 0 }
 }
 
 const waitForTextLabel = () => translateOr('waitForText', 'Wait for text')
+const askForInputLabel = () => translateOr('askForInput', 'Ask for input')
 
-// One step per row: type, name, command, key or text to wait for, then
-// Enter, repeat or timeout, and the delay before the step. Rows are dragged by the handle only, so text in
+// eye button for a prompt step: hide what the user types, as for a password
+function HideToggle ({ value, onChange }) {
+  const hidden = value !== false
+  const title = hidden
+    ? translateOr('inputHidden', 'Typing is hidden, as for a password')
+    : translateOr('inputShown', 'Typing is shown')
+  return (
+    <Tooltip title={title}>
+      <Button
+        type='text'
+        icon={hidden ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+        onClick={() => onChange(!hidden)}
+      />
+    </Tooltip>
+  )
+}
+
+// One step per row: type, name, command, key, text to wait for or question
+// to ask, then Enter, repeat or timeout, and the delay before the step. Rows are dragged by the handle only, so text in
 // the inputs can still be selected with the mouse.
 function StepRow (props) {
   const { field, index, form, remove, add, drag, focused } = props
   const type = Form.useWatch(['commands', field.name, 'type'], form)
   const isKey = type === 'key'
   const isWait = type === 'wait'
+  const isPrompt = type === 'prompt'
   const typeOptions = [
     { value: 'command', label: e('command') },
     { value: 'key', label: translateOr('key', 'Key') },
-    { value: 'wait', label: waitForTextLabel() }
+    { value: 'wait', label: waitForTextLabel() },
+    { value: 'prompt', label: askForInputLabel() }
   ]
   function onTypeChange (v) {
     const step = form.getFieldValue(['commands', field.name]) || {}
@@ -85,6 +110,22 @@ function StepRow (props) {
             spellCheck={false}
           />
         </FormItem>
+      )
+    }
+    if (isPrompt) {
+      return (
+        <div className='qm-step-prompt'>
+          <FormItem name={[field.name, 'text']} noStyle>
+            <Input
+              placeholder={translateOr('questionToAsk', 'Question to ask, such as Password')}
+              className='qm-input'
+              spellCheck={false}
+            />
+          </FormItem>
+          <FormItem name={[field.name, 'hidden']} noStyle>
+            <HideToggle />
+          </FormItem>
+        </div>
       )
     }
     return (
@@ -380,8 +421,16 @@ export default function renderQm (form) {
                     type='dashed'
                     onClick={() => add(newStep('wait'))}
                     icon={<PlusOutlined />}
+                    className='mg1r'
                   >
                     {waitForTextLabel()}
+                  </Button>
+                  <Button
+                    type='dashed'
+                    onClick={() => add(newStep('prompt'))}
+                    icon={<PlusOutlined />}
+                  >
+                    {askForInputLabel()}
                   </Button>
                 </FormItem>
               </div>

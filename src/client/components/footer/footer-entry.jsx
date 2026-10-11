@@ -18,6 +18,7 @@ import CmdHistory from './cmd-history'
 import QmRunStatus from '../quick-commands/qm-run-status'
 import QmRunInTabs from '../quick-commands/qm-run-in-tabs'
 import QmRecordStatus from '../quick-commands/qm-record-status'
+import QmPrompt from '../quick-commands/qm-prompt'
 
 const e = window.translate
 
@@ -269,6 +270,7 @@ export default auto(function FooterEntry (props) {
         {showSidebarIcon}
         <QmRunInTabs store={props.store} />
         <QmRecordStatus store={props.store} />
+        <QmPrompt store={props.store} />
       </div>
     )
   }
@@ -282,6 +284,7 @@ export default auto(function FooterEntry (props) {
         <QmRunStatus store={props.store} />
         <QmRunInTabs store={props.store} />
         <QmRecordStatus store={props.store} />
+        <QmPrompt store={props.store} />
         {renderTriggers()}
         {renderBatchInputs()}
         {renderEncodingInfo()}

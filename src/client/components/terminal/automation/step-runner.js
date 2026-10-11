@@ -6,10 +6,13 @@
 //   { type: 'text', value: 'show run', enter: true, delay: 100 }
 //   { type: 'key', value: 'Ctrl+C', repeat: 1, delay: 0 }
 //   { type: 'wait', value: 'Password:', timeout: 10000, delay: 0 }
+//   { type: 'prompt', value: 'Password', hidden: true, enter: true, delay: 0 }
 // `delay` is the wait in milliseconds before the step is sent. A wait step
 // sends nothing. It waits until `watchText(value)` finds the text, and ends
 // the run with status 'timeout' when `timeout` ms pass first. A timeout of
 // 0 waits until the text shows up, the run is stopped or the tab closes.
+// A prompt step asks the user for a value with `askInput(step, index)` and
+// sends it. Cancelling the question ends the run with status 'cancelled'.
 import { keySequence } from './key-sequences.js'
 
 function toCount (n, fallback) {
@@ -23,6 +26,7 @@ export function runSteps (steps, {
   resolveText = text => text,
   getKeyOptions = () => ({}),
   watchText,
+  askInput,
   onStep
 } = {}) {
   let stopped = false
@@ -62,6 +66,31 @@ export function runSteps (steps, {
     })
   }
 
+  // resolves with the answer, or null on cancel, stop or close
+  function ask (step, index) {
+    return new Promise(resolve => {
+      const a = askInput(step, index)
+      let finished = false
+      const alive = setInterval(() => {
+        if (!isAlive()) {
+          done(null)
+        }
+      }, 1000)
+      function done (value) {
+        if (finished) {
+          return
+        }
+        finished = true
+        clearInterval(alive)
+        a.cancel()
+        wake = null
+        resolve(value)
+      }
+      a.answer.then(done)
+      wake = () => done(null)
+    })
+  }
+
   function stateAt (index) {
     if (stopped) {
       return { status: 'stopped', index }
@@ -72,12 +101,13 @@ export function runSteps (steps, {
     return null
   }
 
-  async function runStep (step) {
+  // returns why the run has to end, or nothing to go on
+  async function runStep (step, index) {
     if (step.type === 'text') {
       const text = await resolveText(step.value || '')
       // resolving templates can be async (clipboard), recheck before sending
       if (stopped || !isAlive()) {
-        return false
+        return 'stopped'
       }
       const data = text + (step.enter ? '\r' : '')
       if (data) {
@@ -91,10 +121,18 @@ export function runSteps (steps, {
     } else if (step.type === 'wait' && watchText) {
       const timeout = Math.max(0, Math.floor(Number(step.timeout)) || 0)
       if (!await waitText(step.value || '', timeout)) {
-        return false
+        return 'timeout'
+      }
+    } else if (step.type === 'prompt' && askInput) {
+      const value = await ask(step, index)
+      if (value === null || stopped || !isAlive()) {
+        return 'cancelled'
+      }
+      const data = value + (step.enter ? '\r' : '')
+      if (data) {
+        send(data)
       }
     }
-    return true
   }
 
   async function run () {
@@ -113,8 +151,9 @@ export function runSteps (steps, {
         onStep(i, step)
       }
       try {
-        if (!await runStep(step)) {
-          return stateAt(i) || { status: 'timeout', index: i }
+        const failed = await runStep(step, i)
+        if (failed) {
+          return stateAt(i) || { status: failed, index: i }
         }
       } catch (error) {
         return { status: 'error', index: i, error }

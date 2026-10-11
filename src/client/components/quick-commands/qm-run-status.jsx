@@ -45,9 +45,12 @@ export default auto(function QmRunStatus ({ store }) {
   const chipRef = useRef(null)
   const run = store.runningQuickCommands[store.activeTabId]
   const progress = run ? `${Math.min(run.index + 1, run.total)}/${run.total}` : ''
-  const waiting = run?.waitFor
-    ? `${translateOr('waitingFor', 'Waiting for')} "${run.waitFor}"`
-    : ''
+  let waiting = ''
+  if (run?.waitFor) {
+    waiting = `${translateOr('waitingFor', 'Waiting for')} "${run.waitFor}"`
+  } else if (run?.asking) {
+    waiting = translateOr('waitingForInput', 'Waiting for input')
+  }
   useWidthTransition(chipRef, run ? [run.name, progress, waiting, run.count].join('\n') : '')
   if (!run) {
     return null

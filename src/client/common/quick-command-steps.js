@@ -6,7 +6,8 @@
  * `enter` is false. Steps saved before `enter` existed follow the quick
  * command's old `inputOnly` setting. A missing delay is 100 ms, as before,
  * and 0 is allowed. A wait step saves its timeout in seconds, 10 when
- * missing, and 0 waits with no limit.
+ * missing, and 0 waits with no limit. A prompt step hides what the user
+ * types unless `hidden` is false.
  */
 
 export const defaultStepDelay = 100
@@ -51,6 +52,15 @@ export function quickCommandSteps (qm, { isWin = false } = {}) {
         type: 'wait',
         value: step.text || '',
         timeout: waitTimeoutMs(step),
+        delay: stepDelay(step)
+      }
+    }
+    if (step.type === 'prompt') {
+      return {
+        type: 'prompt',
+        value: step.text || '',
+        hidden: step.hidden !== false,
+        enter: step.enter !== false,
         delay: stepDelay(step)
       }
     }
