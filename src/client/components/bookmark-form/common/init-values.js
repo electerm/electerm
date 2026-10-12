@@ -69,6 +69,7 @@ export function getTerminalBackgroundDefaults (defaultSetting) {
   return {
     terminalBackground: {
       terminalBackgroundImagePath: defaultSetting.terminalBackgroundImagePath,
+      terminalBackgroundCoverMode: defaultSetting.terminalBackgroundCoverMode,
       terminalBackgroundFilterOpacity: defaultSetting.terminalBackgroundFilterOpacity,
       terminalBackgroundFilterBlur: defaultSetting.terminalBackgroundFilterBlur,
       terminalBackgroundFilterBrightness: defaultSetting.terminalBackgroundFilterBrightness,

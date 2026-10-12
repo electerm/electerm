@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import {
   AutoComplete,
+  Button,
   Tooltip,
   Input
 } from 'antd'
@@ -176,6 +177,9 @@ export default function TerminalBackgroundConfig ({
     return (
       <div>
         {
+          renderCoverMode()
+        }
+        {
           renderNumber(
             'terminalBackgroundFilterOpacity',
             numberOpts,
@@ -210,6 +214,35 @@ export default function TerminalBackgroundConfig ({
             e('Contrast')
           )
         }
+      </div>
+    )
+  }
+
+  // Cover mode only makes sense for a user-picked image. Every non-image
+  // value (default / none / text / index / randomShape) already renders the
+  // way it should, so the button is hidden for those.
+  const isUserImage = !!value &&
+    value !== noTerminalBgValue &&
+    value !== textTerminalBgValue &&
+    value !== 'index' &&
+    value !== 'randomShape'
+
+  // A `bg-img-setting` wrapper is what makes this sit in the same inline-block
+  // row as the filter inputs below (see setting.styl), rather than a Switch
+  // with its own line and spacing.
+  const renderCoverMode = () => {
+    if (!isUserImage) {
+      return null
+    }
+    const checked = !!config.terminalBackgroundCoverMode
+    return (
+      <div className='pd2b bg-img-setting'>
+        <Button
+          type={checked ? 'primary' : 'default'}
+          onClick={() => onChangeValue(!checked, 'terminalBackgroundCoverMode')}
+        >
+          {e('coverMode')}
+        </Button>
       </div>
     )
   }

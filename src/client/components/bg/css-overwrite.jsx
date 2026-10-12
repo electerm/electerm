@@ -111,7 +111,14 @@ async function createStyleForTab (tab, props) {
       // pane would no longer cover it. Stating the initial value keeps user
       // images at their natural size, which is what they rendered at before
       // the auto-fit was introduced.
-      'background-size: auto',
+      // Cover mode (opt-in, per tab or global) flips that to `cover` so the
+      // image fills the whole pane instead of sitting at 1:1 in the middle.
+      `background-size: ${
+        (tab.terminalBackground?.terminalBackgroundCoverMode ||
+          props.terminalBackgroundCoverMode)
+          ? 'cover'
+          : 'auto'
+      }`,
       `filter: ${createFilterStyle(props, tab)}`
     )
   }
@@ -164,6 +171,9 @@ async function createGlobalStyle (props) {
       'background-position: center',
       `filter: ${createFilterStyle(props)}`
     )
+    if (props.terminalBackgroundCoverMode) {
+      styles.push('background-size: cover')
+    }
   }
 
   return `#container .session-batch-active .xterm-screen::before {
@@ -211,6 +221,7 @@ export default function CssOverwrite (props) {
   }, [
     configLoaded,
     props.terminalBackgroundImagePath,
+    props.terminalBackgroundCoverMode,
     props.terminalBackgroundFilterBlur,
     props.terminalBackgroundFilterOpacity,
     props.terminalBackgroundFilterBrightness,
