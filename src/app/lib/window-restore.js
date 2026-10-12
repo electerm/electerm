@@ -50,8 +50,115 @@ function isPointOnAnyDisplay (point, displays) {
   })
 }
 
+/**
+ * Shrink a window that no longer fits the display it was just dragged onto, and
+ * pull it back inside that display's work area.
+ *
+ * Windows keeps a window's size in DIP when it crosses a per-monitor DPI
+ * boundary, and only refits *maximized* windows. Drag a window from a large (or
+ * 100%-scaled) monitor onto a smaller (or higher-scaled) one and it stays as
+ * big as it was, hanging off the edge of the new screen — e.g. a window filling
+ * a 2560x1440 external display is 2560x1440 DIP, which does not fit a laptop
+ * whose 1920x1080 panel at 150% only offers 1280x720 DIP.
+ *
+ * Returns null when the size already fits: the caller uses that both to skip
+ * the work and to avoid re-applying bounds in a loop. A window that fits is
+ * deliberately left exactly where the user dropped it, even if it hangs off an
+ * edge — Windows allows that on purpose and it is not our business.
+ *
+ * @param {{x: number, y: number, width: number, height: number}} bounds
+ * @param {{x: number, y: number, width: number, height: number}} workArea
+ * @param {number} minWidth
+ * @param {number} minHeight
+ * @returns {{x: number, y: number, width: number, height: number}|null}
+ */
+function fitBoundsToWorkArea (bounds, workArea, minWidth, minHeight) {
+  // floor: never come out wider/taller than the work area. Electron reports
+  // fractional DIPs for scaled displays, and rounding up would overshoot.
+  const width = Math.min(
+    Math.max(bounds.width, minWidth),
+    Math.floor(workArea.width)
+  )
+  const height = Math.min(
+    Math.max(bounds.height, minHeight),
+    Math.floor(workArea.height)
+  )
+  if (width === bounds.width && height === bounds.height) {
+    return null
+  }
+  return {
+    width,
+    height,
+    x: clamp(bounds.x, workArea.x, workArea.x + workArea.width - width),
+    y: clamp(bounds.y, workArea.y, workArea.y + workArea.height - height)
+  }
+}
+
 exports.isBoundsVisibleOnAnyDisplay = isBoundsVisibleOnAnyDisplay
 exports.isPointOnAnyDisplay = isPointOnAnyDisplay
+exports.fitBoundsToWorkArea = fitBoundsToWorkArea
+
+function sameBounds (a, b) {
+  return a.x === b.x &&
+    a.y === b.y &&
+    a.width === b.width &&
+    a.height === b.height
+}
+
+/**
+ * Build the handler for a window's `moved` event: after the window is dragged
+ * somewhere, refit it to the display it landed on (see fitBoundsToWorkArea).
+ *
+ * `screen` and the minimums are injected so this stays Electron-free and unit
+ * testable.
+ *
+ * Callers must gate this to Windows. Windows refits a *maximized* window
+ * across a DPI boundary itself, and on macOS `moved` is an alias of `move`, so
+ * it fires continuously mid-drag — shrinking the window under the cursor.
+ *
+ * @param {{getBounds: Function, setBounds: Function, isDestroyed: Function,
+ *   isMinimized: Function, isMaximized: Function, isFullScreen: Function}} win
+ * @param {{getDisplayMatching: Function}} screen
+ * @param {number} minWidth
+ * @param {number} minHeight
+ * @returns {Function} the `moved` handler
+ */
+function createDisplayRefitter (win, screen, minWidth, minHeight) {
+  // The bounds we last asked for. Our own setBounds emits `moved` again, so
+  // without this the handler could keep re-requesting bounds the OS declines
+  // to apply.
+  let lastFit = null
+  return function refitToDisplay () {
+    if (
+      win.isDestroyed() ||
+      win.isMinimized() ||
+      // A maximized window's bounds deliberately extend past the work area by
+      // the resize border, and setBounds on one is unreliable.
+      win.isMaximized() ||
+      win.isFullScreen()
+    ) {
+      return
+    }
+    const bounds = win.getBounds()
+    const fitted = fitBoundsToWorkArea(
+      bounds,
+      screen.getDisplayMatching(bounds).workArea,
+      minWidth,
+      minHeight
+    )
+    if (!fitted) {
+      lastFit = null
+      return
+    }
+    if (lastFit && sameBounds(fitted, lastFit)) {
+      return
+    }
+    lastFit = fitted
+    win.setBounds(fitted)
+  }
+}
+
+exports.createDisplayRefitter = createDisplayRefitter
 
 /**
  * Safety net: after a window is created, verify it is actually visible

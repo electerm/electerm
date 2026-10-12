@@ -12,7 +12,10 @@ const {
   setWindowPos,
   repairFullScreenGeometry
 } = require('./window-control')
-const { ensureWindowVisible } = require('./window-restore')
+const {
+  ensureWindowVisible,
+  createDisplayRefitter
+} = require('./window-restore')
 const { onClose } = require('./on-close')
 const { initIpc, initAppServer } = require('./ipc')
 const { disableShortCuts } = require('./key-bind')
@@ -129,6 +132,20 @@ exports.createWindow = async function (userConfig) {
       const { x, y } = win.getBounds()
       setWindowPos({ x, y })
     }, 100))
+
+    // Windows only. Windows keeps a window's size in DIP across a per-monitor
+    // DPI boundary and only refits *maximized* windows, so a window dragged
+    // from a large monitor onto a smaller one is left hanging off the new
+    // screen. `moved` fires once, when the drag settles; see
+    // createDisplayRefitter for why this is not wired up on macOS.
+    if (isWin) {
+      win.on('moved', createDisplayRefitter(
+        win,
+        screen,
+        minWindowWidth,
+        minWindowHeight
+      ))
+    }
 
     win.on('focus', () => {
       safeSend(win, 'focused', null)

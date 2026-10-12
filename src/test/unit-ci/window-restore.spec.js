@@ -2,7 +2,9 @@ const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 const {
   restoreWindowBounds,
-  isBoundsVisibleOnAnyDisplay
+  isBoundsVisibleOnAnyDisplay,
+  fitBoundsToWorkArea,
+  createDisplayRefitter
 } = require('../../../src/app/lib/window-restore')
 
 const minWindowWidth = 590
@@ -495,5 +497,295 @@ describe('window bounds restoration', () => {
       ),
       true
     )
+  })
+})
+
+// The window is dragged across a per-monitor DPI boundary: Windows keeps its
+// size in DIP, so a window that filled a big external display overflows the
+// laptop panel it was dropped on. fitBoundsToWorkArea is what refits it.
+describe('fitting a window to the display it was dragged onto', () => {
+  it('returns null for a window that already fits', () => {
+    assert.equal(
+      fitBoundsToWorkArea(
+        { x: 100, y: 100, width: 1000, height: 700 },
+        { x: 0, y: 0, width: 1920, height: 1080 },
+        minWindowWidth,
+        minWindowHeight
+      ),
+      null
+    )
+  })
+
+  it('leaves a window that fits exactly where it is, even hanging off an edge', () => {
+    // Windows lets the user park a window partly off-screen on purpose; a
+    // window that fits must not be snapped back.
+    assert.equal(
+      fitBoundsToWorkArea(
+        { x: 1700, y: 900, width: 1000, height: 700 },
+        { x: 0, y: 0, width: 1920, height: 1080 },
+        minWindowWidth,
+        minWindowHeight
+      ),
+      null
+    )
+  })
+
+  it('shrinks a maximized-on-the-big-monitor window to the smaller work area', () => {
+    // 2560x1440 external at 100% -> 1920x1080 laptop at 150% (1280x720 DIP).
+    assert.deepEqual(
+      fitBoundsToWorkArea(
+        { x: 0, y: 0, width: 2560, height: 1440 },
+        { x: 0, y: 0, width: 1280, height: 720 },
+        minWindowWidth,
+        minWindowHeight
+      ),
+      { x: 0, y: 0, width: 1280, height: 720 }
+    )
+  })
+
+  it('pulls the shrunk window back inside the work area', () => {
+    assert.deepEqual(
+      fitBoundsToWorkArea(
+        { x: 2000, y: 900, width: 2560, height: 1440 },
+        { x: 1280, y: 0, width: 1280, height: 720 },
+        minWindowWidth,
+        minWindowHeight
+      ),
+      { x: 1280, y: 0, width: 1280, height: 720 }
+    )
+  })
+
+  it('shrinks only the axis that overflows', () => {
+    assert.deepEqual(
+      fitBoundsToWorkArea(
+        { x: 40, y: 0, width: 1000, height: 1400 },
+        { x: 0, y: 0, width: 1920, height: 1080 },
+        minWindowWidth,
+        minWindowHeight
+      ),
+      { x: 40, y: 0, width: 1000, height: 1080 }
+    )
+  })
+
+  it('handles a display left of the primary, with negative coordinates', () => {
+    assert.deepEqual(
+      fitBoundsToWorkArea(
+        { x: -1000, y: 100, width: 2560, height: 1440 },
+        { x: -1280, y: 0, width: 1280, height: 720 },
+        minWindowWidth,
+        minWindowHeight
+      ),
+      { x: -1280, y: 0, width: 1280, height: 720 }
+    )
+  })
+
+  it('keeps a window above the configured minimums', () => {
+    assert.deepEqual(
+      fitBoundsToWorkArea(
+        { x: 0, y: 0, width: 200, height: 100 },
+        { x: 0, y: 0, width: 1920, height: 1080 },
+        minWindowWidth,
+        minWindowHeight
+      ),
+      { x: 0, y: 0, width: minWindowWidth, height: minWindowHeight }
+    )
+  })
+
+  it('never exceeds a work area smaller than the configured minimums', () => {
+    // A degenerate work area wins over minWidth/minHeight: overflowing the
+    // screen is worse than being under the minimum.
+    assert.deepEqual(
+      fitBoundsToWorkArea(
+        { x: 0, y: 0, width: 2000, height: 1500 },
+        { x: 0, y: 0, width: 400, height: 300 },
+        minWindowWidth,
+        minWindowHeight
+      ),
+      { x: 0, y: 0, width: 400, height: 300 }
+    )
+  })
+
+  it('does not overshoot a fractional work area', () => {
+    // Electron reports fractional DIPs on scaled displays.
+    assert.deepEqual(
+      fitBoundsToWorkArea(
+        { x: 0, y: 0, width: 2560, height: 1440 },
+        { x: 0, y: 0, width: 1279.6, height: 719.4 },
+        minWindowWidth,
+        minWindowHeight
+      ),
+      { x: 0, y: 0, width: 1279, height: 719 }
+    )
+  })
+
+  it('is idempotent, so re-running it after setBounds is a no-op', () => {
+    const workArea = { x: 1280, y: 0, width: 1280, height: 720 }
+    const fitted = fitBoundsToWorkArea(
+      { x: 2000, y: 900, width: 2560, height: 1440 },
+      workArea,
+      minWindowWidth,
+      minWindowHeight
+    )
+    assert.equal(
+      fitBoundsToWorkArea(fitted, workArea, minWindowWidth, minWindowHeight),
+      null
+    )
+  })
+})
+
+// A 2560x1440 external display next to a 1920x1080 laptop panel running at
+// 150%, i.e. only 1280x720 DIP of work area. This is the setup from the bug
+// report: drag a window filling the external display onto the laptop and it
+// does not fit.
+const bigDisplay = display({ x: 0, y: 0, width: 2560, height: 1440 })
+const laptopDisplay = display({
+  x: 2560,
+  y: 0,
+  width: 1920,
+  height: 1080,
+  workArea: { x: 2560, y: 0, width: 1280, height: 720 },
+  scaleFactor: 1.5
+})
+
+function fakeWindow (bounds, state = {}) {
+  const calls = { getBounds: 0, setBounds: [] }
+  let current = { ...bounds }
+  return {
+    calls,
+    applied: () => ({ ...current }),
+    isDestroyed: () => !!state.destroyed,
+    isMinimized: () => !!state.minimized,
+    isMaximized: () => !!state.maximized,
+    isFullScreen: () => !!state.fullScreen,
+    getBounds () {
+      calls.getBounds++
+      return { ...current }
+    },
+    setBounds (next) {
+      calls.setBounds.push({ ...next })
+      // A window that refuses the bounds models the OS declining to apply
+      // them (e.g. clamping to minWidth).
+      if (!state.refuseSetBounds) {
+        current = { ...current, ...next }
+      }
+    }
+  }
+}
+
+function refit (bounds, { state, displays = [bigDisplay, laptopDisplay] } = {}) {
+  const win = fakeWindow(bounds, state)
+  const screen = createScreen(displays)
+  const handler = createDisplayRefitter(
+    win,
+    screen,
+    minWindowWidth,
+    minWindowHeight
+  )
+  return { win, screen, handler }
+}
+
+describe('refitting a window after it is dragged onto another display', () => {
+  it('shrinks a window dropped onto the smaller display', () => {
+    // Fills the external display, dropped on the laptop.
+    const { win, handler } = refit({ x: 2560, y: 0, width: 2560, height: 1440 })
+    handler()
+
+    assert.deepEqual(win.calls.setBounds, [
+      { x: 2560, y: 0, width: 1280, height: 720 }
+    ])
+    assert.deepEqual(win.applied(), {
+      x: 2560,
+      y: 0,
+      width: 1280,
+      height: 720
+    })
+  })
+
+  it('leaves a window that fits alone', () => {
+    const { win, handler } = refit({ x: 2700, y: 100, width: 1000, height: 700 })
+    handler()
+
+    assert.deepEqual(win.calls.setBounds, [])
+    assert.deepEqual(win.applied(), {
+      x: 2700,
+      y: 100,
+      width: 1000,
+      height: 700
+    })
+  })
+
+  it('does nothing for a maximized window, which Windows refits itself', () => {
+    const { win, handler } = refit(
+      { x: 2560, y: 0, width: 2560, height: 1440 },
+      { state: { maximized: true } }
+    )
+    handler()
+
+    assert.deepEqual(win.calls.setBounds, [])
+  })
+
+  it('does nothing for a fullscreen, minimized or destroyed window', () => {
+    for (const state of [
+      { fullScreen: true },
+      { minimized: true },
+      { destroyed: true }
+    ]) {
+      const { win, handler } = refit(
+        { x: 2560, y: 0, width: 2560, height: 1440 },
+        { state }
+      )
+      handler()
+      assert.deepEqual(win.calls.setBounds, [], JSON.stringify(state))
+    }
+  })
+
+  it('does not apply the bounds twice when setBounds emits moved again', () => {
+    const { win, handler } = refit({ x: 2560, y: 0, width: 2560, height: 1440 })
+    handler()
+    // The OS emits `moved` again for the setBounds above.
+    handler()
+    handler()
+
+    assert.equal(win.calls.setBounds.length, 1)
+  })
+
+  it('gives up if the OS refuses to apply the bounds', () => {
+    // Without the last-request guard this would loop: every `moved` would
+    // re-request the same bounds the OS keeps rejecting.
+    const { win, handler } = refit(
+      { x: 2560, y: 0, width: 2560, height: 1440 },
+      { state: { refuseSetBounds: true } }
+    )
+    handler()
+    handler()
+    handler()
+
+    assert.equal(win.calls.setBounds.length, 1)
+  })
+
+  it('refits again when the window lands on a third, even smaller display', () => {
+    const tiny = display({
+      x: 3840,
+      y: 0,
+      width: 1024,
+      height: 768,
+      workArea: { x: 3840, y: 0, width: 1024, height: 728 }
+    })
+    const { win, handler } = refit(
+      { x: 3840, y: 0, width: 2560, height: 1440 },
+      { displays: [bigDisplay, laptopDisplay, tiny] }
+    )
+    handler()
+
+    assert.deepEqual(win.calls.setBounds, [
+      { x: 3840, y: 0, width: 1024, height: 728 }
+    ])
+  })
+
+  it('leaves a small window on the big display alone', () => {
+    const { win, handler } = refit({ x: 100, y: 100, width: 1280, height: 720 })
+    handler()
+
+    assert.deepEqual(win.calls.setBounds, [])
   })
 })
