@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import {
   SwapOutlined
 } from '@ant-design/icons'
@@ -17,6 +17,11 @@ export default memo(function TransferList (props) {
     transferTab,
     transferHistory
   } = props
+  // click to toggle: the popover is controlled so the icon opens *and*
+  // closes it, and so the modal's own close button can dismiss it. The old
+  // hover trigger made the panel vanish the moment the pointer left it,
+  // which is unusable now that it holds a table you want to read.
+  const [open, setOpen] = useState(false)
   const len = fileTransfers.length
   if (!len && !transferHistory.length) {
     return null
@@ -32,13 +37,17 @@ export default memo(function TransferList (props) {
   const transferModalProps = {
     fileTransfers,
     transferHistory,
-    transferTab
+    transferTab,
+    onClose: () => setOpen(false)
   }
   const popProps = {
     placement: 'right',
     destroyOnHidden: true,
     classNames: { root: 'transfer-list-card' },
-    content: <TransferModal {...transferModalProps} />
+    content: <TransferModal {...transferModalProps} />,
+    trigger: 'click',
+    open,
+    onOpenChange: setOpen
   }
   return (
     <div

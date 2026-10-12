@@ -5,6 +5,11 @@
     padding 0 3px
 .transfer-list-card
   width calc(100vw - 48px)
+  // sits on the tabs row, right-aligned; the popover is click-toggled so this
+  // is the obvious way out of it
+  .transfer-modal-close
+    &:hover
+      color var(--primary)
 .sftp-file
   max-width calc(50vw - 250px)
   overflow hidden

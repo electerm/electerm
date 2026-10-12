@@ -1,6 +1,7 @@
 import {
   Tabs
 } from 'antd'
+import { CloseOutlined } from '@ant-design/icons'
 import Transports from './transfer-list-control'
 import TransportHistory from './transfer-history-modal'
 import { memo } from 'react'
@@ -27,7 +28,8 @@ export default memo(function TransferModal (props) {
   const {
     fileTransfers,
     transferHistory,
-    transferTab
+    transferTab,
+    onClose
   } = props
   if (!fileTransfers.length && !transferHistory.length) {
     return null
@@ -65,6 +67,17 @@ export default memo(function TransferModal (props) {
         activeKey={activeTab}
         onChange={window.store.handleTransferTab}
         items={items}
+        tabBarExtraContent={{
+          right: (
+            <span
+              className='pointer transfer-modal-close'
+              title={e('close')}
+              onClick={onClose}
+            >
+              <CloseOutlined />
+            </span>
+          )
+        }}
       />
     </div>
   )
