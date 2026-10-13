@@ -46,6 +46,7 @@ const tabInternalProps = [
   'sftpCreated',
   'isTransporting',
   'mcpStatus',
+  'keepaliveEnabled',
   'activeTabId',
   'sshSftpSplitView',
   'sshTunnelResults',
@@ -570,7 +571,7 @@ class ElectermMCPServer {
     server.registerTool(
       'get_electerm_terminal_status',
       {
-        description: 'Get the current status of a terminal tab. Returns whether it is actively receiving data (running), idle (no data for 4+ seconds), or has a password prompt. Also returns the last 20 lines of terminal output. This is a lightweight, non-blocking check ideal for monitoring long-running commands.',
+        description: 'Get the current status of a terminal tab. Returns whether it is actively receiving data (running), idle (no data for 4+ seconds), or has a password prompt, plus whether session keepalive is on. Also returns the last 20 lines of terminal output. This is a lightweight, non-blocking check ideal for monitoring long-running commands.',
         inputSchema: {
           tabId: z.string().optional().describe('Tab ID to check (default: active tab)')
         }
@@ -578,6 +579,27 @@ class ElectermMCPServer {
       async (args) => {
         const result = await self.sendToRenderer('tool-call', {
           toolName: 'get_terminal_status', args
+        })
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
+    server.registerTool(
+      'set_electerm_terminal_keepalive',
+      {
+        description: 'Turn session keepalive on or off for a terminal session. ' +
+          'While on, electerm writes a newline to the session whenever it has been idle, resetting shell idle timeouts so the connection is not killed. ' +
+          'Use it before long work on a session nobody is typing into, e.g. a large electerm_sftp_upload / electerm_sftp_download. ' +
+          'Returns the resulting state as `keepalive`.',
+        inputSchema: {
+          enabled: z.boolean().describe('true to start sending keepalive, false to stop'),
+          tabId: z.string().optional().describe('Tab ID (default: active tab)')
+        }
+      },
+      async ({ enabled, tabId }) => {
+        const result = await self.sendToRenderer('tool-call', {
+          toolName: 'set_terminal_keepalive',
+          args: { enabled, tabId }
         })
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
       }

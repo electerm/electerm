@@ -370,6 +370,27 @@ export const agentTools = [
   {
     type: 'function',
     function: {
+      name: 'set_terminal_keepalive',
+      description: 'Turn session keepalive on or off for a terminal. While on, a newline is written to the session whenever it has been idle, resetting shell idle timeouts so the connection is not killed. Use it before long work on a session nobody is typing into, e.g. a large SFTP transfer.',
+      parameters: {
+        type: 'object',
+        properties: {
+          enabled: {
+            type: 'boolean',
+            description: 'true to start sending keepalive, false to stop.'
+          },
+          tabId: {
+            type: 'string',
+            description: 'Tab ID. Omit for active terminal.'
+          }
+        },
+        required: ['enabled']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
       name: 'run_background_command',
       description: 'Run a command in the background using nohup. The terminal is freed immediately. Returns a taskId for monitoring. Use get_background_task_status and get_background_task_log to check progress.',
       parameters: {
@@ -503,6 +524,8 @@ export async function executeToolCall (toolName, args) {
       return JSON.stringify(store.mcpGetTerminalStatus(args))
     case 'cancel_terminal_command':
       return JSON.stringify(store.mcpCancelTerminalCommand(args))
+    case 'set_terminal_keepalive':
+      return JSON.stringify(store.mcpSetTerminalKeepalive(args))
     case 'run_background_command':
       return JSON.stringify(store.mcpRunBackgroundCommand(args))
     case 'get_background_task_status':

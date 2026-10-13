@@ -48,7 +48,6 @@ export default class SessionWrapper extends Component {
       splitSize: [50, 50],
       sessionOptions: null,
       broadcastInput: false,
-      keepaliveEnabled: false,
       wrapDisabled: false
     }
     if (props.tab.sshSftpSplitView === undefined) {
@@ -468,8 +467,11 @@ export default class SessionWrapper extends Component {
     if (!term) {
       return
     }
+    // The flag lives on the tab (not in this component's state) so the
+    // toolbar icon and the MCP set_electerm_terminal_keepalive tool share
+    // one source of truth — an MCP-driven change must light the icon up.
     const enabled = term.toggleKeepalive()
-    this.setState({ keepaliveEnabled: enabled })
+    this.editTab({ keepaliveEnabled: enabled })
   }
 
   handleExitGracefully = () => {
@@ -633,7 +635,7 @@ export default class SessionWrapper extends Component {
           isNotTerminalType={this.isNotTerminalType()}
           canSplitView={this.canSplitView()}
           sftpPathFollowSsh={this.state.sftpPathFollowSsh}
-          keepaliveEnabled={this.state.keepaliveEnabled}
+          keepaliveEnabled={!!this.props.tab.keepaliveEnabled}
           broadcastInput={this.state.broadcastInput}
           wrapDisabled={this.state.wrapDisabled}
           pasteWhenContextMenu={!!this.props.config.pasteWhenContextMenu}

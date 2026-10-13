@@ -118,6 +118,11 @@ export default Store => {
       status: statusMap.processing // Reset status
     }
     delete newTab._reloadState
+    // Keepalive is per-session runtime state (the toolbar heartbeat icon /
+    // MCP set_electerm_terminal_keepalive), not a connection property: a
+    // reloaded session starts with a fresh terminal that is not sending
+    // keepalives, so the flag must not be carried over.
+    delete newTab.keepaliveEnabled
     if (reloadState) {
       newTab._reloadState = reloadState
     }
@@ -180,6 +185,8 @@ export default Store => {
       isTransporting: undefined
     }
     delete duplicatedTab._reloadState
+    // see reloadTab: keepalive is per-session runtime state, never inherited
+    delete duplicatedTab.keepaliveEnabled
     if (sessionState) {
       duplicatedTab._reloadState = sessionState
     }
@@ -397,6 +404,13 @@ export default Store => {
       }
     }
     newTab.batch = batchNum
+    // Keepalive is per-session runtime state set by the toolbar heartbeat
+    // icon / MCP set_electerm_terminal_keepalive on an already-open tab.
+    // Every path that creates a tab (history replay, bookmark open, MCP
+    // open_tab, clone-to-layout) funnels through here, so strip it once:
+    // a brand-new tab must not render as keepalive-on while its terminal
+    // is not actually sending keepalives.
+    delete newTab.keepaliveEnabled
     if (!newTab.id) {
       newTab.id = generate()
     }

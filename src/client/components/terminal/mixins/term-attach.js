@@ -35,12 +35,25 @@ export const attachMixin = {
   },
 
   toggleKeepalive () {
+    return this.setKeepalive(!this._keepaliveEnabled)
+  },
+
+  // Idempotent setter shared by the toolbar heartbeat icon and the MCP
+  // `set_electerm_terminal_keepalive` tool, so both paths agree on one
+  // state instead of each owning their own copy.
+  // Returns the resulting flag; before the attach addon exists (terminal
+  // not connected yet) the request is refused and false is returned.
+  setKeepalive (enabled) {
     if (!this.attachAddon) {
       return false
     }
-    this._keepaliveEnabled = !this._keepaliveEnabled
+    this._keepaliveEnabled = !!enabled
     this.attachAddon.setKeepalive(this._keepaliveEnabled)
     return this._keepaliveEnabled
+  },
+
+  getKeepalive () {
+    return !!this._keepaliveEnabled
   },
 
   batchInput (cmd) {

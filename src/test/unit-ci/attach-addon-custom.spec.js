@@ -151,3 +151,102 @@ describe('waitForOutputIdle', () => {
     assert.equal(await pending, false)
   })
 })
+
+// The client half of session keepalive — the same switch the session
+// toolbar heartbeat icon and the MCP set_electerm_terminal_keepalive tool
+// drive. The server half (writing \n to the PTY) lives in session-server.js.
+describe('session keepalive', () => {
+  const makeKeepaliveAddon = async () => {
+    const { default: AttachAddonCustom } = await loadModule()
+    const sent = []
+    const socket = { readyState: 1 /* OPEN */, send: (s) => sent.push(s) }
+    const addon = new AttachAddonCustom({ write: () => {} }, socket)
+    addon._sendData = () => {}
+    return { addon, sent }
+  }
+
+  const goIdle = (addon) => {
+    const idle = Date.now() - addon._keepaliveInterval - 1000
+    addon._lastDataTime = idle
+    addon._lastInputTime = idle
+  }
+
+  test('setKeepalive arms and disarms the interval, idempotently', async () => {
+    const { addon } = await makeKeepaliveAddon()
+    try {
+      assert.equal(addon._keepaliveTimer, null, 'starts disarmed')
+
+      addon.setKeepalive(true)
+      assert.ok(addon._keepaliveTimer, 'enabling must arm the timer')
+
+      // _startKeepalive() clears before arming, so a repeat enable leaves
+      // exactly one live timer rather than stacking a second one.
+      addon.setKeepalive(true)
+      assert.ok(addon._keepaliveTimer, 'still armed after a repeat enable')
+
+      addon.setKeepalive(false)
+      assert.equal(addon._keepaliveTimer, null, 'disabling must clear the timer')
+
+      addon.setKeepalive(false)
+      assert.equal(addon._keepaliveTimer, null, 'disabling twice is a no-op')
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('an idle session sends a keepalive frame over the socket', async () => {
+    const { addon, sent } = await makeKeepaliveAddon()
+    try {
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.deepEqual(sent, [JSON.stringify({ action: 'keepalive' })])
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('a session that just produced output stays quiet', async () => {
+    const { addon, sent } = await makeKeepaliveAddon()
+    try {
+      addon._lastDataTime = Date.now()
+      addon._lastInputTime = Date.now()
+      addon._checkKeepalive()
+      assert.deepEqual(sent, [], 'recent output must suppress the keepalive')
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('a session that just received input stays quiet', async () => {
+    const { addon, sent } = await makeKeepaliveAddon()
+    try {
+      const idle = Date.now() - addon._keepaliveInterval - 1000
+      addon._lastDataTime = idle
+      addon._lastInputTime = Date.now()
+      addon._checkKeepalive()
+      assert.deepEqual(sent, [], 'recent input must suppress the keepalive')
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('no keepalive frame while the socket is not open', async () => {
+    const { addon, sent } = await makeKeepaliveAddon()
+    try {
+      addon._socket.readyState = 3 /* CLOSED */
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.deepEqual(sent, [])
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('dispose stops the keepalive timer', async () => {
+    const { addon } = await makeKeepaliveAddon()
+    addon.setKeepalive(true)
+    assert.ok(addon._keepaliveTimer)
+    addon.dispose()
+    assert.equal(addon._keepaliveTimer, null)
+  })
+})

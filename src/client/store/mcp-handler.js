@@ -32,6 +32,10 @@ const dangerousTabProps = dangerousSessionFields
 // A crafted `batch` (missing, string, or out-of-range) used to crash the
 // Sessions render (`sizes[batch]` undefined -> cannot destructure height).
 // `addTab` now clamps batch too, but strip here as first line of defense.
+// `keepaliveEnabled` is runtime session state owned by the dedicated
+// set_electerm_terminal_keepalive tool — a tab opened through open_tab
+// must not be able to arrive already "keepalive on" while its terminal is
+// not sending anything.
 const tabInternalProps = [
   'batch',
   'id',
@@ -43,6 +47,7 @@ const tabInternalProps = [
   'sftpCreated',
   'isTransporting',
   'mcpStatus',
+  'keepaliveEnabled',
   'activeTabId',
   'sshSftpSplitView',
   'sshTunnelResults',
@@ -221,6 +226,9 @@ export default Store => {
           break
         case 'cancel_terminal_command':
           result = store.mcpCancelTerminalCommand(args)
+          break
+        case 'set_terminal_keepalive':
+          result = store.mcpSetTerminalKeepalive(args)
           break
         case 'execute_command':
           result = await store.mcpExecuteCommand(args)
@@ -507,6 +515,7 @@ export default Store => {
         status: t.status,
         from: t.from,
         mcpStatus: t.mcpStatus || '',
+        keepalive: !!t.keepaliveEnabled,
         isTransporting: t.isTransporting,
         onData: refsTabs.get('tab-' + t.id)?.state.terminalOnData,
         batch: t.batch
@@ -819,6 +828,7 @@ export default Store => {
       throw new Error('No active terminal')
     }
 
+    const tab = store.tabs.find(t => t.id === tabId)
     const tabRef = refsTabs.get('tab-' + tabId)
     const onData = tabRef?.state.terminalOnData || ''
     const term = refs.get('term-' + tabId)
@@ -850,8 +860,54 @@ export default Store => {
       isRunning: onData === 'feed',
       hasPasswordPrompt: onData === 'password',
       isIdle: !onData,
+      // Read the live terminal when it is mounted (that is what actually
+      // sends keepalives); fall back to the tab mirror for a tab whose
+      // terminal has not been created yet.
+      keepalive: term && typeof term.getKeepalive === 'function'
+        ? term.getKeepalive()
+        : !!(tab && tab.keepaliveEnabled),
       output,
       lineCount
+    }
+  }
+
+  // Enable/disable the per-session keepalive — the same switch the heartbeat
+  // icon in the session toolbar drives (attach-addon-custom._checkKeepalive
+  // writes a newline to the PTY once the session has been idle, which resets
+  // shell idle timers). This is what keeps a session alive during a long
+  // SFTP transfer when nobody is typing into the terminal.
+  Store.prototype.mcpSetTerminalKeepalive = function (args) {
+    const { store } = window
+    const tabId = (args && args.tabId) || store.activeTabId
+    if (!tabId) {
+      throw new Error('No active terminal')
+    }
+    if (typeof (args && args.enabled) !== 'boolean') {
+      throw new Error('enabled (boolean) is required')
+    }
+
+    const tab = store.tabs.find(t => t.id === tabId)
+    if (!tab) {
+      throw new Error(`Tab not found: ${tabId}`)
+    }
+
+    const term = refs.get('term-' + tabId)
+    if (!term || typeof term.setKeepalive !== 'function') {
+      throw new Error(`Terminal not ready for tab "${tabId}"`)
+    }
+
+    const enabled = term.setKeepalive(args.enabled)
+    // Mirror onto the tab so the toolbar heartbeat icon reflects an
+    // MCP-driven change (the tab flag is what the icon renders).
+    tab.keepaliveEnabled = enabled
+
+    return {
+      success: true,
+      tabId,
+      keepalive: enabled,
+      message: enabled
+        ? 'Session keepalive enabled'
+        : 'Session keepalive disabled'
     }
   }
 

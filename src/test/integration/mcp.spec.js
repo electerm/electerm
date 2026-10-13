@@ -435,6 +435,7 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
       'wait_for_electerm_terminal_idle',
       'get_electerm_terminal_status',
       'cancel_electerm_terminal_command',
+      'set_electerm_terminal_keepalive',
       'execute_electerm_command',
       'open_electerm_tab_ssh',
       'open_electerm_tab_telnet',
@@ -892,10 +893,88 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
     }
   })
 
+  test('SSH tab: session keepalive can be toggled over MCP', { timeout: 120000 }, async (t) => {
+    if (skipOffline(t)) return
+    const { sid } = await initSession()
+
+    const opened = toolPayload(await callTool(sid, 'open_electerm_tab_ssh', {
+      title: `MCP_IT_SSH_KEEPALIVE_${uid}`,
+      host: '127.0.0.1',
+      port: TEST_PORT,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD
+    }))
+    assert.equal(opened.success, true)
+    const tabId = opened.tabId
+    openedTabIds.push(tabId)
+    await waitForTerminalReady(sid, tabId)
+
+    const findTab = async () => {
+      const tabs = toolPayload(await callTool(sid, 'list_electerm_tabs', {}))
+      return tabs.find(tb => tb.id === tabId)
+    }
+
+    try {
+      // off until something turns it on
+      let status = toolPayload(await callTool(sid, 'get_electerm_terminal_status', { tabId }))
+      assert.equal(status.keepalive, false, 'keepalive must start off')
+      assert.equal((await findTab()).keepalive, false, 'list_tabs must agree')
+
+      const on = toolPayload(await callTool(sid, 'set_electerm_terminal_keepalive', {
+        tabId,
+        enabled: true
+      }))
+      assert.equal(on.success, true)
+      assert.equal(on.keepalive, true)
+      assert.equal(on.tabId, tabId)
+
+      status = toolPayload(await callTool(sid, 'get_electerm_terminal_status', { tabId }))
+      assert.equal(status.keepalive, true, 'status must report keepalive on')
+      assert.equal((await findTab()).keepalive, true, 'list_tabs must report keepalive on')
+
+      // set (not toggle) semantics: repeating the same value is a no-op
+      const again = toolPayload(await callTool(sid, 'set_electerm_terminal_keepalive', {
+        tabId,
+        enabled: true
+      }))
+      assert.equal(again.keepalive, true, 'enabling twice must not toggle it off')
+
+      // the session survives a couple of keepalive cycles and still runs commands
+      await sleep(7000)
+      const r = toolPayload(await callTool(sid, 'execute_electerm_command', {
+        command: `echo MCP_IT_KEEPALIVE_ALIVE_${uid}`,
+        tabId
+      }))
+      assert.equal(r.exitCode, 0)
+      assert.ok(r.stdout.includes(`MCP_IT_KEEPALIVE_ALIVE_${uid}`))
+
+      const off = toolPayload(await callTool(sid, 'set_electerm_terminal_keepalive', {
+        tabId,
+        enabled: false
+      }))
+      assert.equal(off.keepalive, false)
+      status = toolPayload(await callTool(sid, 'get_electerm_terminal_status', { tabId }))
+      assert.equal(status.keepalive, false, 'status must report keepalive off')
+
+      // `enabled` is required
+      const bad = await callTool(sid, 'set_electerm_terminal_keepalive', { tabId })
+      assert.equal(bad.result.isError, true)
+      assert.match(bad.result.content[0].text, /enabled/)
+
+      // unknown tab is rejected
+      const missing = await callTool(sid, 'set_electerm_terminal_keepalive', {
+        tabId: 'tab-does-not-exist',
+        enabled: true
+      })
+      assert.equal(missing.result.isError, true)
+    } finally {
+      await callTool(sid, 'close_electerm_tab', { tabId })
+    }
+  })
+
   // ─────────────────────────────────────────────────────────────────────────
   // 4. SFTP against the in-process server (needs the app's SFTP panel)
   // ─────────────────────────────────────────────────────────────────────────
-
   test('SFTP: list, stat, read, del on the test server', { timeout: 120000 }, async (t) => {
     if (skipOffline(t)) return
     const { sid } = await initSession()
