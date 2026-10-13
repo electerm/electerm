@@ -863,6 +863,14 @@ class TerminalSshBase extends TerminalBase {
       this.retry2FA = true
       delete connectOptions.password
     }
+    if ('debug' in initOptions) {
+      // ssh2 writes its protocol trace through log.log (level `info`), but the
+      // packaged log level is `warn` -- so the trace the `debug` setting asks
+      // for would never reach the log file. Mirror the setting for this server
+      // process. Gated on the flag being present so a session that does not
+      // carry it can never mute another session's trace.
+      log.setDebugMode(!!initOptions.debug)
+    }
     if (initOptions.debug) {
       connectOptions.debug = log.log
     }

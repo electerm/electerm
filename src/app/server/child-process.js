@@ -33,6 +33,8 @@ module.exports = (config, env, sysLocale) => {
   // Clean Electron-specific env vars from child process environment
   const cleanEnv = Object.assign({}, env)
   delete cleanEnv.ELECTRON_RUN_AS_NODE
+  // set below from config, so an inherited value cannot contradict it
+  delete cleanEnv.ELECTERM_DEBUG
 
   // start server
   const child = fork(resolve(__dirname, './server.js'), {
@@ -44,6 +46,9 @@ module.exports = (config, env, sysLocale) => {
         requireAuth: config.requireAuth || '',
         tokenElecterm: config.tokenElecterm,
         sshKeysPath: env.sshKeysPath,
+        // the child opens its log level from this at load time (../common/log.js),
+        // so the ssh2 protocol trace is captured from the first session on
+        ELECTERM_DEBUG: config.debug ? '1' : '',
         NODE_OPTIONS: nodeOpts || undefined,
         NODE_EXTRA_CA_CERTS: extraCaFile || undefined
       },

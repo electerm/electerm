@@ -6,6 +6,7 @@ const { dbAction } = require('./db')
 const { userConfigId, userNoEncryptConfigId } = require('../common/constants')
 const { getDbConfig } = require('./get-config')
 const globalState = require('./glob-state')
+const log = require('../common/log')
 
 const configNoEncryptFields = ['allowMultiInstance']
 
@@ -28,6 +29,13 @@ exports.saveUserConfig = async (userConfig) => {
   delete userConfig.server
   delete userConfig.port
   globalState.update('config', userConfig)
+  // `debug` is the one setting that changes the log level itself, and the app
+  // is already running when it is flipped -- apply it here so the trace shows
+  // up without a restart (the server child picks it up per session, see
+  // ../server/session-ssh.js)
+  if ('debug' in userConfig) {
+    log.setDebugMode(!!userConfig.debug)
+  }
   const conf = await getDbConfig()
   if (hasNoEncryptFields(userConfig)) {
     const q1 = {

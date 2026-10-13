@@ -10,6 +10,7 @@ const { spawnSync } = require('node:child_process')
 const { setTimeout: delay } = require('node:timers/promises')
 const { Server, utils } = require('@electerm/ssh2')
 const { session } = require('../../../src/app/server/session-ssh')
+const log = require('../../../src/app/common/log')
 
 const USERNAME = 'tester'
 const PASSWORD = 'electerm-test'
@@ -574,6 +575,56 @@ describe('session-ssh auth flows', () => {
       term = await sessionPromise
     } finally {
       term && term.kill()
+      await server.close()
+    }
+  })
+
+  /**
+   * The `debug` setting is only useful if it reaches the log: ssh2 writes its
+   * protocol trace through log.log (level `info`), which a packaged build's
+   * `warn` level drops, so session-ssh.js has to move the level as well as pass
+   * the flag. ELECTERM_DEBUG is the process-visible half of that (the level
+   * itself is pinned in log-debug-level.spec.js, where the packaged policy can
+   * be exercised without NODE_ENV=production).
+   */
+  test('a debug session opens the log level for the ssh2 trace', async () => {
+    const keyPair = generateClientKey({
+      dir: tmpDir,
+      name: 'debug-flag-ed25519',
+      type: 'ed25519',
+      passphrase: ''
+    })
+    const server = await startServer(publicKeyOnlyAuth(keyPair.publicKey))
+    const ws = createPromptWs(() => {
+      throw new Error('no prompt expected')
+    })
+    // keep the protocol trace out of the developer's real log file
+    const originalResolvePath = log.transports.file.resolvePath
+    const traceDir = makeTmpDir()
+    log.transports.file.resolvePath = () => path.join(traceDir, 'main.log')
+    const previous = process.env.ELECTERM_DEBUG
+    let term
+    try {
+      term = await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        privateKey: keyPair.privateKey,
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000,
+        debug: true
+      }, ws)
+
+      assert.equal(process.env.ELECTERM_DEBUG, '1')
+      const trace = fs.readFileSync(path.join(traceDir, 'main.log'), 'utf8')
+      assert.match(trace, /Local ident/)
+      assert.match(trace, /Remote ident/)
+    } finally {
+      term && term.kill()
+      log.transports.file.resolvePath = originalResolvePath
+      fs.rmSync(traceDir, { recursive: true, force: true })
+      setEnvVar('ELECTERM_DEBUG', previous)
       await server.close()
     }
   })

@@ -12,6 +12,7 @@ const {
   shell
 } = require('electron')
 const globalState = require('./glob-state')
+const log = require('../common/log')
 const ipcSyncFuncs = require('./ipc-sync')
 const { dbAction } = require('./db')
 const { listItermThemes } = require('./iterm-theme')
@@ -144,6 +145,9 @@ async function initAppServer () {
   const {
     config
   } = await getConfig(globalState.get('serverInited'))
+  // must happen before the server child is forked: it opens its own log level
+  // from the inherited ELECTERM_DEBUG (see ../server/child-process.js)
+  log.setDebugMode(!!config.debug)
   const {
     langs,
     langMap,
