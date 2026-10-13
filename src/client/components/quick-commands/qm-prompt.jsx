@@ -4,6 +4,7 @@
  * "send to all terminals" picks one dialog for all of them or one each.
  */
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { auto } from 'manate/react'
 import { Input, Button, Checkbox } from 'antd'
 import Modal from '../common/modal'
@@ -83,6 +84,10 @@ export default auto(function QmPrompt ({ store }) {
   if (!prompt) {
     return null
   }
-  // a new form for each question, so no answer carries over
-  return <PromptForm key={prompt.id} prompt={prompt} />
+  // a new form for each question, so no answer carries over. The footer
+  // has its own z-index, so render in the body to show above settings.
+  return createPortal(
+    <PromptForm key={prompt.id} prompt={prompt} />,
+    document.body
+  )
 })
