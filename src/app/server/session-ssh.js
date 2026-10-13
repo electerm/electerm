@@ -242,6 +242,62 @@ class TerminalSshBase extends TerminalBase {
     })
   }
 
+  /**
+   * True when this keyboard-interactive round asks for the password itself.
+   * That is the flow the 2FA retry in doSshConnect exists for: the server wants
+   * the password re-entered through keyboard-interactive ("handles both"), so it
+   * pays off to reconnect without the `password` auth method.
+   * A round that only asks for the 2FA code means the password factor is already
+   * settled on this connection, so answering it here is correct.
+   */
+  kiRoundHasPasswordPrompt (prompts) {
+    return (prompts || []).some(p => {
+      return !p.echo && (p.prompt || '').toLowerCase().includes('password')
+    })
+  }
+
+  /**
+   * Some gateways leave the prompt label empty and put the question in the
+   * keyboard-interactive name/instructions instead ("Two-Step Verification
+   * required" + "Please Input Mfa Code (SMS)"), and that question is often the
+   * SMS code. The auto-fill below must not treat such a round as a password
+   * prompt: filling the saved password in burns the only answer the server
+   * accepts, and the login dies with a confusing
+   * "All configured authentication methods failed".
+   */
+  isLikely2FAHint (options) {
+    const { name, instructions } = options || {}
+    const texts = Array.isArray(instructions)
+      ? instructions
+      : (instructions ? [instructions] : [])
+    return this.isLikely2FAPrompts(
+      [name, ...texts]
+        .filter(Boolean)
+        .map(t => ({ prompt: String(t), echo: false }))
+    )
+  }
+
+  /**
+   * The dialog renders `prompts[].prompt` as the label and `instructions[i]` as
+   * the note, so a round that only fills the name/instructions pops up a blank
+   * input box. Copy that text onto the label; `instructions` arrives as a plain
+   * string, which the per-prompt indexing in the dialog cannot use, so reset it.
+   */
+  labelBarePrompts (options) {
+    const { prompts, name, instructions } = options
+    if (!prompts || !prompts.some(p => !p.prompt)) {
+      return options
+    }
+    const hint = (Array.isArray(instructions)
+      ? instructions.join(' ')
+      : String(instructions || '')).trim() || String(name || '')
+    return {
+      ...options,
+      instructions: Array.isArray(instructions) ? instructions : [],
+      prompts: prompts.map(p => p.prompt ? p : { ...p, prompt: hint })
+    }
+  }
+
   onKeyboardEvent (options, passwordOverride) {
     if (options?.mode !== 'confirm' && this.initOptions?.interactiveValues) {
       return Promise.resolve(this.initOptions.interactiveValues.split('\n'))
@@ -258,9 +314,15 @@ class TerminalSshBase extends TerminalBase {
       : this.initOptions?.password
     if (prompts && prompts.length === 1 && savedPassword) {
       const prompt = prompts[0]
-      const promptText = (prompt.prompt || '').toLowerCase()
+      const promptText = (prompt.prompt || '').toLowerCase().trim()
       // Check if this is a password prompt (hidden input, contains "password" or is empty)
-      if (!prompt.echo && (promptText.includes('password') || promptText === '')) {
+      if (
+        !prompt.echo &&
+        (
+          promptText.includes('password') ||
+          (promptText === '' && !this.isLikely2FAHint(options))
+        )
+      ) {
         return Promise.resolve([savedPassword])
       }
     }
@@ -273,7 +335,7 @@ class TerminalSshBase extends TerminalBase {
         'interactiveValues',
         'tabId'
       ]),
-      options
+      options: this.labelBarePrompts(options)
     })
     return new Promise((resolve, reject) => {
       this.ws?.once((arg) => {
@@ -696,12 +758,17 @@ class TerminalSshBase extends TerminalBase {
           )
         }
         // Detect 2FA: if we connected with password and prompts look like 2FA,
-        // disconnect and retry without password so keyboard-interactive handles both
+        // disconnect and retry without password so keyboard-interactive handles both.
+        // Only do it when the round also asks for the password: a round that only
+        // asks for the 2FA code is the connection the server issued the challenge
+        // on, and dropping it strands the answer (bastion gateways bind the code
+        // to the connection that requested it, so the login just hangs).
         if (
           !this.retry2FA &&
           !this.authPartiallySucceeded &&
           connectOptions.password &&
-          this.isLikely2FAPrompts(prompts)
+          this.isLikely2FAPrompts(prompts) &&
+          this.kiRoundHasPasswordPrompt(prompts)
         ) {
           this.retry2FA = true
           conn.end()

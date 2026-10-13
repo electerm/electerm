@@ -232,6 +232,69 @@ function splitRoundKeyboardInteractiveAuth (rounds = []) {
   }
 }
 
+/**
+ * Bastion shape that leaves the prompt label empty and puts the question in the
+ * keyboard-interactive name/instructions instead, and does not set the SSH
+ * partial-success flag after the password round (Aliyun's own gateway behaves
+ * like this). The hidden prompt here is the SMS code, not the password.
+ */
+function emptyLabelOtpAuth (rounds = []) {
+  return (ctx) => {
+    if (ctx.method === 'none') {
+      return ctx.reject(['password', 'keyboard-interactive'])
+    }
+    if (ctx.method === 'password' && ctx.username === USERNAME) {
+      rounds.push('password')
+      return ctx.password === PASSWORD
+        ? ctx.reject(['keyboard-interactive'])
+        : ctx.reject(['password', 'keyboard-interactive'])
+    }
+    if (ctx.method === 'keyboard-interactive' && ctx.username === USERNAME) {
+      rounds.push('otp')
+      return ctx.prompt(
+        [{ prompt: '', echo: false }],
+        'Two-Step Verification required',
+        'Please Input Mfa Code (SMS)',
+        (responses) => {
+          if (responses[0] === OTP) {
+            ctx.accept()
+          } else {
+            ctx.reject(['keyboard-interactive'])
+          }
+        }
+      )
+    }
+    return ctx.reject(['password', 'keyboard-interactive'])
+  }
+}
+
+/**
+ * Same label-less prompt, but the question really is the password
+ * (commit 6106cfde added the auto-fill for exactly this).
+ */
+function emptyLabelPasswordAuth () {
+  return (ctx) => {
+    if (ctx.method === 'none') {
+      return ctx.reject(['keyboard-interactive'])
+    }
+    if (ctx.method === 'keyboard-interactive' && ctx.username === USERNAME) {
+      return ctx.prompt(
+        [{ prompt: '', echo: false }],
+        'Password authentication',
+        '',
+        (responses) => {
+          if (responses[0] === PASSWORD) {
+            ctx.accept()
+          } else {
+            ctx.reject(['keyboard-interactive'])
+          }
+        }
+      )
+    }
+    return ctx.reject(['keyboard-interactive'])
+  }
+}
+
 function startAgent () {
   const socketPath = path.join(os.tmpdir(), `ea-${process.pid}-${Date.now()}.sock`)
   const output = runCommand('ssh-agent', ['-a', socketPath, '-s'])
@@ -407,9 +470,72 @@ describe('session-ssh auth flows', () => {
         readyTimeout: 5000
       }, ws)
 
-      assert.deepEqual(rounds, ['otp', 'otp', 'password'])
+      // The code round used to be answered by dropping this connection and
+      // redoing the whole keyboard-interactive exchange on a second one (hence
+      // the old `['otp', 'otp', 'password']`): the server issued the otp
+      // challenge, electerm hung up on it, reconnected without the password and
+      // asked for the otp again. Now the round that only asks for the code is
+      // answered where it was issued, so the sequence is one exchange per factor
+      // and the otp prompt is shown exactly once.
+      assert.deepEqual(rounds, ['otp', 'password'])
       assert.equal(ws.prompts.length, 1)
       assert.match(ws.prompts[0].prompts[0].prompt, /verification code/i)
+    } finally {
+      term && term.kill()
+      await server.close()
+    }
+  })
+
+  test('a label-less otp prompt (question in instructions) is not answered with the saved password', async () => {
+    const rounds = []
+    const server = await startServer(emptyLabelOtpAuth(rounds))
+    const ws = createPromptWs(() => [OTP])
+
+    let term
+    try {
+      term = await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        password: PASSWORD,
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+
+      assert.ok(term, 'session should be created')
+      assert.equal(ws.prompts.length, 1,
+        'the otp dialog must be shown, not silently answered with the saved password')
+      assert.match(ws.prompts[0].prompts[0].prompt, /mfa code/i,
+        'the empty label is filled from the keyboard-interactive instructions')
+      assert.deepEqual(rounds, ['password', 'otp'],
+        'password first, then the code on the same connection')
+    } finally {
+      term && term.kill()
+      await server.close()
+    }
+  })
+
+  test('a label-less password prompt is still answered with the saved password', async () => {
+    const server = await startServer(emptyLabelPasswordAuth())
+    const ws = createPromptWs(() => {
+      throw new Error('a saved password should answer this prompt automatically')
+    })
+
+    let term
+    try {
+      term = await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        password: PASSWORD,
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+
+      assert.ok(term, 'session should be created')
+      assert.equal(ws.prompts.length, 0)
     } finally {
       term && term.kill()
       await server.close()
