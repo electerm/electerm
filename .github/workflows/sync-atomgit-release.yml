@@ -8,10 +8,12 @@ name: sync-release-to-atomgit
 # while it existed every push was rejected with
 #   403 <CH.00905403> This operation is not allowed because the repository is an
 #   image repository.
-# Nothing arrives on atomgit by itself any more -- no tags, no branches -- so we
-# push the release tag ourselves (which carries the commits it points at) and only
-# then create the release + attachments over the REST API. Branch mirroring is
-# deliberately not replaced: atomgit now tracks released tags only.
+# Nothing arrives on atomgit on its own any more -- no tags, no branches -- so we
+# push the release tag (which carries the commits it points at) plus the master
+# branch ourselves, and only then create the release + attachments over the REST
+# API. Master is pushed because the atomgit repo page renders its default branch,
+# which froze at the last mirror snapshot (2026-10-01); the tag alone left the
+# code page permanently stale while the releases looked perfectly up to date.
 #
 # atomgit release attachments: single file <= 2GB, no documented total quota
 # (the 2GB git / 5GB LFS limits only apply to code storage, not attachments).
@@ -101,7 +103,15 @@ jobs:
 
       # Nothing arrives on atomgit on its own any more, so we push the release tag
       # ourselves. Pushing a tag also carries the commits it points at, so the tag
-      # and the code land together in one step.
+      # and the code it was cut from land together in one step.
+      #
+      # Master is pushed too, but that is a separate concern from the release tag:
+      # the atomgit repo page renders its default branch, and master froze at the
+      # last mirror snapshot (22ad8fe, 2026-10-01) the day the mirror was removed.
+      # Pushing only the tag left the code page looking stale forever -- latest
+      # release downloads, 12-day-old code -- and post-release master commits
+      # (e.g. 14d8dc1, cut 40 minutes after the v5.6.0 tag) were not reachable
+      # from any tag at all.
       #
       # Order matters twice over:
       #  - before Create release, because POST /releases without a target_commitish
@@ -114,7 +124,7 @@ jobs:
       # Verified by hand 2026-10-02: a throwaway tag pushed to this repo over SSH
       # as the zxdong262 account succeeded, and the push immediately made the
       # commits the old mirror had been missing readable through the API.
-      - name: Push tag to atomgit
+      - name: Push tag and master to atomgit
         env:
           ATOMGIT_TOKEN: ${{ secrets.ATOMGIT_TOKEN }}
           TAG: ${{ steps.tag.outputs.tag }}
@@ -130,30 +140,40 @@ jobs:
           trap 'rm -f "$cred"' EXIT
 
           url="https://atomgit.com/${OWNER}/${REPO}.git"
-          echo "pushing ${TAG} to atomgit ..."
-          # --force: a re-run finds the tag already there, and a re-cut release
-          # must be able to move it.
+
+          # The release event checks out the tag and the push event checks out
+          # the atom branch -- neither leaves refs/heads/master locally, so fetch
+          # it explicitly. Without this there is simply nothing to push.
+          git fetch --no-tags origin +refs/heads/master:refs/remotes/origin/master
+
+          echo "pushing ${TAG} and master to atomgit ..."
+          # --force on both refs: a re-run finds the tag already there, a re-cut
+          # release must be able to move it, and atomgit's master is a stale
+          # mirror snapshot that GitHub's master has moved far ahead of.
           if ! git -c credential.helper="$cred" push --force "$url" \
-                 "refs/tags/${TAG}:refs/tags/${TAG}"; then
-            echo "::error::could not push ${TAG} to atomgit over HTTPS with ATOMGIT_TOKEN"
+                 "refs/tags/${TAG}:refs/tags/${TAG}" \
+                 "refs/remotes/origin/master:refs/heads/master"; then
+            echo "::error::could not push ${TAG}/master to atomgit over HTTPS with ATOMGIT_TOKEN"
             echo "If that token has no code-push scope, add the account SSH key as an"
             echo "ATOMGIT_SSH_KEY secret and point this step at"
             echo "  git@atomgit.com:${OWNER}/${REPO}.git"
             exit 1
           fi
 
-          # The push reported success -- confirm atomgit actually serves the ref
-          # back before the release step starts depending on it.
+          # The push reported success -- confirm atomgit actually serves both
+          # refs back before the release step starts depending on them.
           for i in 1 2 3 4 5; do
-            if git ls-remote --tags "$url" "refs/tags/${TAG}" \
-                 | grep -q "refs/tags/${TAG}$"; then
-              echo "tag ${TAG} is on atomgit"
+            remote="$(git ls-remote "$url" "refs/tags/${TAG}" "refs/heads/master" || true)"
+            if printf '%s\n' "$remote" | grep -q "refs/tags/${TAG}$" && \
+               printf '%s\n' "$remote" | grep -q "refs/heads/master$"; then
+              echo "tag ${TAG} and master are on atomgit"
               exit 0
             fi
-            echo "waiting for ${TAG} to become readable (${i}/5)"
+            echo "waiting for the refs to become readable (${i}/5)"
             sleep 3
           done
-          echo "::error::pushed ${TAG} but atomgit does not serve it back"
+          echo "::error::pushed ${TAG}/master but atomgit does not serve them back"
+          printf '%s\n' "$remote"
           exit 1
 
       - name: Download release assets from GitHub
