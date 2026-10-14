@@ -313,8 +313,8 @@ export default Store => {
   // ==================== Bookmark APIs ====================
 
   const bookmarkSensitiveFields = [
-    'password', 'privateKey', 'passphrase', 'certificate', 'proxy',
-    'connectionHoppings', 'sshTunnels'
+    'password', 'privateKey', 'privateKeyPath', 'passphrase', 'certificate',
+    'certificatePath', 'proxy', 'connectionHoppings', 'sshTunnels'
   ]
   const bookmarkFeatureFields = [
     'connectionHoppings', 'sshTunnels', 'quickCommands', 'runScripts'

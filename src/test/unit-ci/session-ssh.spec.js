@@ -419,6 +419,136 @@ describe('session-ssh auth flows', () => {
     }
   })
 
+  test('connects with a key given as a file path only', async () => {
+    const keyPair = generateClientKey({
+      dir: tmpDir,
+      name: 'ed25519-path-only',
+      type: 'ed25519'
+    })
+    const server = await startServer(publicKeyOnlyAuth(keyPair.publicKey))
+    // a prompt here means the key was never read: no publickey method was
+    // offered, so the session fell back to asking for a password
+    const ws = createPromptWs(() => [])
+
+    let term
+    try {
+      term = await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        // no privateKey content at all - this is the whole point of the field
+        privateKeyPath: keyPair.keyPath,
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+
+      assert.equal(ws.prompts.length, 0)
+      assert.equal(term.connectOptions.privateKey, keyPair.privateKey)
+    } finally {
+      term && term.kill()
+      await server.close()
+    }
+  })
+
+  test('expands ~ in the key file path', async () => {
+    const sshDir = path.join(process.env.HOME, '.ssh')
+    fs.mkdirSync(sshDir, { recursive: true })
+    const keyPair = generateClientKey({
+      dir: sshDir,
+      name: 'ed25519-home',
+      type: 'ed25519'
+    })
+    const server = await startServer(publicKeyOnlyAuth(keyPair.publicKey))
+    const ws = createPromptWs(() => [])
+
+    let term
+    try {
+      term = await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        privateKeyPath: '~/.ssh/ed25519-home',
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+
+      assert.equal(ws.prompts.length, 0)
+      assert.equal(term.connectOptions.privateKey, keyPair.privateKey)
+    } finally {
+      term && term.kill()
+      await server.close()
+    }
+  })
+
+  test('key content wins over key path when both are set', async () => {
+    const keyPair = generateClientKey({
+      dir: tmpDir,
+      name: 'ed25519-content-wins',
+      type: 'ed25519'
+    })
+    // a real, well-formed key - just not the one this server trusts, so using
+    // it instead of the content fails the login instead of being ignored
+    const otherKey = generateClientKey({
+      dir: tmpDir,
+      name: 'ed25519-not-trusted',
+      type: 'ed25519'
+    })
+    const server = await startServer(publicKeyOnlyAuth(keyPair.publicKey))
+    const ws = createPromptWs(() => [])
+
+    let term
+    try {
+      term = await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        privateKey: keyPair.privateKey,
+        privateKeyPath: otherKey.keyPath,
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+
+      assert.equal(ws.prompts.length, 0)
+      assert.equal(term.connectOptions.privateKey, keyPair.privateKey)
+    } finally {
+      term && term.kill()
+      await server.close()
+    }
+  })
+
+  test('fails with the real reason when the key file cannot be read', async () => {
+    const keyPair = generateClientKey({
+      dir: tmpDir,
+      name: 'ed25519-missing-file',
+      type: 'ed25519'
+    })
+    const server = await startServer(publicKeyOnlyAuth(keyPair.publicKey))
+    const ws = createPromptWs(() => [])
+
+    let err
+    try {
+      await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        privateKeyPath: path.join(tmpDir, 'no-such-key-file'),
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+    } catch (e) {
+      err = e
+    } finally {
+      await server.close()
+    }
+
+    assert.ok(err, 'connecting with an unreadable key file should fail')
+    assert.match(err.message, /cannot read privateKey file/)
+  })
+
   test('handles password and otp in the same keyboard-interactive round', async () => {
     const server = await startServer(sameRoundKeyboardInteractiveAuth())
     const ws = createPromptWs((options) => {

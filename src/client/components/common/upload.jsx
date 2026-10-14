@@ -11,7 +11,7 @@ import { getLocalFileInfo } from '../sftp/file-read'
  * Supports browser upload in web app mode
  * @returns {Promise<Object|null>} - File object with path info or null if cancelled
  */
-const openFileSelect = async () => {
+export const openFileSelect = async () => {
   const properties = [
     'openFile',
     'showHiddenFiles',

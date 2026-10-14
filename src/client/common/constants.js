@@ -325,6 +325,7 @@ export const regexHelpLink = 'https://github.com/electerm/electerm/wiki/Terminal
 export const connectionHoppingWikiLink = 'https://github.com/electerm/electerm/wiki/Connection-Hopping-Behavior-Change-in-electerm-since-v1.50.65'
 export const aiConfigWikiLink = 'https://github.com/electerm/electerm/wiki/AI-model-config-guide'
 export const installCommandHelpLink = 'https://github.com/electerm/electerm/wiki/Install-electerm-command'
+export const sshKeyContentOrPathHelpLink = 'https://github.com/electerm/electerm/wiki/SSH-Key-Content-vs-Key-Path'
 
 // Toggle options that have a wiki page explaining what they actually change.
 // renderToggle() looks the config key up here and renders a HelpIcon only for

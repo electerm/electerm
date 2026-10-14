@@ -46,6 +46,48 @@ const algFailMsgs = [
   'no matching host key format'
 ]
 
+// A key/certificate can be stored two ways: as content (pasted, or imported
+// from a file by the bookmark form), or as the path of the file to read it
+// from ("select file path" in the bookmark form, `-i/--private-key-path` on
+// the command line). Content wins: when both are filled in, the path is
+// ignored, which is also the order the form shows them in.
+const keyFilePairs = [
+  ['privateKeyPath', 'privateKey'],
+  ['certificatePath', 'certificate']
+]
+
+// fs does not expand `~`, and this is a path people type by hand
+function expandHome (p) {
+  if (p === '~' || p.startsWith('~/') || p.startsWith('~\\')) {
+    return pathResolve(require('os').homedir(), p.slice(2))
+  }
+  return p
+}
+
+/**
+ * Fill `privateKey` / `certificate` from their `...Path` counterpart when only
+ * a path was given. Mutates and returns `options`.
+ * @param {object} options ssh2 connect options
+ */
+function resolveKeyFiles (options) {
+  for (const [pathKey, contentKey] of keyFilePairs) {
+    const filePath = options[pathKey]
+    if (!filePath || options[contentKey]) {
+      continue
+    }
+    try {
+      options[contentKey] = require('fs')
+        .readFileSync(expandHome(filePath), 'utf8')
+    } catch (err) {
+      log.error(`cannot read ${contentKey} file`, filePath, err)
+      // failing the connection with the real reason beats a bare
+      // "All configured authentication methods failed"
+      throw new Error(`cannot read ${contentKey} file ${filePath}: ${err.message}`)
+    }
+  }
+  return options
+}
+
 class TerminalSshBase extends TerminalBase {
   async remoteInitProcess () {
     this.adjustConnectionOrder()
@@ -200,12 +242,16 @@ class TerminalSshBase extends TerminalBase {
       username: initOptions.username,
       password: initOptions.password,
       privateKey: initOptions.privateKey,
-      passphrase: initOptions.passphrase
+      privateKeyPath: initOptions.privateKeyPath,
+      passphrase: initOptions.passphrase,
+      certificate: initOptions.certificate,
+      certificatePath: initOptions.certificatePath
     }
 
     const [firstHopping, ...restHoppings] = initOptions.connectionHoppings
     const pickProps = _.pick(firstHopping, [
-      'host', 'port', 'username', 'password', 'privateKey', 'passphrase', 'certificate'
+      'host', 'port', 'username', 'password', 'privateKey', 'privateKeyPath',
+      'passphrase', 'certificate', 'certificatePath'
     ])
     Object.assign(initOptions, pickProps)
     initOptions.connectionHoppings = [...restHoppings, currentHostHopping]
@@ -522,6 +568,9 @@ class TerminalSshBase extends TerminalBase {
       sock,
       ...hopping
     }
+    // hop connections never go through buildConnectOptions(), so their key
+    // path has to be read here - and before hasExplicitAuth is worked out
+    resolveKeyFiles(this.hoppingOptions)
     const { Client } = require('@electerm/ssh2')
     this.nextConn = new Client()
     // If we have an agent and no explicit privateKey/password, try agent first
@@ -921,11 +970,14 @@ class TerminalSshBase extends TerminalBase {
         'username',
         'password',
         'privateKey',
+        'privateKeyPath',
         'passphrase',
         'certificate',
+        'certificatePath',
         'encode'
       ])
     )
+    resolveKeyFiles(connectOptions)
     if (initOptions.isMFA) {
       this.retry2FA = true
       delete connectOptions.password

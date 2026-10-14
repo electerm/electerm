@@ -11,8 +11,10 @@ const hoppingProps = [
   'username',
   'password',
   'privateKey',
+  'privateKeyPath',
   'passphrase',
-  'certificate'
+  'certificate',
+  'certificatePath'
 ]
 
 function buildTreeData (bookmarkGroups, tree) {
