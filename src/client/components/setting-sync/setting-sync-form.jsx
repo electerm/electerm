@@ -310,9 +310,6 @@ export default function SyncForm (props) {
     )
   }
   function createPasswordItem () {
-    if (syncType === syncTypes.cloud) {
-      return null
-    }
     return (
       <FormItem
         label={syncPasswordLabel}
@@ -325,6 +322,7 @@ export default function SyncForm (props) {
       >
         <Password
           placeholder={syncType + ' ' + syncPasswordName}
+          id={createId('syncPassword')}
         />
       </FormItem>
     )

@@ -24,6 +24,9 @@ const {
   CUSTOM_SYNC_SECRET,
   CLOUD_TOKEN
 } = process.env
+// password used for the cloud round-trip check below; override via env
+// when the e2e cloud account already has a sync password set
+const CLOUD_SYNC_PASSWORD = process.env.CLOUD_SYNC_PASSWORD || 'electerm-cloud-e2e-pass'
 
 // gitee regularly needs 30s+ to answer from a CI runner, and nothing in the
 // request path carries a short timeout (the ws bridge allows 120s), so these
@@ -154,6 +157,9 @@ describe('data sync', function () {
     await delay(3000)
 
     await client.setValue('#sync-input-token-cloud', CLOUD_TOKEN)
+    // sync password: bookmarks/profiles get encrypted client-side
+    // (aes-256-gcm) before upload, so the server only ever sees ciphertext
+    await client.setValue('#sync-input-syncPassword-cloud', CLOUD_SYNC_PASSWORD)
     log('0192.sync.spec.js: cloud token set')
     await delay(1000)
     await client.click('.setting-wrap .sync-btn-save:visible')
@@ -162,6 +168,16 @@ describe('data sync', function () {
     await client.click('.setting-wrap .sync-btn-up:visible')
     log('0192.sync.spec.js: cloud up clicked')
     await waitSyncSettled(client)
+
+    log('0192.sync.spec.js: verify server data is ciphertext')
+    const serverBkStr = await client.evaluate(async () => {
+      const gist = await window.store.previewServerData('cloud')
+      return gist.files['bookmarks.json'].content
+    })
+    expect(serverBkStr.startsWith('gcm:')).equal(true)
+    expect(serverBkStr.includes('password')).equal(false)
+    log('0192.sync.spec.js: server bookmarks encrypted')
+
     await client.evaluate(() => {
       return window.store.setBookmarks([])
     })

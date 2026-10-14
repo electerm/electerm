@@ -375,12 +375,23 @@ export default (Store) => {
       }
 
       let serverItems = []
+      let encrypted = false
+      let serverPreview = ''
       if (serverStr) {
         try {
           serverStr = await decryptSyncData(serverStr, pass, n)
           serverItems = JSON.parse(serverStr)
         } catch (e) {
           console.error(`Failed to parse server data for ${n}:`, e)
+          // The server holds ciphertext we cannot read: no sync password
+          // configured here, or a different one. Reporting it as "0 items"
+          // reads as "the server is empty" and invites an upload that would
+          // overwrite the encrypted data — surface the ciphertext instead.
+          // (Plaintext JSON rejected by the fail-closed gate stays at 0.)
+          if (!isJSON(serverStr)) {
+            encrypted = true
+            serverPreview = serverStr.slice(0, 80)
+          }
         }
       }
       serverData[n] = serverItems
@@ -401,7 +412,9 @@ export default (Store) => {
         onlyServer: onlyServer.length,
         common: common.length,
         localItems: onlyLocal,
-        serverItems: onlyServer
+        serverItems: onlyServer,
+        encrypted,
+        serverPreview
       })
     }
 

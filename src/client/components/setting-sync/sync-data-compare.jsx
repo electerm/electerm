@@ -35,8 +35,10 @@ export default function SyncDataCompare (props) {
 
   const { comparison: comp } = comparison
 
-  // Filter only items with differences
-  const diffs = comp.filter(item => item.onlyLocal > 0 || item.onlyServer > 0)
+  // Encrypted-but-unreadable server data counts as a difference: hiding it
+  // behind "0 items" would suggest the server is empty and invite an upload
+  // that overwrites the encrypted data.
+  const diffs = comp.filter(item => item.encrypted || item.onlyLocal > 0 || item.onlyServer > 0)
 
   if (diffs.length === 0) {
     return (
@@ -58,6 +60,12 @@ export default function SyncDataCompare (props) {
 
   const lines = diffs.map(item => {
     const displayName = nameMap[item.name] || item.name
+    if (item.encrypted) {
+      return {
+        text: `${e('remote') || 'remote'}: ${displayName} 🔒 ${item.serverPreview}…`,
+        hint: `${e('encrypt') || 'encrypt'} ${e('password') || 'password'}?`
+      }
+    }
     const localCount = item.localCount
     const serverCount = item.serverCount
     const diff = serverCount - localCount
@@ -80,6 +88,9 @@ export default function SyncDataCompare (props) {
           {lines.map((line, i) => (
             <p key={i} className='mg0'>
               {line.text}
+              {line.hint && (
+                <span className='sync-suggest-action'> ({line.hint})</span>
+              )}
               {line.action && (
                 <span className='sync-suggest-action'> {'->'} {line.action} ?</span>
               )}
