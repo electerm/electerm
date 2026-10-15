@@ -28,6 +28,14 @@ function trim (str) {
 
 export default function SyncForm (props) {
   const [form] = Form.useForm()
+  // Watched at the top level on purpose: createWebdavItems() only runs for the
+  // webdav sync type, so a hook inside it would change hook order when the
+  // user switches syncType in the panel.
+  const serverUrl = Form.useWatch('serverUrl', form)
+  // WebDAV sync is scheme agnostic — http:// is fine, and on http there is no
+  // TLS handshake for the skip-verify switch to affect, so drop it there.
+  const isHttp = typeof serverUrl === 'string' &&
+    serverUrl.trim().toLowerCase().startsWith('http://')
   const prevRef = useRef(null)
 
   useEffect(() => {
@@ -230,7 +238,7 @@ export default function SyncForm (props) {
           }]}
         >
           <Input
-            placeholder='https://your-webdav-server.com/remote.php/dav/files/username'
+            placeholder='http://192.168.1.10:8080/dav or https://your-webdav-server.com/remote.php/dav/files/username'
             id='sync-input-webdav-server-url'
           />
         </FormItem>
@@ -249,13 +257,20 @@ export default function SyncForm (props) {
             id='sync-input-webdav-username'
           />
         </FormItem>
-        <FormItem
-          label={createLabel('Skip SSL verify')}
-          name='skipVerify'
-          valuePropName='checked'
-        >
-          <SwitchLabel />
-        </FormItem>
+        {
+          // no TLS on an http:// server, so there is nothing to skip
+          !isHttp
+            ? (
+              <FormItem
+                label={createLabel('Skip SSL verify')}
+                name='skipVerify'
+                valuePropName='checked'
+              >
+                <SwitchLabel />
+              </FormItem>
+              )
+            : null
+        }
         <FormItem
           label={createLabel(e('password'))}
           name='password'
