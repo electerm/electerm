@@ -1,8 +1,5 @@
 import createName from '../../common/create-title'
-
-function isTopLevelGroup (group) {
-  return !group?.level || group.level < 2
-}
+import { defaultBookmarkGroupId } from '../../common/constants'
 
 function bookmarkCompare (a, b, bookmarksMap, sortTitle, sortHost) {
   const itemA = bookmarksMap.get(a)
@@ -43,10 +40,47 @@ export function buildVisibleTreeRows ({
     : groupTree[id]
   const rows = []
   const matchedRowKeys = []
+  const groups = bookmarkGroups || []
+  const nestedGroupIds = new Set()
+  const visitedGroupIds = new Set()
+  const visitedBookmarkIds = new Set()
   const expandedKeySet = new Set(expandedKeys || [])
   const lowerKeyword = (keyword || '').toLowerCase()
   const bookmarkMatchCache = new Map()
   const groupMatchCache = new Map()
+  const groupMatchInProgress = new Set()
+
+  for (const group of groups) {
+    for (const groupId of group?.bookmarkGroupIds || []) {
+      nestedGroupIds.add(groupId)
+    }
+  }
+
+  const rootGroups = groups.filter(group => {
+    return group?.id === defaultBookmarkGroupId || !nestedGroupIds.has(group?.id)
+  })
+
+  // Preserve disconnected groups too, including malformed cycles with no root.
+  const reachableGroupIds = new Set()
+  const markGroupReachable = group => {
+    if (!group || reachableGroupIds.has(group.id)) {
+      return
+    }
+    reachableGroupIds.add(group.id)
+    for (const groupId of group.bookmarkGroupIds || []) {
+      markGroupReachable(getGroup(groupId))
+    }
+  }
+  for (const group of rootGroups) {
+    markGroupReachable(group)
+  }
+  for (const group of groups) {
+    if (reachableGroupIds.has(group.id)) {
+      continue
+    }
+    rootGroups.push(group)
+    markGroupReachable(group)
+  }
 
   const bookmarkMatches = (bookmarkId) => {
     if (bookmarkMatchCache.has(bookmarkId)) {
@@ -73,18 +107,28 @@ export function buildVisibleTreeRows ({
     if (groupMatchCache.has(group.id)) {
       return groupMatchCache.get(group.id)
     }
+    if (groupMatchInProgress.has(group.id)) {
+      return false
+    }
+    groupMatchInProgress.add(group.id)
     const hasMatch = (group.bookmarkIds || []).some(bookmarkMatches) ||
       (group.bookmarkGroupIds || []).some(id => {
         return groupHasMatchedBookmarks(getGroup(id))
       })
+    groupMatchInProgress.delete(group.id)
     groupMatchCache.set(group.id, hasMatch)
     return hasMatch
   }
 
   const visitGroup = (group, parentId = '', depth = 1) => {
-    if (!group || (lowerKeyword && !groupHasMatchedBookmarks(group))) {
+    if (
+      !group ||
+      visitedGroupIds.has(group.id) ||
+      (lowerKeyword && !groupHasMatchedBookmarks(group))
+    ) {
       return
     }
+    visitedGroupIds.add(group.id)
 
     rows.push({
       key: `group:${group.id}`,
@@ -112,10 +156,14 @@ export function buildVisibleTreeRows ({
       : bookmarkIds
 
     for (const bookmarkId of sortedIds) {
+      if (visitedBookmarkIds.has(bookmarkId)) {
+        continue
+      }
       const item = bookmarksMap.get(bookmarkId)
       if (!item || (lowerKeyword && !bookmarkMatches(bookmarkId))) {
         continue
       }
+      visitedBookmarkIds.add(bookmarkId)
       const rowKey = `bookmark:${item.id}`
       rows.push({
         key: rowKey,
@@ -130,10 +178,8 @@ export function buildVisibleTreeRows ({
     }
   }
 
-  for (const group of bookmarkGroups || []) {
-    if (isTopLevelGroup(group)) {
-      visitGroup(group)
-    }
+  for (const group of rootGroups) {
+    visitGroup(group)
   }
 
   return {
