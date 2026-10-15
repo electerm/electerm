@@ -2,38 +2,29 @@
  * create bookmark group tree data
  */
 
+import buildMap from '../../../common/build-map.js'
+import { mapBookmarkGroupTree } from '../../../common/bookmark-group-tree.js'
+
 export default (bookmarkGroups = [], disabledId = '', returnMap = false, currentParentId = '') => {
-  const btree = new Map(bookmarkGroups.map(d => [d.id, d]))
-  function buildSubCats (id) {
-    const x = btree.get(id)
-    if (!x) {
-      return ''
-    }
-    const y = {
-      key: x.id,
-      value: x.id,
-      title: x.title,
-      disabled: x.id === disabledId || x.id === currentParentId
-    }
-    y.children = (x.bookmarkGroupIds || []).map(buildSubCats).filter(d => d)
-    if (!y.children.length) {
-      delete y.children
-    }
-    return y
-  }
-  const level1 = bookmarkGroups.filter(d => d.level === 1 || !d.level)
-    .map(d => {
-      const r = {
-        title: d.title,
-        value: d.id,
-        key: d.id,
-        disabled: d.id === disabledId || d.id === currentParentId,
-        children: (d.bookmarkGroupIds || []).map(buildSubCats).filter(d => d)
+  const btree = buildMap(bookmarkGroups)
+  // every group is listed, empty ones included: this tree picks a *target*
+  // group, so a group holding no bookmarks is a perfectly good answer
+  const tree = mapBookmarkGroupTree(bookmarkGroups, {
+    mapGroup: (group, children) => {
+      const node = {
+        key: group.id,
+        value: group.id,
+        title: group.title,
+        disabled: group.id === disabledId || group.id === currentParentId
       }
-      return r
-    }).filter(d => d)
+      if (children.length) {
+        node.children = children
+      }
+      return node
+    }
+  })
   if (returnMap) {
-    return [level1, btree]
+    return [tree, btree]
   }
-  return level1
+  return tree
 }

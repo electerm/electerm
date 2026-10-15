@@ -1,5 +1,6 @@
 import createName from '../../common/create-title'
 import { defaultBookmarkGroupId } from '../../common/constants'
+import { getRootBookmarkGroups } from '../../common/bookmark-group-tree.js'
 
 // the row identity the list navigates by, kept here so the keyboard cursor and
 // the click handler below agree on it
@@ -47,7 +48,6 @@ export function buildVisibleTreeRows ({
   const rows = []
   const matchedRowKeys = []
   const groups = bookmarkGroups || []
-  const nestedGroupIds = new Set()
   const visitedGroupIds = new Set()
   const visitedBookmarkIds = new Set()
   const expandedKeySet = new Set(expandedKeys || [])
@@ -56,37 +56,9 @@ export function buildVisibleTreeRows ({
   const groupMatchCache = new Map()
   const groupMatchInProgress = new Set()
 
-  for (const group of groups) {
-    for (const groupId of group?.bookmarkGroupIds || []) {
-      nestedGroupIds.add(groupId)
-    }
-  }
-
-  const rootGroups = groups.filter(group => {
-    return group?.id === defaultBookmarkGroupId || !nestedGroupIds.has(group?.id)
-  })
-
-  // Preserve disconnected groups too, including malformed cycles with no root.
-  const reachableGroupIds = new Set()
-  const markGroupReachable = group => {
-    if (!group || reachableGroupIds.has(group.id)) {
-      return
-    }
-    reachableGroupIds.add(group.id)
-    for (const groupId of group.bookmarkGroupIds || []) {
-      markGroupReachable(getGroup(groupId))
-    }
-  }
-  for (const group of rootGroups) {
-    markGroupReachable(group)
-  }
-  for (const group of groups) {
-    if (reachableGroupIds.has(group.id)) {
-      continue
-    }
-    rootGroups.push(group)
-    markGroupReachable(group)
-  }
+  // a group is a root when nothing references it, never by its `level` field —
+  // see src/client/common/bookmark-group-tree.js
+  const rootGroups = getRootBookmarkGroups(groups, [defaultBookmarkGroupId])
 
   const bookmarkMatches = (bookmarkId) => {
     if (bookmarkMatchCache.has(bookmarkId)) {

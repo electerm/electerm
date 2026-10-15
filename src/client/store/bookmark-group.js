@@ -6,6 +6,7 @@ import {
   defaultBookmarkGroupId,
   settingMap
 } from '../common/constants'
+import { findBookmarkGroupParent } from '../common/bookmark-group-tree.js'
 import { action } from 'manate'
 
 export default Store => {
@@ -62,18 +63,11 @@ export default Store => {
 
     const tobeDel = bookmarkGroups[index]
 
-    // Find parent group
-    let parentGroup = null
-    if (tobeDel.level === 2) {
-      parentGroup = bookmarkGroups.find(bg =>
-        (bg.bookmarkGroupIds || []).includes(tobeDel.id)
-      )
-    }
-
-    // If no parent found, use default group
-    if (!parentGroup) {
-      parentGroup = bookmarkGroups.find(bg => bg.id === defaultBookmarkGroupId)
-    }
+    // find the parent by reference rather than by `level`: imported groups may
+    // carry no level at all, and the fallback would then hand a nested group's
+    // bookmarks and children to `default` instead of to its real parent
+    const parentGroup = findBookmarkGroupParent(bookmarkGroups, tobeDel.id) ||
+      bookmarkGroups.find(bg => bg.id === defaultBookmarkGroupId)
 
     // Ensure parent group has bookmarkIds and bookmarkGroupIds arrays
     if (!parentGroup.bookmarkIds) {

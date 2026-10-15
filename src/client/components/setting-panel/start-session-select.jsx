@@ -7,7 +7,8 @@ import {
   BookOutlined
 } from '@ant-design/icons'
 import HelpIcon from '../common/help-icon'
-import buildMap from '../../common/build-map'
+import buildMap from '../../common/build-map.js'
+import { mapBookmarkGroupTree } from '../../common/bookmark-group-tree.js'
 
 const e = window.translate
 const { SHOW_CHILD } = TreeSelect
@@ -21,53 +22,31 @@ function BookmarkSelect (props) {
   } = props
 
   const buildData = () => {
-    const cats = bookmarkGroups
-    const tree = buildMap(bookmarks)
-    const btree = buildMap(cats)
-    function buildSubCats (id) {
-      const x = btree.get(id)
-      if (!x) {
-        return ''
-      }
-      const y = {
-        key: x.id,
-        value: x.id,
-        title: x.title
-      }
-      y.children = [
-        ...(x.bookmarkGroupIds || []).map(buildSubCats),
-        ...(x.bookmarkIds || []).map(buildLeaf)
-      ].filter(d => d)
-      if (y.children && !y.children.length) {
-        delete y.children
-      }
-      return y
-    }
-    function buildLeaf (id) {
-      const x = tree.get(id)
-      if (!x) {
-        return ''
-      }
-      return {
-        value: x.id,
-        key: x.id,
-        title: createTitleWithTag(x)
-      }
-    }
-    const level1 = cats.filter(d => d.level === 1 || !d.level)
-      .map(d => {
-        const r = {
-          title: d.title,
-          value: d.id,
-          key: d.id,
-          children: [
-            ...(d.bookmarkGroupIds || []).map(buildSubCats),
-            ...(d.bookmarkIds || []).map(buildLeaf)
-          ].filter(d => d)
+    const bookmarkMap = buildMap(bookmarks)
+    return mapBookmarkGroupTree(bookmarkGroups, {
+      mapBookmark: id => {
+        const x = bookmarkMap.get(id)
+        if (!x) {
+          return null
         }
-        return r
-      }).filter(d => d)
-    return level1
+        return {
+          value: x.id,
+          key: x.id,
+          title: createTitleWithTag(x)
+        }
+      },
+      mapGroup: (group, children) => {
+        const node = {
+          title: group.title,
+          value: group.id,
+          key: group.id
+        }
+        if (children.length) {
+          node.children = children
+        }
+        return node
+      }
+    })
   }
 
   // onStartSessions is array for bookmarks

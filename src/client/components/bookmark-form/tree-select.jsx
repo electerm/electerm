@@ -8,15 +8,14 @@ import { useState, useMemo } from 'react'
 import { defaultBookmarkGroupId, settingMap } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import createTitle, { createTitleWithTag } from '../../common/create-title'
-import buildMap from '../../common/build-map'
+import buildMap from '../../common/build-map.js'
+import { mapBookmarkGroupTree } from '../../common/bookmark-group-tree.js'
 
 const e = window.translate
 
 function buildData (bookmarks, bookmarkGroups, searchText = '') {
   const searchLower = searchText.toLowerCase()
-  const cats = bookmarkGroups
-  const tree = buildMap(bookmarks)
-  const btree = buildMap(cats)
+  const bookmarkMap = buildMap(bookmarks)
 
   // Helper to check if a node matches the search
   function matchesSearch (text) {
@@ -25,42 +24,15 @@ function buildData (bookmarks, bookmarkGroups, searchText = '') {
     return str.toLowerCase().includes(searchLower)
   }
 
-  function buildSubCats (id) {
-    const x = btree.get(id)
-    if (!x) {
-      return ''
-    }
-    const y = {
-      key: x.id,
-      value: x.id,
-      title: x.title
-    }
-    y.children = [
-      ...(x.bookmarkGroupIds || []).map(buildSubCats),
-      ...(x.bookmarkIds || []).map(buildLeaf)
-    ].filter(d => d)
-    if (y.children && !y.children.length) {
-      delete y.children
-    }
-    // Filter: include node if it matches or has matching children
-    if (searchText) {
-      const titleMatches = matchesSearch(x.title || '')
-      const hasMatchingChildren = y.children && y.children.length > 0
-      if (!titleMatches && !hasMatchingChildren) {
-        return ''
-      }
-    }
-    return y
-  }
   function buildLeaf (id) {
-    const x = tree.get(id)
+    const x = bookmarkMap.get(id)
     if (!x) {
-      return ''
+      return null
     }
     const titleText = createTitle(x)
     // Filter: only include leaf if it matches search
     if (searchText && !matchesSearch(titleText)) {
-      return ''
+      return null
     }
     return {
       value: x.id,
@@ -68,32 +40,25 @@ function buildData (bookmarks, bookmarkGroups, searchText = '') {
       title: createTitleWithTag(x)
     }
   }
-  const level1 = cats.filter(d => d.level === 1 || !d.level)
-    .map(d => {
-      const children = [
-        ...(d.bookmarkGroupIds || []).map(buildSubCats),
-        ...(d.bookmarkIds || []).map(buildLeaf)
-      ].filter(d => d)
+
+  return mapBookmarkGroupTree(bookmarkGroups, {
+    mapBookmark: buildLeaf,
+    mapGroup: (group, children) => {
       // Filter: include group if it matches or has matching children
-      if (searchText) {
-        const titleMatches = matchesSearch(d.title || '')
-        const hasMatchingChildren = children.length > 0
-        if (!titleMatches && !hasMatchingChildren) {
-          return null
-        }
+      if (searchText && !matchesSearch(group.title || '') && !children.length) {
+        return null
       }
-      const r = {
-        title: d.title,
-        value: d.id,
-        key: d.id,
-        children
+      const node = {
+        key: group.id,
+        value: group.id,
+        title: group.title
       }
-      if (r.children && !r.children.length) {
-        delete r.children
+      if (children.length) {
+        node.children = children
       }
-      return r
-    }).filter(d => d)
-  return level1
+      return node
+    }
+  })
 }
 
 export default function BookmarkTreeSelect (props) {
