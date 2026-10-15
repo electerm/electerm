@@ -101,6 +101,22 @@ function setupCommandLineSwitches () {
     app.commandLine.appendSwitch('enable-transparent-visuals')
     app.commandLine.appendSwitch('in-process-gpu')
   }
+  // Windows only. "Hide pointer while typing" (Settings > Bluetooth & devices >
+  // Mouse, on by default) maps to Chromium's HideCursorWhileTyping feature.
+  // Typing in the terminal calls ::ShowCursor(FALSE), and since ShowCursor is
+  // counted per thread (the browser UI thread) the pointer then stays hidden
+  // over EVERY window of the app. Normally a mouse move over the same window
+  // shows it again, but a native modal dialog disables its parent, so the
+  // parent never gets that event and the pointer stays invisible for as long as
+  // the dialog is open -- including over the dialog itself, where the user just
+  // sees an unclickable app (clicks still land correctly). Reproduced by
+  // "save terminal log to file" / "record" right after typing, but any dialog
+  // opened straight after a keystroke hits it.
+  // Upstream: https://github.com/electron/electron/issues/54630
+  // Drop this once that issue is fixed and we can move past that Electron.
+  if (process.platform === 'win32') {
+    app.commandLine.appendSwitch('disable-features', 'HideCursorWhileTyping')
+  }
   if (process.platform === 'linux' || process.env.DISABLE_HARDWARE_ACCELERATION) {
     app.disableHardwareAcceleration()
   }

@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "5.6.1",
+  "version": "5.6.3",
   "description": "Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(Linux, Mac, Windows, Android, HarmonyOS, iOS).",
   "main": "app.js",
   "scripts": {
@@ -54,7 +54,6 @@
   },
   "devDependencies": {
     "@ant-design/icons": "6.2.5",
-    "@electerm/electerm-locales": "2.3.33",
     "@electerm/electerm-resource": "2.2.1",
     "@fontsource/maple-mono": "^5.2.5",
     "@novnc/novnc": "1.7.0",
@@ -100,6 +99,7 @@
   },
   "dependencies": {
     "@electerm/electerm-themes": "1.0.2",
+    "@electerm/electerm-locales": "2.3.33",
     "@electerm/ftp-srv": "^1.0.6",
     "@electerm/nedb": "2.0.0",
     "@electerm/ssh2": "1.22.1",
