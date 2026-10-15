@@ -26,7 +26,7 @@ import TreeListRow from './tree-list-row'
 import TreeListEditorOverlay from './tree-list-editor-overlay.jsx'
 import TreeSearch from './tree-search'
 import VirtualTreeList from './virtual-tree-list'
-import { buildVisibleTreeRows } from './tree-list-rows'
+import { buildVisibleTreeRows, getRowKey } from './tree-list-rows'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import {
   treeEditorRowHeight,
@@ -47,7 +47,7 @@ export default class ItemListTree extends Component {
       categoryTitle: '',
       categoryColor: '',
       categoryId: '',
-      searchSelectedRowKey: '',
+      selectedRowKey: '',
       sort: getItemJSON(treeSortLsKey, null)
     }
     this.listRef = React.createRef()
@@ -109,7 +109,7 @@ export default class ItemListTree extends Component {
   handleChange = keyword => {
     this.setState({
       keyword,
-      searchSelectedRowKey: ''
+      selectedRowKey: ''
     })
   }
 
@@ -118,52 +118,91 @@ export default class ItemListTree extends Component {
     this.setState({ sort })
   }
 
+  // arrow keys / enter while the search box has focus: only the matching rows
+  // are in play
   handleKeyDown = (e) => {
     const { keyword } = this.state
     if (!keyword) return
-    this.handleVirtualTreeKeyDown(e)
+    const { rows, matchedRowKeys } = this.getVisibleTreeData()
+    this.handleRowKeyDown(e, rows, matchedRowKeys)
   }
 
-  handleVirtualTreeKeyDown = (e) => {
-    const { matchedRowKeys, rows } = this.getVisibleTreeData()
-    if (!matchedRowKeys.length) {
+  // the same keys once the list itself has focus (a click anywhere in it gives
+  // it focus), now over every visible row, categories included
+  handleListKeyDown = (e) => {
+    // the inline category/group editor is rendered inside the list, typing in it
+    // must never be read as navigation
+    const { tagName, isContentEditable } = e.target
+    if (
+      tagName === 'INPUT' ||
+      tagName === 'TEXTAREA' ||
+      tagName === 'SELECT' ||
+      tagName === 'BUTTON' ||
+      isContentEditable
+    ) {
+      return
+    }
+    const { rows } = this.getVisibleTreeData()
+    this.handleRowKeyDown(e, rows, rows.map(row => row.key))
+  }
+
+  handleRowKeyDown = (e, rows, rowKeys) => {
+    if (!rowKeys.length) {
       return
     }
 
-    const { searchSelectedRowKey } = this.state
-    const currentIndex = matchedRowKeys.indexOf(searchSelectedRowKey)
+    const { selectedRowKey } = this.state
+    const currentIndex = rowKeys.indexOf(selectedRowKey)
 
     if (e.key === 'ArrowDown') {
       e.preventDefault()
-      const nextIndex = (currentIndex + 1) % matchedRowKeys.length
-      const rowKey = matchedRowKeys[nextIndex]
-      this.setState({ searchSelectedRowKey: rowKey })
+      const nextIndex = (currentIndex + 1) % rowKeys.length
+      const rowKey = rowKeys[nextIndex]
+      this.setState({ selectedRowKey: rowKey })
       this.scrollRowIntoView(rows, rowKey)
       return
     }
 
     if (e.key === 'ArrowUp') {
       e.preventDefault()
-      const nextIndex = currentIndex <= 0 ? matchedRowKeys.length - 1 : currentIndex - 1
-      const rowKey = matchedRowKeys[nextIndex]
-      this.setState({ searchSelectedRowKey: rowKey })
+      const nextIndex = currentIndex <= 0 ? rowKeys.length - 1 : currentIndex - 1
+      const rowKey = rowKeys[nextIndex]
+      this.setState({ selectedRowKey: rowKey })
       this.scrollRowIntoView(rows, rowKey)
       return
     }
 
     if (e.key === 'Enter') {
       e.preventDefault()
+      // nothing selected yet: enter acts on the first row
       const rowKey = currentIndex >= 0
-        ? matchedRowKeys[currentIndex]
-        : matchedRowKeys[0]
-      const row = rows.find(item => item.key === rowKey)
-      if (row?.item?.id) {
-        // Enter is a deliberate activation, so it opens the bookmark even when
-        // doubleClickToOpenBookmark makes a single click only mark the row. The
-        // settings bookmarks tab passes no onDoubleClickItem, so there Enter
-        // still selects for editing, exactly like a click.
-        this.selectBookmarkById(row.item.id, this.props.onDoubleClickItem)
-      }
+        ? rowKeys[currentIndex]
+        : rowKeys[0]
+      this.activateRow(
+        rows.find(item => item.key === rowKey)
+      )
+    }
+  }
+
+  // enter on a category toggles it, exactly like a click on the row does; enter
+  // on a bookmark opens it
+  activateRow = row => {
+    if (!row) {
+      return
+    }
+    if (row.isGroup) {
+      const func = this.props.expandedKeys.includes(row.item.id)
+        ? this.onUnExpandKey
+        : this.onExpandKey
+      func({ id: row.item.id })
+      return
+    }
+    if (row.item.id) {
+      // Enter is a deliberate activation, so it opens the bookmark even when
+      // doubleClickToOpenBookmark makes a single click only mark the row. The
+      // settings bookmarks tab passes no onDoubleClickItem, so there Enter
+      // still selects for editing, exactly like a click.
+      this.selectBookmarkById(row.item.id, this.props.onDoubleClickItem)
     }
   }
 
@@ -394,6 +433,10 @@ export default class ItemListTree extends Component {
   ) => {
     const id = e.currentTarget.getAttribute('data-item-id')
     const isGroup = e.currentTarget.getAttribute('data-is-group') === 'true'
+    // let the arrow keys carry on from the row that was just clicked
+    this.setState({
+      selectedRowKey: getRowKey(id, isGroup)
+    })
     const { store } = window
     if (isGroup) {
       store.storeAssign({
@@ -775,7 +818,7 @@ export default class ItemListTree extends Component {
         keyword={keyword}
         expanded={Boolean(keyword) || expandedKeys.includes(row.item.id)}
         activeItemId={this.props.activeItemId}
-        searchSelectedRowKey={this.state.searchSelectedRowKey}
+        selectedRowKey={this.state.selectedRowKey}
         staticList={this.props.staticList}
         leftSidePanelWidth={this.props.leftSidePanelWidth}
         {...pick(
@@ -944,6 +987,8 @@ export default class ItemListTree extends Component {
           className='item-list-wrap'
           style={listStyle}
           ref={this.listRef}
+          tabIndex={0}
+          onKeyDown={this.handleListKeyDown}
           onDoubleClick={this.handleDoubleClick}
         >
           {this.renderVirtualTreeContent(rows, editor)}

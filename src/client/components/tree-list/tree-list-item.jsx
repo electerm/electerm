@@ -11,15 +11,15 @@ import uid from '../../common/uid'
 function areEqual (prevProps, nextProps) {
   const prevSelected = prevProps.selectedItemId === prevProps.item.id
   const nextSelected = nextProps.selectedItemId === nextProps.item.id
-  const prevSearchSelected = Boolean(prevProps.searchSelected)
-  const nextSearchSelected = Boolean(nextProps.searchSelected)
+  const prevRowSelected = Boolean(prevProps.rowSelected)
+  const nextRowSelected = Boolean(nextProps.rowSelected)
 
   return prevProps.isGroup === nextProps.isGroup &&
     prevProps.parentId === nextProps.parentId &&
     prevProps.staticList === nextProps.staticList &&
     prevProps.keyword === nextProps.keyword &&
     prevSelected === nextSelected &&
-    prevSearchSelected === nextSearchSelected &&
+    prevRowSelected === nextRowSelected &&
     prevProps.item.id === nextProps.item.id &&
     prevProps.itemLevel === nextProps.itemLevel &&
     prevProps.itemColor === nextProps.itemColor &&
@@ -60,7 +60,8 @@ function TreeListItem (props) {
   const cls = classnames(
     {
       selected: selectedItemId === item.id,
-      'search-selected': props.searchSelected
+      // the keyboard cursor: the row the arrow keys are on, enter acts on it
+      'kb-selected': props.rowSelected
     },
     'tree-item',
     {

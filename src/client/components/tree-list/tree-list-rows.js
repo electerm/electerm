@@ -1,5 +1,11 @@
 import createName from '../../common/create-title'
 
+// the row identity the list navigates by, kept here so the keyboard cursor and
+// the click handler below agree on it
+export function getRowKey (id, isGroup) {
+  return `${isGroup ? 'group' : 'bookmark'}:${id}`
+}
+
 function isTopLevelGroup (group) {
   return !group?.level || group.level < 2
 }
@@ -87,7 +93,7 @@ export function buildVisibleTreeRows ({
     }
 
     rows.push({
-      key: `group:${group.id}`,
+      key: getRowKey(group.id, true),
       item: group,
       isGroup: true,
       parentId,
@@ -116,16 +122,16 @@ export function buildVisibleTreeRows ({
       if (!item || (lowerKeyword && !bookmarkMatches(bookmarkId))) {
         continue
       }
-      const rowKey = `bookmark:${item.id}`
+      const key = getRowKey(item.id, false)
       rows.push({
-        key: rowKey,
+        key,
         item,
         isGroup: false,
         parentId: nextParentId,
         depth
       })
       if (lowerKeyword) {
-        matchedRowKeys.push(rowKey)
+        matchedRowKeys.push(key)
       }
     }
   }
