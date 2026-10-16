@@ -19,6 +19,11 @@ const e = window.translate
  * so the keyboard path stays discoverable without anything new to learn and
  * without new locale strings. Both states share the component, so a user with
  * auto reconnect on never sees a countdown and a notice at the same time.
+ *
+ * `stopped` covers a session that never came up as well as one that died, so a
+ * failed connection gets the same two ways out. `terminal-error-handle.jsx`
+ * renders alongside it in that case and keeps the message: this box is centred
+ * and that alert is pinned to the top of the pane, so neither hides the other.
  */
 export default memo(function SessionStatusOverlay ({
   stopped,

@@ -436,9 +436,11 @@ class Term extends Component {
             onEditBookmark={this.handleEditBookmarkFromError}
           />
           <SessionStatusOverlay
-            // A failed start already has the error alert as its message; the
-            // notice would just stack on top of it.
-            stopped={this.state.sessionStopped && !this.state.terminalError}
+            // Shown for a failed start too, not just a broken one: the error
+            // alert says what went wrong, these are the way out of it. The two
+            // do not stack - the alert is pinned to the top of the pane and
+            // this one is centred, so the message stays readable.
+            stopped={this.state.sessionStopped}
             countdown={this.state.reconnectCountdown}
             reloadShortcut={this.getShortcut('app_reloadCurrentTab')}
             closeShortcut={this.getShortcut('app_closeCurrentTab')}
