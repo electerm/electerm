@@ -247,6 +247,26 @@
   margin-right 3px
   font-size 11px
 
+// Keep every box of the title inside the tab. The tab's no-drag region is
+// inherited by its children, and the OS region uses each element's full box
+// without overflow clipping, so a long title's text box would cut a no-drag
+// hole into the empty titlebar past the tab. Flex rows with min-width 0 let
+// the text itself carry the ellipsis instead of overflowing.
+.tab
+  .tab-title
+    display flex
+    align-items center
+    justify-content center
+    min-width 0
+    > *
+      flex none
+    > .tab-title
+    > .tab-title-text
+      flex 0 1 auto
+      min-width 0
+      overflow hidden
+      text-overflow ellipsis
+
 .ssh-tunnel-list-wrapper
   max-height 300px
   overflow-y auto

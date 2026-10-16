@@ -567,7 +567,7 @@ class Tab extends Component {
                     )
                   : null}
                 {tab.isPinned && <PushpinFilled className='tab-pin' />}
-                <span className='mg1r'>{title}</span>
+                <span className='mg1r tab-title-text'>{title}</span>
               </span>
             </div>
           </Dropdown>
