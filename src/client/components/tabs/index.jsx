@@ -47,6 +47,11 @@ export default class Tabs extends Component {
     tabsRef.current.addEventListener('wheel', this.handleWheelEvent, {
       passive: false
     })
+    // Tab widths follow their titles, so they can change without a tab being
+    // added or removed, such as on rename. Watch them to keep the wrapper width
+    // and the overflow state in step with the tabs.
+    this.resizeObserver = new ResizeObserver(this.handleTabsResize)
+    this.observeTabs()
   }
 
   componentDidUpdate (prevProps) {
@@ -57,9 +62,32 @@ export default class Tabs extends Component {
     ) {
       this.adjustScroll()
     }
+    this.observeTabs()
   }
 
   componentWillUnmount () {
+    this.resizeObserver.disconnect()
+  }
+
+  observeTabs = () => {
+    const { resizeObserver, domRef } = this
+    resizeObserver.disconnect()
+    if (!domRef.current) {
+      return
+    }
+    domRef.current.querySelectorAll('.tab').forEach(el => {
+      resizeObserver.observe(el)
+    })
+  }
+
+  // render reads the tab widths from the DOM before React commits the new
+  // titles, so render again once the measured widths differ
+  handleTabsResize = () => {
+    if (this.tabsWidth() !== this.renderedTabsWidth) {
+      this.setState({
+        overflow: this.isOverflow()
+      })
+    }
   }
 
   modifier = (...args) => {
@@ -276,7 +304,8 @@ export default class Tabs extends Component {
     const { width } = this.props
     const tabs = this.getSortedTabs()
     const len = tabs.length
-    const tabsWidthAll = tabMargin * len + 10 + this.tabsWidth()
+    this.renderedTabsWidth = this.tabsWidth()
+    const tabsWidthAll = tabMargin * len + 10 + this.renderedTabsWidth
     const { overflow } = this.state
     const left = overflow
       ? '100%'
