@@ -94,9 +94,8 @@ module.exports = exports.default = {
   disableConfirmForLargeClipboardContent: false,
   doubleClickToOpenBookmark: false,
   leftSideBarIcons: [
-    'newBookmark',
-    'quickConnect',
     'bookmarks',
+    'quickConnect',
     'terminalThemes',
     'setting',
     'settingSync',
