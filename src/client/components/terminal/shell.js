@@ -111,6 +111,28 @@ export function detectShellType (shellStr) {
 }
 
 /**
+ * Turn the output of the remote `$SHELL` probe into a shell type.
+ *
+ * Only an absolute path counts as an answer. A network device or a restricted
+ * account answers the probe with a CLI error banner (Huawei VRP: "Error:
+ * Unrecognized command..."), and reading that as "some sh-compatible shell"
+ * is what typed the integration script into a switch - the device echoed it,
+ * the screen froze for the suppression window and the text stayed in the
+ * scrollback (issue #4610). '' means "could not tell", and the caller must
+ * not inject anything.
+ *
+ * @param {string} output - raw stdout of `printf "%s\n" "$SHELL"`
+ * @returns {string} 'bash' | 'zsh' | 'fish' | 'sh' | ''
+ */
+export function parseRemoteShell (output) {
+  const shell = String(output || '').trim().toLowerCase()
+  if (!shell.startsWith('/')) {
+    return ''
+  }
+  return detectShellType(shell)
+}
+
+/**
  * Get shell integration command based on detected shell type
  * @param {string} shellType - 'bash', 'zsh', or 'fish'
  * @returns {string} Shell integration command to send

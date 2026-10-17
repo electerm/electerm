@@ -154,6 +154,57 @@ describe('startup queue', () => {
     assert.deepEqual(addon.sent, ['ls\r'])
   })
 
+  test('never injects into telnet or serial, even with every setting on', async () => {
+    // Issue #4610: those are byte pipes to whatever is on the other end (a
+    // Huawei VRP switch, a console server, a UART). Nothing can be probed
+    // there, so injecting only types a Bourne script into a CLI that cannot
+    // run it - the echo pollutes the scrollback and freezes the screen.
+    for (const kind of ['telnet', 'serial']) {
+      const { StartupQueue } = await loadModule()
+      const addon = makeAddon({})
+      const host = makeHost(addon, {
+        sftpPathFollowSsh: true,
+        config: {
+          showCmdSuggestions: true,
+          restoreTerminalSessionOnReload: true
+        },
+        runScripts: [{ script: 'ls', delay: 0 }]
+      })
+      host.isSsh = () => false
+      host.isLocal = () => false
+      host.isTelnet = () => kind === 'telnet'
+      host.isSerial = () => kind === 'serial'
+      host.isShellTerminal = () => true
+
+      const queue = new StartupQueue(host)
+      assert.equal(queue.canInjectShellIntegration(), false, kind)
+      queue.runInitScript()
+      await tick()
+
+      assert.deepEqual(addon.sent, ['ls\r'], kind)
+    }
+  })
+
+  test('does not guess a shell when the probe answers nothing shell-like', async () => {
+    const { StartupQueue } = await loadModule()
+    const addon = makeAddon({})
+    const host = makeHost(addon, {
+      isSsh: true,
+      sftpPathFollowSsh: true,
+      runScripts: [{ script: 'ls', delay: 0 }]
+    })
+    // What detectRemoteShell returns for a device that rejects the probe.
+    const queue = new StartupQueue(host, {
+      detectRemoteShell: () => Promise.resolve('')
+    })
+
+    queue.runInitScript()
+    await tick()
+
+    assert.deepEqual(addon.sent, ['ls\r'])
+    assert.equal(queue.shellInjected, false)
+  })
+
   test('dispose stops a pending queue', async () => {
     const { queue, addon } = await makeQueue({
       runScripts: [{ script: 'one', delay: 0 }, { script: 'two', delay: 0 }]

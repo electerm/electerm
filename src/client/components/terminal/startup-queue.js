@@ -321,19 +321,29 @@ export class StartupQueue {
 
   // ---- shell integration ----
 
+  /**
+   * Shell integration is a Bourne-shell script typed into the session, so it
+   * may only go where a POSIX shell is known to be listening: locally, where
+   * we spawned that shell ourselves, or over ssh, where `$SHELL` can be read
+   * on an exec channel.
+   *
+   * Telnet and serial are raw byte pipes to whatever sits on the other end -
+   * a Huawei VRP switch, a console server, a UART. Nothing can be probed
+   * there, so the old `sh` fallback typed the script into CLIs that cannot
+   * run it: the device echoes it, the suppression window freezes the screen
+   * until it times out, and the text is then replayed into the scrollback.
+   * See issue #4610.
+   */
   canInjectShellIntegration = () => {
     const { config, sftpPathFollowSsh } = this.term.props
-    return (
+    const wanted =
       config.showCmdSuggestions ||
       sftpPathFollowSsh ||
       (config.restoreTerminalSessionOnReload && this.isRestorable())
-    ) &&
-    (
-      this.isSsh() ||
-      this.isTelnet() ||
-      this.isSerial() ||
-      (this.isLocal() && !isWin)
-    )
+    if (!wanted) {
+      return false
+    }
+    return this.isSsh() || (this.isLocal() && !isWin)
   }
 
   /**
@@ -361,9 +371,17 @@ export class StartupQueue {
       shellType = await Promise.race([
         this.detectRemoteShell(this.term.pid),
         new Promise(resolve => {
-          setTimeout(() => resolve('sh'), remoteShellDetectTimeoutMs)
+          setTimeout(() => resolve(''), remoteShellDetectTimeoutMs)
         })
       ])
+    }
+
+    // '' means the far side never said what shell it runs: the probe channel
+    // was refused, answered with a CLI error banner, or timed out. Guessing
+    // `sh` in that case is exactly what typed the script into a switch - skip
+    // instead, and let the session stay a plain terminal.
+    if (!shellType) {
+      return
     }
 
     this.shellType = shellType
