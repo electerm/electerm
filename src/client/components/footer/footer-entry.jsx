@@ -15,6 +15,7 @@ import TriggerSessionModal from '../triggers/trigger-session-modal'
 import AIIcon from '../icons/ai-icon'
 import { isAIDisabled } from '../../common/ai-feature'
 import CmdHistory from './cmd-history'
+import QmRunStatus from '../quick-commands/qm-run-status'
 
 const e = window.translate
 
@@ -274,6 +275,7 @@ export default auto(function FooterEntry (props) {
         {!isAIDisabled() && renderAIIcon()}
         {renderCmdHistory()}
         {renderQuickCommands()}
+        <QmRunStatus store={props.store} />
         {renderTriggers()}
         {renderBatchInputs()}
         {renderEncodingInfo()}

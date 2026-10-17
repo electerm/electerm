@@ -7,8 +7,8 @@ import {
   qmSortByFrequencyKey,
   isWin
 } from '../common/constants'
-import delay from '../common/wait'
-import generate from '../common/uid'
+import { quickCommandSteps } from '../common/quick-command-steps'
+import { runSteps } from '../components/terminal/automation/step-runner'
 import * as ls from '../common/safe-local-storage'
 import { debounce } from 'lodash-es'
 import { refs } from '../components/common/ref'
@@ -42,6 +42,31 @@ async function parseTemplates (cmd) {
   return cmd
 }
 
+// running quick commands by tab id: a Set of { run, qm, index, total }.
+// Kept out of the reactive store, the store only gets a summary.
+const runs = new Map()
+// show a run in the footer and tab only when it lasts longer than this, so
+// quick commands that finish at once don't flash the UI
+const showRunAfter = 500
+
+function publishRuns (tabId) {
+  const { store } = window
+  const visible = [...(runs.get(tabId) || [])].filter(r => r.visible)
+  const next = { ...store.runningQuickCommands }
+  if (visible.length) {
+    const last = visible[visible.length - 1]
+    next[tabId] = {
+      name: last.qm.name,
+      index: last.index,
+      total: last.total,
+      count: visible.length
+    }
+  } else {
+    delete next[tabId]
+  }
+  store.runningQuickCommands = next
+}
+
 export default Store => {
   Store.prototype.addQuickCommand = function (
     qm
@@ -62,7 +87,7 @@ export default Store => {
     refs.get('term-' + tid)?.runQuickCommand(cmd, inputOnly)
   }
 
-  Store.prototype.runQuickCommandItem = debounce(async (id) => {
+  Store.prototype.runQuickCommandItem = debounce((id) => {
     const {
       store
     } = window
@@ -70,37 +95,66 @@ export default Store => {
     const qm = store.currentQuickCommands.find(
       a => a.id === id
     )
-    const { runQuickCommand } = store
+    if (!qm) {
+      return
+    }
     // Send every step to the tab the quick command started in. The steps are
     // spaced by delays, and the user can switch tabs in between.
     const tabId = store.activeTabId
-    const qms = qm && qm.commands
-      ? qm.commands
-      : (qm && qm.command
-          ? [
-              {
-                command: qm.command,
-                id: generate(),
-                delay: 100
-              }
-            ]
-          : []
-        )
-    for (const q of qms) {
-      let realCmd = isWin
-        ? q.command.replace(/\n/g, '\n\r')
-        : q.command
-
-      // Parse templates
-      realCmd = await parseTemplates(realCmd)
-
-      await delay(q.delay || 100)
-      runQuickCommand(realCmd, qm.inputOnly, tabId)
-      store.editQuickCommand(qm.id, {
-        clickCount: ((qm.clickCount || 0) + 1)
-      })
+    const getTerm = () => refs.get('term-' + tabId)
+    getTerm()?.term?.focus()
+    const steps = quickCommandSteps(qm, { isWin })
+    const entry = { qm, index: 0, total: steps.length, visible: false }
+    const run = runSteps(steps, {
+      send: data => getTerm()?.attachAddon?._sendData(data),
+      isAlive: () => !!getTerm()?.attachAddon,
+      resolveText: parseTemplates,
+      getKeyOptions: () => ({
+        applicationCursor: !!getTerm()?.term?.modes?.applicationCursorKeysMode
+      }),
+      onStep: (index) => {
+        entry.index = index
+        if (entry.visible) {
+          publishRuns(tabId)
+        }
+        store.editQuickCommand(qm.id, {
+          clickCount: ((qm.clickCount || 0) + 1)
+        })
+      }
+    })
+    entry.run = run
+    if (!runs.has(tabId)) {
+      runs.set(tabId, new Set())
     }
+    runs.get(tabId).add(entry)
+    const timer = setTimeout(() => {
+      entry.visible = true
+      publishRuns(tabId)
+    }, showRunAfter)
+    return run.done.then(result => {
+      clearTimeout(timer)
+      const set = runs.get(tabId)
+      set.delete(entry)
+      if (!set.size) {
+        runs.delete(tabId)
+      }
+      if (entry.visible) {
+        publishRuns(tabId)
+      }
+      if (result.status === 'error') {
+        store.onError(result.error)
+      }
+      return result
+    })
   }, 200)
+
+  // stops every quick command running in the tab
+  Store.prototype.stopQuickCommand = function (tabId) {
+    const tid = tabId || window.store.activeTabId
+    for (const entry of runs.get(tid) || []) {
+      entry.run.stop()
+    }
+  }
 
   Store.prototype.setQmSortByFrequency = function (v) {
     window.store.qmSortByFrequency = v

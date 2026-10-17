@@ -176,6 +176,9 @@ export default () => {
 
     // quick commands
     quickCommands: [],
+    // quick commands running longer than a moment, by tab id:
+    // { name, index, total, count }
+    runningQuickCommands: {},
     quickCommandId: '',
     openQuickCommandBar: false,
     pinnedQuickCommandBar: ls.getItem(pinnedQuickCommandBarKey) === 'y',

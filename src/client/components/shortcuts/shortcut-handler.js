@@ -299,7 +299,9 @@ export function shortcutExtend (Cls) {
       const k = keys[i]
       const conf = shortcutsConfig[k]
       const funcName = conf.func + 'Shortcut'
-      if (conf.shortcut.split(',').includes(r)) {
+      // skip empty entries: a mouse click has no key code, so `r` can be
+      // empty and would match a shortcut that is unbound by default
+      if (conf.shortcut.split(',').filter(Boolean).includes(r)) {
         if (this[funcName]) {
           return this[funcName](event)
         } else if (this.term && conf.readonly) {

@@ -12,6 +12,12 @@ import {
 } from './shortcut-utils.js'
 
 const e = window.translate
+
+// translation when the key exists, else the English text from the default
+function desc (key, text) {
+  const lang = window.getLang ? window.getLang() : null
+  return text && !(lang && lang[key]) ? text : e(key)
+}
 const shortcutsDefaults = shortcutsDefaultsGen()
 
 export default class Shortcuts extends PureComponent {
@@ -41,6 +47,9 @@ export default class Shortcuts extends PureComponent {
           index: i + 1,
           name,
           readonly: c.readonly,
+          desc: c.desc,
+          // shortcuts that are unbound by default can be cleared again
+          clearable: !c.readonly && !c[propName],
           shortcut: c.readonly ? c[propName] : (shortcuts[name] || c[propName])
         }
       })
@@ -60,10 +69,10 @@ export default class Shortcuts extends PureComponent {
         title: e('description'),
         dataIndex: 'name',
         key: 'name',
-        render: (name) => {
+        render: (name, inst) => {
           const [a, b] = name.split('_')
           const pre = a === 'terminal' ? `[${e('terminal')}] ` : ''
-          return pre + e(b)
+          return pre + desc(b, inst.desc)
         }
       },
       {
@@ -90,6 +99,8 @@ export default class Shortcuts extends PureComponent {
               data={inst}
               keysTaken={getKeysTakenData()}
               updateConfig={this.updateConfig}
+              renderClear={inst.clearable}
+              handleClear={() => this.updateConfig(inst.name, '')}
             />
           )
         }
