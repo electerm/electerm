@@ -197,7 +197,7 @@ export default class QuickCommandsList extends List {
         if (item.commands && Array.isArray(item.commands)) {
           // Search in each command in the commands array
           return n.includes(k) || item.commands.some(cmd =>
-            (cmd.command || '').toLowerCase().includes(k) ||
+            (cmd.command || cmd.key || '').toLowerCase().includes(k) ||
             (cmd.name || '').toLowerCase().includes(k)
           )
         } else {

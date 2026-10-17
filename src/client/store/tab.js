@@ -278,6 +278,11 @@ export default Store => {
 
     if (removedIds.length) {
       window.store.fixCurrentTabIds(tabs, removedIds)
+      // a quick command waiting on a delay would otherwise linger until
+      // the delay ends
+      for (const id of removedIds) {
+        window.store.stopQuickCommand(id)
+      }
     }
   }
 

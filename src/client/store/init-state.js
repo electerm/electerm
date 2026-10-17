@@ -176,6 +176,11 @@ export default () => {
 
     // quick commands
     quickCommands: [],
+    // quick commands running longer than a moment, by tab id:
+    // { name, index, total, count }
+    runningQuickCommands: {},
+    // id of the quick command waiting in the "run in terminals" picker
+    qmRunInTabsId: '',
     quickCommandId: '',
     openQuickCommandBar: false,
     pinnedQuickCommandBar: ls.getItem(pinnedQuickCommandBarKey) === 'y',
