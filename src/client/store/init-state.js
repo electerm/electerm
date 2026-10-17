@@ -176,6 +176,15 @@ export default () => {
 
     // quick commands
     quickCommands: [],
+    // quick commands running longer than a moment, by tab id:
+    // { name, index, total, count }
+    runningQuickCommands: {},
+    // id of the quick command waiting in the "run in terminals" picker
+    qmRunInTabsId: '',
+    // the tab being recorded into a quick command: { tabId, count }
+    qmRecording: null,
+    // recorded steps waiting in the save form
+    qmRecordedSteps: null,
     quickCommandId: '',
     openQuickCommandBar: false,
     pinnedQuickCommandBar: ls.getItem(pinnedQuickCommandBarKey) === 'y',

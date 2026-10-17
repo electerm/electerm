@@ -69,3 +69,13 @@
   .batch-input-outer.bi-show
     .bi-full
       bottom calc(100% + 28px)
+// a terminal button in the batch input and "run in terminals" lists: long
+// titles end in an ellipsis instead of running past the popup, and the
+// button's title attribute still shows the full name on hover
+.batch-tab-item
+  display inline-flex
+  max-width 100%
+  .batch-tab-title
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
