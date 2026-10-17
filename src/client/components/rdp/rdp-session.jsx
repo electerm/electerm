@@ -58,7 +58,7 @@ async function loadWasmModule () {
 export default class RdpSession extends PureComponent {
   constructor (props) {
     const id = `rdp-reso-${props.tab.host}`
-    const resObj = ls.getItemJSON(id, resolutions[1])
+    const resObj = ls.getItemJSON(id, resolutions[0])
     const scaleViewportId = `rdp-scale-view-${props.tab.host}`
     const scaleViewport = ls.getItemJSON(scaleViewportId, false)
     super(props)
@@ -67,6 +67,8 @@ export default class RdpSession extends PureComponent {
       loading: false,
       scaleViewport,
       ...resObj,
+      width: resObj.width === 'auto' ? 1024 : resObj.width,
+      height: resObj.height === 'auto' ? 768 : resObj.height,
       hasRemoteFiles: false,
       downloadBtnDisabled: true,
       uploadReady: false,
@@ -102,6 +104,47 @@ export default class RdpSession extends PureComponent {
   }
 
   runInitScript = () => { }
+
+  handleViewportResize = (width, height) => {
+    this.viewSize = { width, height }
+  }
+
+  calcCanvasSize = () => {
+    let w = this.viewSize?.width
+    let h = this.viewSize?.height
+
+    if (!w || !h) {
+      const parent = this.canvasRef.current?.parentElement
+      if (parent && parent.clientWidth > 0 && parent.clientHeight > 0) {
+        w = parent.clientWidth
+        h = parent.clientHeight
+      }
+    }
+
+    if (!w || !h) {
+      const pw = this.props.width
+      const ph = this.props.height
+      if (pw && ph) {
+        w = pw
+        h = ph - 40
+      }
+    }
+
+    if (!w || !h) {
+      w = window.innerWidth || 1024
+      h = (window.innerHeight ? window.innerHeight - 100 : 768)
+    }
+
+    w = Math.floor(w)
+    h = Math.floor(h)
+    if (w % 2 !== 0) w -= 1
+    if (h % 2 !== 0) h -= 1
+
+    w = Math.max(640, Math.min(w, 8192))
+    h = Math.max(480, Math.min(h, 8192))
+
+    return { width: w, height: h }
+  }
 
   // fullscreen always fills the screen, the per tab setting only applies
   // windowed; the switch is not reachable in fullscreen anyway
@@ -180,7 +223,14 @@ export default class RdpSession extends PureComponent {
     } = r
     this.pid = pid
 
-    const { width, height } = this.state
+    let { width, height } = this.state
+    if (this.state.id === 'res-auto' || width === 'auto' || !width || height === 'auto' || !height) {
+      const autoSize = this.calcCanvasSize()
+      width = autoSize.width
+      height = autoSize.height
+      this.setState({ width, height })
+    }
+
     const extra = `&width=${width}&height=${height}`
     const proxyAddress = this.buildWsUrl(port, 'rdp', extra)
 
@@ -211,6 +261,11 @@ export default class RdpSession extends PureComponent {
 
       const desktopSize = new window.ironRdp.DesktopSize(width, height)
       const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', true)
+      // Render the mouse cursor locally: with a server-side pointer the
+      // cursor feedback depends on screen updates round-tripping back, so
+      // under heavy update load the session feels frozen even though input
+      // is delivered.
+      const disableServerPointerExt = new window.ironRdp.Extension('enable_server_pointer', false)
 
       const builder = new window.ironRdp.SessionBuilder()
       builder.username(username)
@@ -224,6 +279,7 @@ export default class RdpSession extends PureComponent {
       builder.desktopSize(desktopSize)
       builder.renderCanvas(canvas)
       builder.extension(enableCredsspExt)
+      builder.extension(disableServerPointerExt)
 
       this.fileTransfer = new FileTransferManager(
         () => this.session,
@@ -568,6 +624,7 @@ export default class RdpSession extends PureComponent {
 
   getAllRes = () => {
     return [
+      resolutions[0],
       ...this.props.resolutions,
       ...resolutions.slice(1)
     ]
@@ -577,7 +634,15 @@ export default class RdpSession extends PureComponent {
     const res = this.getAllRes().find(d => d.id === v)
     const id = `rdp-reso-${this.props.tab.host}`
     ls.setItemJSON(id, res)
-    this.setState(res, this.handleReInit)
+    if (res.id === 'res-auto') {
+      const autoSize = this.calcCanvasSize()
+      this.setState({
+        ...res,
+        ...autoSize
+      }, this.handleReInit)
+    } else {
+      this.setState(res, this.handleReInit)
+    }
   }
 
   handleScaleViewChange = (v) => {
@@ -696,6 +761,15 @@ export default class RdpSession extends PureComponent {
     this.setupInputHandlers()
   }
 
+  getAutoFitLabel = () => {
+    const t = window.translate('autoFitClient')
+    if (t && t !== 'autoFitClient' && t !== 'AutoFitClient') {
+      return t
+    }
+    const lang = window.store?.config?.language || window.initLanguage || 'en_us'
+    return lang.startsWith('zh') ? '自动适配客户端' : 'Auto fit client'
+  }
+
   renderControlLeft = () => {
     const {
       id,
@@ -705,7 +779,8 @@ export default class RdpSession extends PureComponent {
     const sleProps = {
       value: id,
       onChange: this.handleResChange,
-      popupMatchSelectWidth: false
+      popupMatchSelectWidth: false,
+      style: { minWidth: 130 }
     }
     const scaleProps = {
       checked: this.state.scaleViewport,
@@ -727,12 +802,15 @@ export default class RdpSession extends PureComponent {
           {
             this.getAllRes().map(d => {
               const v = d.id
+              const label = d.id === 'res-auto'
+                ? this.getAutoFitLabel()
+                : `${d.width}x${d.height}`
               return (
                 <Option
                   key={v}
                   value={v}
                 >
-                  {d.width}x{d.height}
+                  {label}
                 </Option>
               )
             })
@@ -801,6 +879,7 @@ export default class RdpSession extends PureComponent {
         loading={loading}
         fit={this.getFit()}
         wrapClassName='rdp-session-wrap'
+        onViewportResize={this.handleViewportResize}
         controlLeft={this.renderControlLeft()}
         controlRight={this.renderControlRight()}
         floatControl={<RemoteFloatControl {...controlProps} />}
@@ -808,8 +887,8 @@ export default class RdpSession extends PureComponent {
       >
         <canvas
           className='rdp-canvas'
-          width={width}
-          height={height}
+          width={width === 'auto' ? 1024 : width}
+          height={height === 'auto' ? 768 : height}
           tabIndex={0}
           ref={this.canvasRef}
         />

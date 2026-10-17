@@ -37,6 +37,14 @@ export default function ResolutionForm (props) {
       title: 'Resolutions',
       key: 'customResolutions',
       render: (k, item) => {
+        if (item.id === 'res-auto') {
+          const t = window.translate('autoFitClient')
+          if (t && t !== 'autoFitClient' && t !== 'AutoFitClient') {
+            return t
+          }
+          const lang = window.store?.config?.language || window.initLanguage || 'en_us'
+          return lang.startsWith('zh') ? '自动适配客户端' : 'Auto fit client'
+        }
         return `${item.width}x${item.height}`
       }
     }, {
@@ -59,8 +67,9 @@ export default function ResolutionForm (props) {
 
   function renderList () {
     const all = [
+      resolutions[0],
       ...list,
-      ...resolutions
+      ...resolutions.slice(1)
     ]
     return (
       <FormItem {...tailFormItemLayout}>
