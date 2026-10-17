@@ -433,8 +433,14 @@ function readX224ConfirmAndUpgradeTls (tcpSocket, host, logPrefix) {
       const tlsSocket = tls.connect({
         socket: tcpSocket,
         servername,
-        // RDP servers use self-signed certificates; accept them and let the
-        // WASM client validate the chain delivered via RDCleanPath.
+        // RDP servers use self-signed certificates whose KeyUsage extension
+        // often lacks the digitalSignature bit (only keyEncipherment is set).
+        // Under BoringSSL (Electron), TLS 1.3 strictly requires digitalSignature
+        // and fails with ERR_SSL_KEY_USAGE_BIT_INCORRECT. Restricting to TLS 1.2
+        // allows RSA key exchange cipher suites (e.g. AES256-GCM-SHA384) to work
+        // reliably with all Windows RDP servers while maintaining hardware-accelerated crypto.
+        maxVersion: 'TLSv1.2',
+        checkServerIdentity: () => undefined,
         rejectUnauthorized: false
       }, () => {
         log.debug(`${logPrefix} ✓ native TLS handshake completed`)
