@@ -23,6 +23,8 @@ import {
   quickCommandsInRightPanelKey,
   addPanelWidthLsKey,
   qmSortByFrequencyKey,
+  qmGroupByLabelKey,
+  qmCollapsedLabelsKey,
   resolutionsLsKey,
   syncServerDataKey,
   splitMap,
@@ -176,10 +178,26 @@ export default () => {
 
     // quick commands
     quickCommands: [],
+    // quick commands running longer than a moment, by tab id:
+    // { name, index, total, waitFor, asking, count }
+    runningQuickCommands: {},
+    // id of the quick command waiting in the "run in terminals" picker
+    qmRunInTabsId: '',
+    // the tab being recorded into a quick command: { tabId, count }
+    qmRecording: null,
+    // recorded steps waiting in the save form
+    qmRecordedSteps: null,
+    // prompt steps waiting for an answer:
+    // { id, name, label, hidden, multi, shared, tabTitle }
+    qmPrompts: [],
     quickCommandId: '',
     openQuickCommandBar: false,
     pinnedQuickCommandBar: ls.getItem(pinnedQuickCommandBarKey) === 'y',
     qmSortByFrequency: ls.getItem(qmSortByFrequencyKey) === 'yes',
+    // quick commands show under label headings unless turned off
+    qmGroupByLabel: ls.getItem(qmGroupByLabelKey) !== 'no',
+    // label headings the user folded, '' is the "No label" group
+    qmCollapsedLabels: ls.getItemJSON(qmCollapsedLabelsKey, []),
 
     // declarative auto triggers (global; bookmark/session ones live on the tab)
     triggers: [],

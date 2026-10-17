@@ -1,3 +1,4 @@
+import { auto } from 'manate/react'
 import SettingCol from './col'
 import QuickCommandsList from '../quick-commands/quick-commands-list'
 import QuickCommandsForm from '../quick-commands/quick-commands-form'
@@ -5,7 +6,7 @@ import {
   settingMap
 } from '../../common/constants'
 
-export default function TabQuickCommands (props) {
+export default auto(function TabQuickCommands (props) {
   const {
     settingTab
   } = props
@@ -26,6 +27,8 @@ export default function TabQuickCommands (props) {
         <QuickCommandsList
           {...listProps}
           quickCommandId={store.quickCommandId}
+          groupByLabel={store.qmGroupByLabel}
+          collapsedLabels={store.qmCollapsedLabels}
         />
         <QuickCommandsForm
           {...formProps}
@@ -35,4 +38,4 @@ export default function TabQuickCommands (props) {
       </SettingCol>
     </div>
   )
-}
+})

@@ -18,15 +18,19 @@ import { sortBy, pick } from 'lodash-es'
 import { Button, Input, Select, Space, Flex } from 'antd'
 import * as ls from '../../common/safe-local-storage'
 import CmdItem from './quick-command-item'
+import QmLabelGroup from './qm-label-group'
+import { groupByLabel, hasLabels } from '../../common/quick-command-groups'
 import {
   EditOutlined,
   CloseCircleOutlined,
   PushpinOutlined,
+  TagsOutlined,
   VerticalLeftOutlined,
   VerticalAlignBottomOutlined
 } from '@ant-design/icons'
 import classNames from 'classnames'
 import onDropFunc from './on-drop'
+import translateOr from '../../common/translate-fallback'
 import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../common/drop-position'
 import './qm.styl'
 
@@ -92,6 +96,14 @@ export default auto(function QuickCommandsFooterBox (props) {
     ls.setItem(pinnedQuickCommandBarKey, 'n')
     window.store.pinnedQuickCommandBar = false
     window.store.openQuickCommandBar = false
+  }
+
+  // record what is typed in the active tab. The floating box would cover the
+  // terminal, so it closes unless pinned.
+  function handleRecord () {
+    const { store } = window
+    store.openQuickCommandBar = false
+    store.startQuickCommandRecording()
   }
 
   function handleChange (e) {
@@ -174,6 +186,25 @@ export default auto(function QuickCommandsFooterBox (props) {
     )
   }
 
+  // under label headings, unless turned off or nothing has a label. A
+  // search opens every heading so no match is hidden.
+  function renderList (list) {
+    if (!store.qmGroupByLabel || !hasLabels(list)) {
+      return list.map(renderItem)
+    }
+    const collapsedLabels = store.qmCollapsedLabels
+    return groupByLabel(list, label ? [label] : []).map(g => (
+      <QmLabelGroup
+        key={'qmg-' + g.label}
+        label={g.label}
+        count={g.items.length}
+        collapsed={!keyword && collapsedLabels.includes(g.label)}
+      >
+        {g.items.map(renderItem)}
+      </QmLabelGroup>
+    ))
+  }
+
   function renderTag (tag) {
     return (
       <Option
@@ -190,7 +221,7 @@ export default auto(function QuickCommandsFooterBox (props) {
       const nameMatches = !keyword ||
         obj.name.toLowerCase().includes(keyword) ||
         (obj.commands || []).some(cmd =>
-          (cmd.command || '').toLowerCase().includes(keyword) ||
+          (cmd.command || cmd.key || cmd.text || '').toLowerCase().includes(keyword) ||
           (cmd.name || '').toLowerCase().includes(keyword)
         )
       const labelMatches = !label || (obj.labels || []).includes(label)
@@ -244,6 +275,13 @@ export default auto(function QuickCommandsFooterBox (props) {
               />
             )
           }
+          <Button
+            onClick={handleRecord}
+            icon={<span className='qm-rec-dot' />}
+            disabled={!!store.qmRecording}
+            title={translateOr('recordQuickCommand', 'Record quick command')}
+            className='qm-record-btn'
+          />
           <Button
             onClick={window.store.handleOpenQuickCommandsSetting}
             icon={<EditOutlined />}
@@ -320,11 +358,18 @@ export default auto(function QuickCommandsFooterBox (props) {
           >
             {e('sortByFrequency')}
           </Button>
+          <Button
+            type={store.qmGroupByLabel ? 'primary' : 'default'}
+            icon={<TagsOutlined />}
+            title={translateOr('groupByLabel', 'Group by label')}
+            onClick={() => window.store.setQmGroupByLabel(!store.qmGroupByLabel)}
+            className='qm-group-btn'
+          />
         </Flex>
         {renderActions()}
       </Flex>
       <div className={cls}>
-        {sorted.map(renderItem)}
+        {renderList(sorted)}
         {
           !sorted.length && renderNoCmd()
         }
