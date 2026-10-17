@@ -249,7 +249,9 @@ class Store {
       (p, q) => {
         return [
           ...p,
-          ...(q.commands || []).map(c => c.command)
+          ...(q.commands || [])
+            .filter(c => c.type !== 'key' && c.command)
+            .map(c => c.command)
         ]
       },
       []

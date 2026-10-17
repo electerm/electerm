@@ -139,25 +139,93 @@
   .qm-panel-in-right-panel .qm-search-input
     flex none
 
-// On mobile, stack the quick-command row (name / delay / command / remove)
-// vertically instead of side by side — the horizontal Space.Compact layout
-// is too cramped on narrow screens.
-.is-mobile
-  .qm-cmd-row.ant-space-compact
+// step editor: one row per step (drag, #, type, name, command or key,
+// Enter or repeat, delay before, row actions)
+.qm-steps
+  // name and command/key shrink first, so the delay and row actions stay
+  // visible in a narrow window
+  .qm-step-row
     display flex
-    flex-direction column
-    align-items stretch
-    gap 8px
-    .ant-space-compact-item
+    align-items center
+    gap 6px
+    margin-bottom 6px
+  .qm-step-head
+    margin-bottom 2px
+    opacity 0.7
+    font-size 12px
+    .qm-step-name
+    .qm-step-value
+    .qm-step-delay
+      white-space nowrap
+      overflow hidden
+  .qm-step-drag
+    width 14px
+    flex none
+    cursor grab
+  .qm-step-index
+    width 18px
+    flex none
+    text-align right
+    opacity 0.7
+  .qm-step-type
+    width 108px
+    flex none
+  .qm-step-name
+    flex 0 1 120px
+    min-width 56px
+  .qm-step-value
+    flex 1 1 160px
+    min-width 90px
+  .qm-step-option
+    width 80px
+    flex none
+  .qm-step-delay
+    width 96px
+    flex none
+  .qm-step-ops
+    width 78px
+    flex none
+    white-space nowrap
+
+// narrow editor (small window or settings panel): two lines per step.
+// Line 1 is type, command or key, and the row actions. Line 2 is name,
+// Enter or repeat, and delay. The header row wraps the same way. Written as plain CSS for the container query.
+.qm-steps
+  container-type inline-size
+@css {
+  @container (max-width: 640px) {
+    .qm-steps .qm-step-row {
+      display: grid;
+      grid-template-columns: 14px 18px 108px minmax(0, 1fr) 80px 96px;
+      grid-template-areas:
+        'drag idx type value value ops'
+        '. . name name option delay';
+      row-gap: 4px;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--main-darker);
+    }
+    .qm-steps .qm-step-drag { grid-area: drag; }
+    .qm-steps .qm-step-index { grid-area: idx; }
+    .qm-steps .qm-step-type { grid-area: type; width: auto; }
+    .qm-steps .qm-step-name { grid-area: name; min-width: 0; }
+    .qm-steps .qm-step-value { grid-area: value; min-width: 0; }
+    .qm-steps .qm-step-option { grid-area: option; width: auto; }
+    .qm-steps .qm-step-delay { grid-area: delay; width: auto; }
+    .qm-steps .qm-step-ops { grid-area: ops; width: auto; text-align: right; }
+  }
+}
+
+// On mobile, stack each step's fields instead of one cramped row
+.is-mobile
+  .qm-steps
+    .qm-step-head
+      display none
+    .qm-step-row
+      flex-wrap wrap
+      padding-bottom 6px
+      border-bottom 1px solid var(--main-darker)
+    .qm-step-name
+    .qm-step-value
       width 100%
-    // reset the constrained widths so inputs fill the row when stacked
-    .qm-name-input
-      max-width none
-      width 100%
-    .ant-input-number
-      width 100% !important
-    // keep the drag handle + remove button on a tidy line of their own
-    > .drag
-      align-self flex-start
-    > button:last-child
-      align-self flex-end
+      flex 1 1 100%
