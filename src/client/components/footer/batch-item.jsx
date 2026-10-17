@@ -16,7 +16,7 @@ export default function BatchInputTabItem (props) {
   const { tab, selected, isCurrent } = props
   const title = createName(tab)
   const btnProps = {
-    className: 'mg1r mg1b iblock',
+    className: 'mg1r mg1b batch-tab-item',
     onClick: handleSelect,
     title,
     type: selected ? 'primary' : 'default'
@@ -27,7 +27,7 @@ export default function BatchInputTabItem (props) {
     <Button
       {...btnProps}
     >
-      {pre} {icon} {tab.tabCount}. {title}
+      {pre} {icon} <span className='batch-tab-title'>{tab.tabCount}. {title}</span>
     </Button>
   )
 }

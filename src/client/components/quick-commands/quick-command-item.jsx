@@ -7,17 +7,89 @@ import {
 } from 'react'
 import {
   Button,
+  Dropdown,
   Tooltip
 } from 'antd'
+import {
+  CaretRightOutlined,
+  CodeOutlined,
+  EditOutlined
+} from '@ant-design/icons'
 import classNames from 'classnames'
+import translateOr from '../../common/translate-fallback'
 
 const e = window.translate
 
+function stepLabel (step) {
+  if (step.type === 'key') {
+    return translateOr('key', 'Key')
+  }
+  if (step.type === 'wait') {
+    return translateOr('waitForText', 'Wait for text')
+  }
+  if (step.type === 'prompt') {
+    return translateOr('askForInput', 'Ask for input')
+  }
+  return e('command')
+}
+
+function stepValue (step) {
+  if (step.type === 'key') {
+    return step.key + (step.repeat > 1 ? ' ×' + step.repeat : '')
+  }
+  return step.type === 'wait' || step.type === 'prompt' ? step.text : step.command
+}
+
 export default class QuickCommandsItem extends PureComponent {
+  state = {
+    menuOpen: false,
+    tipOpen: false
+  }
+
+  // the tooltip would otherwise sit on top of the right-click menu
+  handleMenuOpenChange = (menuOpen) => {
+    this.setState({ menuOpen, tipOpen: false })
+  }
+
+  handleTipOpenChange = (tipOpen) => {
+    this.setState({ tipOpen })
+  }
+
   handleSelect = () => {
     this.props.onSelect(
       this.props.item.id
     )
+  }
+
+  handleMenu = ({ key }) => {
+    const { id } = this.props.item
+    if (key === 'run') {
+      this.handleSelect()
+    } else if (key === 'runInTabs') {
+      window.store.openQmRunInTabs(id)
+    } else if (key === 'edit') {
+      window.store.editQuickCommandItem(id)
+    }
+  }
+
+  menuItems () {
+    return [
+      {
+        key: 'run',
+        icon: <CaretRightOutlined />,
+        label: translateOr('run', 'Run')
+      },
+      {
+        key: 'runInTabs',
+        icon: <CodeOutlined />,
+        label: translateOr('runInTerminals', 'Run in terminals...')
+      },
+      {
+        key: 'edit',
+        icon: <EditOutlined />,
+        label: e('edit')
+      }
+    ]
   }
 
   renderTooltip () {
@@ -44,11 +116,13 @@ export default class QuickCommandsItem extends PureComponent {
                       )
                     }
                     <div className='qm-tooltip-cmd-text'>
-                      <span className='qm-tooltip-label'>{e('quickCommand')}:</span>
-                      <code className='qm-tooltip-value'>{c.command}</code>
+                      <span className='qm-tooltip-label'>{stepLabel(c)}:</span>
+                      <code className='qm-tooltip-value'>
+                        {stepValue(c)}
+                      </code>
                     </div>
                     {
-                      c.delay && (
+                      c.delay > 0 && (
                         <div className='qm-tooltip-cmd-delay'>
                           <span className='qm-tooltip-label'>{e('delay')}:</span>
                           <span className='qm-tooltip-value'>{c.delay}ms</span>
@@ -107,19 +181,27 @@ export default class QuickCommandsItem extends PureComponent {
       onDrop: handleDrop
     }
     return (
-      <Tooltip
-        title={this.renderTooltip()}
-        placement='top'
-        mouseEnterDelay={0.5}
-        classNames={{ root: 'qm-tooltip-overlay' }}
+      <Dropdown
+        trigger={['contextMenu']}
+        menu={{ items: this.menuItems(), onClick: this.handleMenu }}
+        onOpenChange={this.handleMenuOpenChange}
       >
-        <Button
-          key={id}
-          {...btnProps}
+        <Tooltip
+          open={this.state.tipOpen && !this.state.menuOpen}
+          onOpenChange={this.handleTipOpenChange}
+          title={this.renderTooltip()}
+          placement='top'
+          mouseEnterDelay={0.5}
+          classNames={{ root: 'qm-tooltip-overlay' }}
         >
-          {name}
-        </Button>
-      </Tooltip>
+          <Button
+            key={id}
+            {...btnProps}
+          >
+            {name}
+          </Button>
+        </Tooltip>
+      </Dropdown>
     )
   }
 }
