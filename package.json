@@ -155,7 +155,8 @@
     "ignore": [
       "work",
       "temp",
-      "dist"
+      "dist",
+      "src/build/vendor"
     ],
     "globals": [
       "log",

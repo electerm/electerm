@@ -518,17 +518,15 @@ export default class RdpSession extends PureComponent {
       }
     })
 
-    canvas.addEventListener('mousemove', (e) => {
-      if (!this.session) return
+    let pendingMousePos = null
+    let mouseRafId = null
+
+    const flushMouseMove = () => {
+      mouseRafId = null
+      if (!this.session || !pendingMousePos) return
+      const { x, y } = pendingMousePos
+      pendingMousePos = null
       try {
-        // the canvas is rendered with object-fit: contain, so the pointer has
-        // to be mapped through the real surface rect (see remote-pointer.js)
-        const { x, y } = eventToRemotePos(
-          e,
-          canvas,
-          canvas.width,
-          canvas.height
-        )
         const event = window.ironRdp.DeviceEvent.mouseMove(x, y)
         const tx = new window.ironRdp.InputTransaction()
         tx.addEvent(event)
@@ -536,12 +534,46 @@ export default class RdpSession extends PureComponent {
       } catch (err) {
         // suppress frequent mouse errors
       }
+    }
+
+    const flushPendingMouseMoveNow = () => {
+      if (mouseRafId) {
+        window.cancelAnimationFrame(mouseRafId)
+        mouseRafId = null
+      }
+      if (pendingMousePos && this.session) {
+        const { x, y } = pendingMousePos
+        pendingMousePos = null
+        try {
+          const event = window.ironRdp.DeviceEvent.mouseMove(x, y)
+          const tx = new window.ironRdp.InputTransaction()
+          tx.addEvent(event)
+          this.session.applyInputs(tx)
+        } catch (_) {}
+      }
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!this.session) return
+      // the canvas is rendered with object-fit: contain, so the pointer has
+      // to be mapped through the real surface rect (see remote-pointer.js)
+      const pos = eventToRemotePos(
+        e,
+        canvas,
+        canvas.width,
+        canvas.height
+      )
+      pendingMousePos = pos
+      if (!mouseRafId) {
+        mouseRafId = window.requestAnimationFrame(flushMouseMove)
+      }
     })
 
     canvas.addEventListener('mousedown', (e) => {
       e.preventDefault()
       canvas.focus()
       if (!this.session) return
+      flushPendingMouseMoveNow()
       try {
         const event = window.ironRdp.DeviceEvent.mouseButtonPressed(e.button)
         const tx = new window.ironRdp.InputTransaction()
@@ -555,6 +587,7 @@ export default class RdpSession extends PureComponent {
     canvas.addEventListener('mouseup', (e) => {
       e.preventDefault()
       if (!this.session) return
+      flushPendingMouseMoveNow()
       try {
         const event = window.ironRdp.DeviceEvent.mouseButtonReleased(e.button)
         const tx = new window.ironRdp.InputTransaction()

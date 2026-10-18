@@ -4,18 +4,25 @@ The npm package `ironrdp-wasm` 1.1.0 was replaced by this locally built copy
 because of three RDP responsiveness fixes that live in the IronRDP web
 session loop (crates/ironrdp-web/src/session.rs of Devolutions/IronRDP):
 
-1. **Input drain** — the session main loop used to process a single input
-   event batch per iteration. When the RDP server floods the client with
-   frame updates (e.g. a terminal scrolling fast), input events starved
-   behind the graphics pipeline and mouse/keyboard appeared frozen. The
-   input branch now drains every already-queued event in one iteration.
-2. **Draw throttling** — every graphics update was painted immediately.
+1. **FastPath input direct bypass & prioritization** — keyboard and mouse
+   inputs are encoded directly into FastPath packets and sent to the writer task
+   immediately without waiting behind incoming screen frames. In the main loop,
+   input events and the 60fps draw ticker are polled with higher priority than
+   network frame reads.
+2. **Cooperative yielding** — continuous screen update bursts yield periodically
+   via a zero-timer macrotask, ensuring the browser JS event loop, DOM events
+   (mouse/keyboard/clicks), React state updates (e.g. Settings modal), and
+   concurrent sessions are never starved.
+3. **Draw throttling** — every graphics update was painted immediately.
    Updates are now coalesced into one dirty rectangle, painted by a ~60fps
    flush ticker, so a screen-update flood cannot monopolize the main thread.
-3. **`enable_server_pointer` extension** — the `extension()` builder method
+4. **`enable_server_pointer` extension** — the `extension()` builder method
    now accepts `enable_server_pointer`; electerm passes `false` so the mouse
    cursor is rendered locally (immediate cursor feedback, no round-trip
    through the update pipeline).
+5. **Mousemove rAF throttling** — `mousemove` events on the frontend are throttled
+   to screen refresh rate via `requestAnimationFrame` and flushed immediately
+   on mousedown/mouseup, preventing hardware mouse polling from flooding transactions.
 
 Plus a proxy-side speedup (not part of the wasm): `src/app/server/rdp-proxy.js`
 uses Node's native `tls` instead of pure-JS node-forge.
