@@ -57,17 +57,6 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS
 ----
 
 <div align="center">
-  <a href="https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/sidrune.png?raw=true" alt="Sidrune" width="210" />
-  </a>
-</div>
-
-[Sidrune AI](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF) — One gateway to the world's leading AI models, one unified API with multi-route delivery; transparent usage and pricing, Claude & OpenAI — 70% OFF [Register through the partner link
-Get $3 in API credit](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF).
-
-----
-
-<div align="center">
   <br />
   <br />
   <a href="https://go.apimart.ai/gh-electerm">
@@ -88,6 +77,17 @@ Thanks to APIMart for sponsoring electerm! APIMart is a low-cost API platform fo
 </div>
 
 [ApiSmart](https://www.apismart.ai) provides unified access to leading AI models through a single API. Use one API key to connect with LLM, image, and video models through an OpenAI-compatible interface, without managing multiple providers separately. Switch models easily, simplify billing, and improve reliability with intelligent routing and automatic failover. Build and scale AI applications faster with one streamlined API platform.
+
+----
+
+<div align="center">
+  <a href="https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/sidrune.png?raw=true" alt="Sidrune" width="210" />
+  </a>
+</div>
+
+[Sidrune AI](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF) — One gateway to the world's leading AI models, one unified API with multi-route delivery; transparent usage and pricing, Claude & OpenAI — 70% OFF [Register through the partner link
+Get $3 in API credit](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF).
 
 ----
 

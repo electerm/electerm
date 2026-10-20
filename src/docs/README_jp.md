@@ -57,16 +57,6 @@
 ----
 
 <div align="center">
-  <a href="https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/sidrune.png?raw=true" alt="Sidrune" width="210" />
-  </a>
-</div>
-
-[Sidrune AI](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF) — 世界の主要AIモデルへの単一ゲートウェイ、統一API・マルチルート配信、透明な利用量と料金、Claude & OpenAI — 70% OFF。[パートナーリンクから登録で $3 分の API クレジットをプレゼント](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF)。
-
-----
-
-<div align="center">
   <br />
   <br />
   <a href="https://go.apimart.ai/gh-electerm">
@@ -87,6 +77,16 @@ APIMart が electerm をスポンサーしてくれています！APIMart は、
 </div>
 
 [ApiSmart](https://www.apismart.ai) は、単一の API を通じて主要な AI モデルへ統一的にアクセスできるサービスです。1 つの API キーで、OpenAI 互換のインターフェースから LLM・画像・動画モデルを利用でき、複数のプロバイダーを個別に管理する必要がありません。モデルの切り替えが簡単になり、請求もシンプルになるうえ、インテリジェントなルーティングと自動フェイルオーバーによって信頼性も向上します。1 つの統合された API プラットフォームで、AI アプリケーションの構築とスケールをより速く実現できます。
+
+----
+
+<div align="center">
+  <a href="https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/sidrune.png?raw=true" alt="Sidrune" width="210" />
+  </a>
+</div>
+
+[Sidrune AI](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF) — 世界の主要AIモデルへの単一ゲートウェイ、統一API・マルチルート配信、透明な利用量と料金、Claude & OpenAI — 70% OFF。[パートナーリンクから登録で $3 分の API クレジットをプレゼント](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF)。
 
 ----
 

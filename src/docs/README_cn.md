@@ -58,16 +58,6 @@
 ----
 
 <div align="center">
-  <a href="https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/sidrune.png?raw=true" alt="Sidrune" width="210" />
-  </a>
-</div>
-
-[Sidrune AI](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF) — 一个入口，接入全球主流 AI 模型，统一 API、多线路选择；用量和费用，清晰可查, Claude & OpenAI — 3折。[通过合作链接注册即得 $3 API 额度](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF)。
-
-----
-
-<div align="center">
   <br />
   <br />
   <a href="https://go.apimart.ai/gh-electerm">
@@ -88,6 +78,16 @@
 </div>
 
 [ApiSmart](https://www.apismart.ai) 提供统一访问领先 AI 模型的途径 through a single API. 使用一个 API key 连接 LLM、image 和 video 模型，通过 OpenAI 兼容接口，无需管理多个提供方。切换模型轻松，简化计费，提高可靠性与智能路由和自动故障转移。构建和扩展 AI 应用程序更快。
+
+----
+
+<div align="center">
+  <a href="https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/sidrune.png?raw=true" alt="Sidrune" width="210" />
+  </a>
+</div>
+
+[Sidrune AI](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF) — 一个入口，接入全球主流 AI 模型，统一 API、多线路选择；用量和费用，清晰可查, Claude & OpenAI — 3折。[通过合作链接注册即得 $3 API 额度](https://fluxionai.space/register?source=github&campaign=github-sidrune-electerm&promo=SDRELECTERM&aff=7H7DERHU3GFF)。
 
 ----
 
