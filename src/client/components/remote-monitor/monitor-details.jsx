@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { auto } from 'manate/react'
 import { Button, Popconfirm, Table } from 'antd'
-import { CloseCircleOutlined, BarChartOutlined } from '@ant-design/icons'
+import { BarChartOutlined, CloseCircleOutlined, DoubleLeftOutlined } from '@ant-design/icons'
 import { formatBytes, formatDuration, formatRate, groupOf, selectPrimaryNetwork, sortDisks } from './monitor-model'
 import { copy } from '../../common/clipboard'
 import './monitor-details.styl'
@@ -92,20 +93,54 @@ const minTableWidth = columns => columns.reduce(
   0
 )
 
+// A monitor table can hold hundreds of rows (`ps` on a busy server), which turns a
+// 488px popover into a very long scroll and re-lays-out every refresh. Cap the
+// visible rows and let the user opt into the rest; the cap lives here rather than
+// in each detail view so every table behaves the same.
+const DEFAULT_MAX_ROWS = 10
+
 // antd Table gives us column ellipsis and the compact size for free, so no
 // hand rolled markup or table css is needed here.
-function DetailTable ({ columns, rows, rowKey }) {
+function DetailTable ({ columns, rows, rowKey, maxRows = DEFAULT_MAX_ROWS }) {
+  const [showAll, setShowAll] = useState(false)
   const mergedColumns = columns.map(withCellCopy)
+  const collapsible = rows.length > maxRows
+  const visibleRows = collapsible && !showAll
+    ? rows.slice(0, maxRows)
+    : rows
   return (
-    <Table
-      className='remote-monitor-table'
-      columns={mergedColumns}
-      dataSource={rows}
-      pagination={false}
-      rowKey={rowKey}
-      scroll={{ x: minTableWidth(mergedColumns) }}
-      size='small'
-    />
+    <>
+      <Table
+        className='remote-monitor-table'
+        columns={mergedColumns}
+        dataSource={visibleRows}
+        pagination={false}
+        rowKey={rowKey}
+        scroll={{ x: minTableWidth(mergedColumns) }}
+        size='small'
+      />
+      {
+        collapsible
+          ? (
+            <Button
+              aria-expanded={showAll}
+              aria-label={showAll ? e('showLess') : `${e('showMore')} (${rows.length})`}
+              className={'remote-monitor-show-more' + (showAll ? ' remote-monitor-show-more-open' : '')}
+              onClick={() => setShowAll(!showAll)}
+              size='small'
+              type='link'
+            >
+              {/* DoubleLeftOutlined has no vertical twin in @ant-design/icons, so it is
+                  rotated 90deg: `<<` becomes two down chevrons, and -90deg folds them
+                  back up when expanded. The number beside it is the hidden row count,
+                  which keeps the control language-free. */}
+              <DoubleLeftOutlined />
+              <span className='remote-monitor-show-more-count'>{rows.length - maxRows}</span>
+            </Button>
+            )
+          : null
+      }
+    </>
   )
 }
 
@@ -159,13 +194,14 @@ function ActivityDetails ({ group, sortBy, onKillProcess }) {
   activities.sort(sortBy === 'memory'
     ? (a, b) => b.memBytes - a.memBytes || b.cpu - a.cpu
     : (a, b) => b.cpu - a.cpu || b.memBytes - a.memBytes)
-  const rows = sortBy ? activities.slice(0, 10) : activities
+  // no slice here: DetailTable caps the visible rows and offers "show more",
+  // so the top-N list stays short without throwing the rest away
   return (
     <div className='remote-monitor-activity'>
       {sortBy && <div className='remote-monitor-detail-heading'>{e('activity')}</div>}
       <GroupState group={group} />
       {
-        rows.length
+        activities.length
           ? (
             <DetailTable
               columns={[
@@ -189,7 +225,7 @@ function ActivityDetails ({ group, sortBy, onKillProcess }) {
                 { key: 'process', title: e('process'), dataIndex: 'cmd', ellipsis: true, copyValue: row => row.cmd }
               ]}
               rowKey={row => row.pid}
-              rows={rows}
+              rows={activities}
             />
             )
           : null
@@ -340,6 +376,7 @@ function UsersDetail ({ snapshot, hideIP }) {
                     ? []
                     : desktopOnly([{ key: 'source', title: e('address'), width: 96, ellipsis: true, render: (_, row) => row.source || '—' }]))
                 ]}
+                rowKey={row => `${row.user}-${row.terminal}`}
                 rows={users.sessions}
               />
               )

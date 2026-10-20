@@ -64,6 +64,21 @@
   .ant-table.ant-table-small
     font-size 11px
 
+// full width so the icon + count sits centred under the table instead of hugging the
+// left edge; size follows the 11px table text
+.remote-monitor-show-more
+  margin-top 2px
+  font-size 11px
+  // double chevrons instead of a word: the control must work in every language
+  .anticon
+    transform rotate(-90deg)
+  &-open .anticon
+    transform rotate(90deg)
+
+.remote-monitor-show-more-count
+  margin-left 3px
+  font-variant-numeric tabular-nums
+
 // click a value cell copies it (see withCellCopy)
 .remote-monitor-copy-cell
   cursor pointer
