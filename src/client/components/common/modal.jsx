@@ -9,6 +9,16 @@ import React, { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import './modal.styl'
 
+function isEmptyNode (node) {
+  if (node === null || node === undefined || node === false || node === '') {
+    return true
+  }
+  if (Array.isArray(node)) {
+    return node.every(isEmptyNode)
+  }
+  return false
+}
+
 export default function Modal (props) {
   const {
     open,
@@ -22,6 +32,9 @@ export default function Modal (props) {
     maskClosable = true,
     onCancel
   } = props
+
+  const hasBody = !isEmptyNode(children)
+  const hasFooter = !isEmptyNode(footer)
 
   function handleMaskClick (e) {
     if (e.target === e.currentTarget && maskClosable && onCancel) {
@@ -76,6 +89,11 @@ export default function Modal (props) {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [open, onCancel])
 
+  const contentCls = classnames(
+    'custom-modal-content',
+    hasBody ? 'has-body' : 'no-body'
+  )
+
   return (
     <div className={cls} style={modalStyle}>
       <div
@@ -84,7 +102,7 @@ export default function Modal (props) {
       />
       <div className='custom-modal-container' onClick={handleMaskClick}>
         <div
-          className='custom-modal-content'
+          className={contentCls}
           style={contentStyle}
         >
           {title && (
@@ -99,10 +117,12 @@ export default function Modal (props) {
               </button>
             </div>
           )}
-          <div className='custom-modal-body'>
-            {children}
-          </div>
-          {footer !== null && footer !== undefined && (
+          {hasBody && (
+            <div className='custom-modal-body'>
+              {children}
+            </div>
+          )}
+          {hasFooter && (
             <div className='custom-modal-footer'>
               {footer}
             </div>
