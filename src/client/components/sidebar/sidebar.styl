@@ -28,6 +28,19 @@
 
   .item-list
     padding-right 0
+// With the panel open the column carries an overlay (the unpinned bookmarks /
+// history panel), and `.sidebar` is its own stacking context: the panel's own
+// z-index 200 is measured inside this 100, so root-level chrome still paints
+// over it — the footer escapes it only because it reserves the panel's width
+// (footer-entry.jsx), while the remote monitor bar (z-index 188) spans the same
+// x range as the panel and hides its bottom 28px. Lift the whole column so the
+// overlay wins, the same way mobile.styl does for the drawer. Pinned needs no
+// lift (the layout reserves the column and nothing overlaps it), but the class
+// is on either way and lifting it there is harmless. Same pattern as the right
+// panel, which is a root-level child and covers the bar on its own.
+.sidebar.type-bookmarks
+.sidebar.type-history
+  z-index 250
 .sidebar-pin-top
   position absolute
   left 0
