@@ -110,10 +110,34 @@ function toOpenAIToolCall ({ id, name, arguments: args }) {
  * Request building
  * ------------------------------------------------------------------ */
 
+// DeepSeek V4 thinking mode validates the replayed history: every assistant
+// turn has to carry `reasoning_content`, and the request is rejected with
+// "The reasoning_content in the thinking mode must be passed back to the API"
+// when one does not. electerm only ever saves the final text of an answer, so
+// a rebuilt conversation has nothing to replay -- an empty string is what the
+// API accepts, and it loses nothing: the docs only require the real reasoning
+// for turns that performed tool calls, and those are not part of the saved
+// history at all.
+//
+// Gated on the model id rather than applied to every provider: an unknown
+// field on an assistant message is a 400 of its own on stricter gateways.
+const REASONING_HISTORY_MODEL = /deepseek/i
+
+function withReasoningPlaceholder (messages, model) {
+  if (!REASONING_HISTORY_MODEL.test(String(model || ''))) {
+    return messages
+  }
+  return messages.map(m => (
+    m && m.role === 'assistant' && typeof m.reasoning_content !== 'string'
+      ? { ...m, reasoning_content: '' }
+      : m
+  ))
+}
+
 function buildOpenAIChatBody ({ model, messages, tools, stream }) {
   const body = {
     model,
-    messages,
+    messages: withReasoningPlaceholder(messages, model),
     stream: !!stream
   }
   if (tools && tools.length) {

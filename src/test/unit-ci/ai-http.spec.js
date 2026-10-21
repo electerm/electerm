@@ -90,6 +90,22 @@ before(async () => {
     }
 
     if (req.url === '/chat/completions') {
+      // DeepSeek V4 thinking mode: every replayed assistant turn needs a
+      // reasoning_content, with or without tools in the request.
+      if (/deepseek/.test(body.model || '')) {
+        const missing = body.messages.some(m =>
+          m.role === 'assistant' && typeof m.reasoning_content !== 'string'
+        )
+        if (missing) {
+          res.writeHead(400, { 'Content-Type': 'application/json' })
+          return res.end(JSON.stringify({
+            error: { message: 'The reasoning_content in the thinking mode must be passed back to the API.' }
+          }))
+        }
+        return json({
+          choices: [{ message: { role: 'assistant', content: 'ok', reasoning_content: 'r' } }]
+        })
+      }
       if (body.model === 'thinking-test') {
         const missingReasoning = body.messages.some(m =>
           m.role === 'assistant' && typeof m.reasoning_content !== 'string'
@@ -257,6 +273,38 @@ describe('AIchatWithTools - non streaming', () => {
       assert.equal(lastRequest('/chat/completions').body.messages[2].reasoning_content,
         'Check the current directory.')
     }
+  })
+
+  it('replays a saved assistant turn with a reasoning placeholder for deepseek models', async () => {
+    // What a resumed conversation looks like: buildSessionMessages rebuilds
+    // assistant turns from the saved text only, so nothing carries reasoning.
+    const messages = [
+      { role: 'system', content: 'agent instructions' },
+      { role: 'user', content: 'first question' },
+      { role: 'assistant', content: 'first answer' },
+      { role: 'user', content: 'second question' }
+    ]
+    const res = await AIchatWithTools(
+      messages, 'deepseek-v4-flash', baseURL(), '/chat/completions',
+      'sk-test', '', TOOLS, 'Authorization: Bearer'
+    )
+    assert.equal(res.error, undefined)
+    assert.equal(lastRequest('/chat/completions').body.messages[2].reasoning_content, '')
+    // the caller's list (memoized by the component) is left alone
+    assert.equal(messages[2].reasoning_content, undefined)
+  })
+
+  it('does not add reasoning_content for providers that do not need it', async () => {
+    const messages = [
+      { role: 'user', content: 'first question' },
+      { role: 'assistant', content: 'first answer' },
+      { role: 'user', content: 'second question' }
+    ]
+    await AIchatWithTools(
+      messages, 'gpt-4o', baseURL(), '/chat/completions',
+      'sk-test', '', TOOLS, 'Authorization: Bearer'
+    )
+    assert.equal(lastRequest('/chat/completions').body.messages[1].reasoning_content, undefined)
   })
 
   it('openai chat completion', async () => {
