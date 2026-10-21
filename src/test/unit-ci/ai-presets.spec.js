@@ -17,6 +17,8 @@ describe('MiniMax presets and model suggestions', () => {
       assert.deepEqual(preset.modelAIs, [
         { value: 'MiniMax-M3.1-Flash' }, { value: 'MiniMax-M3' }
       ])
+      // Every preset needs a key page, or the API key label loses its link.
+      assert.match(preset.siteUrl, /^https:\/\/platform\.minimaxi?\.(io|com)\/user-center\/basic-information\/interface-key/)
     }
   })
 
@@ -29,6 +31,17 @@ describe('MiniMax presets and model suggestions', () => {
       ])
     }
     assert.deepEqual(cached, ['MiniMax-M2.7', 'MiniMax-M3', 'MiniMax-M3.1-Flash'])
+  })
+
+  it('merges a freshly fetched list so the refresh button is not a no-op', async () => {
+    const { getAIModelOptions } = await presetsModule
+    // An explicit fetch is the user asking for the real list: it wins over the
+    // curated suggestions, and it is not treated as a stale cache.
+    for (const url of ['https://api.minimax.io/v1', 'https://api.minimax.cn/v1', 'https://api.minimaxi.com/v1']) {
+      assert.deepEqual(getAIModelOptions(url, null, ['MiniMax-M4', 'MiniMax-M3'], true), [
+        { value: 'MiniMax-M3.1-Flash' }, { value: 'MiniMax-M3' }, { value: 'MiniMax-M4' }
+      ])
+    }
   })
 
   it('preserves custom endpoint and other provider suggestions', async () => {

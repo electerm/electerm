@@ -9,7 +9,12 @@ require.cache[logPath] = {
   id: logPath,
   filename: logPath,
   loaded: true,
-  exports: { error () {} }
+  exports: {
+    error () {},
+    info () {},
+    warn () {},
+    debug () {}
+  }
 }
 const { AIchat, AIchatWithTools, getStreamContent } = require('../../app/lib/ai')
 let server

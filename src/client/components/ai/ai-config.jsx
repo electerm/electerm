@@ -18,18 +18,13 @@ import {
 import Password from '../common/password'
 import AiHistory, { addHistoryItem } from './ai-history'
 import message from '../common/message'
-import { getAIPresets, getAIModelOptions } from './ai-presets'
+import { getAIPresets, getAIModelOptions, normalizeAIBaseURL } from './ai-presets'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import './ai-config.styl'
 
 const STORAGE_KEY_CONFIG = 'ai_config_history'
 const EVENT_NAME_CONFIG = 'ai-config-history-update'
 const STORAGE_KEY_MODELS = 'ai_models_cache'
-
-// Model lists fetched from `<baseURL>/models`, cached per API URL
-function normalizeBaseURL (url) {
-  return (url || '').trim().replace(/\/+$/, '')
-}
 
 function readModelsCache () {
   try {
@@ -42,7 +37,7 @@ function readModelsCache () {
 }
 
 function getCachedModels (baseURL) {
-  const key = normalizeBaseURL(baseURL)
+  const key = normalizeAIBaseURL(baseURL)
   if (!key) {
     return []
   }
@@ -51,7 +46,7 @@ function getCachedModels (baseURL) {
 }
 
 function saveModelsToCache (baseURL, models) {
-  const key = normalizeBaseURL(baseURL)
+  const key = normalizeAIBaseURL(baseURL)
   if (!key) {
     return
   }
@@ -102,6 +97,8 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   const [testing, setTesting] = useState(false)
   const [loadingModels, setLoadingModels] = useState(false)
   const [cachedModels, setCachedModels] = useState([])
+  // True while the list came from an explicit fetch rather than from the cache
+  const [modelsFetched, setModelsFetched] = useState(false)
   const baseURLAI = Form.useWatch('baseURLAI', form)
   const presets = useMemo(() => getAIPresets(), [])
   const currentPreset = presets.find(p => p.baseURLAI === baseURLAI)
@@ -115,6 +112,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   // Restore the model list previously fetched for this API URL
   useEffect(() => {
     setCachedModels(getCachedModels(baseURLAI))
+    setModelsFetched(false)
   }, [baseURLAI])
 
   function filter () {
@@ -166,7 +164,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
 
   async function handleLoadModels () {
     const values = form.getFieldsValue()
-    const baseURL = normalizeBaseURL(values.baseURLAI)
+    const baseURL = normalizeAIBaseURL(values.baseURLAI)
     if (!baseURL) {
       message.error('Please input API URL first')
       return
@@ -184,10 +182,11 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         message.error(res.error)
       } else if (res && res.models && res.models.length) {
         setCachedModels(res.models)
+        setModelsFetched(true)
         saveModelsToCache(baseURL, res.models)
         message.success(`Got ${res.models.length} models`)
         if (!values.modelAI) {
-          const options = getAIModelOptions(baseURL, null, res.models)
+          const options = getAIModelOptions(baseURL, null, res.models, true)
           form.setFieldsValue({ modelAI: options[0]?.value })
         }
       } else {
@@ -215,7 +214,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
 
   // A plain antd Select, on purpose: it already scrolls its list inside the
   // viewport (a Dropdown menu grows past the bottom of a phone screen, so the
-  // tail of the 18 presets is unreachable there) and `showSearch` filters it.
+  // tail of the preset list is unreachable there) and `showSearch` filters it.
   // `optionFilterProp` is load-bearing: without it rc-select filters on the
   // option *value* (our id), so "gemini" or "llama" match nothing. The label
   // carries name and model, so filtering on it finds either.
@@ -264,7 +263,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   }
 
   function renderModelInput () {
-    const options = getAIModelOptions(baseURLAI, currentPreset, cachedModels)
+    const options = getAIModelOptions(baseURLAI, currentPreset, cachedModels, modelsFetched)
     const title = 'Fetch model list from API URL'
     return (
       <AutoComplete
