@@ -94,16 +94,22 @@ class Sftp extends TerminalBase {
     return `"${String(value).replace(/["\\$`]/g, '\\$&')}"`
   }
 
-  escapePowerShellPath = (value) => {
-    return `'${String(value).replace(/'/g, "''")}'`
+  // Remote Windows commands carry paths base64-encoded inside a fixed
+  // PowerShell script, never as raw text in the command line. The base64
+  // alphabet contains no cmd.exe or PowerShell metacharacters, so a
+  // hostile file name (e.g. from a remote directory listing) cannot break
+  // out of the -Command "..." wrapper. See GHSA-ch82-q8wq-2gfv.
+  buildPowerShellCommand = (paths, script) => {
+    const decoders = paths
+      .map((path, i) =>
+        `$p${i}=[System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${Buffer.from(String(path), 'utf8').toString('base64')}'))`
+      )
+      .join(';')
+    return `powershell.exe -NoLogo -NonInteractive -NoProfile -Command "${decoders};${script}"`
   }
 
   normalizeWindowsExecPath = (value) => {
     return String(value).replace(/^\/([a-zA-Z]:)/, '$1')
-  }
-
-  buildPowerShellCommand = (script) => {
-    return `powershell.exe -NoLogo -NonInteractive -NoProfile -Command "${script}"`
   }
 
   execBuffered (cmd) {
@@ -172,20 +178,18 @@ class Sftp extends TerminalBase {
   async buildRemoteCommand (type, ...paths) {
     const platform = await this.getRemoteExecPlatform()
     if (platform === 'windows') {
-      const args = paths
-        .map(this.normalizeWindowsExecPath)
-        .map(this.escapePowerShellPath)
+      const winPaths = paths.map(this.normalizeWindowsExecPath)
       if (type === 'rmrf') {
-        return this.buildPowerShellCommand(`Remove-Item -LiteralPath ${args[0]} -Force -Recurse`)
+        return this.buildPowerShellCommand([winPaths[0]], 'Remove-Item -LiteralPath $p0 -Force -Recurse')
       }
       if (type === 'cp') {
-        return this.buildPowerShellCommand(`Copy-Item -LiteralPath ${args[0]} -Destination ${args[1]} -Recurse -Force`)
+        return this.buildPowerShellCommand(winPaths, 'Copy-Item -LiteralPath $p0 -Destination $p1 -Recurse -Force')
       }
       if (type === 'mv') {
-        return this.buildPowerShellCommand(`Move-Item -LiteralPath ${args[0]} -Destination ${args[1]} -Force`)
+        return this.buildPowerShellCommand(winPaths, 'Move-Item -LiteralPath $p0 -Destination $p1 -Force')
       }
       if (type === 'folder-size') {
-        return this.buildPowerShellCommand(`Get-ChildItem -LiteralPath ${args[0]} -Recurse -File | Measure-Object -Property Length -Sum`)
+        return this.buildPowerShellCommand([winPaths[0]], 'Get-ChildItem -LiteralPath $p0 -Recurse -File | Measure-Object -Property Length -Sum')
       }
     }
     const posixArgs = paths.map(this.escapePosixPath)

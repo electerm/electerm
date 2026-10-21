@@ -123,6 +123,19 @@ export default class FileMode extends React.PureComponent {
     return String(value).replace(/'/g, "''")
   }
 
+  // Remote Windows paths are transported base64-encoded and decoded inside
+  // the PowerShell script, so a hostile file name from the remote listing
+  // cannot carry cmd.exe / PowerShell metacharacters into the command
+  // string. See GHSA-ch82-q8wq-2gfv.
+  b64Folder = (value) => {
+    const bytes = new TextEncoder().encode(String(value))
+    let bin = ''
+    for (const b of bytes) {
+      bin += String.fromCharCode(b)
+    }
+    return btoa(bin)
+  }
+
   escapePosixShellArg = (value) => {
     // Within single quotes, the only special character is the single quote itself.
     // Escape it by closing the quote, inserting an escaped quote, and reopening:
@@ -161,8 +174,8 @@ export default class FileMode extends React.PureComponent {
 
   calcRemoteWin = async (folder) => {
     const winFolder = this.normalizeRemoteWindowsPath(folder)
-    const escapedFolder = this.escapePowerShellPath(winFolder)
-    const cmd = `powershell.exe -NoLogo -NonInteractive -NoProfile -Command "$result = Get-ChildItem -LiteralPath '${escapedFolder}' -Recurse -File | Measure-Object -Property Length -Sum; if ($null -eq $result.Sum) { 0 } else { [int64]$result.Sum }"`
+    const folderB64 = this.b64Folder(winFolder)
+    const cmd = `powershell.exe -NoLogo -NonInteractive -NoProfile -Command "$result = Get-ChildItem -LiteralPath ([System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${folderB64}'))) -Recurse -File | Measure-Object -Property Length -Sum; if ($null -eq $result.Sum) { 0 } else { [int64]$result.Sum }"`
     const result = await runCmd(this.state.pid, cmd).catch(window.store.onError)
     return filesize(parseInt(String(result || '').trim(), 10) || 0)
   }
