@@ -14,7 +14,6 @@ import copy from 'json-deep-copy'
 import uid from '../../common/uid'
 import QmLabelGroup from './qm-label-group'
 import { groupByLabel, hasLabels } from '../../common/quick-command-groups'
-import translateOr from '../../common/translate-fallback'
 
 const { Option } = Select
 const e = window.translate
@@ -127,7 +126,8 @@ export default class QuickCommandsList extends List {
         className={cls}
         onClick={() => this.onClickItem(item)}
         data-id={id}
-        draggable
+        // grouped, a drop only reorders the flat list, which does not show
+        draggable={!this.props.groupByLabel}
         onDragOver={this.handleDragOver}
         onDragStart={this.handleDragStart}
         onDrop={this.handleDrop}
@@ -192,7 +192,7 @@ export default class QuickCommandsList extends List {
         <Button
           type={grouped ? 'primary' : 'default'}
           icon={<TagsOutlined />}
-          title={translateOr('groupByLabel', 'Group by label')}
+          title={e('group')}
           onClick={() => window.store.setQmGroupByLabel(!grouped)}
           className='qm-group-btn'
         />

@@ -88,7 +88,8 @@ describe('AI Create Quick Command', function () {
     await client.hasElem('.qm-ai-editor', false)
     const name = await client.getValue('#name')
     expect(name).equal('Test Quick Command')
-    const rowCount = await client.countElem('.qm-cmd-row')
+    // step rows only: the head row above them shares the class
+    const rowCount = await client.countElem('.qm-step-row:not(.qm-step-head)')
     expect(rowCount).equal(2)
     const firstName = await client.getValue('#commands_0_name')
     expect(firstName).equal('list')

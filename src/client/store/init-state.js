@@ -194,8 +194,8 @@ export default () => {
     openQuickCommandBar: false,
     pinnedQuickCommandBar: ls.getItem(pinnedQuickCommandBarKey) === 'y',
     qmSortByFrequency: ls.getItem(qmSortByFrequencyKey) === 'yes',
-    // quick commands show under label headings unless turned off
-    qmGroupByLabel: ls.getItem(qmGroupByLabelKey) !== 'no',
+    // label headings are opt-in: they make the panel taller, so off by default
+    qmGroupByLabel: ls.getItem(qmGroupByLabelKey) === 'yes',
     // label headings the user folded, '' is the "No label" group
     qmCollapsedLabels: ls.getItemJSON(qmCollapsedLabelsKey, []),
 

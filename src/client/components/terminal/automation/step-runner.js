@@ -12,7 +12,10 @@
 // the run with status 'timeout' when `timeout` ms pass first. A timeout of
 // 0 waits until the text shows up, the run is stopped or the tab closes.
 // A prompt step asks the user for a value with `askInput(step, index)` and
-// sends it. Cancelling the question ends the run with status 'cancelled'.
+// sends it, with Enter unless `enter` is false. The answer is typed into the
+// terminal right there, like someone typing at the prompt: it is not saved
+// and later steps cannot use it. Cancelling the question ends the run with
+// status 'cancelled'.
 import { keySequence } from './key-sequences.js'
 
 function toCount (n, fallback) {
@@ -119,8 +122,12 @@ export function runSteps (steps, {
         send(seq.repeat(toCount(step.repeat, 1)))
       }
     } else if (step.type === 'wait' && watchText) {
+      // a wait with nothing to wait for, e.g. an old saved step, is skipped
+      if (!step.value) {
+        return
+      }
       const timeout = Math.max(0, Math.floor(Number(step.timeout)) || 0)
-      if (!await waitText(step.value || '', timeout)) {
+      if (!await waitText(step.value, timeout)) {
         return 'timeout'
       }
     } else if (step.type === 'prompt' && askInput) {

@@ -114,6 +114,26 @@ describe('recording quick commands', () => {
     assert.deepEqual(steps.map(s => s.id), ['id1', 'id2'])
   })
 
+  test('a recorder builds steps as input arrives, and counts them', async () => {
+    const { createRecorder } = await load()
+    const rec = createRecorder(() => 'id')
+    rec.push('sh')
+    rec.push('ow')
+    // the command being typed counts, though it is not a step yet
+    assert.equal(rec.count(), 1)
+    rec.push('\r')
+    assert.equal(rec.count(), 1)
+    rec.push('\t')
+    assert.equal(rec.count(), 2)
+    rec.push('x')
+    assert.equal(rec.count(), 3)
+    assert.deepEqual(brief(rec.done()), [
+      ['command', 'show', true],
+      ['key', 'Tab', 1],
+      ['command', 'x', false]
+    ])
+  })
+
   test('recorded steps play back as the same bytes', async () => {
     const { recordedSteps } = await load()
     const { quickCommandSteps } = await import('../../client/common/quick-command-steps.js')

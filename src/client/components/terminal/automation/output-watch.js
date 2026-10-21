@@ -5,17 +5,26 @@
 // that was already on screen. Text is matched without colors and without
 // regard to case. A match uses up the output up to its end, so two wait
 // steps in a row need two separate matches.
-import { stripAnsi, normalizeCR } from './strip-ansi.js'
+//
+// Colors are stripped by createAnsiDecoder, which also joins escape
+// sequences split across chunks (ssh output often breaks a color code in
+// the middle).
+import { normalizeCR, createAnsiDecoder } from './strip-ansi.js'
 
 const maxBuffer = 65536
 
 export function createOutputWatch () {
   let buf = ''
+  const decoder = createAnsiDecoder()
   const watchers = new Set()
 
   function scan () {
+    if (!watchers.size) {
+      return
+    }
+    const hay = buf.toLowerCase()
     for (const w of [...watchers]) {
-      const at = buf.toLowerCase().indexOf(w.text)
+      const at = hay.indexOf(w.text)
       if (at < 0) {
         continue
       }
@@ -30,7 +39,7 @@ export function createOutputWatch () {
       if (!str) {
         return
       }
-      buf += normalizeCR(stripAnsi(str))
+      buf += normalizeCR(decoder.push(str))
       if (buf.length > maxBuffer) {
         buf = buf.slice(-maxBuffer)
       }
@@ -38,10 +47,18 @@ export function createOutputWatch () {
     },
     mark () {
       buf = ''
+      decoder.reset()
     },
     // resolves when the text shows up, cancel() drops the watch
     watch (text) {
       const w = { text: normalizeCR(String(text || '')).toLowerCase() }
+      if (!w.text) {
+        // nothing to wait for: resolve at once instead of matching ''
+        return {
+          found: Promise.resolve(),
+          cancel () {}
+        }
+      }
       const found = new Promise(resolve => {
         w.resolve = resolve
       })

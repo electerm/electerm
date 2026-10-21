@@ -5,8 +5,9 @@
 import { useRef, useLayoutEffect } from 'react'
 import { auto } from 'manate/react'
 import { LoadingOutlined, BorderOutlined } from '@ant-design/icons'
-import translateOr from '../../common/translate-fallback'
 import './qm.styl'
+
+const e = window.translate
 
 // CSS can't animate a width that follows the text, so when the text
 // changes, set the old width, then the new one, and let the transition run
@@ -47,9 +48,9 @@ export default auto(function QmRunStatus ({ store }) {
   const progress = run ? `${Math.min(run.index + 1, run.total)}/${run.total}` : ''
   let waiting = ''
   if (run?.waitFor) {
-    waiting = `${translateOr('waitingFor', 'Waiting for')} "${run.waitFor}"`
+    waiting = `${e('waitForText')} "${run.waitFor}"`
   } else if (run?.asking) {
-    waiting = translateOr('waitingForInput', 'Waiting for input')
+    waiting = e('askForInput')
   }
   useWidthTransition(chipRef, run ? [run.name, progress, waiting, run.count].join('\n') : '')
   if (!run) {
@@ -72,11 +73,10 @@ export default auto(function QmRunStatus ({ store }) {
         </span>
         <span
           className='pointer qm-run-stop'
-          title={translateOr('stopQuickCommand', 'Stop quick command')}
           onClick={() => store.stopQuickCommand(store.activeTabId)}
         >
           <BorderOutlined className='mg1r' />
-          {translateOr('stop', 'Stop')}
+          {e('stop')}
         </span>
       </span>
     </div>

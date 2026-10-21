@@ -67,6 +67,18 @@ describe('output watch', () => {
     assert.equal(found, true)
   })
 
+  test('a color code split across two chunks is not left in the text', async () => {
+    const { createOutputWatch } = await loadWatch()
+    const watch = createOutputWatch()
+    watch.push('\x1b[3')
+    watch.push('2mswitch# ')
+    let found = false
+    watch.watch('2mswitch').found.then(() => { found = true })
+    await tick()
+    assert.equal(found, false)
+    await watch.watch('#').found
+  })
+
   test('cancel() drops the watch', async () => {
     const { createOutputWatch } = await loadWatch()
     const watch = createOutputWatch()

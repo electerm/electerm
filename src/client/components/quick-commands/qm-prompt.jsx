@@ -8,7 +8,6 @@ import { createPortal } from 'react-dom'
 import { auto } from 'manate/react'
 import { Input, Button, Checkbox } from 'antd'
 import Modal from '../common/modal'
-import translateOr from '../../common/translate-fallback'
 
 const e = window.translate
 
@@ -37,7 +36,7 @@ function PromptForm ({ prompt }) {
             : null
         }
         <div className='pd1b'>
-          {prompt.label || translateOr('enterValue', 'Enter a value')}
+          {prompt.label || e('askForInput')}
         </div>
         <InputElem
           value={value}
@@ -57,7 +56,7 @@ function PromptForm ({ prompt }) {
                   onChange={ev => window.store.setQmPromptShared(prompt.id, ev.target.checked)}
                   className='qm-prompt-shared'
                 >
-                  {translateOr('sendToAllTerminals', 'Send to all terminals')}
+                  {e('broadcastInput')}
                 </Checkbox>
                 )
               : null
@@ -80,6 +79,7 @@ function PromptForm ({ prompt }) {
 }
 
 export default auto(function QmPrompt ({ store }) {
+  // one at a time: with a question per terminal they queue up here
   const prompt = store.qmPrompts[0]
   if (!prompt) {
     return null

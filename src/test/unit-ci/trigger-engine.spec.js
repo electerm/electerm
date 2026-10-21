@@ -2,7 +2,6 @@ const { describe, test } = require('node:test')
 const assert = require('node:assert/strict')
 
 const loadEngine = () => import('../../client/components/terminal/automation/trigger-engine.js')
-const loadMatcher = () => import('../../client/components/terminal/automation/stream-matcher.js')
 const loadStrip = () => import('../../client/components/terminal/automation/strip-ansi.js')
 const loadKeys = () => import('../../client/components/terminal/automation/keys.js')
 
@@ -32,6 +31,23 @@ describe('trigger-engine', () => {
     // same chunk again: cooldown suppresses (buffer still contains match)
     eng.push('x')
     assert.equal(sent.length, 1)
+  })
+
+  test('matches text whose color code is split across chunks', async () => {
+    const { default: TriggerEngine } = await loadEngine()
+    const sent = []
+    const esc = String.fromCharCode(27)
+    const eng = new TriggerEngine({ send: (p) => sent.push(p) })
+    eng.setTriggers([rule({
+      match: { type: 'text', value: 'password', caseSensitive: false },
+      action: { type: 'send', value: 'secret' }
+    })])
+    // an ssh style break in the middle of the color code
+    eng.push('Pass' + esc + '[3')
+    assert.equal(sent.length, 0)
+    eng.push('2mword: ')
+    assert.equal(sent.length, 1)
+    assert.equal(sent[0], 'secret')
   })
 
   test('never re-fires a previous match when unrelated output arrives', async () => {
@@ -177,32 +193,39 @@ describe('trigger-engine', () => {
   })
 })
 
-describe('stream-matcher', () => {
-  test('resolves waiters across chunk boundary', async () => {
-    const { default: StreamMatcher } = await loadMatcher()
-    const m = new StreamMatcher()
-    const p = m.wait(/hello/, { timeout: 1000 })
-    m.push('he')
-    m.push('llo')
-    const r = await p
-    assert.equal(r.text, 'hello')
-  })
-
-  test('times out with ETTIMEOUT-like code', async () => {
-    const { default: StreamMatcher } = await loadMatcher()
-    const m = new StreamMatcher()
-    await assert.rejects(
-      m.wait(/never/, { timeout: 20 }),
-      (e) => e.code === 'ETIMEOUT'
-    )
-  })
-})
-
 describe('strip-ansi and keys', () => {
   test('stripAnsi removes csi sequences', async () => {
     const { stripAnsi } = await loadStrip()
     const esc = String.fromCharCode(27)
     assert.equal(stripAnsi(`${esc}[31mhi${esc}[0m`), 'hi')
+  })
+
+  test('createAnsiDecoder joins an escape sequence split across chunks', async () => {
+    const { createAnsiDecoder } = await loadStrip()
+    const esc = String.fromCharCode(27)
+    const dec = createAnsiDecoder()
+    assert.equal(dec.push('Pass' + esc + '[3'), 'Pass')
+    assert.equal(dec.push('2mword:'), 'word:')
+    assert.equal(dec.push(' done'), ' done')
+  })
+
+  test('createAnsiDecoder keeps text when no sequence is pending', async () => {
+    const { createAnsiDecoder } = await loadStrip()
+    const esc = String.fromCharCode(27)
+    const dec = createAnsiDecoder()
+    assert.equal(dec.push('plain'), 'plain')
+    assert.equal(dec.push(esc + '[1mbold' + esc + '[0m'), 'bold')
+    assert.equal(dec.push(' tail'), ' tail')
+  })
+
+  test('createAnsiDecoder drops a pending sequence on reset', async () => {
+    const { createAnsiDecoder } = await loadStrip()
+    const esc = String.fromCharCode(27)
+    const dec = createAnsiDecoder()
+    dec.push('x' + esc + '[3')
+    dec.reset()
+    // the pending half is gone, so what follows is plain text
+    assert.equal(dec.push('2mnew'), '2mnew')
   })
 
   test('expandControlChars handles escapes', async () => {

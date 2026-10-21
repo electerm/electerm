@@ -1,9 +1,11 @@
 // Questions from prompt steps, for one run of a quick command in one or
 // more terminals. With "send to all terminals" on, the default, each
 // question is asked once and the answer goes to every terminal waiting on
-// it. Turned off, each terminal gets its own dialog. Turning it back on
-// folds those dialogs into one again. The setting holds for the rest of
-// the run.
+// it. Turned off, each terminal gets its own question. Turning it back on
+// folds them into one again. The setting holds for the rest of the run.
+//
+// A question per terminal means one entry per terminal here; the footer
+// shows them one at a time, so answering feels like a short queue.
 //
 // open({ step, tabId, shared }) shows a dialog and returns { answer, close }.
 // `answer` resolves with what the user typed, or null on cancel. `tabId` is

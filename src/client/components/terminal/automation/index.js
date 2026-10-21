@@ -59,6 +59,5 @@ export function createTriggerManager ({ attachAddon, send, getTriggers, onFire }
 }
 
 export { TriggerEngine }
-export { default as StreamMatcher } from './stream-matcher.js'
-export { stripAnsi, normalizeCR } from './strip-ansi.js'
+export { stripAnsi, normalizeCR, createAnsiDecoder } from './strip-ansi.js'
 export { expandControlChars } from './keys.js'

@@ -4,7 +4,8 @@
  */
 import { auto } from 'manate/react'
 import MultiTabRunModal from '../footer/multi-tab-run-modal'
-import translateOr from '../../common/translate-fallback'
+
+const e = window.translate
 
 export default auto(function QmRunInTabs ({ store }) {
   const id = store.qmRunInTabsId
@@ -16,7 +17,7 @@ export default auto(function QmRunInTabs ({ store }) {
   const preview = (
     <>
       <b>{qm.name}</b>
-      <span className='mg1l'>({count} {translateOr('steps', 'Steps').toLowerCase()})</span>
+      <span className='mg1l'>({count} {e('steps').toLowerCase()})</span>
     </>
   )
   function handleClose () {
@@ -25,7 +26,7 @@ export default auto(function QmRunInTabs ({ store }) {
   return (
     <MultiTabRunModal
       store={store}
-      title={translateOr('runInTerminals', 'Run in terminals...')}
+      title={e('runInTerminals')}
       preview={preview}
       onRun={tabIds => window.store.runQuickCommandItem(qm.id, tabIds)}
       onClose={handleClose}

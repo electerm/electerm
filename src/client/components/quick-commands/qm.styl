@@ -111,7 +111,7 @@
 .qm-label-icon.qm-no-label
   opacity 0.5
 .qm-label-items
-  padding 4px 0 2px 18px
+  padding 4px 0 2px 10px
 .qm-label-group-list
   .qm-label-head
     padding 4px 8px
@@ -229,10 +229,18 @@
     width 78px
     flex none
     white-space nowrap
+  // the add-step buttons belong to the editor, not to the list: keep them well
+  // clear of the last step and one size down, or they read as one more row
+  .qm-step-add
+    margin-top 16px
+    .ant-btn
+      font-size 12px
 
 // narrow editor (small window or settings panel): two lines per step.
-// Line 1 is type, command or key, and the row actions. Line 2 is name,
-// Enter or repeat, and delay. The header row wraps the same way. Written as plain CSS for the container query.
+// Line 1 is type, name and the row actions. Line 2 is the command or key,
+// Enter or repeat, and delay. Name stays ahead of the command it names, as in
+// the wide row. The header row wraps the same way. Written as plain CSS for
+// the container query.
 .qm-steps
   container-type inline-size
 @css {
@@ -241,8 +249,8 @@
       display: grid;
       grid-template-columns: 14px 18px 132px minmax(0, 1fr) 80px 96px;
       grid-template-areas:
-        'drag idx type value value ops'
-        '. . name name option delay';
+        'drag idx type name name ops'
+        '. . value value option delay';
       row-gap: 4px;
       padding-bottom: 6px;
       margin-bottom: 8px;

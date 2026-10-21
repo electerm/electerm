@@ -11,17 +11,18 @@ import {
 } from '../common/constants'
 import { quickCommandSteps } from '../common/quick-command-steps'
 import { runSteps } from '../components/terminal/automation/step-runner'
-import { recordedSteps } from '../components/terminal/automation/record-steps'
+import { createRecorder } from '../components/terminal/automation/record-steps'
 import { createOutputWatch } from '../components/terminal/automation/output-watch'
 import { createAskGroup } from '../components/terminal/automation/ask-group'
 import generate from '../common/uid'
 import message from '../components/common/message'
-import translateOr from '../common/translate-fallback'
 import * as ls from '../common/safe-local-storage'
 import { debounce } from 'lodash-es'
 import { refs } from '../components/common/ref'
 import templates from '../components/quick-commands/templates'
 import { readClipboardAsync } from '../common/clipboard'
+
+const e = window.translate
 
 // Function to parse templates in command string
 async function parseTemplates (cmd) {
@@ -155,9 +156,6 @@ function runInTab (qm, tabId, askInput) {
       if (entry.visible) {
         publishRuns(tabId)
       }
-      store.editQuickCommand(qm.id, {
-        clickCount: ((qm.clickCount || 0) + 1)
-      })
     }
   })
   entry.run = run
@@ -185,7 +183,7 @@ function runInTab (qm, tabId, askInput) {
     } else if (result.status === 'timeout') {
       const step = steps[result.index]
       message.warning(
-        `${translateOr('waitTimedOut', 'Timed out waiting for')} "${step.value}" (${qm.name})`
+        `${e('waitTimedOut')} "${step.value}" (${qm.name})`
       )
     }
     return result
@@ -212,7 +210,8 @@ export default Store => {
     refs.get('term-' + tid)?.runQuickCommand(cmd, inputOnly)
   }
 
-  // runs the quick command in the given tabs, the active tab by default
+  // runs the quick command in the given tabs, the active tab by default. An
+  // empty list runs nothing: the terminal picker can come back with no tab.
   Store.prototype.runQuickCommandItem = debounce((id, tabIds) => {
     const {
       store
@@ -224,10 +223,18 @@ export default Store => {
     if (!qm) {
       return
     }
-    const ids = tabIds && tabIds.length ? tabIds : [store.activeTabId]
+    const ids = Array.isArray(tabIds) ? tabIds : [store.activeTabId]
+    if (!ids.length) {
+      return
+    }
     if (ids.includes(store.activeTabId)) {
       refs.get('term-' + store.activeTabId)?.term?.focus()
     }
+    // count the run, not the steps: frequency sorting follows how often a
+    // quick command is used
+    store.editQuickCommand(qm.id, {
+      clickCount: ((qm.clickCount || 0) + 1)
+    })
     const multi = ids.length > 1
     const group = createAskGroup(({ step, tabId, shared }) => openPrompt({
       step, qm, tabId, shared, multi, onShared: group.setShared
@@ -287,8 +294,13 @@ export default Store => {
     if (!term) {
       return
     }
-    recording = { tabId: tid, chunks: [] }
+    // steps are built as input arrives, so a long recording is not parsed
+    // again on every key press
+    recording = { tabId: tid, recorder: createRecorder(generate) }
     store.qmRecording = { tabId: tid, count: 0 }
+    // every keystroke is kept, so a password typed during the recording
+    // would end up in the quick command and in sync
+    message.warning(e('recordingSecretsWarning'))
     term.term?.focus()
   }
 
@@ -297,9 +309,9 @@ export default Store => {
     if (!recording || recording.tabId !== tabId) {
       return
     }
-    recording.chunks.push(data)
     const { store } = window
-    const count = recordedSteps(recording.chunks).length
+    recording.recorder.push(data)
+    const count = recording.recorder.count()
     if (count !== store.qmRecording?.count) {
       store.qmRecording = { tabId, count }
     }
@@ -314,9 +326,9 @@ export default Store => {
     if (!save || !r) {
       return
     }
-    const steps = recordedSteps(r.chunks, generate)
+    const steps = r.recorder.done()
     if (!steps.length) {
-      message.info(translateOr('nothingRecorded', 'Nothing was recorded'))
+      message.info(e('nothingRecorded'))
       return
     }
     store.qmRecordedSteps = steps

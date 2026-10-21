@@ -17,10 +17,8 @@ import {
   VerticalAlignBottomOutlined
 } from '@ant-design/icons'
 import HelpIcon from '../common/help-icon'
-import { copy } from '../../common/clipboard'
 import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../common/drop-position'
 import { keyOptions } from '../terminal/automation/key-sequences'
-import translateOr from '../../common/translate-fallback'
 import generate from '../../common/uid'
 import { defaultWaitTimeout } from '../../common/quick-command-steps'
 import { useRef } from 'react'
@@ -30,6 +28,9 @@ const FormList = Form.List
 const e = window.translate
 
 const keySelectOptions = keyOptions.map(k => ({ value: k, label: k }))
+
+// the whole steps / recording / grouping guide, opened by the ? next to "steps"
+const helpLink = 'https://github.com/electerm/electerm/wiki/quick-commands'
 
 export function newStep (type = 'command') {
   if (type === 'key') {
@@ -44,15 +45,15 @@ export function newStep (type = 'command') {
   return { id: generate(), type: 'command', command: '', enter: true, delay: 0 }
 }
 
-const waitForTextLabel = () => translateOr('waitForText', 'Wait for text')
-const askForInputLabel = () => translateOr('askForInput', 'Ask for input')
+const waitForTextLabel = () => e('waitForText')
+const askForInputLabel = () => e('askForInput')
 
 // eye button for a prompt step: hide what the user types, as for a password
 function HideToggle ({ value, onChange }) {
   const hidden = value !== false
   const title = hidden
-    ? translateOr('inputHidden', 'Typing is hidden, as for a password')
-    : translateOr('inputShown', 'Typing is shown')
+    ? e('hide')
+    : e('show')
   return (
     <Tooltip title={title}>
       <Button
@@ -68,14 +69,14 @@ function HideToggle ({ value, onChange }) {
 // to ask, then Enter, repeat or timeout, and the delay before the step. Rows are dragged by the handle only, so text in
 // the inputs can still be selected with the mouse.
 function StepRow (props) {
-  const { field, index, form, remove, add, drag, focused } = props
+  const { field, index, form, remove, add, drag } = props
   const type = Form.useWatch(['commands', field.name, 'type'], form)
   const isKey = type === 'key'
   const isWait = type === 'wait'
   const isPrompt = type === 'prompt'
   const typeOptions = [
     { value: 'command', label: e('command') },
-    { value: 'key', label: translateOr('key', 'Key') },
+    { value: 'key', label: e('key') },
     { value: 'wait', label: waitForTextLabel() },
     { value: 'prompt', label: askForInputLabel() }
   ]
@@ -105,7 +106,7 @@ function StepRow (props) {
       return (
         <FormItem name={[field.name, 'text']} noStyle>
           <Input
-            placeholder={translateOr('textToWaitFor', 'Text to wait for, such as Password:')}
+            placeholder={e('waitForText')}
             className='qm-input'
             spellCheck={false}
           />
@@ -117,9 +118,12 @@ function StepRow (props) {
         <div className='qm-step-prompt'>
           <FormItem name={[field.name, 'text']} noStyle>
             <Input
-              placeholder={translateOr('questionToAsk', 'Question to ask, such as Password')}
+              placeholder={e('askForInput')}
               className='qm-input'
               spellCheck={false}
+              // the answer goes to the terminal at this step, it is not
+              // saved for later steps
+              title={e('promptSendsAnswer')}
             />
           </FormItem>
           <FormItem name={[field.name, 'hidden']} noStyle>
@@ -135,9 +139,6 @@ function StepRow (props) {
           placeholder={e('command')}
           className='qm-input'
           spellCheck={false}
-          onFocus={() => {
-            focused.current = index
-          }}
         />
       </FormItem>
     )
@@ -145,7 +146,7 @@ function StepRow (props) {
   function renderOption () {
     if (isKey) {
       return (
-        <Tooltip title={translateOr('repeat', 'Repeat')}>
+        <Tooltip title={e('repeat')}>
           <FormItem name={[field.name, 'repeat']} noStyle>
             <InputNumber
               min={1}
@@ -159,7 +160,7 @@ function StepRow (props) {
     }
     if (isWait) {
       return (
-        <Tooltip title={translateOr('waitTimeout', 'Timeout in seconds, 0 waits with no limit')}>
+        <Tooltip title={e('waitTimeout')}>
           <FormItem name={[field.name, 'timeout']} noStyle>
             <InputNumber
               min={0}
@@ -223,31 +224,29 @@ function StepRow (props) {
       <div className='qm-step-option'>
         {renderOption()}
       </div>
-      <Tooltip title={translateOr('delayBeforeStep', 'Wait before this step')}>
-        <FormItem name={[field.name, 'delay']} noStyle>
-          <InputNumber
-            min={0}
-            max={3600000}
-            step={100}
-            placeholder={100}
-            suffix='ms'
-            className='qm-step-delay'
-          />
-        </FormItem>
-      </Tooltip>
+      <FormItem name={[field.name, 'delay']} noStyle>
+        <InputNumber
+          min={0}
+          max={3600000}
+          step={100}
+          placeholder={100}
+          suffix='ms'
+          className='qm-step-delay'
+        />
+      </FormItem>
       <span className='qm-step-ops'>
         <Button
           size='small'
           type='text'
           icon={<VerticalAlignTopOutlined />}
-          title={translateOr('insertAbove', 'Insert above')}
+          title={e('insertAbove')}
           onClick={() => add(newStep(), index)}
         />
         <Button
           size='small'
           type='text'
           icon={<VerticalAlignBottomOutlined />}
-          title={translateOr('insertBelow', 'Insert below')}
+          title={e('insertBelow')}
           onClick={() => add(newStep(), index + 1)}
         />
         <Button
@@ -264,7 +263,6 @@ function StepRow (props) {
 }
 
 export default function renderQm (form) {
-  const focused = useRef(0)
   const dragIndexRef = useRef(null)
 
   const drag = {
@@ -315,49 +313,11 @@ export default function renderQm (form) {
     }
   }
 
-  const commonCmds = [
-    { cmd: 'ls', desc: 'List directory contents' },
-    { cmd: 'cd', desc: 'Change the current directory' },
-    { cmd: 'pwd', desc: 'Print the current working directory' },
-    { cmd: 'cp', desc: 'Copy files and directories' },
-    { cmd: 'mv', desc: 'Move/rename files and directories' },
-    { cmd: 'rm', desc: 'Remove files or directories' },
-    { cmd: 'mkdir', desc: 'Create new directories' },
-    { cmd: 'rmdir', desc: 'Remove empty directories' },
-    { cmd: 'touch', desc: 'Create empty files or update file timestamps' },
-    { cmd: 'chmod', desc: 'Change file modes or Access Control Lists' },
-    { cmd: 'chown', desc: 'Change file owner and group' },
-    { cmd: 'cat', desc: 'Concatenate and display file content' },
-    { cmd: 'echo', desc: 'Display message or variable value' },
-    { cmd: 'grep', desc: 'Search text using patterns' },
-    { cmd: 'find', desc: 'Search for files in a directory hierarchy' },
-    { cmd: 'df', desc: 'Report file system disk space usage' },
-    { cmd: 'du', desc: 'Estimate file space usage' },
-    { cmd: 'top', desc: 'Display Linux tasks' },
-    { cmd: 'ps', desc: 'Report a snapshot of current processes' },
-    { cmd: 'kill', desc: 'Send a signal to a process' }
-  ]
-
-  const cmds = commonCmds.map(c => {
-    return (
-      <Button
-        title={c.desc}
-        type='text'
-        key={c.cmd}
-        size='small'
-        onClick={() => {
-          copy(c.cmd)
-        }}
-      >
-        <b className='pointer'>{c.cmd}</b>
-      </Button>
-    )
-  })
   const label = (
     <div>
-      {translateOr('steps', 'Steps')}
+      {e('steps')}
       <HelpIcon
-        title={cmds}
+        link={helpLink}
       />
     </div>
   )
@@ -378,9 +338,9 @@ export default function renderQm (form) {
                         <span className='qm-step-index'>#</span>
                         <span className='qm-step-type'>{e('type')}</span>
                         <span className='qm-step-name'>{e('name')}</span>
-                        <span className='qm-step-value'>{e('command')} / {translateOr('key', 'Key')}</span>
+                        <span className='qm-step-value'>{e('command')} / {e('key')}</span>
                         <span className='qm-step-option' />
-                        <span className='qm-step-delay'>{translateOr('delay', 'Delay')}</span>
+                        <span className='qm-step-delay'>{e('delay')}</span>
                         <span className='qm-step-ops' />
                       </div>
                       )
@@ -396,13 +356,13 @@ export default function renderQm (form) {
                       remove={remove}
                       add={add}
                       drag={drag}
-                      focused={focused}
                     />
                   ))
                 }
-                <FormItem className='mg1t'>
+                <FormItem className='qm-step-add'>
                   <Button
                     type='dashed'
+                    size='small'
                     onClick={() => add(newStep())}
                     icon={<PlusOutlined />}
                     className='mg1r'
@@ -411,14 +371,16 @@ export default function renderQm (form) {
                   </Button>
                   <Button
                     type='dashed'
+                    size='small'
                     onClick={() => add(newStep('key'))}
                     icon={<PlusOutlined />}
                     className='mg1r'
                   >
-                    {translateOr('key', 'Key')}
+                    {e('key')}
                   </Button>
                   <Button
                     type='dashed'
+                    size='small'
                     onClick={() => add(newStep('wait'))}
                     icon={<PlusOutlined />}
                     className='mg1r'
@@ -427,6 +389,7 @@ export default function renderQm (form) {
                   </Button>
                   <Button
                     type='dashed'
+                    size='small'
                     onClick={() => add(newStep('prompt'))}
                     icon={<PlusOutlined />}
                   >

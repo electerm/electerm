@@ -34,7 +34,6 @@ export default () => {
     {
       // unbound by default, users set it in the shortcut settings
       name: 'app_stopQuickCommand',
-      desc: 'Stop quick command',
       shortcut: '',
       shortcutMac: ''
     },

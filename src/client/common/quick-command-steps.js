@@ -7,7 +7,8 @@
  * command's old `inputOnly` setting. A missing delay is 100 ms, as before,
  * and 0 is allowed. A wait step saves its timeout in seconds, 10 when
  * missing, and 0 waits with no limit. A prompt step hides what the user
- * types unless `hidden` is false.
+ * types unless `hidden` is false, and its answer is typed into the terminal
+ * at that step (it is not a variable later steps can use).
  */
 
 export const defaultStepDelay = 100

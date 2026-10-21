@@ -4,7 +4,8 @@
  */
 import { CaretRightOutlined, TagOutlined } from '@ant-design/icons'
 import classNames from 'classnames'
-import translateOr from '../../common/translate-fallback'
+
+const e = window.translate
 
 export default function QmLabelGroup (props) {
   const { label, count, collapsed, className, children } = props
@@ -22,7 +23,7 @@ export default function QmLabelGroup (props) {
         <CaretRightOutlined className='qm-label-caret' />
         <TagOutlined className={classNames('qm-label-icon', { 'qm-no-label': !label })} />
         <span className='qm-label-name elli'>
-          {label || translateOr('noLabel', 'No label')}
+          {label || e('default')}
         </span>
         <span className='qm-label-count'>{count}</span>
       </div>

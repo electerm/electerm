@@ -88,9 +88,11 @@ export function tokenize (chunk) {
   return tokens
 }
 
-// Builds steps from the recorded chunks. Every step gets a 0 ms delay.
-// makeId is called once per step.
-export function recordedSteps (chunks, makeId = () => '') {
+// Builds steps as input arrives, one chunk at a time, so a long recording
+// stays cheap while it is being typed. Every step gets a 0 ms delay.
+// makeId is called once per step. count() includes the command being typed,
+// which is not a step yet.
+export function createRecorder (makeId = () => '') {
   const steps = []
   let buf = ''
   const addCommand = enter => {
@@ -105,7 +107,7 @@ export function recordedSteps (chunks, makeId = () => '') {
     }
     steps.push({ id: makeId(), type: 'key', key, repeat: 1, delay: 0 })
   }
-  for (const chunk of chunks) {
+  function push (chunk) {
     for (const t of tokenize(chunk)) {
       if (t.text) {
         buf += t.text
@@ -121,9 +123,29 @@ export function recordedSteps (chunks, makeId = () => '') {
         addKey(t.key)
       }
     }
+    return steps
   }
-  if (buf) {
-    addCommand(false)
+  return {
+    push,
+    // how many steps the recording would make, the command being typed included
+    count () {
+      return steps.length + (buf ? 1 : 0)
+    },
+    // the steps, with the command still being typed as a last step
+    done () {
+      if (buf) {
+        addCommand(false)
+      }
+      return steps
+    }
   }
-  return steps
+}
+
+// Builds steps from the recorded chunks, for input recorded in one go.
+export function recordedSteps (chunks, makeId = () => '') {
+  const recorder = createRecorder(makeId)
+  for (const chunk of chunks) {
+    recorder.push(chunk)
+  }
+  return recorder.done()
 }

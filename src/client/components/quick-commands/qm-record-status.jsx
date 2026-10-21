@@ -5,7 +5,6 @@
 import { auto } from 'manate/react'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import QuickCommandCreateModal from './quick-command-create-modal'
-import translateOr from '../../common/translate-fallback'
 import createName from '../../common/create-title'
 import deepCopy from 'json-deep-copy'
 import './qm.styl'
@@ -20,7 +19,7 @@ export default auto(function QmRecordStatus ({ store }) {
       <QuickCommandCreateModal
         store={store}
         commands={deepCopy(steps)}
-        name={translateOr('recordedQuickCommand', 'Recorded quick command')}
+        name={e('quickCommand')}
         labels={['recorded']}
         isRecorded
         onClose={() => { window.store.qmRecordedSteps = null }}
@@ -34,7 +33,7 @@ export default auto(function QmRecordStatus ({ store }) {
   const tab = rec.tabId !== store.activeTabId
     ? store.tabs.find(t => t.id === rec.tabId)
     : null
-  const label = translateOr('recording', 'Recording')
+  const label = e('recording')
   return (
     <div className='terminal-footer-unit terminal-footer-qm-run'>
       <span className='qm-run-chip qm-rec-chip'>
@@ -43,11 +42,11 @@ export default auto(function QmRecordStatus ({ store }) {
           <span className='elli qm-run-name'>
             {tab ? `${label}: ${createName(tab)}` : label}
           </span>
-          <span className='mg1l'>{rec.count} {translateOr('steps', 'Steps').toLowerCase()}</span>
+          <span className='mg1l'>{rec.count} {e('steps').toLowerCase()}</span>
         </span>
         <span
           className='pointer qm-rec-save'
-          title={translateOr('saveRecording', 'Stop recording and save')}
+          title={e('stopRecord')}
           onClick={() => store.stopQuickCommandRecording(true)}
         >
           <CheckOutlined className='mg1r' />
@@ -55,7 +54,7 @@ export default auto(function QmRecordStatus ({ store }) {
         </span>
         <span
           className='pointer qm-rec-cancel'
-          title={translateOr('cancelRecording', 'Stop recording and discard it')}
+          title={e('cancel')}
           onClick={() => store.stopQuickCommandRecording(false)}
         >
           <CloseOutlined />

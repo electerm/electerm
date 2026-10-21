@@ -30,7 +30,6 @@ import {
 } from '@ant-design/icons'
 import classNames from 'classnames'
 import onDropFunc from './on-drop'
-import translateOr from '../../common/translate-fallback'
 import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../common/drop-position'
 import './qm.styl'
 
@@ -176,7 +175,8 @@ export default auto(function QuickCommandsFooterBox (props) {
         item={item}
         key={item.id}
         onSelect={handleSelect}
-        draggable={!qmSortByFrequency}
+        // grouped, a drop only reorders the flat list, which does not show
+        draggable={!qmSortByFrequency && !store.qmGroupByLabel}
         handleDragOver={onDragOver}
         handleDragStart={onDragStart}
         handleDragEnter={onDragEnter}
@@ -279,7 +279,7 @@ export default auto(function QuickCommandsFooterBox (props) {
             onClick={handleRecord}
             icon={<span className='qm-rec-dot' />}
             disabled={!!store.qmRecording}
-            title={translateOr('recordQuickCommand', 'Record quick command')}
+            title={e('record')}
             className='qm-record-btn'
           />
           <Button
@@ -361,7 +361,7 @@ export default auto(function QuickCommandsFooterBox (props) {
           <Button
             type={store.qmGroupByLabel ? 'primary' : 'default'}
             icon={<TagsOutlined />}
-            title={translateOr('groupByLabel', 'Group by label')}
+            title={e('group')}
             onClick={() => window.store.setQmGroupByLabel(!store.qmGroupByLabel)}
             className='qm-group-btn'
           />

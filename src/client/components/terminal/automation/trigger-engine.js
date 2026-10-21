@@ -7,7 +7,7 @@
 //   action: { type: 'send', value },
 //   sendEnter, mode: 'repeat' | 'once' | 'cooldown', cooldownMs
 // }
-import { stripAnsi, normalizeCR } from './strip-ansi.js'
+import { normalizeCR, createAnsiDecoder } from './strip-ansi.js'
 import { escapeRegExp, expandControlChars } from './keys.js'
 
 function buildRegExp (rule) {
@@ -58,6 +58,7 @@ export default class TriggerEngine {
     this.maxBuffer = maxBuffer
     this.onFire = onFire
     this.now = now
+    this.decoder = createAnsiDecoder()
     this.buf = ''
     this.base = 0
     this.rules = []
@@ -127,7 +128,7 @@ export default class TriggerEngine {
     if (!raw) {
       return
     }
-    const str = normalizeCR(stripAnsi(raw))
+    const str = normalizeCR(this.decoder.push(raw))
     if (!str) {
       return
     }
@@ -224,6 +225,7 @@ export default class TriggerEngine {
   }
 
   dispose () {
+    this.decoder.reset()
     this.buf = ''
     this.base = 0
     this.rules = []

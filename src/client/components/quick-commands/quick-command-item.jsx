@@ -16,19 +16,18 @@ import {
   EditOutlined
 } from '@ant-design/icons'
 import classNames from 'classnames'
-import translateOr from '../../common/translate-fallback'
 
 const e = window.translate
 
 function stepLabel (step) {
   if (step.type === 'key') {
-    return translateOr('key', 'Key')
+    return e('key')
   }
   if (step.type === 'wait') {
-    return translateOr('waitForText', 'Wait for text')
+    return e('waitForText')
   }
   if (step.type === 'prompt') {
-    return translateOr('askForInput', 'Ask for input')
+    return e('askForInput')
   }
   return e('command')
 }
@@ -77,12 +76,12 @@ export default class QuickCommandsItem extends PureComponent {
       {
         key: 'run',
         icon: <CaretRightOutlined />,
-        label: translateOr('run', 'Run')
+        label: e('execute')
       },
       {
         key: 'runInTabs',
         icon: <CodeOutlined />,
-        label: translateOr('runInTerminals', 'Run in terminals...')
+        label: e('runInTerminals')
       },
       {
         key: 'edit',

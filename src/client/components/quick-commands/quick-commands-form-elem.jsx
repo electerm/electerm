@@ -63,6 +63,15 @@ export default function QuickCommandForm (props) {
       labels,
       shortcut
     } = res
+    // a wait step with nothing to wait for would run as a no-op, and its
+    // input sits in a noStyle FormItem, which cannot show an error itself
+    const blankWait = (commands || []).some(
+      c => c && c.type === 'wait' && !String(c.text || '').trim()
+    )
+    if (blankWait) {
+      message.warning(e('required'))
+      return
+    }
     // each step has its own Enter setting now, which replaces inputOnly
     const update = deepCopy({
       name,
@@ -104,6 +113,8 @@ export default function QuickCommandForm (props) {
       name: data.name,
       commands: (data.commands || []).map(c => ({
         ...c,
+        // the step rows read the type: an AI step is a command step
+        type: c.type || 'command',
         enter: !data.inputOnly
       }))
     }
@@ -172,7 +183,7 @@ export default function QuickCommandForm (props) {
       {qmItem}
       <FormItem
         name='labels'
-        label={e('label')}
+        label={e('labels')}
       >
         <Select
           mode='tags'

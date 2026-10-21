@@ -29,7 +29,6 @@ import { action } from 'manate'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { isDropAfterHalf } from '../../common/drop-position'
-import translateOr from '../../common/translate-fallback'
 
 const e = window.translate
 const onDragCls = 'ondrag-tab'
@@ -345,7 +344,7 @@ class Tab extends Component {
       qmRunning && {
         key: 'stopQuickCommand',
         icon: <BorderOutlined />,
-        label: translateOr('stopQuickCommand', 'Stop quick command'),
+        label: e('stopQuickCommand'),
         extra: this.getShortcut('app_stopQuickCommand'),
         danger: true
       },
