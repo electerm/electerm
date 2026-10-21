@@ -86,6 +86,46 @@
   border-top 2px solid var(--primary)
 .qm-label-select
   min-width 120px
+
+// label headings in the quick command panel and the settings list
+.qm-label-head
+  display flex
+  align-items center
+  gap 6px
+  padding 2px 4px
+  opacity 0.8
+  user-select none
+  &:hover
+    opacity 1
+  .qm-label-caret
+    font-size 10px
+    transition transform 0.15s ease
+  .qm-label-name
+    min-width 0
+    font-weight 600
+  .qm-label-count
+    font-size 12px
+    opacity 0.6
+.qm-label-group:not(.collapsed) .qm-label-caret
+  transform rotate(90deg)
+.qm-label-icon.qm-no-label
+  opacity 0.5
+.qm-label-items
+  padding 4px 0 2px 18px
+.qm-label-group-list
+  .qm-label-head
+    padding 4px 8px
+  .qm-label-items
+    padding 0 0 0 12px
+.qm-list-labels
+  display flex
+  gap 6px
+  .qm-list-label-select
+    flex 1
+    min-width 0
+@media (prefers-reduced-motion: reduce)
+  .qm-label-head .qm-label-caret
+    transition none
 .qm-name-input
   max-width 160px
   min-width 80px
@@ -139,25 +179,187 @@
   .qm-panel-in-right-panel .qm-search-input
     flex none
 
-// On mobile, stack the quick-command row (name / delay / command / remove)
-// vertically instead of side by side — the horizontal Space.Compact layout
-// is too cramped on narrow screens.
-.is-mobile
-  .qm-cmd-row.ant-space-compact
+// step editor: one row per step (drag, #, type, name, command or key,
+// Enter or repeat, delay before, row actions)
+.qm-steps
+  // name and command/key shrink first, so the delay and row actions stay
+  // visible in a narrow window
+  .qm-step-row
     display flex
-    flex-direction column
-    align-items stretch
-    gap 8px
-    .ant-space-compact-item
+    align-items center
+    gap 6px
+    margin-bottom 6px
+  .qm-step-head
+    margin-bottom 2px
+    opacity 0.7
+    font-size 12px
+    .qm-step-name
+    .qm-step-value
+    .qm-step-delay
+      white-space nowrap
+      overflow hidden
+  .qm-step-drag
+    width 14px
+    flex none
+    cursor grab
+  .qm-step-index
+    width 18px
+    flex none
+    text-align right
+    opacity 0.7
+  .qm-step-type
+    width 132px
+    flex none
+  .qm-step-name
+    flex 0 1 120px
+    min-width 56px
+  .qm-step-value
+    flex 1 1 160px
+    min-width 90px
+  .qm-step-prompt
+    display flex
+    gap 4px
+  .qm-step-option
+    width 80px
+    flex none
+  .qm-step-delay
+    width 96px
+    flex none
+  .qm-step-ops
+    width 78px
+    flex none
+    white-space nowrap
+
+// narrow editor (small window or settings panel): two lines per step.
+// Line 1 is type, command or key, and the row actions. Line 2 is name,
+// Enter or repeat, and delay. The header row wraps the same way. Written as plain CSS for the container query.
+.qm-steps
+  container-type inline-size
+@css {
+  @container (max-width: 640px) {
+    .qm-steps .qm-step-row {
+      display: grid;
+      grid-template-columns: 14px 18px 132px minmax(0, 1fr) 80px 96px;
+      grid-template-areas:
+        'drag idx type value value ops'
+        '. . name name option delay';
+      row-gap: 4px;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--main-darker);
+    }
+    .qm-steps .qm-step-drag { grid-area: drag; }
+    .qm-steps .qm-step-index { grid-area: idx; }
+    .qm-steps .qm-step-type { grid-area: type; width: auto; }
+    .qm-steps .qm-step-name { grid-area: name; min-width: 0; }
+    .qm-steps .qm-step-value { grid-area: value; min-width: 0; }
+    .qm-steps .qm-step-option { grid-area: option; width: auto; }
+    .qm-steps .qm-step-delay { grid-area: delay; width: auto; }
+    .qm-steps .qm-step-ops { grid-area: ops; width: auto; text-align: right; }
+  }
+}
+
+// On mobile, stack each step's fields instead of one cramped row
+.is-mobile
+  .qm-steps
+    .qm-step-head
+      display none
+    .qm-step-row
+      flex-wrap wrap
+      padding-bottom 6px
+      border-bottom 1px solid var(--main-darker)
+    .qm-step-name
+    .qm-step-value
       width 100%
-    // reset the constrained widths so inputs fill the row when stacked
-    .qm-name-input
-      max-width none
-      width 100%
-    .ant-input-number
-      width 100% !important
-    // keep the drag handle + remove button on a tidy line of their own
-    > .drag
-      align-self flex-start
-    > button:last-child
-      align-self flex-end
+      flex 1 1 100%
+
+// footer chip for a running quick command: blue progress part on the left,
+// red stop part filling the right end
+.terminal-footer-qm-run
+  display flex
+  align-items center
+  max-width 440px
+.qm-run-chip
+  display flex
+  align-items center
+  line-height 24px
+  border-radius 12px
+  overflow hidden
+  background var(--primary)
+  color var(--primary-contrast)
+  min-width 0
+  // the width is set from qm-run-status.jsx while the text changes
+  transition width 0.2s ease
+  .qm-run-info
+    display flex
+    align-items center
+    padding 0 8px 0 10px
+    min-width 0
+  .qm-run-name
+    max-width 140px
+  // the name gives way first, the waiting text matters more
+  .qm-run-wait
+    max-width 200px
+    flex-shrink 0
+    // a new waiting text slides in while the chip grows
+    animation qm-run-text-in 0.25s ease-out
+  .qm-run-stop
+    display flex
+    align-items center
+    align-self stretch
+    padding 0 10px 0 8px
+    background var(--error, #e5484d)
+    color #fff
+    &:hover
+      filter brightness(1.1)
+
+@keyframes qm-run-text-in
+  from
+    opacity 0
+    transform translateX(-6px)
+@media (prefers-reduced-motion: reduce)
+  .qm-run-chip
+    transition none
+    .qm-run-wait
+      animation none
+
+// prompt step dialog: the shared checkbox on the left, buttons on the right
+.qm-prompt-tab
+  opacity 0.7
+.qm-prompt-footer
+  display flex
+  align-items center
+  justify-content flex-end
+  gap 8px
+  .qm-prompt-shared
+    margin-right auto
+
+// footer chip while recording: a pulsing red dot, then save and cancel
+.qm-rec-chip
+  background var(--main-lighter)
+  color var(--text)
+  .qm-rec-save
+  .qm-rec-cancel
+    display flex
+    align-items center
+    align-self stretch
+    padding 0 10px
+    &:hover
+      filter brightness(1.1)
+  .qm-rec-save
+    background var(--primary)
+    color var(--primary-contrast)
+  .qm-rec-cancel
+    background var(--main-darker)
+.qm-rec-dot
+  display inline-block
+  width 10px
+  height 10px
+  border-radius 50%
+  background var(--error, #e5484d)
+  flex none
+  .qm-rec-chip &
+    animation qm-rec-pulse 1.2s ease-in-out infinite
+@keyframes qm-rec-pulse
+  50%
+    opacity 0.35

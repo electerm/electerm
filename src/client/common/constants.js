@@ -163,6 +163,8 @@ export const quickCommandsInRightPanelKey = 'quick-commands-in-right-panel'
 export const addPanelWidthLsKey = 'addPanelWidth'
 export const sftpDefaultSortSettingKey = 'sftp-default-sort'
 export const qmSortByFrequencyKey = 'qm-sort-by-frequency'
+export const qmGroupByLabelKey = 'qm-group-by-label'
+export const qmCollapsedLabelsKey = 'qm-collapsed-labels'
 
 export const commonBaudRates = [
   110,

@@ -3,8 +3,8 @@
  */
 
 import List from '../setting-panel/list'
-import { PlusOutlined, CopyOutlined } from '@ant-design/icons'
-import { Select } from 'antd'
+import { PlusOutlined, CopyOutlined, TagsOutlined } from '@ant-design/icons'
+import { Select, Button } from 'antd'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
 import QmTransport from './quick-command-transport'
@@ -12,6 +12,9 @@ import onDrop from './on-drop'
 import { isDropAfterHalf, setDropIndicator, clearDropIndicator } from '../../common/drop-position'
 import copy from 'json-deep-copy'
 import uid from '../../common/uid'
+import QmLabelGroup from './qm-label-group'
+import { groupByLabel, hasLabels } from '../../common/quick-command-groups'
+import translateOr from '../../common/translate-fallback'
 
 const { Option } = Select
 const e = window.translate
@@ -145,6 +148,27 @@ export default class QuickCommandsList extends List {
     )
   }
 
+  // under label headings, unless turned off or nothing has a label. A
+  // search opens every heading so no match is hidden.
+  renderList = list => {
+    const { groupByLabel: grouped, collapsedLabels = [] } = this.props
+    if (!grouped || !hasLabels(list)) {
+      return list.map(this.renderItem)
+    }
+    const { keyword, labels } = this.state
+    return groupByLabel(list, labels).map(g => (
+      <QmLabelGroup
+        key={'qmg-' + g.label}
+        label={g.label}
+        count={g.items.length}
+        collapsed={!keyword && collapsedLabels.includes(g.label)}
+        className='qm-label-group-list'
+      >
+        {g.items.map(this.renderItem)}
+      </QmLabelGroup>
+    ))
+  }
+
   renderTransport = () => {
     return (
       <QmTransport
@@ -160,12 +184,18 @@ export default class QuickCommandsList extends List {
       mode: 'multiple',
       value: this.state.labels,
       onChange: this.handleChangeLabel,
-      style: {
-        width: '100%'
-      }
+      className: 'qm-list-label-select'
     }
+    const { groupByLabel: grouped } = this.props
     return (
-      <div className='pd1b'>
+      <div className='pd1b qm-list-labels'>
+        <Button
+          type={grouped ? 'primary' : 'default'}
+          icon={<TagsOutlined />}
+          title={translateOr('groupByLabel', 'Group by label')}
+          onClick={() => window.store.setQmGroupByLabel(!grouped)}
+          className='qm-group-btn'
+        />
         <Select
           {...props}
         >
@@ -197,7 +227,7 @@ export default class QuickCommandsList extends List {
         if (item.commands && Array.isArray(item.commands)) {
           // Search in each command in the commands array
           return n.includes(k) || item.commands.some(cmd =>
-            (cmd.command || '').toLowerCase().includes(k) ||
+            (cmd.command || cmd.key || cmd.text || '').toLowerCase().includes(k) ||
             (cmd.name || '').toLowerCase().includes(k)
           )
         } else {

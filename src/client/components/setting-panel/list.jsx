@@ -188,7 +188,9 @@ export default class ItemList extends React.PureComponent {
         <div className='item-list-wrap' style={listStyle}>
           {this.renderNewItem()}
           {
-            list.map(this.renderItem)
+            this.renderList
+              ? this.renderList(list)
+              : list.map(this.renderItem)
           }
         </div>
       </div>
