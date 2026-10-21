@@ -18,7 +18,7 @@ import {
 import Password from '../common/password'
 import AiHistory, { addHistoryItem } from './ai-history'
 import message from '../common/message'
-import { getAIPresets } from './ai-presets'
+import { getAIPresets, getAIModelOptions } from './ai-presets'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import './ai-config.styl'
 
@@ -187,7 +187,8 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         saveModelsToCache(baseURL, res.models)
         message.success(`Got ${res.models.length} models`)
         if (!values.modelAI) {
-          form.setFieldsValue({ modelAI: res.models[0] })
+          const options = getAIModelOptions(baseURL, null, res.models)
+          form.setFieldsValue({ modelAI: options[0]?.value })
         }
       } else {
         message.error('No models found in response')
@@ -263,10 +264,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   }
 
   function renderModelInput () {
-    const presetModels = (currentPreset?.modelAIs || [])
-      .map(o => (typeof o === 'string' ? o : o.value))
-    const values = [...presetModels, ...cachedModels].filter(Boolean)
-    const options = [...new Set(values)].map(value => ({ value }))
+    const options = getAIModelOptions(baseURLAI, currentPreset, cachedModels)
     const title = 'Fetch model list from API URL'
     return (
       <AutoComplete
