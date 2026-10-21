@@ -234,7 +234,6 @@ describe('buildSessionMessages', () => {
         role: 'user',
         content: 'Here is a summary of our previous conversation for context:\n\nSUMMARY'
       },
-      { role: 'assistant', content: 'Understood. I will use this context as we continue.' },
       { role: 'user', content: 'new prompt' },
       { role: 'assistant', content: 'new answer' }
     ])

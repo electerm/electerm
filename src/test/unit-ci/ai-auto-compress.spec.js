@@ -109,7 +109,6 @@ describe('compactAskMessages', () => {
         role: 'user',
         content: 'Here is a summary of our previous conversation for context:\n\nSUMMARY'
       },
-      { role: 'assistant', content: 'Understood. I will use this context as we continue.' },
       pending
     ])
     // the memoized list the turn was built from is left alone
@@ -136,8 +135,7 @@ describe('applySummary', () => {
       {
         role: 'user',
         content: 'Here is a summary of our previous conversation for context:\n\nSUMMARY'
-      },
-      { role: 'assistant', content: 'Understood. I will use this context as we continue.' }
+      }
     ])
   })
 
@@ -148,7 +146,7 @@ describe('applySummary', () => {
     ]
     const returned = m.applySummary(messages, 'SUMMARY')
     assert.equal(returned, messages)
-    assert.equal(messages.length, 3)
+    assert.equal(messages.length, 2)
   })
 
   it('works without a system prompt and leaves a summary-free list alone', () => {

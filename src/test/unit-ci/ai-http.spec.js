@@ -90,6 +90,34 @@ before(async () => {
     }
 
     if (req.url === '/chat/completions') {
+      if (body.model === 'thinking-test') {
+        const missingReasoning = body.messages.some(m =>
+          m.role === 'assistant' && typeof m.reasoning_content !== 'string'
+        )
+        if (body.tools && missingReasoning) {
+          res.writeHead(400, { 'Content-Type': 'application/json' })
+          return res.end(JSON.stringify({
+            error: { message: 'The reasoning_content in the thinking mode must be passed back to the API.' }
+          }))
+        }
+        const toolResult = body.messages.find(m => m.role === 'tool')
+        return json({
+          choices: [{
+            message: toolResult
+              ? { role: 'assistant', content: 'done', reasoning_content: 'The tool finished.' }
+              : {
+                  role: 'assistant',
+                  content: null,
+                  reasoning_content: 'Check the current directory.',
+                  tool_calls: [{
+                    id: 'thinking-call',
+                    type: 'function',
+                    function: { name: 'run_command', arguments: '{"cmd":"pwd"}' }
+                  }]
+                }
+          }]
+        })
+      }
       if (body.stream) {
         return writeSse(res, [
           'data: {"choices":[{"delta":{"content":"Hello "}}]}\n\n',
@@ -190,6 +218,47 @@ async function collectStream (sessionId) {
 }
 
 describe('AIchatWithTools - non streaming', () => {
+  it('resumes a compressed thinking conversation and preserves reasoning through a tool round trip', async () => {
+    const { applySummary } = await import('../../../src/client/components/ai/ai-auto-compress.js')
+    const { buildSessionMessages } = await import('../../../src/client/components/ai/ai-context.js')
+    const live = [
+      { role: 'system', content: 'agent instructions' },
+      { role: 'user', content: 'check the directory' },
+      { role: 'assistant', content: 'checking', reasoning_content: 'Inspect the directory.' }
+    ]
+    applySummary(live, 'Continue checking the directory.')
+    const restored = buildSessionMessages({
+      history: [{
+        id: 'summary',
+        chatSessionId: 'session',
+        timestamp: 1,
+        compressed: true,
+        response: 'Continue checking the directory.'
+      }],
+      chatSessionId: 'session',
+      role: 'agent instructions'
+    })
+    const send = messages => AIchatWithTools(
+      messages, 'thinking-test', baseURL(), '/chat/completions',
+      'sk-test', '', TOOLS, 'Authorization: Bearer'
+    )
+
+    for (const messages of [live, restored]) {
+      const first = await send(messages)
+      assert.equal(first.error, undefined)
+      assert.equal(first.message.reasoning_content, 'Check the current directory.')
+      assert.equal(first.message.tool_calls[0].id, 'thinking-call')
+      messages.push(first.message, {
+        role: 'tool', tool_call_id: 'thinking-call', content: '/tmp'
+      })
+      const second = await send(messages)
+      assert.equal(second.error, undefined)
+      assert.equal(second.message.content, 'done')
+      assert.equal(lastRequest('/chat/completions').body.messages[2].reasoning_content,
+        'Check the current directory.')
+    }
+  })
+
   it('openai chat completion', async () => {
     const res = await AIchatWithTools(
       [{ role: 'user', content: 'hi' }],
