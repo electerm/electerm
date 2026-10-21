@@ -65,19 +65,14 @@ export function splitPendingTurn (messages) {
   return { context: messages, pending: null }
 }
 
-// How a summary re-enters the conversation. Deliberately the same pair
-// buildSessionMessages emits for a compressed session entry, so a live loop
-// that compacted itself and a session compressed between turns read
-// identically to the model.
+// Use the same user summary as buildSessionMessages for compressed sessions.
+// Do not add a synthetic assistant reply: thinking APIs with tools may require
+// the original reasoning_content on every assistant turn.
 export function summaryMessages (summary) {
   return [
     {
       role: 'user',
       content: `Here is a summary of our previous conversation for context:\n\n${summary}`
-    },
-    {
-      role: 'assistant',
-      content: 'Understood. I will use this context as we continue.'
     }
   ]
 }

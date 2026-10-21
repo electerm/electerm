@@ -185,10 +185,6 @@ export function buildSessionMessages ({
         role: 'user',
         content: `Here is a summary of our previous conversation for context:\n\n${entry.response}`
       })
-      messages.push({
-        role: 'assistant',
-        content: 'Understood. I will use this context as we continue.'
-      })
     } else {
       messages.push({
         role: 'user',
