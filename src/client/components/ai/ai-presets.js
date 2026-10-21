@@ -146,6 +146,30 @@ export const defaultAIPresets = [
     authHeaderNameAI: 'Authorization: Bearer'
   },
   {
+    id: 'minimax-global',
+    nameAI: 'MiniMax (Global)',
+    baseURLAI: 'https://api.minimax.io/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'MiniMax-M3.1-Flash',
+    authHeaderNameAI: 'Authorization: Bearer',
+    modelAIs: [
+      { value: 'MiniMax-M3.1-Flash' },
+      { value: 'MiniMax-M3' }
+    ]
+  },
+  {
+    id: 'minimax-cn',
+    nameAI: 'MiniMax (China)',
+    baseURLAI: 'https://api.minimax.cn/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'MiniMax-M3.1-Flash',
+    authHeaderNameAI: 'Authorization: Bearer',
+    modelAIs: [
+      { value: 'MiniMax-M3.1-Flash' },
+      { value: 'MiniMax-M3' }
+    ]
+  },
+  {
     id: 'xai',
     nameAI: 'xAI (Grok)',
     baseURLAI: 'https://api.x.ai/v1',
@@ -170,6 +194,17 @@ export const defaultAIPresets = [
     authHeaderNameAI: 'Authorization: Bearer'
   }
 ]
+
+// Suggestions do not constrain the editable model value or saved configurations.
+export function getAIModelOptions (baseURL, preset, cachedModels = []) {
+  const url = (baseURL || '').trim().replace(/\/+$/, '')
+    .replace(/^https:\/\/api\.minimaxi\.com\/v1$/, 'https://api.minimax.cn/v1')
+  const minimax = defaultAIPresets.find(p => p.id.startsWith('minimax-') && p.baseURLAI === url)
+  const presetModels = ((minimax || preset)?.modelAIs || [])
+    .map(o => (typeof o === 'string' ? o : o.value))
+  const values = minimax ? presetModels : [...presetModels, ...cachedModels]
+  return [...new Set(values.filter(Boolean))].map(value => ({ value }))
+}
 
 export function getAIPresets () {
   const presets = [...defaultAIPresets]
