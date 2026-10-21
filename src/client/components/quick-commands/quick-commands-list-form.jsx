@@ -121,9 +121,6 @@ function StepRow (props) {
               placeholder={e('askForInput')}
               className='qm-input'
               spellCheck={false}
-              // the answer goes to the terminal at this step, it is not
-              // saved for later steps
-              title={e('promptSendsAnswer')}
             />
           </FormItem>
           <FormItem name={[field.name, 'hidden']} noStyle>
