@@ -6,6 +6,38 @@
   max-width 220px
   word-break break-all
 
+// widget instances list: the auto-run toggle and the delete icon
+// (widget-instance.jsx). `setting-panel/list.styl` parks every `.list-item-*`
+// action icon absolutely at the row's right edge and reveals it on hover — fine
+// for a short title, but this row's title is the point, and the ellipsised text
+// ran straight underneath both icons. In flow they own their width instead, so
+// the title truncates before them.
+.wil-item-actions
+  display flex
+  flex 0 0 auto
+  align-items center
+  .list-item-autorun
+  .list-item-remove
+    position static
+    display block
+    width 22px
+    line-height inherit
+    // the space is kept while they are hidden, so the title does not
+    // re-ellipsise as the pointer enters the row
+    visibility hidden
+.item-list-unit:hover
+  .wil-item-actions
+    .list-item-autorun
+    .list-item-remove
+      visibility visible
+// a touch screen has no hover: the shared `.is-touch-device` rule shows the
+// icons there, and this has to undo the `visibility` half too
+.is-touch-device
+  .wil-item-actions
+    .list-item-autorun
+    .list-item-remove
+      visibility visible
+
 // widget manager: instance detail view (widget-instance-detail.jsx)
 .widget-instance-detail
   display flex
