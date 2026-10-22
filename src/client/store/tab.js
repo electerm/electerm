@@ -622,6 +622,12 @@ export default Store => {
     ) {
       return
     }
+    // a tab opened by a custom widget carries credentials that widget produced
+    // (a password manager, for instance); they must not be copied into the
+    // connection history, which is synced
+    if (typeof tab.from === 'string' && tab.from.startsWith('widget:')) {
+      return
+    }
     const { store } = window
     if (store.config.disableConnectionHistory) {
       return

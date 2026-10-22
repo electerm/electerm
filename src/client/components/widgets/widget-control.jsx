@@ -2,7 +2,10 @@
  * Widget control component - shows form for a selected widget
  */
 import React, { useState } from 'react'
+import { Alert } from 'antd'
 import WidgetForm from './widget-form'
+import CustomWidgetPanel from './custom-widget-panel'
+import CustomWidgetForm from './custom-widget-form'
 import { showMsg } from './widget-notification-with-details'
 
 export default function WidgetControl ({ formData, widgetInstancesLength }) {
@@ -14,6 +17,37 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
         <p>Select a widget to configure</p>
       </div>
     )
+  }
+
+  // A widget folder that failed to load is listed on purpose: silence here is
+  // what makes a broken custom widget impossible to diagnose.
+  if (widget.state === 'error') {
+    return (
+      <div className='widget-control pd2'>
+        <Alert
+          type='error'
+          showIcon
+          title={widget.info && widget.info.name ? widget.info.name : widget.id}
+          description={widget.error}
+        />
+      </div>
+    )
+  }
+
+  // A user widget that ships its own UI (electerm.ui in its package.json)
+  // renders that instead of the generated config form.
+  if (widget.info && widget.info.ui) {
+    return <CustomWidgetPanel widget={widget} />
+  }
+
+  // Config mode: no ui, frontend type — electerm draws the form from
+  // electerm.configs and shows the action's result in the same panel.
+  if (
+    widget.builtin === false &&
+    widget.info &&
+    widget.info.type === 'frontend'
+  ) {
+    return <CustomWidgetForm widget={widget} />
   }
 
   // Check if this widget already has a running instance

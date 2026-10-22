@@ -2,12 +2,14 @@
  * Widget form component
  */
 import React, { useState, useEffect } from 'react'
-import { Form, Input, InputNumber, Select, Button, Tooltip, Alert, Space } from 'antd'
-import { formItemLayout, tailFormItemLayout } from '../../common/form-layout'
-import SwitchLabel from '../common/switch'
+import { Form, Button, Tooltip, Alert } from 'antd'
+import { tailFormItemLayout } from '../../common/form-layout'
 import HelpIcon from '../common/help-icon'
-import { nanoid } from 'nanoid'
 import BatchOpEditor from '../batch-op/batch-op-editor'
+import {
+  renderConfigItem,
+  configInitialValues
+} from './config-fields'
 
 export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInstance }) {
   const [form] = Form.useForm()
@@ -44,86 +46,6 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
     onSubmit(values)
   }
 
-  const renderFormItem = (config) => {
-    const { name, type, description, choices, showGenerator } = config
-    let control = null
-
-    switch (type) {
-      case 'string':
-        control = <Input placeholder={description} />
-        if (showGenerator) {
-          return (
-            <Form.Item
-              key={name}
-              {...formItemLayout}
-              label={name}
-              tooltip={description}
-            >
-              <Space.Compact style={{ width: '100%' }}>
-                <Form.Item
-                  noStyle
-                  name={name}
-                >
-                  <Input placeholder={description} />
-                </Form.Item>
-                <Button
-                  onClick={() => form.setFieldValue(name, 'ett_' + nanoid())}
-                >
-                  Generate
-                </Button>
-              </Space.Compact>
-            </Form.Item>
-          )
-        }
-        break
-      case 'textarea':
-        control = <Input.TextArea autoSize={{ minRows: 3 }} placeholder={description} />
-        break
-      case 'number':
-        control = <InputNumber style={{ width: '100%' }} placeholder={description} />
-        break
-      case 'boolean':
-        return (
-          <Form.Item
-            key={name}
-            {...formItemLayout}
-            label={name}
-            name={name}
-            valuePropName='checked'
-            tooltip={description}
-          >
-            <SwitchLabel />
-          </Form.Item>
-        )
-      default:
-        control = <Input placeholder={description} />
-    }
-
-    if (choices && choices.length > 0) {
-      control = (
-        <Select placeholder={description}>
-          {choices.map(choice => (
-            <Select.Option key={choice} value={choice}>
-              {choice}
-            </Select.Option>
-          ))}
-        </Select>
-      )
-    }
-
-    return (
-      <Form.Item
-        key={name}
-        {...formItemLayout}
-        label={name}
-        name={name}
-        tooltip={description}
-      >
-        {control}
-      </Form.Item>
-    )
-  }
-
   function renderWarn () {
     if (!showDownloadWarning) {
       return null
@@ -138,10 +60,7 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
     )
   }
 
-  const initialValues = configs.reduce((acc, config) => {
-    acc[config.name] = config.default
-    return acc
-  }, {})
+  const initialValues = configInitialValues(configs)
 
   if (isFrontendWidget && info.name === 'Batch Operation') {
     return <BatchOpEditor widget={widget} />
@@ -165,7 +84,7 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
         initialValues={initialValues}
         layout='horizontal'
       >
-        {configs.map(renderFormItem)}
+        {configs.map(config => renderConfigItem(config, form))}
         <Form.Item
           {...tailFormItemLayout}
         >

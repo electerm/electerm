@@ -1,0 +1,72 @@
+{
+  "name": "form-demo",
+  "version": "0.3.0",
+  "description": "Generated-form demo widget",
+  "main": "main.js",
+  "electerm": {
+    "id": "form-demo",
+    "name": "Form Demo",
+    "version": "0.3.0",
+    "description": "A config-mode widget: no HTML, electerm draws the form and the result.",
+    "type": "frontend",
+    "submitLabel": "Search",
+    "persist": true,
+    "configs": [
+      {
+        "name": "host",
+        "label": "Host",
+        "type": "string",
+        "required": true,
+        "placeholder": "10.0.0.1"
+      },
+      {
+        "name": "keyPath",
+        "label": "GPG key file",
+        "type": "file",
+        "description": "A file picker renders as input + button.",
+        "filters": [
+          {
+            "name": "Keys",
+            "extensions": [
+              "asc",
+              "gpg"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "passphrase",
+        "label": "Passphrase",
+        "type": "password"
+      },
+      {
+        "name": "port",
+        "label": "Port",
+        "type": "number",
+        "default": 22
+      },
+      {
+        "name": "secure",
+        "label": "Secure",
+        "type": "boolean",
+        "default": true
+      },
+      {
+        "name": "mode",
+        "label": "Mode",
+        "type": "select",
+        "default": "ssh",
+        "choices": [
+          {
+            "label": "SSH",
+            "value": "ssh"
+          },
+          {
+            "label": "FTP",
+            "value": "ftp"
+          }
+        ]
+      }
+    ]
+  }
+}

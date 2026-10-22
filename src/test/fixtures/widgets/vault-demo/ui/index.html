@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <title>Vault Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--main, #141314);
+      color: var(--text, #ddd);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+    }
+    h1 { font-size: 16px; margin: 0 0 12px; }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 8px;
+      padding: 6px 8px;
+      background: var(--main-dark, #000);
+      color: var(--text, #ddd);
+      border: 1px solid var(--main-light, #2e3338);
+      border-radius: 4px;
+    }
+    button {
+      padding: 6px 10px;
+      background: var(--primary, #08c);
+      color: var(--primary-contrast, #fff);
+      border: 0;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .row input { margin-bottom: 0; }
+    ul { list-style: none; padding: 0; margin: 12px 0; }
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--main-light, #2e3338);
+    }
+    .meta { color: var(--text-dark, #888); font-size: 12px; }
+    .err { color: var(--error, #ef476f); }
+    .ok { color: var(--success, #06d6a0); }
+    a { color: var(--primary, #08c); cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Vault Demo</h1>
+  <div id='login'>
+    <input id='server' placeholder='server url'>
+    <div class='row'>
+      <input id='key' placeholder='key file' readonly>
+      <button id='pick'>Choose key</button>
+    </div>
+    <button id='connect'>Connect</button>
+  </div>
+  <div id='search' style='display:none'>
+    <div class='row'>
+      <input id='query' placeholder='search name, uri, user'>
+      <button id='go'>Search</button>
+    </div>
+    <ul id='results'></ul>
+    <button id='lock'>Lock</button>
+  </div>
+  <p id='status' class='meta'></p>
+  <script src='app.js'></script>
+</body>
+</html>

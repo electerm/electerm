@@ -1,0 +1,11 @@
+{
+  "name": "vault-demo",
+  "version": "0.2.0",
+  "description": "Demo password-vault widget: same shape as the Passbolt handoff, no crypto.",
+  "main": "main.js",
+  "electerm": {
+    "name": "Vault Demo",
+    "type": "frontend",
+    "ui": "ui/index.html"
+  }
+}

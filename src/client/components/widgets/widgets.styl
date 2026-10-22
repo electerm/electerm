@@ -98,3 +98,117 @@
   margin-top 6px
   color var(--text-disabled)
   font-size 11px
+
+// user widget list: the import button owns a row of its own above the search
+// box, with the wiki help icon beside it (widgets-list.jsx)
+.widgets-import-row
+  display flex
+  align-items center
+  // `block` gives the button width 100%; as a flex item it must be allowed to
+  // give the help icon its room back
+  .ant-btn
+    flex 1
+    min-width 0
+
+// user widget list: a folder that failed to load stays in the list with a
+// warning instead of disappearing (widgets-list.jsx)
+.list-item-widget-error
+  position absolute
+  right 0
+  top 0
+  width 24px
+  line-height 35px
+  text-align center
+  color var(--warn)
+
+// custom widget UI: the widget's own document owns the panel
+// (custom-widget-panel.jsx)
+.custom-widget-panel
+  display flex
+  flex-direction column
+  height 100%
+  min-height 0
+.cwp-head
+  display flex
+  align-items center
+  justify-content space-between
+  gap 8px
+  margin-bottom 10px
+  flex-shrink 0
+.cwp-title
+  min-width 0
+  font-size 14px
+.cwp-version
+  margin-left 8px
+  font-size 11px
+  color var(--text-dark)
+.cwp-frame
+  flex 1
+  min-height 0
+  width 100%
+  border 0
+  border-radius 4px
+  // the widget document inherits nothing; it sets its own colors from the
+  // variables the host hands it (see widget-bridge.js)
+  background var(--main-dark)
+  color-scheme inherit
+
+// config-mode user widget: generated form + the action's result
+// (custom-widget-form.jsx)
+.cwf-desc
+  margin-bottom 10px
+  color var(--text-dark)
+.cwf-result
+  margin-top 6px
+.cwf-result-head
+  margin-bottom 4px
+.cwf-details
+  display flex
+  flex-direction column
+  gap 4px
+  margin-bottom 10px
+.cwf-detail
+  display flex
+  gap 8px
+  align-items flex-start
+.cwf-detail-label
+  flex 0 0 110px
+  color var(--text-dark)
+  word-break break-word
+.cwf-detail-value
+  flex 1
+  min-width 0
+  display flex
+  align-items center
+  gap 2px
+  font-family monospace
+  font-size 12px
+  word-break break-all
+.cwf-secret
+  display flex
+  align-items center
+  gap 2px
+  min-width 0
+  max-width 100%
+.cwf-secret-text
+  min-width 60px
+  font-family monospace
+.cwf-cell
+  display flex
+  align-items center
+  gap 2px
+  min-width 0
+.cwf-table
+  font-size 12px
+  margin-bottom 10px
+  .ant-table-cell
+    padding 4px 6px
+.cwf-buttons
+  margin-top 8px
+.cwf-json
+  font-family monospace
+  font-size 12px
+  white-space pre-wrap
+  word-break break-all
+  max-height 240px
+  overflow auto

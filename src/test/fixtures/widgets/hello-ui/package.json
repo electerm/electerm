@@ -1,0 +1,11 @@
+{
+  "name": "hello-ui",
+  "version": "1.0.0",
+  "description": "Demo custom widget: its own UI calls functions in the main process.",
+  "main": "main.js",
+  "electerm": {
+    "name": "Hello UI",
+    "type": "frontend",
+    "ui": "ui/index.html"
+  }
+}

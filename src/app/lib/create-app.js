@@ -15,10 +15,14 @@ const { setupVvFileHandlers, openVvFileFromOs } = require('./vv-file-open')
 const { findVvFile } = require('../common/vv-file')
 const { handleSingleInstance } = require('./single-instance')
 const { setupCrashReporter, setupCommandLineSwitches } = require('./crash-reporter')
+const { registerWidgetScheme, initWidgetProtocol } = require('../widgets/protocol')
 
 let conf = {}
 
 setupCrashReporter()
+// electerm-widget://<id>/ — the scheme a user widget's own UI is served from.
+// Privileged-scheme registration only takes effect before the app is ready.
+registerWidgetScheme()
 
 exports.createApp = async function () {
   app.setName(packInfo.name)
@@ -84,6 +88,7 @@ exports.createApp = async function () {
   })
   app.whenReady().then(async () => {
     conf = await getDbConfig()
+    initWidgetProtocol()
     createWindow(conf)
   })
   app.on('activate', () => {
