@@ -98,7 +98,11 @@ export function buildVisibleTreeRows ({
     return hasMatch
   }
 
-  const visitGroup = (group, parentId = '', depth = 1) => {
+  // `path` is the ancestor group titles (not including the row itself): the row
+  // tooltip shows it, which is what keeps a capped indent readable — a row at
+  // the indent ceiling looks like a sibling of the level above it, the tooltip
+  // still says where it actually lives.
+  const visitGroup = (group, parentId = '', depth = 1, path = []) => {
     if (
       !group ||
       visitedGroupIds.has(group.id) ||
@@ -107,13 +111,15 @@ export function buildVisibleTreeRows ({
       return
     }
     visitedGroupIds.add(group.id)
+    const groupPath = group.title ? [...path, group.title] : path
 
     rows.push({
       key: getRowKey(group.id, true),
       item: group,
       isGroup: true,
       parentId,
-      depth
+      depth,
+      path
     })
 
     if (!lowerKeyword && !expandedKeySet.has(group.id)) {
@@ -125,7 +131,7 @@ export function buildVisibleTreeRows ({
       : `#${group.id}`
 
     for (const groupId of group.bookmarkGroupIds || []) {
-      visitGroup(getGroup(groupId), nextParentId, depth + 1)
+      visitGroup(getGroup(groupId), nextParentId, depth + 1, groupPath)
     }
 
     const bookmarkIds = group.bookmarkIds || []
@@ -148,7 +154,8 @@ export function buildVisibleTreeRows ({
         item,
         isGroup: false,
         parentId: nextParentId,
-        depth
+        depth,
+        path: groupPath
       })
       if (lowerKeyword) {
         matchedRowKeys.push(key)
