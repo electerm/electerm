@@ -22,6 +22,10 @@ import {
   getAlternateBufferSnapshot,
   shouldCaptureTerminalReloadState
 } from '../ssh-reload-state.js'
+import {
+  needsInteractiveInput,
+  clearNeedsInteractiveInput
+} from '../interactive-prompt-state.js'
 
 // Expands \n \t \r \\ and \xHH hex byte escapes, used to let users type
 // control bytes (e.g. \x01 = Ctrl+A) in the serial "closeSequence" field.
@@ -98,6 +102,8 @@ export const socketMixin = {
     const { savePassword } = this.state
     const termType = type
     const extra = this.props.sessionOptions
+    // A fresh attempt: any "needs input" mark belongs to the previous one.
+    clearNeedsInteractiveInput(id)
     // Determine if this is a local terminal (no host)
     const isLocalType = !tab.host
     // Build exec settings: only for local type, prefer tab settings over config
@@ -188,7 +194,7 @@ export const socketMixin = {
       loading: false
     })
     if (!r) {
-      if (isAutoReconnect) {
+      if (isAutoReconnect && !needsInteractiveInput(id)) {
         this.scheduleAutoReconnect(3000)
         return
       }
@@ -330,7 +336,10 @@ export const socketMixin = {
     }
     this.setState({ sessionStopped: true })
     const { autoReconnectTerminal } = this.props.config
-    if (autoReconnectTerminal) {
+    // A session that ended waiting for an interactive prompt can not come back
+    // by itself: the retry would ask for the code again and time out again,
+    // forever, stacking dead prompts over the window (#4634).
+    if (autoReconnectTerminal && !needsInteractiveInput(this.props.tab.id)) {
       this.scheduleAutoReconnect(3000)
     }
   },
@@ -353,7 +362,13 @@ export const socketMixin = {
       clearInterval(this.timers.reconnectCountdown)
       this.timers.reconnectCountdown = null
       this.setState({ reconnectCountdown: null })
-      if (this.onClose || !this.props.config.autoReconnectTerminal) {
+      if (
+        this.onClose ||
+        !this.props.config.autoReconnectTerminal ||
+        // re-checked here: the prompt may have been taken back while the
+        // countdown was running, and its message races the socket close
+        needsInteractiveInput(this.props.tab.id)
+      ) {
         return
       }
       const reconnectCount = (this.props.tab.autoReConnect || 0) + 1

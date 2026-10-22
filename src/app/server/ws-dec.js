@@ -15,6 +15,8 @@ const wsDec = (ws) => {
     }
   }
   ws.on('error', log.error)
+  // Returns a disposer: a prompt can be taken back before it is ever answered,
+  // and the listener would otherwise sit on the long-lived ws forever.
   ws.once = (callack, id) => {
     const func = (evt) => {
       const arg = JSON.parse(evt.data)
@@ -24,6 +26,7 @@ const wsDec = (ws) => {
       }
     }
     ws.addEventListener('message', func)
+    return () => ws.removeEventListener('message', func)
   }
   ws._socket.setKeepAlive(true, 30 * 1000)
 }

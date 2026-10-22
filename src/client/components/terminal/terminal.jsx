@@ -32,6 +32,7 @@ import { resizeMixin } from './mixins/term-resize.js'
 import { themeMixin } from './mixins/term-theme.js'
 import { attachMixin } from './mixins/term-attach.js'
 import { socketMixin } from './mixins/term-socket.js'
+import { clearNeedsInteractiveInput } from './interactive-prompt-state.js'
 import { configMixin } from './mixins/term-config.jsx'
 import { contextMenuMixin } from './mixins/term-context-menu.jsx'
 import { contentMixin } from './mixins/term-content.js'
@@ -223,6 +224,8 @@ class Term extends Component {
 
   componentWillUnmount () {
     refs.remove(this.id)
+    // this tab id will never be connected again (reload mints a new one)
+    clearNeedsInteractiveInput(this.props.tab.id)
     clearTimeout(this.longPressTimer)
     this.longPressTimer = null
     this.touchStartPos = null

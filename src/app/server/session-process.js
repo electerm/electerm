@@ -1,5 +1,6 @@
 const { fork } = require('child_process')
 const path = require('path')
+const log = require('../common/log')
 
 // Map to store active terminal processes (pid -> {child, port, ws})
 const activeTerminals = new Map()
@@ -169,6 +170,37 @@ function onChildExit (child) {
   child.removeAllListeners('message')
 }
 
+/**
+ * Forward a child's interactive message to the renderer and route the answer
+ * back. Only prompts get a reply listener: `session-interactive-close` is the
+ * child taking a prompt back, nothing will ever answer it, and registering a
+ * listener for it would leak one per abandoned prompt on the long-lived ws.
+ * The child can also be gone by the time the user clicks cancel, and
+ * `child.send` throws once the IPC channel is closed.
+ */
+function forwardInteractive (child, ws) {
+  return (m) => {
+    const { type, data } = m
+    if (type !== 'common') {
+      return
+    }
+    ws.s(data)
+    if (data?.action !== 'session-interactive') {
+      return
+    }
+    ws.once((reply) => {
+      if (!child.connected) {
+        return
+      }
+      try {
+        child.send(reply)
+      } catch (err) {
+        log.warn('send interactive reply to session process failed', err.message)
+      }
+    }, data.id)
+  }
+}
+
 exports.terminal = async function (initOptions, ws, uid) {
   const type = initOptions.termType || initOptions.type || 'terminal'
   const port = await getPort()
@@ -184,15 +216,7 @@ exports.terminal = async function (initOptions, ws, uid) {
     'ftp'
   ].includes(type)
   if (isSsh) {
-    child.on('message', (m) => {
-      const { type, data } = m
-      if (type === 'common') {
-        ws.s(data)
-        ws.once((data) => {
-          child.send(data)
-        }, data.id)
-      }
-    })
+    child.on('message', forwardInteractive(child, ws))
   }
   child.on('exit', () => {
     onChildExit(child)
@@ -247,15 +271,7 @@ exports.testConnection = async function (initOptions, ws, uid) {
     'ftp'
   ].includes(type)
   if (isSsh && ws) {
-    child.on('message', (m) => {
-      const { type: msgType, data } = m
-      if (msgType === 'common') {
-        ws.s(data)
-        ws.once((respData) => {
-          child.send(respData)
-        }, data.id)
-      }
-    })
+    child.on('message', forwardInteractive(child, ws))
   }
 
   const res = await sendMsgToChildProcess(child, {

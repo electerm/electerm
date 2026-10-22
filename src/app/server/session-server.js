@@ -592,6 +592,9 @@ process.on('message', async (message) => {
           }
         }
         process.on('message', func)
+        // a prompt can be taken back before it is answered; without this the
+        // listener (and the session object it closes over) would stay forever
+        return () => process.removeListener('message', func)
       }
     }
 
