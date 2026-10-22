@@ -36,6 +36,14 @@ import './rdp.styl'
 
 const { Option } = Select
 
+// Whether the server paints the mouse cursor into the bitmap stream.
+// false: the cursor is drawn locally (a CSS cursor on the canvas), so it moves
+// at local input rate instead of waiting for pointer updates to come back
+// through the graphics pipeline - which is the first thing that looks frozen
+// on a busy remote desktop. The cost is that the cursor no longer changes
+// shape per context (I-beam over text, resize handles, ...).
+const ENABLE_SERVER_POINTER = false
+
 async function loadWasmModule () {
   if (window.ironRdp) return
   console.debug('[RDP-CLIENT] Loading IronRDP WASM module...')
@@ -211,6 +219,9 @@ export default class RdpSession extends PureComponent {
 
       const desktopSize = new window.ironRdp.DesktopSize(width, height)
       const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', true)
+      // Unknown extensions are ignored by older wasm builds, so this is safe to
+      // pass unconditionally.
+      const pointerExt = new window.ironRdp.Extension('enable_server_pointer', ENABLE_SERVER_POINTER)
 
       const builder = new window.ironRdp.SessionBuilder()
       builder.username(username)
@@ -224,6 +235,7 @@ export default class RdpSession extends PureComponent {
       builder.desktopSize(desktopSize)
       builder.renderCanvas(canvas)
       builder.extension(enableCredsspExt)
+      builder.extension(pointerExt)
 
       this.fileTransfer = new FileTransferManager(
         () => this.session,
@@ -462,29 +474,56 @@ export default class RdpSession extends PureComponent {
       }
     })
 
-    canvas.addEventListener('mousemove', (e) => {
-      if (!this.session) return
+    // Coalesce mouse moves to at most one per animation frame. A high polling
+    // rate mouse otherwise produces far more input transactions than the
+    // session loop can drain, and every one of them competes with the frames
+    // coming back from the server.
+    let pendingMousePos = null
+    let mouseRafId = null
+
+    const flushMouseMove = () => {
+      mouseRafId = null
+      const pos = pendingMousePos
+      pendingMousePos = null
+      if (!pos || !this.session) return
       try {
-        // the canvas is rendered with object-fit: contain, so the pointer has
-        // to be mapped through the real surface rect (see remote-pointer.js)
-        const { x, y } = eventToRemotePos(
-          e,
-          canvas,
-          canvas.width,
-          canvas.height
-        )
-        const event = window.ironRdp.DeviceEvent.mouseMove(x, y)
+        const event = window.ironRdp.DeviceEvent.mouseMove(pos.x, pos.y)
         const tx = new window.ironRdp.InputTransaction()
         tx.addEvent(event)
         this.session.applyInputs(tx)
       } catch (err) {
         // suppress frequent mouse errors
       }
+    }
+
+    // A click must land where the user actually is, not at the last frame's
+    // position.
+    const flushMouseMoveNow = () => {
+      if (mouseRafId !== null) {
+        window.cancelAnimationFrame(mouseRafId)
+        flushMouseMove()
+      }
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!this.session) return
+      // the canvas is rendered with object-fit: contain, so the pointer has
+      // to be mapped through the real surface rect (see remote-pointer.js)
+      pendingMousePos = eventToRemotePos(
+        e,
+        canvas,
+        canvas.width,
+        canvas.height
+      )
+      if (mouseRafId === null) {
+        mouseRafId = window.requestAnimationFrame(flushMouseMove)
+      }
     })
 
     canvas.addEventListener('mousedown', (e) => {
       e.preventDefault()
       canvas.focus()
+      flushMouseMoveNow()
       if (!this.session) return
       try {
         const event = window.ironRdp.DeviceEvent.mouseButtonPressed(e.button)
@@ -498,6 +537,7 @@ export default class RdpSession extends PureComponent {
 
     canvas.addEventListener('mouseup', (e) => {
       e.preventDefault()
+      flushMouseMoveNow()
       if (!this.session) return
       try {
         const event = window.ironRdp.DeviceEvent.mouseButtonReleased(e.button)

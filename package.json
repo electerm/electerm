@@ -79,7 +79,7 @@
     "filesize": "10.1.6",
     "filesize-parser": "1.5.1",
     "glob": "^13.0.6",
-    "ironrdp-wasm": "1.1.0",
+    "ironrdp-wasm": "1.2.0",
     "lodash-es": "^4.17.21",
     "manate": "2.0.3",
     "morgan": "^1.12.0",
