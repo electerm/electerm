@@ -85,10 +85,11 @@ function forwardLocalToRemote ({
   return new Promise((resolve, reject) => {
     const activeSockets = new Set()
     const localServer = require('net').createServer((socket) => {
-      // ⬇️ 2. Add new sockets to the set and remove them when they close
       activeSockets.add(socket)
+      let remoteSocket
       socket.on('close', () => {
         activeSockets.delete(socket)
+        remoteSocket && remoteSocket.destroy()
       })
 
       socket.on('error', (err) => {
@@ -96,7 +97,7 @@ function forwardLocalToRemote ({
         socket.end()
       })
 
-      conn.forwardOut(sshTunnelLocalHost, sshTunnelLocalPort, sshTunnelRemoteHost, sshTunnelRemotePort, (err, remoteSocket) => {
+      conn.forwardOut(sshTunnelLocalHost, sshTunnelLocalPort, sshTunnelRemoteHost, sshTunnelRemotePort, (err, stream) => {
         if (err) {
           log.error('Error forwarding connection:', err)
           socket.destroy()
@@ -105,15 +106,18 @@ function forwardLocalToRemote ({
           return
         }
 
+        remoteSocket = stream
         // Add error handlers immediately
         remoteSocket.on('error', (err) => {
           log.error('Remote socket error:', err)
           socket.destroy()
         })
 
-        socket.on('close', () => {
+        // The local socket may have closed while forwardOut was pending.
+        if (socket.destroyed) {
           remoteSocket.destroy()
-        })
+          return
+        }
 
         socket.pipe(remoteSocket).pipe(socket)
       })
