@@ -28,6 +28,10 @@ export default auto(function BookmarkSelect (props) {
       store.setOpenedSideBar('')
     }
     store.onSelectBookmark(item.id)
+    // used by the system menu submenu, which has to dismiss its popover
+    if (props.onClose) {
+      props.onClose()
+    }
   }
   // doubleClickToOpenBookmark: a single click only marks the row, the session
   // opens on a double click. Touch devices have no double click, so the setting

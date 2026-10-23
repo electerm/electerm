@@ -41,7 +41,7 @@ describe('AI Create Bookmark', function () {
     })
 
     log('open bookmarks page')
-    await client.click('.btns .anticon-plus-circle')
+    await client.newConnection()
     await delay(2500)
 
     const sel = '.setting-wrap .ant-tabs-nav-list .ant-tabs-tab-active'
@@ -74,7 +74,7 @@ describe('AI Create Bookmark', function () {
     // await delay(1000)
 
     log('open bookmarks page again')
-    await client.click('.btns .anticon-plus-circle')
+    await client.newConnection()
     await delay(2500)
 
     log('click AI create bookmark button again')

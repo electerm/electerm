@@ -28,7 +28,7 @@ jobs:
     - run: npm config set legacy-peer-deps true
     - run: npm install -g yarn
     - run: npm i
-    - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.49.1 && npm i -D -E @playwright/test@1.49.1
+    - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.64.1 && npm i -D -E @playwright/test@1.64.1
 
     # Linux system deps for Playwright's bundled Electron/Chromium (ubuntu-latest)
     - name: Install OS deps for Playwright Electron
@@ -39,13 +39,12 @@ jobs:
     
     - name: Run pb
       run: npm run pb
-    # remove only artifacts created by earlier e2e runs
-    - name: Clean test server home
-      run: npm run clean-test-server
-      env:
-        TEST_HOST: ${{ secrets.TEST_HOST }}
-        TEST_USER: ${{ secrets.TEST_USER_1 }}
-        TEST_PASS: ${{ secrets.TEST_PASS_1 }}
+    # Stand up the ssh/sftp test server on 127.0.0.1: the e2e specs need a real
+    # sshd with password auth, and a local one removes the shared external host
+    # (and its secrets) from the pipeline. Fresh runner, fresh user, so no
+    # cleanup step is needed.
+    - name: Start local ssh test server
+      run: sudo bash src/build/bin/local-ssh-test-server.sh
 
     - name: test
       uses: GabrielBB/xvfb-action@v1
@@ -53,9 +52,10 @@ jobs:
         run: npm run test1
       env:
         NODE_TEST: 1
-        TEST_HOST: ${{ secrets.TEST_HOST }}
-        TEST_USER: ${{ secrets.TEST_USER_1 }}
-        TEST_PASS: ${{ secrets.TEST_PASS_1 }}
+        TEST_HOST: 127.0.0.1
+        TEST_PORT: 2222
+        TEST_USER: etest
+        TEST_PASS: electerm-test
         GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
         GIST_ID: ${{ secrets.GIST_ID }}
         GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}

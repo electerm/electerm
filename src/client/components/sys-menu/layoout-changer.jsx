@@ -31,6 +31,10 @@ export default function LayoutChanger (props) {
 
   const handleChangeLayout = ({ key }) => {
     window.store.setLayout(key)
+    // dismiss the system menu popover after the layout is applied
+    if (props.onClose) {
+      props.onClose()
+    }
   }
 
   const items = Object.keys(splitMapDesc).map((t) => {

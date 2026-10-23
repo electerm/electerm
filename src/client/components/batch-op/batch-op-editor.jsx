@@ -17,6 +17,10 @@ import generate from '../../common/uid'
 import { safeGetItem, safeSetItem } from '../../common/safe-local-storage'
 
 const batchOpEditorKey = 'batch-op-editor-content'
+// Remote paths live under their own directory and the download goes to a
+// differently named local file: when the target host is localhost (or the ssh
+// server runs on the same machine) a shared /tmp path would make the cleanup
+// steps delete the file the download step just produced.
 const workflowExample = `[
   {
     "name": "Connect SSH",
@@ -34,49 +38,49 @@ const workflowExample = `[
     "action": "command",
     "afterDelay": 500,
     "prevDelay": 500,
-    "command": "fallocate -l 5M /tmp/test_5m_file.bin && rm -f /tmp/test_log.log && echo '[LOG] Created 5M test file at $(date)' >> /tmp/test_log.log"
+    "command": "mkdir -p /tmp/electerm-batch-op && rm -f /tmp/electerm-batch-op/test_5m_file.bin /tmp/electerm-batch-op/test_log.log && (fallocate -l 5M /tmp/electerm-batch-op/test_5m_file.bin || dd if=/dev/zero of=/tmp/electerm-batch-op/test_5m_file.bin bs=1M count=5) && echo '[LOG] Created 5M test file at $(date)' >> /tmp/electerm-batch-op/test_log.log"
   },
   {
     "name": "Log creation",
     "action": "command",
-    "command": "ls -la /tmp/test_5m_file.bin >> /tmp/test_log.log 2>&1 && echo '[LOG] File size logged at $(date)' >> /tmp/test_log.log"
+    "command": "ls -la /tmp/electerm-batch-op/test_5m_file.bin >> /tmp/electerm-batch-op/test_log.log 2>&1 && echo '[LOG] File size logged at $(date)' >> /tmp/electerm-batch-op/test_log.log"
   },
   {
     "name": "Download 5M File",
     "action": "sftp_download",
     "afterDelay": 200,
-    "remotePath": "/tmp/test_5m_file.bin",
-    "localPath": "/tmp/test_5m_file.bin"
+    "remotePath": "/tmp/electerm-batch-op/test_5m_file.bin",
+    "localPath": "/tmp/electerm-batch-op-local.bin"
   },
   {
     "name": "Log after download",
     "action": "command",
     "afterDelay": 200,
-    "command": "echo '[LOG] Download complete at $(date)' >> /tmp/test_log.log"
+    "command": "echo '[LOG] Download complete at $(date)' >> /tmp/electerm-batch-op/test_log.log"
   },
   {
     "name": "Delete Remote 5M File",
     "action": "command",
     "afterDelay": 200,
-    "command": "rm /tmp/test_5m_file.bin && echo '[LOG] Deleted remote 5M file at $(date)' >> /tmp/test_log.log"
+    "command": "rm /tmp/electerm-batch-op/test_5m_file.bin && echo '[LOG] Deleted remote 5M file at $(date)' >> /tmp/electerm-batch-op/test_log.log"
   },
   {
     "name": "Upload Downloaded File to Remote",
     "action": "sftp_upload",
     "afterDelay": 200,
-    "localPath": "/tmp/test_5m_file.bin",
-    "remotePath": "/tmp/test_5m_file_uploaded.bin"
+    "localPath": "/tmp/electerm-batch-op-local.bin",
+    "remotePath": "/tmp/electerm-batch-op/test_5m_file_uploaded.bin"
   },
   {
     "name": "Log after upload",
     "action": "command",
     "afterDelay": 200,
-    "command": "echo '[LOG] Upload complete at $(date)' >> /tmp/test_log.log"
+    "command": "echo '[LOG] Upload complete at $(date)' >> /tmp/electerm-batch-op/test_log.log"
   },
   {
     "name": "Verify and clean up",
     "action": "command",
-    "command": "ls -la /tmp/test_5m_file_uploaded.bin >> /tmp/test_log.log 2>&1 && rm -f /tmp/test_5m_file*.bin && echo '[LOG] Cleaned up at $(date)' >> /tmp/test_log.log"
+    "command": "ls -la /tmp/electerm-batch-op/test_5m_file_uploaded.bin >> /tmp/electerm-batch-op/test_log.log 2>&1 && rm -f /tmp/electerm-batch-op/test_5m_file*.bin && echo '[LOG] Cleaned up at $(date)' >> /tmp/electerm-batch-op/test_log.log"
   }
 ]`
 

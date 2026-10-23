@@ -333,7 +333,7 @@ async function accessFolderFromTerminal (client, type, folderName) {
 }
 
 async function openNewConnectionForm (client) {
-  await client.click('.btns .anticon-plus-circle')
+  await client.newConnection()
   await delay(500)
 }
 

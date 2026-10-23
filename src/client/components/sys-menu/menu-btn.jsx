@@ -14,8 +14,23 @@ import { refsStatic } from '../common/ref.js'
 const e = window.translate
 
 class MenuBtn extends PureComponent {
+  state = {
+    opened: false
+  }
+
   componentDidMount () {
     refsStatic.add('menu-btn', this)
+  }
+
+  // The popover is controlled so a menu entry can dismiss it: clicking an
+  // entry runs the action and leaves the popover open forever otherwise
+  // (antd only closes it on trigger/outside clicks).
+  setOpened = (opened) => {
+    this.setState({ opened })
+  }
+
+  closeMenu = () => {
+    this.setState({ opened: false })
   }
 
   onNewSsh = () => {
@@ -205,7 +220,8 @@ class MenuBtn extends PureComponent {
       items: this.renderContext(),
       tabs: store.getTabs(),
       config: store.config,
-      history: store.history
+      history: store.history,
+      onClose: this.closeMenu
     }
     return (
       <MenuRender {...rprops} />
@@ -216,12 +232,12 @@ class MenuBtn extends PureComponent {
     const pops = {
       className: 'menu-control',
       onMouseDown: evt => evt.preventDefault(),
-      onClick: this.openMenu,
       title: e('menu')
     }
     const popProps = {
       content: this.renderMenu(),
-      // open: this.state.opened,
+      open: this.state.opened,
+      onOpenChange: this.setOpened,
       placement: 'right',
       trigger: ['click']
     }

@@ -29,7 +29,7 @@ describe('init setting buttons', function () {
     expect(tabCount).toEqual(0)
 
     log('button:edit')
-    await client.click('.btns .anticon-plus-circle')
+    await client.newConnection()
     await delay(3500)
     const sel = '.setting-wrap .ant-tabs-nav-list .ant-tabs-tab-active'
     const active = await client.element(sel)
@@ -53,7 +53,7 @@ describe('init setting buttons', function () {
     await delay(900)
 
     log('button:new ssh')
-    await client.click('.btns .anticon-plus-circle')
+    await client.newConnection()
     await delay(1000)
     const active2 = await client.element(sel)
     expect(active2).toBeVisible()
@@ -69,7 +69,7 @@ describe('init setting buttons', function () {
     await delay(600)
 
     log('button:edit again')
-    await client.click('.btns .anticon-plus-circle')
+    await client.newConnection()
     await delay(600)
     const text5 = await client.getText(sel)
     expect(text5).toEqual(e('bookmarks'))

@@ -218,6 +218,11 @@ describe('cmd-history', function () {
     await client.click('.add-menu-wrap .context-item:has-text("New tab")')
     await delay(2500)
     expect(await client.countElem('.tabs .tab')).equal(2)
+    // The add panel does not close itself when one of its entries runs (only a
+    // click outside does), and it covers part of the terminal area, so it would
+    // intercept the click below. Collapse it explicitly, like the other specs.
+    await client.click('.tabs .tabs-add-btn')
+    await client.locator('.add-menu-wrap').waitFor({ state: 'hidden', timeout: 5000 })
 
     await runInTerminal(client, cmd)
     expect((await getStoredHistory(client)).includes(cmd)).equal(true)
