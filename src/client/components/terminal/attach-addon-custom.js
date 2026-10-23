@@ -164,6 +164,9 @@ export default class AttachAddonCustom {
     this.disposed = false
     this._keepaliveTimer = null
     this._keepaliveInterval = 3000
+    // Characters typed on the current command line and not yet submitted.
+    // Infinity when the line content is unknown (history recall, cursor keys).
+    this._pendingInputLength = 0
     this._lastOutputLine = ''
     this._passwordPromptDetected = false
     this._pendingEchoCheck = null
@@ -595,8 +598,25 @@ export default class AttachAddonCustom {
     term?.parent?.onTerminalWrite?.()
   }
 
+  _trackPendingInput = (data) => {
+    if (data.startsWith('\x1b')) {
+      this._pendingInputLength = Infinity
+      return
+    }
+    for (const ch of data) {
+      if (ch === '\r' || ch === '\n' || ch === '\x03' || ch === '\x15') {
+        this._pendingInputLength = 0
+      } else if (ch === '\x7f' || ch === '\b') {
+        this._pendingInputLength = Math.max(0, this._pendingInputLength - 1)
+      } else if (ch >= ' ') {
+        this._pendingInputLength += 1
+      }
+    }
+  }
+
   sendToServer = (data) => {
     this._lastInputTime = Date.now()
+    this._trackPendingInput(data)
     // Start echo detection when password prompt is suspected
     if (this._passwordPromptDetected && !this._pendingEchoCheck && data !== '\r' && data !== '\n' && data !== '\x03') {
       this._pendingEchoCheck = { char: data, time: Date.now() }
@@ -631,6 +651,11 @@ export default class AttachAddonCustom {
 
   _checkKeepalive = () => {
     if (this.outputSuppressed) {
+      return
+    }
+    // The keepalive makes the server write a newline to the PTY, which would
+    // submit a command the user has typed but not yet run.
+    if (this._pendingInputLength > 0) {
       return
     }
     const now = Date.now()

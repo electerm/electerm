@@ -217,6 +217,47 @@ describe('session keepalive', () => {
     }
   })
 
+  test('a typed but unsubmitted command is never submitted by the keepalive', async () => {
+    const { addon, sent } = await makeKeepaliveAddon()
+    try {
+      addon.sendToServer('rm -rf ./bu')
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.deepEqual(sent, [], 'a newline would run the half-typed command')
+
+      addon.sendToServer('\r')
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.deepEqual(sent, [JSON.stringify({ action: 'keepalive' })], 'an empty line is safe again')
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('an erased or cancelled line lets the keepalive run again', async () => {
+    const { addon, sent } = await makeKeepaliveAddon()
+    try {
+      addon.sendToServer('l')
+      addon.sendToServer('\x7f')
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.equal(sent.length, 1, 'backspaced back to an empty line')
+
+      addon.stopOutputSuppression() // end the first keepalive's echo suppression
+      addon.sendToServer('\x1b[A') // history recall: line content unknown
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.equal(sent.length, 1, 'a recalled command must not be submitted')
+
+      addon.sendToServer('\x03')
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.equal(sent.length, 2, 'Ctrl+C clears the line')
+    } finally {
+      addon.dispose()
+    }
+  })
+
   test('a session that just received input stays quiet', async () => {
     const { addon, sent } = await makeKeepaliveAddon()
     try {
