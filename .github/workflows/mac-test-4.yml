@@ -28,7 +28,7 @@ jobs:
     - run: npm config set legacy-peer-deps true
     - run: npm install -g yarn
     - run: npm i
-    - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.49.1 && npm i -D -E @playwright/test@1.49.1
+    - run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -D -E playwright@1.64.1 && npm i -D -E @playwright/test@1.64.1
 
     # Linux system deps for Playwright's bundled Electron/Chromium (ubuntu-latest)
     - name: Install OS deps for Playwright Electron
