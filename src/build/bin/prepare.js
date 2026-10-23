@@ -36,6 +36,9 @@ rm('-rf', 'dist/latest')
 mkdir('-p', dir)
 mkdir('-p', 'dist/latest')
 cp('-r', 'src/app', 'work/')
+// Legacy builds (Electron < 25: the 22.3.27 jobs) get their shims injected
+// here, into work/app only. Modern builds copy src/app as-is.
+require('./inject-polyfills').main()
 rm('-rf', 'work/app/user-config.json')
 rm('-rf', 'work/app/localstorage.json')
 rm('-rf', 'work/app/nohup.out')
