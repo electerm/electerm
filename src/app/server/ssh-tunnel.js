@@ -105,6 +105,14 @@ function forwardLocalToRemote ({
           return
         }
 
+        // The client may have gone away (e.g. sent RST) while the channel was
+        // opening. Its 'close' already fired, so the listener below would never
+        // run and the channel and remote connection would stay open.
+        if (socket.destroyed) {
+          remoteSocket.destroy()
+          return
+        }
+
         // Add error handlers immediately
         remoteSocket.on('error', (err) => {
           log.error('Remote socket error:', err)
@@ -113,6 +121,10 @@ function forwardLocalToRemote ({
 
         socket.on('close', () => {
           remoteSocket.destroy()
+        })
+
+        remoteSocket.on('close', () => {
+          socket.destroy()
         })
 
         socket.pipe(remoteSocket).pipe(socket)
