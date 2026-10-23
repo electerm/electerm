@@ -22,7 +22,11 @@ const REPO = path.resolve(__dirname, '../../..')
 const electronPath = require.resolve('electron')
 const protocolPath = require.resolve('../../app/widgets/protocol')
 const legacyPath = require.resolve('../../build/polyfills/electron-lt25/protocol-legacy')
-const { applyPolyfills, electronMajorVersion } = require('../../build/bin/inject-polyfills')
+const {
+  applyPolyfills,
+  electronMajorVersion,
+  main: injectPolyfillsEntry
+} = require('../../build/bin/inject-polyfills')
 
 let tmp
 let tmpData
@@ -266,6 +270,13 @@ describe('build-time injection', () => {
     } finally {
       fs.rmSync(modern, { recursive: true, force: true })
     }
+  })
+
+  // prepare.js does `require('./inject-polyfills').main()`, so the entrypoint
+  // has to be exported. Missing it breaks every build with
+  // "require(...).main is not a function" instead of doing the injection.
+  it('exports the entrypoint prepare.js calls', () => {
+    assert.equal(typeof injectPolyfillsEntry, 'function')
   })
 
   it('patches the packaged app for Electron 22 and copies the adapter', () => {

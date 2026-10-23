@@ -161,5 +161,8 @@ module.exports = {
   INIT_LEGACY,
   POLYFILLS,
   electronMajorVersion,
-  applyPolyfills
+  applyPolyfills,
+  // prepare.js calls this; keep it exported or the build dies with
+  // "require(...).main is not a function".
+  main
 }
