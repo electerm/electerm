@@ -104,20 +104,25 @@ describe('batch-op', function () {
     await execBtn.first().click()
     log('023-batch-op: execute clicked, waiting for all steps...')
 
-    // Wait until all steps complete (log div has success/error entries)
-    // Workflow has 7 steps; allow up to 3 minutes for sftp transfers
+    // Wait for the workflow to settle: the runner appends a "completed" entry
+    // only after the last step, and it stops on the first error. Waiting for a
+    // fixed number of entries is not enough — the trailing sftp_upload shows up
+    // as a "running" entry immediately, so an upload failure could still be in
+    // flight while the assertions below run.
     await client.waitForFunction(() => {
-      const entries = document.querySelectorAll('.batch-op-log-entry')
-      return entries.length >= 7
+      const root = document.querySelector('.batch-op-logs')
+      if (!root) return false
+      return !!root.querySelector('.batch-op-log-entry.completed') ||
+        !!root.querySelector('.batch-op-log-entry.error')
     }, null, { timeout: 180000 })
-    await delay(1000)
+    await delay(500)
 
     const logText = await getLogText(client)
     log(`023-batch-op: log content:\n${logText}`)
 
     // Every step should have a success entry
     const successCount = await client.locator('.batch-op-log-entry.success').count()
-    expect(successCount).greaterThan(0)
+    expect(successCount).equal(batchOpExample.length)
     log(`023-batch-op: ${successCount} success log entries found`)
 
     // There should be no error entries
