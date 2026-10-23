@@ -4,26 +4,17 @@
 
 const log = require('../common/log')
 const globalState = require('./glob-state')
+const { getFreePort } = require('./free-port')
 let port = null
 
-function getPort (fromPort = 30975) {
+async function getPort (fromPort = 30975) {
   const serverPort = globalState.get('serverPort')
   if (serverPort) {
     port = parseInt(serverPort, 10)
-    return Promise.resolve(
-      port
-    )
+    return port
   }
-  return new Promise((resolve, reject) => {
-    require('find-free-port')(fromPort, '127.0.0.1', function (err, freePort) {
-      if (err) {
-        reject(err)
-      } else {
-        port = freePort
-        resolve(freePort)
-      }
-    })
-  })
+  port = await getFreePort({ from: fromPort })
+  return port
 }
 
 module.exports = () => {
@@ -32,7 +23,7 @@ module.exports = () => {
   }
   return getPort()
     .catch(e => {
-      log.error('failed to get free port')
-      return 0
+      log.error('failed to get free port', e.message)
+      throw e
     })
 }

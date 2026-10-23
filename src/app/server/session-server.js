@@ -642,16 +642,38 @@ process.on('message', async (message) => {
 })
 
 const runServer = function () {
-  return new Promise((resolve) => {
-    app.listen(wsPort, electermHost, () => {
+  return new Promise((resolve, reject) => {
+    const server = app.listen(wsPort, electermHost, () => {
       log.info('session server', 'runs on', electermHost, wsPort)
       resolve()
     })
+    // a listen failure used to become an uncaughtException, leaving the parent
+    // process waiting on serverInited forever (the terminal tab just hung).
+    // express-ws also re-emits the http server's errors on its WebSocketServer,
+    // and an unhandled 'error' there throws before the 'error' listener on the
+    // http server runs -- so both need one.
+    server.on('error', reject)
+    const wss = app.getWss && app.getWss()
+    if (wss) {
+      wss.on('error', reject)
+    }
   })
 }
 
 async function main () {
-  await runServer()
+  try {
+    await runServer()
+  } catch (err) {
+    log.error('session server', 'failed to listen on', `${electermHost}:${wsPort}`, err.message)
+    try {
+      process.send({
+        serverInited: false,
+        error: { message: err.message, code: err.code }
+      })
+    } catch (e) {}
+    setTimeout(() => process.exit(1), 100)
+    return
+  }
   process.send({ serverInited: true })
 }
 

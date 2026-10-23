@@ -1,6 +1,7 @@
 const { fork } = require('child_process')
 const path = require('path')
 const log = require('../common/log')
+const { getFreePort } = require('../lib/free-port')
 
 // Map to store active terminal processes (pid -> {child, port, ws})
 const activeTerminals = new Map()
@@ -24,25 +25,21 @@ function getPort (fromPort = MIN_PORT) {
   // Mark this port as pending
   pendingPorts.add(startPort)
 
-  return new Promise((resolve, reject) => {
-    require('find-free-port')(startPort, '127.0.0.1', function (err, freePort) {
-      if (err) {
-        // Remove from pending set on error
-        pendingPorts.delete(startPort)
-        reject(err)
-      } else {
-        // Remember this port for next time
-        lastPort = freePort
-        // Remove from pending set when done
-        pendingPorts.delete(startPort)
-        resolve(freePort)
-      }
+  // bind probe, not connect probe: see ../lib/free-port.js -- a Windows
+  // reserved port looks free to a connect and then refuses to bind
+  return getFreePort({ from: startPort, host: '127.0.0.1' })
+    .then(freePort => {
+      // Remember this port for next time
+      lastPort = freePort
+      return freePort
     })
-  })
+    .finally(() => {
+      pendingPorts.delete(startPort)
+    })
 }
 
 async function runSessionServer (type, port) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const cleanEnv = Object.assign({}, process.env)
     delete cleanEnv.ELECTRON_RUN_AS_NODE
     const child = fork(path.resolve(__dirname, './session-server.js'), {
@@ -60,10 +57,22 @@ async function runSessionServer (type, port) {
         throw error || stderr
       }
     })
+    // a server that cannot bind used to leave this promise pending forever, so
+    // the tab just hung with no message -- surface it as a failed connection
     child.on('message', (m) => {
-      if (m && m.serverInited) {
-        resolve(child)
+      if (!m) {
+        return
       }
+      if (m.serverInited) {
+        resolve(child)
+      } else if (m.serverInited === false) {
+        reject(new Error(
+          `session server cannot listen on ${port}: ${m.error?.message || 'unknown error'}`
+        ))
+      }
+    })
+    child.once('exit', (code) => {
+      reject(new Error(`session server exited before it was ready (code ${code})`))
     })
   })
 }

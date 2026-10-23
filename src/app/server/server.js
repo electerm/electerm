@@ -28,10 +28,29 @@ initWs(app)
 
 const runServer = function () {
   const { electermPort, electermHost } = process.env
-  app.listen(electermPort, electermHost, () => {
+  const onError = (err) => {
+    log.error('server', 'failed to listen on', `${electermHost}:${electermPort}`, err.message)
+    try {
+      process.send({
+        serverInited: false,
+        error: { message: err.message, code: err.code }
+      })
+    } catch (e) {}
+    setTimeout(() => process.exit(1), 100)
+  }
+  const server = app.listen(electermPort, electermHost, () => {
     log.info('server', 'runs on', electermHost, electermPort)
     process.send({ serverInited: true })
   })
+  // Without this a port failure only surfaced as an uncaughtException: the
+  // main process kept waiting for serverInited and no window ever appeared.
+  // express-ws re-emits the http server's errors on its WebSocketServer, and
+  // an unhandled 'error' there throws before this listener runs, so both get one.
+  server.on('error', onError)
+  const wss = app.getWss && app.getWss()
+  if (wss) {
+    wss.on('error', onError)
+  }
 }
 
 // start

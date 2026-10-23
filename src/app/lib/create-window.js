@@ -1,5 +1,5 @@
 const {
-  BrowserWindow, screen
+  BrowserWindow, screen, dialog, app
 } = require('electron')
 const { resolve } = require('path')
 const {
@@ -93,7 +93,28 @@ exports.createWindow = async function (userConfig) {
 
   globalState.set('win', win)
 
-  await initAppServer()
+  // A backend that cannot bind its port used to leave this await pending
+  // forever: window created, nothing in it, no message, app just sits there.
+  // Say it out loud instead. The usual cause on Windows is the port landing in
+  // a reserved/excluded range (Hyper-V, WinNAT, WSL2, Docker Desktop) or being
+  // blocked by security software -- hence the -sp hint.
+  try {
+    await initAppServer()
+  } catch (err) {
+    console.error('init app server failed:', err)
+    try {
+      dialog.showErrorBox(
+        'electerm',
+        `electerm could not start its local backend service.\n\n${err?.message || err}\n\n` +
+        'This is usually a port problem. On Windows a port can be reserved by ' +
+        'Hyper-V/WSL2/Docker Desktop, and security software can block it too.\n\n' +
+        'Try starting electerm with another port, e.g.\n' +
+        'electerm.exe -sp 40975'
+      )
+    } catch (_) {}
+    app.quit()
+    return
+  }
   initIpc()
   const port = isDev
     ? process.env.devPort || 5570
