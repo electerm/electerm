@@ -56,9 +56,20 @@ function readRemoteFile (sftp, path) {
     writeStream.on('error', (e) => {
       reject(e)
     })
-    sftp.createReadStream(path, {
+    const readStream = sftp.createReadStream(path, {
       highWaterMark: 64 * 1024 * 4 * 4
-    }).pipe(writeStream)
+    })
+    // pipe() forwards an error of the *destination*, not of the source: when the
+    // remote open fails (no such file, a directory, permission denied) the read
+    // stream emits 'error' and nothing downstream ever ends, so neither 'finish'
+    // nor the write stream's own 'error' ever fires and this promise hangs for
+    // good. That is what left sftp_read_file spinning in the AI agent. Handle
+    // the source error here and settle the promise with it.
+    readStream.on('error', (e) => {
+      writeStream.destroy()
+      reject(e)
+    })
+    readStream.pipe(writeStream)
   })
 }
 

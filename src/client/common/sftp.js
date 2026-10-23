@@ -56,7 +56,7 @@ class Sftp {
               return reject(new Error(arg.error.message))
             }
             resolve(arg.data)
-          }, uid)
+          }, uid, reject)
         })
       }
     })

@@ -30,7 +30,10 @@ class Ws {
     })
   }
 
-  async once (func, id) {
+  // `onClose` is optional: called if the socket goes away before the answer
+  // arrives. Without it the caller's promise is dropped by clearOnces() and
+  // never settles -- the UI shows a spinner forever.
+  async once (func, id, onClose) {
     const maxWait = 300
     let waited = 0
     while (this.closed) {
@@ -44,6 +47,11 @@ class Ws {
     onces[id] = {
       resolve: (...args) => {
         func(...args)
+        delete onces[id]
+        this.onceIds = this.onceIds.filter(d => d !== id)
+      },
+      reject: (err) => {
+        onClose && onClose(err)
         delete onces[id]
         this.onceIds = this.onceIds.filter(d => d !== id)
       }
@@ -109,6 +117,13 @@ class Ws {
     }
     const ids = [...this.onceIds]
     ids.forEach(k => {
+      const pending = onces[k]
+      // A pending request can no longer be answered on a dead socket. Settle it
+      // as an error instead of deleting it: a deleted entry leaves the caller's
+      // promise pending forever (the sftp panel and the AI agent both await it).
+      if (pending && pending.reject) {
+        pending.reject(new Error('Connection closed before the request completed'))
+      }
       delete onces[k]
     })
     this.onceIds = []
