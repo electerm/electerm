@@ -9,6 +9,7 @@ export default function TabsSubMenu (props) {
             <TabsSubMenuChild
               key={item.id}
               item={item}
+              onClose={props.onClose}
             />
           )
         })

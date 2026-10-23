@@ -19,7 +19,7 @@ describe('bookmark groups', function () {
     await delay(3500)
 
     log('button:edit')
-    await client.click('.btns .anticon-plus-circle')
+    await client.newConnection()
     await delay(2500)
     const sel = '.setting-wrap .ant-tabs-nav-list .ant-tabs-tab-active'
     await client.hasElem(sel)

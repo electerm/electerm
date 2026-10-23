@@ -21,7 +21,7 @@ describe('Telnet bookmark', function () {
     })
 
     // Open bookmark form
-    await client.click('.btns .anticon-plus-circle')
+    await client.newConnection()
     await delay(500)
 
     // Select telnet bookmark type

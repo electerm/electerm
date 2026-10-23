@@ -130,6 +130,12 @@ test('an unanswered MFA prompt closes itself and stops the reconnect loop', asyn
     await page.fill(`${mfaModal} input`, OTP)
     await page.click(`${mfaModal} button[type=submit]`)
     await page.waitForSelector(mfaModal, { state: 'detached', timeout: 15000 })
+    // The tab status flips to `success` a tick after the prompt is accepted;
+    // on a loaded CI runner that gap is wide enough to lose the race.
+    await page.waitForFunction(() => {
+      const tabs = window.store.tabs
+      return tabs.length === 2 && tabs[1].status === 'success'
+    }, null, { timeout: 30000 }).catch(() => {})
     const connected = await page.evaluate(() => window.store.tabs.map(t => ({ id: t.id, status: t.status })))
     assert.equal(connected.length, 2, 'local tab + ssh tab')
     assert.equal(connected[1].status, 'success', 'the ssh session is up')

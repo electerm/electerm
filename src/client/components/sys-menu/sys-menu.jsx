@@ -30,7 +30,8 @@ export default class ContextMenu extends PureComponent {
   onClick = (e, item) => {
     const {
       disabled,
-      func
+      func,
+      noCloseMenu
     } = item
     if (disabled) {
       return
@@ -41,6 +42,12 @@ export default class ContextMenu extends PureComponent {
     }
     if (func) {
       menu[func]()
+      // the popover is controlled by menu-btn, so an executed entry has to
+      // dismiss it explicitly (entries that only open a submenu keep it)
+      const { onClose } = this.props
+      if (!noCloseMenu && onClose) {
+        onClose()
+      }
     }
   }
 

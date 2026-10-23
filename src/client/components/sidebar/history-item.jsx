@@ -12,6 +12,8 @@ export default function HistoryItem (props) {
   } = props
   const [active, setActive] = useState(false)
   const timeoutRef = useRef(null)
+  // used by the system menu submenu, which has to dismiss its popover
+  const closeMenu = props.onClose
 
   const handleClick = useCallback(() => {
     // with doubleClickToOpenBookmark on, a click only marks the row — the
@@ -26,13 +28,19 @@ export default function HistoryItem (props) {
     timeoutRef.current = setTimeout(() => {
       store.onSelectHistory(item.tab)
     }, 10)
-  }, [item.tab, openOnDoubleClick])
+    if (closeMenu) {
+      closeMenu()
+    }
+  }, [item.tab, openOnDoubleClick, closeMenu])
 
   const handleDoubleClick = useCallback(() => {
     if (openOnDoubleClick) {
       store.onSelectHistory(item.tab)
+      if (closeMenu) {
+        closeMenu()
+      }
     }
-  }, [item.tab, openOnDoubleClick])
+  }, [item.tab, openOnDoubleClick, closeMenu])
 
   useEffect(() => {
     return () => {

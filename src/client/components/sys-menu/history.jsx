@@ -6,7 +6,11 @@ export default function HistorySubMenu (props) {
       {
         props.history.map(item => {
           return (
-            <HistoryItem key={item.id} item={item} />
+            <HistoryItem
+              key={item.id}
+              item={item}
+              onClose={props.onClose}
+            />
           )
         })
       }

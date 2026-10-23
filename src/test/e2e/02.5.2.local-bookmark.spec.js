@@ -20,7 +20,7 @@ describe('Local bookmark', function () {
     })
 
     // Open bookmark form
-    await client.click('.btns .anticon-plus-circle')
+    await client.newConnection()
     await delay(500)
 
     // Select local bookmark type

@@ -4,6 +4,11 @@ import createTitle from '../../common/create-title'
 export default class TabsSubMenuChild extends PureComponent {
   handleClick = () => {
     window.store.changeActiveTabId(this.props.item.id)
+    // dismiss the system menu popover after switching
+    const { onClose } = this.props
+    if (onClose) {
+      onClose()
+    }
   }
 
   render () {

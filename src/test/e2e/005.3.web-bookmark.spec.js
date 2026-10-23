@@ -19,7 +19,7 @@ describe('Web session', function () {
     })
 
     // Open bookmark form
-    await client.click('.btns .anticon-plus-circle')
+    await client.newConnection()
     await delay(500)
 
     // Select web bookmark type

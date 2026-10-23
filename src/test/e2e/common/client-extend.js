@@ -7,6 +7,7 @@ const {
 } = require('@playwright/test')
 const delay = require('./wait')
 const diagnose = require('./diagnose')
+const e = require('./lang')
 
 module.exports = (client, app) => {
   client.element = (sel) => {
@@ -23,6 +24,28 @@ module.exports = (client, app) => {
     }
     await s.waitFor({ state: 'visible', timeout: 10000 })
     await s.click()
+  }
+  // Open the "new connection" form. The sidebar `newBookmark` icon is no
+  // longer part of the default `leftSideBarIcons` (see commit 4b260935), so
+  // fall back to the system menu entry, which is always available.
+  client.newConnection = async () => {
+    const plus = client.locator('.btns .anticon-plus-circle').first()
+    if (await plus.isVisible().catch(() => false)) {
+      await plus.click()
+      return
+    }
+    await client.click('.menu-control')
+    // `:has-text` alone also matches the "bookmarks" item, whose submenu is
+    // rendered inside it. The plain item has no submenu.
+    await client.click(
+      `.context-item:not(.with-sub-menu):has-text("${e('newBookmark')}")`
+    )
+    // the entry dismisses the popover itself; still wait for it, otherwise a
+    // slow close swallows the next click
+    await client
+      .locator('.context-menu-inner')
+      .first()
+      .waitFor({ state: 'hidden', timeout: 5000 })
   }
   client.elemExist = async (sel) => {
     try {
