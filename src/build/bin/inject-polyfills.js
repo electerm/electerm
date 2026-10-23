@@ -118,11 +118,16 @@ function patchFile ({ root, patch, dryRun, log }) {
     throw new Error(`[polyfill] missing ${patch.file}`)
   }
   const code = fs.readFileSync(file, 'utf8')
-  if (code.includes(patch.to)) {
+  // Windows checkouts (actions/checkout on windows runners, core.autocrlf) hand
+  // us CRLF. Compare on a normalized copy so the anchors match there too, and
+  // write the replacement back in whatever EOL the file already uses.
+  const lf = code.replace(/\r\n/g, '\n')
+  if (lf.includes(patch.to)) {
     log(`[polyfill]   ${patch.file} already patched`)
     return
   }
-  if (!code.includes(patch.from)) {
+  const pattern = blockPattern(patch.from)
+  if (!pattern.test(code)) {
     throw new Error(
       `[polyfill] cannot patch ${patch.file}: expected block not found.\n` +
       'The build-time injection is anchored on:\n' +
@@ -131,16 +136,30 @@ function patchFile ({ root, patch, dryRun, log }) {
     )
   }
   for (const needle of patch.requires || []) {
-    if (!code.includes(needle)) {
+    if (!lf.includes(needle)) {
       throw new Error(
         `[polyfill] ${patch.file} no longer contains "${needle}", which the injected adapter calls`
       )
     }
   }
   if (!dryRun) {
-    fs.writeFileSync(file, code.replace(patch.from, patch.to))
+    fs.writeFileSync(
+      file,
+      code.replace(pattern, matched => patch.to.split('\n').join(
+        matched.includes('\r\n') ? '\r\n' : '\n'
+      ))
+    )
   }
   log(`[polyfill]   patched ${patch.file}`)
+}
+
+function escapeRegExp (s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+// A multi-line block, matched regardless of LF/CRLF in the target file.
+function blockPattern (block) {
+  return new RegExp(block.split('\n').map(escapeRegExp).join('\\r?\\n'))
 }
 
 function main () {

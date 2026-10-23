@@ -294,6 +294,30 @@ describe('build-time injection', () => {
     assert.equal(readProtocol(tree), before)
   })
 
+  // The win7-tar runner checks out with core.autocrlf=true, so the anchor has to
+  // match a CRLF file — otherwise every Windows legacy build dies with
+  // "expected block not found".
+  it('patches a CRLF checkout and keeps its line endings', () => {
+    const crlf = makeTree('22.3.27')
+    try {
+      const file = path.join(crlf, 'work/app/widgets/protocol.js')
+      const original = fs.readFileSync(file, 'utf8').replace(/\r?\n/g, '\r\n')
+      fs.writeFileSync(file, original)
+      assert.deepEqual(
+        applyPolyfills({ root: crlf, major: 22, log: silent }),
+        ['widget protocol callback adapter']
+      )
+      const code = fs.readFileSync(file, 'utf8')
+      assert.match(code, /require\('\.\/protocol-legacy'\)/)
+      assert.doesNotMatch(code, /[^\r]\n/, 'every newline should still be CRLF')
+      // and it stays put on a second run
+      applyPolyfills({ root: crlf, major: 22, log: silent })
+      assert.equal(fs.readFileSync(file, 'utf8'), code)
+    } finally {
+      fs.rmSync(crlf, { recursive: true, force: true })
+    }
+  })
+
   it('leaves the source tree alone', () => {
     assert.doesNotMatch(
       fs.readFileSync(path.join(REPO, 'src/app/widgets/protocol.js'), 'utf8'),
