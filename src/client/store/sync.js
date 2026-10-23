@@ -892,7 +892,7 @@ export default (Store) => {
       'keepaliveInterval',
       'rightClickSelectsWord',
       'mouseEventsRequireAlt',
-      'pasteWhenContextMenu',
+      'rightClickBehavior',
       'ctrlOrMetaOpenTerminalLink',
       'hotkey',
       'sshReadyTimeout',

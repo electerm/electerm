@@ -161,14 +161,14 @@ test('touch terminal menu icon opens the terminal context menu', async () => {
     )
     await page.evaluate(() => {
       window.store.isTouchDevice = true
-      window.store.setConfig({ pasteWhenContextMenu: true })
+      window.store.setConfig({ rightClickBehavior: 'paste' })
     })
     await page.waitForFunction(
       (sel) => document.querySelectorAll(sel).length === 0,
       CURRENT_ICON
     )
     await page.evaluate(() => {
-      window.store.setConfig({ pasteWhenContextMenu: false })
+      window.store.setConfig({ rightClickBehavior: 'context' })
     })
     await page.waitForSelector(MOBILE_ICON)
   } finally {

@@ -47,6 +47,12 @@
  * same menu through openContextMenuAtPoint() below.
  */
 
+import {
+  getRightClickBehavior,
+  rightClickBehaviors,
+  shouldOpenContextMenu
+} from '../../../common/right-click-behavior.js'
+
 const DEFAULT_WORD_SEPARATOR = './\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~ ?'
 
 // the select-text overlay; its own native selection must stay out of the
@@ -249,9 +255,9 @@ export const touchMixin = {
 
     const anchor = this.selectWordAt(clientX, clientY)
 
-    // pasteWhenContextMenu means "long press pastes" — honour that contract
-    // and never take over the gesture with a drag
-    if (this.props.config.pasteWhenContextMenu) {
+    // 'paste' means "long press pastes" — honour that contract and never take
+    // over the gesture with a drag
+    if (getRightClickBehavior(this.props.config) === rightClickBehaviors.paste) {
       this.onPaste()
       return
     }
@@ -497,7 +503,7 @@ export const touchMixin = {
    * right-click.
    */
   openContextMenuAt (clientX, clientY, target) {
-    if (!target || this.props.config.pasteWhenContextMenu) {
+    if (!target || !shouldOpenContextMenu(this.props.config)) {
       return
     }
     const event = new MouseEvent('contextmenu', {

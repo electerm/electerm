@@ -5,6 +5,10 @@ import iconsMap from '../../sys-menu/icons-map.jsx'
 import { refsStatic } from '../../common/ref.js'
 import AIIcon from '../../icons/ai-icon.jsx'
 import { isAIDisabled } from '../../../common/ai-feature.js'
+import {
+  getRightClickBehavior,
+  rightClickBehaviors
+} from '../../../common/right-click-behavior.js'
 
 const e = window.translate
 
@@ -119,11 +123,17 @@ export const contextMenuMixin = {
   },
 
   onContextMenuInner (e) {
+    const behavior = getRightClickBehavior(this.props.config)
+    if (behavior === rightClickBehaviors.passthrough) {
+      // leave the event alone: xterm may report it to the running program,
+      // and the OS still gets its own right click
+      return
+    }
     e.preventDefault()
     if (this.state.loading) {
       return
     }
-    if (this.props.config.pasteWhenContextMenu) {
+    if (behavior === rightClickBehaviors.paste) {
       return this.onPaste()
     }
   },
@@ -150,8 +160,9 @@ export const contextMenuMixin = {
 
   /**
    * Shared clipboard write. Lives here rather than in term-touch.js so that
-   * the touch module stays free of imports (it is loaded directly by a
-   * node:test unit spec), and so every copy raises the same `copied` toast.
+   * the touch module keeps clear of the clipboard/UI plumbing (it is loaded
+   * directly by a node:test unit spec), and so every copy raises the same
+   * `copied` toast.
    */
   copyToClipboard (txt) {
     if (txt) {

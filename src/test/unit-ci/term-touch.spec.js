@@ -328,9 +328,9 @@ describe('term-touch: releasing a drag', () => {
     assert.deepEqual(dispatched, ['contextmenu'])
   })
 
-  test('pasteWhenContextMenu keeps long press meaning paste', async () => {
+  test('right click behavior "paste" keeps long press meaning paste', async () => {
     setTouchDevice(true)
-    const ctx = await makeCtx({ props: { config: { pasteWhenContextMenu: true } } })
+    const ctx = await makeCtx({ props: { config: { rightClickBehavior: 'paste' } } })
     ctx.pasted = 0
     ctx.onPaste = () => { ctx.pasted++ }
     ctx.touchStartPos = { clientX: 15, clientY: 25, target: {} }
@@ -338,6 +338,16 @@ describe('term-touch: releasing a drag', () => {
     assert.equal(ctx.pasted, 1)
     // no drag is started, so the gesture stays out of the selection path
     assert.equal(ctx.dragSelect, null)
+  })
+
+  test('legacy pasteWhenContextMenu still means paste', async () => {
+    setTouchDevice(true)
+    const ctx = await makeCtx({ props: { config: { pasteWhenContextMenu: true } } })
+    ctx.pasted = 0
+    ctx.onPaste = () => { ctx.pasted++ }
+    ctx.touchStartPos = { clientX: 15, clientY: 25, target: {} }
+    ctx.handleLongPress()
+    assert.equal(ctx.pasted, 1)
   })
 })
 
@@ -375,15 +385,17 @@ describe('term-touch: context menu from the toolbar icon', () => {
     ctx.openContextMenuAtPoint(1, 2)
   })
 
-  test('stays shut when pasteWhenContextMenu makes the menu a paste', async () => {
+  test('stays shut unless right click behavior is "context"', async () => {
     setTouchDevice(true)
-    const dispatched = []
-    const ctx = await makeCtx({
-      domRef: { current: menuTarget(dispatched) },
-      props: { config: { pasteWhenContextMenu: true } }
-    })
-    ctx.openContextMenuAtPoint(1, 2)
-    assert.deepEqual(dispatched, [])
+    for (const rightClickBehavior of ['paste', 'passthrough']) {
+      const dispatched = []
+      const ctx = await makeCtx({
+        domRef: { current: menuTarget(dispatched) },
+        props: { config: { rightClickBehavior } }
+      })
+      ctx.openContextMenuAtPoint(1, 2)
+      assert.deepEqual(dispatched, [], rightClickBehavior)
+    }
   })
 })
 

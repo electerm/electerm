@@ -40,6 +40,7 @@ import { logMixin } from './mixins/term-log.jsx'
 import { touchMixin } from './mixins/term-touch.js'
 import { fileDropMixin } from './mixins/term-file-drop.js'
 import { suggestionsMixin } from './mixins/term-suggestions.js'
+import { shouldOpenContextMenu } from '../../common/right-click-behavior.js'
 
 const e = window.translate
 
@@ -408,7 +409,9 @@ class Term extends Component {
         items: this.renderContextMenu(),
         onClick: this.onContextMenu
       },
-      trigger: this.props.config.pasteWhenContextMenu ? [] : ['contextMenu']
+      // only 'context' opens the menu; 'paste' and 'passthrough' are handled
+      // by onContextMenuInner (see term-context-menu.jsx)
+      trigger: shouldOpenContextMenu(this.props.config) ? ['contextMenu'] : []
     }
     const barProps = {
       matchIndex: this.state.matchIndex,

@@ -23,6 +23,7 @@ import {
 } from '../../common/constants'
 import { SplitViewIcon } from '../icons/split-view'
 import { HeartbeatIcon } from '../icons/heartbeat'
+import { rightClickBehaviors } from '../../common/right-click-behavior'
 import './session-control.styl'
 
 const e = window.translate
@@ -40,7 +41,7 @@ export default function SessionControl (props) {
     keepaliveEnabled,
     broadcastInput,
     wrapDisabled,
-    pasteWhenContextMenu,
+    rightClickBehavior,
     onChangePane,
     toggleCheckSftpPathFollowSsh,
     onSshSftpSplitView,
@@ -286,14 +287,14 @@ export default function SessionControl (props) {
    * Touch devices have no right click, so the terminal's context menu needs a
    * visible way in: this icon, next to the fullscreen icon on the desktop
    * toolbar and next to the three-dot toggle in the mobile one (see below).
-   * Hidden when there is no menu to open — `pasteWhenContextMenu` turns both
-   * right click and the long press into a paste (see terminal.jsx), and it
-   * only ever acts on the terminal pane.
+   * Hidden when there is no menu to open — right click behaviour 'paste' and
+   * 'passthrough' both drop the menu (see right-click-behavior.js), and the
+   * setting only ever acts on the terminal pane.
    */
   function renderContextMenuIcon (inMobileBar) {
     if (
       !isTouchDevice ||
-      pasteWhenContextMenu ||
+      rightClickBehavior !== rightClickBehaviors.context ||
       tab.pane !== paneMap.terminal
     ) {
       return null

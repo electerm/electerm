@@ -26,6 +26,7 @@ import {
 } from '../../common/constants'
 import { refs } from '../common/ref'
 import sanitizeFilename from '../../common/sanitize-filename.js'
+import { getRightClickBehavior } from '../../common/right-click-behavior.js'
 import SessionControl from './session-control'
 import LazyBoundary from '../common/lazy-boundary'
 import './session.styl'
@@ -638,7 +639,7 @@ export default class SessionWrapper extends Component {
           keepaliveEnabled={!!this.props.tab.keepaliveEnabled}
           broadcastInput={this.state.broadcastInput}
           wrapDisabled={this.state.wrapDisabled}
-          pasteWhenContextMenu={!!this.props.config.pasteWhenContextMenu}
+          rightClickBehavior={getRightClickBehavior(this.props.config)}
           onChangePane={(pane) => this.onChangePane(pane)}
           toggleCheckSftpPathFollowSsh={this.toggleCheckSftpPathFollowSsh}
           onSshSftpSplitView={this.handleSshSftpSplitView}

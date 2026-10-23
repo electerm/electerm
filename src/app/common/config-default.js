@@ -6,7 +6,9 @@ module.exports = exports.default = {
   // Pass mouse reports to the app only while Alt/Option is held. Lets wheel
   // keep scrolling tmux/vim history while plain drags stay local selections.
   mouseEventsRequireAlt: false,
-  pasteWhenContextMenu: false,
+  // 'context' | 'paste' | 'passthrough' — see
+  // src/client/common/right-click-behavior.js
+  rightClickBehavior: 'context',
   ctrlOrMetaOpenTerminalLink: false,
   ...defaultSettings,
   terminalTimeout: 5000,
