@@ -18,7 +18,8 @@ import {
   Tooltip
 } from 'antd'
 import * as ls from '../../common/safe-local-storage'
-import scanCode from './code-scan'
+import { isMac } from '../../common/platform'
+import { getScancode } from './code-scan'
 import resolutions from './resolutions'
 import { readClipboardAsync } from '../../common/clipboard'
 import RemoteFloatControl from '../common/remote-float-control'
@@ -43,6 +44,9 @@ const { Option } = Select
 // on a busy remote desktop. The cost is that the cursor no longer changes
 // shape per context (I-beam over text, resize handles, ...).
 const ENABLE_SERVER_POINTER = false
+
+// remembered per host, like the resolution and scale-viewport switches
+const swapCtrlCmdLsKey = host => `rdp-swap-ctrl-cmd-${host}`
 
 async function loadWasmModule () {
   if (window.ironRdp) return
@@ -69,11 +73,13 @@ export default class RdpSession extends PureComponent {
     const resObj = ls.getItemJSON(id, resolutions[1])
     const scaleViewportId = `rdp-scale-view-${props.tab.host}`
     const scaleViewport = ls.getItemJSON(scaleViewportId, false)
+    const swapCtrlCmd = ls.getItemJSON(swapCtrlCmdLsKey(props.tab.host), false)
     super(props)
     this.canvasRef = createRef()
     this.state = {
       loading: false,
       scaleViewport,
+      swapCtrlCmd,
       ...resObj,
       hasRemoteFiles: false,
       downloadBtnDisabled: true,
@@ -84,6 +90,8 @@ export default class RdpSession extends PureComponent {
     this.fileTransfer = null
     this.fileUploadInProgress = false
     this.log = createFileLogger()
+    // what the main process currently believes; see syncMenuShortcuts
+    this._menuShortcutsIgnored = false
   }
 
   componentDidMount () {
@@ -95,6 +103,8 @@ export default class RdpSession extends PureComponent {
   }
 
   cleanup = () => {
+    // a closed/reloaded tab must not leave the app menu ignoring its shortcuts
+    this.setMenuShortcutsIgnored(false)
     if (this.session) {
       try {
         this.session.shutdown()
@@ -580,13 +590,52 @@ export default class RdpSession extends PureComponent {
     })
 
     canvas.addEventListener('focus', () => {
+      this.syncMenuShortcuts()
       this.syncLocalToRemote()
+    })
+
+    canvas.addEventListener('blur', () => {
+      this.syncMenuShortcuts()
     })
   }
 
   getScancode = (code) => {
-    const sc = scanCode({ code })
+    const sc = getScancode(code, this.state.swapCtrlCmd)
     return sc !== undefined ? sc : null
+  }
+
+  // A registered menu accelerator is consumed by AppKit before the page ever
+  // sees the keydown, so with the swap on Cmd+C/V/A/Z/X would still run the
+  // local Edit menu instead of reaching the remote as Ctrl+C/V/A/Z/X. While -
+  // and only while - the swapped canvas holds focus, tell the main process to
+  // stop honouring the app menu's shortcuts.
+  setMenuShortcutsIgnored = (active) => {
+    if (active === this._menuShortcutsIgnored) return
+    this._menuShortcutsIgnored = active
+    try {
+      // the web client has no app menu, and older bridges do not know the call
+      window.pre.runGlobalAsync('setRdpSwapCtrlCmd', active).catch(() => {})
+    } catch (e) { }
+  }
+
+  syncMenuShortcuts = () => {
+    const canvas = this.canvasRef.current
+    this.setMenuShortcutsIgnored(
+      isMac &&
+      !!this.state.swapCtrlCmd &&
+      !!canvas &&
+      document.activeElement === canvas
+    )
+  }
+
+  handleSwapCtrlCmdChange = (v) => {
+    ls.setItemJSON(swapCtrlCmdLsKey(this.props.tab.host), v)
+    this.setState({ swapCtrlCmd: v }, () => {
+      // clicking the switch took focus away from the canvas; give it back so
+      // the swap is usable immediately
+      this.canvasRef.current?.focus()
+      this.syncMenuShortcuts()
+    })
   }
 
   handleEditResolutions = () => {
@@ -753,6 +802,16 @@ export default class RdpSession extends PureComponent {
       label: window.translate('scaleViewport'),
       className: 'mg1l'
     }
+    // macOS only: swapping Ctrl/Command is meaningless on a Mac host, and the
+    // remote has to be Windows for the Win key to be the other half of the swap.
+    // The label is a literal glyph pair, not a translated string: "ctrl <-> cmd"
+    // reads the same in every language and needs no locale slot.
+    const swapProps = {
+      checked: !!this.state.swapCtrlCmd,
+      onChange: this.handleSwapCtrlCmdChange,
+      label: 'ctrl ⇄ cmd',
+      className: 'mg1l'
+    }
     const uploadTitle = window.translate('upload') || 'Upload files to remote'
     const downloadTitle = window.translate('download') || 'Download files from remote'
     return (
@@ -786,6 +845,11 @@ export default class RdpSession extends PureComponent {
         <SwitchLabel
           {...scaleProps}
         />
+        {
+          isMac
+            ? <SwitchLabel {...swapProps} />
+            : null
+        }
         <Tooltip title={uploadTitle}>
           <UploadOutlined
             onClick={this.handleUploadButtonClick}

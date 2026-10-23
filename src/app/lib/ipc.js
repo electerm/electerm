@@ -336,6 +336,16 @@ function initIpc () {
     checkProtocolRegistration,
     getPendingDeepLink,
     getPendingVvFile,
+    // macOS RDP with Control/Command swapped: the renderer sends Cmd as Ctrl,
+    // but a registered app-menu accelerator (Cmd+C/V/A/Z/X) is consumed by
+    // AppKit before the page sees the keydown, so those keys would never reach
+    // the remote. The renderer scopes this to "the swapped canvas has focus".
+    setRdpSwapCtrlCmd: (active) => {
+      const win = globalState.get('win')
+      if (win && !win.isDestroyed()) {
+        win.webContents.setIgnoreMenuShortcuts(!!active)
+      }
+    },
     getEnv: (key) => {
       if (key) {
         return SAFE_ENV_KEYS.includes(key) ? process.env[key] : ''

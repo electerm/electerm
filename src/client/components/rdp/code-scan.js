@@ -135,6 +135,10 @@ const KeyMap = {
   PageDown: 0xE051,
   Insert: 0xE052,
   Delete: 0xE053,
+  // the Command key on macOS reports MetaLeft/MetaRight; OSLeft/OSRight are the
+  // pre-2020 spellings of the same physical keys, still emitted by some engines
+  MetaLeft: 0xE05B,
+  MetaRight: 0xE05C,
   OSLeft: 0xE05B,
   OSRight: 0xE05C,
   ContextMenu: 0xE05D,
@@ -150,6 +154,28 @@ const KeyMap = {
   MediaSelect: 0xE06D
 }
 
-export default function scancode (e) {
-  return KeyMap[e.code]
+// Swap the physical Control and Command keys, for a macOS client driving a
+// Windows host. Windows has no Command key: the Command key sits in the same
+// place as the Windows/Super key, so a true swap sends
+//   Cmd  -> Ctrl   (0x1D / 0xE01D)
+//   Ctrl -> Win    (0xE05B / 0xE05C)
+// Both sides go through this map, so a press and its release always resolve to
+// the same scancode and no modifier is left stuck on the remote.
+const swapCtrlCmdMap = {
+  MetaLeft: 'ControlLeft',
+  ControlLeft: 'MetaLeft',
+  MetaRight: 'ControlRight',
+  ControlRight: 'MetaRight',
+  // pre-2020 KeyboardEvent.code spellings
+  OSLeft: 'ControlLeft',
+  OSRight: 'ControlRight'
 }
+
+export function getScancode (code, swapCtrlCmd = false) {
+  const name = swapCtrlCmd
+    ? (swapCtrlCmdMap[code] || code)
+    : code
+  return KeyMap[name]
+}
+
+export default getScancode
