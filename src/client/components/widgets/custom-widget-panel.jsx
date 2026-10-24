@@ -2,11 +2,12 @@
  * Custom widget UI panel.
  *
  * A user widget that ships `electerm.ui` (see widgets/user-widget.js) gets its
- * own document instead of the generated config form. It is served from
- * electerm-widget://<id>/... — a different origin from the app — and talks to
- * the host only through window.electerm, which the protocol injects into the
- * page (widgets/bridge.js). Everything here is the host half of that
- * conversation: answer the calls, hand over the theme.
+ * own document instead of the generated config form. The desktop app serves it
+ * from electerm-widget://<id>/..., the web app from /api/widget-ui/<id>/... —
+ * either way it ends up on an origin of its own, and talks to the host only
+ * through window.electerm, which the host injects into the page
+ * (widgets/bridge.js). Everything here is the host half of that conversation:
+ * answer the calls, hand over the theme.
  */
 import React, { useEffect, useRef, useState } from 'react'
 import { Button, Tooltip } from 'antd'
@@ -109,7 +110,13 @@ export default function CustomWidgetPanel ({ widget }) {
   const frameRef = useRef(null)
   const [nonce, setNonce] = useState(0)
   const ui = String(info.ui || '').replace(/^\/+/, '')
-  const src = `electerm-widget://${id}/${ui}${nonce ? `?r=${nonce}` : ''}`
+  // A browser has no privileged custom scheme, so the web app serves the same
+  // folder over http (see src/app/routes/widget-ui.js there). The nonce is a
+  // cache buster in both cases: a reinstall replaces files in place.
+  const uiBase = window.et.isWebApp
+    ? `/api/widget-ui/${id}`
+    : `electerm-widget://${id}`
+  const src = `${uiBase}/${ui}${nonce ? `?r=${nonce}` : ''}`
 
   useEffect(() => {
     function onMessage (evt) {
@@ -179,6 +186,14 @@ export default function CustomWidgetPanel ({ widget }) {
           />
         </Tooltip>
       </div>
+      {/*
+        Over http the widget document would otherwise share the app's origin,
+        and with it window.store and the token in localStorage. Withholding
+        allow-same-origin gives it an opaque origin instead, which is what the
+        custom scheme provides on the desktop; the server sends the same
+        restrictions as a CSP header (belt and braces, and it holds even in a
+        client that forgot the attribute).
+      */}
       <iframe
         key={nonce}
         ref={frameRef}
@@ -186,7 +201,9 @@ export default function CustomWidgetPanel ({ widget }) {
         title={info.name}
         src={src}
         onLoad={sendInit}
-        sandbox='allow-scripts allow-same-origin allow-forms allow-modals allow-popups'
+        sandbox={window.et.isWebApp
+          ? 'allow-scripts allow-forms allow-modals allow-popups'
+          : 'allow-scripts allow-same-origin allow-forms allow-modals allow-popups'}
       />
     </div>
   )
