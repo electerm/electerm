@@ -31,6 +31,7 @@ import normalizeRemotePath from '../../common/normalize-remote-path'
 import { LoadingOutlined, ReloadOutlined } from '@ant-design/icons'
 import * as owner from './owner-list'
 import AddressBar from './address-bar'
+import KeywordBar from './keyword-bar'
 import getProxy from '../../common/get-proxy'
 import { createTerm } from '../terminal/terminal-apis'
 import './sftp.styl'
@@ -271,6 +272,56 @@ export default class Sftp extends Component {
     this.setState({
       [`${type}Keyword`]: keyword
     })
+  }
+
+  // Side (local/remote) the mouse is currently over; used by type-to-filter
+  hoverType = null
+
+  onMouseEnterSection = (type) => {
+    this.hoverType = type
+  }
+
+  getTypeToFilterTarget = () => {
+    return this.hoverType ||
+      this.state.lastClickedFile?.type ||
+      typeMap.local
+  }
+
+  // Type-to-filter: plain keystrokes edit the keyword of the hovered
+  // (or last clicked) file list. Returns true when the event was consumed.
+  handleTypeToFilter = (e) => {
+    if (
+      !this.props.config.sftpTypeToFilter ||
+      e.type !== 'keydown' ||
+      e.ctrlKey || e.metaKey || e.altKey || e.isComposing ||
+      this.state.onEditFile
+    ) {
+      return false
+    }
+    const type = this.getTypeToFilterTarget()
+    const prop = `${type}Keyword`
+    let edit
+    if (e.key === 'Backspace') {
+      if (!this.state[prop]) {
+        return false
+      }
+      edit = k => k.slice(0, -1)
+    } else if (e.key === 'Escape') {
+      if (!this.state[prop]) {
+        return false
+      }
+      edit = () => ''
+    } else if (e.key.length === 1) {
+      edit = k => k + e.key
+    } else {
+      return false
+    }
+    e.preventDefault()
+    e.stopPropagation()
+    this.setState(prev => ({
+      [prop]: edit(prev[prop] || '')
+    }))
+    return true
   }
 
   getCwdLocal = () => {
@@ -1304,6 +1355,7 @@ export default class Sftp extends Component {
         className={`sftp-section sftp-${type}-section tw-${type}`}
         style={style}
         key={type}
+        onMouseEnter={() => this.onMouseEnterSection(type)}
         {...style}
       >
         <Spin spinning={loading}>
@@ -1313,6 +1365,11 @@ export default class Sftp extends Component {
             }
             <AddressBar
               {...addrProps}
+            />
+            <KeywordBar
+              keyword={this.state[`${type}Keyword`]}
+              type={type}
+              updateKeyword={this.updateKeyword}
             />
             <div
               className={`file-list ${type} relative`}
