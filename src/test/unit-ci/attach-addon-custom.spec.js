@@ -3,6 +3,9 @@ const assert = require('node:assert/strict')
 
 global.window = global.window || { xtermAddons: {} }
 global.window.xtermAddons = global.window.xtermAddons || {}
+// A hidden document makes _enqueueWrite flush synchronously, so a test can
+// hand output to the terminal and read the buffer straight back.
+global.document = global.document || { hidden: true }
 
 const loadModule = () => import('../../client/components/terminal/attach-addon-custom.js')
 
@@ -156,13 +159,37 @@ describe('waitForOutputIdle', () => {
 // toolbar heartbeat icon and the MCP set_electerm_terminal_keepalive tool
 // drive. The server half (writing \n to the PTY) lives in session-server.js.
 describe('session keepalive', () => {
-  const makeKeepaliveAddon = async () => {
+  // Minimal terminal. xterm parses writes asynchronously and exposes the
+  // parsed buffer through term.buffer.active, which the keepalive guard reads
+  // back to see what is actually on the input line.
+  const makeTerm = (text = '') => {
+    const state = { text, row: 0, type: 'normal' }
+    const term = {
+      write: (data, cb) => { cb && cb() },
+      buffer: {
+        get active () {
+          return {
+            type: state.type,
+            baseY: 0,
+            cursorY: state.row,
+            getLine: (row) => row === state.row
+              ? { translateToString: () => state.text }
+              : null
+          }
+        }
+      }
+    }
+    return { term, state }
+  }
+
+  const makeKeepaliveAddon = async ({ line = '' } = {}) => {
     const { default: AttachAddonCustom } = await loadModule()
     const sent = []
     const socket = { readyState: 1 /* OPEN */, send: (s) => sent.push(s) }
-    const addon = new AttachAddonCustom({ write: () => {} }, socket)
+    const { term, state } = makeTerm(line)
+    const addon = new AttachAddonCustom(term, socket)
     addon._sendData = () => {}
-    return { addon, sent }
+    return { addon, sent, state, term }
   }
 
   const goIdle = (addon) => {
@@ -253,6 +280,112 @@ describe('session keepalive', () => {
       goIdle(addon)
       addon._checkKeepalive()
       assert.equal(sent.length, 2, 'Ctrl+C clears the line')
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('a cursor key on an empty prompt does not disable the keepalive', async () => {
+    const { addon, sent, state } = await makeKeepaliveAddon({ line: '$ ' })
+    try {
+      addon.writeToTerminal('$ ') // the shell drew its prompt, nothing typed
+      addon.sendToServer('\x1b[D') // Left arrow
+      addon.sendToServer('\x7f'.repeat(8)) // and clear whatever might be left
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.equal(sent.length, 1, 'the line is still empty, a newline is safe')
+      assert.equal(state.text, '$ ')
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('a recalled command stays on the line even though no key typed it', async () => {
+    const { addon, sent, state } = await makeKeepaliveAddon({ line: '$ ' })
+    try {
+      addon.writeToTerminal('$ ')
+      addon.sendToServer('\x1b[A') // Up: readline recalls a whole command
+      state.text = '$ rm -rf ./build'
+      addon.writeToTerminal('rm -rf ./build\n')
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.deepEqual(sent, [], 'a recalled command must not be submitted')
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('erasing a recalled command lets the keepalive run again', async () => {
+    const { addon, sent, state } = await makeKeepaliveAddon({ line: '$ ' })
+    try {
+      addon.writeToTerminal('$ ')
+      addon.sendToServer('\x1b[A')
+      state.text = '$ rm -rf ./build'
+      addon.writeToTerminal('\r$ rm -rf ./build')
+
+      state.text = '$ ' // Ctrl+U: readline clears the line
+      addon.sendToServer('\x15')
+      addon.writeToTerminal('\r$ ')
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.equal(sent.length, 1, 'the screen shows a bare prompt again')
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('no keepalive while the command wrapped onto another row', async () => {
+    const { addon, sent, state } = await makeKeepaliveAddon({ line: '$ ' })
+    try {
+      addon.writeToTerminal('$ ')
+      addon.sendToServer('echo ' + 'x'.repeat(200))
+      // A wrapped line puts the cursor on a later row; the baseline row no
+      // longer matches, which is what a long typed command looks like.
+      state.row = 3
+      state.text = 'xxxxxxxx'
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.deepEqual(sent, [])
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('no keepalive while a full-screen app owns the alternate screen', async () => {
+    const { addon, sent, state } = await makeKeepaliveAddon({ line: '' })
+    try {
+      state.type = 'alternate' // vim / less / top
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.deepEqual(sent, [], 'a newline there inserts a line or pages forward')
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('no keepalive while a password prompt is waiting', async () => {
+    const { addon, sent } = await makeKeepaliveAddon({ line: 'Password: ' })
+    try {
+      addon.writeToTerminal('Password: ')
+      assert.equal(addon._passwordPromptDetected, true)
+      goIdle(addon)
+      addon._checkKeepalive()
+      assert.deepEqual(sent, [], 'a newline would submit an empty password')
+    } finally {
+      addon.dispose()
+    }
+  })
+
+  test('binary input is forwarded instead of throwing', async () => {
+    const { addon } = await makeKeepaliveAddon({ line: '$ ' })
+    const forwarded = []
+    addon._sendData = (data) => forwarded.push(data)
+    try {
+      // Mouse report in the default (X10) encoding, which xterm delivers
+      // through terminal.onBinary as a Uint8Array.
+      const report = new Uint8Array([27, 91, 77, 32, 33, 33])
+      assert.doesNotThrow(() => addon.sendToServer(report))
+      assert.equal(forwarded.length, 1, 'the report must still reach the socket')
     } finally {
       addon.dispose()
     }

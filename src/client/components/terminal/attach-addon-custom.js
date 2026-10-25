@@ -165,8 +165,19 @@ export default class AttachAddonCustom {
     this._keepaliveTimer = null
     this._keepaliveInterval = 3000
     // Characters typed on the current command line and not yet submitted.
-    // Infinity when the line content is unknown (history recall, cursor keys).
+    // Only a hint: the keepalive decision is made against the terminal buffer
+    // (see _lineHasUnsubmittedInput), because escape sequences put text on the
+    // line without sending a printable character.
     this._pendingInputLength = 0
+    // Set by an escape sequence (cursor keys, history recall, bracketed paste)
+    // until the line is submitted or cleared: from then on the byte count above
+    // can not be trusted, because Up can recall a whole command.
+    this._pendingInputUnknown = false
+    // The command line as the shell last drew it with nothing typed on it:
+    // { row, length }. Captured after output is parsed, so the keepalive can
+    // ask the screen "is there anything past the prompt?" instead of guessing
+    // from keystrokes.
+    this._lineBaseline = null
     this._lastOutputLine = ''
     this._passwordPromptDetected = false
     this._pendingEchoCheck = null
@@ -420,9 +431,9 @@ export default class AttachAddonCustom {
       return
     }
     if (typeof data === 'string') {
-      return term.write(data)
+      return term.write(data, this._recordLineBaseline)
     }
-    term.write(data)
+    term.write(data, this._recordLineBaseline)
   }
 
   writeToTerminal = (data) => {
@@ -591,21 +602,36 @@ export default class AttachAddonCustom {
     const data = buf.length === 1 ? buf[0] : buf.join('')
     const { term } = this
     this._lastFlushTime = Date.now()
-    term.write(data)
+    // The callback fires once xterm has parsed the chunk into the buffer; that
+    // is the moment the prompt (and any echo) is actually on screen, which is
+    // what _recordLineBaseline samples.
+    term.write(data, this._recordLineBaseline)
     // Notify parent that the terminal buffer has been updated (echo received),
     // once per flush instead of once per chunk.
     term?.parent?.notifyOnData()
     term?.parent?.onTerminalWrite?.()
   }
 
+  // Best-effort bookkeeping of what sits on the current command line. Only
+  // answers "could there be input we saw no printable character for?"; whether
+  // a newline is safe to send is decided by _lineHasUnsubmittedInput.
   _trackPendingInput = (data) => {
-    if (data.startsWith('\x1b')) {
-      this._pendingInputLength = Infinity
+    if (typeof data !== 'string') {
+      // Mouse reports in the default (X10) encoding arrive through
+      // terminal.onBinary as a Uint8Array. They never type a character, and
+      // this runs before _sendData, so throwing here would swallow the click.
+      return
+    }
+    if (data.startsWith(ESC)) {
+      // Cursor keys, history recall, bracketed paste: the resulting line
+      // content is unknown (Up can put a whole command on the line).
+      this._pendingInputUnknown = true
       return
     }
     for (const ch of data) {
       if (ch === '\r' || ch === '\n' || ch === '\x03' || ch === '\x15') {
         this._pendingInputLength = 0
+        this._pendingInputUnknown = false
       } else if (ch === '\x7f' || ch === '\b') {
         this._pendingInputLength = Math.max(0, this._pendingInputLength - 1)
       } else if (ch >= ' ') {
@@ -649,13 +675,69 @@ export default class AttachAddonCustom {
     }
   }
 
+  // The input line as the terminal renders it: absolute buffer row plus text,
+  // trailing blanks trimmed. null when there is nothing to read (no terminal,
+  // or a full-screen app owns the alternate screen).
+  _readInputLine = () => {
+    const buf = this.term?.buffer?.active
+    if (!buf || buf.type === 'alternate' || typeof buf.getLine !== 'function') {
+      return null
+    }
+    const row = (buf.baseY || 0) + (buf.cursorY || 0)
+    const line = buf.getLine(row)
+    return line ? { row, text: line.translateToString(true) } : null
+  }
+
+  // Sample the input line once xterm has parsed a chunk. While nothing is
+  // pending this is a prompt with an empty line - exactly the state a keepalive
+  // newline is harmless in - so it becomes the reference to compare against.
+  // Skipped while input is pending or of unknown length, so the echo of what
+  // the user typed (or a recalled command) never becomes the new reference.
+  _recordLineBaseline = () => {
+    if (this.disposed || this._pendingInputLength > 0 || this._pendingInputUnknown) {
+      return
+    }
+    const info = this._readInputLine()
+    this._lineBaseline = info ? { row: info.row, length: info.text.length } : null
+  }
+
+  // Would writing \n to the PTY submit something the user did not submit?
+  _lineHasUnsubmittedInput = () => {
+    // Never type into a password prompt: an empty password attempt can burn an
+    // auth attempt (and retry limits), a skipped keepalive only risks an idle
+    // timeout.
+    if (this._passwordPromptDetected) {
+      return true
+    }
+    // Typed characters with no echo back (read -s, a hidden prompt in a nested
+    // program): the screen can not show them, only the byte count knows.
+    if (this._pendingInputLength > 0) {
+      return true
+    }
+    const buf = this.term?.buffer?.active
+    if (buf && buf.type === 'alternate') {
+      // vim/less/top own the screen; a newline there inserts a line or pages
+      // forward instead of hitting an empty shell line.
+      return true
+    }
+    const info = this._readInputLine()
+    const base = this._lineBaseline
+    if (!info || !base) {
+      // No readable line yet: fall back to the keystroke tracking alone.
+      return this._pendingInputUnknown
+    }
+    // A longer line than the bare prompt - or a line on a different row, which
+    // is what a wrapped or recalled command looks like - means content.
+    return info.row !== base.row || info.text.length > base.length
+  }
+
   _checkKeepalive = () => {
     if (this.outputSuppressed) {
       return
     }
     // The keepalive makes the server write a newline to the PTY, which would
     // submit a command the user has typed but not yet run.
-    if (this._pendingInputLength > 0) {
+    if (this._lineHasUnsubmittedInput()) {
       return
     }
     const now = Date.now()
