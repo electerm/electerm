@@ -6,6 +6,15 @@ const { request } = require('http')
 const { isIP } = require('net')
 
 /**
+ * url hostname without the brackets a URL keeps around an IPv6 literal
+ * @param {string} hostname
+ * @return {string}
+ */
+function plainHostname (hostname) {
+  return hostname.replace(/^\[(.*)\]$/, '$1')
+}
+
+/**
  * socks proxy address from a URL hostname
  * URL keeps the brackets around an IPv6 hostname ([::1]), which is not
  * something net.connect can resolve, so drop them, and use net.isIP so
@@ -14,7 +23,7 @@ const { isIP } = require('net')
  * @return {object} {ipaddress} or {host}
  */
 function proxyAddress (hostname) {
-  const addr = hostname.replace(/^\[(.*)\]$/, '$1')
+  const addr = plainHostname(hostname)
   return isIP(addr) ? { ipaddress: addr } : { host: addr }
 }
 
@@ -51,7 +60,11 @@ module.exports = (initOptions) => {
       const opts = {
         agent: false,
         protocol,
-        hostname,
+        // same bracket problem as the socks branch below: http.request
+        // connects to hostname, so '[::1]' goes to dns.lookup and fails.
+        // `host` stays as proxyURL.host, where the brackets belong, since it
+        // is what ends up in the Host header
+        hostname: plainHostname(hostname),
         port: proxyPort,
         host: proxyHost,
         path: `${host}:${port}`,
