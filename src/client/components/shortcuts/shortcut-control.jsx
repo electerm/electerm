@@ -78,6 +78,9 @@ class ShortcutControl extends React.PureComponent {
     const { type } = lastClickedFile
     const { inputFocus } = activeSftp
 
+    if (!inputFocus && activeSftp.handleTypeToFilter(e)) {
+      return
+    }
     if (keyControlPressed(e) && keyPressed(e, 'keyA') && !inputFocus) {
       e.stopPropagation()
       activeSftp.selectAll(type, e)
