@@ -194,27 +194,20 @@ export default function ThemeForm (props) {
     if (!id) {
       return null
     }
-    if (readonly) {
-      return (
-        <FormItem>
-          <Button
-            type='primary'
-            className='mg1r mg1b'
-            onClick={applyOnly}
-          >
-            {e('apply')}
-          </Button>
-          <Button
-            type='dashed'
-            onClick={exporter}
-          >
-            {e('export')}
-          </Button>
-        </FormItem>
-      )
-    }
+    // every theme that exists can be applied from the form, including the ones
+    // that cannot be edited (the built-in defaults, the iterm themes). There
+    // "apply" is the only thing to do, so it is the primary button; on an
+    // editable theme the primary action stays "save and apply" below and this
+    // one only switches to the theme as saved
     return (
       <FormItem>
+        <Button
+          type={disabled ? 'primary' : 'default'}
+          className='mg1r mg1b'
+          onClick={applyOnly}
+        >
+          {e('apply')}
+        </Button>
         <Button
           type='dashed'
           onClick={exporter}
