@@ -172,6 +172,8 @@ npm i -g electerm
 
 ![electerm-wechat-group-qr.jpg](https://electerm.org/electerm-wechat-group-qr.jpg)
 
+![electerm-telegram-group-qr.jpg](https://github.com/electerm/electerm-resource/blob/master/static/images/telegram-qr.jpg?raw=true)
+
 ## Support
 
 Would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [Start a new discussion](https://github.com/electerm/electerm/discussions/new), [create/fix language files](https://github.com/electerm/electerm-locales) or create pull requests, all welcome.

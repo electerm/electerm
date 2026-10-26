@@ -171,6 +171,8 @@ npm i -g electerm
 
 ![electerm-wechat-group-qr.jpg](https://electerm.org/electerm-wechat-group-qr.jpg)
 
+![electerm-telegram-group-qr.jpg](https://github.com/electerm/electerm-resource/blob/master/static/images/telegram-qr.jpg?raw=true)
+
 ## サポート
 
 ぜひご意見をお聞かせください。[issue の投稿](https://github.com/electerm/electerm/issues)、[新しいディスカッションの開始](https://github.com/electerm/electerm/discussions/new)、[言語ファイルの作成・修正](https://github.com/electerm/electerm-locales)、プルリクエストの作成など、どれも歓迎します。

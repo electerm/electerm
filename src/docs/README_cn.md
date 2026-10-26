@@ -172,6 +172,8 @@ npm i -g electerm
 
 ![electerm-wechat-group-qr.jpg](https://electerm.org/electerm-wechat-group-qr.jpg)
 
+![electerm-telegram-group-qr.jpg](https://github.com/electerm/electerm-resource/blob/master/static/images/telegram-qr.jpg?raw=true)
+
 ## 支持
 
 欢迎[提交问题/建议](https://github.com/electerm/electerm/issues), [展开讨论](https://github.com/electerm/electerm/discussions/new), [修复或者创建语言文件](https://github.com/electerm/electerm-locales)或者贡献代码。
