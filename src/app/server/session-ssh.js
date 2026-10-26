@@ -363,7 +363,14 @@ class TerminalSshBase extends TerminalBase {
     }
   }
 
-  onKeyboardEvent (options, passwordOverride) {
+  /**
+   * `ownerConn` is the connection whose callbacks asked this question (host key
+   * trust, keyboard-interactive). Only such a prompt dies with its connection.
+   * A prompt from the retry chain (username / password / passphrase) is created
+   * *after* the attempt that failed, for the attempt that has not started yet,
+   * so no connection owns it - see abortPendingPrompts.
+   */
+  onKeyboardEvent (options, passwordOverride, ownerConn) {
     if (options?.mode !== 'confirm' && this.initOptions?.interactiveValues) {
       return Promise.resolve(this.initOptions.interactiveValues.split('\n'))
     }
@@ -414,35 +421,46 @@ class TerminalSshBase extends TerminalBase {
         }
         resolve(results)
       }, id)
-      this.pendingPrompts.set(id, () => {
-        this.pendingPrompts.delete(id)
-        dispose?.()
-        this.ws?.s({
-          action: interactiveCloseAction,
-          id,
-          tabId
-        })
-        reject(new Error('User cancel'))
+      this.pendingPrompts.set(id, {
+        owner: ownerConn || null,
+        abort: () => {
+          this.pendingPrompts.delete(id)
+          dispose?.()
+          this.ws?.s({
+            action: interactiveCloseAction,
+            id,
+            tabId
+          })
+          reject(new Error('User cancel'))
+        }
       })
     })
   }
 
   /**
-   * Take back every prompt still waiting for an answer. The renderer shows the
-   * prompt as a plain modal with no session to observe, so it can not notice on
-   * its own that the attempt which asked the question is gone: without this the
-   * dialog stays up (and blocks the window) after the handshake has already
-   * timed out underneath it.
+   * Take back every prompt still waiting for an answer that `ownerConn` asked
+   * for (all of them when called without a connection, e.g. on kill). The
+   * renderer shows the prompt as a plain modal with no session to observe, so
+   * it can not notice on its own that the attempt which asked the question is
+   * gone: without this the dialog stays up (and blocks the window) after the
+   * handshake has already timed out underneath it.
+   *
+   * Ownership matters: an auth failure ends with the socket closing, but by
+   * then the failure itself has asked the user for the next credential. That
+   * prompt belongs to the next attempt, and aborting it here made every
+   * password / OTP login die with "User cancel" a millisecond after the dialog
+   * appeared (#4646).
    */
-  abortPendingPrompts () {
-    if (!this.pendingPrompts.size) {
+  abortPendingPrompts (ownerConn) {
+    const targets = [...this.pendingPrompts.values()]
+      .filter(prompt => !ownerConn || prompt.owner === ownerConn)
+    if (!targets.length) {
       return
     }
-    const aborts = [...this.pendingPrompts.values()]
-    for (const abort of aborts) {
-      abort()
+    for (const prompt of targets) {
+      // removes itself from pendingPrompts, disposes its ws listener, rejects
+      prompt.abort()
     }
-    this.pendingPrompts.clear()
     this.interactiveAborted = true
   }
 
@@ -833,7 +851,7 @@ class TerminalSshBase extends TerminalBase {
       connectOptions.hostVerifier = createHostVerifier({
         ...verifyTarget,
         confirm: async (options) => {
-          const results = await this.onKeyboardEvent(options)
+          const results = await this.onKeyboardEvent(options, undefined, conn)
           return results && results[0] === (options.confirmResult || 'trust')
         },
         onError: (err) => {
@@ -881,7 +899,7 @@ class TerminalSshBase extends TerminalBase {
           instructionsLang,
           prompts
         }
-        this.onKeyboardEvent(options, connectOptions.password ?? this.initOptions?.password ?? null)
+        this.onKeyboardEvent(options, connectOptions.password ?? this.initOptions?.password ?? null, conn)
           .then(finish)
           .catch(reject)
       })
@@ -932,11 +950,11 @@ class TerminalSshBase extends TerminalBase {
           // Whatever prompt asked for input on this connection can not be
           // answered any more. Take it back before the renderer hears that the
           // attempt failed, so the dialog is already gone when the error shows.
-          this.abortPendingPrompts()
+          this.abortPendingPrompts(conn)
           reject(this.hostVerificationError || err)
         })
         // a dropped connection does not always surface as an 'error'
-        .on('close', () => this.abortPendingPrompts())
+        .on('close', () => this.abortPendingPrompts(conn))
         .connect(connectOptions)
     })
   }
@@ -1275,6 +1293,9 @@ class TerminalSshBase extends TerminalBase {
   }
 
   kill () {
+    // a dialog still up belongs to this session; take it down with the session
+    // (and release the reply listener it holds on the ws)
+    this.abortPendingPrompts()
     // close the transports first, then drop the references: doKill() can only
     // close what it can still see, and this used to null conn/conns before
     // calling it, so the ssh connection (plus jump-host hops, and any ssh
