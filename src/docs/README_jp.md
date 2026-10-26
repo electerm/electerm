@@ -169,9 +169,9 @@ npm i -g electerm
 
 [ディスカッションボード](https://github.com/electerm/electerm/discussions)
 
-![electerm-wechat-group-qr.jpg](https://electerm.org/electerm-wechat-group-qr.jpg)
+<img src="https://electerm.org/electerm-wechat-group-qr.jpg" width="300" alt="electerm WeChat group QR code">
 
-![electerm-telegram-group-qr.jpg](https://github.com/electerm/electerm-resource/blob/master/static/images/telegram-qr.jpg?raw=true)
+<img src="https://github.com/electerm/electerm-resource/blob/master/static/images/telegram-qr.png?raw=true" width="300" alt="electerm Telegram group QR code">
 
 ## サポート
 
