@@ -291,7 +291,6 @@ export default class Sftp extends Component {
   // (or last clicked) file list. Returns true when the event was consumed.
   handleTypeToFilter = (e) => {
     if (
-      !this.props.config.sftpTypeToFilter ||
       e.type !== 'keydown' ||
       e.ctrlKey || e.metaKey || e.altKey || e.isComposing ||
       this.state.onEditFile
@@ -1332,8 +1331,7 @@ export default class Sftp extends Component {
           'onInputBlur',
           'toggleShowHiddenFile',
           'goParent',
-          'onClickHistory',
-          'updateKeyword'
+          'onClickHistory'
         ]
       ),
       ...pick(
@@ -1345,8 +1343,7 @@ export default class Sftp extends Component {
           `${type}Path`,
           `${type}PathHistory`,
           `${type}InputFocus`,
-          'loadingSftp',
-          `${type}Keyword`
+          'loadingSftp'
         ]
       )
     }

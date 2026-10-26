@@ -917,7 +917,6 @@ export default (Store) => {
       'autoRefreshWhenSwitchToSftp',
       'addTimeStampToTermLog',
       'showHiddenFilesOnSftpStart',
-      'sftpTypeToFilter',
       'terminalInfos',
       'remoteMonitorBarEnabled',
       'remoteMonitorBarItems',

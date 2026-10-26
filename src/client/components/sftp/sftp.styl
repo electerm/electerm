@@ -181,11 +181,6 @@
   position fixed
   z-index 999
 
-.keyword-filter-icon
-  &:hover
-  &.active
-    color var(--success)
-
 .sftp-keyword-bar
   display flex
   align-items center
@@ -194,6 +189,8 @@
   padding-bottom 4px
   background var(--main-darker)
   border-bottom 1px solid var(--primary)
+  .sftp-keyword-bar-icon
+    color var(--success)
   .sftp-keyword-bar-text
     flex 1
     min-width 0

@@ -20,7 +20,6 @@ import {
 } from '../../common/constants'
 import classnames from 'classnames'
 import AddrBookmark from './address-bookmark'
-import KeywordFilter from './keyword-filter'
 
 const e = window.translate
 
@@ -33,11 +32,6 @@ function AddressPrefixIcons (props) {
   const isShow = props[`${type}ShowHiddenFile`]
   const title = `${isShow ? e('hide') : e('show')} ${e('hfd')}`
   const Icon = isShow ? EyeFilled : EyeInvisibleFilled
-  const keywordProps = {
-    keyword: props[`${type}Keyword`],
-    type,
-    updateKeyword: props.updateKeyword
-  }
   return (
     <>
       <Tooltip
@@ -65,7 +59,6 @@ function AddressPrefixIcons (props) {
         onClick={() => props.gotoHome(type)}
         className='mg1r'
       />
-      <KeywordFilter {...keywordProps} />
       <AddrBookmark
         store={window.store}
         realPath={realPath}

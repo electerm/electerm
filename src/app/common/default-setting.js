@@ -45,7 +45,6 @@ module.exports = exports.default = {
   backspaceMode: '^?',
   shiftEnterMode: '\\n',
   showHiddenFilesOnSftpStart: true,
-  sftpTypeToFilter: false,
   terminalInfos: [
     'uptime',
     'cpu',
