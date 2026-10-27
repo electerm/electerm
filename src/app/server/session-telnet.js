@@ -4,6 +4,7 @@
 const _ = require('../lib/lodash.js')
 const log = require('../common/log')
 const { Telnet } = require('./telnet')
+const { createRxConverter, convertTx } = require('./line-ending')
 const { TerminalBase } = require('./session-base')
 const globalState = require('./global-state')
 const iconv = require('iconv-lite')
@@ -34,6 +35,10 @@ class TerminalTelnet extends TerminalBase {
     const connection = new Telnet()
 
     const { initOptions } = this
+    // Telnet to a serial port server has no line discipline anywhere in the
+    // path, so the same two knobs the serial session has apply here (#4649)
+    this.txLineEnding = initOptions.txLineEnding || '\r'
+    this.rxConverter = createRxConverter(initOptions.rxLineEnding)
     const shellOpts = {
       highWaterMark: 64 * 1024 * 16
     }
@@ -91,11 +96,50 @@ class TerminalTelnet extends TerminalBase {
   }
 
   on = (event, cb) => {
+    if (event === 'data' && this.rxConverter) {
+      const wrapper = (data) => {
+        const isBuffer = Buffer.isBuffer(data)
+        const str = isBuffer ? data.toString('latin1') : String(data)
+        const converted = this.rxConverter(str)
+        cb(isBuffer ? Buffer.from(converted, 'latin1') : converted)
+      }
+      // off() is always called with the original callback, never the wrapper,
+      // so the wrapper has to be remembered to detach it on close
+      if (!this._onWrappers) {
+        this._onWrappers = new Map()
+      }
+      let list = this._onWrappers.get(cb)
+      if (!list) {
+        list = []
+        this._onWrappers.set(cb, list)
+      }
+      list.push({ event, wrapper })
+      this.port.on(event, wrapper)
+      return
+    }
     this.port.on(event, cb)
   }
 
   off = (event, cb) => {
     try {
+      const list = this._onWrappers?.get(cb)
+      if (list) {
+        const remaining = []
+        for (const entry of list) {
+          if (entry.event === event) {
+            try {
+              this.port?.removeListener?.(event, entry.wrapper)
+            } catch (_) {}
+          } else {
+            remaining.push(entry)
+          }
+        }
+        if (remaining.length) {
+          this._onWrappers.set(cb, remaining)
+        } else {
+          this._onWrappers.delete(cb)
+        }
+      }
       this.port?.removeListener?.(event, cb)
     } catch (_) {
       // ignore removal errors during teardown
@@ -105,16 +149,20 @@ class TerminalTelnet extends TerminalBase {
   write = (data) => {
     try {
       const encode = this.initOptions?.encode
-      if (encode && !utf8Aliases.has(encode.toLowerCase()) && typeof data === 'string') {
+      const isBuffer = Buffer.isBuffer(data)
+      const str = convertTx(
+        isBuffer ? data.toString('latin1') : String(data),
+        this.txLineEnding
+      )
+      if (encode && !utf8Aliases.has(encode.toLowerCase()) && !isBuffer) {
         try {
-          const buf = iconv.encode(data, encode)
-          this.port.write(buf)
+          this.port.write(iconv.encode(str, encode))
           return
         } catch (e) {
           log.warn('iconv encode failed, falling back to raw write:', e.message)
         }
       }
-      this.port.write(data)
+      this.port.write(isBuffer ? Buffer.from(str, 'latin1') : str)
       // this.writeLog(data)
     } catch (e) {
       log.error(e)

@@ -1,8 +1,8 @@
 import { formItemLayout } from '../../../common/form-layout.js'
-import { terminalSerialType, commonBaudRates, commonDataBits, commonStopBits, commonParities, commonTxLineEndings, commonRxLineEndings } from '../../../common/constants.js'
+import { terminalSerialType, commonBaudRates, commonDataBits, commonStopBits, commonParities } from '../../../common/constants.js'
 import defaultSettings from '../../../common/default-setting.js'
 import { createBaseInitValues, getTerminalBackgroundDefaults } from '../common/init-values.js'
-import { commonFields, triggersTab } from './common-fields.js'
+import { commonFields, lineEndingFields, triggersTab } from './common-fields.js'
 
 const e = window.translate
 
@@ -20,6 +20,8 @@ const serialConfig = {
       xon: false,
       xoff: false,
       xany: false,
+      txLineEnding: '\r',
+      rxLineEnding: 'none',
       closeSequence: '\\x01ky',
       closeSequenceDelay: 500,
       term: defaultSettings.terminalType,
@@ -59,8 +61,7 @@ const serialConfig = {
         { type: 'switch', name: 'xon', label: 'xon', valuePropName: 'checked' },
         { type: 'switch', name: 'xoff', label: 'xoff', valuePropName: 'checked' },
         { type: 'switch', name: 'xany', label: 'xany', valuePropName: 'checked' },
-        { type: 'select', name: 'txLineEnding', label: 'txLineEnding', options: commonTxLineEndings.map(d => ({ value: d.value, label: d.label })) },
-        { type: 'select', name: 'rxLineEnding', label: 'rxLineEnding', options: commonRxLineEndings.map(d => ({ value: d.value, label: d.label })) },
+        ...lineEndingFields,
         {
           type: 'input',
           name: 'closeSequence',

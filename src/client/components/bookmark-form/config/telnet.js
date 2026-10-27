@@ -7,7 +7,7 @@ import {
   getTerminalBackgroundDefaults,
   getAuthTypeDefault
 } from '../common/init-values.js'
-import { telnetAuthFields, terminalSettings, quickCommandsTab, triggersTab } from './common-fields.js'
+import { telnetAuthFields, terminalSettings, lineEndingFields, commonFields, quickCommandsTab, triggersTab } from './common-fields.js'
 
 const e = window.translate
 
@@ -22,6 +22,8 @@ const telnetConfig = {
       password: 'guest',
       authType: authTypeMap.password,
       term: defaultSettings.terminalType,
+      txLineEnding: '\r',
+      rxLineEnding: 'none',
       ...getSshDefaults(),
       ...getTerminalBackgroundDefaults(defaultSettings),
       ...getAuthTypeDefault(props)
@@ -37,7 +39,14 @@ const telnetConfig = {
     {
       key: 'settings',
       label: e('settings'),
-      fields: terminalSettings
+      // Line endings sit with the rest of the terminal behaviour, and the
+      // background picker stays last - it is the one field that renders a
+      // whole sub-form
+      fields: [
+        ...terminalSettings.slice(0, -1),
+        ...lineEndingFields,
+        commonFields.terminalBackground
+      ]
     },
     quickCommandsTab(),
     triggersTab()

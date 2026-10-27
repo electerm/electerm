@@ -71,6 +71,8 @@ const bookmarkSchema = {
     description: 'string - bookmark description',
     loginPrompt: 'string - login prompt regex',
     passwordPrompt: 'string - password prompt regex',
+    txLineEnding: 'string - TX line ending on Enter: "\\r" (CR, default), "\\n" (LF), "\\r\\n" (CR+LF)',
+    rxLineEnding: 'string - RX line ending conversion: "none" (default), "lf_to_crlf" (for LF-only devices), "cr_to_crlf" (for CR-only devices)',
     runScripts: 'array - run scripts after connected ({delay,script})',
     triggers: 'array - declarative auto triggers, same shape as ssh.triggers',
     startDirectoryRemote: 'string - remote starting directory',

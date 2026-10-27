@@ -438,7 +438,15 @@ if (type === 'rdp') {
               // so \x00 (NUL) sits in the buffer and never wakes bash up.
               // A newline wakes bash's read(), resets the TMOUT alarm, and bash
               // simply re-displays the prompt.  The client suppresses that echo.
-              term.write('\n\r\x1b[K')
+              // This is a protocol-level byte sequence, not typed input, so it
+              // bypasses any tx line-ending rewriting - the same reason XMODEM
+              // data goes through writeRaw.
+              const wake = '\n\r\x1b[K'
+              if (typeof term.writeRaw === 'function') {
+                term.writeRaw(wake)
+              } else {
+                term.write(wake)
+              }
               return
             }
           } catch (e) {

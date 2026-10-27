@@ -61,9 +61,11 @@ async function startFtpServer () {
   }
 }
 
-async function startTelnetServer () {
+async function startTelnetServer (eol = '\r\n') {
   const port = await getFreePort(32000, 32999)
   const sockets = new Set()
+  // Everything the client sent, for asserting the tx line ending
+  let rawInput = ''
 
   function waitForIdle (timeout = 5000) {
     if (sockets.size === 0) {
@@ -96,6 +98,7 @@ async function startTelnetServer () {
 
     socket.on('data', (chunk) => {
       buffer += chunk
+      rawInput += chunk
 
       while (buffer.includes('\n')) {
         const endIndex = buffer.indexOf('\n')
@@ -107,7 +110,7 @@ async function startTelnetServer () {
             stage = 'password'
             socket.write('Password: ')
           } else {
-            socket.write('login incorrect\r\nlogin: ')
+            socket.write(`login incorrect${eol}login: `)
           }
           continue
         }
@@ -115,15 +118,15 @@ async function startTelnetServer () {
         if (stage === 'password') {
           if (line === TELNET_PASSWORD) {
             stage = 'shell'
-            socket.write('Welcome to electerm\r\n$ ')
+            socket.write(`Welcome to electerm${eol}$ `)
           } else {
-            socket.write('Login failed\r\n')
+            socket.write(`Login failed${eol}`)
             socket.end()
           }
           continue
         }
 
-        socket.write(`echo:${line}\r\n$ `)
+        socket.write(`echo:${line}${eol}$ `)
       }
     })
 
@@ -138,6 +141,7 @@ async function startTelnetServer () {
   return {
     port,
     waitForIdle,
+    getRawInput: () => rawInput,
     async close () {
       await waitForIdle().catch(() => {})
       for (const socket of sockets) {
@@ -188,6 +192,32 @@ function waitForText (emitter, matcher, timeout = 5000) {
     emitter.on('close', onClose)
     emitter.on('end', onClose)
   })
+}
+
+// Collects output through the session's own on('data') hook - the same layer
+// the websocket forwarder uses - so rx line-ending conversion is in the path.
+// Reading term.port directly would bypass it.
+function sessionOutput (term) {
+  const chunks = []
+  const onData = (data) => chunks.push(data.toString())
+  term.on('data', onData)
+  const text = () => chunks.join('')
+  return {
+    text,
+    async waitFor (matcher, timeout = 5000) {
+      const start = Date.now()
+      while (Date.now() - start < timeout) {
+        if (matcher(text())) {
+          return text()
+        }
+        await new Promise(resolve => setTimeout(resolve, 20))
+      }
+      throw new Error(`Timed out waiting for session output. Received: ${text()}`)
+    },
+    stop () {
+      term.off('data', onData)
+    }
+  }
 }
 
 describe('session-ftp transport flows', () => {
@@ -377,5 +407,46 @@ describe('session-telnet transport flows', () => {
     term = null
 
     assert.equal(globalState.getSession('telnet-session-ci'), undefined)
+  })
+
+  test('applies tx/rx line endings for a bare-CR serial gateway', async () => {
+    await telnetServer.close()
+    telnetServer = await startTelnetServer('\r')
+
+    term = await sessionTelnet.session({
+      uid: 'telnet-session-line-ending',
+      host: '127.0.0.1',
+      port: telnetServer.port,
+      username: TELNET_USERNAME,
+      password: TELNET_PASSWORD,
+      loginPrompt: '/login[: ]*$/i',
+      passwordPrompt: '/password[: ]*$/i',
+      readyTimeout: 5000,
+      txLineEnding: '\r\n',
+      rxLineEnding: 'cr_to_crlf'
+    })
+    term.channel.on('error', () => {})
+    term.channel.socket.on('error', () => {})
+
+    const output = sessionOutput(term)
+
+    // The device ends every line with a bare CR. Without the conversion the
+    // next line is printed on top of this one - the #4649 symptom
+    await output.waitFor(t => t.includes('Welcome to electerm\r\n'))
+
+    // Enter arrives from the renderer as a CR; the device wants CRLF
+    term.write('status\r')
+    await output.waitFor(t => t.includes('echo:status\r\n$ '))
+
+    assert.match(telnetServer.getRawInput(), /status\r\n/)
+    // Exactly one line ending per line, no doubled CR/LF from a chunk split
+    assert.doesNotMatch(output.text(), /\r\r\n|\r\n\n/)
+
+    output.stop()
+    term.kill()
+    await telnetServer.waitForIdle()
+    term = null
+
+    assert.equal(globalState.getSession('telnet-session-line-ending'), undefined)
   })
 })

@@ -2,7 +2,11 @@
  * Common field definitions shared across multiple configs
  * Reduces duplication and ensures consistency
  */
-import { terminalTypes } from '../../../common/constants'
+import {
+  terminalTypes,
+  commonTxLineEndings,
+  commonRxLineEndings
+} from '../../../common/constants'
 import defaultSettings from '../../../common/default-setting'
 import encodes from '../common/encodes'
 import { isEmpty } from 'lodash-es'
@@ -274,6 +278,25 @@ export const terminalSettings = [
   commonFields.fontSize,
   commonFields.keepaliveInterval,
   commonFields.terminalBackground
+]
+
+// Line-ending conversion, for the transports that have no pty line discipline
+// in front of them (serial, telnet). Kept in one place so both forms offer the
+// same values - the labels are plain English on purpose, TX/RX plus CR/LF are
+// the terms every terminal calls them by and there is no locale key for them.
+export const lineEndingFields = [
+  {
+    type: 'select',
+    name: 'txLineEnding',
+    label: 'TX line ending',
+    options: commonTxLineEndings.map(d => ({ value: d.value, label: d.label }))
+  },
+  {
+    type: 'select',
+    name: 'rxLineEnding',
+    label: 'RX line ending',
+    options: commonRxLineEndings.map(d => ({ value: d.value, label: d.label }))
+  }
 ]
 
 export const sshSettings = [
