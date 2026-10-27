@@ -42,6 +42,7 @@ import { safeGetItemJSON, safeSetItemJSON } from '../../common/safe-local-storag
 import { copy } from '../../common/clipboard'
 import message from '../common/message'
 import openWidgetTab from './widget-open-tab'
+import WidgetAIConfig from './widget-ai-config'
 import {
   renderConfigItem,
   configInitialValues
@@ -142,9 +143,10 @@ function ResultView ({ result, busy, onAction, onBack, canBack }) {
     messageType,
     details,
     table,
-    buttons
+    buttons,
+    aiConfig
   } = result
-  const known = msg || (details && details.length) || (table && table.rows) || (buttons && buttons.length)
+  const known = msg || (details && details.length) || (table && table.rows) || (buttons && buttons.length) || aiConfig
   const toggle = (key) => setRevealed(old => ({ ...old, [key]: !old[key] }))
 
   return (
@@ -274,6 +276,7 @@ function ResultView ({ result, busy, onAction, onBack, canBack }) {
         />
       )}
       <ResultButtons buttons={buttons} busy={busy} onAction={onAction} />
+      <WidgetAIConfig aiConfig={aiConfig} store={window.store} />
       {!known && (
         <pre className='cwf-json'>
           {typeof result === 'string' ? result : JSON.stringify(result, null, 2)}

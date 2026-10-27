@@ -80,6 +80,9 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
         title: `${widget.info.name} (${result.instanceId})`,
         widgetId: result.widgetId,
         serverInfo: result.serverInfo,
+        // an AI config the widget offers to apply, sanitised in the main
+        // process (app/widgets/ai-config.js)
+        aiConfig: result.aiConfig || null,
         config,
         startedAt: Date.now()
       }

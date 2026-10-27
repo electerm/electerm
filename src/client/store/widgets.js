@@ -69,6 +69,28 @@ export default Store => {
     return window.pre.runGlobalAsync('runWidgetFunc', instanceId, funcName, ...args)
   }
 
+  // Apply the AI config a widget proposed with its result (see
+  // app/widgets/ai-config.js, which whitelists the fields in the main process).
+  // The renderer writes it, on purpose: store.config is what the AI settings
+  // form edits and what the watcher persists, so a widget's offer goes through
+  // exactly the same path as a hand-typed one instead of around it.
+  Store.prototype.applyWidgetAIConfig = (aiConfig) => {
+    if (!aiConfig || typeof aiConfig !== 'object') {
+      return
+    }
+    const patch = {}
+    for (const key of Object.keys(aiConfig)) {
+      if (typeof aiConfig[key] === 'string') {
+        patch[key] = aiConfig[key]
+      }
+    }
+    if (!Object.keys(patch).length) {
+      return
+    }
+    window.store.updateConfig(patch)
+    message.success('AI settings updated')
+  }
+
   Store.prototype.openWidgetsModal = () => {
     const {
       store
@@ -118,6 +140,9 @@ export default Store => {
             title: `${result.widgetId} (${result.instanceId})`,
             widgetId: result.widgetId,
             serverInfo: result.serverInfo,
+            // an AI config the widget offers to apply, sanitised in the main
+            // process (app/widgets/ai-config.js)
+            aiConfig: result.aiConfig || null,
             config: item.config,
             startedAt: Date.now(),
             autoRun: true,

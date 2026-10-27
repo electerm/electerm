@@ -131,6 +131,59 @@
   color var(--text-disabled)
   font-size 11px
 
+// an AI config a widget offers to apply (widget-ai-config.jsx). Sits between
+// the instance facts and the log, and in the config-mode result view.
+.wac
+  flex-shrink 0
+  margin 10px 0
+  padding 8px 10px
+  border 1px solid var(--main-light)
+  border-radius 4px
+  background var(--main-dark)
+.wac-head
+  display flex
+  align-items center
+  gap 8px
+  margin-bottom 4px
+.wac-title
+  font-size 12px
+  font-weight 500
+.wac-desc
+  margin 0 0 6px
+  color var(--text-dark)
+  font-size 11px
+.wac-rows
+  display flex
+  flex-direction column
+  gap 2px
+  margin-bottom 8px
+.wac-row
+  display flex
+  gap 8px
+  align-items flex-start
+  font-size 12px
+.wac-label
+  flex 0 0 90px
+  color var(--text-dark)
+  white-space nowrap
+.wac-value
+  flex 1
+  min-width 0
+  display flex
+  align-items center
+  gap 2px
+  font-family monospace
+  word-break break-all
+.wac-secret
+  display flex
+  align-items center
+  gap 2px
+  min-width 0
+  max-width 100%
+.wac-secret-text
+  min-width 60px
+  font-family monospace
+
 // user widget list: the import button owns a row of its own above the search
 // box, with the wiki help icon beside it (widgets-list.jsx)
 .widgets-import-row
