@@ -12,7 +12,6 @@ import {
 } from '@ant-design/icons'
 import { Tabs, Button } from 'antd'
 import Modal from '../common/modal'
-import Link from '../common/external-link'
 import LogoElem from '../common/logo-elem'
 import Placeholder from '../common/placeholder'
 import RunningTime from './app-running-time'
@@ -27,6 +26,39 @@ import { checkSkipSrc } from '../../common/check-skip-src'
 import './info.styl'
 
 const e = window.translate
+
+const stripProto = url => (url || '').replace(/^https?:\/\//, '').replace(/\/+$/, '')
+
+// One settings style row: name over a muted address. The address is its own
+// line because a url inside a sentence wraps three times on a phone; `.elli`
+// keeps it one line on both form factors, so no per-breakpoint rules are
+// needed anywhere in this page.
+function AboutRow (props) {
+  const {
+    icon,
+    title,
+    sub,
+    to
+  } = props
+  const attrs = to
+    ? {
+        href: to,
+        onClick: ev => {
+          ev.preventDefault()
+          window.pre.openExternal(to)
+        }
+      }
+    : {}
+  return (
+    <a className='about-row' {...attrs}>
+      {icon}
+      <span className='about-row-text'>
+        <span className='block elli'>{title}</span>
+        {sub && <span className='block elli font12 about-row-sub'>{sub}</span>}
+      </span>
+    </a>
+  )
+}
 
 export default auto(function InfoModal (props) {
   const [runtimeEnv, setRuntimeEnv] = useState(null)
@@ -152,6 +184,18 @@ export default auto(function InfoModal (props) {
     ...versions,
     ...(runtimeEnv || {})
   }
+  const aboutRows = [
+    { icon: <HomeOutlined />, title: e('homepage'), to: homepage },
+    { icon: <GithubOutlined />, title: 'GitHub', to: link },
+    { icon: <HighlightOutlined />, title: e('changeLog'), to: releaseLink },
+    { icon: <AlignLeftOutlined />, title: e('knownIssues'), to: knownIssuesLink },
+    { icon: <BugOutlined />, title: e('bugReport'), to: bugReportLink },
+    { icon: <GlobalOutlined />, title: `${e('language')} repo`, to: languageRepo },
+    { icon: <CloudOutlined />, title: 'electerm Online', to: electermOnline },
+    { icon: <HeartOutlined />, title: e('sponsorElecterm'), to: sponsorLink },
+    { icon: <UserOutlined />, title: authorName, sub: email, to: authorUrl },
+    { icon: <InfoCircleOutlined />, title: e('privacyNotice'), to: privacyNoticeLink }
+  ]
   const title = (
     <div className='custom-modal-close-confirm-title font16'>
       <InfoCircleOutlined className='font20 mg1r' /> {e('about')} {name}
@@ -159,7 +203,7 @@ export default auto(function InfoModal (props) {
   )
   const attrs = {
     title,
-    width: window.innerWidth - 100,
+    width: 720,
     maskClosable: true,
     onCancel: onCloseAbout,
     open: true,
@@ -174,69 +218,21 @@ export default auto(function InfoModal (props) {
           <LogoElem />
           <p className='mg2b'>{e('desc')}</p>
           <RunningTime />
-          <p className='mg1b'>
-            <HomeOutlined /> <b>{e('homepage')}/{e('download')} ➾</b>
-            <Link to={homepage} className='mg1l'>
-              {homepage}
-            </Link>
-          </p>
-          <p className='mg1b'>
-            <UserOutlined /> <b className='mg1r'>{e('author')} ➾</b>
-            <Link to={authorUrl} className='mg1l'>
-              {authorName} ({email})
-            </Link>
-          </p>
-          <p className='mg1b'>
-            <GithubOutlined /> <b className='mg1r'>github ➾</b>
-            <Link to={link} className='mg1l'>
-              {link}
-            </Link>
-          </p>
-          <p className='mg1b'>
-            <GlobalOutlined /> <b className='mg1r'>{e('language')} repo ➾</b>
-            <Link to={languageRepo} className='mg1l'>
-              {languageRepo}
-            </Link>
-          </p>
-          <p className='mg1b'>
-            <BugOutlined /> <b className='mg1r'>{e('bugReport')} ➾</b>
-            <Link to={bugReportLink} className='mg1l'>
-              {bugReportLink}
-            </Link>
-          </p>
-          <p className='mg1b'>
-            <InfoCircleOutlined /> <b className='mg1r'>{e('privacyNotice')} ➾</b>
-            <Link to={privacyNoticeLink} className='mg1l'>
-              {privacyNoticeLink}
-            </Link>
-          </p>
-          <p className='mg1b'>
-            <HighlightOutlined /> <b className='mg1r'>{e('changeLog')} ➾</b>
-            <Link to={releaseLink} className='mg1l'>
-              {releaseLink}
-            </Link>
-          </p>
-          <p className='mg1b'>
-            <AlignLeftOutlined /> <b className='mg1r'>{e('knownIssues')} ➾</b>
-            <Link to={knownIssuesLink} className='mg1l'>
-              {knownIssuesLink}
-            </Link>
-          </p>
-          <p className='mg1b'>
-            <CloudOutlined /> <b className='mg1r'>electerm Online ➾</b>
-            <Link to={electermOnline} className='mg1l'>
-              {electermOnline}
-            </Link>
-          </p>
-          <p className='mg1b'>
-            <HeartOutlined /> <b className='mg1r'>{e('sponsorElecterm')} ➾</b>
-            <Link to={sponsorLink} className='mg1l'>
-              {sponsorLink}
-            </Link>
-          </p>
-          <p className='mg1b'>
-            <InfoCircleOutlined /> <b className='mg1r'>{window.store.installSrc}</b>
-          </p>
+          <div className='about-list'>
+            {aboutRows.map(({ icon, title, sub, to }, i) => (
+              <AboutRow
+                key={i}
+                icon={icon}
+                title={title}
+                sub={sub || stripProto(to)}
+                to={to}
+              />
+            ))}
+            <AboutRow
+              icon={<InfoCircleOutlined />}
+              title={window.store.installSrc}
+            />
+          </div>
           {renderCheckUpdate()}
           <Placeholder />
         </>

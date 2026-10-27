@@ -1,3 +1,9 @@
+// About page. A title row per link: the name on top, the address muted below.
+// The address is its own line because a url inside a sentence wraps three
+// times on a phone; `.elli` (text utilities) pins it to one line, so this needs
+// no per-breakpoint rules — the same 48px row on a 375px phone and a 1280px
+// window. Spacing, font sizes and truncation come from the utility classes in
+// the JSX.
 
 // from https://freefrontend.com/css-border-animations/
 .morph-shape
@@ -5,3 +11,23 @@
   border-radius 60% 40% 30% 70% / 60% 30% 70% 40%
   transition all 1s ease-in-out
   z-index 5
+
+// commander's helpInformation() has ~100 character lines
+
+.about-row
+  display flex
+  align-items center
+  gap 10px
+  min-height 48px
+  color var(--text)
+  text-decoration none
+  border-bottom 1px solid var(--main-light)
+  &:last-child
+    border-bottom none
+
+.about-row-text
+  flex 1
+  min-width 0
+
+.about-row-sub
+  color var(--text-light)
