@@ -6,11 +6,16 @@ const { createLogFileName } = require('../common/create-session-log-file-path')
 const SessionLog = require('./session-log')
 const time = require('../common/time.js')
 const globalState = require('./global-state')
+const { install: installStructuredClone } = require('./structured-clone-shim')
 
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
 
 function createVtParser (cols = 4096) {
+  // @xterm/headless calls structuredClone when a Terminal is built, and the
+  // Electron 22 legacy builds (Node 16) have no such global: without this a
+  // session with "Save terminal log to file" on dies here (#4650).
+  installStructuredClone()
   const { Terminal } = require('@xterm/headless')
   const term = new Terminal({ cols, rows: 50, allowProposedApi: true })
   return term
