@@ -36,6 +36,7 @@ import {
 import { auto } from 'manate/react'
 import { copy } from '../../common/clipboard'
 import parseWidgetLog from '../../common/parse-widget-log'
+import WidgetAIConfig from './widget-ai-config'
 import './widgets.styl'
 
 const e = window.translate
@@ -348,6 +349,7 @@ export default auto(function WidgetInstanceDetail ({ instance, store }) {
         column={1}
         items={infoItems}
       />
+      <WidgetAIConfig aiConfig={instance.aiConfig} store={store} />
       <Segmented
         className='wil-switch'
         size='small'
