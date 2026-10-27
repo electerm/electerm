@@ -1,5 +1,4 @@
 import {
-  logoPath1,
   logoPath2,
   logoPath3,
   packInfo
@@ -14,9 +13,6 @@ export default function LogoElem () {
         <img src={logoPath2} className='iblock mwm-100 mg1l mg1r logo-filter logo-img' />
       </span>
       <img src={logoPath3} className='hide logo-img' />
-      <sup>
-        <img src={logoPath1} className='iblock mwm-100 mg1r logo-img-small' />
-      </sup>
       <Tag color='#08c' variant='solid'>{packInfo.version}</Tag>
     </h1>
   )
