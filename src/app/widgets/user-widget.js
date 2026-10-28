@@ -24,6 +24,10 @@
  * Metadata is read from package.json only: listing a widget must never execute
  * its code, so a broken widget still shows up (as an error) instead of taking
  * the whole list down.
+ *
+ * A widget folder can come from the user's disk or from a git repository
+ * (github.com / atomgit.com, see ./widget-source.js); both are installed by
+ * `importWidget`, so the rules below hold for either.
  */
 
 const fs = require('fs')
@@ -35,6 +39,8 @@ const {
   resolveUserWidgetDir,
   isInside
 } = require('./paths')
+// only used by importWidgetFromSource, and it pulls in axios/tar lazily
+const { fetchWidgetSource } = require('./widget-source')
 
 const WORKER_DEFAULT_ENTRY = 'index.js'
 const WIDGET_TYPES = ['once', 'instance', 'frontend']
@@ -353,6 +359,28 @@ function importWidget (srcDir, overwrite = false) {
   return { id, success: true }
 }
 
+/**
+ * Install a widget straight from a git host (github.com / atomgit.com).
+ *
+ * The repo is downloaded into a temp folder, the widget folder inside it is
+ * resolved from its package.json, and the copy is then the same `importWidget`
+ * call a local folder goes through — one install path, one set of rules.
+ * `needOverwrite` comes back as-is, so the caller can ask and call again with
+ * `overwrite: true` (which re-downloads: the user is likely re-importing to pick
+ * up a newer version anyway).
+ */
+async function importWidgetFromSource (input, overwrite = false) {
+  const { dir, source, cleanup } = await fetchWidgetSource(input)
+  try {
+    return {
+      ...importWidget(dir, overwrite),
+      source: source.label
+    }
+  } finally {
+    cleanup()
+  }
+}
+
 function removeUserWidget (id) {
   const dir = resolveUserWidgetDir(id)
   if (!fs.existsSync(dir)) {
@@ -369,6 +397,7 @@ module.exports = {
   isUserWidget,
   purgeRequireCache,
   importWidget,
+  importWidgetFromSource,
   removeUserWidget,
   normalizeWidgetId,
   getUserWidgetDir

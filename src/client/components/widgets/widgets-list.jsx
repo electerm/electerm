@@ -15,6 +15,7 @@ import {
   WarningOutlined
 } from '@ant-design/icons'
 import WidgetInstances from './widget-instances'
+import WidgetImportModal from './widget-import-modal'
 import HelpIcon from '../common/help-icon'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
@@ -39,7 +40,7 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
   const [widgets, setWidgets] = useState([])
   const [keyword, setKeyword] = useState('')
   const [ready, setReady] = useState(false)
-  const [importing, setImporting] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -97,6 +98,41 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
       })
       return
     }
+    await afterInstall(result)
+  }
+
+  // Install from a repository: the main process downloads it, finds the widget
+  // folder inside it and copies that in, so the renderer only reads what came
+  // back. Errors are thrown on purpose — the import modal shows them under the
+  // input instead of in a toast that outlives the field.
+  const installFromSource = async (input, overwrite) => {
+    const result = await window.pre.runGlobalAsync(
+      'importWidgetFromSource',
+      input,
+      !!overwrite
+    )
+    // the modal is closed either way before asking: two overlays at the same
+    // z-index would stack in whatever order the DOM happens to have them
+    setImportOpen(false)
+    if (result && result.needOverwrite) {
+      Modal.confirm({
+        title: e('import') + '?',
+        content: `Widget "${result.id}" is already installed. Replace it with ${result.source}?`,
+        okText: e('import'),
+        cancelText: e('cancel'),
+        onOk: () => {
+          installFromSource(input, true).catch(err => {
+            console.error('import widget error', err)
+            message.error(err.message)
+          })
+        }
+      })
+      return
+    }
+    await afterInstall(result)
+  }
+
+  const afterInstall = async (result) => {
     const installed = await window.store.listWidgets()
     setWidgets(installed)
     const item = installed.find(w => w.id === result.id)
@@ -105,8 +141,8 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
     }
   }
 
-  const handleImport = async () => {
-    setImporting(true)
+  const handleChooseFolder = async () => {
+    setImportOpen(false)
     try {
       const dirs = await window.api.openDialog({
         title: e('import'),
@@ -119,8 +155,6 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
     } catch (err) {
       console.error('import widget error', err)
       message.error(err.message)
-    } finally {
-      setImporting(false)
     }
   }
 
@@ -218,8 +252,7 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
           <Button
             block
             icon={<ImportOutlined />}
-            loading={importing}
-            onClick={handleImport}
+            onClick={() => setImportOpen(true)}
           >
             {e('import')}
           </Button>
@@ -294,6 +327,12 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
             : renderInstancesSection()
         }
       </div>
+      <WidgetImportModal
+        open={importOpen}
+        onCancel={() => setImportOpen(false)}
+        onImport={(input) => installFromSource(input, false)}
+        onChooseFolder={handleChooseFolder}
+      />
     </div>
   )
 })

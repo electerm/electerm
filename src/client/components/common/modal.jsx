@@ -48,24 +48,10 @@ export default function Modal (props) {
     }
   }
 
-  if (!open) {
-    return null
-  }
-
-  const modalStyle = {
-    zIndex
-  }
-
-  const contentStyle = {
-    width: typeof width === 'number' ? `${width}px` : width
-  }
-
-  const cls = classnames(
-    'custom-modal-wrap',
-    wrapClassName,
-    className
-  )
-
+  // Declared before the `!open` early return on purpose: a hook after it would
+  // run on the open render but not on the closed one, and React refuses that
+  // ("Rendered more hooks than during the previous render") the first time a
+  // caller flips `open` from false to true.
   useEffect(() => {
     if (!open) return
 
@@ -88,6 +74,24 @@ export default function Modal (props) {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [open, onCancel])
+
+  if (!open) {
+    return null
+  }
+
+  const modalStyle = {
+    zIndex
+  }
+
+  const contentStyle = {
+    width: typeof width === 'number' ? `${width}px` : width
+  }
+
+  const cls = classnames(
+    'custom-modal-wrap',
+    wrapClassName,
+    className
+  )
 
   const contentCls = classnames(
     'custom-modal-content',

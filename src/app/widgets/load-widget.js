@@ -8,6 +8,7 @@ const {
   resolveUserWidgetEntry,
   isUserWidget,
   importWidget,
+  importWidgetFromSource,
   removeUserWidget,
   getUserWidgetDir
 } = require('./user-widget')
@@ -224,6 +225,12 @@ function importWidgetFolder (srcDir, overwrite) {
   return importWidget(srcDir, overwrite)
 }
 
+// Install from a git host: `owner/repo`, a GitHub/AtomGit URL, `owner/repo#ref`
+// or a folder inside the repo (see ./widget-source.js)
+function importWidgetFromUrl (input, overwrite) {
+  return importWidgetFromSource(input, overwrite)
+}
+
 // Uninstall: stop whatever it is running, then delete the folder.
 async function deleteWidget (widgetId) {
   const stops = []
@@ -328,6 +335,7 @@ module.exports = {
   runWidgetFunc,
   callWidgetFunc,
   importWidget: importWidgetFolder,
+  importWidgetFromSource: importWidgetFromUrl,
   deleteWidget,
   resolveWidgetModule
 }

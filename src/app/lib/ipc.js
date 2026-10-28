@@ -26,6 +26,7 @@ const {
   runWidgetFunc,
   callWidgetFunc,
   importWidget,
+  importWidgetFromSource,
   deleteWidget
 } = require('../widgets/load-widget')
 const widgetLog = require('../widgets/instance-log')
@@ -330,6 +331,7 @@ function initIpc () {
     // uninstall of a widget folder
     callWidgetFunc,
     importWidget,
+    importWidgetFromSource,
     deleteWidget,
     registerDeepLink,
     unregisterDeepLink,
