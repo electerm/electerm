@@ -537,6 +537,23 @@ describe('createStreamParser - openai chat', () => {
     assert.equal(parser.toolCalls[0].function.arguments, '{"cmd":"ls"}')
   })
 
+  it('keeps parallel tool calls apart when the server sends no index', () => {
+    const chunks = [
+      'data: {"choices":[{"delta":{"tool_calls":[{"id":"call_1","function":{"name":"run_command","arguments":"{\\"cmd\\":"}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{"tool_calls":[{"function":{"arguments":"\\"ls\\"}"}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{"tool_calls":[{"id":"call_2","function":{"name":"read_file","arguments":"{\\"path\\":\\"a\\"}"}}]}}]}\n\n',
+      'data: [DONE]\n'
+    ]
+    const parser = runStream(FORMAT_OPENAI_CHAT, chunks)
+    assert.equal(parser.toolCalls.length, 2)
+    assert.equal(parser.toolCalls[0].id, 'call_1')
+    assert.equal(parser.toolCalls[0].function.name, 'run_command')
+    assert.equal(parser.toolCalls[0].function.arguments, '{"cmd":"ls"}')
+    assert.equal(parser.toolCalls[1].id, 'call_2')
+    assert.equal(parser.toolCalls[1].function.name, 'read_file')
+    assert.equal(parser.toolCalls[1].function.arguments, '{"path":"a"}')
+  })
+
   it('completes on finish_reason without [DONE]', () => {
     const parser = runStream(FORMAT_OPENAI_CHAT, [
       'data: {"choices":[{"delta":{"content":"x"},"finish_reason":"stop"}]}\n'

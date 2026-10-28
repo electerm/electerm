@@ -504,6 +504,7 @@ function createStreamParser (format) {
   const toolCalls = new Map()
   let buffer = ''
   let eventName = ''
+  let lastChatIndex = -1
 
   const getToolCall = (key, id) => {
     let call = toolCalls.get(key)
@@ -528,6 +529,18 @@ function createStreamParser (format) {
     state.completed = true
   }
 
+  const getChatIndex = (tc) => {
+    if (tc.index !== undefined) {
+      lastChatIndex = tc.index
+      return lastChatIndex
+    }
+    const last = toolCalls.get(`c:${lastChatIndex}`)
+    if (lastChatIndex < 0 || (tc.id && last && last.id && tc.id !== last.id)) {
+      lastChatIndex += 1
+    }
+    return lastChatIndex
+  }
+
   const handleChatChunk = (data) => {
     const choice = data.choices && data.choices[0]
     if (!choice) {
@@ -539,8 +552,7 @@ function createStreamParser (format) {
     }
     if (Array.isArray(delta.tool_calls)) {
       for (const tc of delta.tool_calls) {
-        const index = tc.index === undefined ? 0 : tc.index
-        const call = getToolCall(`c:${index}`, tc.id)
+        const call = getToolCall(`c:${getChatIndex(tc)}`, tc.id)
         if (tc.function) {
           if (tc.function.name) {
             call.function.name += tc.function.name
