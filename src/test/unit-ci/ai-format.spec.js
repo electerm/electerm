@@ -554,6 +554,62 @@ describe('createStreamParser - openai chat', () => {
     assert.equal(parser.toolCalls[1].function.arguments, '{"path":"a"}')
   })
 
+  it('routes each delta back to its own call when the stream interleaves', () => {
+    const chunks = [
+      'data: {"choices":[{"delta":{"tool_calls":[{"id":"call_1","function":{"name":"run_command","arguments":"{\\"cmd\\":"}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{"tool_calls":[{"id":"call_2","function":{"name":"read_file","arguments":"{\\"path\\":"}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{"tool_calls":[{"id":"call_1","function":{"arguments":"\\"ls\\"}"}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{"tool_calls":[{"id":"call_2","function":{"arguments":"\\"a\\"}"}}]}}]}\n\n',
+      'data: [DONE]\n'
+    ]
+    const parser = runStream(FORMAT_OPENAI_CHAT, chunks)
+    assert.equal(parser.toolCalls.length, 2)
+    assert.deepEqual(
+      parser.toolCalls.map(c => [c.id, c.function.name, c.function.arguments]),
+      [
+        ['call_1', 'run_command', '{"cmd":"ls"}'],
+        ['call_2', 'read_file', '{"path":"a"}']
+      ]
+    )
+  })
+
+  it('handles an index on the first delta only', () => {
+    const chunks = [
+      'data: {"choices":[{"delta":{"tool_calls":[{"index":0,"id":"call_1","function":{"name":"run_command","arguments":"{\\"cmd\\":"}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{"tool_calls":[{"function":{"arguments":"\\"ls\\"}"}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{"tool_calls":[{"index":1,"id":"call_2","function":{"name":"read_file","arguments":"{\\"path\\":"}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{"tool_calls":[{"function":{"arguments":"\\"a\\"}"}}]}}]}\n\n',
+      'data: [DONE]\n'
+    ]
+    const parser = runStream(FORMAT_OPENAI_CHAT, chunks)
+    assert.equal(parser.toolCalls.length, 2)
+    assert.deepEqual(
+      parser.toolCalls.map(c => [c.id, c.function.name, c.function.arguments]),
+      [
+        ['call_1', 'run_command', '{"cmd":"ls"}'],
+        ['call_2', 'read_file', '{"path":"a"}']
+      ]
+    )
+  })
+
+  it('treats a null index as missing', () => {
+    const chunks = [
+      'data: {"choices":[{"delta":{"tool_calls":[{"index":null,"id":"call_1","function":{"name":"run_command","arguments":"{\\"cmd\\":"}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{"tool_calls":[{"function":{"arguments":"\\"ls\\"}"}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{"tool_calls":[{"index":null,"id":"call_2","function":{"name":"read_file","arguments":"{\\"path\\":\\"a\\"}"}}]}}]}\n\n',
+      'data: [DONE]\n'
+    ]
+    const parser = runStream(FORMAT_OPENAI_CHAT, chunks)
+    assert.equal(parser.toolCalls.length, 2)
+    assert.deepEqual(
+      parser.toolCalls.map(c => [c.id, c.function.name, c.function.arguments]),
+      [
+        ['call_1', 'run_command', '{"cmd":"ls"}'],
+        ['call_2', 'read_file', '{"path":"a"}']
+      ]
+    )
+  })
+
   it('completes on finish_reason without [DONE]', () => {
     const parser = runStream(FORMAT_OPENAI_CHAT, [
       'data: {"choices":[{"delta":{"content":"x"},"finish_reason":"stop"}]}\n'

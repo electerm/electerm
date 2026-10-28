@@ -502,6 +502,9 @@ function createStreamParser (format) {
     error: null
   }
   const toolCalls = new Map()
+  // tool_call id -> slot, so a delta that omits `index` can still be routed
+  // back to the call it belongs to instead of opening a new one.
+  const slotById = new Map()
   let buffer = ''
   let eventName = ''
   let lastChatIndex = -1
@@ -529,14 +532,25 @@ function createStreamParser (format) {
     state.completed = true
   }
 
-  const getChatIndex = (tc) => {
-    if (tc.index !== undefined) {
+  // Streamed tool calls are normally keyed by `index`, but some
+  // OpenAI-compatible servers (Gemini's and Mistral's endpoints among them)
+  // send none. Fall back to identity: a delta whose id is already known
+  // continues that call, a new id opens the next one, and a delta with
+  // neither continues the last call. Two calls that carry neither an index
+  // nor an id cannot be told apart and end up merged.
+  const resolveChatIndex = (tc) => {
+    if (tc.index !== undefined && tc.index !== null) {
       lastChatIndex = tc.index
-      return lastChatIndex
+    } else if (!tc.id || !slotById.has(tc.id)) {
+      const last = toolCalls.get(`c:${lastChatIndex}`)
+      if (lastChatIndex < 0 || (tc.id && last && last.id && tc.id !== last.id)) {
+        lastChatIndex += 1
+      }
+    } else {
+      lastChatIndex = slotById.get(tc.id)
     }
-    const last = toolCalls.get(`c:${lastChatIndex}`)
-    if (lastChatIndex < 0 || (tc.id && last && last.id && tc.id !== last.id)) {
-      lastChatIndex += 1
+    if (tc.id) {
+      slotById.set(tc.id, lastChatIndex)
     }
     return lastChatIndex
   }
@@ -552,7 +566,7 @@ function createStreamParser (format) {
     }
     if (Array.isArray(delta.tool_calls)) {
       for (const tc of delta.tool_calls) {
-        const call = getToolCall(`c:${getChatIndex(tc)}`, tc.id)
+        const call = getToolCall(`c:${resolveChatIndex(tc)}`, tc.id)
         if (tc.function) {
           if (tc.function.name) {
             call.function.name += tc.function.name
