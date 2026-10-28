@@ -5,12 +5,33 @@ export const defaultAIPresets = [
     baseURLAI: 'https://cf.api.fan/v1',
     apiPathAI: '/chat/completions',
     modelAI: 'deepseek-flash',
+    pinned: true,
     authHeaderNameAI: 'Authorization: Bearer',
     siteUrl: 'https://www.packyapi.ai/register?aff=DOZI',
     modelAIs: [
       { value: 'deepseek-flash' },
       { value: 'deepseek-v4-pro' }
     ]
+  },
+  {
+    id: 'ApiSmart',
+    nameAI: 'ApiSmart',
+    pinned: true,
+    baseURLAI: 'https://api.apismart.ai/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'DEEPSEEK_V4_FLASH',
+    authHeaderNameAI: 'Authorization: Bearer',
+    siteUrl: 'https://apismart.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
+  },
+  {
+    id: 'apimart',
+    nameAI: 'ApiMart',
+    pinned: true,
+    baseURLAI: 'https://api.apimart.ai/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'deepseek-v4-flash',
+    authHeaderNameAI: 'Authorization: Bearer',
+    siteUrl: 'https://go.apimart.ai/gh-electerm'
   },
   {
     id: 'fluxionai',
@@ -43,24 +64,6 @@ export const defaultAIPresets = [
     modelAI: 'deepseek-ai/DeepSeek-V4-Flash',
     authHeaderNameAI: 'Authorization: Bearer',
     siteUrl: 'https://cloud.siliconflow.cn/i/Xa85Yz6R'
-  },
-  {
-    id: 'ApiSmart',
-    nameAI: 'ApiSmart',
-    baseURLAI: 'https://api.apismart.ai/v1',
-    apiPathAI: '/chat/completions',
-    modelAI: 'DEEPSEEK_V4_FLASH',
-    authHeaderNameAI: 'Authorization: Bearer',
-    siteUrl: 'https://apismart.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
-  },
-  {
-    id: 'apimart',
-    nameAI: 'ApiMart',
-    baseURLAI: 'https://api.apimart.ai/v1',
-    apiPathAI: '/chat/completions',
-    modelAI: 'deepseek-v4-flash',
-    authHeaderNameAI: 'Authorization: Bearer',
-    siteUrl: 'https://go.apimart.ai/gh-electerm'
   },
   {
     id: 'deepseek',
@@ -231,8 +234,13 @@ export function getAIPresets () {
   const presets = [...defaultAIPresets]
   const customPreset = window.et?.defaultAIPreset
   if (customPreset) {
-    // keep the first preset (sponsor) on top, insert after it
-    presets.splice(1, 0, customPreset)
+    const lastPinnedIndex = presets.reduce((maxIndex, preset, index) => {
+      if (preset.pinned) {
+        return index
+      }
+      return maxIndex
+    }, -1)
+    presets.splice(lastPinnedIndex + 1, 0, customPreset)
   }
   return presets
 }
