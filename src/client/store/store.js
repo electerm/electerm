@@ -39,7 +39,8 @@ import {
   paneMap,
   staticNewItemTabs,
   isWin,
-  sidebarWidth
+  sidebarWidth,
+  bookmarkBarHeight as bookmarkBarHeightPx
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import createTitle from '../common/create-title'
@@ -91,6 +92,24 @@ class Store {
       return store.innerWidth
     }
     return store._rightPanelWidth
+  }
+
+  // chrome-style bookmark bar under the tab strip. Off on mobile, where it
+  // would spend 28px of a phone screen on a pointer-first affordance (the same
+  // reasoning as the pinned side panel, see sidebar/index.jsx).
+  get bookmarkBarVisible () {
+    const { store } = window
+    return !!store._bookmarkBarVisible && !store.isMobile
+  }
+
+  // px the session area gives up for the bar. 0 when it is off, and also when
+  // there is nothing to put in it: bookmark-bar.jsx renders null for an empty
+  // bar, and a reserved strip of nothing would read as a rendering bug.
+  get bookmarkBarHeight () {
+    const { store } = window
+    return store.bookmarkBarVisible && store.bookmarks.length
+      ? bookmarkBarHeightPx
+      : 0
   }
 
   get config () {
