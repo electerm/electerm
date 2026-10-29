@@ -10,6 +10,8 @@ import deepCopy from 'json-deep-copy'
 import createTitle, { createTitleWithTag } from '../../common/create-title'
 import buildMap from '../../common/build-map.js'
 import { mapBookmarkGroupTree } from '../../common/bookmark-group-tree.js'
+import time from '../../common/time'
+import download from '../../common/download'
 
 const e = window.translate
 
@@ -87,6 +89,18 @@ export default function BookmarkTreeSelect (props) {
     setCheckedKeys([])
   }
 
+  // checked keys contain both bookmark and bookmark group ids
+  const selectedBookmarks = useMemo(() => {
+    const keys = new Set(checkedKeys)
+    return (bookmarks || []).filter(b => keys.has(b.id))
+  }, [checkedKeys, bookmarks])
+
+  const handleExport = () => {
+    const stamp = time(undefined, 'YYYY-MM-DD-HH-mm-ss')
+    const txt = JSON.stringify(deepCopy(selectedBookmarks), null, 2)
+    download('bookmarks-' + stamp + '.json', txt)
+  }
+
   const handleCancel = () => {
     const { store } = window
     if (props.onClose) {
@@ -114,6 +128,7 @@ export default function BookmarkTreeSelect (props) {
     treeData
   }
   const len = checkedKeys.length
+  const bLen = selectedBookmarks.length
   return (
     <div className='tree-select-wrapper pd2'>
       <div className='tree-select-header'>
@@ -134,6 +149,16 @@ export default function BookmarkTreeSelect (props) {
           >
             {type === 'delete' ? e('delSelected') : e('open')} ({len})
           </Button>
+          {
+            type === 'delete' && (
+              <Button
+                disabled={!bLen}
+                onClick={handleExport}
+              >
+                {e('export')} ({bLen})
+              </Button>
+            )
+          }
           <Button
             onClick={handleCancel}
           >
