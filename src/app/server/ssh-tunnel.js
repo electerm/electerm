@@ -214,6 +214,105 @@ function dynamicForward ({
   })
 }
 
+/**
+ * Remote dynamic forwarding, the `ssh -R 1080` form.
+ *
+ * The remote sshd opens the listening socket and hands every connection back to
+ * us over a forwarded-tcpip channel; we speak SOCKS5 on that channel and dial
+ * each requested destination from *this* machine. That last part is the whole
+ * point of the mode and matches ssh(1): with `-R port` and no destination,
+ * "ssh will act as a SOCKS 4/5 proxy and forward connections to the destinations
+ * requested by the remote SOCKS client" -- the connection is made from the local
+ * machine, so traffic leaves through our network, not the server's.
+ */
+function remoteDynamicForward ({
+  conn,
+  sshTunnelRemotePort,
+  sshTunnelRemoteHost = '127.0.0.1'
+}) {
+  const socks = require('socksv5-server')
+  return new Promise((resolve, reject) => {
+    const result = `socks:remote:${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
+    const channels = new Set()
+
+    // One server instance serves every forwarded channel: it only carries the
+    // auth handlers, the handshake state lives in the parser created per stream.
+    const socksServer = socks.createServer((reqInfo, accept, deny) => {
+      const target = require('net').connect(reqInfo.dstPort, reqInfo.dstAddr)
+      target.on('error', (err) => {
+        log.error(`SOCKS target error for tunnel ${result}:`, err.message)
+        deny()
+      })
+      // only tell the SOCKS client it worked once we actually have a connection
+      target.once('connect', () => {
+        const clientSocket = accept(true)
+        if (!clientSocket) {
+          target.destroy()
+          return
+        }
+        target.on('error', (err) => {
+          log.error(`SOCKS target error for tunnel ${result}:`, err.message)
+          clientSocket.destroy()
+        })
+        clientSocket.on('error', (err) => {
+          log.error(`SOCKS channel error for tunnel ${result}:`, err.message)
+          target.destroy()
+        })
+        target.on('close', () => clientSocket.destroy())
+        clientSocket.on('close', () => target.destroy())
+        target.pipe(clientSocket).pipe(target)
+      })
+    })
+    socksServer.useAuth(socks.auth.None())
+
+    const handleTcpConnection = (info, accept) => {
+      // several tunnels can share one connection, only take ours
+      if (info.destPort !== sshTunnelRemotePort && info.destPort !== Number(sshTunnelRemotePort)) {
+        return
+      }
+      const srcStream = accept()
+      if (!srcStream) {
+        log.error(`Failed to accept connection for tunnel ${result}`)
+        return
+      }
+      channels.add(srcStream)
+      srcStream.on('close', () => channels.delete(srcStream))
+      srcStream.on('error', (err) => {
+        log.error(`Channel error for tunnel ${result}:`, err.message)
+      })
+      // _onConnection is the only way to hand a plain stream to the server;
+      // socksv5-server has no public equivalent for non-socket streams yet
+      socksServer._onConnection(srcStream)
+    }
+
+    conn.on('tcp connection', handleTcpConnection)
+
+    const handleClose = () => {
+      log.log(`SSH connection closed for tunnel ${result}`)
+      conn.removeListener('tcp connection', handleTcpConnection)
+      conn.removeListener('close', handleClose)
+      for (const ch of channels) {
+        ch.destroy()
+      }
+      channels.clear()
+    }
+
+    conn.on('close', handleClose)
+
+    conn.forwardIn(sshTunnelRemoteHost, sshTunnelRemotePort, (err) => {
+      if (err) {
+        log.error('Error forwarding port:', err)
+        conn.removeListener('tcp connection', handleTcpConnection)
+        conn.removeListener('close', handleClose)
+        return reject(err)
+      }
+      log.log(`Port forwarded: ${result}`)
+      resolve(1)
+    })
+  })
+}
+
 exports.dynamicForward = dynamicForward
 exports.forwardLocalToRemote = forwardLocalToRemote
 exports.forwardRemoteToLocal = forwardRemoteToLocal
+exports.remoteDynamicForward = remoteDynamicForward

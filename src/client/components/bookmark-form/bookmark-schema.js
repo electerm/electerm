@@ -41,7 +41,7 @@ const bookmarkSchema = {
     interactiveValues: 'strings separated by newline'
   },
   sshTunnelsItem: {
-    sshTunnel: 'string - forwardRemoteToLocal|forwardLocalToRemote|dynamicForward',
+    sshTunnel: 'string - forwardRemoteToLocal|forwardLocalToRemote|dynamicForward|remoteDynamicForward',
     sshTunnelLocalHost: 'string',
     sshTunnelLocalPort: 'number',
     sshTunnelRemoteHost: 'string',

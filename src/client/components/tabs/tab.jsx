@@ -454,7 +454,9 @@ class Tab extends Component {
       } = obj
       let tunnel
       if (sshTunnel === 'dynamicForward') {
-        tunnel = `sock5://${sshTunnelLocalHost}:${sshTunnelLocalPort}`
+        tunnel = `socks5://${sshTunnelLocalHost}:${sshTunnelLocalPort}`
+      } else if (sshTunnel === 'remoteDynamicForward') {
+        tunnel = `socks5://${sshTunnelRemoteHost}:${sshTunnelRemotePort} (${e('remote')})`
       } else {
         tunnel = sshTunnel === 'forwardRemoteToLocal'
           ? `-> ${e('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort} -> ${sshTunnelLocalHost}:${sshTunnelLocalPort}`
