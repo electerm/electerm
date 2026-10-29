@@ -405,3 +405,78 @@ exports.patchSnapClassicSandbox = function patchSnapClassicSandbox () {
     console.log(`Snap classic sandbox patch (${file}): applied successfully`)
   }
 }
+
+/**
+ * Patch electron-builder's legacy Snap launcher so classic confinement builds
+ * keep the user's real XDG directories.
+ *
+ * The bundled desktop-common.sh is written for strict confinement and
+ * unconditionally exports XDG_CONFIG_HOME="$SNAP_USER_DATA/.config", so Electron
+ * resolves appData to ~/snap/<name>/<revision>/.config: a per-revision directory
+ * that the next refresh walls off, which looks like "bookmarks saved, then lost".
+ * Classic snaps keep the real $HOME, so the whole desktop-init chain is pointless
+ * here — run the app directly, and move data left in $SNAP_USER_DATA by older
+ * revisions back to ~/.config/<name> once.
+ *
+ * Only core18/core20/core22 (snap/coreLegacy.js) generate that launcher chain;
+ * core24 relies on the snapcraft desktop extension, which refuses classic.
+ */
+exports.patchSnapClassicLauncher = function patchSnapClassicLauncher () {
+  const fs = require('fs')
+  const path = require('path')
+  const targetPath = path.join(
+    require.resolve('app-builder-lib/package.json'),
+    '../out/targets/snap/coreLegacy.js'
+  )
+  if (!fs.existsSync(targetPath)) {
+    console.log('Snap classic launcher patch: coreLegacy.js not found, skipping')
+    return
+  }
+  const patches = [
+    {
+      // make the confinement available to the launcher generator
+      from: 'const commandContent = buildCommandShContent({ isTemplate, executableName: this.packager.executableName, extraAppArgs });',
+      to: 'const commandContent = buildCommandShContent({ isTemplate, executableName: this.packager.executableName, extraAppArgs, confinement: this.options.confinement });'
+    },
+    {
+      from: 'const { isTemplate, executableName, extraAppArgs } = opts;',
+      to: 'const { isTemplate, executableName, extraAppArgs, confinement } = opts;'
+    },
+    {
+      // the matched/generated code is a template literal on the electron-builder side
+      // eslint-disable-next-line no-template-curly-in-string
+      from: '    let content = `#!/bin/bash -e\\nexec "$SNAP/desktop-init.sh" "$SNAP/desktop-common.sh" "$SNAP/desktop-gnome-specific.sh" "$SNAP/${appPrefix}${executableName}"`;',
+      to: [
+        '    let content',
+        '    if (confinement === "classic") {',
+        '        content = [',
+        "            '#!/bin/bash -e',",
+        "            'if [ -n \"$SNAP_USER_DATA\" ] && [ -d \"$SNAP_USER_DATA/.config/$SNAP_NAME\" ] && [ ! -e \"$HOME/.config/$SNAP_NAME\" ]; then',",
+        "            '  mkdir -p \"$HOME/.config\"',",
+        "            '  mv \"$SNAP_USER_DATA/.config/$SNAP_NAME\" \"$HOME/.config/$SNAP_NAME\" || true',",
+        "            'fi',",
+        "            'exec \"$SNAP/' + appPrefix + executableName + '\"'",
+        "        ].join('\\n')",
+        '    }',
+        '    else {',
+        // eslint-disable-next-line no-template-curly-in-string
+        '        content = `#!/bin/bash -e\\nexec "$SNAP/desktop-init.sh" "$SNAP/desktop-common.sh" "$SNAP/desktop-gnome-specific.sh" "$SNAP/${appPrefix}${executableName}"`;',
+        '    }'
+      ].join('\n')
+    }
+  ]
+  const original = fs.readFileSync(targetPath, 'utf-8')
+  let patched = original
+  for (const { from, to } of patches) {
+    if (!patched.includes(from)) {
+      console.log('Snap classic launcher patch: already applied or pattern not found, skipping')
+      continue
+    }
+    patched = patched.replace(from, to)
+  }
+  if (patched === original) {
+    return
+  }
+  fs.writeFileSync(targetPath, patched, 'utf-8')
+  console.log('Snap classic launcher patch: applied successfully')
+}
