@@ -364,7 +364,14 @@ export default class AttachAddonCustom {
     if (typeof ev.data === 'string') {
       try {
         const msg = JSON.parse(ev.data)
-        if (msg.action === 'zmodem-event' || msg.action === 'trzsz-event' || msg.action === 'xmodem-event') {
+        const controlActions = [
+          'zmodem-event',
+          'trzsz-event',
+          'xmodem-event',
+          // how the pty ended, consumed by the terminal component
+          'session-exit'
+        ]
+        if (controlActions.includes(msg.action)) {
           return
         }
       } catch (e) {}

@@ -66,6 +66,11 @@ export const initMixin = {
     this.cmdAddon.onCwdChanged((cwd) => {
       this.setCwd(cwd)
     })
+    // A fresh prompt (OSC 633;A) proves the shell is still alive, so an
+    // earlier `exit` only left a nested shell. Dropping the exit latch here
+    // keeps the next real disconnect from closing the tab (#4629). Shells
+    // without integration are covered by `exitCloseWindow` instead.
+    this.cmdAddon.onPrompt(() => this.clearUserTypeExit())
     const SearchAddon = await loadSearchAddon()
     this.searchAddon = new SearchAddon()
     const LigaturesAddon = await loadLigaturesAddon()
