@@ -111,9 +111,7 @@ function toMs (ms, date) {
   return Number.isFinite(d) ? d : 0
 }
 
-export const getLocalFileInfo = async (filePath) => {
-  const statr = await window.fs.statAsync(filePath)
-  const stat = await window.fs.lstatAsync(filePath)
+const toFileInfo = (filePath, statr, stat) => {
   return {
     size: stat.size,
     accessTime: toMs(stat.atimeMs, stat.atime),
@@ -127,6 +125,23 @@ export const getLocalFileInfo = async (filePath) => {
     isDirectory: toIsDirectory(statr),
     isSymbolicLink: toIsSymbolicLink(stat)
   }
+}
+
+export const getLocalFileInfo = async (filePath) => {
+  // stat follows symlinks (gives the real folder/file type of the target),
+  // lstat describes the entry itself (size/mode/time of the link). Two
+  // independent calls, so do not pay two round trips in a row for them.
+  const [statr, stat] = await Promise.all([
+    window.fs.statAsync(filePath),
+    window.fs.lstatAsync(filePath)
+  ])
+  return toFileInfo(filePath, statr, stat)
+}
+
+// Same shape, built from the merged entry object returned by
+// `fs.readdirStatAsync` (one round trip for the whole directory).
+export const getLocalFileInfoFromStat = (filePath, stat) => {
+  return toFileInfo(filePath, stat, stat)
 }
 
 export const getRemoteFileInfo = async (sftp, filePath) => {

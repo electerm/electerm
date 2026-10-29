@@ -13,7 +13,12 @@ import wait from '../../common/wait'
 import classnames from 'classnames'
 import sorterIndex from '../../common/index-sorter'
 import { handleErr } from '../../common/fetch'
-import { getLocalFileInfo, getRemoteFileInfo, getFolderFromFilePath } from './file-read'
+import {
+  getLocalFileInfo,
+  getLocalFileInfoFromStat,
+  getRemoteFileInfo,
+  getFolderFromFilePath
+} from './file-read'
 import {
   typeMap, maxSftpHistory, paneMap,
   fileTypeMap,
@@ -930,6 +935,27 @@ export default class Sftp extends Component {
     window.pre.homeOrTmp
   }
 
+  // The whole directory in one round trip when the backend supports it
+  // (`readdir` + per-entry `lstat` together). Falls back to the old "two calls
+  // per entry" path against an older server (electerm-web can serve a frontend
+  // that is newer than its backend).
+  getLocalList = async (localPath) => {
+    if (window.fs.readdirStatAsync) {
+      const list = await window.fs.readdirStatAsync(localPath)
+      return list.map(d =>
+        getLocalFileInfoFromStat(resolve(localPath, d.name), d)
+      )
+    }
+    const names = await window.fs.readdirAsync(localPath)
+    const results = await Promise.all(
+      names.map(name => {
+        const p = resolve(localPath, name)
+        return getLocalFileInfo(p).catch(console.log)
+      })
+    )
+    return results.filter(Boolean)
+  }
+
   localList = async (returnList = false, localPathReal, oldPath) => {
     if (!window.fs) return
     if (!returnList) {
@@ -945,14 +971,7 @@ export default class Sftp extends Component {
       const localPath = noPathInit ||
         this.getCwdLocal() ||
         this.getLocalHome()
-      const locals = await window.fs.readdirAsync(localPath)
-      const results = await Promise.all(
-        locals.map(name => {
-          const p = resolve(localPath, name)
-          return getLocalFileInfo(p).catch(console.log)
-        })
-      )
-      const local = results.filter(Boolean)
+      const local = await this.getLocalList(localPath)
       const update = {
         local,
         inited: true,

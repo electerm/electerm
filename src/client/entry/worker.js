@@ -25,10 +25,11 @@ function createWs (
   // One shared `message` listener that dispatches by id, attached only while at
   // least one call is pending. It used to add a listener per pending call and
   // JSON.parse the payload inside each of them, so K concurrent calls made every
-  // incoming message be parsed K times (O(K^2) per burst). The sftp file list
-  // fires 2 calls per directory entry (stat + lstat, see getLocalFileInfo), so a
-  // folder with a few thousand entries meant tens of millions of parses and a
-  // multi-second UI freeze.
+  // incoming message be parsed K times (O(K^2) per burst). Listing a folder fired
+  // ~2 calls per directory entry (stat + lstat, see getLocalFileInfo), so a few
+  // thousand entries meant tens of millions of parses and a multi-second freeze.
+  // The list is now a single batched call, but any future burst benefits from
+  // the linear dispatch.
   ws.onceCbs = new Map()
   const onOnceMessage = evt => {
     const arg = JSON.parse(evt.data)
@@ -42,13 +43,22 @@ function createWs (
     }
     cb(arg)
   }
-  ws.once = (callack, id) => {
+  const dropOnces = () => {
+    ws.onceCbs.clear()
+    ws.removeEventListener('message', onOnceMessage)
+  }
+  ws.once = (callback, id) => {
     if (ws.onceCbs.size === 0) {
       ws.addEventListener('message', onOnceMessage)
     }
-    ws.onceCbs.set(id, callack)
+    ws.onceCbs.set(id, callback)
   }
   ws.onclose = () => {
+    // A dead socket will never answer its pending calls; the caller side has
+    // already settled them as errors. Drop the callbacks and the shared
+    // listener so a socket that is closed and revived (persist sockets) does
+    // not keep parsing every incoming message for nobody.
+    dropOnces()
     if (ws.dup) {
       return
     }

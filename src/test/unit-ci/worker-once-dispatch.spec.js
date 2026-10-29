@@ -1,4 +1,4 @@
-const { describe, test } = require('node:test')
+const { describe, test, after } = require('node:test')
 const assert = require('node:assert/strict')
 
 // Drives src/client/entry/worker.js with a fake `self` + `WebSocket` and checks
@@ -111,6 +111,13 @@ const reply = (callId) => {
 const replies = () => env.frames.filter(f => f.action !== 'worker-init')
 
 describe('worker once() dispatch', function () {
+  after(function () {
+    // node --test gives each file its own process, but do not leave the fake
+    // globals behind for anything else running in this one
+    delete global.self
+    delete global.WebSocket
+  })
+
   test('keeps one message listener for many concurrent calls', async function () {
     const wsId = 'ws-1'
     await openSocket(wsId)
@@ -175,5 +182,52 @@ describe('worker once() dispatch', function () {
     assert.equal(env.listeners.size, 1, 'still waiting for the registered call')
     reply('kept')
     assert.equal(env.listeners.size, 0)
+  })
+
+  test('keeps pending calls of different sockets apart', async function () {
+    const a = 'ws-5'
+    const b = 'ws-6'
+    await openSocket(a)
+    await openSocket(b)
+    register(a, 'only-a')
+    register(b, 'only-b')
+    // one shared listener per socket, not one for the pair
+    assert.equal(env.listeners.size, 2)
+    env.frames.length = 0
+    reply('only-b')
+    assert.deepEqual(replies().map(f => [f.wsId, f.id]), [[b, 'only-b']])
+    assert.equal(env.listeners.size, 1, 'the other socket still waits')
+    reply('only-a')
+    assert.deepEqual(replies().map(f => [f.wsId, f.id]), [[b, 'only-b'], [a, 'only-a']])
+  })
+
+  test('coexists with a persistent listener on the same socket', async function () {
+    // transfer/upgrade sockets keep an `addEventListener` cb for data frames
+    // while once() calls are pending: both have to keep working
+    const wsId = 'ws-7'
+    await openSocket(wsId)
+    env.fakeSelf.onMsg({
+      data: { action: 'addEventListener', wsId, id: 'sub', type: 'message' }
+    })
+    assert.equal(env.listeners.size, 1)
+    register(wsId, 'once-1')
+    assert.equal(env.listeners.size, 2, 'persistent + shared once listener')
+    env.frames.length = 0
+
+    reply('once-1')
+    assert.equal(env.listeners.size, 1, 'once listener gone, persistent stays')
+
+    // the persistent cb sees every frame, replies to once() calls included, so
+    // start counting after the reply has been through
+    env.frames.length = 0
+    const dataFrame = JSON.stringify({ id: 'sub', data: 'chunk' })
+    for (const listener of [...env.listeners]) {
+      listener({ data: dataFrame })
+    }
+    assert.equal(
+      env.frames.filter(f => f.id === 'sub').length,
+      1,
+      'persistent listener still delivers its frames'
+    )
   })
 })
