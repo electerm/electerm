@@ -4,7 +4,7 @@ import {
   Space,
   Input
 } from 'antd'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { defaultBookmarkGroupId, settingMap } from '../../common/constants'
 import deepCopy from 'json-deep-copy'
 import createTitle, { createTitleWithTag } from '../../common/create-title'
@@ -14,6 +14,20 @@ import time from '../../common/time'
 import download from '../../common/download'
 
 const e = window.translate
+
+function collectParentKeys (nodes) {
+  const keys = []
+  const walk = list => {
+    list.forEach(node => {
+      if (node.children && node.children.length) {
+        keys.push(node.key)
+        walk(node.children)
+      }
+    })
+  }
+  walk(nodes || [])
+  return keys
+}
 
 function buildData (bookmarks, bookmarkGroups, searchText = '') {
   const searchLower = searchText.toLowerCase()
@@ -112,6 +126,23 @@ export default function BookmarkTreeSelect (props) {
   }
 
   const treeData = useMemo(() => buildData(bookmarks, bookmarkGroups, searchText), [bookmarks, bookmarkGroups, searchText, refreshKey])
+
+  // Search filters the tree data itself (not antd's filterTreeNode), so a match
+  // inside a collapsed category would stay invisible: expand every branch that
+  // survived the filter while a query is active, and hand the user their own
+  // expansion back when the box is cleared.
+  const preSearchKeys = useRef(null)
+  useEffect(() => {
+    if (searchText) {
+      if (preSearchKeys.current === null) {
+        preSearchKeys.current = expandedKeys
+      }
+      setExpandedKeys(collectParentKeys(treeData))
+    } else if (preSearchKeys.current !== null) {
+      setExpandedKeys(preSearchKeys.current)
+      preSearchKeys.current = null
+    }
+  }, [searchText, treeData])
 
   // Auto expand parent nodes when searching
   const handleExpand = (keys) => {
