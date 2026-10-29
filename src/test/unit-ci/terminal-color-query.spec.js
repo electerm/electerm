@@ -46,6 +46,16 @@ describe('terminal OSC color query helpers', () => {
       background: '#20111b'
     }
 
+    // DOM renderer（含降级后的 fallback）永远透明：用户把 renderer 配成 webGL
+    // 时，只要实际跑的不是 webGL，就必须让 electerm 自己的 CSS 背景透出来
+    assert.deepEqual(
+      createRendererThemeConfig(themeConfig, 'dom', '#121214'),
+      {
+        foreground: '#bbbbbb',
+        background: 'rgba(0,0,0,0)'
+      }
+    )
+
     assert.deepEqual(
       createRendererThemeConfig(themeConfig, 'canvas', '#121214'),
       {
@@ -61,6 +71,18 @@ describe('terminal OSC color query helpers', () => {
         background: '#121214'
       }
     )
+  })
+
+  test('theme follows the renderer that is actually active, not the config', async () => {
+    const { resolveRendererThemeType } = await import('../../../src/client/components/terminal/terminal-color-query.mjs')
+    const rendererTypes = { webGL: 'webGL', dom: 'dom' }
+
+    // 熔断降级 / 激活失败后终端仍配置为 webGL，但手里没有 addon：必须按 dom
+    assert.equal(resolveRendererThemeType(true, rendererTypes), 'webGL')
+    assert.equal(resolveRendererThemeType(false, rendererTypes), 'dom')
+    // 未持有 addon（含 undefined / null）一律当作 DOM
+    assert.equal(resolveRendererThemeType(undefined, rendererTypes), 'dom')
+    assert.equal(resolveRendererThemeType(null, rendererTypes), 'dom')
   })
 
   test('blends a translucent selection over the real visible background', async () => {

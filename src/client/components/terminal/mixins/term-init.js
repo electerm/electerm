@@ -21,7 +21,9 @@ import keyControlPressed from '../../../common/key-control-pressed.js'
 export const initMixin = {
   async initTerminal () {
     const { themeConfig, tab = {}, config = {} } = this.props
-    const tc = this.getRendererThemeConfig(themeConfig)
+    // 初始一律使用内置 DOM renderer 的主题：terminal 先以 DOM 起步，WebGL
+    // 由 lifecycle controller 在真正可见后惰性激活并重新套用主题。
+    const tc = this.getRendererThemeConfig(themeConfig, rendererTypes.dom)
     const Terminal = await loadTerminal()
     const term = new Terminal({
       allowProposedApi: true,
@@ -42,16 +44,11 @@ export const initMixin = {
     term.onSelectionChange(this.onSelection)
     term.open(this.domRef.current, true)
     this.registerTerminalColorQueryHandlers(term, themeConfig)
-    await this.loadRenderer(term, config)
     this.fixSelectionColors(term)
-    // Re-apply the theme after the renderer is loaded. The Terminal was
-    // constructed before UiTheme's useEffect ran, so the initial theme
-    // may have a stale background. Pass `term` directly because this.term
-    // is not assigned yet. Use deferred=true so a second repaint picks up
-    // any CSS --main changes applied by UiTheme's useEffect.
-    if (config.rendererType === rendererTypes.webGL) {
-      this.applyTerminalTheme(true, term)
-    }
+    // 这里不再按 config.rendererType 二次套用主题：所有终端都以 DOM renderer
+    // 起步，WebGL 主题只在 lifecycle controller 真正激活 WebGL 时才由
+    // activateVisibleWebglRenderer 套上；在初始期套 WebGL 主题会和上面的 DOM
+    // 主题互相矛盾。
 
     const FitAddon = await loadFitAddon()
     this.fitAddon = new FitAddon()
@@ -98,6 +95,14 @@ export const initMixin = {
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
+    // 所有终端都从内置 DOM renderer 起步，只有真实可见的终端才由 lifecycle
+    // controller 在下一动画帧惰性激活 WebGL；隐藏终端照常建立 SSH/socket，
+    // 但不占用 WebGL context。这里绝不 await 激活：WebGL 的加载延迟不能阻塞
+    // 后面的 restoreReloadScreen() 和 remoteInit()。
+    this.rendererLifecycleReady = true
+    this.setupRendererLifecycle()
+    this.reconcileRenderer('initial')
+      .catch(error => console.error('initial renderer reconcile failed', error))
     // 容器不可见（隐藏标签 display:none）时不 fit，避免算出 0 列把 shell
     // 提示符逐字符错误换行；待标签激活可见后由 fitAndRefresh 重新适配。
     if (this.isElementVisible()) {

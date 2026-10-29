@@ -1,6 +1,11 @@
+import { logTerminalRender } from '../terminal-render-diagnostics.mjs'
 import { throttle } from 'lodash-es'
 import { resizeTerm } from '../terminal-apis.js'
 import { minTerminalFontSize } from '../../../common/constants.js'
+import {
+  invalidateWebglGlyphTextures,
+  refreshTerminalAfterWindowFocus
+} from '../terminal-render-recovery.mjs'
 
 /**
  * Sizing: fitting the terminal into its (possibly hidden) container, font
@@ -33,8 +38,44 @@ export const resizeMixin = {
       this.fitAddon.fit()
       this.term.refresh(0, this.term.rows - 1)
     } catch (e) {
+      logTerminalRender(this, 'fit-failed', { error: e })
       console.info('resize failed', e)
     }
+  },
+
+  onWindowFocus (shouldFocus = true, source = 'focus') {
+    const reason = source === 'tab-visible' ? 'tab visible' : 'window focus'
+    logTerminalRender(this, source === 'tab-visible' ? 'tab-visible' : 'focus-recovery', { shouldFocus })
+    // 隐藏终端（例如全局 focus 事件遍历到的后台 pane）不得被激活：
+    // 它的 clientWidth/clientHeight 为 0，fit 会算出 0 列并损坏换行。
+    // 它自己的 WebGL 释放由 componentDidUpdate 里的 reconcile 负责。
+    if (!this.term || this.onClose || !this.isElementVisible()) {
+      return
+    }
+    // 先让本终端的 renderer 目标按当前可见性/熔断状态收敛，再谈重绘：
+    // 熔断后 webglAddon 为 null，下一步自然跳过纹理失效，回落到 DOM 的
+    // refresh。focus 路径不复位熔断器、也不做任何激活。
+    // controller 的释放链可能 reject，且无人 await，必须自行收尾。
+    this.reconcileRenderer(reason)
+      .catch(error => console.error('focus renderer reconcile failed', error))
+    // 防御性重传当前终端的 GPU 纹理；普通 refresh 在版本未变时会复用缓存。
+    // 不清空共享 CPU atlas，避免其他终端重新生成字形。
+    const invalidated = this.webglAddon
+      ? invalidateWebglGlyphTextures(this.webglAddon)
+      : false
+    logTerminalRender(this, 'texture-invalidation', { invalidated })
+    refreshTerminalAfterWindowFocus(this.term, shouldFocus)
+    window.cancelAnimationFrame(this.timers.focusRefreshRaf)
+    this.timers.focusRefreshRaf = window.requestAnimationFrame(() => {
+      this.timers.focusRefreshRaf = null
+      this.fitAndRefresh()
+    })
+    clearTimeout(this.timers.focusRefresh)
+    this.timers.focusRefresh = setTimeout(() => {
+      this.timers.focusRefresh = null
+      this.fitAndRefresh()
+      logTerminalRender(this, 'recover-settled')
+    }, 300)
   },
 
   // One throttled runner per terminal: a module level one would let tabs

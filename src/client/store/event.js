@@ -3,11 +3,24 @@
  */
 
 import { refs } from '../components/common/ref'
+import { recoverVisibleTerminals } from '../components/terminal/terminal-render-recovery.mjs'
 
 export default Store => {
   Store.prototype.focus = function () {
     window.focused = true
-    refs.get('term-' + window.store.activeTabId)?.term?.focus()
+    const { store } = window
+    const terminalIds = [
+      store.activeTabId0,
+      store.activeTabId1,
+      store.activeTabId2,
+      store.activeTabId3,
+      store.activeTabId
+    ]
+    recoverVisibleTerminals(
+      terminalIds,
+      id => refs.get('term-' + id),
+      store.activeTabId
+    )
   }
 
   Store.prototype.blur = function () {
