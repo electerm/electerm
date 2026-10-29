@@ -11,7 +11,7 @@ const quickCommandSchema = z.object({
 })
 
 const sshTunnelSchema = z.object({
-  sshTunnel: z.enum(['forwardRemoteToLocal', 'forwardLocalToRemote', 'dynamicForward']).describe('Tunnel type'),
+  sshTunnel: z.enum(['forwardRemoteToLocal', 'forwardLocalToRemote', 'dynamicForward', 'remoteDynamicForward']).describe('Tunnel type'),
   sshTunnelLocalHost: z.string().optional().describe('Local host'),
   sshTunnelLocalPort: z.number().optional().describe('Local port'),
   sshTunnelRemoteHost: z.string().optional().describe('Remote host'),

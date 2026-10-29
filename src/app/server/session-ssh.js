@@ -682,7 +682,16 @@ class TerminalSshBase extends TerminalBase {
   }
 
   async runTunnel (sshTunnel) {
-    return sshTunnelFuncs[sshTunnel.sshTunnel]({
+    const func = sshTunnelFuncs[sshTunnel.sshTunnel]
+    if (typeof func !== 'function') {
+      // an unknown type from a deeplink or an older bookmark would otherwise
+      // throw synchronously and take the whole session down
+      return {
+        error: `unknown ssh tunnel type: ${sshTunnel.sshTunnel}`,
+        sshTunnel
+      }
+    }
+    return func({
       ...sshTunnel,
       conn: this.conn
     })
@@ -722,14 +731,19 @@ class TerminalSshBase extends TerminalBase {
     const { sshTunnels = [] } = initOptions
     const sshTunnelResults = []
     for (const sshTunnel of sshTunnels) {
-      if (
-        sshTunnel &&
-        sshTunnel.sshTunnel &&
-        sshTunnel.sshTunnelLocalPort
-      ) {
-        const result = await this.runTunnel(sshTunnel)
-        sshTunnelResults.push(result)
+      if (!sshTunnel || !sshTunnel.sshTunnel) {
+        continue
       }
+      // a remote dynamic forward only listens on the remote side, so it is the
+      // remote port that has to be there
+      const listenPort = sshTunnel.sshTunnel === 'remoteDynamicForward'
+        ? sshTunnel.sshTunnelRemotePort
+        : sshTunnel.sshTunnelLocalPort
+      if (!listenPort) {
+        continue
+      }
+      const result = await this.runTunnel(sshTunnel)
+      sshTunnelResults.push(result)
     }
     if (!this.ws) {
       this.sshTunnelResults = sshTunnelResults
