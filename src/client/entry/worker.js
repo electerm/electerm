@@ -22,15 +22,31 @@ function createWs (
     }
   }
   ws.id = id
-  ws.once = (callack, id) => {
-    const func = (evt) => {
-      const arg = JSON.parse(evt.data)
-      if (id === arg.id) {
-        callack(arg)
-        ws.removeEventListener('message', func)
-      }
+  // One shared `message` listener that dispatches by id, attached only while at
+  // least one call is pending. It used to add a listener per pending call and
+  // JSON.parse the payload inside each of them, so K concurrent calls made every
+  // incoming message be parsed K times (O(K^2) per burst). The sftp file list
+  // fires 2 calls per directory entry (stat + lstat, see getLocalFileInfo), so a
+  // folder with a few thousand entries meant tens of millions of parses and a
+  // multi-second UI freeze.
+  ws.onceCbs = new Map()
+  const onOnceMessage = evt => {
+    const arg = JSON.parse(evt.data)
+    const cb = ws.onceCbs.get(arg.id)
+    if (!cb) {
+      return
     }
-    ws.addEventListener('message', func)
+    ws.onceCbs.delete(arg.id)
+    if (ws.onceCbs.size === 0) {
+      ws.removeEventListener('message', onOnceMessage)
+    }
+    cb(arg)
+  }
+  ws.once = (callack, id) => {
+    if (ws.onceCbs.size === 0) {
+      ws.addEventListener('message', onOnceMessage)
+    }
+    ws.onceCbs.set(id, callack)
   }
   ws.onclose = () => {
     if (ws.dup) {
