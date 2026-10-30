@@ -60,7 +60,7 @@ export default function TextEditorForm (props) {
       <FormItem
         name='text'
       >
-        <SimpleEditor />
+        <SimpleEditor path={props.path} />
       </FormItem>
       <div className='pd1t pd2b'>
         <Button

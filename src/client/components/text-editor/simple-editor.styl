@@ -1,0 +1,65 @@
+// markdown preview pane of the text editor (simple-editor.jsx)
+//
+// react-markdown emits plain html, so this is bare element selectors scoped to
+// the pane. Colours are the theme vars, same as the ai answer styling, so it
+// follows light/dark without a second rule set.
+.simple-editor-preview
+  min-height 200px
+  // the textarea it replaces is 20 rows tall; cap the pane instead of letting
+  // the modal grow with the document
+  max-height 70vh
+  overflow auto
+  padding 4px 12px
+  border 1px solid var(--main-darker)
+  border-radius 4px
+  color var(--text)
+  line-height 1.6
+  word-wrap break-word
+
+  h1, h2, h3, h4, h5, h6
+    margin 0.8em 0 0.4em
+    line-height 1.3
+    font-weight 600
+    color var(--text-light)
+  h1
+    font-size 1.6em
+    padding-bottom 0.2em
+    border-bottom 1px solid var(--main-darker)
+  h2
+    font-size 1.4em
+  h3
+    font-size 1.2em
+  h4, h5, h6
+    font-size 1em
+  p, ul, ol, blockquote, pre, table
+    margin 0 0 0.8em
+  ul, ol
+    padding-left 1.6em
+  blockquote
+    padding 0 0.8em
+    border-left 3px solid var(--main-lighter)
+    color var(--text-dark)
+  code
+    padding 0.1em 0.3em
+    border-radius 3px
+    background var(--main-darker)
+    font-size 0.9em
+  pre
+    padding 8px 10px
+    border-radius 4px
+    overflow-x auto
+    background var(--main-darker)
+    code
+      padding 0
+      background transparent
+  table
+    border-collapse collapse
+  th, td
+    padding 4px 8px
+    border 1px solid var(--main-darker)
+    text-align left
+  img
+    max-width 100%
+  hr
+    border 0
+    border-top 1px solid var(--main-darker)

@@ -202,6 +202,7 @@ export default class TextEditor extends PureComponent {
     const pops = {
       submit: this.handleSubmit,
       text,
+      path,
       cancel: this.cancel,
       editWith: this.editWith,
       editWithCustom: this.editWithCustom

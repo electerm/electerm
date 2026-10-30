@@ -1,20 +1,55 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Input, Button, Flex } from 'antd'
+import { Input, Button, Flex, Tabs } from 'antd'
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   SearchOutlined,
   CopyOutlined
 } from '@ant-design/icons'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { copy } from '../../common/clipboard'
 import { escapeRegExp } from 'lodash-es'
+import Link from '../common/external-link'
+import './simple-editor.styl'
+
+const e = window.translate
+
+const markdownExtRe = /\.(md|markdown|mdown|mkdn|mkd)$/i
+
+/**
+ * whether a file path is a markdown file, in which case the editor
+ * offers a preview tab next to the plain text one
+ */
+export function isMarkdownFile (path) {
+  return markdownExtRe.test(path || '')
+}
+
+// a link in the preview must not navigate the app window away, and a
+// relative or anchor link has nothing to resolve against here, so only real
+// external urls become clickable
+const externalUrlRe = /^(https?|mailto):/i
+
+function renderLink ({ node, href, children, ...rest }) {
+  if (!externalUrlRe.test(href || '')) {
+    return <span {...rest}>{children}</span>
+  }
+  return <Link to={href} {...rest}>{children}</Link>
+}
 
 export default function SimpleEditor (props) {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [occurrences, setOccurrences] = useState([])
   const [currentMatch, setCurrentMatch] = useState(-1)
   const [isNavigating, setIsNavigating] = useState(false)
+  const [activeTab, setActiveTab] = useState('edit')
   const editorRef = useRef(null)
+  const markdown = isMarkdownFile(props.path)
+
+  // the same editor instance is reused for the next file, always start on edit
+  useEffect(() => {
+    setActiveTab('edit')
+  }, [props.path])
 
   // When currentMatch changes, highlight the match in textarea
   useEffect(() => {
@@ -184,8 +219,8 @@ export default function SimpleEditor (props) {
     )
   }
 
-  return (
-    <div className='simple-editor'>
+  const editPane = (
+    <>
       <Flex className='mg1b' justify='space-between'>
         <Input.Search
           value={searchKeyword}
@@ -210,6 +245,44 @@ export default function SimpleEditor (props) {
         value={props.value}
         onChange={props.onChange}
         rows={20}
+      />
+    </>
+  )
+
+  // plain text: nothing to preview
+  if (!markdown) {
+    return (
+      <div className='simple-editor'>
+        {editPane}
+      </div>
+    )
+  }
+
+  const previewPane = (
+    <div className='simple-editor-preview'>
+      {/* only parsed while visible: an inactive pane stays mounted, and
+          re-rendering a large markdown document on every keystroke in the
+          edit tab is not a cost worth paying for something nobody sees */}
+      {activeTab === 'preview' && (
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{ a: renderLink }}
+        >
+          {props.value || ''}
+        </ReactMarkdown>
+      )}
+    </div>
+  )
+
+  return (
+    <div className='simple-editor'>
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        items={[
+          { key: 'edit', label: e('edit'), children: editPane },
+          { key: 'preview', label: e('preview'), children: previewPane }
+        ]}
       />
     </div>
   )
