@@ -1,6 +1,6 @@
 {
   "name": "electerm",
-  "version": "5.8.0",
+  "version": "5.8.1",
   "description": "Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(Linux, Mac, Windows, Android, HarmonyOS, iOS).",
   "main": "app.js",
   "scripts": {
