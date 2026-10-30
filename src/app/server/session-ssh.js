@@ -106,10 +106,19 @@ class TerminalSshBase extends TerminalBase {
     // Set once a prompt was cancelled or taken back. Retrying from here would
     // ask the very same question, and no retry can answer it on its own.
     this.interactiveAborted = false
+    // Per connection: did the auth handler actually send the `password` method?
+    // The 2FA reconnect below is only worth its extra login when it did.
+    this.passwordAuthAttempted = false
+    // Per session init: the saved password was rejected and the user was asked
+    // for another one. Asking twice would be a loop.
+    this.passwordReprompted = false
   }
 
   async remoteInitProcess () {
     this.adjustConnectionOrder()
+    // one re-prompt per init: sshConnect() re-enters on every retry, so this
+    // can not live there
+    this.passwordReprompted = false
     const {
       initOptions
     } = this
@@ -244,6 +253,9 @@ class TerminalSshBase extends TerminalBase {
         return false
       }
 
+      if (nextAuth === 'password') {
+        this.passwordAuthAttempted = true
+      }
       attemptedMethods.add(nextAuth)
       return nextAuth
     }
@@ -369,8 +381,14 @@ class TerminalSshBase extends TerminalBase {
    * A prompt from the retry chain (username / password / passphrase) is created
    * *after* the attempt that failed, for the attempt that has not started yet,
    * so no connection owns it - see abortPendingPrompts.
+   *
+   * `forcePrompt` skips the auto-fill. That is only right when the saved
+   * password is known to be rejected: filling the same string back in asks the
+   * server the question it just said no to, and for a one-line
+   * "password + one-time code" login (#4670) it reuses a code that is already
+   * spent, so the login can never succeed again.
    */
-  onKeyboardEvent (options, passwordOverride, ownerConn) {
+  onKeyboardEvent (options, passwordOverride, ownerConn, forcePrompt = false) {
     if (options?.mode !== 'confirm' && this.initOptions?.interactiveValues) {
       return Promise.resolve(this.initOptions.interactiveValues.split('\n'))
     }
@@ -384,7 +402,7 @@ class TerminalSshBase extends TerminalBase {
     const savedPassword = passwordOverride !== undefined
       ? passwordOverride
       : this.initOptions?.password
-    if (prompts && prompts.length === 1 && savedPassword) {
+    if (!forcePrompt && prompts && prompts.length === 1 && savedPassword) {
       const prompt = prompts[0]
       const promptText = (prompt.prompt || '').toLowerCase().trim()
       // Check if this is a password prompt (hidden input, contains "password" or is empty)
@@ -874,6 +892,7 @@ class TerminalSshBase extends TerminalBase {
       })
     }
     this.authPartiallySucceeded = false
+    this.passwordAuthAttempted = false
     connectOptions.authHandler = this.createAuthHandler(connectOptions)
     return new Promise((resolve, reject) => {
       conn.on('keyboard-interactive', async (
@@ -896,9 +915,14 @@ class TerminalSshBase extends TerminalBase {
         // asks for the 2FA code is the connection the server issued the challenge
         // on, and dropping it strands the answer (bastion gateways bind the code
         // to the connection that requested it, so the login just hangs).
+        // And only when the `password` method was actually sent: a server that
+        // never offered it is already answering through keyboard-interactive
+        // alone, so the reconnect would repeat the exact same exchange (and cost
+        // a whole extra login) for nothing.
         if (
           !this.retry2FA &&
           !this.authPartiallySucceeded &&
+          this.passwordAuthAttempted &&
           connectOptions.password &&
           this.isLikely2FAPrompts(prompts) &&
           this.kiRoundHasPasswordPrompt(prompts)
@@ -1223,8 +1247,19 @@ class TerminalSshBase extends TerminalBase {
       return this.sshConnect()
     } else if (
       err.message.includes(failMsg) &&
-      !this.connectOptions.password
+      (!this.connectOptions.password || !this.passwordReprompted)
     ) {
+      // A password the server has just rejected is not an answer: without this
+      // the login dead-ends in "All configured authentication methods failed"
+      // even though the user could simply type a working one. The case that
+      // needs it is a one-time code kept in the password field (#4670): the
+      // first attempt spends the code - the connection test spends it too - so
+      // every later attempt replays a string the server already threw away.
+      // `isMFA` deletes connectOptions.password but the retry chain still
+      // auto-fills initOptions.password, so both have to be considered.
+      const savedPassword = !!(this.connectOptions.password || this.initOptions?.password)
+      // ask at most once per init: a second wrong answer is the user's, not a loop
+      this.passwordReprompted = true
       const options = {
         name: `password for ${this.initOptions.username}@${this.initOptions.host}`,
         instructions: [''],
@@ -1233,7 +1268,9 @@ class TerminalSshBase extends TerminalBase {
           prompt: 'password'
         }]
       }
-      return this.onKeyboardEvent(options)
+      // forcePrompt: never put the rejected string back in the box, the user is
+      // here precisely because it did not work
+      return this.onKeyboardEvent(options, undefined, undefined, savedPassword)
         .then(data => {
           if (data && data[0]) {
             this.connectOptions.password = data[0]

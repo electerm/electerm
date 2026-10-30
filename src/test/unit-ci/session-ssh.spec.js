@@ -16,6 +16,8 @@ const USERNAME = 'tester'
 const PASSWORD = 'electerm-test'
 const OTP = '123456'
 const PASSPHRASE = 'electerm-passphrase'
+// the one-line form: password and one-time code in a single answer (#4670)
+const PASSCODE = `${PASSWORD} ${OTP}`
 
 const HOST_KEY = utils.generateKeyPairSync('ed25519', {
   comment: 'electerm-test-host'
@@ -340,6 +342,39 @@ function passwordOnlyAuth () {
       return ctx.accept()
     }
     return ctx.reject(['password'])
+  }
+}
+
+/**
+ * HPC shape behind #4670: one hidden prompt that asks for the password and the
+ * second factor together, answered as `"<password> <code>"`, and the code is
+ * single use - once accepted it can never be used again (the connection test
+ * spends it, so the session that follows replays a dead string).
+ */
+function oneTimePasscodeAuth (state) {
+  return (ctx) => {
+    if (ctx.method === 'none') {
+      return ctx.reject(['keyboard-interactive'])
+    }
+    if (ctx.method === 'keyboard-interactive' && ctx.username === USERNAME) {
+      state.rounds++
+      return ctx.prompt([
+        { prompt: 'Password (password + verification code):', echo: false }
+      ], (responses) => {
+        const answer = responses[0]
+        if (state.used.has(answer)) {
+          state.rejected.push(answer)
+          return ctx.reject(['keyboard-interactive'])
+        }
+        const [pass, code] = String(answer).split(' ')
+        if (pass === PASSWORD && /^\d{6}$/.test(code)) {
+          state.used.add(answer)
+          return ctx.accept()
+        }
+        ctx.reject(['keyboard-interactive'])
+      })
+    }
+    return ctx.reject(['keyboard-interactive'])
   }
 }
 
@@ -688,6 +723,71 @@ describe('session-ssh auth flows', () => {
         'the empty label is filled from the keyboard-interactive instructions')
       assert.deepEqual(rounds, ['password', 'otp'],
         'password first, then the code on the same connection')
+    } finally {
+      term && term.kill()
+      await server.close()
+    }
+  })
+
+  test('a spent one-time code is re-asked, not replayed (#4670)', async () => {
+    // the connection test already authenticated, so the saved passcode is dead
+    const state = { used: new Set([PASSCODE]), rejected: [], rounds: 0 }
+    const server = await startServer(oneTimePasscodeAuth(state))
+    const ws = createPromptWs((options) => {
+      assert.match(options.prompts[0].prompt, /password/i,
+        'the dialog must be the password prompt from the retry chain')
+      return [`${PASSWORD} 654321`]
+    })
+
+    let term
+    try {
+      term = await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        password: PASSCODE,
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+
+      assert.ok(term, 'session should be created with the fresh code')
+      // before the fix this was 0: the spent string was auto-filled into every
+      // prompt, so the login dead-ended in "All configured authentication
+      // methods failed" with nothing for the user to do
+      assert.equal(ws.prompts.length, 1, 'exactly one prompt for the fresh code')
+      assert.deepEqual(state.rejected, [PASSCODE],
+        'the first attempt replayed the spent code and was rejected')
+    } finally {
+      term && term.kill()
+      await server.close()
+    }
+  })
+
+  test('a keyboard-interactive-only server is not reconnected just to drop the password', async () => {
+    const state = { used: new Set(), rejected: [], rounds: 0 }
+    const server = await startServer(oneTimePasscodeAuth(state))
+    const ws = createPromptWs(() => [PASSCODE])
+
+    let term
+    try {
+      term = await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        password: PASSCODE,
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+
+      assert.ok(term, 'session should be created')
+      // the 2FA retry hangs up and reconnects without the password method so
+      // keyboard-interactive can answer both factors. When the server never
+      // offered `password` at all that reconnect re-runs the identical exchange:
+      // a whole extra login per connect, on servers that count them.
+      assert.equal(state.rounds, 1, 'one keyboard-interactive exchange')
+      assert.deepEqual(state.rejected, [], 'the code was accepted first time')
     } finally {
       term && term.kill()
       await server.close()
