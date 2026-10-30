@@ -36,7 +36,10 @@ class TerminalVnc extends TerminalBase {
     })
     this.channel = target
     target.on('data', this.onData)
-    target.on('end', this.kill)
+    target.on('end', () => {
+      this.failWs(4001, 'remote closed the connection')
+      this.kill()
+    })
     target.on('error', this.onError)
 
     this.ws.on('message', this.onMsg)
@@ -76,28 +79,47 @@ class TerminalVnc extends TerminalBase {
 
   }
 
+  // The ws is the only channel to the renderer, and noVNC reports a ws close as
+  // "Connection closed (code, reason)". So a refused or unreachable target has
+  // to be reported in the close frame — otherwise every such failure reaches
+  // the user as an unexplained disconnect.
+  failWs = (code, reason) => {
+    if (!this.ws) {
+      return
+    }
+    try {
+      // the ws spec caps a close reason at 123 bytes
+      this.ws.close(code, String(reason || '').slice(0, 100))
+    } catch (e) {
+      log.error('vnc ws close error', e)
+    }
+  }
+
   onError = (err) => {
     log.error('vnc error', err)
+    // node puts the code in the message for connect errors
+    this.failWs(4000, err.message)
     this.kill()
   }
 
   test = async () => {
+    const {
+      host,
+      port
+    } = this.initOptions
+    const info = await this.hop()
     return new Promise((resolve, reject) => {
-      const {
+      const sock = net.createConnection({
+        port,
         host,
-        port
-      } = this.initOptions
-      return this.hop()
-        .then(info => {
-          net.createConnection({
-            port,
-            host,
-            ...info
-          }, () => {
-            resolve(true)
-          })
-        })
-        .catch(err => reject(err))
+        ...info
+      }, () => {
+        sock.destroy()
+        resolve(true)
+      })
+      // without this an unreachable host rejects nothing, the promise never
+      // settles and the unhandled 'error' event takes the session server down
+      sock.on('error', reject)
     })
   }
 
