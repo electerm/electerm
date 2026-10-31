@@ -2,7 +2,7 @@
  * Osc52Addon - Handles OSC 52 clipboard escape sequences
  *
  * OSC 52 allows terminal programs (TUI apps like vim, tmux, opencode, etc.)
- * to copy and paste text via the system clipboard.
+ * to copy text to the system clipboard.
  *
  * Format: ESC ] 52 ; Pc ; Pd BEL (or ST)
  *   Pc = clipboard selection: c (clipboard), p (primary), s (secondary)
@@ -12,22 +12,18 @@
  *   -> decodes base64 and writes to system clipboard
  *
  * Read request: ESC ] 52 ; c ; ? BEL
- *   -> reads system clipboard, encodes base64, sends response
+ *   -> REFUSED. A read would hand whatever is on the local clipboard to
+ *      whatever host the terminal is connected to, silently and with no user
+ *      action, so the sequence is consumed and ignored. Nothing that matters
+ *      actually uses it: tmux, vim and neovim only write. Terminals that do
+ *      implement read (kitty, iTerm2) prompt or deny by default for exactly
+ *      this reason. See GHSA-wv8h-9mm4-9h33.
  */
 
 export class Osc52Addon {
   constructor () {
     this.terminal = undefined
     this._disposables = []
-    this._sendData = null
-  }
-
-  /**
-   * Set the function used to send data back to the PTY
-   * @param {function} sendDataFn - function(string) to send data to server
-   */
-  setSendData (sendDataFn) {
-    this._sendData = sendDataFn
   }
 
   activate (terminal) {
@@ -73,28 +69,15 @@ export class Osc52Addon {
     if (target && !target.includes('c')) return false
 
     if (payload === '?') {
-      // Read request - send clipboard content back
-      return this._handleReadRequest()
+      // Read request - refuse. Answering it would let any host the user has a
+      // terminal open to lift the local clipboard (passwords, passphrases, API
+      // tokens) with no prompt. Swallow the sequence so the write path below
+      // stays the only thing this addon does.
+      return true
     }
 
     // Write request - decode and write to clipboard
     return this._handleWriteRequest(payload)
-  }
-
-  /**
-   * Handle clipboard read request (ESC]52;c;? BEL)
-   * Reads system clipboard and sends response back to the terminal
-   */
-  _handleReadRequest () {
-    try {
-      const text = window.pre.readClipboard()
-      const base64 = text ? this._encodeBase64(text) : ''
-      this._sendResponse(base64)
-    } catch (e) {
-      console.error('OSC 52 clipboard read failed:', e)
-      this._sendResponse('')
-    }
-    return true
   }
 
   /**
@@ -111,30 +94,6 @@ export class Osc52Addon {
       console.error('OSC 52 clipboard write failed:', e)
     }
     return true
-  }
-
-  /**
-   * Send OSC 52 response back to the terminal (for read requests)
-   * @param {string} base64Data - base64-encoded clipboard content
-   */
-  _sendResponse (base64Data) {
-    if (!this._sendData) return
-    // Response format: ESC ] 52 ; c ; <base64> BEL
-    const response = `\x1b]52;c;${base64Data}\x07`
-    this._sendData(response)
-  }
-
-  /**
-   * Encode a string to base64 (handles UTF-8 properly)
-   */
-  _encodeBase64 (str) {
-    const encoder = new TextEncoder()
-    const bytes = encoder.encode(str)
-    let binary = ''
-    for (let i = 0; i < bytes.length; i++) {
-      binary += String.fromCharCode(bytes[i])
-    }
-    return btoa(binary)
   }
 
   /**
