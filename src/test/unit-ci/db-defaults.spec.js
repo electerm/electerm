@@ -92,6 +92,14 @@ describe('default local terminal bookmarks', () => {
     }
   })
 
+  it('every seeded bookmark has its own brand color, not the fallback', () => {
+    // colors is keyed by title, so a rename that misses the map silently
+    // falls back to the generic #0088cc
+    for (const b of bookmarks) {
+      assert.notEqual(b.color, '#0088cc', `${b.title} fell back to the generic color`)
+    }
+  })
+
   it('never leaks another platform exec field', () => {
     const others = ['execWindows', 'execMac', 'execLinux'].filter(k => k !== execProp)
     for (const b of bookmarks) {
@@ -133,6 +141,12 @@ describe('default local terminal bookmarks', () => {
       assert.equal(b.execWindowsArgs.length, 0)
       assert.ok(b.execWindows)
     }
+
+    // #4673: powershell.exe is Windows PowerShell 5.1, not PowerShell 7,
+    // and the list only shows the title, so the title has to say which
+    assert.equal(full[1].title, 'Windows PowerShell')
+    assert.match(full[1].description, /5\.1/)
+    assert.equal(full[2].title, 'PowerShell 7')
 
     // a machine without git bash / pwsh simply gets fewer entries
     const partial = buildWindowsBookmarks({
