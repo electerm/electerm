@@ -8,6 +8,7 @@ const { exec, spawn } = require('child_process')
 const execAsync = promisify(exec)
 const { getSizeCount, getSizeCountWin } = require('../common/get-folder-size-and-file-count.js')
 const { readdirStat, normalizeDirPath } = require('../common/readdir-stat')
+const { generateSshKeyPair } = require('../common/ssh-keygen')
 
 const ROOT_PATH = '/'
 
@@ -333,7 +334,8 @@ const fsExport = Object.assign(
     openCustom,
     closeCustom,
     statCustom,
-    readdirStatAsync
+    readdirStatAsync,
+    generateSshKeyPair
   },
   {
     readdirAsync: readdirNames,
