@@ -16,10 +16,23 @@ exports.commonExtends = function (Cls) {
     }, {})
   }
 
+  /**
+   * session channel env requests
+   *
+   * An empty envLang means "send nothing": some gateways (nju hpc, #4670)
+   * answer the shell request by dropping the connection when the session
+   * carries an env request the server never asked for, and OpenSSH sends
+   * none by default, so a cleared field has to be able to stay empty
+   * instead of falling back to en_US.UTF-8.
+   */
   Cls.prototype.getEnv = function (initOptions = this.initOptions) {
+    const env = this.customEnv(initOptions.setEnv)
+    if (!initOptions.envLang) {
+      return env
+    }
     return {
-      LANG: initOptions.envLang || 'en_US.UTF-8',
-      ...this.customEnv(initOptions.setEnv)
+      LANG: initOptions.envLang,
+      ...env
     }
   }
 
