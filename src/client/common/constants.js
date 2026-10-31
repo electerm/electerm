@@ -81,6 +81,10 @@ export const authTypeMap = buildConst([
 ])
 
 export const footerHeight = 36
+// the chrome-style bookmark bar under the tab strip, one row of items. Kept in
+// sync with `.bookmark-bar` height in bookmark-bar.styl and reserved out of the
+// session height (see sessions.jsx computeHeight).
+export const bookmarkBarHeight = 28
 export const remoteMonitorBarHeight = 28
 export const quickCommandBoxHeight = 180
 export const shortcutBarHeight = 44
@@ -153,6 +157,7 @@ export const terminalFtpType = 'ftp'
 export const terminalSpiceType = 'spice'
 export const openedSidebarKey = 'opened-sidebar'
 export const sidebarPinnedKey = 'sidebar-pinned'
+export const bookmarkBarVisibleKey = 'bookmark-bar-visible'
 export const leftSideBarOpenKey = 'left-side-bar-open'
 export const pinnedQuickCommandBarKey = 'pinned-quick-command-bar'
 export const leftSidePanelWidthKey = 'left-sidebar-width'

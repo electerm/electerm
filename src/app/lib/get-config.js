@@ -19,6 +19,25 @@ function migrateRightClickBehavior (userConfig) {
   delete userConfig.pasteWhenContextMenu
 }
 
+// `bookmarkBar` is a new entry in `leftSideBarIcons`, and the icon bar renders
+// exactly what that list names — so a config saved before the icon existed has
+// no way to show it. Insert it once, next to the bookmarks icon it belongs
+// with. The `bookmarkBarIconSeeded` marker is what makes this a one-shot: a
+// user who removes the icon afterwards keeps it removed, because the marker is
+// saved along with the list they edited.
+function migrateLeftSideBarIcons (userConfig) {
+  if (userConfig.bookmarkBarIconSeeded) {
+    return
+  }
+  userConfig.bookmarkBarIconSeeded = true
+  const icons = userConfig.leftSideBarIcons
+  if (!Array.isArray(icons) || icons.includes('bookmarkBar')) {
+    return
+  }
+  const index = icons.indexOf('bookmarks')
+  icons.splice(index === -1 ? icons.length : index + 1, 0, 'bookmarkBar')
+}
+
 exports.getConfig = async (inited) => {
   const userConfig = await dbAction('data', 'findOne', {
     _id: userConfigId
@@ -31,6 +50,7 @@ exports.getConfig = async (inited) => {
   delete userConfig.hashedPassword
   delete userConfig.salt
   migrateRightClickBehavior(userConfig)
+  migrateLeftSideBarIcons(userConfig)
   const port = inited
     ? globalState.get('config').port
     : await getPort()
