@@ -2,8 +2,8 @@
  * transfer through ws
  */
 
-import generate from './uid'
-import initWs from './ws'
+import generate from './uid.js'
+import initWs from './ws.js'
 
 const keys = window.pre.transferKeys
 
@@ -52,19 +52,44 @@ class Transfer {
       }
     }
     ws.addEventListener('message', this.onData)
+    // A transfer socket is not persistent. When it drops, the server has
+    // already torn the transfer down (session-server.js destroys it on the
+    // socket's close event), so the only truthful outcome is an error: without
+    // `onClose` the pending `transfer:end`/`transfer:err` entries are dropped
+    // by clearOnces() and the panel shows a running transfer forever.
+    // `finished` keeps that from firing on the three deliberate teardowns --
+    // `transfer:end`, `transfer:err` and destroy()/cancel, all of which close
+    // the socket themselves.
+    const onClose = () => {
+      if (th.finished) {
+        return
+      }
+      th.finished = true
+      onError(new Error('Connection lost'))
+      th.onDestroy(ws)
+    }
     ws.once((arg) => {
+      if (th.finished) {
+        return
+      }
+      th.finished = true
       onEnd(arg)
       th.onDestroy(ws)
-    }, 'transfer:end:' + id)
+    }, 'transfer:end:' + id, onClose)
     ws.once((arg) => {
+      if (th.finished) {
+        return
+      }
+      th.finished = true
       console.debug('sftp transfer error')
       console.debug(arg.error.stack)
       onError(new Error(arg.error.message))
       th.onDestroy(ws)
-    }, 'transfer:err:' + id)
+    }, 'transfer:err:' + id, onClose)
   }
 
   onDestroy (ws) {
+    this.finished = true
     ws.removeEventListener('message', this.onData)
     ws.close()
   }
