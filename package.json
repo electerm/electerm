@@ -98,7 +98,7 @@
     "vite": "8.3.5"
   },
   "dependencies": {
-    "@electerm/electerm-locales": "2.3.35",
+    "@electerm/electerm-locales": "2.3.36",
     "@electerm/electerm-themes": "1.0.2",
     "@electerm/ftp-srv": "^1.1.0",
     "@electerm/nedb": "2.0.0",
