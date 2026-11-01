@@ -16,7 +16,8 @@
  *       rowButtons?: [{ label, action, danger? }]
  *     },
  *     buttons?: [{ label, action, danger? }],
- *     openTab?: object            // opened as a new terminal tab
+ *     openTab?: object,           // opened as a new terminal tab
+ *     bookmarks?: { bookmarks, bookmarkGroups }  // offered for import
  *   }
  *
  * Row buttons call the action with `(row, values)`, other buttons and the
@@ -43,6 +44,7 @@ import { copy } from '../../common/clipboard'
 import message from '../common/message'
 import openWidgetTab from './widget-open-tab'
 import WidgetAIConfig from './widget-ai-config'
+import WidgetBookmarks, { getBookmarkOffer } from './widget-bookmarks'
 import {
   renderConfigItem,
   configInitialValues
@@ -144,9 +146,10 @@ function ResultView ({ result, busy, onAction, onBack, canBack }) {
     details,
     table,
     buttons,
-    aiConfig
+    aiConfig,
+    bookmarks
   } = result
-  const known = msg || (details && details.length) || (table && table.rows) || (buttons && buttons.length) || aiConfig
+  const known = msg || (details && details.length) || (table && table.rows) || (buttons && buttons.length) || aiConfig || getBookmarkOffer(bookmarks)
   const toggle = (key) => setRevealed(old => ({ ...old, [key]: !old[key] }))
 
   return (
@@ -171,6 +174,8 @@ function ResultView ({ result, busy, onAction, onBack, canBack }) {
           className='mg1b'
         />
       )}
+      {/* right below the message, a long details list must not hide it */}
+      <WidgetBookmarks offer={bookmarks} />
       {details && details.length > 0 && (
         <div className='cwf-details'>
           {details.map((item, i) => (
