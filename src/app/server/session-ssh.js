@@ -76,10 +76,15 @@ function expandHome (p) {
  * Fill `privateKey` / `certificate` from their `...Path` counterpart when only
  * a path was given. Mutates and returns `options`.
  * @param {object} options ssh2 connect options
+ * @param {string} [authType] the bookmark's auth type: with 'password' an
+ *   unreadable key file is skipped. The form hides the key fields then, so a
+ *   path left over from an earlier key setup (or an imported blank one) can
+ *   neither be seen nor cleared, and must not block the password login.
  */
-function resolveKeyFiles (options) {
+function resolveKeyFiles (options, authType) {
   for (const [pathKey, contentKey] of keyFilePairs) {
-    const filePath = options[pathKey]
+    // a blank path is no path
+    const filePath = (options[pathKey] || '').trim()
     if (!filePath || options[contentKey]) {
       continue
     }
@@ -87,6 +92,10 @@ function resolveKeyFiles (options) {
       options[contentKey] = require('fs')
         .readFileSync(expandHome(filePath), 'utf8')
     } catch (err) {
+      if (authType === 'password') {
+        log.warn(`skip unreadable ${contentKey} file, auth type is password`, filePath, err.message)
+        continue
+      }
       log.error(`cannot read ${contentKey} file`, filePath, err)
       // failing the connection with the real reason beats a bare
       // "All configured authentication methods failed"
@@ -658,7 +667,7 @@ class TerminalSshBase extends TerminalBase {
     }
     // hop connections never go through buildConnectOptions(), so their key
     // path has to be read here - and before hasExplicitAuth is worked out
-    resolveKeyFiles(this.hoppingOptions)
+    resolveKeyFiles(this.hoppingOptions, this.hoppingOptions.authType)
     const { Client } = require('@electerm/ssh2')
     this.nextConn = new Client()
     // If we have an agent and no explicit privateKey/password, try agent first
@@ -1091,7 +1100,7 @@ class TerminalSshBase extends TerminalBase {
         'encode'
       ])
     )
-    resolveKeyFiles(connectOptions)
+    resolveKeyFiles(connectOptions, initOptions.authType)
     if (initOptions.isMFA) {
       this.retry2FA = true
       delete connectOptions.password
