@@ -20,6 +20,7 @@ import {
 import * as ls from '../../common/safe-local-storage'
 import { isMac } from '../../common/platform'
 import { getScancode } from './code-scan'
+import { getRDCleanPathDetails, rdCleanPathText, negotiationText, errorKind, logonMode, nextLogonStep, nlaFallbackOf } from './rdp-errors'
 import resolutions from './resolutions'
 import { readClipboardAsync } from '../../common/clipboard'
 import RemoteFloatControl from '../common/remote-float-control'
@@ -150,10 +151,51 @@ export default class RdpSession extends PureComponent {
     return `ws://${host}:${port}/${type}/${id}?token=${tokenElecterm}${extra}`
   }
 
-  remoteInit = async (credOverride) => {
+  /**
+   * ping (or the rdp port) before connecting, unless the bookmark turned
+   * it off: a sleeping host otherwise fails only after the tcp timeout
+   * @return {Promise<boolean>} go on connecting
+   */
+  checkHostFirst = async (tab) => {
+    // behind a jump host or proxy the target is often not reachable from
+    // here at all, only the hop would answer: no check then
+    const indirect = tab.proxy || tab.hasHopping || tab.connectionHoppings?.length
+    if (tab.pingBeforeConnect === false || indirect || !window.pre?.runGlobalAsync) {
+      return true
+    }
+    const port = tab.port || 3389
+    const r = await window.pre.runGlobalAsync('checkHost', tab.host, port)
+      .catch(() => null)
+    if (!r || r.ok) {
+      return true
+    }
+    return new Promise(resolve => {
+      Modal.confirm({
+        title: 'Host not reachable',
+        content: `${tab.host} does not answer ping, and port ${port} is closed: ` +
+          'the computer may be off or asleep. Connect anyway?',
+        okText: 'Connect anyway',
+        cancelText: window.translate('cancel'),
+        onOk: () => resolve(true),
+        onCancel: () => resolve(false)
+      })
+    })
+  }
+
+  /**
+   * @param {object} [credOverride] user name and password from the form
+   * @param {boolean} [logonScreen] retry without NLA after a failed NLA logon
+   */
+  remoteInit = async (credOverride, logonScreen = false) => {
     this.setState({
       loading: true
     })
+    // a retry already passed the check
+    if (!credOverride && !logonScreen && !(await this.checkHostFirst(this.props.tab || {}))) {
+      this.setState({ loading: false })
+      this.setStatus(statusMap.error)
+      return
+    }
     const { config } = this.props
     const { id } = this.props
     const tab = {
@@ -213,6 +255,14 @@ export default class RdpSession extends PureComponent {
 
     this.setStatus(statusMap.success)
 
+    const nlaFallback = nlaFallbackOf(tab)
+    const mode = logonMode({
+      nlaFallback,
+      nlaFallbackPassword: !!tab.nlaFallbackPassword,
+      password: tab.password,
+      logonScreen
+    })
+
     try {
       const canvas = this.canvasRef.current
       if (!canvas) {
@@ -225,10 +275,16 @@ export default class RdpSession extends PureComponent {
       const rdpPort = tab.port || 3389
       const destination = `${rdpHost}:${rdpPort}`
       const username = tab.username || ''
-      const password = tab.password || ''
+      const { password } = mode
 
       const desktopSize = new window.ironRdp.DesktopSize(width, height)
-      const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', true)
+      // no NLA (bookmark allows the fallback): there is no password, or the
+      // NLA logon failed; the server must then allow connections without NLA
+      this.credssp = mode.credssp
+      const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', mode.credssp)
+      // without NLA Windows uses the password only with INFO_AUTOLOGON set,
+      // otherwise its logon screen asks for it again
+      const autologonExt = new window.ironRdp.Extension('autologon', password !== '')
       // Unknown extensions are ignored by older wasm builds, so this is safe to
       // pass unconditionally.
       const pointerExt = new window.ironRdp.Extension('enable_server_pointer', ENABLE_SERVER_POINTER)
@@ -246,6 +302,7 @@ export default class RdpSession extends PureComponent {
       builder.renderCanvas(canvas)
       builder.extension(enableCredsspExt)
       builder.extension(pointerExt)
+      builder.extension(autologonExt)
 
       this.fileTransfer = new FileTransferManager(
         () => this.session,
@@ -329,6 +386,29 @@ export default class RdpSession extends PureComponent {
         this.onSessionEnd()
       })
     } catch (e) {
+      const step = nextLogonStep(errorKind(e), {
+        nlaFallback,
+        credssp: mode.credssp,
+        logonScreen
+      })
+      if (step === 'logonScreen') {
+        this.log(`NLA logon failed (${this.formatError(e)}), opening the Windows logon screen`, 'info')
+        notification.info({
+          message: `RDP: ${tab.title || tab.host || ''}`,
+          description: mode.password && tab.nlaFallbackPassword
+            ? 'NLA logon failed: logging on without NLA'
+            : 'NLA logon failed: log on at the Windows logon screen',
+          duration: 8
+        })
+        this.cleanup()
+        return this.remoteInit(credOverride, true)
+      }
+      if (step === 'askPassword') {
+        this.log('The server requires NLA, asking for the password', 'info')
+        this.setState({ loading: false, showCredPrompt: true })
+        this.setStatus(statusMap.error)
+        return
+      }
       this.showError(e)
       this.setState({
         loading: false,
@@ -375,13 +455,22 @@ export default class RdpSession extends PureComponent {
     if (this.isAuthError(err)) {
       return window.translate('loginFail') + ` (${this.formatError(err)})`
     }
-    return this.formatError(err)
+    const { host, port = 3389 } = this.props.tab || {}
+    return rdCleanPathText(getRDCleanPathDetails(err), host, port) ||
+      negotiationText(err, this.credssp !== false) ||
+      this.formatError(err)
   }
 
+  // stays until closed: a connect can fail after a 20s timeout, when
+  // nobody looks at a toast any more
   showError = (err) => {
     const text = this.errText(err)
     this.log(`Connection failed: ${this.formatError(err)}`, 'error')
-    message.error(text, 10)
+    notification.error({
+      message: `RDP: ${this.props.tab?.title || this.props.tab?.host || ''}`,
+      description: text,
+      duration: 0
+    })
   }
 
   onCredSubmit = (res) => {
