@@ -7,6 +7,7 @@ import WidgetForm from './widget-form'
 import CustomWidgetPanel from './custom-widget-panel'
 import CustomWidgetForm from './custom-widget-form'
 import { showMsg } from './widget-notification-with-details'
+import { withPersistedApiKeys } from '../../common/widget-api-key'
 
 export default function WidgetControl ({ formData, widgetInstancesLength }) {
   const [loading, setLoading] = useState(false)
@@ -56,7 +57,15 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
     instance => instance.widgetId === widget.id
   )
 
-  const handleFormSubmit = async (config) => {
+  const handleFormSubmit = async (values) => {
+    // the form does not remember what was typed last time, so a generated
+    // secret would be empty on every launch — fill it from storage before the
+    // widget sees it, and remember a key the user replaced
+    const config = withPersistedApiKeys(
+      widget.id,
+      widget.info && widget.info.configs,
+      values
+    )
     setLoading(true)
     try {
       const result = await window.store.runWidget(widget.id, config)

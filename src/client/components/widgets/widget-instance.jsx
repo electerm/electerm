@@ -6,6 +6,7 @@ import {
 } from 'antd'
 import { CloseOutlined, CopyOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import { copy } from '../../common/clipboard'
+import { maskUrl } from '../../common/mask-url'
 import classnames from 'classnames'
 import { auto } from 'manate/react'
 
@@ -58,7 +59,7 @@ export default auto(function WidgetInstance ({ item, active, onClick }) {
     ? (
       <div className='wil-pop-info'>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span>URL: {serverInfo.url}</span>
+          <span>URL: {maskUrl(serverInfo.url)}</span>
           <CopyOutlined
             className='pointer mg1l'
             onClick={handleCopy}
