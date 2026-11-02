@@ -147,8 +147,8 @@ export function ColorPickerItem () {
   return (
     <>
       {/* Register both fields even before the popover is opened. */}
-      <FormItem name='color' noStyle><Input type='hidden' /></FormItem>
-      <FormItem name='iconUrl' noStyle><Input type='hidden' /></FormItem>
+      <FormItem name='color' noStyle><input type='hidden' style={{ display: 'none' }} /></FormItem>
+      <FormItem name='iconUrl' noStyle><input type='hidden' style={{ display: 'none' }} /></FormItem>
       <Popover content={content} trigger='click' open={open} onOpenChange={changeOpen} placement='bottom' destroyOnHidden>
         <button type='button' className='bookmark-appearance-trigger' aria-label={text.appearance} title={text.appearance}>
           <BookmarkIcon iconUrl={iconUrl} color={color} />
