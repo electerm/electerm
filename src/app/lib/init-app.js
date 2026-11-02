@@ -34,7 +34,7 @@ function initApp (langMap, config) {
   Menu.setApplicationMenu(menu)
   const e = globalState.get('translate')
   // handle autohide flag
-  if (process.argv.includes('--autohide')) {
+  if (process.argv.includes('--autohide') && !globalState.get('timer')) {
     globalState.set('timer', setTimeout(() => globalState.get('win').minimize(), 500))
     if (Notification.isSupported()) {
       const notice = new Notification({

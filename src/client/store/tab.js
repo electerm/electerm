@@ -200,6 +200,40 @@ export default Store => {
     store[`activeTabId${sourceTab.batch}`] = duplicatedTab.id
   }
 
+  Store.prototype.moveTabToNewWindow = async function (tabId, position) {
+    const { store } = window
+    const sourceTab = store.tabs.find(tab => tab.id === tabId)
+    if (!sourceTab) {
+      return false
+    }
+    const sessionState = captureSshSessionState(sourceTab, store.config)
+    const movedTab = {
+      ...deepCopy(sourceTab),
+      id: generate(),
+      status: statusMap.processing
+    }
+    delete movedTab._reloadState
+    delete movedTab.keepaliveEnabled
+    delete movedTab.isTransporting
+    if (sessionState) {
+      movedTab._reloadState = sessionState
+    }
+    try {
+      const moved = await window.pre.runGlobalAsync(
+        'moveTabToNewWindow',
+        movedTab,
+        position
+      )
+      if (moved) {
+        store.delTab(tabId)
+      }
+      return !!moved
+    } catch (err) {
+      store.onError(err)
+      return false
+    }
+  }
+
   // only toggles the flag: the tabs bar renders pinned tabs first,
   // store.tabs order itself is never changed by pinning
   Store.prototype.pinTab = function (tabId, isPinned = true) {

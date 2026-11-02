@@ -8,12 +8,12 @@ const {
   minWindowWidth,
   minWindowHeight
 } = require('../common/runtime-constants')
-const globalState = require('./glob-state')
 const { restoreWindowBounds } = require('./window-restore')
+const { getFocusedWindow, getWindowState } = require('./window-manager')
 
-exports.getScreenCurrent = () => {
-  const rect = globalState.get('win')
-    ? globalState.get('win').getBounds()
+exports.getScreenCurrent = (win = getFocusedWindow()) => {
+  const rect = win
+    ? win.getBounds()
     : {
         x: 0,
         y: 0,
@@ -24,8 +24,8 @@ exports.getScreenCurrent = () => {
   return screen.getDisplayMatching(rect)
 }
 
-exports.getScreenSize = () => {
-  const screen = exports.getScreenCurrent()
+exports.getScreenSize = (win) => {
+  const screen = exports.getScreenCurrent(win)
   return {
     ...screen.workAreaSize,
     x: screen.workArea.x,
@@ -33,21 +33,26 @@ exports.getScreenSize = () => {
   }
 }
 
-exports.maximize = () => {
-  const win = globalState.get('win')
-  globalState.set('oldRectangle', win.getBounds())
+exports.maximize = (win = getFocusedWindow()) => {
+  if (!win) {
+    return
+  }
+  getWindowState(win).oldRectangle = win.getBounds()
   win.maximize()
 }
 
-exports.unmaximize = () => {
-  const oldRectangle = globalState.get('oldRectangle') || {
+exports.unmaximize = (win = getFocusedWindow()) => {
+  if (!win) {
+    return
+  }
+  const oldRectangle = getWindowState(win).oldRectangle || {
     width: minWindowWidth,
     height: minWindowHeight,
     x: 200,
     y: 200
   }
-  globalState.get('win').unmaximize()
-  globalState.get('win').setBounds(oldRectangle)
+  win.unmaximize()
+  win.setBounds(oldRectangle)
 }
 
 // macOS only. After switching between apps in native fullscreen, the Spaces
@@ -56,8 +61,7 @@ exports.unmaximize = () => {
 // rendering in the top half. When fullscreen content bounds do not cover the
 // screen, snap the window back to the full screen bounds; the resulting
 // resize event lets the renderer recover with its normal logic.
-exports.repairFullScreenGeometry = () => {
-  const win = globalState.get('win')
+exports.repairFullScreenGeometry = (win = getFocusedWindow()) => {
   if (!win || !win.isFullScreen()) {
     return false
   }
