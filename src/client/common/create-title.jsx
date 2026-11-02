@@ -5,6 +5,7 @@
 import {
   terminalLocalType
 } from './constants'
+import BookmarkIcon from '../components/common/bookmark-icon.jsx'
 
 const e = window.translate
 
@@ -59,15 +60,21 @@ export default function createTitle (res, hide = true) {
 }
 
 export function createTitleTag (obj) {
-  const { color } = obj
-  if (!color) {
+  const { color, iconUrl } = obj
+  if (!color && !iconUrl) {
     return null
   }
   const styleTag = color
     ? { color }
     : {}
   return (
-    <span style={styleTag} className='tab-title-tag'>●</span>
+    <span className='tab-title-tag'>
+      <BookmarkIcon
+        iconUrl={iconUrl}
+        color={color}
+        fallback={<span style={styleTag}>●</span>}
+      />
+    </span>
   )
 }
 

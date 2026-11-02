@@ -4,7 +4,7 @@ import { defaultColors, getRandomHexColor } from '../../../common/rand-hex-color
 import { HexInput } from './hex-input.jsx'
 import './color-picker.styl'
 
-export function ColorPicker ({ value, onChange, ref, disabled, isRgba }) {
+export function ColorPicker ({ value, onChange, ref, disabled, isRgba, inline }) {
   const [visible, setVisible] = useState(false)
 
   const handleChange = (color) => {
@@ -53,6 +53,8 @@ export function ColorPicker ({ value, onChange, ref, disabled, isRgba }) {
       </div>
     )
   }
+
+  if (inline) return renderContent()
 
   const inner = (
     <div ref={ref} className='color-picker-choose' style={{ backgroundColor: value }} />
