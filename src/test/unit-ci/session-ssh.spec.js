@@ -632,6 +632,37 @@ describe('session-ssh auth flows', () => {
     assert.match(err.message, /cannot read privateKey file/)
   })
 
+  // the form hides the key fields for auth type password, so a key path
+  // left in the bookmark can not be cleared there; a blank one comes from
+  // imports (MobaXterm writes " " for "no key")
+  for (const [name, keyPath] of [
+    ['a blank key path', ' '],
+    ['an unreadable key path with auth type password', 'no-such-key-file']
+  ]) {
+    test(`password login works with ${name}`, async () => {
+      const server = await startServer(passwordOnlyAuth())
+      const ws = createPromptWs(() => [])
+      let term
+      try {
+        term = await session({
+          host: '127.0.0.1',
+          port: server.port,
+          username: USERNAME,
+          password: PASSWORD,
+          authType: 'password',
+          privateKeyPath: keyPath === ' ' ? ' ' : path.join(tmpDir, keyPath),
+          useSshAgent: false,
+          enableSsh: false,
+          readyTimeout: 5000
+        }, ws)
+        assert.ok(term, 'session should be established')
+      } finally {
+        term && term.kill()
+        await server.close()
+      }
+    })
+  }
+
   test('handles password and otp in the same keyboard-interactive round', async () => {
     const server = await startServer(sameRoundKeyboardInteractiveAuth())
     const ws = createPromptWs((options) => {
