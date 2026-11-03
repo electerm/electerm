@@ -75,16 +75,20 @@ function expandHome (p) {
 /**
  * Fill `privateKey` / `certificate` from their `...Path` counterpart when only
  * a path was given. Mutates and returns `options`.
+ *
+ * A key file that cannot be read is only worth failing on when it is the only
+ * credential this connection has. `authType` is deliberately not consulted: it
+ * says which inputs the form shows, not what the connection holds, and it is
+ * not even required - an imported bookmark need not carry one. A saved password
+ * is another way in, and the auth handler tries it before the key anyway.
  * @param {object} options ssh2 connect options
- * @param {string} [authType] the bookmark's auth type: with 'password' an
- *   unreadable key file is skipped. The form hides the key fields then, so a
- *   path left over from an earlier key setup (or an imported blank one) can
- *   neither be seen nor cleared, and must not block the password login.
  */
-function resolveKeyFiles (options, authType) {
+function resolveKeyFiles (options) {
   for (const [pathKey, contentKey] of keyFilePairs) {
-    // a blank path is no path
-    const filePath = (options[pathKey] || '').trim()
+    // a blank path is no path: imports write " " for "no key" (MobaXterm), and
+    // a path that is not a string at all can not be opened either
+    const rawPath = options[pathKey]
+    const filePath = typeof rawPath === 'string' ? rawPath.trim() : ''
     if (!filePath || options[contentKey]) {
       continue
     }
@@ -92,8 +96,8 @@ function resolveKeyFiles (options, authType) {
       options[contentKey] = require('fs')
         .readFileSync(expandHome(filePath), 'utf8')
     } catch (err) {
-      if (authType === 'password') {
-        log.warn(`skip unreadable ${contentKey} file, auth type is password`, filePath, err.message)
+      if (options.password) {
+        log.warn(`skip unreadable ${contentKey} file, a password is saved`, filePath, err.message)
         continue
       }
       log.error(`cannot read ${contentKey} file`, filePath, err)
@@ -667,7 +671,7 @@ class TerminalSshBase extends TerminalBase {
     }
     // hop connections never go through buildConnectOptions(), so their key
     // path has to be read here - and before hasExplicitAuth is worked out
-    resolveKeyFiles(this.hoppingOptions, this.hoppingOptions.authType)
+    resolveKeyFiles(this.hoppingOptions)
     const { Client } = require('@electerm/ssh2')
     this.nextConn = new Client()
     // If we have an agent and no explicit privateKey/password, try agent first
@@ -1100,7 +1104,7 @@ class TerminalSshBase extends TerminalBase {
         'encode'
       ])
     )
-    resolveKeyFiles(connectOptions, initOptions.authType)
+    resolveKeyFiles(connectOptions)
     if (initOptions.isMFA) {
       this.retry2FA = true
       delete connectOptions.password
