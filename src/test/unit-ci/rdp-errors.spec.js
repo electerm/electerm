@@ -1,3 +1,9 @@
+// rdp-proxy -> log -> runtime-constants requires '../../../package.json' when
+// isDev, and '../package.json' otherwise, which does not exist: without this
+// the whole file fails to load outside a dev shell (and in CI, which only sets
+// NODE_TEST). Must be set before the requires below.
+process.env.NODE_ENV = 'development'
+
 const { before, describe, test } = require('node:test')
 const assert = require('node:assert/strict')
 const net = require('net')
@@ -11,57 +17,33 @@ const { checkHost, tcpOpen, pingArgs, pingAnswered } = require('../../app/lib/ch
 let getRDCleanPathDetails
 let rdCleanPathText
 let negotiationText
-let logonMode
-let nextLogonStep
-let nlaFallbackOf
+let logonSettings
 
 before(async () => {
   const mod = await import('../../client/components/rdp/rdp-errors.js')
   getRDCleanPathDetails = mod.getRDCleanPathDetails
   rdCleanPathText = mod.rdCleanPathText
   negotiationText = mod.negotiationText
-  logonMode = mod.logonMode
-  nextLogonStep = mod.nextLogonStep
-  nlaFallbackOf = mod.nlaFallbackOf
+  const logon = await import('../../client/components/rdp/rdp-logon.js')
+  logonSettings = logon.logonSettings
 })
 
-describe('RDP logon: NLA, else the Windows logon screen', () => {
-  test('the switch is on unless turned off', () => {
-    assert.equal(nlaFallbackOf({}), true)
-    assert.equal(nlaFallbackOf({ nlaFallback: true }), true)
-    assert.equal(nlaFallbackOf({ nlaFallback: false }), false)
+describe('RDP logon: NLA is the bookmark decision', () => {
+  test('NLA is on unless the bookmark turned it off', () => {
+    assert.equal(logonSettings({}).nla, true)
+    assert.equal(logonSettings({ nla: true }).nla, true)
+    assert.equal(logonSettings({ nla: false }).nla, false)
   })
 
-  test('without the fallback always NLA', () => {
-    assert.deepEqual(logonMode({ password: 'pw' }), { credssp: true, password: 'pw' })
-    assert.deepEqual(logonMode({ password: '' }), { credssp: true, password: '' })
-    for (const kind of [1, 2, 6]) {
-      assert.equal(nextLogonStep(kind, { credssp: true }), '')
-    }
+  test('with NLA the password is sent', () => {
+    assert.deepEqual(logonSettings({ password: 'pw' }), { nla: true, password: 'pw' })
+    assert.deepEqual(logonSettings({ nla: true, password: 'pw' }), { nla: true, password: 'pw' })
+    assert.deepEqual(logonSettings({ nla: true }), { nla: true, password: '' })
   })
 
-  test('with the fallback: no password goes to the logon screen, else NLA first', () => {
-    assert.deepEqual(logonMode({ nlaFallback: true, password: '' }), { credssp: false, password: '' })
-    assert.deepEqual(logonMode({ nlaFallback: true, password: 'pw' }), { credssp: true, password: 'pw' })
-  })
-
-  test('the logon screen fallback sends the password only when the bookmark asks for it', () => {
-    assert.deepEqual(logonMode({ nlaFallback: true, password: 'pw', logonScreen: true }), { credssp: false, password: '' })
-    assert.deepEqual(logonMode({ nlaFallback: true, nlaFallbackPassword: true, password: 'pw', logonScreen: true }), { credssp: false, password: 'pw' })
-    assert.deepEqual(logonMode({ nlaFallback: true, nlaFallbackPassword: true, password: 'pw' }), { credssp: true, password: 'pw' })
-  })
-
-  test('a failed NLA logon or a server without NLA: the logon screen, once', () => {
-    for (const kind of [1, 2, 6]) {
-      assert.equal(nextLogonStep(kind, { nlaFallback: true, credssp: true }), 'logonScreen')
-    }
-    assert.equal(nextLogonStep(1, { nlaFallback: true, credssp: false, logonScreen: true }), '')
-    assert.equal(nextLogonStep(3, { nlaFallback: true, credssp: true }), '')
-  })
-
-  test('a server requiring NLA when trying without: ask for the password', () => {
-    assert.equal(nextLogonStep(6, { nlaFallback: true, credssp: false }), 'askPassword')
-    assert.equal(nextLogonStep(6, { nlaFallback: true, credssp: false, logonScreen: true }), 'askPassword')
+  test('without NLA the password is never sent: the logon screen asks for it', () => {
+    assert.deepEqual(logonSettings({ nla: false, password: 'pw' }), { nla: false, password: '' })
+    assert.deepEqual(logonSettings({ nla: false }), { nla: false, password: '' })
   })
 })
 
@@ -161,7 +143,9 @@ describe('rdp connect errors', () => {
   test('nla mismatch', () => {
     const kind = k => ({ kind: () => k })
     assert.match(negotiationText(kind(6), false), /requires NLA/)
-    assert.match(negotiationText(kind(6), true), /Without NLA as fallback/)
+    assert.match(negotiationText(kind(6), false), /turn on "Network level authentication \(NLA\)"/)
+    assert.match(negotiationText(kind(6), true), /does not accept NLA/)
+    assert.match(negotiationText(kind(6), true), /turn off "Network level authentication \(NLA\)"/)
     assert.equal(negotiationText(kind(4), true), '')
     assert.equal(negotiationText(new Error('x'), true), '')
   })
