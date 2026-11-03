@@ -246,9 +246,11 @@ function buildRDCleanPathResponse (serverAddr, x224Response, certChain) {
  *
  * @param {number} errorCode - 1=general, 2=negotiation
  * @param {number} [httpStatusCode] - optional HTTP status code
+ * @param {number} [wsaLastError] - optional Windows socket error (10060, ...)
+ * @param {number} [tlsAlertCode] - optional TLS alert (40, ...)
  * @returns {Buffer} DER-encoded RDCleanPath error response
  */
-function buildRDCleanPathError (errorCode, httpStatusCode) {
+function buildRDCleanPathError (errorCode, httpStatusCode, wsaLastError, tlsAlertCode) {
   const errParts = []
 
   // [0] error_code
@@ -257,6 +259,15 @@ function buildRDCleanPathError (errorCode, httpStatusCode) {
   // [1] http_status_code (optional)
   if (httpStatusCode != null) {
     errParts.push(derWrapContext(1, derEncodeInteger(httpStatusCode)))
+  }
+
+  // [2] wsa_last_error, [3] tls_alert_code (optional): the browser client
+  // shows these, "general error" alone tells the user nothing
+  if (wsaLastError != null) {
+    errParts.push(derWrapContext(2, derEncodeInteger(wsaLastError)))
+  }
+  if (tlsAlertCode != null) {
+    errParts.push(derWrapContext(3, derEncodeInteger(tlsAlertCode)))
   }
 
   const errSeq = derWrap(TAG_SEQUENCE, Buffer.concat(errParts))
@@ -268,6 +279,40 @@ function buildRDCleanPathError (errorCode, httpStatusCode) {
   parts.push(derWrapContext(1, errSeq))
 
   return derWrap(TAG_SEQUENCE, Buffer.concat(parts))
+}
+
+// node socket error -> windows socket error, the codes RDCleanPath carries
+const wsaCodes = {
+  EACCES: 10013,
+  ENETUNREACH: 10051,
+  ECONNRESET: 10054,
+  ETIMEDOUT: 10060,
+  ECONNREFUSED: 10061,
+  EHOSTDOWN: 10064,
+  EHOSTUNREACH: 10065,
+  ENOTFOUND: 11001,
+  EAI_AGAIN: 11002
+}
+const tlsHandshakeFailure = 40
+
+/**
+ * What went wrong, as RDCleanPath error fields
+ * @param {Error} err from performRDPHandshake
+ * @returns {{ http: number, wsa?: number, tls?: number }}
+ */
+function rdCleanPathErrorFor (err) {
+  const code = err && err.code
+  if (code === 'X224_TIMEOUT') {
+    // the port answers, the rdp service does not
+    return { http: 504 }
+  }
+  if (wsaCodes[code]) {
+    return { http: code === 'ETIMEDOUT' ? 504 : 502, wsa: wsaCodes[code] }
+  }
+  if (err && err.tls) {
+    return { http: 502, tls: tlsHandshakeFailure }
+  }
+  return { http: 502 }
 }
 
 // ────────────────────────────────────────────────────
@@ -381,7 +426,9 @@ async function createTcpConnection (host, port, options, x224Request, logPrefix)
       resolve(tcpSocket)
     })
     tcpSocket.once('error', (err) => {
-      reject(new Error(`TCP connection failed: ${err.message}`))
+      const e = new Error(`TCP connection failed: ${err.message}`)
+      e.code = err.code
+      reject(e)
     })
   })
 }
@@ -422,7 +469,9 @@ function readX224Confirm (tcpSocket, logPrefix) {
     }
 
     function onError (err) {
-      settle(new Error(`TCP error while waiting for X.224 confirm: ${err.message}`))
+      const e = new Error(`TCP error while waiting for X.224 confirm: ${err.message}`)
+      e.code = err.code
+      settle(e)
     }
 
     function onEnd () {
@@ -461,7 +510,9 @@ function readX224Confirm (tcpSocket, logPrefix) {
     }
 
     const timer = setTimeout(() => {
-      settle(new Error('Connection timed out'))
+      const e = new Error('Connection timed out waiting for the X.224 confirm')
+      e.code = 'X224_TIMEOUT'
+      settle(e)
     }, HANDSHAKE_TIMEOUT)
 
     tcpSocket.on('data', onData)
@@ -808,7 +859,9 @@ async function performRDPHandshake (host, port, x224Request, options = {}) {
       tcpSocket = await createTcpConnection(host, port, options, x224Request, logPrefix)
     } catch (err) {
       // Not a TLS problem: other strategies would fail the same way.
-      throw new Error(`Connection failed: ${err.message}`)
+      const e = new Error(`Connection failed: ${err.message}`)
+      e.code = err.code
+      throw e
     }
 
     // Step 2-3: read the X.224 Connection Confirm
@@ -841,12 +894,13 @@ async function performRDPHandshake (host, port, x224Request, options = {}) {
       }
     } catch (err) {
       lastErr = err
+      lastErr.tls = true
       log.warn(`${logPrefix} TLS strategy "${strategy.name}" failed: ${err.message}`)
       try { tcpSocket.destroy() } catch (_) {}
     }
   }
 
-  throw lastErr || new Error('TLS handshake failed')
+  throw lastErr || Object.assign(new Error('TLS handshake failed'), { tls: true })
 }
 
 // ────────────────────────────────────────────────────
@@ -1001,7 +1055,8 @@ function handleConnection (ws, options = {}, bufferedMessages = []) {
 
       // Try to send error response to client
       try {
-        const errorPdu = buildRDCleanPathError(1, 502)
+        const { http, wsa, tls } = rdCleanPathErrorFor(err)
+        const errorPdu = buildRDCleanPathError(1, http, wsa, tls)
         ws.send(errorPdu)
       } catch (_) {}
 
@@ -1027,6 +1082,7 @@ module.exports = {
   parseRDCleanPathRequest,
   buildRDCleanPathResponse,
   buildRDCleanPathError,
+  rdCleanPathErrorFor,
   parseDestination,
   performRDPHandshake,
   setupRelay
