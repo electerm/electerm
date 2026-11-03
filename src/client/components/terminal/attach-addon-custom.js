@@ -368,6 +368,8 @@ export default class AttachAddonCustom {
           'zmodem-event',
           'trzsz-event',
           'xmodem-event',
+          // serial line status, see session/serial-control.jsx
+          'serial-event',
           // how the pty ended, consumed by the terminal component
           'session-exit'
         ]
