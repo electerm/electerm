@@ -40,6 +40,7 @@ const rdpConfig = {
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.rdp) },
         commonFields.username,
         commonFields.password,
+        commonFields.credentialProviderIgnore,
         commonFields.description,
         { type: 'input', name: 'domain', label: () => e('domain') },
         commonFields.proxy,

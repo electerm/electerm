@@ -10,6 +10,7 @@ import {
 import defaultSettings from '../../../common/default-setting'
 import encodes from '../common/encodes'
 import { isEmpty } from 'lodash-es'
+import { hasCredentialProvider } from '../../../common/credential-provider.jsx'
 
 const e = window.translate
 
@@ -229,6 +230,17 @@ export const commonFields = {
     name: '__x11__',
     label: 'x11'
   },
+  // this bookmark never asks a password manager widget; shown only with one
+  // installed
+  credentialProviderIgnore: {
+    type: 'switch',
+    name: 'credentialProviderIgnore',
+    label: 'Ignore password manager',
+    valuePropName: 'checked',
+    get hidden () {
+      return !hasCredentialProvider()
+    }
+  },
 
   // Dynamic sections
   quickCommands: {
@@ -350,6 +362,7 @@ export const sshAuthFields = [
     name: 'useSshAgent'
   },
   { type: 'switch', name: 'isMFA', label: () => e('MFA/OTP'), valuePropName: 'checked' },
+  commonFields.credentialProviderIgnore,
   commonFields.runScripts,
   commonFields.description,
   commonFields.setEnv,

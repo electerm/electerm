@@ -31,6 +31,7 @@ import SwitchLabel from '../common/switch'
 import HelpIcon from '../common/help-icon'
 import Modal from '../common/modal'
 import RdpCredForm from './rdp-cred-form'
+import { credentialsFromProvider, offerSaveToProvider, saveToProvider } from '../../common/credential-provider.jsx'
 import { FileTransferManager, createFileLogger } from './file-transfer'
 import { notification } from '../common/notification'
 import message from '../common/message'
@@ -165,9 +166,18 @@ export default class RdpSession extends PureComponent {
       ...window.store.applyProfile(deepCopy(this.props.tab || {})),
       ...credOverride
     }
+    // no saved password: user name and password from a password manager
+    // widget (without NLA only the user name is used, see rdp-logon.js)
+    if (!credOverride) {
+      this.credentials = tab.password ? null : await credentialsFromProvider(tab)
+      if (this.credentials?.password) {
+        Object.assign(tab, pick(this.credentials, ['username', 'password']))
+      }
+    }
     // keep resolved credentials for the connect-time prompt
     this.tab = tab
-    if (!tab.username) {
+    // a new entry: ask for user name and password first
+    if (!tab.username || (!credOverride && this.credentials?.newEntry)) {
       this.setState({
         loading: false,
         showCredPrompt: true
@@ -319,6 +329,16 @@ export default class RdpSession extends PureComponent {
       })
 
       this.session = await builder.connect()
+      // logged on with a password typed in the form: save or offer it; only
+      // NLA proves it, without NLA it is not even sent
+      if (credOverride?.password && mode.nla) {
+        const typed = { username: tab.username, password: credOverride.password }
+        if (this.credentials?.newEntry) {
+          saveToProvider(tab, typed)
+        } else if (!this.credentials) {
+          offerSaveToProvider(tab, typed)
+        }
+      }
 
       const ds = this.session.desktopSize()
 
