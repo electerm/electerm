@@ -4,7 +4,11 @@
  * Prerequisites:
  *   - electerm dev app running (npm start + npm run app)
  *   - MCP Server widget started on http://127.0.0.1:30837/mcp, default config
- *     (no apiKey; bookmarks/groups/sftp enabled; tasks extension enabled)
+ *     (bookmarks/groups/sftp enabled; tasks extension enabled)
+ *   - ELECTERM_MCP_API_KEY set to the key the widget generated. It is in the
+ *     URL the widget copies on start (…/mcp?apiKey=…), or in the instance
+ *     detail panel. The server requires it — it no longer runs unauthenticated
+ *     (GHSA-45rj-2wq9-r9mr).
  *
  * SSH-dependent tests use an in-process test SSH server (@electerm/ssh2),
  * see src/test/integration/lib/ssh-test-server.js — no external SSH host needed.
@@ -30,7 +34,10 @@ const {
   TEST_PORT
 } = require('./lib/ssh-test-server')
 
-const serverUrl = 'http://127.0.0.1:30837/mcp'
+const MCP_API_KEY = process.env.ELECTERM_MCP_API_KEY || ''
+const serverUrl = MCP_API_KEY
+  ? `http://127.0.0.1:30837/mcp?apiKey=${encodeURIComponent(MCP_API_KEY)}`
+  : 'http://127.0.0.1:30837/mcp'
 const uid = Date.now()
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -254,6 +261,10 @@ const createdBookmarkIds = []
 function skipOffline (t) {
   if (!online) {
     t.skip('MCP server not reachable at 127.0.0.1:30837 — start the electerm app with the MCP widget')
+    return true
+  }
+  if (!MCP_API_KEY) {
+    t.skip('ELECTERM_MCP_API_KEY not set — copy it from the URL the widget shows')
     return true
   }
   return false

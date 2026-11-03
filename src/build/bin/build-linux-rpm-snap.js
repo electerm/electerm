@@ -4,7 +4,8 @@ const {
   writeSrc,
   uploadToR2,
   builder: pb,
-  patchSnapClassicSandbox
+  patchSnapClassicSandbox,
+  patchSnapClassicLauncher
 } = require('./build-common')
 
 async function main () {
@@ -22,6 +23,7 @@ async function main () {
   src = 'linux-amd64.snap'
   writeSrc(src)
   patchSnapClassicSandbox()
+  patchSnapClassicLauncher()
   await run(`${pb} --linux snap -p always`)
   await uploadToR2(src)
 }

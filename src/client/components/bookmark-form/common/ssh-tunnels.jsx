@@ -105,7 +105,8 @@ export default function renderSshTunnels (props) {
       title: e('sshTunnel'),
       key: 'sshTunnel',
       render: (k, item) => {
-        // sshTunnel is forwardRemoteToLocal or forwardLocalToRemote or dynamicForward
+        // sshTunnel is forwardRemoteToLocal, forwardLocalToRemote,
+        // dynamicForward or remoteDynamicForward
         const {
           sshTunnel,
           sshTunnelRemoteHost = '127.0.0.1',
@@ -114,9 +115,12 @@ export default function renderSshTunnels (props) {
           sshTunnelLocalPort = '',
           name
         } = item
+        const n = name ? `[${name}] ` : ''
         if (sshTunnel === 'dynamicForward') {
-          const n = name ? `[${name}] ` : ''
           return `${n}socks5://${sshTunnelLocalHost}:${sshTunnelLocalPort}`
+        }
+        if (sshTunnel === 'remoteDynamicForward') {
+          return `${n}socks5://${sshTunnelRemoteHost}:${sshTunnelRemotePort} (${e('remote')})`
         }
         const to = sshTunnel === 'forwardRemoteToLocal'
           ? `${e('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
@@ -126,7 +130,7 @@ export default function renderSshTunnels (props) {
           : `${e('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
         return (
           <span>
-            {name ? `[${name}] ` : ''}→ {from} → {to}
+            {n}→ {from} → {to}
           </span>
         )
       }

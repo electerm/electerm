@@ -9,6 +9,20 @@ import { refsStatic } from '../../common/ref.js'
 const exitCommandReg = /^(?:exit|logout)(?:\s|$)/
 
 /**
+ * How long a submitted exit/logout line still explains the connection going
+ * away.
+ *
+ * The typed line alone can not prove the session ended: `exit` also leaves a
+ * shell nested inside the session - `su`, `bash`, `tmux`, a second ssh, a
+ * `psql`/`python` REPL - while the connection stays up. The latch used to
+ * survive that, so the next unrelated close (server idle timeout, a network
+ * blip minutes later) closed the tab on the spot: no "session stopped"
+ * notice, no auto reconnect, scrollback gone (#4629). An `exit` at the
+ * outermost shell kills the pty right away, so the honest window is short.
+ */
+export const exitCloseWindow = 5000
+
+/**
  * Command suggestions: reading the current input straight from the terminal
  * buffer, positioning the dropdown at the cursor, and the password prompt
  * variant triggered by the shell integration OSC sequences.
@@ -96,6 +110,34 @@ export const suggestionsMixin = {
   },
 
   /**
+   * Arm or clear the "the user ended this session" latch.
+   * @param {boolean} value
+   */
+  setUserTypeExit (value) {
+    this.userTypeExit = !!value
+    this.userTypeExitAt = value ? Date.now() : 0
+  },
+
+  /**
+   * The shell drew a fresh prompt, so nothing exited - an earlier `exit` only
+   * left a nested shell. Clears the latch so the next real disconnect keeps
+   * the tab (see `exitCloseWindow`).
+   */
+  clearUserTypeExit () {
+    this.setUserTypeExit(false)
+  },
+
+  /**
+   * Whether a socket close right now is explained by the user typing
+   * exit/logout. Anything later is a plain disconnect.
+   * @returns {boolean}
+   */
+  isUserTypeExit () {
+    return this.userTypeExit === true &&
+      Date.now() - this.userTypeExitAt <= exitCloseWindow
+  },
+
+  /**
    * Handle special input events for command history tracking
    * The actual input reading is done via getCurrentInput from buffer
    */
@@ -103,7 +145,7 @@ export const suggestionsMixin = {
     // Ctrl+D on an empty line is EOF, which ends the shell like `exit`. Typed
     // anywhere else it is delete-char, so only an empty line counts.
     if (d === '\x04') {
-      this.userTypeExit = !this.getCurrentInput().trim()
+      this.setUserTypeExit(!this.getCurrentInput().trim())
     }
     // Handle Enter - add command to history
     if (d === '\r' || d === '\n') {
@@ -114,7 +156,9 @@ export const suggestionsMixin = {
       // Recomputed on every submitted line rather than only ever set: an
       // `exit` that did not actually end the shell must not silence the next
       // real disconnect.
-      this.userTypeExit = !!currentCmd && exitCommandReg.test(currentCmd.trim())
+      this.setUserTypeExit(
+        !!currentCmd && exitCommandReg.test(currentCmd.trim())
+      )
       this.closeSuggestions()
     }
   },

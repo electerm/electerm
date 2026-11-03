@@ -299,9 +299,7 @@ export default class FileSection extends React.Component {
       if (id) {
         toFile = {
           ...toFile,
-          ...getFolderFromFilePath(
-            resolve(toFile.path, sanitizeFilename(toFile.name))
-          ),
+          ...getFolderFromFilePath(this.getDropTargetPath(toFile)),
           id: undefined
         }
       }
@@ -334,6 +332,20 @@ export default class FileSection extends React.Component {
     return res
   }
 
+  // The row a file is dropped on is not always a folder: a plain file row, the
+  // "empty" placeholder row (name: '', not in the file tree) and the
+  // file-system root all mean "put it in the folder I am looking at". Resolving
+  // an empty name gives a literal `unnamed` folder
+  // (`resolve('', sanitizeFilename('')) === '/unnamed'`), and at the root there
+  // is no name to resolve at all, so use the current path in those cases.
+  getDropTargetPath = (toFile) => {
+    const { name, path, type } = toFile
+    if (!name) {
+      return this.props[type + 'Path'] || path || '/'
+    }
+    return resolve(path, sanitizeFilename(name))
+  }
+
   transferDrop = (fromFiles, toFile, operation) => {
     const files = this.isSelected(fromFiles[0]?.id)
       ? this.props.getSelectedFiles()
@@ -341,7 +353,7 @@ export default class FileSection extends React.Component {
     return this.doTransferSelected(
       null,
       files,
-      resolve(toFile.path, sanitizeFilename(toFile.name)),
+      this.getDropTargetPath(toFile),
       toFile.type,
       operation
     )

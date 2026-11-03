@@ -179,4 +179,83 @@ describe('ssh known_hosts verification', () => {
     assert.ok(prompt.instructions.some(i => i.includes('WARNING')))
     assert.ok(prompt.instructions.some(i => i.includes('router.test')))
   })
+
+  test('supports wildcard host patterns', () => {
+    assert.equal(matchesKnownHostField('*.example.test', 'host.example.test', 22), true)
+    assert.equal(matchesKnownHostField('ho*.example.test', 'host.example.test', 22), true)
+    assert.equal(matchesKnownHostField('host?.example.test', 'hosts.example.test', 22), true)
+    assert.equal(matchesKnownHostField('!*.example.test', 'host.example.test', 22), false)
+    assert.equal(matchesKnownHostField('*.example.test', 'other.test', 22), false)
+  })
+
+  test('ignores @cert-authority entries instead of reporting a mismatch', async () => {
+    const tempDir = await fs.promises.mkdtemp(join(os.tmpdir(), 'electerm-known-hosts-'))
+    try {
+      const knownHostsPath = join(tempDir, 'known_hosts')
+      const caKey = createHostKey('ca').toString('base64')
+      const hostKey = createHostKey('host')
+      await fs.promises.writeFile(
+        knownHostsPath,
+        [
+          `@cert-authority *.example.test ssh-ed25519 ${caKey}`,
+          `@cert-authority exact.example.test ssh-ed25519 ${caKey}`,
+          ''
+        ].join('\n')
+      )
+      const wildcardResult = await checkKnownHosts({
+        host: 'host.example.test',
+        port: 22,
+        hostKey,
+        knownHostsPath
+      })
+      assert.equal(wildcardResult.status, 'not-found')
+      const exactResult = await checkKnownHosts({
+        host: 'exact.example.test',
+        port: 22,
+        hostKey,
+        knownHostsPath
+      })
+      assert.equal(exactResult.status, 'not-found')
+    } finally {
+      await fs.promises.rm(tempDir, { recursive: true, force: true })
+    }
+  })
+
+  test('replaceKnownHost keeps @cert-authority entries', async () => {
+    const tempDir = await fs.promises.mkdtemp(join(os.tmpdir(), 'electerm-known-hosts-'))
+    try {
+      const knownHostsPath = join(tempDir, 'known_hosts')
+      const caKey = createHostKey('ca').toString('base64')
+      const originalKey = createHostKey('original')
+      const newKey = createHostKey('new')
+      await appendKnownHost({
+        host: 'router.test',
+        port: 22,
+        hostKey: originalKey,
+        knownHostsPath
+      })
+      const prefix = await fs.promises.readFile(knownHostsPath, 'utf8')
+      await fs.promises.writeFile(
+        knownHostsPath,
+        `@cert-authority *.example.test ssh-ed25519 ${caKey}\n${prefix}`
+      )
+      await replaceKnownHost({
+        host: 'router.test',
+        port: 22,
+        hostKey: newKey,
+        knownHostsPath
+      })
+      const content = await fs.promises.readFile(knownHostsPath, 'utf8')
+      assert.match(content, /^@cert-authority \*\.example\.test ssh-ed25519 /)
+      const result = await checkKnownHosts({
+        host: 'router.test',
+        port: 22,
+        hostKey: newKey,
+        knownHostsPath
+      })
+      assert.equal(result.status, 'match')
+    } finally {
+      await fs.promises.rm(tempDir, { recursive: true, force: true })
+    }
+  })
 })

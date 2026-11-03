@@ -69,10 +69,15 @@ function parseSseBody (body) {
   }
 }
 
+// The server refuses to run without an API key (see widget-mcp-server.js), so
+// every instance here gets one and every request carries it.
+const TEST_API_KEY = 'test-api-key'
+
 async function mcpPost (port, body, sid) {
   const headers = {
     'Content-Type': 'application/json',
-    Accept: 'application/json, text/event-stream'
+    Accept: 'application/json, text/event-stream',
+    Authorization: `Bearer ${TEST_API_KEY}`
   }
   if (sid) headers['mcp-session-id'] = sid
   // proxy:false — never route localhost through an env proxy; reused
@@ -127,7 +132,7 @@ describe('set_electerm_terminal_keepalive – tool surface & wiring', () => {
   let instance = null
 
   before(async () => {
-    instance = widgetRun({ host: '127.0.0.1', port: PORT })
+    instance = widgetRun({ host: '127.0.0.1', port: PORT, apiKey: TEST_API_KEY })
     await instance.start()
   })
 

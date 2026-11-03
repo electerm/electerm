@@ -2,8 +2,8 @@
  * ws function for sftp/file transfer communication
  */
 
-import generate from './uid'
-import wait from './wait'
+import generate from './uid.js'
+import wait from './wait.js'
 import { pick } from 'lodash-es'
 
 const onces = {}

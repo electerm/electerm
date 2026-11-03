@@ -5,6 +5,7 @@
  * Uses a simple local MCP implementation
  */
 
+const crypto = require('crypto')
 const { ipcMain } = require('electron')
 const { McpServer } = require('../mcp/server/mcp.js')
 const { StreamableHTTPServerTransport } = require('../mcp/server/streamableHttp.js')
@@ -92,7 +93,7 @@ const widgetInfo = {
       type: 'string',
       default: '',
       showGenerator: true,
-      description: 'Optional API key for authenticating MCP requests. If set, clients must send this in the Authorization header as: Bearer <apiKey>. Leave empty to skip authentication.'
+      description: 'API key for authenticating MCP requests. Generated and remembered on first start; leave empty to keep using the saved one, or fill in your own to replace it. The server URL already carries it, so a client can be configured by pasting the copied URL.'
     },
     {
       name: 'enableBookmarks',
@@ -177,13 +178,56 @@ function getDefaultConfig () {
   }, {})
 }
 
+// Host header values accepted for a given bind address. A loopback bind also
+// accepts the other loopback spellings, because a client may reach the server
+// as 127.0.0.1, localhost or [::1] regardless of which one we bound to.
+const WILDCARD_BINDS = ['', '0.0.0.0', '::', '[::]']
+
+function isWildcardBind (host) {
+  return WILDCARD_BINDS.includes(host)
+}
+
+function loopbackAliases (host) {
+  const bare = host.replace(/^\[(.*)\]$/, '$1')
+  if (bare !== '127.0.0.1' && bare !== 'localhost' && bare !== '::1') {
+    return []
+  }
+  return ['127.0.0.1', 'localhost', '::1', '[::1]']
+}
+
+function buildAllowedHosts (host, port) {
+  const out = new Set()
+  for (const h of [host, ...loopbackAliases(host)]) {
+    out.add(h)
+    out.add(`${h}:${port}`)
+  }
+  return out
+}
+
+// Constant-time compare, and length-safe: timingSafeEqual throws on a length
+// mismatch, which would turn a wrong guess into a 500 instead of a 401.
+function apiKeyMatches (provided, expected) {
+  const a = Buffer.from(String(provided || ''))
+  const b = Buffer.from(String(expected || ''))
+  if (!a.length || a.length !== b.length) {
+    return false
+  }
+  return crypto.timingSafeEqual(a, b)
+}
+
 class ElectermMCPServer {
   constructor (config, ctx = {}) {
     this.config = config
     // instance log/event channels, see widgets/instance-log.js — optional so the
     // server still works when constructed without one (tests)
     this.ctx = ctx
-    // API key is optional - skip auth if not provided
+    // The renderer generates and remembers the key (common/widget-api-key.js)
+    // and passes it in; this is the last line of defence, so that no code path
+    // — a stale config, a caller that forgot — can start the server with
+    // authentication off and hand a DNS-rebound page a shell.
+    if (!this.config.apiKey) {
+      this.config.apiKey = 'ett_' + crypto.randomBytes(16).toString('hex')
+    }
     this.instanceId = uid()
     this.httpServer = null
     this.mcpServer = null
@@ -1140,18 +1184,51 @@ class ElectermMCPServer {
 
     // Create Express app
     const app = express()
-    app.use(express.json())
 
-    // Handle CORS — restrict to same-origin only (no wildcard)
+    // ── Loopback guard ──────────────────────────────────────────────────────
+    // Binding to 127.0.0.1 does not make this server private. A page served
+    // from an attacker's domain can point that domain at 127.0.0.1 (DNS
+    // rebinding) and then talk to us same-origin, so CORS never applies and
+    // omitting Access-Control-Allow-Origin protects nothing — the page can
+    // call execute_electerm_command and get a shell. What is left is:
+    //   1. the Host it claims to be talking to, which a rebound page cannot
+    //      make loopback-looking while still being same-origin with itself;
+    //   2. any Origin header at all — no browser client is supported, local
+    //      MCP clients are not browsers and do not send one.
+    // Both run before the body parser so an unauthenticated request is refused
+    // before its JSON is read.
+    const bindHost = String(host || '127.0.0.1').trim().toLowerCase()
+    const allowedHosts = buildAllowedHosts(bindHost, port)
+    // bound to 0.0.0.0/:: any hostname reaches us, so the Host check cannot
+    // mean anything; the API key is the only boundary left in that case
+    const checkHost = !isWildcardBind(bindHost)
+
+    const deny = (req, res, status, reason) => {
+      this.reportEvent({
+        type: 'request',
+        ok: false,
+        from: req.socket && req.socket.remoteAddress,
+        msg: `${req.method} ${req.path} -> ${status} ${reason}`
+      })
+      res.status(status).json({
+        jsonrpc: '2.0',
+        error: { code: -32600, message: `Forbidden: ${reason}` },
+        id: null
+      })
+    }
+
     app.use((req, res, next) => {
-      const allowedOrigin = this.config.allowedOrigin || ''
-      if (allowedOrigin) {
-        res.setHeader('Access-Control-Allow-Origin', allowedOrigin)
+      if (checkHost) {
+        const hostHeader = String(req.headers.host || '').trim().toLowerCase()
+        if (!allowedHosts.has(hostHeader)) {
+          deny(req, res, 403, 'invalid Host header')
+          return
+        }
       }
-      // Do NOT set Access-Control-Allow-Origin when no origin is configured
-      // This blocks cross-origin browser requests by default
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, mcp-session-id, Authorization')
+      if (req.headers.origin) {
+        deny(req, res, 403, 'unexpected Origin header')
+        return
+      }
       if (req.method === 'OPTIONS') {
         res.status(204).end()
         return
@@ -1159,31 +1236,38 @@ class ElectermMCPServer {
       next()
     })
 
-    // Authenticate requests with API key (only if apiKey is configured)
-    if (this.config.apiKey) {
-      app.use((req, res, next) => {
-        const authHeader = req.headers.authorization || ''
-        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
-        if (!token || token !== this.config.apiKey) {
-          this.reportEvent({
-            type: 'auth',
-            ok: false,
-            from: req.socket && req.socket.remoteAddress,
-            msg: `${req.method} ${req.originalUrl} -> 401 Unauthorized`
-          })
-          res.status(401).json({
-            jsonrpc: '2.0',
-            error: {
-              code: -32600,
-              message: 'Unauthorized: invalid or missing API key'
-            },
-            id: null
-          })
-          return
-        }
-        next()
-      })
-    }
+    // Authenticate every request. The key is never empty (constructor), and it
+    // is accepted either as `Authorization: Bearer <key>` or as `?apiKey=<key>`
+    // in the URL — the latter so the copied server URL is the whole client
+    // configuration, instead of a URL plus a header the user has to find a
+    // place for in each client.
+    app.use((req, res, next) => {
+      const authHeader = req.headers.authorization || ''
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
+      const provided = token || String(req.query.apiKey || '')
+      if (!apiKeyMatches(provided, this.config.apiKey)) {
+        this.reportEvent({
+          type: 'auth',
+          ok: false,
+          from: req.socket && req.socket.remoteAddress,
+          // path only: the query carries the key, and this log is readable
+          // (and exportable) from the instance panel
+          msg: `${req.method} ${req.path} -> 401 Unauthorized`
+        })
+        res.status(401).json({
+          jsonrpc: '2.0',
+          error: {
+            code: -32600,
+            message: 'Unauthorized: invalid or missing API key'
+          },
+          id: null
+        })
+        return
+      }
+      next()
+    })
+
+    app.use(express.json())
 
     const self = this
 
@@ -1300,14 +1384,15 @@ class ElectermMCPServer {
         }
 
         const serverInfo = {
-          url: `http://${host}:${port}/mcp`,
+          // the key rides in the URL so that "copy the URL" is the whole
+          // client setup: paste it, done, no header to find a field for
+          url: `http://${host}:${port}/mcp?apiKey=${encodeURIComponent(self.config.apiKey)}`,
           protocol: 'mcp',
           version: self.mcpServer.supportedProtocolVersions[0],
           apiKey: self.config.apiKey
         }
-        const authNote = self.config.apiKey ? '(API key required)' : '(no auth required)'
-        const msg = `MCP Server is running at ${serverInfo.url} ${authNote}`
-        self.logLine('info', `${authNote}, ${Object.keys(self.config).length} config options applied`)
+        const msg = `MCP Server is running at http://${host}:${port}/mcp (API key required)`
+        self.logLine('info', `API key required, ${Object.keys(self.config).length} config options applied`)
         resolve({
           serverInfo,
           msg,

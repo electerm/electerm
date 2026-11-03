@@ -129,6 +129,7 @@ module.exports = {
         'unlink',
         'rmrf',
         'readdirAsync',
+        'readdirStatAsync',
         'readFile',
         'readFileAsBase64',
         'writeFile',
@@ -142,7 +143,9 @@ module.exports = {
         'openCustom',
         'closeCustom',
         'writeCustom',
-        'getFolderSize'
+        'getFolderSize',
+        // generate an ssh key pair on the machine the server runs on
+        'generateSshKeyPair'
       ]
     }
   }

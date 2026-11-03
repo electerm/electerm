@@ -161,7 +161,7 @@ npm i -g electerm
 
 <img src="https://electerm.org/electerm-wechat-group-qr.jpg" width="300" alt="electerm WeChat group QR code">
 
-<img src="https://github.com/electerm/electerm-resource/blob/master/static/images/telegram-qr.png?raw=true" width="300" alt="electerm Telegram group QR code">
+<img src="https://electerm.org/telegram-qr.png" width="300" alt="electerm Telegram group QR code">
 
 ## サポート
 

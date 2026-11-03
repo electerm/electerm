@@ -5,6 +5,8 @@
  */
 
 const { app } = require('electron')
+const fs = require('fs')
+const path = require('path')
 const log = require('../common/log')
 
 // Chromium's Windows GPU crash status codes (0x80000003 STATUS_BREAKPOINT),
@@ -49,13 +51,12 @@ try running electerm with one of these flags:
 
 Or set environment variable:
   DISABLE_GPU=1         (Disable GPU)
-  DISABLE_GPU_SANDBOX=1 (Disable GPU + sandbox, use SwiftShader)
-  ENABLE_GPU=1          (Linux only: force-enable hardware GPU)
+  DISABLE_GPU_SANDBOX=1 (Disable GPU + sandbox)
+  ENABLE_GPU=1          (Force hardware GPU, also cancels the automatic
+                         software fallback below)
 
-Example:
-  electerm --no-sandbox
-  or
-  DISABLE_GPU=1 electerm
+electerm switches to software rendering by itself on the next launch after a
+GPU process crash, so a manual flag is usually not needed.
 ================================================================================
 `
 
@@ -82,24 +83,160 @@ const reportProcessGone = (label, details = {}) => {
   }
 }
 
+// --- software-rendering fallback -------------------------------------------
+//
+// We do not guess the graphics stack at startup any more. Chromium picks its
+// own backend, and if that backend is broken (no EGL/GL, bad Mesa/ROCm install,
+// VM/container, WSL, old GPU, driver crash) the GPU process dies. Instead of
+// pre-emptively crippling rendering for every Linux user, we note the failure
+// and start with software rendering on the NEXT launch.
+//
+// This is the only mechanism that is both general and honest: it reacts to a
+// real crash on any platform (Linux X11/Wayland, Windows, macOS) instead of
+// matching on platform/env heuristics, and it costs the happy path nothing.
+//
+// `in-process-gpu` used to be set here for the same reason and is gone: it is
+// a Chromium test switch (GPU runs inside the browser process) that Electron
+// does not support, it defeats the point of having a separate GPU process at
+// all, and it deadlocks shutdown on Wayland (main thread joins wayland-fd,
+// which waits on a task queued to the blocked main thread) -- see issue #4654.
+const gpuFallbackFlagPath = () => path.join(
+  app.getPath('userData'),
+  'gpu-software-fallback.json'
+)
+
+const startupMarkerPath = () => path.join(
+  app.getPath('userData'),
+  'gpu-startup.json'
+)
+
+// Two early deaths in a row before any window finished loading. One is a user
+// killing the splash or an unrelated crash; two in a row is a graphics stack
+// that never came up.
+const STARTUP_FAILURE_LIMIT = 2
+
+// The fallback expires: a driver update or a fixed Mesa must be able to bring
+// hardware acceleration back without the user deleting a file. Same 24h window
+// other Electron apps use for this.
+const RECOVER_WINDOW_MS = 24 * 60 * 60 * 1000
+
+const readJson = file => {
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'))
+  } catch {
+    return null
+  }
+}
+
+const writeJson = (file, data) => {
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true })
+    fs.writeFileSync(file, JSON.stringify(data, null, 2))
+  } catch (e) {
+    log.error(`write ${file} failed`, e)
+  }
+}
+
+const clearGpuFallback = () => {
+  try {
+    fs.unlinkSync(gpuFallbackFlagPath())
+  } catch {}
+}
+
+// null / expired means "try the hardware path again this launch"
+const readGpuFallback = () => {
+  const info = readJson(gpuFallbackFlagPath())
+  if (!info) {
+    return null
+  }
+  if (Date.now() - (info.lastGpuCrash || 0) > RECOVER_WINDOW_MS) {
+    clearGpuFallback()
+    return null
+  }
+  return info
+}
+
+const saveGpuFallback = (details, count) => {
+  writeJson(gpuFallbackFlagPath(), {
+    lastGpuCrash: Date.now(),
+    lastGpuCrashReason: details.reason || details.type || 'unknown',
+    gpuCrashCount: count,
+    appVersion: app.getVersion()
+  })
+}
+
+const startupFailureCount = () => {
+  const marker = readJson(startupMarkerPath())
+  return marker && marker.count > 0 ? marker.count : 0
+}
+
+const clearStartupMarker = () => {
+  try {
+    fs.unlinkSync(startupMarkerPath())
+  } catch {}
+}
+
+// ENABLE_GPU=1 is an explicit "I want the hardware path": honour it and forget
+// an auto-fallback, so a user can retry hardware acceleration right away after
+// a driver update instead of waiting out the 24h window.
+const useSoftwareRendering = () => {
+  if (process.env.ENABLE_GPU === '1') {
+    clearGpuFallback()
+    clearStartupMarker()
+    return false
+  }
+  if (
+    process.env.DISABLE_GPU ||
+    process.env.DISABLE_GPU_SANDBOX ||
+    process.env.DISABLE_HARDWARE_ACCELERATION
+  ) {
+    return true
+  }
+  return !!readGpuFallback()
+}
+
+// Software mode: the official API plus the two switches it stands for, so the
+// behaviour is the same on every platform and old Electron versions. What is
+// deliberately NOT here any more: `use-gl=swiftshader` (pins one backend
+// instead of letting Chromium pick a working one) and `in-process-gpu`.
+const enableSoftwareRendering = () => {
+  app.disableHardwareAcceleration()
+  app.commandLine.appendSwitch('disable-gpu')
+  app.commandLine.appendSwitch('disable-gpu-compositing')
+}
+
+// Decide the rendering mode for THIS launch. Three inputs, in order: explicit
+// env, a remembered GPU failure (24h), and the startup counter (the only thing
+// that can catch a launch which died before we could run any JS at all --
+// Chromium's "GPU process isn't usable. Goodbye." abort).
 function setupCommandLineSwitches () {
-  // Handle GPU issues on Linux
-  // On Linux, disable GPU for compatibility (many systems lack proper EGL/GL
-  // drivers — servers, containers, VMs, minimal desktops, etc.).
-  // Set ENABLE_GPU=1 to opt out and use hardware GPU acceleration on Linux.
-  if (process.env.ENABLE_GPU !== '1' && (process.platform === 'linux' || process.env.DISABLE_GPU)) {
-    app.commandLine.appendSwitch('disable-gpu')
-    app.commandLine.appendSwitch('disable-gpu-compositing')
-    app.commandLine.appendSwitch('disable-gpu-rasterization')
-    // Use SwiftShader (software GL) to bypass EGL/DRM initialisation entirely.
-    // Without this, the GPU process still tries EGL and spams errors like:
-    //   "Unsupported flags 0x0", "fourcc format invalid",
-    //   "Couldn't allocate DRM buffer", "Invalid format", etc.
-    app.commandLine.appendSwitch('use-gl', 'swiftshader')
+  const earlierFailures = startupFailureCount()
+  if (useSoftwareRendering()) {
+    enableSoftwareRendering()
+    // No need to count: we are already in software mode.
+    clearStartupMarker()
+  } else if (earlierFailures >= STARTUP_FAILURE_LIMIT) {
+    log.warn(
+      `app failed to reach a window on ${earlierFailures} launches in a row, ` +
+      'switching to software rendering for 24h (set ENABLE_GPU=1 to skip that)'
+    )
+    saveGpuFallback({ reason: 'startup-abort' }, earlierFailures)
+    clearStartupMarker()
+    enableSoftwareRendering()
+  } else {
+    writeJson(startupMarkerPath(), {
+      count: earlierFailures + 1,
+      at: new Date().toISOString(),
+      appVersion: app.getVersion()
+    })
+  }
+  if (process.env.DISABLE_GPU_SANDBOX) {
+    app.commandLine.appendSwitch('disable-gpu-sandbox')
   }
   if (process.platform === 'linux') {
+    // Transparent windows (background opacity) need this on Linux. Unrelated
+    // to rendering, keep it on every Linux session.
     app.commandLine.appendSwitch('enable-transparent-visuals')
-    app.commandLine.appendSwitch('in-process-gpu')
   }
   // Windows only. "Hide pointer while typing" (Settings > Bluetooth & devices >
   // Mouse, on by default) maps to Chromium's HideCursorWhileTyping feature.
@@ -117,18 +254,6 @@ function setupCommandLineSwitches () {
   if (process.platform === 'win32') {
     app.commandLine.appendSwitch('disable-features', 'HideCursorWhileTyping')
   }
-  if (process.platform === 'linux' || process.env.DISABLE_HARDWARE_ACCELERATION) {
-    app.disableHardwareAcceleration()
-  }
-  if (process.env.DISABLE_GPU_SANDBOX) {
-    app.disableHardwareAcceleration()
-    app.commandLine.appendSwitch('disable-gpu')
-    app.commandLine.appendSwitch('disable-gpu-compositing')
-    app.commandLine.appendSwitch('disable-gpu-rasterization')
-    app.commandLine.appendSwitch('disable-gpu-sandbox')
-    app.commandLine.appendSwitch('disable-software-rasterizer')
-    app.commandLine.appendSwitch('use-gl', 'swiftshader')
-  }
   // Handle proxy-related command-line arguments
   if (process.env.NO_PROXY_SERVER) {
     app.commandLine.appendSwitch('no-proxy-server')
@@ -144,12 +269,50 @@ function setupCommandLineSwitches () {
   }
 }
 
+// A GPU process that dies is the one signal that actually tells us the
+// environment cannot do hardware rendering. Record it so the next launch comes
+// up in software mode; the 24h window means a fixed driver gets another try
+// without the user doing anything.
+let gpuCrashCount = 0
+const noteGpuFailure = details => {
+  if (
+    details.type !== 'GPU' ||
+    details.reason === 'clean-exit' ||
+    process.env.ENABLE_GPU === '1' ||
+    useSoftwareRendering()
+  ) {
+    return
+  }
+  gpuCrashCount++
+  log.warn(
+    'GPU process failed, next launch will use software rendering for 24h ' +
+    '(set ENABLE_GPU=1 to skip that)'
+  )
+  saveGpuFallback(details, gpuCrashCount)
+}
+
 function setupCrashReporter () {
   // Handle GPU / utility process crashes.
   // 'gpu-process-crashed' is gone since Electron 11 and never fires again,
   // 'child-process-gone' is the only event that still reports the GPU process.
   app.on('child-process-gone', (event, details) => {
     reportProcessGone('Child process', details)
+    noteGpuFailure(details)
+  })
+
+  // Any orderly exit -- including a second instance that never gets a window
+  // because the first one holds the lock -- must not look like an early death.
+  // Only a process that dies without running exit hooks (Chromium's GPU abort,
+  // SIGKILL) leaves the marker behind.
+  process.on('exit', clearStartupMarker)
+
+  // Reaching a loaded page means the graphics stack came up this time. Forget
+  // the startup counter so an isolated kill (or an unrelated crash early in
+  // boot) never permanently degrades rendering.
+  app.on('browser-window-created', (event, win) => {
+    const loaded = () => clearStartupMarker()
+    win.webContents.once('did-finish-load', loaded)
+    win.webContents.once('dom-ready', loaded)
   })
 
   // Handle render process gone events
@@ -180,6 +343,10 @@ module.exports = {
   setupCrashReporter,
   setupCommandLineSwitches,
   reportProcessGone,
+  useSoftwareRendering,
+  gpuFallbackFlagPath,
+  clearGpuFallback,
+  clearStartupMarker,
   describeExitCode,
   GPU_EXIT_CODES,
   GPU_ERROR_SUGGESTION

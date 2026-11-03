@@ -23,9 +23,6 @@ export const attachMixin = {
       this.encode || this.props.tab.encode || 'utf-8'
     )
     await this.attachAddon.activate(this.term)
-    if (this.osc52Addon) {
-      this.osc52Addon.setSendData(this.attachAddon._sendData.bind(this.attachAddon))
-    }
     this.initTriggerManager()
   },
 

@@ -7,6 +7,8 @@ const { promisify } = require('util')
 const { exec, spawn } = require('child_process')
 const execAsync = promisify(exec)
 const { getSizeCount, getSizeCountWin } = require('../common/get-folder-size-and-file-count.js')
+const { readdirStat, normalizeDirPath } = require('../common/readdir-stat')
+const { generateSshKeyPair } = require('../common/ssh-keygen')
 
 const ROOT_PATH = '/'
 
@@ -22,10 +24,6 @@ function encodeUint8Array (uint8Arr) {
 // Decoding function
 function decodeBase64String (base64String) {
   return new Uint8Array(Buffer.from(base64String, 'base64'))
-}
-
-const isWinDrive = function (path) {
-  return /^\w+:$/.test(path)
 }
 
 /**
@@ -304,6 +302,21 @@ const statCustom = async (...args) => {
   return st
 }
 
+/**
+ * Directory listing with per-entry info in a single round trip, see
+ * src/app/common/readdir-stat.js
+ */
+async function readdirStatAsync (_path) {
+  return readdirStat(_path, await readdirNames(_path))
+}
+
+async function readdirNames (_path) {
+  if (_path === ROOT_PATH && isWin) {
+    return listWindowsRootPath()
+  }
+  return fss.readdir(normalizeDirPath(_path))
+}
+
 const fsExport = Object.assign(
   {},
   fss,
@@ -320,19 +333,12 @@ const fsExport = Object.assign(
     writeCustom,
     openCustom,
     closeCustom,
-    statCustom
+    statCustom,
+    readdirStatAsync,
+    generateSshKeyPair
   },
   {
-    readdirAsync: (_path) => {
-      if (_path === ROOT_PATH && isWin) {
-        return listWindowsRootPath()
-      }
-      let path = _path
-      if (isWin && isWinDrive(path)) {
-        path = path + '\\'
-      }
-      return fss.readdir(path)
-    },
+    readdirAsync: readdirNames,
     statAsync: (...args) => {
       return fss.stat(...args)
         .then(res => {

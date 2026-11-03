@@ -321,10 +321,11 @@ export const contextMenuMixin = {
     if (!this.isRemote()) {
       return true
     }
-    if (this.term.buffer.active.type !== 'alternate') {
-      return false
-    }
-    return true
+    // Remote: returning false lets the browser paste into xterm's textarea, so
+    // bracketed paste and the clipboard stay in xterm's hands. In the alternate
+    // buffer this is only reached for an explicit variant such as Ctrl+Shift+V
+    // — bare Ctrl+V belongs to the full-screen app (see isAltBufferPasteCombo).
+    return false
   },
 
   showNormalBufferShortcut (e) {

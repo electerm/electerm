@@ -28,7 +28,7 @@ const colors = {
   zsh: '#2E86DE',
   fish: '#8E44AD',
   'cmd.exe': '#607D8B',
-  PowerShell: '#2E5C8A',
+  'Windows PowerShell': '#2E5C8A',
   'PowerShell 7': '#3B78C3',
   WSL: '#E95420',
   'Git Bash': '#F05033'
@@ -100,9 +100,9 @@ function buildWindowsBookmarks (execs) {
     },
     {
       id: 'default-local-powershell',
-      title: 'PowerShell',
+      title: 'Windows PowerShell',
       exec: execs.powershell,
-      description: 'Local terminal running Windows PowerShell'
+      description: 'Local terminal running Windows PowerShell 5.1 (powershell.exe)'
     },
     {
       id: 'default-local-pwsh',

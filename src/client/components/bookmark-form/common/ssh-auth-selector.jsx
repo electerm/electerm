@@ -16,6 +16,8 @@ import { uniqBy } from 'lodash-es'
 import Password from '../../common/password'
 import Upload, { openFileSelect } from '../../common/upload'
 import HelpIcon from '../../common/help-icon'
+import { KeyOutlined } from '@ant-design/icons'
+import GenerateSshKeyModal from './generate-ssh-key-modal'
 import { sshKeyContentOrPathHelpLink } from '../../../common/constants'
 
 const { TextArea } = Input
@@ -29,10 +31,24 @@ const e = window.translate
  *
  * The path field is always mounted (only visually hidden) so that a saved path
  * keeps its value while the input is collapsed.
+ *
+ * `canGenerate` adds a "generate key" button (private key only): a key pair
+ * made on the spot and saved next to the user's other keys, so that a fresh
+ * server does not require leaving the app for ssh-keygen.
  */
-function KeyField ({ name, label, desc, pathName, pathPlaceholder, form }) {
+function KeyField ({
+  name,
+  label,
+  desc,
+  pathName,
+  pathPlaceholder,
+  form,
+  canGenerate
+}) {
   const path = Form.useWatch(pathName, form)
   const [pathPicked, setPathPicked] = useState(false)
+  const [generateOpen, setGenerateOpen] = useState(false)
+  const [generateComment, setGenerateComment] = useState('')
   const showPath = pathPicked || !!path
   const beforeUpload = async (file) => {
     const content = file.fileContent !== undefined
@@ -67,6 +83,23 @@ function KeyField ({ name, label, desc, pathName, pathPlaceholder, form }) {
       })
     }
   }
+  // a key comment is a label on the far side, so the connection it was made for
+  // is the most useful thing to put in it
+  const openGenerate = () => {
+    const username = form.getFieldValue('username')
+    const host = form.getFieldValue('host')
+    setGenerateComment(username && host ? `${username}@${host}` : '')
+    setGenerateOpen(true)
+  }
+  const onGenerated = (res, passphrase) => {
+    setPathPicked(true)
+    form.setFieldsValue({
+      // content wins over path in every read path, so a pasted key has to go
+      [name]: '',
+      [pathName]: res.privateKeyPath,
+      ...(passphrase ? { passphrase } : {})
+    })
+  }
   return (
     <FormItem
       {...formItemLayout}
@@ -83,26 +116,38 @@ function KeyField ({ name, label, desc, pathName, pathPlaceholder, form }) {
           rows={1}
         />
       </FormItem>
-      <Space align='center'>
+      {/* three buttons plus the help icon do not fit a narrow form panel, and
+          a nowrap row would push the whole panel into a horizontal scrollbar.
+          The spacing lives on the container so a wrapped second row keeps the
+          Space gap instead of stacking each button's own margins. */}
+      <Space align='center' wrap className='mg1t mg2b'>
         <Upload
           beforeUpload={beforeUpload}
           fileList={[]}
         >
-          <Button
-            type='dashed'
-            className='mg2b mg1t'
-          >
+          <Button type='dashed'>
             {e('importFromFile')}
           </Button>
         </Upload>
         <Button
           type='dashed'
-          className='mg2b mg1t'
           onClick={pickPath}
         >
           {e('selectFilePath')}
         </Button>
+        {/* the help explains content vs path, so it belongs to the path button */}
         <HelpIcon link={sshKeyContentOrPathHelpLink} />
+        {canGenerate
+          ? (
+            <Button
+              type='dashed'
+              icon={<KeyOutlined />}
+              onClick={openGenerate}
+            >
+              {e('new')} {e('privateKey')}
+            </Button>
+            )
+          : null}
       </Space>
       <FormItem noStyle name={pathName}>
         <Input
@@ -110,6 +155,16 @@ function KeyField ({ name, label, desc, pathName, pathPlaceholder, form }) {
           placeholder={pathPlaceholder}
         />
       </FormItem>
+      {canGenerate
+        ? (
+          <GenerateSshKeyModal
+            open={generateOpen}
+            defaultComment={generateComment}
+            onCancel={() => setGenerateOpen(false)}
+            onGenerated={onGenerated}
+          />
+          )
+        : null}
     </FormItem>
   )
 }
@@ -191,6 +246,7 @@ export default function renderAuth (props) {
       desc='privateKeyDesc'
       pathName='privateKeyPath'
       pathPlaceholder='~/.ssh/id_rsa'
+      canGenerate
     />,
     <FormItem
       key='passphrase'

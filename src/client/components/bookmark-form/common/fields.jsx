@@ -21,6 +21,7 @@ import ProfileItem from './profile-item.jsx'
 import renderRunScripts from './run-scripts.jsx'
 import SerialPathSelector from './serial-path-selector.jsx'
 import VvFileField from './vv-file-field.jsx'
+import HostCheck from './host-check.jsx'
 import SshHostSelector from './ssh-host-selector.jsx'
 import SshAuthTypeSelector from './ssh-auth-type-selector.jsx'
 import SshAuthSelector from './ssh-auth-selector.jsx'
@@ -153,6 +154,8 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
       return <ProxyField key={name} bookmarks={ctxProps.bookmarks} />
     case 'vvFile':
       return <VvFileField key={name} form={form} />
+    case 'hostCheck':
+      return <HostCheck key={name} form={form} />
     case 'x11':
       return <X11Field key={name} form={form} />
     case 'sshTunnels':

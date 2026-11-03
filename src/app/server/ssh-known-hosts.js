@@ -27,7 +27,7 @@ function getKnownHostCandidates (host, port) {
 }
 
 function escapeRegExp (value) {
-  return value.replace(/[|\\{}()[\]^$+?.]/g, '\\$&')
+  return value.replace(/[|\\{}()[\]^$+?.*]/g, '\\$&')
 }
 
 function wildcardToRegExp (value) {
@@ -167,7 +167,9 @@ async function checkKnownHosts (options) {
     }
     matchingEntries.push(entry)
   }
-  const sameTypeEntries = matchingEntries.filter(entry => entry.keyType === meta.keyType)
+  const sameTypeEntries = matchingEntries
+    .filter(entry => entry.marker !== '@cert-authority')
+    .filter(entry => entry.keyType === meta.keyType)
   const exactMatch = sameTypeEntries.find(entry => entry.keyData === meta.keyData)
   if (exactMatch) {
     if (exactMatch.marker === '@revoked') {
@@ -238,6 +240,9 @@ async function removeKnownHost (options) {
   const filtered = lines.filter(line => {
     const entry = parseKnownHostsLine(line)
     if (!entry) {
+      return true
+    }
+    if (entry.marker === '@cert-authority') {
       return true
     }
     if (!matchesKnownHostField(entry.hosts, host, port)) {
