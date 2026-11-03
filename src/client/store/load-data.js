@@ -340,6 +340,10 @@ export default (Store) => {
       store.startAutoRunWidgets().catch(err => {
         console.error('Failed to start autorun widgets:', err)
       })
+      // is a password manager widget installed (bookmark form)
+      store.listWidgets().catch(err => {
+        console.error('Failed to list widgets:', err)
+      })
     } catch (err) {
       store.initLoadingData = false
       store.onError(err)
