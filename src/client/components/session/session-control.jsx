@@ -24,6 +24,7 @@ import {
 import { SplitViewIcon } from '../icons/split-view'
 import { HeartbeatIcon } from '../icons/heartbeat'
 import { rightClickBehaviors } from '../../common/right-click-behavior'
+import SerialControl from './serial-control'
 import './session-control.styl'
 
 const e = window.translate
@@ -237,6 +238,14 @@ export default function SessionControl (props) {
     )
   }
 
+  // control lines, rx view and raw send, see serial-control.jsx
+  function renderSerialControl () {
+    if (tab.type !== terminalSerialType) {
+      return null
+    }
+    return <SerialControl tabId={tab.id} />
+  }
+
   function renderSearchIcon () {
     const title = e('search')
     return (
@@ -336,6 +345,7 @@ export default function SessionControl (props) {
         {renderBroadcastIcon()}
         {renderWrapIcon()}
         {renderExitGracefullyIcon()}
+        {renderSerialControl()}
         {renderTermControls(true)}
       </div>
     )
@@ -364,6 +374,7 @@ export default function SessionControl (props) {
       {renderBroadcastIcon()}
       {renderWrapIcon()}
       {renderExitGracefullyIcon()}
+      {renderSerialControl()}
       {renderTermControls()}
     </div>
   )

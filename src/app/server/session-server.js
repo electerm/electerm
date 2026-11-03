@@ -463,6 +463,12 @@ if (type === 'rdp') {
               xmodemManager.handleMessage(pid, parsed, term, ws)
               return
             }
+            if (parsed.action === 'serial-event') {
+              if (typeof term.serialEvent === 'function') {
+                term.serialEvent(parsed, ws)
+              }
+              return
+            }
             if (parsed.action === 'keepalive') {
               // Write \n to the PTY.  In canonical mode the TTY line discipline
               // only delivers data to read() when a newline completes the line,
