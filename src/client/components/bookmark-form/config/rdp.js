@@ -12,9 +12,7 @@ const rdpConfig = {
   initValues: (props) => {
     return createBaseInitValues(props, terminalRdpType, {
       port: 3389,
-      pingBeforeConnect: true,
-      nlaFallback: true,
-      nlaFallbackPassword: false,
+      nla: true,
       connectionHoppings: [],
       ...getAuthTypeDefault(props)
     })
@@ -34,12 +32,11 @@ const rdpConfig = {
         commonFields.colorTitle,
         { type: 'input', name: 'host', label: () => e('host'), rules: [{ required: true, message: e('host') + ' required' }] },
         commonFields.port,
-        // rdp-session.jsx asks before connecting to a host that does not answer
-        { type: 'switch', name: 'pingBeforeConnect', label: 'Check host (ping) first', valuePropName: 'checked' },
-        // no password or a failed NLA logon: the Windows logon screen, see rdp-errors.js
-        { type: 'switch', name: 'nlaFallback', label: 'Without NLA as fallback', valuePropName: 'checked' },
-        // the fallback logs on with the password, see logonMode in rdp-errors.js
-        { type: 'switch', name: 'nlaFallbackPassword', label: 'Send the password without NLA too (no server authentication)', valuePropName: 'checked' },
+        // manual, never on connect: see host-check.jsx
+        { type: 'hostCheck', name: '__hostCheck__', label: 'Host check' },
+        // the bookmark's decision, not something the client negotiates:
+        // without NLA nothing authenticates the server, so no password is sent
+        { type: 'switch', name: 'nla', label: 'Network level authentication (NLA)', valuePropName: 'checked' },
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.rdp) },
         commonFields.username,
         commonFields.password,

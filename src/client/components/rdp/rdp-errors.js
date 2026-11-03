@@ -9,74 +9,13 @@
 const kindRDCleanPath = 4
 const kindNegotiationFailure = 6
 
-// IronErrorKind of `err`, -1 when it is no IronError
-export function errorKind (err) {
-  try {
-    if (err && typeof err.kind === 'function') {
-      return err.kind()
-    }
-  } catch (e) {}
-  return -1
-}
-
-/**
- * The bookmark switch "Without NLA as fallback", on unless turned off.
- */
-export function nlaFallbackOf (tab = {}) {
-  return tab.nlaFallback !== false
-}
-
-/**
- * How to log on. NLA needs the password before the session starts. With the
- * fallback allowed, a session without password, or after a failed NLA logon,
- * starts without NLA and Windows shows its logon screen with the user name
- * filled in. That fallback sends no password, it is typed into the logon
- * screen; unless the bookmark asks for it (`nlaFallbackPassword`): then
- * Windows logs on with it, but without NLA nothing proves the server is the
- * right one before it gets the password.
- * @param {object} o
- * @param {boolean} o.nlaFallback the bookmark allows logons without NLA
- * @param {boolean} o.nlaFallbackPassword send the password without NLA too
- * @param {string} o.password
- * @param {boolean} o.logonScreen this is the fallback
- * @return {{credssp: boolean, password: string}}
- */
-export function logonMode ({ nlaFallback, nlaFallbackPassword, password, logonScreen }) {
-  return {
-    credssp: !logonScreen && !(nlaFallback && !password),
-    password: logonScreen && !nlaFallbackPassword ? '' : (password || '')
-  }
-}
-
-/**
- * What to do after a failed connect.
- * @param {number} kind IronErrorKind
- * @param {object} o
- * @param {boolean} o.nlaFallback the bookmark allows logons without NLA
- * @param {boolean} o.credssp this attempt used NLA
- * @param {boolean} o.logonScreen this attempt was the fallback
- * @return {string} 'logonScreen': try once without NLA; 'askPassword': the
- *   server requires NLA, ask for the password; '': show the error
- */
-export function nextLogonStep (kind, { nlaFallback, credssp, logonScreen }) {
-  // WrongPassword(1) / LogonFailure(2), or a server without NLA
-  const nlaFailed = kind === 1 || kind === 2 || kind === kindNegotiationFailure
-  if (credssp && nlaFallback && !logonScreen && nlaFailed) {
-    return 'logonScreen'
-  }
-  if (!credssp && kind === kindNegotiationFailure) {
-    return 'askPassword'
-  }
-  return ''
-}
-
 /**
  * the server and the bookmark disagree on NLA
  * @param {object} err IronError
- * @param {boolean} credssp the attempt used NLA
+ * @param {boolean} nla the bookmark asked for NLA
  * @return {string} empty: not a negotiation failure
  */
-export function negotiationText (err, credssp) {
+export function negotiationText (err, nla) {
   try {
     if (!err || typeof err.kind !== 'function' || err.kind() !== kindNegotiationFailure) {
       return ''
@@ -84,9 +23,9 @@ export function negotiationText (err, credssp) {
   } catch (e) {
     return ''
   }
-  return credssp
-    ? 'The server does not accept NLA (CredSSP): turn on "Without NLA as fallback" in the bookmark'
-    : 'The server requires NLA (CredSSP): log on with a password, ' +
+  return nla
+    ? 'The server does not accept NLA (CredSSP): turn off "Network level authentication (NLA)" in the bookmark'
+    : 'The server requires NLA (CredSSP): turn on "Network level authentication (NLA)" in the bookmark, ' +
       'or allow remote connections without network level authentication on the server'
 }
 
