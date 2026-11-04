@@ -182,6 +182,10 @@ export default auto(function Index (props) {
     className: cls,
     style: {
       '--left-side-bar-width': store.leftSideBarWidth + 'px',
+      // the bookmark bar sits under the tab strip, so the session content has
+      // to start below both (session.styl, no-session.styl). 0 when the bar is
+      // off or empty, which keeps those calcs identical to the old layout.
+      '--bookmark-bar-height': store.bookmarkBarHeight + 'px',
       '--footer-stack-height': `${footerHeight + (remoteMonitorBarVisible ? remoteMonitorBarHeight : 0)}px`
     }
   }
@@ -228,6 +232,7 @@ export default auto(function Index (props) {
       'showModal',
       'showInfoModal',
       'openedSideBar',
+      'bookmarkBarVisible',
       'height',
       'settingTab',
       'settingItem',

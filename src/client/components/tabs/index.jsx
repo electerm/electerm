@@ -28,6 +28,7 @@ import WindowControl from './window-control'
 import AddBtn from './add-btn'
 import AppDrag from './app-drag'
 import NoSession from './no-session'
+import BookmarkBar from '../bookmark-bar/bookmark-bar'
 import classNames from 'classnames'
 
 export default class Tabs extends Component {
@@ -518,6 +519,18 @@ export default class Tabs extends Component {
     )
   }
 
+  // The bookmark bar is the second row of this pane's header, so it is rendered
+  // right after the tab strip and belongs to the same pane — see
+  // bookmark-bar.jsx for why it is per pane and not once per window.
+  renderBookmarkBar = () => {
+    if (!window.store.bookmarkBarVisible) {
+      return null
+    }
+    return (
+      <BookmarkBar batch={this.props.batch} />
+    )
+  }
+
   render () {
     const {
       tabs
@@ -526,10 +539,16 @@ export default class Tabs extends Component {
       return (
         <div className='tabs-outer'>
           {this.renderTabs()}
+          {this.renderBookmarkBar()}
           {this.renderNoSession()}
         </div>
       )
     }
-    return this.renderTabs()
+    return (
+      <>
+        {this.renderTabs()}
+        {this.renderBookmarkBar()}
+      </>
+    )
   }
 }
