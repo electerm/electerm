@@ -70,6 +70,16 @@ function findPowerShell7 () {
   ])
 }
 
+/**
+ * On Windows the first `bash` on PATH is often the WSL launcher (an app
+ * execution alias in WindowsApps, or the one in System32), not Git Bash.
+ * @param {string} p resolved exec path
+ * @return {boolean}
+ */
+function isWslBashLauncher (p) {
+  return /[\\/](WindowsApps|System32)[\\/]/i.test(p || '')
+}
+
 function findGitBash () {
   const programFiles = process.env.ProgramFiles || 'C:\\Program Files'
   const programFiles86 = process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)'
@@ -79,7 +89,11 @@ function findGitBash () {
     path.join(programFiles86, 'Git', 'bin', 'bash.exe'),
     localAppData && path.join(localAppData, 'Programs', 'Git', 'bin', 'bash.exe')
   ])
-  return found || resolveExec('bash')
+  if (found) {
+    return found
+  }
+  const onPath = resolveExec('bash')
+  return isWslBashLauncher(onPath) ? '' : onPath
 }
 
 /**
@@ -183,5 +197,6 @@ module.exports = {
   getPosixBookmarks,
   buildWindowsBookmarks,
   buildPosixBookmark,
+  isWslBashLauncher,
   posixShells
 }
