@@ -8,6 +8,8 @@ const assert = require('node:assert/strict')
 
 const defaults = require('../../app/upgrade/db-defaults')
 const {
+  getPosixBookmarks,
+  getDefaultLocalBookmarks,
   buildWindowsBookmarks,
   buildPosixBookmark,
   posixShells
@@ -192,6 +194,26 @@ describe('default local terminal bookmarks', () => {
     assert.equal(b.execWindows, undefined)
     assert.ok(posixShells.includes('zsh'))
     assert.ok(posixShells.includes('bash'))
+  })
+
+  it('posix shells point at fixed absolute paths', () => {
+    for (const b of getPosixBookmarks()) {
+      assert.ok(b[execProp].startsWith('/'), `${b.title} is not absolute`)
+      assert.ok(fs.existsSync(b[execProp]), `${b[execProp]} should exist`)
+    }
+  })
+
+  it('seeding does not depend on PATH', () => {
+    // the whole point of the fixed paths: no PATH walk, so an empty PATH
+    // must seed exactly the same list
+    const before = getDefaultLocalBookmarks().map(b => b._id)
+    const saved = process.env.PATH
+    process.env.PATH = ''
+    try {
+      assert.deepEqual(getDefaultLocalBookmarks().map(b => b._id), before)
+    } finally {
+      process.env.PATH = saved
+    }
   })
 })
 
