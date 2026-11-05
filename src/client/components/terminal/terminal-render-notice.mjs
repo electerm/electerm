@@ -1,7 +1,6 @@
 /**
- * The one user-facing string about the WebGL -> DOM fallback, shared by the
- * toast (mixins/term-theme.js) and the settings panel so both always say the
- * same thing.
+ * The one user-facing string about the WebGL -> DOM fallback, used by the
+ * toast in mixins/term-theme.js.
  */
 const noticeKey = 'webglFallbackNotice'
 
@@ -21,5 +20,3 @@ export function webglFallbackNoticeText () {
     ? englishNotice
     : translated
 }
-
-export { noticeKey as webglFallbackNoticeKey }
