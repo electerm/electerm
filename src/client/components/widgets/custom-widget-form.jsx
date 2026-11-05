@@ -50,6 +50,7 @@ import message from '../common/message'
 import openWidgetTab from './widget-open-tab'
 import WidgetAIConfig from './widget-ai-config'
 import WidgetBookmarks, { getBookmarkOffer } from './widget-bookmarks'
+import { widgetRowKey } from './row-key'
 import {
   renderConfigItem,
   configInitialValues
@@ -226,7 +227,7 @@ function ResultView ({ result, busy, onAction, onBack, canBack }) {
         <Table
           className='cwf-table'
           size='small'
-          rowKey={(row, i) => row.id || i}
+          rowKey={widgetRowKey}
           pagination={table.rows.length > 20 ? { pageSize: 20 } : false}
           dataSource={table.rows || []}
           columns={(table.columns || []).map((column, ci) => ({

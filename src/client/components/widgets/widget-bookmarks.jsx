@@ -26,6 +26,7 @@ import { Alert, Button, Table, Tag } from 'antd'
 import { isPlainObject } from 'lodash-es'
 import { bookmarkUpload } from '../tree-list/bookmark-upload'
 import { fixBookmarkData } from '../bookmark-form/fix-bookmark-default'
+import { widgetRowKey } from './row-key'
 
 const e = window.translate
 
@@ -182,7 +183,7 @@ export default function WidgetBookmarks ({ offer }) {
       )}
       <Table
         size='small'
-        rowKey={(row, i) => row.id || i}
+        rowKey={widgetRowKey}
         pagination={total > 10 ? { pageSize: 10 } : false}
         dataSource={offer.bookmarks}
         columns={columns()}
