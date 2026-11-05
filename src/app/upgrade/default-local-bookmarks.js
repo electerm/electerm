@@ -13,15 +13,26 @@ const path = require('path')
 const {
   isWin,
   isMac,
-  resolveExec,
-  resolveWinDirExec,
-  firstExisting
+  exists,
+  resolveWinDirExec
 } = require('./detect-shells')
 
-// POSIX shells worth a one click local terminal, platform default first
-const posixShells = isMac
-  ? ['zsh', 'bash', 'fish']
-  : ['bash', 'zsh', 'fish']
+// POSIX shells worth a one click local terminal, platform default first.
+// Absolute paths, no PATH scan: this data is computed on every app start (see
+// db-defaults.js), and a shell in a custom prefix is one manual bookmark away.
+const posixShellPaths = isMac
+  ? [
+      ['zsh', '/bin/zsh'],
+      ['bash', '/bin/bash'],
+      ['fish', '/opt/homebrew/bin/fish']
+    ]
+  : [
+      ['bash', '/bin/bash'],
+      ['zsh', '/usr/bin/zsh'],
+      ['fish', '/usr/bin/fish']
+    ]
+
+const posixShells = posixShellPaths.map(([name]) => name)
 
 const colors = {
   bash: '#4EAA25',
@@ -57,17 +68,15 @@ function build ({ id, title, execProp, execArgsProp, exec, description }) {
   }
 }
 
+/**
+ * PowerShell 7 from the default install path, no PATH scan (same reasoning as
+ * findGitBash below: one accessSync instead of a walk on every app start).
+ * @return {string} '' when PowerShell 7 is not in the default path
+ */
 function findPowerShell7 () {
-  const inPath = resolveExec('pwsh')
-  if (inPath) {
-    return inPath
-  }
   const programFiles = process.env.ProgramFiles || 'C:\\Program Files'
-  const programFiles86 = process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)'
-  return firstExisting([
-    path.join(programFiles, 'PowerShell', '7', 'pwsh.exe'),
-    path.join(programFiles86, 'PowerShell', '7', 'pwsh.exe')
-  ])
+  const pwsh = path.join(programFiles, 'PowerShell', '7', 'pwsh.exe')
+  return exists(pwsh) ? pwsh : ''
 }
 
 /**
@@ -81,9 +90,8 @@ function findPowerShell7 () {
  */
 function findGitBash () {
   const programFiles = process.env.ProgramFiles || 'C:\\Program Files'
-  return firstExisting([
-    path.join(programFiles, 'Git', 'bin', 'bash.exe')
-  ])
+  const bash = path.join(programFiles, 'Git', 'bin', 'bash.exe')
+  return exists(bash) ? bash : ''
 }
 
 /**
@@ -171,9 +179,8 @@ function buildPosixBookmark (shell, execProp, execArgsProp, exec) {
 function getPosixBookmarks () {
   const execProp = isMac ? 'execMac' : 'execLinux'
   const execArgsProp = isMac ? 'execMacArgs' : 'execLinuxArgs'
-  return posixShells
-    .map(name => [name, resolveExec(name)])
-    .filter(([, exec]) => exec)
+  return posixShellPaths
+    .filter(([, exec]) => exists(exec))
     .map(([name, exec]) => buildPosixBookmark(name, execProp, execArgsProp, exec))
 }
 
