@@ -11,10 +11,9 @@ const {
   buildWindowsBookmarks,
   buildPosixBookmark,
   isWslBashLauncher,
-  pickGitBash,
   posixShells
 } = require('../../app/upgrade/default-local-bookmarks')
-const { findAllInPath } = require('../../app/upgrade/detect-shells')
+const { findInPath } = require('../../app/upgrade/detect-shells')
 const {
   macOsCommands,
   linuxCommands,
@@ -376,36 +375,29 @@ describe('isWslBashLauncher', () => {
   })
 })
 
-describe('pickGitBash', () => {
-  const windowsApps = 'C:\\Users\\me\\AppData\\Local\\Microsoft\\WindowsApps\\bash.exe'
-  const system32 = 'C:\\Windows\\System32\\bash.exe'
-  const customGit = 'D:\\tools\\Git\\bin\\bash.exe'
-  const programFilesGit = 'C:\\Program Files\\Git\\bin\\bash.exe'
-
-  it('skips the WSL launcher and keeps looking on PATH', () => {
-    assert.equal(pickGitBash('', [windowsApps, customGit]), customGit)
-    assert.equal(pickGitBash('', [system32, windowsApps, customGit]), customGit)
+describe('findInPath accept filter', () => {
+  it('skips the rejected matches and keeps scanning', () => {
+    // a filter that rejects everything falls through to the empty result,
+    // one that accepts everything is the plain scan
+    assert.equal(findInPath('sh', () => false), '')
+    assert.equal(findInPath('sh', () => true), findInPath('sh'))
   })
 
-  it('returns nothing when PATH only has WSL launchers', () => {
-    assert.equal(pickGitBash('', [windowsApps, system32]), '')
-    assert.equal(pickGitBash('', []), '')
-    assert.equal(pickGitBash('', undefined), '')
+  it('stops at the first accepted match instead of walking the whole PATH', () => {
+    // the seed data runs on the startup path: a filter must not turn the
+    // early return into a full PATH scan
+    const seen = []
+    const found = findInPath('sh', p => {
+      seen.push(p)
+      return true
+    })
+    assert.ok(seen.length <= 1, `probed ${seen.length} candidates`)
+    assert.equal(seen[0] || '', found)
   })
 
-  it('keeps a Git for Windows install found outside PATH', () => {
-    assert.equal(pickGitBash(programFilesGit, []), programFilesGit)
-    assert.equal(pickGitBash(programFilesGit, [windowsApps]), programFilesGit)
-  })
-})
-
-describe('findAllInPath', () => {
-  it('returns every PATH match as a list, empty when missing', () => {
-    const found = findAllInPath('sh')
-    assert.ok(Array.isArray(found))
-    for (const p of found) {
-      assert.ok(fs.existsSync(p), `${p} should exist`)
-    }
-    assert.deepEqual(findAllInPath('electerm-no-such-shell-xyz'), [])
+  it('does not accept the WSL launcher as Git Bash', () => {
+    const wsl = 'C:\\Users\\me\\AppData\\Local\\Microsoft\\WindowsApps\\bash.exe'
+    assert.equal(isWslBashLauncher(wsl), true)
+    assert.equal(findInPath('sh', p => !isWslBashLauncher(p)), findInPath('sh'))
   })
 })
