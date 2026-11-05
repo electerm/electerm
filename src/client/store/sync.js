@@ -25,27 +25,32 @@ const {
   version: packVer
 } = packInfo
 
-// Server-managed config keys that must never be overwritten by an
-// imported/synced config, because they are specific to the running
-// server instance.  Overwriting tokenElecterm in particular breaks
-// every subsequent WebSocket connection (terminals, sftp, transfers)
-// because the token no longer matches the server's JWT secret, causing
-// connections to silently fail verification — the terminal appears to
-// connect but input never works until the app is restarted.
-const serverManagedConfigKeys = [
+// Server- and machine-local config keys that must never be overwritten by an
+// imported/synced config, because they describe *this* install. Overwriting
+// tokenElecterm in particular breaks every subsequent WebSocket connection
+// (terminals, sftp, transfers) because the token no longer matches the
+// server's JWT secret, causing connections to silently fail verification — the
+// terminal appears to connect but input never works until the app is
+// restarted. `sessionLogPath` is the same shape of mistake in the filesystem:
+// a full-data import carries `C:\Users\<someone else>\Documents\electerm` over
+// from the machine that exported it, and an unwritable log dir used to take
+// the session down with it (#4688). Keep the path local to the install, the
+// per-OS default (`default-log-path.js`) covers a machine that has none.
+const localConfigKeys = [
   'tokenElecterm',
   'host',
   'port',
   'server',
   'wsHost',
   'wsPort',
-  'useSystemTitleBar'
+  'useSystemTitleBar',
+  'sessionLogPath'
 ]
 
-function stripServerManagedKeys (conf) {
+function stripLocalConfigKeys (conf) {
   if (!conf || typeof conf !== 'object') return conf
   const safe = { ...conf }
-  for (const k of serverManagedConfigKeys) {
+  for (const k of localConfigKeys) {
     delete safe[k]
   }
   return safe
@@ -625,7 +630,7 @@ export default (Store) => {
             get(gist, 'files["userConfig.json"].content')
           )
           if (userConfig) {
-            store.setConfig(stripServerManagedKeys(userConfig))
+            store.setConfig(stripLocalConfigKeys(userConfig))
           }
           if (userConfig && userConfig.theme) {
             store.setTheme(userConfig.theme)
@@ -690,7 +695,7 @@ export default (Store) => {
         get(gist, 'files["userConfig.json"].content')
       )
       if (userConfig) {
-        store.setConfig(stripServerManagedKeys(userConfig))
+        store.setConfig(stripLocalConfigKeys(userConfig))
       }
       if (userConfig && userConfig.theme) {
         store.setTheme(userConfig.theme)
@@ -838,7 +843,7 @@ export default (Store) => {
         })()
       }
     })
-    store.updateConfig(stripServerManagedKeys(objs.config))
+    store.updateConfig(stripLocalConfigKeys(objs.config))
     if (objs.config?.theme) {
       store.setTheme(objs.config.theme)
     }
