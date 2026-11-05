@@ -165,26 +165,30 @@ class Term extends Component {
   rendererLifecycleReady = false
   webglCircuitDisposable = null
   webglCircuitState = 'HEALTHY'
-  // 激活失败（动态 import / addon 构造 / loadAddon 抛错）后置 true，与熔断一起
-  // 阻断后续 WebGL 目标选择；只在用户显式 DOM→WebGL 配置切换时复位。
+  // Set to true when activation fails (dynamic import / addon constructor /
+  // loadAddon threw). Blocks later WebGL target selection together with the
+  // breaker; reset only on an explicit DOM -> WebGL config switch.
   webglActivationFailed = false
 
   componentDidMount () {
-    // 订阅要最先建立：熔断可能在初始化过程中就发生。回调只同步状态并请求
-    // reconcile，绝不触碰 socket/term 生命周期。
+    // The subscription has to be the first thing established: the breaker can
+    // trip during initialisation. The callback only mirrors state and asks for
+    // a reconcile, it never touches the socket/term lifecycle.
     this.webglCircuitState = getWebglCircuitSnapshot().state
     this.webglCircuitDisposable = subscribeWebglCircuit(event => {
       this.webglCircuitState = event.snapshot.state
-      // 'tripped' 与 'reset' 必须给出不同的 reason：reset 由用户在设置里执行
-      // DOM→WebGL 切换触发，是一次成功的用户操作，把它记成 'circuit tripped'
-      // 会污染这个功能最需要读的那段日志。两个字符串都在诊断白名单里
-      // （terminal-render-diagnostics.mjs 的 allowedReasons），不在白名单里会
-      // fail-closed 静默丢字段。
+      // 'tripped' and 'reset' must carry different reasons: a reset is the
+      // user switching DOM -> WebGL in the settings, a successful action, and
+      // recording it as 'circuit tripped' would pollute the very log this
+      // feature is read from. Both strings are in the diagnostics allow list
+      // (allowedReasons in terminal-render-diagnostics.mjs); anything outside
+      // it is dropped silently by the fail-closed check.
       const reason = event.type === 'tripped' ? 'circuit tripped' : 'circuit reset'
       if (event.type === 'tripped') {
         logTerminalRender(this, 'webgl-circuit-tripped', { reason })
       }
-      // controller 的释放失败会沿 promise 抛出，这里必须自行收尾
+      // A failed release in the controller is thrown through the promise, so
+      // this call has to settle its own errors.
       this.reconcileRenderer(reason)
         .catch(error => console.error('renderer reconcile failed', error))
     })
@@ -252,10 +256,11 @@ class Term extends Component {
       this.registerTerminalColorQueryHandlers(this.term, this.props.themeConfig)
       this.applyTerminalTheme(true)
     }
-    // 每次 React 提交后都协调一次可见性，且必须是无条件调用：刚隐藏的 tab
-    // 即使 shouldChange 为 false（上面只负责给刚显示的终端 onWindowFocus），
-    // 也要在这里因为 clientWidth/clientHeight 归零而同步释放 WebGL。
-    // terminal 尚未就绪时 reconcileRenderer 自行安全返回。
+    // Reconcile visibility after every React commit, unconditionally: a tab
+    // that just got hidden must release WebGL here even when shouldChange is
+    // false (that branch above only covers the terminal that just became
+    // visible), because its clientWidth/clientHeight dropped to 0.
+    // reconcileRenderer returns safely when the terminal is not ready yet.
     this.reconcileRenderer('component update')
       .catch(error => console.error('renderer reconcile failed', error))
   }
@@ -263,7 +268,8 @@ class Term extends Component {
   componentWillUnmount () {
     // Renderer lifecycle first: it must stop reacting (and stop holding the
     // GPU context) before the terminal and socket it only borrows go away.
-    // 只释放 renderer 资源：socket.close()/term.dispose() 仍由下方既有清理负责。
+    // Only renderer resources are released here: socket.close() and
+    // term.dispose() stay in the existing cleanup below.
     this.onClose = true
     this.rendererLifecycleReady = false
     this.webglCircuitDisposable?.dispose?.()

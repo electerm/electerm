@@ -68,9 +68,11 @@ test('only serializes fixed lifecycle details', async () => {
   assert.equal(line.includes('private-host'), false)
 })
 
-// M1 的要害是 'circuit reset' 漏加进 allowedReasons 就会被 fail-closed 静默丢掉
-// （terminal.jsx 的 circuit 订阅在 event.type === 'reset' 时传这个新枚举），所以
-// 这里两侧一起钉住：新枚举必须真的落进记录，且白名单没有被放宽成「任意字符串」。
+// The point of M1 is that 'circuit reset' silently disappears when it is left
+// out of allowedReasons (terminal.jsx's circuit subscription passes that new
+// enum when event.type === 'reset'), so both sides are pinned here: the new
+// enum really does reach the record, and the allow list was not widened into
+// "any string".
 test('keeps the circuit reset reason but rejects everything outside the set', async () => {
   const { logTerminalRender } = await load()
   const serialize = reason => {
@@ -82,7 +84,8 @@ test('keeps the circuit reset reason but rejects everything outside the set', as
   const reset = serialize('circuit reset')
   assert.equal(reset.record.reason, 'circuit reset')
 
-  // 近似串（尾空格）与无关数据都必须被丢掉，且不得出现在原始日志行里
+  // Near-misses (trailing space) and unrelated data are both dropped, and
+  // neither may appear in the raw line
   for (const rejected of ['circuit reset ', 'private-host']) {
     const { line, record } = serialize(rejected)
     assert.equal(record.reason, undefined)
@@ -110,6 +113,20 @@ test('diagnostics tolerate DOM mode and missing xterm internals', async () => {
   const record = JSON.parse(line.slice('[terminal-render] '.length))
   assert.equal(record.state.contextLost, null)
   assert.equal(record.state.webgl, false)
+})
+
+test('the default sink stays silent outside a dev build', async () => {
+  const { logTerminalRender } = await load()
+  const originalInfo = console.info
+  const lines = []
+  console.info = line => lines.push(line)
+  try {
+    // No sink argument: this is the production path.
+    logTerminalRender(fixture(), 'recover-request', { reason: 'initial' })
+  } finally {
+    console.info = originalInfo
+  }
+  assert.deepEqual(lines, [], 'a shipped build must not log renderer diagnostics')
 })
 
 test('broken private getters or console must not break recovery', async () => {

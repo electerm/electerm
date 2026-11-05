@@ -4,11 +4,13 @@ const assert = require('node:assert/strict')
 const load = () => import('../../client/components/terminal/terminal-webgl-circuit-breaker.mjs')
 
 describe('terminal WebGL circuit breaker', () => {
-  // 隐私边界的回归防护：window.__terminalWebglDiagnostic 是唯一挂到 window 上的
-  // 诊断出口，只允许暴露两个固定枚举键且必须冻结。用带 query 的 specifier 取得
-  // 该模块的**独立实例**（Node 按完整 URL 缓存模块），让模块顶层的
-  // `typeof window !== 'undefined'` 分支重新执行一次，断言就不受本文件其他用例
-  // 已缓存模块的影响；测试结束后恢复 global.window。
+  // Regression guard for the privacy boundary: window.__terminalWebglDiagnostic
+  // is the only diagnostic surface hung off window, it may expose exactly two
+  // fixed enum keys, and it must be frozen. A specifier with a query string
+  // yields an *independent instance* of the module (Node caches by full URL),
+  // so the `typeof window !== 'undefined'` branch at the module top runs again
+  // and the assertions are not affected by the instance cached by the other
+  // tests in this file. global.window is restored afterwards.
   test('exposes exactly two frozen enum fields on window.__terminalWebglDiagnostic', async () => {
     const hadWindow = Object.prototype.hasOwnProperty.call(global, 'window')
     const previousWindow = global.window
@@ -21,7 +23,8 @@ describe('terminal WebGL circuit breaker', () => {
       assert.ok(diagnostic, 'the module did not install window.__terminalWebglDiagnostic')
       assert.deepEqual(Object.keys(diagnostic), ['circuitState', 'generation'])
       assert.equal(Object.isFrozen(diagnostic), true)
-      // 必须是固定枚举值，绝不能是主机名/错误信息等调用方数据
+      // Must be a fixed enum value, never caller data such as a hostname or an
+      // error message
       assert.ok(
         ['HEALTHY', 'TRIPPED'].includes(diagnostic.circuitState),
         `circuitState must be a circuit enum value, got ${String(diagnostic.circuitState)}`
@@ -69,7 +72,8 @@ describe('terminal WebGL circuit breaker', () => {
     disposable.dispose()
     circuit.reset()
 
-    // trip 与 reset 都会广播，抛错的 listener 仍保持订阅，因此报告两次
+    // Both trip and reset broadcast, and the throwing listener stays
+    // subscribed, so it reports twice
     assert.deepEqual(errors, ['listener failed', 'listener failed'])
     assert.deepEqual(calls, ['tripped'])
   })
@@ -89,9 +93,9 @@ describe('terminal WebGL circuit breaker', () => {
     })
   })
 
-  // 页面级熔断是共享的：一次 DOM→WebGL 配置切换会让每个存活的 Term 都调用
-  // reset。只有第一次真正恢复可用性，后续调用必须是幂等的 no-op，
-  // 否则每个终端都会把 generation 推高一次。
+  // The page-level breaker is shared: one DOM -> WebGL config switch makes every
+  // live Term call reset. Only the first call really restores availability, the
+  // rest must be idempotent no-ops, or every terminal bumps generation once.
   test('coalesces repeated reset calls from multiple terminal observers', async () => {
     const { createWebglCircuitBreaker } = await load()
     const circuit = createWebglCircuitBreaker()

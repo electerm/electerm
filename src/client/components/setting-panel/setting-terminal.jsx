@@ -38,6 +38,11 @@ import TerminalBackgroundConfig from './terminal-bg-config'
 import NumberConfig from './number-config'
 import Upload from '../common/upload'
 import {
+  getWebglCircuitSnapshot,
+  webglCircuitStates
+} from '../terminal/terminal-webgl-circuit-breaker.mjs'
+import { webglFallbackNoticeText } from '../terminal/terminal-render-notice.mjs'
+import {
   getRightClickBehavior,
   rightClickBehaviorList
 } from '../../common/right-click-behavior'
@@ -468,6 +473,12 @@ export default class SettingTerminal extends Component {
       keywords = [{ color: 'red' }]
     } = this.props.config
     const rightClickBehavior = getRightClickBehavior(this.props.config)
+    // config.rendererType is what the user asked for; the page-level breaker
+    // can force the built-in DOM renderer at runtime. Say so instead of
+    // showing a setting that is silently not in effect. Read at render time,
+    // which is also when this panel is opened.
+    const webglFellBack = rendererType === rendererTypes.webGL &&
+      getWebglCircuitSnapshot().state === webglCircuitStates.tripped
     const {
       getThemeConfig
     } = this.props.store
@@ -519,6 +530,12 @@ export default class SettingTerminal extends Component {
               })
             }
           </Select>
+          {
+            webglFellBack &&
+              <div className='pd1t'>
+                {webglFallbackNoticeText()}
+              </div>
+          }
         </div>
         {
           this.renderNumber('fontSize', {

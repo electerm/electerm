@@ -52,9 +52,11 @@ export const configMixin = {
         prevRendererType === rendererTypes.dom &&
         nextRendererType === rendererTypes.webGL
       ) {
-        // 标记必须先清：resetWebglCircuit() 是同步广播的，本终端自己的订阅
-        // 会在那一瞬间重入 reconcileRenderer，若此时标记还是 true，那次重入
-        // 会读到一个注定要被推翻的目标，白跑一次 deactivate
+        // The flag must be cleared first: resetWebglCircuit() broadcasts
+        // synchronously, so this terminal's own subscription re-enters
+        // reconcileRenderer at that instant. While the flag is still true that
+        // re-entry reads a target which is about to be overruled and runs a
+        // pointless deactivate.
         this.webglActivationFailed = false
         resetWebglCircuit()
       }

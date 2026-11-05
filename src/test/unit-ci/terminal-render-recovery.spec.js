@@ -299,8 +299,8 @@ describe('terminal render recovery', () => {
     const { recoverVisibleTerminals } = await loadModule()
     const calls = []
     const refs = new Map([
-      ['term-a', { onWindowFocus: focus => calls.push(['a', focus]) }],
-      ['term-b', { onWindowFocus: focus => calls.push(['b', focus]) }]
+      ['term-a', { onWindowFocus: (focus, source) => calls.push(['a', focus, source]) }],
+      ['term-b', { onWindowFocus: (focus, source) => calls.push(['b', focus, source]) }]
     ])
 
     const recovered = recoverVisibleTerminals(
@@ -309,7 +309,10 @@ describe('terminal render recovery', () => {
       'a'
     )
 
-    assert.deepEqual(calls, [['a', true], ['b', false]])
+    // The focus path is not a tab-visible transition, and the terminal has to
+    // know which one it is (macOS only re-uploads glyph textures on a window
+    // focus, tab-visible goes through componentDidUpdate instead).
+    assert.deepEqual(calls, [['a', true, 'focus'], ['b', false, 'focus']])
     assert.equal(recovered, 2)
   })
 
