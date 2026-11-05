@@ -1,5 +1,4 @@
 import message from '../../common/message'
-import { webglFallbackNoticeText } from '../terminal-render-notice.mjs'
 import { logTerminalRender } from '../terminal-render-diagnostics.mjs'
 import deepCopy from 'json-deep-copy'
 import { loadWebglAddon } from '../xterm-loader.js'
@@ -26,7 +25,13 @@ import {
 } from '../terminal-webgl-circuit-breaker.mjs'
 
 // The fallback notice is page-wide and worth showing once only, no matter how
-// many terminals lose their context in the same wave.
+// many terminals lose their context in the same wave. It stays English on
+// purpose: a lost WebGL context is rare, and keeping it out of the locale
+// package avoids shipping a key that most users never see.
+const fallbackNoticeText = 'WebGL renderer disabled after a GPU failure. ' +
+  'Terminals use the built-in DOM renderer now; switch the renderer setting ' +
+  'to re-enable WebGL.'
+
 let fallbackNoticeShown = false
 
 function notifyWebglFallback () {
@@ -34,7 +39,7 @@ function notifyWebglFallback () {
     return
   }
   fallbackNoticeShown = true
-  message.warning(webglFallbackNoticeText(), 8)
+  message.warning(fallbackNoticeText, 8)
 }
 
 /**
