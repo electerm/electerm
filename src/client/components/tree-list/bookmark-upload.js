@@ -43,7 +43,7 @@ export const bookmarkUpload = action(async (file) => {
     // a file that is not bookmarks at all used to import nothing and say
     // nothing; report it instead of leaving the user wondering
     store.onError(err)
-    return false
+    return { ok: false, error: err }
   }
   const bookmarkGroups1 = parsed.bookmarkGroups
   const bookmarks1 = fixBookmarksId(parsed.bookmarks)
@@ -60,7 +60,7 @@ export const bookmarkUpload = action(async (file) => {
 
   const fixed = fixBookmarks(bookmarks1)
 
-  await runImportTask({
+  const task = await runImportTask({
     title: e('import'),
     batch: 200,
     stopWatchers: ['bookmarks', 'bookmarkGroups'],
@@ -119,9 +119,19 @@ export const bookmarkUpload = action(async (file) => {
     ]
   })
 
-  return false
+  // callers that show the outcome (a widget offering bookmarks) need to know
+  // whether anything was imported: a cancelled task and "another import is
+  // already running" both end here without an exception
+  return {
+    ok: !task.cancelled && !task.error,
+    cancelled: !!task.cancelled,
+    error: task.error || null
+  }
 })
 
 export async function beforeBookmarkUpload (file) {
-  return bookmarkUpload(file)
+  await bookmarkUpload(file)
+  // antd Upload takes `false` as "do not send the file anywhere"; the import
+  // itself already ran above
+  return false
 }

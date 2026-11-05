@@ -13,13 +13,22 @@
  * A widget without `ui` is a config-mode widget: electerm renders the form
  * from `electerm.configs`, calls `electerm.action` (default "run") in the main
  * process on submit, and draws the returned result (message/details/table/
- * buttons/openTab/aiConfig) with its own components. No HTML, no CSS, no
- * bridge.
+ * buttons/openTab/aiConfig/bookmarks) with its own components. No HTML, no CSS,
+ * no bridge.
  *
  * `aiConfig` in a result (a run result, or an action result) is an offer, not a
  * write: the widget panel lists the values and the user presses "Use these
  * settings" to put them into Settings -> AI. Only the fields in
  * ./ai-config.js are accepted, and the system prompt is not one of them.
+ *
+ * `bookmarks` in an action result is the same kind of offer: `{ bookmarks,
+ * bookmarkGroups }`, the shape of electerm's own bookmark export, listed with
+ * a count and imported only when the user presses the button — a bare bookmark
+ * array is accepted as well, with `bookmarkGroups` beside it in the result. It
+ * goes through the regular bookmark import, so a category with an id that
+ * already exists is merged into, and category-less bookmarks land in a new one.
+ * Config-mode action results only: a run result carrying `bookmarks` is
+ * ignored.
  *
  * Metadata is read from package.json only: listing a widget must never execute
  * its code, so a broken widget still shows up (as an error) instead of taking
