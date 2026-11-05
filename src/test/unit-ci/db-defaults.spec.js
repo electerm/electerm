@@ -10,6 +10,7 @@ const defaults = require('../../app/upgrade/db-defaults')
 const {
   buildWindowsBookmarks,
   buildPosixBookmark,
+  isWslBashLauncher,
   posixShells
 } = require('../../app/upgrade/default-local-bookmarks')
 const {
@@ -356,5 +357,19 @@ describe('built in seed items stay deletable', () => {
     for (const id of seededIds) {
       assert.equal(protectedIds.has(id), false, `${id} would be undeletable`)
     }
+  })
+})
+
+describe('isWslBashLauncher', () => {
+  it('flags the WSL bash launchers that are not Git Bash', () => {
+    assert.equal(isWslBashLauncher('C:\\Users\\me\\AppData\\Local\\Microsoft\\WindowsApps\\bash.exe'), true)
+    assert.equal(isWslBashLauncher('C:\\Windows\\System32\\bash.exe'), true)
+    assert.equal(isWslBashLauncher('C:\\Windows\\system32\\bash.exe'), true)
+  })
+
+  it('keeps a real Git Bash and empty values', () => {
+    assert.equal(isWslBashLauncher('D:\\tools\\Git\\bin\\bash.exe'), false)
+    assert.equal(isWslBashLauncher('/usr/bin/bash'), false)
+    assert.equal(isWslBashLauncher(''), false)
   })
 })
