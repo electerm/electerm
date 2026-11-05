@@ -15,6 +15,7 @@ const {
   isMac,
   resolveExec,
   resolveWinDirExec,
+  findAllInPath,
   firstExisting
 } = require('./detect-shells')
 
@@ -80,6 +81,22 @@ function isWslBashLauncher (p) {
   return /[\\/](WindowsApps|System32)[\\/]/i.test(p || '')
 }
 
+/**
+ * Prefer a Git for Windows install in the well known folders, then the first
+ * `bash` on PATH that is not the WSL launcher. Skipping the launcher instead
+ * of giving up keeps a Git installed somewhere else (Scoop, Chocolatey, a
+ * custom folder) working, which is the common case on a machine that has WSL.
+ * @param {string} found match from the well known Git for Windows folders
+ * @param {string[]} onPath every `bash` match on PATH, in PATH order
+ * @return {string} '' when Git Bash is not installed
+ */
+function pickGitBash (found, onPath) {
+  if (found) {
+    return found
+  }
+  return (onPath || []).find(p => !isWslBashLauncher(p)) || ''
+}
+
 function findGitBash () {
   const programFiles = process.env.ProgramFiles || 'C:\\Program Files'
   const programFiles86 = process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)'
@@ -89,11 +106,7 @@ function findGitBash () {
     path.join(programFiles86, 'Git', 'bin', 'bash.exe'),
     localAppData && path.join(localAppData, 'Programs', 'Git', 'bin', 'bash.exe')
   ])
-  if (found) {
-    return found
-  }
-  const onPath = resolveExec('bash')
-  return isWslBashLauncher(onPath) ? '' : onPath
+  return pickGitBash(found, findAllInPath('bash'))
 }
 
 /**
@@ -198,5 +211,6 @@ module.exports = {
   buildWindowsBookmarks,
   buildPosixBookmark,
   isWslBashLauncher,
+  pickGitBash,
   posixShells
 }

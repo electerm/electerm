@@ -49,19 +49,29 @@ const pathExts = isWin
   ? (process.env.PATHEXT || '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean)
   : ['']
 
-function findInPath (name) {
+/**
+ * Every match of a bare shell name on PATH, in PATH order
+ * @param {string} name e.g. 'bash'
+ * @return {string[]} empty when the shell is not installed
+ */
+function findAllInPath (name) {
   const names = isWin && !/\.[a-z0-9]+$/i.test(name)
     ? pathExts.map(ext => name + ext)
     : [name]
+  const found = []
   for (const dir of pathDirs()) {
     for (const n of names) {
       const p = path.join(dir, n)
       if (canExec(p)) {
-        return p
+        found.push(p)
       }
     }
   }
-  return ''
+  return found
+}
+
+function findInPath (name) {
+  return findAllInPath(name)[0] || ''
 }
 
 function findInExtraDirs (name) {
@@ -120,5 +130,6 @@ module.exports = {
   isMac,
   resolveExec,
   resolveWinDirExec,
+  findAllInPath,
   firstExisting
 }
