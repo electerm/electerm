@@ -14,12 +14,6 @@ import { webglCircuitStates } from './terminal-webgl-circuit-breaker.mjs'
  */
 const debugStorageKey = 'electermRenderDebug'
 
-function isDevBuild () {
-  // Vite replaces `import.meta.env` at build time. Under plain Node (unit
-  // tests) the property does not exist, hence the guard.
-  return Boolean(import.meta.env && import.meta.env.DEV)
-}
-
 function readDebugFlag () {
   try {
     return window.localStorage.getItem(debugStorageKey) === '1'
@@ -30,7 +24,7 @@ function readDebugFlag () {
 
 // Resolved once: flipping the flag takes a reload, which also keeps the hot
 // path down to a single comparison.
-const enabled = isDevBuild() || readDebugFlag()
+const enabled = readDebugFlag()
 
 // Identifiers are only valid for this page lifetime and never carry a real
 // session id, host, command or terminal content.
