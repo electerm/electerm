@@ -25,7 +25,52 @@ module.exports = {
         ]
       },
       buttons: [
-        { label: 'Echo mode', action: 'echo' }
+        { label: 'Echo mode', action: 'echo' },
+        { label: 'Offer bookmarks', action: 'offerBookmarks' }
+      ]
+    }
+  },
+
+  // an action result may offer bookmarks for import: electerm lists them and
+  // imports only when the user presses the button
+  offerBookmarks (config) {
+    return {
+      bookmarks: [
+        {
+          id: 'wm1',
+          title: 'web-one',
+          type: 'ssh',
+          host: config.host,
+          port: 2222,
+          username: 'root',
+          password: config.passphrase
+        },
+        {
+          id: 'wm2',
+          title: 'telnet-one',
+          type: 'telnet',
+          host: 'tel.example.com'
+        },
+        {
+          id: 'wm3',
+          title: 'web-page',
+          type: 'web',
+          url: 'https://example.com/admin'
+        }
+      ],
+      bookmarkGroups: [
+        {
+          id: 'wbg-a',
+          name: 'Converted A',
+          bookmarkIds: ['wm1', 'wm2'],
+          bookmarkGroupIds: []
+        },
+        {
+          id: 'wbg-b',
+          name: 'Converted B',
+          bookmarkIds: ['wm3'],
+          bookmarkGroupIds: []
+        }
       ]
     }
   },
