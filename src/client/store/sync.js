@@ -15,6 +15,7 @@ import { update, getData } from '../common/db'
 import fetch from '../common/fetch-from-server'
 import download from '../common/download'
 import { fixBookmarks } from '../common/db-fix'
+import { collectUncategorizedBookmarks } from '../common/bookmark-uncategorized'
 import dayjs from 'dayjs'
 import parseJsonSafe from '../common/parse-json-safe'
 import { runImportTask } from '../common/import-task'
@@ -830,7 +831,19 @@ export default (Store) => {
               store[n].push(...chunk)
             }
           }
-        })
+        }),
+        // the same sweep the bookmarks-only import does: a bookmark the file
+        // left without a category reference is invisible in the sidebar tree,
+        // which is built from those references
+        {
+          label: e('bookmarkCategory'),
+          weight: 1,
+          run: () => {
+            action(() => {
+              collectUncategorizedBookmarks(store.bookmarks, store.bookmarkGroups)
+            })()
+          }
+        }
       ],
       // The import did not complete: put the store back the way it was so the
       // watcher restart below is a no-op instead of deleting the untouched
