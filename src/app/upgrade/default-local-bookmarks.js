@@ -71,29 +71,19 @@ function findPowerShell7 () {
 }
 
 /**
- * On Windows the first `bash` on PATH is often the WSL launcher (an app
- * execution alias in WindowsApps, or the one in System32), not Git Bash.
- * @param {string} p resolved exec path
- * @return {boolean}
+ * Git Bash from the default Git for Windows install path, and only from
+ * there. Scanning PATH for a `bash` is what pulled the WSL launcher in (an
+ * app execution alias in WindowsApps, or the one in System32), and it costs
+ * one accessSync per PATH entry, x PATHEXT on Windows, on every app start.
+ * A bookmark is editable, so a Git installed somewhere else is one manual
+ * edit away instead of a scan on every launch.
+ * @return {string} '' when Git for Windows is not in the default path
  */
-function isWslBashLauncher (p) {
-  return /[\\/](WindowsApps|System32)[\\/]/i.test(p || '')
-}
-
 function findGitBash () {
   const programFiles = process.env.ProgramFiles || 'C:\\Program Files'
-  const programFiles86 = process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)'
-  const localAppData = process.env.LOCALAPPDATA || ''
-  const found = firstExisting([
-    path.join(programFiles, 'Git', 'bin', 'bash.exe'),
-    path.join(programFiles86, 'Git', 'bin', 'bash.exe'),
-    localAppData && path.join(localAppData, 'Programs', 'Git', 'bin', 'bash.exe')
+  return firstExisting([
+    path.join(programFiles, 'Git', 'bin', 'bash.exe')
   ])
-  if (found) {
-    return found
-  }
-  const onPath = resolveExec('bash')
-  return isWslBashLauncher(onPath) ? '' : onPath
 }
 
 /**
@@ -197,6 +187,5 @@ module.exports = {
   getPosixBookmarks,
   buildWindowsBookmarks,
   buildPosixBookmark,
-  isWslBashLauncher,
   posixShells
 }
