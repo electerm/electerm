@@ -30,8 +30,9 @@ import { fixBookmarkData } from '../bookmark-form/fix-bookmark-default'
 const e = window.translate
 
 // what makes a bookmark carry a secret: the list below is the user's only
-// chance to notice before it lands in their bookmark store
-const CREDENTIAL_FIELDS = ['password', 'passphrase', 'privateKey']
+// chance to notice before it lands in their bookmark store. A key path counts:
+// the bookmark authenticates with whatever that file holds.
+const CREDENTIAL_FIELDS = ['password', 'passphrase', 'privateKey', 'privateKeyPath']
 
 function normalize (bookmarks, bookmarkGroups) {
   // the defaults the bookmark form would set (port, auth type, ...)
@@ -41,8 +42,13 @@ function normalize (bookmarks, bookmarkGroups) {
   }
   return {
     bookmarks: list,
-    // groups refer to each other and to bookmarks by id
-    bookmarkGroups: bookmarkGroups.filter(g => isPlainObject(g) && g.id)
+    // groups refer to each other and to bookmarks by id. A category is named by
+    // `title`: a widget that writes `name` (the natural guess, and what the
+    // bookmark form does not use) would otherwise import a title-less category
+    // the sidebar renders blank
+    bookmarkGroups: bookmarkGroups
+      .filter(g => isPlainObject(g) && g.id)
+      .map(g => g.title ? g : { ...g, title: g.name || '' })
   }
 }
 
@@ -63,8 +69,8 @@ function addressOf (row) {
   if (row.host) {
     return row.port ? `${row.host}:${row.port}` : row.host
   }
-  // web bookmarks use url, serial ones use path
-  return row.url || row.path || ''
+  // web bookmarks use url, serial ones use path, local ones a folder
+  return row.url || row.path || row.startDirectoryLocal || ''
 }
 
 // built per render: window.translate is not guaranteed to be ready when the
@@ -79,7 +85,13 @@ function columns () {
       ellipsis: true,
       render: (_, row) => <span title={addressOf(row)}>{addressOf(row)}</span>
     },
-    { title: e('username'), dataIndex: 'username', ellipsis: true }
+    {
+      // ftp bookmarks call it `user`, every other type `username`
+      title: e('username'),
+      key: 'username',
+      ellipsis: true,
+      render: (_, row) => row.username || row.user || ''
+    }
   ]
 }
 

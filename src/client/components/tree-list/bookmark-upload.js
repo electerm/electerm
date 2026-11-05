@@ -87,6 +87,12 @@ export const bookmarkUpload = action(async (file) => {
               const bg1 = store.bookmarkGroups.find(
                 b => b.id === bg.id
               )
+              // a category is named by `title`; an imported file that names it
+              // (and a category already in the store without one, e.g. written
+              // by a widget that used `name`) leaves a blank node in the tree
+              if (!bg1.title && bg.title) {
+                bg1.title = bg.title
+              }
               bg1.bookmarkIds = uniq(
                 [
                   ...(bg1.bookmarkIds || []),
