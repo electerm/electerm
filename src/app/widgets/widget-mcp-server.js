@@ -268,9 +268,35 @@ class ElectermMCPServer {
     ]
   }
 
+  // The effective command rules, in the same shape validateCommand applies:
+  // same trimming, same blank-line filtering, same "a non-empty whitelist puts
+  // us in whitelist mode". get_electerm_command_rules returns this verbatim, so
+  // the parsing lives in one place and what an agent reads cannot drift from
+  // what is actually enforced.
+  getCommandRules () {
+    const parse = s => (s || '')
+      .split('\n')
+      .map(x => x.trim())
+      .filter(Boolean)
+    const commandBlacklist = parse(this.config.commandBlacklist)
+    const commandWhitelist = parse(this.config.commandWhitelist)
+    return {
+      mode: commandWhitelist.length > 0 ? 'whitelist' : 'blacklist',
+      // Regex sources: applied with RegExp#test to the whole command string.
+      builtinBlacklist: ElectermMCPServer.BUILTIN_BLACKLIST.map(r => r.source),
+      commandBlacklist,
+      commandWhitelist
+    }
+  }
+
   // Validate a command against whitelist/blacklist rules.
   // Returns { allowed: true } or { allowed: false, reason: string }
   validateCommand (command) {
+    const {
+      commandBlacklist: userBlacklist,
+      commandWhitelist: userWhitelist
+    } = this.getCommandRules()
+
     // 1. Always-on built-in blacklist
     for (const pattern of ElectermMCPServer.BUILTIN_BLACKLIST) {
       if (pattern.test(command)) {
@@ -278,12 +304,7 @@ class ElectermMCPServer {
       }
     }
 
-    // 2. User-defined blacklist (newline-separated regex strings)
-    const userBlacklist = (this.config.commandBlacklist || '')
-      .split('\n')
-      .map(s => s.trim())
-      .filter(Boolean)
-
+    // 2. User-defined blacklist (regex strings)
     for (const raw of userBlacklist) {
       try {
         if (new RegExp(raw).test(command)) {
@@ -294,13 +315,8 @@ class ElectermMCPServer {
       }
     }
 
-    // 3. User-defined whitelist (newline-separated regex strings)
-    //    Only enforced when at least one pattern is configured.
-    const userWhitelist = (this.config.commandWhitelist || '')
-      .split('\n')
-      .map(s => s.trim())
-      .filter(Boolean)
-
+    // 3. User-defined whitelist — only enforced when at least one pattern is
+    //    configured (a non-empty list puts us in whitelist mode).
     if (userWhitelist.length > 0) {
       const allowed = userWhitelist.some(raw => {
         try {
@@ -740,6 +756,25 @@ class ElectermMCPServer {
           timeoutMs + 15000
         )
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
+      }
+    )
+
+    // The two command tools above reject with a reason, but an agent cannot
+    // know where the boundary is in advance — in whitelist mode a non-matching
+    // command is refused outright. Registered unconditionally (never behind a
+    // config switch) so it is available whenever the command tools are.
+    server.registerTool(
+      'get_electerm_command_rules',
+      {
+        description: 'Get the command rules enforced by send_electerm_terminal_command and execute_electerm_command, so a command can be checked before it is sent. ' +
+          'Returns { mode, builtinBlacklist, commandBlacklist, commandWhitelist }. Entries are regular expression sources tested against the command string with RegExp#test. For example, "^ls" matches command strings starting with "ls". ' +
+          'The built-in and configured blacklists take precedence over the whitelist. A non-empty whitelist requires the command to match at least one whitelist entry. Configured patterns are returned even if invalid. Invalid blacklist entries are skipped, and invalid whitelist entries never match. ' +
+          'These are the rules the running instance started with — editing the widget config takes effect only after a restart. They guard against accidents, not a determined bypass: an allowed command still runs with the session user\'s full rights on the remote host.',
+        inputSchema: undefined
+      },
+      async () => {
+        const rules = self.getCommandRules()
+        return { content: [{ type: 'text', text: JSON.stringify(rules, null, 2) }] }
       }
     )
 
