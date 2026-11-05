@@ -289,6 +289,14 @@ class ElectermMCPServer {
     }
   }
 
+  // Every rejection names the read-only rules tool, so an agent that guessed
+  // wrong learns the boundary from the error instead of bisecting it by trial
+  // and error — in whitelist mode a single miss says nothing about what is
+  // allowed.
+  static get RULES_HINT () {
+    return 'Call get_electerm_command_rules to see the rules this instance enforces.'
+  }
+
   // Validate a command against whitelist/blacklist rules.
   // Returns { allowed: true } or { allowed: false, reason: string }
   validateCommand (command) {
@@ -300,7 +308,7 @@ class ElectermMCPServer {
     // 1. Always-on built-in blacklist
     for (const pattern of ElectermMCPServer.BUILTIN_BLACKLIST) {
       if (pattern.test(command)) {
-        return { allowed: false, reason: `Command blocked by built-in safety rule: ${pattern}` }
+        return { allowed: false, reason: `Command blocked by built-in safety rule: ${pattern}. ${ElectermMCPServer.RULES_HINT}` }
       }
     }
 
@@ -308,7 +316,7 @@ class ElectermMCPServer {
     for (const raw of userBlacklist) {
       try {
         if (new RegExp(raw).test(command)) {
-          return { allowed: false, reason: `Command blocked by blacklist pattern: ${raw}` }
+          return { allowed: false, reason: `Command blocked by blacklist pattern: ${raw}. ${ElectermMCPServer.RULES_HINT}` }
         }
       } catch (_) {
         // ignore invalid regex in config
@@ -326,7 +334,7 @@ class ElectermMCPServer {
         }
       })
       if (!allowed) {
-        return { allowed: false, reason: 'Command not in whitelist' }
+        return { allowed: false, reason: `Command not in whitelist. ${ElectermMCPServer.RULES_HINT}` }
       }
     }
 

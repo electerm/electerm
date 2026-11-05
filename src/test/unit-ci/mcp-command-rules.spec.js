@@ -186,6 +186,19 @@ describe('get_electerm_command_rules – blacklist mode', () => {
       /built-in safety rule/
     )
   })
+
+  test('every rejection names the rules tool', async () => {
+    const sid = await initSession(PORT)
+    for (const command of ['mkfs.ext4 /dev/sdb1', 'forbidden-exec touch /tmp/x']) {
+      const res = await callTool(PORT, sid, 'send_electerm_terminal_command', { command })
+      assert.equal(res.data.result.isError, true)
+      assert.match(
+        JSON.parse(res.data.result.content[0].text).error,
+        /get_electerm_command_rules/,
+        'a rejection must tell the agent where the rules are'
+      )
+    }
+  })
 })
 
 describe('get_electerm_command_rules – whitelist mode', () => {
@@ -217,9 +230,10 @@ describe('get_electerm_command_rules – whitelist mode', () => {
     const sid = await initSession(PORT)
     const res = await callTool(PORT, sid, 'execute_electerm_command', { command: 'reboot' })
     assert.equal(res.data.result.isError, true)
-    assert.match(
-      JSON.parse(res.data.result.content[0].text).error,
-      /not in whitelist/
-    )
+    const { error } = JSON.parse(res.data.result.content[0].text)
+    assert.match(error, /not in whitelist/)
+    // whitelist mode is where a bare rejection teaches an agent the least —
+    // it has to be told the rules are readable.
+    assert.match(error, /get_electerm_command_rules/)
   })
 })
