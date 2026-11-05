@@ -17,8 +17,9 @@
  * no bridge.
  *
  * `electerm.credentialProvider: { get, save }` names two main-process exports
- * that serve passwords for bookmarks without a saved one (a password manager
- * widget), see client/common/credential-provider.jsx.
+ * that serve passwords for bookmarks that ask for it (`usePasswordManager` in
+ * the bookmark form) and have none saved (a password manager widget), see
+ * client/common/credential-provider.jsx.
  *
  * `aiConfig` in a result (a run result, or an action result) is an offer, not a
  * write: the widget panel lists the values and the user presses "Use these

@@ -54,6 +54,7 @@ const spiceConfig = {
         { type: 'switch', name: 'scaleViewport', label: () => e('scaleViewport'), valuePropName: 'checked' },
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.spice) },
         commonFields.password,
+        commonFields.usePasswordManager,
         commonFields.description,
         commonFields.proxy,
         commonFields.type

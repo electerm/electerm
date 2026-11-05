@@ -40,6 +40,7 @@ const vncConfig = {
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.vnc) },
         commonFields.username,
         commonFields.password,
+        commonFields.usePasswordManager,
         commonFields.description,
         commonFields.proxy,
         commonFields.type

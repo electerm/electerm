@@ -31,7 +31,8 @@ import SwitchLabel from '../common/switch'
 import HelpIcon from '../common/help-icon'
 import Modal from '../common/modal'
 import RdpCredForm from './rdp-cred-form'
-import { credentialsFromProvider, offerSaveToProvider, saveToProvider } from '../../common/credential-provider.jsx'
+import { credentialsFromProvider, connectedToProvider } from '../../common/credential-provider.jsx'
+import { credentialOptions } from '../../common/credential-provider-utils.js'
 import { FileTransferManager, createFileLogger } from './file-transfer'
 import { notification } from '../common/notification'
 import message from '../common/message'
@@ -166,13 +167,11 @@ export default class RdpSession extends PureComponent {
       ...window.store.applyProfile(deepCopy(this.props.tab || {})),
       ...credOverride
     }
-    // no saved password: user name and password from a password manager
-    // widget (without NLA only the user name is used, see rdp-logon.js)
+    // a bookmark that asks a password manager for its password, when it has
+    // none saved (without NLA only the user name is used, see rdp-logon.js)
     if (!credOverride) {
-      this.credentials = tab.password ? null : await credentialsFromProvider(tab)
-      if (this.credentials?.password) {
-        Object.assign(tab, pick(this.credentials, ['username', 'password']))
-      }
+      this.credentials = await credentialsFromProvider(tab)
+      Object.assign(tab, credentialOptions(this.credentials, 'rdp'))
     }
     // keep resolved credentials for the connect-time prompt
     this.tab = tab
@@ -332,12 +331,10 @@ export default class RdpSession extends PureComponent {
       // logged on with a password typed in the form: save or offer it; only
       // NLA proves it, without NLA it is not even sent
       if (credOverride?.password && mode.nla) {
-        const typed = { username: tab.username, password: credOverride.password }
-        if (this.credentials?.newEntry) {
-          saveToProvider(tab, typed)
-        } else if (!this.credentials) {
-          offerSaveToProvider(tab, typed)
-        }
+        connectedToProvider(tab, this.credentials, {
+          username: tab.username,
+          password: credOverride.password
+        })
       }
 
       const ds = this.session.desktopSize()

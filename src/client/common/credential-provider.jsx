@@ -5,30 +5,38 @@
  *
  *   "electerm": { "credentialProvider": { "get": "getCredentials", "save": "saveCredentials" } }
  *
- * - get({ type, host, port, username, title }) is called before an SSH or RDP
- *   bookmark without a saved password connects, and answers
+ * Only a bookmark that opts in is ever passed on: `usePasswordManager` in the
+ * bookmark form (ssh, telnet, rdp, vnc, spice, ftp), and only while it has no
+ * password of its own. Every other bookmark connects exactly as before.
+ *
+ * - get({ type, host, port, username, title }) answers
  *     { pick: { login, password } }               use this one
  *     { pick: 'choose', url, entries, alternatives } let the user choose
- *       (entries / alternatives: [{ uuid, name, login, password }])
+ *       (entries / alternatives: [{ uuid, name, login, password? }]; a widget
+ *       may leave `password` out and answer again for { ...target, uuid })
  *     { pick: null }                               nothing, ask as usual
- * - save({ target, login, password }) (optional) stores a login after it
- *   worked: for "New entry" right away, else after the user agreed. Answers
+ * - save({ target, login, password, uuid }) (optional) stores a login that
+ *   worked, or updates the entry `uuid` when the provider served it. Answers
  *   { ok, url }.
  *
- * The first installed widget with a provider is used. A bookmark with
- * `credentialProviderIgnore` is left alone. When get fails (password manager
- * not running, locked, ...) the user can retry once it is fixed, or go on
- * without it.
+ * get failing (password manager not running, locked, ...) is reported once and
+ * the session goes on as if there were no provider: the user gets the normal
+ * prompt, and no dialog holds a connection open.
  */
 
 import { Button } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
 import Modal from '../components/common/modal'
 import { notification } from '../components/common/notification'
 import {
   providerOf,
   credentialTarget,
-  promptAnswer
+  promptAnswer,
+  wantsProvider,
+  canCreateEntry
 } from './credential-provider-utils.js'
+
+const e = window.translate
 
 let cached = null
 
@@ -55,7 +63,7 @@ export function hasCredentialProvider () {
 async function currentProvider () {
   try {
     return noteWidgets(await window.store.listWidgets())
-  } catch (e) {
+  } catch (err) {
     return cached
   }
 }
@@ -64,121 +72,161 @@ const call = (provider, fn, ...args) => window.pre.runGlobalAsync('callWidgetFun
 
 const NEW_ENTRY = 'new'
 
+// per tab: the answer used last, so reconnecting a tab does not ask again
+const RECENT_TTL = 10 * 60 * 1000
+const RECENT_MAX = 20
+const recent = new Map()
+
+function remember (tab, creds) {
+  if (!tab.id || !creds?.password) {
+    return
+  }
+  recent.set(tab.id, { host: tab.host, at: Date.now(), ...creds })
+  if (recent.size > RECENT_MAX) {
+    recent.delete(recent.keys().next().value)
+  }
+}
+
+function recall (tab) {
+  const r = tab.id && recent.get(tab.id)
+  if (!r) {
+    return null
+  }
+  if (r.host !== tab.host || Date.now() - r.at > RECENT_TTL) {
+    recent.delete(tab.id)
+    return null
+  }
+  return r
+}
+
+// the same error from tabs connecting together is reported once
+let lastError = { text: '', at: 0 }
+
+function warn (provider, error) {
+  const now = Date.now()
+  if (error === lastError.text && now - lastError.at < 10000) {
+    return
+  }
+  lastError = { text: error, at: now }
+  notification.error({
+    message: provider.name,
+    description: error,
+    duration: 8
+  })
+}
+
 /**
- * The user's choice: an entry, NEW_ENTRY or null (without the provider).
+ * The user's choice: an entry, NEW_ENTRY or null (connect without it).
+ * No text of its own: the widget name and the URL are data, the button an icon.
  */
 function chooseEntry (provider, { url, entries = [], alternatives = [] }, target) {
   const where = url || `${target.host}${target.port ? ':' + target.port : ''}`
   return new Promise(resolve => {
     const ref = {}
-    const done = v => { ref.modal.destroy(); resolve(v) }
-    const list = items => items.map(e => (
+    const done = v => {
+      ref.modal.destroy()
+      resolve(v)
+    }
+    const list = items => items.map(entry => (
       <Button
-        key={e.uuid || e.login}
+        key={entry.uuid || entry.login}
         block
         className='mg1b'
-        onClick={() => done(e)}
+        onClick={() => done(entry)}
       >
-        {e.login || '(no user name)'}{e.name ? ` · ${e.name}` : ''}
+        {entry.login || target.username || '-'}{entry.name ? ` · ${entry.name}` : ''}
       </Button>
     ))
     // confirm, not info: closing it any way (Esc, cancel) has to settle
     ref.modal = Modal.confirm({
-      title: `${provider.name}: ${where}`,
+      title: `${provider.name} · ${where}`,
       content: (
         <div className='pd1y'>
-          {entries.length ? null : <div className='pd1b'>No entry for {where}</div>}
           {list(entries)}
-          {
-            alternatives.length
-              ? <div className='pd1y'>Other entries for this host:</div>
-              : null
-          }
+          {alternatives.length ? <hr className='mg1y' /> : null}
           {list(alternatives)}
           {
-            provider.save
+            provider.save && canCreateEntry(target)
               ? (
                 <Button
                   block
                   type='primary'
+                  icon={<PlusOutlined />}
+                  title={where}
                   className='mg1t'
                   onClick={() => done(NEW_ENTRY)}
-                >
-                  New entry for {where}
-                </Button>
+                />
                 )
               : null
           }
         </div>
       ),
-      okText: `Without ${provider.name}`,
+      okText: e('cancel'),
+      cancelText: null,
       onOk: () => resolve(null),
       onCancel: () => resolve(null)
     })
   })
 }
 
-// one retry dialog at a time: tabs connecting together share the answer
-let retryAsk = null
-
 /**
- * get failed: retry once the user fixed it (opened or unlocked the password
- * manager), or go on without it
- * @return {Promise<boolean>} true: retry
+ * The entry of a choice, with its password: a chooser entry may come without
+ * one, then the provider answers a second call for that uuid.
+ * @return {Promise<{username, password, uuid}|null>}
  */
-function askRetry (provider, error) {
-  if (!retryAsk) {
-    retryAsk = new Promise(resolve => {
-      Modal.confirm({
-        title: provider.name,
-        content: (
-          <div className='pd1y'>
-            <div>{error}</div>
-            <div className='pd1t'>Open or unlock {provider.name}, then retry.</div>
-          </div>
-        ),
-        okText: 'Retry',
-        cancelText: `Without ${provider.name}`,
-        onOk: () => resolve(true),
-        onCancel: () => resolve(false)
-      })
-    }).finally(() => {
-      retryAsk = null
-    })
+async function entryCredentials (provider, target, entry, tab) {
+  let password = entry.password
+  if (password === undefined && entry.uuid) {
+    const res = await call(provider, provider.get, {
+      ...target,
+      uuid: entry.uuid
+    }).catch(err => ({ error: err.message }))
+    if (res?.error) {
+      warn(provider, res.error)
+      return null
+    }
+    const pick = res?.pick
+    password = pick && typeof pick === 'object' ? pick.password : undefined
   }
-  return retryAsk
+  if (!password) {
+    return null
+  }
+  // the entry's user name belongs to its password; the bookmark's only fills
+  // in for an entry without one
+  const creds = {
+    username: entry.login || tab.username,
+    password,
+    uuid: entry.uuid || ''
+  }
+  remember(tab, creds)
+  return creds
 }
 
 /**
  * What the provider has for `tab`:
- * - { username, password }: from an entry
+ * - { username, password, uuid }: from an entry
  * - { newEntry: true }: the user wants a new entry, see saveToProvider
- * - { declined: true }: the user goes on without it, or the bookmark ignores it
- * - null: no provider
- * get failing asks the user to retry, going on without it is { declined: true }
+ * - { declined: true }: the user chose to connect without it
+ * - null: not asked (no opt-in, no provider, nothing found, provider failed)
  */
 export async function credentialsFromProvider (tab) {
-  if (!tab.host || tab.password) {
+  if (!wantsProvider(tab)) {
     return null
   }
   const provider = await currentProvider()
   if (!provider) {
     return null
   }
-  // the bookmark opts out: no lookup, no offer to save
-  if (tab.credentialProviderIgnore) {
-    return { declined: true }
+  const remembered = recall(tab)
+  if (remembered) {
+    return remembered
   }
   const target = credentialTarget(tab)
-  let res
-  for (;;) {
-    res = await call(provider, provider.get, target).catch(e => ({ error: e.message }))
-    if (!res?.error) {
-      break
-    }
-    if (!await askRetry(provider, res.error)) {
-      return { declined: true }
-    }
+  const res = await call(provider, provider.get, target)
+    .catch(err => ({ error: err.message }))
+  if (res?.error) {
+    warn(provider, res.error)
+    return null
   }
   if (!res) {
     return null
@@ -186,18 +234,13 @@ export async function credentialsFromProvider (tab) {
   const entry = res.pick === 'choose'
     ? await chooseEntry(provider, res, target)
     : res.pick
-  if (!entry) {
-    return res.pick === 'choose' ? { declined: true } : null
-  }
   if (entry === NEW_ENTRY) {
     return { newEntry: true }
   }
-  // the entry's user name belongs to its password; the bookmark's only
-  // fills in for an entry without one
-  return {
-    username: entry.login || tab.username,
-    password: entry.password
+  if (!entry) {
+    return res.pick === 'choose' ? { declined: true } : null
   }
+  return entryCredentials(provider, target, entry, tab)
 }
 
 // tab id -> { username, password } typed at a prompt, until the tab connected
@@ -220,7 +263,7 @@ export function rememberTyped (tabId, options, results) {
 }
 
 // the typed credentials of `tab`, null without a password
-function typedFor (tab, creds) {
+function takeTyped (tab, creds) {
   const t = creds || typed.get(tab.id)
   typed.delete(tab.id)
   if (!cached?.save || !t?.password) {
@@ -229,59 +272,97 @@ function typedFor (tab, creds) {
   return { login: t.username || tab.username || '', password: t.password }
 }
 
-async function save (provider, tab, { login, password }) {
+async function save (provider, tab, { login, password }, uuid) {
   const res = await call(provider, provider.save, {
     target: credentialTarget(tab),
     login,
-    password
-  }).catch(e => ({ error: e.message }))
+    password,
+    ...(uuid ? { uuid } : {})
+  }).catch(err => ({ error: err.message }))
   if (res?.ok) {
-    notification.success({ message: provider.name, description: `Saved${res.url ? ' for ' + res.url : ''}`, duration: 4 })
+    notification.success({
+      message: provider.name,
+      description: res.url || '',
+      duration: 3
+    })
   } else {
-    notification.error({ message: provider.name, description: res?.error || 'Not saved' })
+    notification.error({
+      message: provider.name,
+      description: res?.error || tab.host
+    })
   }
 }
 
 /**
- * The tab connected after the user asked for a new entry: save the typed
- * user name and password.
+ * The user asked for a new entry and the session connected: keep the login.
  * @param {object} tab
- * @param {object} [creds] credentials typed elsewhere (RDP form)
+ * @param {object} [creds] credentials typed elsewhere (rdp form)
  */
 export function saveToProvider (tab, creds) {
   const provider = cached
-  const t = typedFor(tab, creds)
-  if (t) {
+  const t = takeTyped(tab, creds)
+  if (t && provider?.save) {
     save(provider, tab, t)
   }
 }
 
 /**
- * The tab connected with a typed password: offer to save it.
+ * The session connected with a typed password: offer to keep it. Also the way
+ * to repair an entry the provider served with a password that no longer works:
+ * the entry's uuid goes with the save.
  * @param {object} tab
- * @param {object} [creds] credentials typed elsewhere (RDP form)
+ * @param {object} [creds] credentials typed elsewhere (rdp form)
  */
 export function offerSaveToProvider (tab, creds) {
   const provider = cached
-  const t = typedFor(tab, creds)
-  if (!t || tab.credentialProviderIgnore) {
+  if (!provider?.save) {
+    return
+  }
+  // the bookmark opts in, or the provider served this tab and its entry now
+  // holds a password that no longer works: then the save repairs that entry
+  const served = recall(tab)
+  if (!wantsProvider(tab) && !served) {
+    return
+  }
+  const t = takeTyped(tab, creds)
+  if (!t) {
     return
   }
   const { login } = t
+  const uuid = served?.uuid || ''
   const key = 'credential-provider-save-' + tab.id
   const onSave = () => {
     notification.destroy(key)
-    save(provider, tab, t)
+    save(provider, tab, t, uuid)
   }
   notification.info({
     key,
     message: provider.name,
     description: (
       <div>
-        <div className='pd1b'>Save the password for {login ? `${login}@` : ''}{tab.host} in {provider.name}?</div>
-        <Button type='primary' size='small' onClick={onSave}>Save</Button>
+        <div className='pd1b'>{login ? `${login}@` : ''}{tab.host}</div>
+        <Button type='primary' size='small' onClick={onSave}>
+          {e('savePassword')}
+        </Button>
       </div>
     ),
     duration: 0
   })
+}
+
+/**
+ * The session is up: keep what the user asked to keep.
+ * @param {object} tab
+ * @param {{newEntry?, declined?}} [creds] what credentialsFromProvider answered
+ * @param {object} [typedCreds] credentials typed in a form (rdp)
+ */
+export function connectedToProvider (tab, creds, typedCreds) {
+  if (creds?.newEntry) {
+    saveToProvider(tab, typedCreds)
+    return
+  }
+  if (creds?.declined) {
+    return
+  }
+  offerSaveToProvider(tab, typedCreds)
 }

@@ -16,6 +16,8 @@ import message from '../common/message'
 import Modal from '../common/modal'
 import { copy, readClipboard } from '../../common/clipboard'
 import VncForm from './vnc-form'
+import { credentialsFromProvider } from '../../common/credential-provider.jsx'
+import { credentialOptions } from '../../common/credential-provider-utils.js'
 import RemoteFloatControl from '../common/remote-float-control'
 import RemoteSessionShell from '../common/remote-session-shell'
 import './vnc.styl'
@@ -210,6 +212,9 @@ export default class VncSession extends PureComponent {
     const { config } = this.props
     const { id } = this.props
     const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
+    // a bookmark that asks a password manager for its password, when it has
+    // none saved: noVNC and the proxy both take it from here
+    Object.assign(tab, credentialOptions(await credentialsFromProvider(tab), 'vnc'))
     const {
       type,
       term: terminalType,
