@@ -21,8 +21,9 @@ import keyControlPressed from '../../../common/key-control-pressed.js'
 export const initMixin = {
   async initTerminal () {
     const { themeConfig, tab = {}, config = {} } = this.props
-    // 初始一律使用内置 DOM renderer 的主题：terminal 先以 DOM 起步，WebGL
-    // 由 lifecycle controller 在真正可见后惰性激活并重新套用主题。
+    // Always start with the built-in DOM renderer's theme: the terminal begins
+    // on DOM, and the lifecycle controller activates WebGL lazily once it is
+    // really visible and re-applies the theme there.
     const tc = this.getRendererThemeConfig(themeConfig, rendererTypes.dom)
     const Terminal = await loadTerminal()
     const term = new Terminal({
@@ -45,10 +46,11 @@ export const initMixin = {
     term.open(this.domRef.current, true)
     this.registerTerminalColorQueryHandlers(term, themeConfig)
     this.fixSelectionColors(term)
-    // 这里不再按 config.rendererType 二次套用主题：所有终端都以 DOM renderer
-    // 起步，WebGL 主题只在 lifecycle controller 真正激活 WebGL 时才由
-    // activateVisibleWebglRenderer 套上；在初始期套 WebGL 主题会和上面的 DOM
-    // 主题互相矛盾。
+    // The theme is intentionally not re-applied here based on
+    // config.rendererType: every terminal starts on the DOM renderer, and the
+    // WebGL theme is only applied by activateVisibleWebglRenderer once the
+    // lifecycle controller really activates WebGL. Applying it during init
+    // would contradict the DOM theme set just above.
 
     const FitAddon = await loadFitAddon()
     this.fitAddon = new FitAddon()
@@ -95,16 +97,19 @@ export const initMixin = {
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
-    // 所有终端都从内置 DOM renderer 起步，只有真实可见的终端才由 lifecycle
-    // controller 在下一动画帧惰性激活 WebGL；隐藏终端照常建立 SSH/socket，
-    // 但不占用 WebGL context。这里绝不 await 激活：WebGL 的加载延迟不能阻塞
-    // 后面的 restoreReloadScreen() 和 remoteInit()。
+    // Every terminal starts on the built-in DOM renderer; only a really
+    // visible one gets WebGL, activated lazily by the lifecycle controller on
+    // the next animation frame. A hidden terminal still connects its
+    // SSH/socket as usual, it just does not hold a WebGL context. Activation is
+    // never awaited here: WebGL load latency must not block the
+    // restoreReloadScreen() and remoteInit() calls below.
     this.rendererLifecycleReady = true
     this.setupRendererLifecycle()
     this.reconcileRenderer('initial')
       .catch(error => console.error('initial renderer reconcile failed', error))
-    // 容器不可见（隐藏标签 display:none）时不 fit，避免算出 0 列把 shell
-    // 提示符逐字符错误换行；待标签激活可见后由 fitAndRefresh 重新适配。
+    // Do not fit while the container is invisible (hidden tab, display:none):
+    // 0 columns would wrap the shell prompt character by character. The fit is
+    // redone by fitAndRefresh() once the tab is visible.
     if (this.isElementVisible()) {
       this.fitAddon.fit()
     }

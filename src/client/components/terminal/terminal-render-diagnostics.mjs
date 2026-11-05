@@ -1,15 +1,47 @@
-// 枚举真值来源与兄弟模块共享，避免日后取值漂移；两者均零 import，无循环依赖。
+// The enum values come from the sibling modules instead of being restated
+// here, so they cannot drift. Both are import-free, so there is no cycle.
 import { rendererStates } from './terminal-render-lifecycle.mjs'
 import { webglCircuitStates } from './terminal-webgl-circuit-breaker.mjs'
 
-// 编号仅在本次页面生命周期有效，不记录真实会话 ID、主机、命令或终端内容。
+/**
+ * Renderer diagnostics are a development aid, not telemetry.
+ *
+ * In a production build the default sink is a no-op and `logTerminalRender`
+ * returns before it reads anything off the terminal, so nothing is serialised,
+ * stringified or written to electron-log. A shipped app can turn the same
+ * `[terminal-render] {...}` lines back on for a bug report by running
+ * `localStorage.electermRenderDebug = '1'` and reloading.
+ */
+const debugStorageKey = 'electermRenderDebug'
+
+function isDevBuild () {
+  // Vite replaces `import.meta.env` at build time. Under plain Node (unit
+  // tests) the property does not exist, hence the guard.
+  return Boolean(import.meta.env && import.meta.env.DEV)
+}
+
+function readDebugFlag () {
+  try {
+    return window.localStorage.getItem(debugStorageKey) === '1'
+  } catch (_) {
+    return false
+  }
+}
+
+// Resolved once: flipping the flag takes a reload, which also keeps the hot
+// path down to a single comparison.
+const enabled = isDevBuild() || readDebugFlag()
+
+// Identifiers are only valid for this page lifetime and never carry a real
+// session id, host, command or terminal content.
 const ids = new WeakMap()
 let nextId = 0
 let sequence = 0
 const run = Date.now().toString(36)
 const number = value => Number.isFinite(value) ? value : null
 const flag = value => typeof value === 'boolean' ? value : null
-// 只放行固定枚举，绝不写入调用方传入的任意字符串。
+// Only the fixed enums below are allowed through: a caller can never get an
+// arbitrary string of its own into a record.
 const allowedReasons = new Set([
   'initial',
   'component update',
@@ -19,13 +51,16 @@ const allowedReasons = new Set([
   'renderer type change',
   'unexpected context loss',
   'circuit tripped',
-  // 手动 DOM→WebGL 复位（terminal.jsx 的 circuit 订阅在 event.type === 'reset'
-  // 时传入）。与 'circuit tripped' 必须分开：复位是用户操作，不是熔断。
-  // 新增固定枚举时务必加进这里，否则 fail-closed 会静默丢掉 reason 字段。
+  // Manual DOM->WebGL reset, passed in by terminal.jsx's circuit subscription
+  // when event.type === 'reset'. It is kept apart from 'circuit tripped' on
+  // purpose: a reset is a user action, a trip is a failure.
+  // New reasons must be added here or the fail-closed check below drops the
+  // field without a trace.
   'circuit reset',
   'unmount'
 ])
-// 同样只放行固定枚举：即使调用方把主机名或错误信息塞进这些字段也不会落盘。
+// Same for the state fields: a hostname or an error message stuffed into one
+// of them still never reaches the log.
 const allowedRendererStates = new Set(Object.values(rendererStates))
 const allowedCircuitStates = new Set(Object.values(webglCircuitStates))
 
@@ -48,12 +83,13 @@ function snapshot (owner) {
   const win = doc?.defaultView
   return {
     closed: !!owner.onClose,
-    // 仅固定枚举字符串，不记录 tab id、主机或其他调用方数据。
+    // Enum strings only: no tab id, no host, no other caller data.
     rendererState: allowedRendererStates.has(owner.rendererState) ? owner.rendererState : null,
-    // 只当「大致进度」读：lifecycle 的 setState() 在 state 未变时不回调，
-    // 而 generation 照常递增，所以这里可能滞后 1~2 个决策
-    // （见 terminal-render-lifecycle.mjs 的 invalidate()）。
-    // rendererState / circuitState 始终准确。
+    // Read this as rough progress only: the lifecycle's setState() does not
+    // call back when the state is unchanged while generation still increments,
+    // so it can lag one or two decisions (see invalidate() in
+    // terminal-render-lifecycle.mjs). rendererState / circuitState are always
+    // accurate.
     rendererGeneration: number(owner.rendererGeneration),
     circuitState: allowedCircuitStates.has(owner.webglCircuitState) ? owner.webglCircuitState : null,
     active: owner.props?.tab?.id != null
@@ -79,14 +115,31 @@ function snapshot (owner) {
     atlas: idFor(atlas),
     atlasLayoutVersion: number(atlas?.pageLayoutVersion),
     atlasPages: number(atlas?.pages?.length),
-    // 只读版本号，不读取像素、不调用 getError，避免消费 GL 错误或触发 GPU 同步。
+    // Version numbers only: no pixels are read and getError is never called,
+    // so the log cannot consume a GL error or force a GPU sync.
     pageVersions: atlas?.pages?.slice(0, 32).map(page => number(page.version)) ?? [],
     textureVersions: textures?.slice(0, 32).map(texture => number(texture.version)) ?? []
   }
 }
 
-export function logTerminalRender (owner, event, details = {}, emit = line => console.info(line)) {
-  // 诊断失败不能中断恢复流程。只序列化白名单字段，绝不展开 props/error。
+const consoleSink = line => console.info(line)
+
+/**
+ * @param {object} owner the terminal component instance
+ * @param {string} event event name
+ * @param {object} details only `reason`, `error`, `shouldFocus`,
+ *   `invalidated` and `intentionalRelease` are read; everything else is dropped
+ * @param {(line: string) => void} emit sink, overridable so tests can record
+ *   without a build flag
+ */
+export function logTerminalRender (owner, event, details = {}, emit = consoleSink) {
+  // A caller-supplied sink means "record this", which is how the unit tests
+  // exercise the formatter on a non-dev build. The gate only applies to the
+  // default console sink, so a production build exits here before taking any
+  // snapshot of the terminal.
+  if (emit === consoleSink && !enabled) return
+  // Diagnostics must never break a recovery path. Whitelisted fields only:
+  // props and errors are never expanded.
   try {
     let state
     try {

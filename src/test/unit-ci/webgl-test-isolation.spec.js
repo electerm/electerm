@@ -153,27 +153,32 @@ describe('cleanupWebglLaunchOptions', () => {
   })
 })
 
-// 父进程（例如正在运行 electerm 的开发机 / 继承了它环境的 CI shell）可能已导出
-// electermPort、electermHost、tokenElecterm。src/app/server/child-process.js
-// 用 Object.assign(默认值, cleanEnv) 组装后端子进程环境，cleanEnv 会覆盖它自己的
-// 默认值，于是测试启动的应用会去连开发者实例的端口（EADDRINUSE）或拿错 token。
+// The parent process (a dev machine already running electerm, or a CI shell
+// that inherited its environment) may have exported electermPort,
+// electermHost and tokenElecterm. src/app/server/child-process.js builds the
+// backend child env with Object.assign(defaults, cleanEnv), where cleanEnv
+// overrides its own defaults, so the launched app would connect to the
+// developer instance's port (EADDRINUSE) or present the wrong token.
 //
-// wsPort / type 走的是同一个覆盖机制，只是发生在更下一层：
-// src/app/server/session-process.js:41-52 用
-// Object.assign({ wsPort: port, type }, cleanEnv) 组装 session-server 子进程环境，
-// cleanEnv 来自 process.env 且位于后面；src/app/server/session-server.js:37-42
-// 直接读取 process.env.wsPort/type 并 app.listen。父环境里残留的旧会话端口会
-// 覆盖本次新分配的端口，导致绑定旧端口（与前端预期端口不一致）或直接失败。
-// 所以 factory 必须在每次 launch 的 env 副本里删掉这五个键，同时不改动 base.env、
-// 也不影响其他环境变量。
+// wsPort / type go through the same override mechanism one level deeper:
+// src/app/server/session-process.js:41-52 builds the session-server child env
+// with Object.assign({ wsPort: port, type }, cleanEnv), where cleanEnv comes
+// from process.env and sits last; src/app/server/session-server.js:37-42 reads
+// process.env.wsPort/type and calls app.listen directly. A stale session port
+// inherited from the parent overrides the freshly allocated one, binding the
+// old port (out of sync with what the frontend expects) or failing outright.
+// The factory therefore has to delete those five keys from each launch's env
+// copy while leaving base.env and every other variable untouched.
 describe('inherited session environment', () => {
   const KEYS = ['electermPort', 'electermHost', 'tokenElecterm', 'wsPort', 'type']
-  // 一个与隔离无关的变量，用来证明清理不是整份 env 被替换/清空。
+  // Unrelated to isolation; proves the cleanup is not a wholesale env replace.
   const SENTINEL_KEY = 'ELECTERM_E2E_ISOLATION_SENTINEL'
   const SENTINEL_VALUE = 'sentinel-kept'
 
-  // 真实链路必须在“父环境已带这五个变量”时加载，才能证明快照后的 base.env 里
-  // 确实有它们；用子进程模拟，输出只含键名与布尔值，不打印 token 或任何值。
+  // The real path has to be loaded while "the parent env already carries these
+  // five", otherwise there is no proof they were in the base.env snapshot. A
+  // child process simulates it and prints key names and booleans only, never a
+  // token or any value.
   function readFactoryWithInheritedEnv (inherited) {
     const script = `
       const iso = require('./src/test/e2e/common/webgl-test-isolation')
@@ -217,13 +222,14 @@ describe('inherited session environment', () => {
     }
     const result = readFactoryWithInheritedEnv(inherited)
 
-    // 前置：模拟的父环境确实带有这五个变量，base 快照也继承到了原值。
+    // Precondition: the simulated parent env really carries all five, and the
+    // base snapshot inherited their values.
     assert.deepEqual(result.parentHas, KEYS)
     assert.deepEqual(result.baseHas, KEYS)
     assert.deepEqual(result.baseMatchesParent, KEYS)
     assert.equal(result.baseSentinel, true, 'base.env must keep unrelated variables')
 
-    // 修复点：每次 launch 的 env 都不再带它们，其他环境变量原样保留。
+    // The fix: each launch env no longer carries them, everything else is kept.
     assert.deepEqual(result.launchHas, [])
     assert.deepEqual(result.secondLaunchHas, [])
     assert.equal(result.launchSentinel, true, 'unrelated variables must survive the cleanup')

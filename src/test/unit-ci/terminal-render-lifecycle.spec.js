@@ -35,12 +35,13 @@ describe('terminal renderer lifecycle', () => {
   test('a failed activation disables WebGL until it is explicitly reset', async () => {
     const { resolveWebglAllowed } = await load()
 
-    // 激活失败是本终端的事实，与熔断同级地禁止 WebGL
+    // An activation failure is local evidence and forbids WebGL on equal
+    // footing with the breaker
     assert.equal(resolveWebglAllowed(true, false), true)
     assert.equal(resolveWebglAllowed(true, true), false)
     assert.equal(resolveWebglAllowed(false, false), false)
     assert.equal(resolveWebglAllowed(false, true), false)
-    // 真值收敛：controller 传进来的可能是 undefined
+    // Truthiness is normalised: what the controller passes in may be undefined
     assert.equal(resolveWebglAllowed(undefined, undefined), false)
     assert.equal(resolveWebglAllowed(true, undefined), true)
   })
@@ -183,8 +184,9 @@ describe('terminal renderer lifecycle', () => {
       cancelFrame: frames.cancel
     })
 
-    // 激活要等第一帧才真正开始，因此先拿到 promise，flush 之后再 await
-    // （与 'activates one frame later...' 一致；直接 await 会在 flush 前死锁）
+    // Activation only really starts on the first frame, so take the promise
+    // first and await it after the flush (same as 'activates one frame
+    // later...'; awaiting it directly deadlocks before the flush)
     const activating = lifecycle.reconcile('visible')
     await frames.flush()
     await activating
@@ -262,7 +264,8 @@ describe('terminal renderer lifecycle', () => {
       activate: async () => { calls.push('activate'); return true },
       deactivate: () => {
         calls.push('deactivate')
-        // 释放的同步执行体内，外部决策已经翻回 webgl
+        // Inside the synchronous body of the release the outer decision has
+        // already flipped back to webgl
         target = rendererStates.webgl
         lifecycle.reconcile('re-entrant')
       },
@@ -270,7 +273,8 @@ describe('terminal renderer lifecycle', () => {
       cancelFrame: frames.cancel
     })
 
-    // 激活要等第一帧才真正开始，因此先接住 promise，flush 之后再 await
+    // Activation only really starts on the first frame, so hold the promise
+    // first and await it after the flush
     const activating = lifecycle.reconcile('visible')
     await frames.flush()
     await activating
@@ -363,8 +367,9 @@ describe('terminal renderer lifecycle', () => {
     assert.equal(failingDispose.getSnapshot().state, rendererStates.disposed)
   })
 
-  // 该测试不模拟 React；它锁定 renderer controller 不接管会话所有权：
-  // 隐藏释放只能摘掉 addon，绝不能碰 term/socket 的身份或生命周期。
+  // This test does not simulate React; it pins that the renderer controller
+  // does not take over session ownership: hiding only drops the addon and must
+  // never touch the identity or the lifecycle of term/socket.
   test('keeps terminal and socket identity while renderer changes', async () => {
     const { createTerminalRendererLifecycle, rendererStates } = await load()
     const term = { id: 'same-term' }
@@ -388,8 +393,10 @@ describe('terminal renderer lifecycle', () => {
     assert.equal(socket.closeCalls, 0)
   })
 
-  // 集成前安全网：初始 reconcile 必须让隐藏终端停在 DOM，既不排帧也不激活，
-  // 因为隐藏容器没有尺寸，激活 WebGL 只会白白占用一个 context。
+  // Safety net before integration: the initial reconcile must leave a hidden
+  // terminal on DOM without scheduling a frame or activating, because a hidden
+  // container has no size and activating WebGL would just hold a context for
+  // nothing.
   test('keeps an initially hidden terminal on DOM without scheduling WebGL', async () => {
     const { createTerminalRendererLifecycle, rendererStates } = await load()
     const frames = frameScheduler()
@@ -409,8 +416,9 @@ describe('terminal renderer lifecycle', () => {
     assert.equal(lifecycle.getSnapshot().state, rendererStates.domHidden)
   })
 
-  // tab 切换的交接顺序：旧终端必须在同一 tick 内同步释放，新终端最早下一帧
-  // 才激活，两者不会同时持有一个 WebGL context。
+  // Handover order on a tab switch: the old terminal has to release
+  // synchronously in the same tick while the new one activates at the earliest
+  // on the next frame, so the two never hold a WebGL context at once.
   test('releases the old visible renderer before the next frame activates the new one', async () => {
     const { createTerminalRendererLifecycle, rendererStates } = await load()
     const frames = frameScheduler()
@@ -446,7 +454,8 @@ describe('terminal renderer lifecycle', () => {
     const lifecycle = createTerminalRendererLifecycle({
       getTarget: () => target,
       activate: async () => {
-        // 模拟 owner 在激活失败时置了失败标记，使目标立刻变为 domFallback
+        // Simulates the owner setting its failure flag on a failed activation,
+        // which flips the target to domFallback immediately
         target = rendererStates.domFallback
         throw new Error('activation failed')
       },

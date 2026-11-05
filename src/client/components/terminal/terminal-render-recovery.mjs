@@ -95,7 +95,7 @@ export function invalidateWebglGlyphTextures (webglAddon) {
   return true
 }
 
-export function recoverVisibleTerminals (terminalIds, getTerminal, activeTerminalId) {
+export function recoverVisibleTerminals (terminalIds, getTerminal, activeTerminalId, source = 'focus') {
   let recovered = 0
   const ids = [...new Set(terminalIds.filter(Boolean))]
   const focusId = activeTerminalId || ids[0]
@@ -106,7 +106,7 @@ export function recoverVisibleTerminals (terminalIds, getTerminal, activeTermina
     }
     const shouldFocus = id === focusId
     if (typeof terminal.onWindowFocus === 'function') {
-      terminal.onWindowFocus(shouldFocus)
+      terminal.onWindowFocus(shouldFocus, source)
     } else if (shouldFocus) {
       terminal.term?.focus?.()
     }

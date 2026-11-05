@@ -46,8 +46,9 @@ describe('terminal OSC color query helpers', () => {
       background: '#20111b'
     }
 
-    // DOM renderer（含降级后的 fallback）永远透明：用户把 renderer 配成 webGL
-    // 时，只要实际跑的不是 webGL，就必须让 electerm 自己的 CSS 背景透出来
+    // The DOM renderer (including the post-fallback one) is always
+    // transparent: even when the user configured webGL, electerm's own CSS
+    // background has to show through whenever webGL is not what is running.
     assert.deepEqual(
       createRendererThemeConfig(themeConfig, 'dom', '#121214'),
       {
@@ -77,10 +78,11 @@ describe('terminal OSC color query helpers', () => {
     const { resolveRendererThemeType } = await import('../../../src/client/components/terminal/terminal-color-query.mjs')
     const rendererTypes = { webGL: 'webGL', dom: 'dom' }
 
-    // 熔断降级 / 激活失败后终端仍配置为 webGL，但手里没有 addon：必须按 dom
+    // After a breaker fallback / failed activation the terminal is still
+    // configured for webGL but holds no addon: it has to resolve to dom.
     assert.equal(resolveRendererThemeType(true, rendererTypes), 'webGL')
     assert.equal(resolveRendererThemeType(false, rendererTypes), 'dom')
-    // 未持有 addon（含 undefined / null）一律当作 DOM
+    // Holding no addon at all (undefined / null included) always means DOM.
     assert.equal(resolveRendererThemeType(undefined, rendererTypes), 'dom')
     assert.equal(resolveRendererThemeType(null, rendererTypes), 'dom')
   })

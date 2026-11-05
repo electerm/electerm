@@ -50,15 +50,18 @@ const defaultUserName = require('../../../app/common/default-user-name')
 const ROOT_PREFIX = 'electerm-webgl-e2e-'
 const ownedRoots = new Set()
 
-// 后端子进程的启动环境由 child-process.js / session-process.js 决定，必须由它们
-// 自己生成；从父环境继承来的实例凭据与旧会话端口会让测试连到别人的服务或绑定
-// 到上一次会话的端口。
-//   - electermPort / electermHost / tokenElecterm：child-process.js 以
-//     Object.assign(默认值, cleanEnv) 组装 server 子进程，继承值会压过它选好的端口。
-//   - wsPort / type：session-process.js:41-52 以
-//     Object.assign({ wsPort: port, type }, cleanEnv) 组装 session-server 子进程，
-//     cleanEnv 在后；session-server.js 直接读 process.env.wsPort/type 并 listen。
-//     父环境残留的旧会话端口会让新会话绑定旧端口，与前端预期端口不一致。
+// The backend child env is decided by child-process.js / session-process.js and
+// has to be produced by them; instance credentials and stale session ports
+// inherited from the parent env would point the test at somebody else's service
+// or bind the port of the previous session.
+//   - electermPort / electermHost / tokenElecterm: child-process.js builds the
+//     server child with Object.assign(defaults, cleanEnv), so an inherited value
+//     beats the port it picked.
+//   - wsPort / type: session-process.js:41-52 builds the session-server child
+//     with Object.assign({ wsPort: port, type }, cleanEnv), cleanEnv last;
+//     session-server.js reads process.env.wsPort/type and listens on it. A stale
+//     session port left in the parent env makes the new session bind the old
+//     port, out of sync with what the frontend expects.
 const INHERITED_INSTANCE_ENV_KEYS = [
   'electermPort',
   'electermHost',
@@ -102,12 +105,15 @@ function createWebglLaunchOptions () {
   mkdirSync(profilePath, { recursive: true })
   seedIsolatedData(dataPath)
 
-  // 父进程可能正运行 electerm（或从它继承环境），从而导出下面这些变量。
-  // 后端由 src/app/server/child-process.js 与 session-process.js 以
-  // Object.assign(默认值, cleanEnv) 组装环境，父 env 里的值会压过它们自己选好的
-  // 端口、token 和会话类型：测试会去连开发者实例的 127.0.0.1:30975（EADDRINUSE）、
-  // 用错 token 导致前端鉴权失败，或让 session-server 仍绑定上一次会话的 wsPort。
-  // 只删除本次 launch 的 env 副本，base.env 保持原样（其他测试/E2E 不受影响）。
+  // The parent process may be running electerm itself (or have inherited its
+  // environment) and so export the variables below. The backend is assembled by
+  // src/app/server/child-process.js and session-process.js with
+  // Object.assign(defaults, cleanEnv), where values from the parent env
+  // override the port, token and session type they picked: the test would
+  // connect to the developer instance on 127.0.0.1:30975 (EADDRINUSE), fail
+  // frontend auth with the wrong token, or leave session-server bound to the
+  // previous session's wsPort. Only this launch's env copy is stripped;
+  // base.env stays as it is (other tests/E2E are unaffected).
   const env = {
     ...base.env,
     // Overrides any DATA_PATH inherited from the developer's shell, which

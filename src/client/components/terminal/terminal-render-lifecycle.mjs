@@ -8,11 +8,13 @@ export const rendererStates = Object.freeze({
 })
 
 /**
- * 页面级熔断与本终端「激活已经失败」都会禁止 WebGL。激活失败属于本终端的
- * 事实（这台机器上动态 import / addon 构造 / loadAddon 失败），所以在用户
- * 显式 DOM→WebGL 配置切换时随熔断一起复位。
+ * Two separate facts can forbid WebGL: the page-level circuit breaker, and this
+ * terminal having already failed to activate. The second one is local evidence
+ * (a dynamic import / addon constructor / loadAddon failure on this machine),
+ * so it is reset together with the breaker when the user explicitly switches
+ * the renderer setting from DOM to WebGL.
  *
- * 保持零依赖纯函数：本模块不引入任何 import。
+ * Kept a pure zero-dependency function: this module imports nothing.
  */
 export function resolveWebglAllowed (circuitAllowed, activationFailed) {
   return !!circuitAllowed && !activationFailed
@@ -20,6 +22,8 @@ export function resolveWebglAllowed (circuitAllowed, activationFailed) {
 
 export function getRendererTarget ({ disposed = false, rendererType, visible, webglAllowed }) {
   if (disposed) return rendererStates.disposed
+  // Matches rendererTypes.webGL in src/client/common/constants.js. Kept a
+  // literal because this module deliberately imports nothing.
   if (rendererType !== 'webGL') return rendererStates.dom
   if (!webglAllowed) return rendererStates.domFallback
   return visible ? rendererStates.webgl : rendererStates.domHidden
@@ -65,15 +69,17 @@ export function createTerminalRendererLifecycle ({
   }
 
   function invalidate () {
-    // generation 只在这里递增，而 setState() 在 state === next 时不会回调
-    // onStateChange，所以诊断里的 rendererGeneration 可能比实际晚 1~2 个决策。
-    // rendererState / webglCircuitState 始终准确；generation 只当「大致进度」读，
-    // 不要拿它做等值断言。
+    // generation only ever increments here, while setState() does not call
+    // onStateChange when the state is unchanged, so the diagnostics'
+    // rendererGeneration can lag one or two decisions. rendererState /
+    // webglCircuitState are always accurate; read generation as rough progress
+    // only, never assert equality on it.
     generation++
     clearFrame()
-    // 只有激活 entry 会处于 started=false（排队中或等待释放收尾）。
-    // 这种激活再也无法自行完成，就地结算，避免调用方永远 await；
-    // 释放 entry 恒为 started=true，绝不在这里被提前结算
+    // Only an activation entry can be in started=false (queued, or waiting for
+    // a release to settle). Such an activation can never complete on its own,
+    // so it is settled here instead of leaving its caller awaiting forever.
+    // A release entry is always started=true and must never be settled early.
     const entry = pending
     if (entry !== null && !entry.started) {
       release(entry)
@@ -109,18 +115,22 @@ export function createTerminalRendererLifecycle ({
     invalidate()
     const expected = generation
     const entry = createDeactivationEntry(target)
-    // 必须先于 deactivate() 的同步执行体登记在飞状态：deactivate 内部的重入
-    // reconcile 也要能看到这次释放，否则它会走「已激活」快速路径丢掉后续激活
+    // The in-flight entry has to be registered before deactivate()'s
+    // synchronous body runs: a re-entrant reconcile from inside deactivate
+    // must see this release, or it takes the "already active" fast path and
+    // drops the activation that follows.
     track(entry)
 
     const finish = () => {
-      // 更晚的决策（新目标或 dispose）已作废这次释放，不能用旧目标覆盖它
+      // A later decision (new target, or dispose) has already invalidated this
+      // release, so the old target must not overwrite it.
       if (generation === expected) setState(target, reason)
     }
 
     let result
     try {
-      // 同步调用：隐藏/降级必须在 reconcile 同一 tick 内真正开始释放
+      // Synchronous call: hiding / falling back must really start releasing in
+      // the same tick as the reconcile.
       result = deactivate({ reason, releaseContext })
     } catch (error) {
       result = Promise.reject(error)
@@ -144,8 +154,9 @@ export function createTerminalRendererLifecycle ({
     return { kind: 'activate', promise, settle: resolve, started: false }
   }
 
-  // 帧回调里同步开始加载 addon（与 deactivate 一样早于任何 await 可见），
-  // 只把结果 promise 交给 continuation 处理，帧回调本身不 await 它
+  // The frame callback starts loading the addon synchronously (visible before
+  // any await, like deactivate) and hands the resulting promise to the
+  // continuation; the frame callback itself never awaits it.
   function callActivate (expected, reason) {
     try {
       return Promise.resolve(activate({
@@ -158,7 +169,8 @@ export function createTerminalRendererLifecycle ({
     }
   }
 
-  // 激活真正的副作用：先确认自己仍是当前决策，再推迟一帧启动 addon
+  // The real side effect of an activation: confirm this is still the current
+  // decision, then defer starting the addon by one frame.
   function runActivation (entry, reason) {
     if (pending !== entry || disposed || getTarget() !== rendererStates.webgl) {
       release(entry)
@@ -187,11 +199,15 @@ export function createTerminalRendererLifecycle ({
           finishActivation(entry)
         },
         () => {
-          // 激活失败：只要这次决策没被作废，就收敛到「当前真实目标」。
-          // 不能用 isCurrent()：owner 会在失败时置失败标记，getTarget() 那一刻
-          // 已经是 domFallback，否则状态会停在 WEBGL_ACTIVATING。
-          // 目标未移动（仍是 webgl）时必须落到 DOM_FALLBACK —— 安全终态是 DOM，
-          // 失败路径绝不发布 WEBGL_ACTIVE，否则 reconcile 会命中「已激活」快速路径永不重试
+          // Activation failed: as long as this decision was not invalidated,
+          // converge on the real current target. isCurrent() cannot be used
+          // here: the owner sets its failure flag before rejecting, so
+          // getTarget() already reports domFallback and the state would
+          // otherwise be stuck on WEBGL_ACTIVATING.
+          // When the target has not moved (still webgl) the state must land on
+          // DOM_FALLBACK - DOM is the safe terminal state and the failure path
+          // must never publish WEBGL_ACTIVE, or reconcile hits the "already
+          // active" fast path and never retries.
           if (!disposed && expected === generation) {
             const target = getTarget()
             setState(
@@ -215,8 +231,10 @@ export function createTerminalRendererLifecycle ({
     return entry.promise
   }
 
-  // 释放仍在飞行中时不得直接接上激活（否则释放的收尾会覆盖新状态），
-  // 但也不能把释放本身串行化 —— 隐藏/降级必须同步释放，只有激活延后到它结算之后
+  // An activation must not be chained straight onto an in-flight release (its
+  // tail would overwrite the new state), but the release itself must not be
+  // serialised either: hiding / falling back has to release synchronously.
+  // Only the activation waits for it to settle.
   function chainActivationAfter (blocker, reason) {
     const entry = createActivationEntry()
     track(entry)

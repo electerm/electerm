@@ -9,15 +9,15 @@ export default Store => {
   Store.prototype.focus = function () {
     window.focused = true
     const { store } = window
-    const terminalIds = [
-      store.activeTabId0,
-      store.activeTabId1,
-      store.activeTabId2,
-      store.activeTabId3,
-      store.activeTabId
-    ]
+    // Every pane keeps its own current tab in `activeTabId<batch>`, and the
+    // number of batches follows the layout, so they are derived instead of
+    // listing a fixed 0..3 (a stale literal silently stops covering panes as
+    // soon as the pane count changes).
+    const batchTabIds = Object.keys(store)
+      .filter(key => /^activeTabId\d+$/.test(key))
+      .map(key => store[key])
     recoverVisibleTerminals(
-      terminalIds,
+      [...batchTabIds, store.activeTabId],
       id => refs.get('term-' + id),
       store.activeTabId
     )

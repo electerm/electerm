@@ -37,20 +37,27 @@
  * does not write the developer's real electerm config/history/database, and
  * the two tests sharing one worker never share a profile or a database.
  *
- * 隔离边界要说准确：上面隔开的是 electerm 自己的数据与 Chromium profile。
- * 和本套件其他 E2E 一样，应用内的 electron-log 仍会写入开发者默认的日志目录，
- * 本 spec 不宣称隔离日志。launch env 副本还会去掉父环境可能残留的
- * electermPort/electermHost/tokenElecterm 与 wsPort/type（base.env 不变），
- * 见 common/webgl-test-isolation.js。
+ * Isolation, stated precisely: what the above separates is electerm's own data
+ * and the Chromium profile. As in the rest of this suite, the app's electron-log
+ * still writes to the developer's default log directory, so this spec makes no
+ * claim about isolating logs. The launch env copy also drops any
+ * electermPort/electermHost/tokenElecterm and wsPort/type left behind by the
+ * parent environment (base.env is untouched), see
+ * common/webgl-test-isolation.js.
  *
- * 运行边界（当前事实，不是“全部通过”声明）：本 spec 已在真实 macOS GPU 的
- * Electron 窗口上实际执行过，renderer 生命周期断言会真正运行。会话文本/输入
- * 断言另有一个显式前提：可见终端的本地会话必须真的建立——PID 存在、WebSocket
- * 已 open、未 sessionStopped、tab 状态不是 error。每个文本或输入断言前都先过
- * 这个白名单守卫；守卫失败只输出有无 PID / socket readyState / tab status，
- * 不输出终端内容或凭据，因此“启动环境里没有 PTY”不会被误判成“DOM renderer
- * 丢了文字”。marker 输出由 printf 的格式串与参数分开组成，命令行回显本身不含
- * 连续 marker，命中的只能是 PTY 的真实输出；测试从不通过 term.write 注入文本。
+ * Run boundaries (current facts, not an "everything passes" claim): this spec
+ * has actually been executed on a real macOS GPU with a real Electron window,
+ * and the renderer lifecycle assertions really run there. The session text /
+ * input assertions carry one explicit precondition: the local session of the
+ * visible terminal has to be really established - PID present, WebSocket open,
+ * not sessionStopped, tab status not error. Every text or input assertion goes
+ * through that allow-list guard first; a failing guard only reports whether a
+ * PID exists / the socket readyState / the tab status, never terminal content or
+ * credentials, so "this launch environment has no PTY" cannot be misread as
+ * "the DOM renderer lost the text". The marker output is assembled from a printf
+ * format string and its argument kept separate, so the command-line echo itself
+ * never holds the consecutive marker; a hit can only be real PTY output, and the
+ * test never injects text through term.write.
  */
 const { _electron: electron, test, expect } = require('@playwright/test')
 const delay = require('./common/wait')
@@ -102,19 +109,21 @@ const STEP_SEQUENCE = [
   STEP.text, // pre-loss marker reaches the buffer before the loss
   STEP.text, STEP.text // pre-loss marker in DOM, then the post-loss marker
 ]
-// 非重试工作（probe、evaluate 往返、键盘输入）的余量。两个用例的 timeout 合计
-// 必须小于外部 Playwright 全局上限（本 spec 用 900s 运行），同时留出正常关闭
-// 与清理的总预算。
+// Headroom for non-retried work (probes, evaluate round trips, keyboard input).
+// The two tests' timeouts together must stay below the outer Playwright global
+// cap (this spec is run with 900s) while leaving a budget for normal shutdown
+// and cleanup.
 const TEST_TIMEOUT = STEP_SEQUENCE.reduce((sum, ms) => sum + ms, 0) + 35000
 test.setTimeout(TEST_TIMEOUT)
 
 const RENDER_MARKER = '[terminal-render] '
 const POLL_INTERVAL = 200
 
-// 输出专用 marker：命令行里的 printf 格式串与参数是分开的，命令行回显本身
-// （即使 squeeze 掉空白）不含连续 marker；只有 PTY 真正执行 printf 之后，
-// 输出里才会拼出完整 marker。因此下面的文本断言证明的是“真实会话输出被渲染”，
-// 而不是 shell 回显，更不是测试注入的文本。
+// Output-only marker: on the command line the printf format string and its
+// argument are separate, and the echo itself (even with the whitespace squeezed)
+// never contains the consecutive marker; only after the PTY really runs printf
+// does the full marker get assembled. So the text assertions below prove "real
+// session output was rendered", not shell echo and certainly not injected text.
 const PRE_LOSS_MARKER = 'before-loss-marker'
 const POST_LOSS_MARKER = 'after-loss-marker'
 const DOM_FALLBACK_MARKER = 'dom-fallback-marker'
@@ -312,14 +321,16 @@ function probe (page) {
       visibleWraps: visibleWraps.length,
       hiddenWraps: hiddenWraps.length,
       canvasesInDom: document.querySelectorAll('.xterm-screen canvas').length,
-      // 隐藏终端里“已经 dispose 但 DOM 节点残留”的死 canvas：这是
-      // hiddenWrapsHoldingLiveWebgl 看不到的缺口（死 canvas 的 context 已丢，
-      // 不会被算作活跃 WebGL），必须单独统计。
+      // Dead canvases left in the DOM by a hidden terminal that already
+      // disposed: the gap hiddenWrapsHoldingLiveWebgl cannot see (a dead canvas
+      // has a lost context, so it is not counted as live WebGL), which is why
+      // they are counted separately.
       canvasesInHiddenWraps: hiddenWraps.reduce((n, el) =>
         n + el.querySelectorAll('.xterm-screen canvas').length, 0),
-      // addon-webgl 每个活跃 renderer 额外挂一个 2D link 渲染层 canvas
-      // （.xterm-link-layer）。它证明“每个活跃 WebGL 终端都带着自己的 link 层”，
-      // 同时让总 canvas 数=2×可见终端数 这个上限可被精确断言。
+      // addon-webgl also attaches a 2D link-renderer canvas per live renderer
+      // (.xterm-link-layer). It proves "every live WebGL terminal carries its own
+      // link layer" and makes the upper bound "total canvases = 2 x visible
+      // terminals" precisely assertable.
       linkLayerCanvases: document.querySelectorAll('.xterm-screen canvas.xterm-link-layer').length,
       liveWebglCanvases: liveCanvasesIn(document),
       // The invariant that matters: a terminal which is not on screen must not
@@ -388,9 +399,10 @@ function focusVisibleTerminal (page) {
 }
 
 /**
- * 可见终端所属 ref 的白名单会话状态：只返回判断“本地会话是否真的建立”
- * 所需字段（有无 PID、socket readyState、是否 sessionStopped、tab status），
- * 不含终端文本、连接信息或任何凭据。
+ * Allow-listed session state of the ref behind the visible terminal: only the
+ * fields needed to decide "is the local session really established" (PID
+ * presence, socket readyState, sessionStopped, tab status), with no terminal
+ * text, connection details or credentials.
  */
 function readVisibleSessionState (page) {
   return page.evaluate(`(() => {
@@ -422,9 +434,10 @@ function isSessionReady (state) {
 }
 
 /**
- * 文本/输入断言的会话前提：PID 已分配、WebSocket 已 open、未 sessionStopped、
- * tab 不在 error。失败信息只含上述白名单字段，所以“这次 launch 没有 PTY”会以
- * 会话状态失败，而不会被误读成“DOM renderer 不绘制文字”。
+ * Session precondition for the text/input assertions: PID assigned, WebSocket
+ * open, not sessionStopped, tab not in error. The failure message carries only
+ * the allow-listed fields above, so "this launch has no PTY" fails as a session
+ * state and is never misread as "the DOM renderer does not paint text".
  */
 function waitForLiveSession (page, label, timeout) {
   return waitForProbe(
@@ -437,7 +450,7 @@ function waitForLiveSession (page, label, timeout) {
   )
 }
 
-/** 单次读取即校验；用于会话本应一直存活的转换点，不额外占用重试等待预算。 */
+/** Single read that also validates; used at transitions where the session must stay alive, so it costs no retry budget. */
 async function assertLiveSession (page, label) {
   const state = await readVisibleSessionState(page)
   expect(
@@ -448,9 +461,10 @@ async function assertLiveSession (page, label) {
 }
 
 /**
- * 可见终端的 xterm buffer 文本。WebGL renderer 活跃时 `.xterm-rows` 并不绘制，
- * 所以在 loss 之前，这是唯一能证明 PTY 真的产出过 marker 的读取（读的就是
- * renderer 实际绘制的那份 buffer，而不是测试写入的内容）。
+ * Buffer text of the visible terminal. While the WebGL renderer is active
+ * `.xterm-rows` is not painted, so before the loss this is the only read that
+ * proves the PTY really produced the marker (it reads the same buffer the
+ * renderer paints from, not anything the test wrote).
  */
 function readVisibleTerminalBuffer (page) {
   return page.evaluate(`(() => {
@@ -476,11 +490,12 @@ function readVisibleTerminalBuffer (page) {
  * WEBGL_lose_context extension — the same unexpected loss a driver reset or a
  * GPU switch produces. Nothing is patched or reset afterwards.
  *
- * 不能取 `.xterm-screen canvas` 的第一个：addon-webgl 的 2D link 渲染层
- * （`.xterm-link-layer`）在 DOM 顺序上排在 WebGL 主 canvas 之前
- * （probe-canvases.log 实测顺序：link layer 在前）。对已有 2d context 的
- * canvas 调 getContext('webgl2') 返回 null，会误报扩展不可用。这里按“持有
- * 未丢失的 webgl2 context”挑选，正好也排除死 canvas。
+ * The first `.xterm-screen canvas` cannot be taken: addon-webgl's 2D link layer
+ * (`.xterm-link-layer`) comes before the main WebGL canvas in DOM order
+ * (measured order in probe-canvases.log: link layer first). Calling
+ * getContext('webgl2') on a canvas that already has a 2d context returns null,
+ * which would report the extension as unavailable. Picking the canvas holding a
+ * non-lost webgl2 context also excludes dead canvases.
  */
 function loseVisibleContext (page) {
   return page.evaluate(`(() => {
@@ -604,8 +619,8 @@ test('keeps WebGL only on visible terminals and releases it when a terminal is h
         p.hiddenWraps === beforeWrapCount + 4 &&
         p.liveWebglCanvases === 1 &&
         p.hiddenWrapsHoldingLiveWebgl === 0 &&
-        // 隐藏终端里不能留下任何 canvas（包括已 dispose 的死 canvas），
-        // 且 link 层数必须与活跃 WebGL 数一一对应。
+        // A hidden terminal must keep no canvas at all (including disposed dead
+        // ones), and the link layer count must match the live WebGL count.
         p.canvasesInHiddenWraps === 0 &&
         p.linkLayerCanvases === p.liveWebglCanvases,
       { timeout: STEP.churn, describe: value => JSON.stringify(value, null, 2) }
@@ -717,12 +732,14 @@ test('keeps WebGL only on visible terminals and releases it when a terminal is h
       `a hidden terminal was logged while still holding the WebGL addon.\nAll records:\n${describeRecords(records)}`
     ).toEqual([])
 
-    // Requirement 2, second half: 一个活跃 WebGL 终端在锁定版 addon-webgl
-    // （0.20.0-beta.291）下固定产生 2 个 canvas —— WebGL 主 canvas + 2D 的
-    // `.xterm-link-layer` 渲染层。两者都在 WebglRenderer 构造时无条件创建，
-    // dispose 时两层都移除。所以 1 个可见终端时总数是 2，不是 1；隐藏终端不持有
-    // 任何 canvas（包括已 dispose 却残留在 DOM 里的死 canvas），且每个活跃 WebGL
-    // 终端恰好对应一个 link 层。若释放链泄漏，总数会变成 3 而失败。
+    // Requirement 2, second half: with the pinned addon-webgl (0.20.0-beta.291)
+    // one live WebGL terminal produces exactly 2 canvases - the main WebGL canvas
+    // plus the 2D `.xterm-link-layer` renderer. Both are created unconditionally
+    // in the WebglRenderer constructor and both are removed on dispose, so one
+    // visible terminal totals 2, not 1; a hidden terminal holds no canvas at all
+    // (including disposed ones left in the DOM), and every live WebGL terminal
+    // maps to exactly one link layer. A leaking release chain turns the total
+    // into 3 and fails here.
     const beforeLoss = await probe(page)
     expect(beforeLoss.visibleWraps).toBe(1)
     expect(beforeLoss.canvasesInDom).toBe(2 * beforeLoss.visibleWraps)
@@ -731,15 +748,18 @@ test('keeps WebGL only on visible terminals and releases it when a terminal is h
     expect(beforeLoss.liveWebglCanvases).toBe(1)
 
     // --- real context loss --------------------------------------------------
-    // 会话前提：先证明可见终端真的有本地 PTY（PID / socket / status）。没有会话
-    // 时在这里以白名单会话状态失败，而不是让后面的 marker 等待冒充渲染缺陷。
+    // Session precondition: first prove the visible terminal really has a local
+    // PTY (PID / socket / status). Without a session this fails on the
+    // allow-listed session state instead of letting the marker wait pose as a
+    // rendering defect.
     focusVisibleTerminal(page)
     await waitForLiveSession(page, 'before typing the pre-loss marker', STEP.state)
     await page.keyboard.type("printf 'before-loss-%s\\n' marker")
     await page.keyboard.press('Enter')
-    // WebGL 仍活跃时先确认 marker 真的由 PTY 产出并进入 xterm buffer（WebGL 下
-    // `.xterm-rows` 不绘制，缓冲区就是 renderer 实际绘制的那份数据）。命令行回显
-    // 不含连续 marker，所以命中只能是真实输出。
+    // With WebGL still active, confirm the marker really came from the PTY and
+    // reached the xterm buffer (under WebGL `.xterm-rows` is not painted, and the
+    // buffer is the data the renderer paints). The echo never contains the
+    // consecutive marker, so a hit can only be real output.
     await waitForProbe(
       'the pre-loss marker must reach the terminal buffer while WebGL is still active',
       () => readVisibleTerminalBuffer(page),
@@ -845,8 +865,10 @@ test('keeps WebGL only on visible terminals and releases it when a terminal is h
       { timeout: STEP.text, describe: text => JSON.stringify((text || '').slice(-400)) }
     )
 
-    // 会话前提：loss 只应拆掉 renderer，不应杀掉会话。若实际上会话已死，这里
-    // 立即以白名单会话状态失败，而不是让输入 marker 的等待归因于 DOM renderer。
+    // Session precondition: a loss should tear down the renderer only, never the
+    // session. If the session is in fact dead, fail here on the allow-listed
+    // session state instead of attributing the input marker wait to the DOM
+    // renderer.
     focusVisibleTerminal(page)
     await assertLiveSession(page, 'before typing the post-loss marker')
     await page.keyboard.type("printf 'after-loss-%s\\n' marker")
@@ -975,9 +997,11 @@ test('falls back to DOM when the webgl addon can not be loaded, without tripping
 
     // Behavioural, not just a state name: after the addon failed to load, the
     // terminal must still render a *real* output marker from its live session in
-    // DOM mode. 不等待“任意 shell prompt”（那可能被 prompt 或回显满足）：
-    // 显式请求一个输出专用 marker（格式串与参数分开，回显不含连续 marker），
-    // 并在此之前先通过会话就绪守卫，把“没有 PTY”与“DOM 不绘制”区分开。
+    // DOM mode. Do not wait for "any shell prompt" (a prompt or the echo could
+    // satisfy that): request an output-only marker explicitly (format string and
+    // argument separate, so the echo never contains the consecutive marker), and
+    // pass the session-ready guard first to tell "no PTY" apart from "DOM does
+    // not paint".
     focusVisibleTerminal(page)
     await waitForLiveSession(page, 'the DOM-fallback terminal', STEP.state)
     await page.keyboard.type("printf 'dom-fallback-%s\\n' marker")

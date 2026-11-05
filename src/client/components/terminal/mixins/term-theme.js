@@ -1,3 +1,4 @@
+import message from '../../common/message'
 import { logTerminalRender } from '../terminal-render-diagnostics.mjs'
 import deepCopy from 'json-deep-copy'
 import { loadWebglAddon } from '../xterm-loader.js'
@@ -23,6 +24,24 @@ import {
   tripWebglCircuit
 } from '../terminal-webgl-circuit-breaker.mjs'
 
+// The fallback notice is page-wide and worth showing once only, no matter how
+// many terminals lose their context in the same wave. It stays English on
+// purpose: a lost WebGL context is rare, and keeping it out of the locale
+// package avoids shipping a key that most users never see.
+const fallbackNoticeText = 'WebGL renderer disabled after a GPU failure. ' +
+  'Terminals use the built-in DOM renderer now; switch the renderer setting ' +
+  'to re-enable WebGL.'
+
+let fallbackNoticeShown = false
+
+function notifyWebglFallback () {
+  if (fallbackNoticeShown) {
+    return
+  }
+  fallbackNoticeShown = true
+  message.warning(fallbackNoticeText, 8)
+}
+
 /**
  * Renderer (DOM / WebGL) and theming, including the OSC 10/11 colour query
  * handlers that let shells ask the terminal for its background colour.
@@ -43,10 +62,12 @@ export const themeMixin = {
         disposed: !!this.onClose,
         rendererType: this.props.config.rendererType,
         visible: this.isElementVisible(),
-        // 激活失败（动态 import / addon 构造 / loadAddon 抛错）与熔断同级：
-        // WebGL 在这台机器上已经证明不可用，不能让每次 commit 的 reconcile
-        // 再走一遍「创建 context → 失败 → 释放」。只在用户显式 DOM→WebGL
-        // 配置切换时随熔断一起复位（见 mixins/term-config.jsx）。
+        // An activation failure (dynamic import / addon constructor /
+        // loadAddon threw) ranks with the breaker: WebGL has proved unusable
+        // on this machine, and every commit's reconcile must not walk
+        // "create context -> fail -> release" again. Reset together with the
+        // breaker on an explicit DOM -> WebGL config switch, see
+        // mixins/term-config.jsx.
         webglAllowed: resolveWebglAllowed(
           isWebglAllowed(),
           this.webglActivationFailed
@@ -57,8 +78,9 @@ export const themeMixin = {
       requestFrame: callback => window.requestAnimationFrame(callback),
       cancelFrame: id => window.cancelAnimationFrame(id),
       onStateChange: snapshot => {
-        // 释放链的尾部没有 catch：本回调一旦抛错，reconcile/fallback 的调用方
-        // 就会永远 await，所以这里必须吞掉全部异常。
+        // Nothing awaits the tail of the release chain, so a throw in here
+        // would leave the reconcile/fallback caller awaiting forever. Every
+        // exception must be swallowed.
         try {
           this.rendererState = snapshot.state
           this.rendererGeneration = snapshot.generation
@@ -82,11 +104,14 @@ export const themeMixin = {
 
   async activateVisibleWebglRenderer ({ reason, generation, isCurrent }) {
     logTerminalRender(this, 'webgl-activation-request', { reason })
-    // 有意接受的规范偏差：规格 8.1 要求「发布 addon 后再应用 WebGL 主题」，
-    // 这里在**激活前**就套。代价只有页面加载后首次激活的 import 窗口（10~200 ms）
-    // 内 DOM renderer 以不透明底色绘制；之后 loadWebglAddon 命中已加载模块缓存，
-    // 这个窗口≈0。收益是激活成功的那一帧不再发生「透明 DOM → 不透明 WebGL」的
-    // 闪烁（激活后再套会让同一帧先以 DOM 透明主题绘制一次）。请勿照规格改回去。
+    // Deliberate deviation from spec 8.1, which wants the WebGL theme applied
+    // after the addon is published: here it is applied *before* activation.
+    // The only cost is the import window on the very first activation of a
+    // page load (10~200 ms) where the DOM renderer paints an opaque
+    // background; afterwards loadWebglAddon hits the module cache and that
+    // window is ~0. The gain is that the frame which activates does not flash
+    // "transparent DOM -> opaque WebGL" (applying it afterwards would paint
+    // once with the DOM theme in the same frame). Do not "fix" this back.
     this.applyTerminalTheme(false, this.term, rendererTypes.webGL)
     let activated
     try {
@@ -107,26 +132,32 @@ export const themeMixin = {
         }
       })
     } catch (error) {
-      // 动态 import / addon 构造 / loadAddon 失败：终端必须安全停在 DOM，
-      // 主题也要拉回 DOM（激活前已套用 WebGL 主题）。错误继续抛出，由 controller
-      // 映射为 DOM_FALLBACK，它自己不记录原因，所以这里必须留下现场日志。
+      // Dynamic import / addon constructor / loadAddon failed: the terminal has
+      // to stay safely on DOM, and the theme has to be pulled back to DOM too
+      // (the WebGL theme was applied before activation). The error is rethrown
+      // so the controller maps it to DOM_FALLBACK; the controller records no
+      // reason of its own, so the scene has to be logged here.
       logTerminalRender(this, 'webgl-activation-failed', { reason, error })
       console.error(error)
-      // 标记这台终端不要再自动重试 WebGL，否则每次 commit 的 reconcile 都会
-      // 重新创建 context，并在「先套 WebGL 主题、失败再拉回 DOM 主题」之间闪烁
+      // Mark this terminal so it never retries WebGL automatically: otherwise
+      // every commit's reconcile would create a context again and flicker
+      // between "apply WebGL theme, fail, pull the DOM theme back".
       this.webglActivationFailed = true
-      // activateWebglAddon 在 onActivated 抛错时会自己先 disposeWebglAddon 再
-      // rethrow，此时 this.webglAddon 仍指向一个**已释放**的 addon。必须在这里
-      // 摘掉引用（与 deactivateWebglRenderer 一致），否则 applyTerminalTheme()
-      // 的默认参数（!!this.webglAddon）会让这台终端拿到不透明的 WebGL 主题、
-      // 诊断里的 state.webgl 说谎、后续 deactivateWebglRenderer 会二次 dispose。
+      // activateWebglAddon disposes the addon before rethrowing when
+      // onActivated throws, so this.webglAddon can still point at a *released*
+      // addon. The reference must be dropped here (same as
+      // deactivateWebglRenderer) or applyTerminalTheme()'s default argument
+      // (!!this.webglAddon) hands this terminal an opaque WebGL theme, the
+      // diagnostics' state.webgl lies, and a later deactivateWebglRenderer
+      // disposes the addon twice.
       this.webglAddon = null
       this.webglContextLossDisposable = null
       this.applyTerminalTheme(false, this.term, rendererTypes.dom)
+      notifyWebglFallback()
       throw error
     }
     if (!activated) {
-      // helper 已释放过期 addon，这里不能留下任何引用
+      // The helper already released the stale addon; no reference may survive.
       logTerminalRender(this, 'webgl-activation-stale', { reason })
       this.applyTerminalTheme(false, this.term, rendererTypes.dom)
       return false
@@ -137,8 +168,9 @@ export const themeMixin = {
   },
 
   /**
-   * 幂等：先摘掉实例引用再释放，可安全承受并发/重复调用（controller 在若干
-   * 路径上会对同一终端重复调用本方法）。
+   * Idempotent: the instance reference is dropped before the addon is
+   * released, so concurrent or repeated calls (the controller does call this
+   * more than once on some paths) are safe.
    */
   deactivateWebglRenderer ({ reason, releaseContext = true } = {}) {
     const webglAddon = this.webglAddon
@@ -155,12 +187,14 @@ export const themeMixin = {
       }
     })
     if (this.term && !this.onClose) {
+      // applyTerminalTheme already repaints the whole viewport; fitAndRefresh
+      // below recomputes cols/rows for the DOM metrics.
       this.applyTerminalTheme(false, this.term, rendererTypes.dom)
-      this.term.refresh(0, this.term.rows - 1)
-      // 规格 8.3 步骤 5：降级后当前可见终端要 fit + refresh，这是「DOM 恢复后
-      // 文字完整」的机械保障点之一（仅 refresh 不重算 cols/rows）。fitAndRefresh()
-      // 自带 isElementVisible() 守卫，所以隐藏终端的正常隐藏释放路径在这里安全
-      // no-op，不会破坏它。
+      // Spec 8.3 step 5: after falling back, a visible terminal has to be fit
+      // and refreshed, which is one of the mechanical guarantees behind "the
+      // text is complete after the DOM recovery". fitAndRefresh carries its own
+      // isElementVisible() guard, so the normal hide path (this runs for a
+      // hidden terminal too) safely no-ops here.
       this.fitAndRefresh()
     }
     logTerminalRender(this, 'renderer-dispose', {
@@ -170,8 +204,9 @@ export const themeMixin = {
   },
 
   /**
-   * 真实 context loss：先降级到 DOM（不 release 这个已经丢失的 context），
-   * 再熔断整页 WebGL，让其他终端也显式释放各自健康的 context。
+   * A real context loss: fall back to DOM first (without releasing the context
+   * that is already gone), then trip the page-level breaker so the other
+   * terminals explicitly release their own healthy contexts.
    */
   handleUnexpectedWebglContextLoss () {
     if (this.onClose) {
@@ -187,14 +222,22 @@ export const themeMixin = {
         logTerminalRender(this, 'dom-fallback-activated', {
           reason: 'unexpected context loss'
         })
-        // 熔断必须等本实例以 releaseContext: false 完成降级之后再进行，顺序不可调换：
-        // 熔断是同步广播的，提前调用会立刻触发本实例自己的 circuit 订阅
-        // （terminal.jsx 的 subscribeWebglCircuit）→ reconcileRenderer('circuit tripped')
-        // → 目标变 domFallback → deactivateTo(..., releaseContext: true) → 对**已经丢失**的
-        // context 调用 loseContext()，正是 releaseContext: false 要避免的事。
-        tripWebglCircuit('unexpected context loss')
+        // The breaker must not trip until this instance has fallen back with
+        // releaseContext: false, and the order cannot be swapped: tripping is
+        // broadcast synchronously, so calling it early would immediately run
+        // this instance's own circuit listener (subscribeWebglCircuit in
+        // terminal.jsx) -> reconcileRenderer('circuit tripped') -> target
+        // becomes domFallback -> deactivateTo(..., releaseContext: true) ->
+        // loseContext() on the context that is *already lost*, which is
+        // exactly what releaseContext: false exists to avoid.
+        // Only the terminal that actually trips the breaker notifies the user;
+        // trip() returns false for the rest of the wave.
+        if (tripWebglCircuit('unexpected context loss')) {
+          notifyWebglFallback()
+        }
       })
-      // finally 会把降级失败继续抛出；无人 await 这条链，必须自行收尾
+      // finally rethrows a failed fallback; nobody awaits this chain, so it
+      // settles its own errors
       .catch(error => console.error('renderer fallback failed', error))
   },
 
@@ -284,7 +327,11 @@ export const themeMixin = {
         if (!this.term || this.onClose) {
           return
         }
-        this.term.options.theme = this.getRendererThemeConfig(this.props.themeConfig, rendererType)
+        // Re-resolve instead of reusing the captured `rendererType`: a
+        // terminal that got hidden or fell back inside this frame must not
+        // have the opaque WebGL background written back over its DOM renderer.
+        const current = resolveRendererThemeType(!!this.webglAddon, rendererTypes)
+        this.term.options.theme = this.getRendererThemeConfig(this.props.themeConfig, current)
         this.fixSelectionColors(this.term)
         this.term.refresh(0, this.term.rows - 1)
       })
