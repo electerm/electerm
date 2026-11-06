@@ -25,6 +25,7 @@
     "test4": "./node_modules/.bin/playwright test src/test/e2e/03*.js --workers=1",
     "clean-test-server": "node src/build/bin/clean-test-server-home.js",
     "b": "npm run clean && npm run compile && npm run prepare-file",
+    "tci": "bash src/build/bin/test-ci.sh",
     "r": "./src/build/bin/release",
     "w": "./src/build/bin/web-release",
     "t": "./node_modules/.bin/electron work/app/app.js",
