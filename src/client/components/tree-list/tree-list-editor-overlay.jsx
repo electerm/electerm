@@ -3,7 +3,7 @@ import {
   CloseOutlined
 } from '@ant-design/icons'
 import InputAutoFocus from '../common/input-auto-focus'
-import { CategoryColorPicker } from './category-color-picker.jsx'
+import AppearancePicker from '../common/appearance-picker'
 import { getRandomDefaultColor } from '../../common/rand-hex-color.js'
 import { treeEditorRowHeight } from './tree-list-layout'
 
@@ -18,10 +18,14 @@ export default function TreeListEditorOverlay ({ editor }) {
       <CloseOutlined className='mg1l pointer' onClick={editor.handleCancel} />
     </span>
   )
-  const colorPicker = (
-    <CategoryColorPicker
-      value={editor.color || getRandomDefaultColor()}
-      onChange={editor.handleColorChange}
+  // the same appearance control as the bookmark form, driven by the editor
+  // state here instead of an antd Form
+  const appearancePicker = (
+    <AppearancePicker
+      color={editor.color || getRandomDefaultColor()}
+      icon={editor.icon}
+      onColorChange={editor.handleColorChange}
+      onIconChange={editor.handleIconChange}
     />
   )
 
@@ -38,7 +42,7 @@ export default function TreeListEditorOverlay ({ editor }) {
         value={editor.title}
         onChange={editor.handleTitleChange}
         onPressEnter={editor.handleSubmit}
-        prefix={colorPicker}
+        prefix={appearancePicker}
         suffix={confirm}
         selectall={editor.selectall}
       />

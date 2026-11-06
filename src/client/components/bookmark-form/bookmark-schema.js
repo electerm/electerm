@@ -38,6 +38,7 @@ const bookmarkSchema = {
     envLang: 'string - ENV LANG, default is en_US.UTF-8',
     setEnv: 'string - environment variables, format: `KEY1=VALUE1 KEY2=VALUE2`',
     color: 'string - tag color, like #000000',
+    icon: 'string - icon of the bookmark: `icon:<name>` for a built-in icon (e.g. `icon:ubuntu`), or an absolute path of a local image file; takes precedence over the colour',
     interactiveValues: 'strings separated by newline'
   },
   sshTunnelsItem: {

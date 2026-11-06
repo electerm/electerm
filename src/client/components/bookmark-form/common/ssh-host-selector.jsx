@@ -1,6 +1,5 @@
 import { Form } from 'antd'
 import InputAutoFocus from '../../common/input-auto-focus.jsx'
-import { ColorPickerItem } from './color-picker-item.jsx'
 import { formItemLayout } from '../../../common/form-layout.js'
 
 const FormItem = Form.Item
@@ -53,7 +52,6 @@ export default function SshHostSelector ({ ips = [], useIp, form, onBlur, onPast
           name='host'
           onBlur={props.onBlur}
           onPaste={e => onPaste(e, form)}
-          prefix={<ColorPickerItem />}
         />
       </FormItem>
     </FormItem>

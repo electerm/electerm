@@ -359,7 +359,9 @@ const fsExport = Object.assign(
     closeCustom,
     statCustom,
     readdirStatAsync,
-    generateSshKeyPair
+    generateSshKeyPair,
+    // download an icon into <data dir>/icons, see lib/icon-download.js
+    saveIconFromUrl: (...args) => require('./icon-download').saveIconFromUrl(...args)
   },
   {
     readdirAsync: readdirNames,
