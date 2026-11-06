@@ -30,7 +30,7 @@ function getAtomgitUrl (url) {
 
 function getUrl (url, mirror) {
   if (mirror === 'gh-proxy') {
-    return `https://electerm-mirror.html5beta.com/${url}`
+    return `https://mirror.electerm.org/${url}`
   } if (mirror === 'sourceforge') {
     const arr = url.split('/')
     const len = arr.length
