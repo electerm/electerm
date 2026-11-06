@@ -4,8 +4,9 @@ const log = require('../common/log')
 const path = require('path')
 const { isWin, isMac } = require('../common/runtime-constants')
 const { promisify } = require('util')
-const { exec, spawn } = require('child_process')
+const { exec, execFile, spawn } = require('child_process')
 const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 const { getSizeCount, getSizeCountWin } = require('../common/get-folder-size-and-file-count.js')
 const { readdirStat, normalizeDirPath } = require('../common/readdir-stat')
 const { generateSshKeyPair } = require('../common/ssh-keygen')
@@ -42,11 +43,34 @@ const run = (cmd) => {
 }
 
 /**
- * run windows cmd
- * @param {string} cmd
+ * build the powershell.exe argument vector for a script.
+ * the script is passed base64 encoded (UTF-16LE, powershell's -EncodedCommand)
+ * as one argv entry, so powershell.exe is spawned directly with no cmd.exe
+ * layer in between. that matters because a cmd.exe layer adds a double quote
+ * context that no amount of escaping on the script side can control: a local
+ * folder name containing `"` used to close the wrapper early and let `&`
+ * reach cmd.exe as a command separator. see GHSA-ph25-cg2g-62cf
+ * @param {string} cmd powershell script
+ * @returns {string[]}
+ */
+const buildWinCmdArgs = (cmd) => {
+  return [
+    '-NoLogo',
+    '-NonInteractive',
+    '-NoProfile',
+    '-EncodedCommand',
+    Buffer.from(String(cmd), 'utf16le').toString('base64')
+  ]
+}
+
+/**
+ * run windows cmd, without a cmd.exe layer
+ * @param {string} cmd powershell script
  */
 const runWinCmd = (cmd) => {
-  return execAsync(`powershell.exe -Command "${cmd}"`)
+  return execFileAsync('powershell.exe', buildWinCmdArgs(cmd), {
+    windowsHide: true
+  })
 }
 
 function spawnDetachedCommand (command, args, options = {}) {
@@ -379,5 +403,7 @@ const fsExport = Object.assign(
 )
 
 module.exports = {
-  fsExport
+  fsExport,
+  // not part of fsExport: this is not something the renderer may call
+  buildWinCmdArgs
 }
