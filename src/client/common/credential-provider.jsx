@@ -102,15 +102,24 @@ function recall (tab) {
 // the same error from tabs connecting together is reported once
 let lastError = { text: '', at: 0 }
 
+// the IPC layer wraps a widget's error in its own text ("Error invoking remote
+// method 'async': Error: ..."): show the part the widget wrote
+function readableError (error) {
+  return String(error || '')
+    .replace(/^Error invoking remote method '[^']+':\s*/, '')
+    .replace(/^Error:\s*/, '')
+}
+
 function warn (provider, error) {
+  const text = readableError(error)
   const now = Date.now()
-  if (error === lastError.text && now - lastError.at < 10000) {
+  if (text === lastError.text && now - lastError.at < 10000) {
     return
   }
-  lastError = { text: error, at: now }
+  lastError = { text, at: now }
   notification.error({
     message: provider.name,
-    description: error,
+    description: text,
     duration: 8
   })
 }
@@ -137,7 +146,8 @@ function chooseEntry (provider, { url, entries = [], alternatives = [] }, target
         {entry.login || target.username || '-'}{entry.name ? ` · ${entry.name}` : ''}
       </Button>
     ))
-    // confirm, not info: closing it any way (Esc, cancel) has to settle
+    // confirm with no cancel button: one footer button (the existing "cancel"
+    // key) and Esc/mask still settle the promise, so no connect waits forever
     ref.modal = Modal.confirm({
       title: `${provider.name} · ${where}`,
       content: (
@@ -162,6 +172,7 @@ function chooseEntry (provider, { url, entries = [], alternatives = [] }, target
         </div>
       ),
       okText: e('cancel'),
+      // no second footer button: the entries in the body are the actions
       cancelText: null,
       onOk: () => resolve(null),
       onCancel: () => resolve(null)
