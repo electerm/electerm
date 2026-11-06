@@ -32,6 +32,37 @@ const onAuthResponse = (event, data) => {
   }
 }
 
+// A web session renders a URL the user did not write: it arrives from a
+// quick-connect paste, a command-line argument, an electerm:// deep link or an
+// MCP call. The renderer used to create that <webview> with
+// `disablewebsecurity='true'`, which turns off the same-origin policy for the
+// guest and lets the page read every other origin the machine can reach
+// (GHSA-m7mf-jvqh-8wwh). The attribute is gone from the component; this handler
+// is the second lock, so a renderer change alone cannot weaken a guest again.
+const GUEST_DENIED_PERMISSIONS = new Set([
+  'media', 'geolocation', 'midi', 'midiSysex', 'hid', 'serial', 'usb',
+  'idle-detection', 'clipboard-read'
+])
+
+function hardenWebview (event, webPreferences, params) {
+  // a guest page never gets a preload, node, or the ability to nest webviews
+  delete webPreferences.preload
+  delete webPreferences.preloadURL
+  webPreferences.nodeIntegration = false
+  webPreferences.nodeIntegrationInSubFrames = false
+  webPreferences.webviewTag = false
+  webPreferences.contextIsolation = true
+  // same-origin policy and mixed-content blocking stay on, whatever the
+  // renderer asked for in the attributes
+  webPreferences.webSecurity = true
+  webPreferences.allowRunningInsecureContent = false
+  // a web session opens web pages; file:// and app-internal schemes are not
+  // part of the feature and would expose local files to a remote page
+  if (!/^https?:\/\//i.test(params.src || '')) {
+    event.preventDefault()
+  }
+}
+
 function init (mainWindow) {
   windowCount++
 
@@ -39,6 +70,8 @@ function init (mainWindow) {
   if (ipcMain.listenerCount('webview-auth-response') === 0) {
     ipcMain.on('webview-auth-response', onAuthResponse)
   }
+
+  mainWindow.webContents.on('will-attach-webview', hardenWebview)
 
   // Handle new webviews
   mainWindow.webContents.on('did-attach-webview', (event, viewWebContents) => {
@@ -71,9 +104,39 @@ function init (mainWindow) {
 function setupWebview (viewWebContents, mainWindow) {
   const session = viewWebContents.session
 
+  // window.open() from a guest is how OAuth logins inside a web session work,
+  // but an attacker page can use it too: allow plain http(s) popups only, and
+  // never hand them a preload, node, or the webview tag.
+  viewWebContents.setWindowOpenHandler?.(({ url }) => {
+    if (!/^https?:\/\//i.test(url)) {
+      return { action: 'deny' }
+    }
+    return {
+      action: 'allow',
+      overrideBrowserWindowOptions: {
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true,
+          webviewTag: false,
+          webSecurity: true
+        }
+      }
+    }
+  })
+
   // Set up header injection if not already done for this session
   if (!initializedSessions.has(session)) {
     initializedSessions.add(session)
+
+    // A web session has no business asking for devices; notifications,
+    // fullscreen and clipboard write stay available for ordinary web apps.
+    // The handler sits on the shared default session, so anything that is not a
+    // guest keeps the previous (no handler) behaviour.
+    session.setPermissionRequestHandler?.((wc, permission, callback) => {
+      const granted = wc.getType() !== 'webview' ||
+        !GUEST_DENIED_PERMISSIONS.has(permission)
+      callback(granted)
+    })
 
     session.webRequest.onBeforeSendHeaders((details, callback) => {
       const wcId = details.webContentsId
