@@ -119,14 +119,11 @@ export default class FileMode extends React.PureComponent {
     }
   }
 
-  escapePowerShellPath = (value) => {
-    return String(value).replace(/'/g, "''")
-  }
-
-  // Remote Windows paths are transported base64-encoded and decoded inside
-  // the PowerShell script, so a hostile file name from the remote listing
-  // cannot carry cmd.exe / PowerShell metacharacters into the command
-  // string. See GHSA-ch82-q8wq-2gfv.
+  // Local Windows paths are transported base64-encoded and decoded inside the
+  // PowerShell script, exactly like the remote ones below. Escaping the ASCII
+  // apostrophe is not enough: PowerShell also accepts the typographic quotes
+  // U+2018/U+2019/U+201A/U+201B as string delimiters, so a folder name holding
+  // one of them closes the literal and runs as code. See GHSA-h4v2-5hq4-wc2g.
   b64Folder = (value) => {
     const bytes = new TextEncoder().encode(String(value))
     let bin = ''
@@ -181,14 +178,14 @@ export default class FileMode extends React.PureComponent {
   }
 
   calcLocal = async (folder) => {
-    const safeFolder = isWin
-      ? this.escapePowerShellPath(folder)
-      : this.escapePosixShellArg(folder)
-    const cmd = isWin
-      ? `Get-ChildItem -Recurse '${safeFolder}' | Measure-Object -Property Length -Sum`
-      : `du -sh '${safeFolder}'`
-    const func = isWin ? 'runWinCmd' : 'run'
-    const res = await window.fs[func](cmd).catch(window.store.onError)
+    if (isWin) {
+      const folderB64 = this.b64Folder(folder)
+      const cmd = `$p=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${folderB64}'));Get-ChildItem -LiteralPath $p -Recurse | Measure-Object -Property Length -Sum`
+      const res = await window.fs.runWinCmd(cmd).catch(window.store.onError)
+      return this.getSize(res)
+    }
+    const safeFolder = this.escapePosixShellArg(folder)
+    const res = await window.fs.run(`du -sh '${safeFolder}'`).catch(window.store.onError)
     return this.getSize(res)
   }
 

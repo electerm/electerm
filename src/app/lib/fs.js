@@ -125,17 +125,24 @@ function escapePosixShellArg (value) {
 }
 
 /**
- * Escape a string for safe use inside PowerShell single-quoted strings.
- * Single quotes are escaped by doubling them:  '  ->  ''
+ * Build the local Windows folder-size script for a path.
+ * The path travels base64-encoded and is decoded inside the script, so no
+ * character of the folder name is ever seen by the PowerShell parser. That
+ * matters because PowerShell treats the typographic quotes U+2018/U+2019/
+ * U+201A/U+201B as ordinary single-quote delimiters, so escaping only the ASCII
+ * apostrophe let a folder name close the literal and run the rest of its name
+ * as code. See GHSA-h4v2-5hq4-wc2g.
+ * @param {string} folderPath
+ * @returns {string}
  */
-function escapePowerShellArg (value) {
-  return String(value).replace(/'/g, "''")
+function buildFolderSizeWinScript (folderPath) {
+  const encoded = encodeUtf8Base64(folderPath)
+  return `$p=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${encoded}'));Get-ChildItem -LiteralPath $p -Recurse | Where-Object { ! $_.PSIsContainer } | Measure-Object -Property Length -Sum`
 }
 
 function getFolderSizeWin (folderPath) {
-  const safePath = escapePowerShellArg(folderPath)
   return runWinCmd(
-    `Get-ChildItem -Path '${safePath}' -Recurse | Where-Object { ! $_.PSIsContainer } | Measure-Object -Property Length -Sum`
+    buildFolderSizeWinScript(folderPath)
   ).then(res => getSizeCountWin(res.stdout))
 }
 
@@ -407,5 +414,6 @@ const fsExport = Object.assign(
 module.exports = {
   fsExport,
   // not part of fsExport: this is not something the renderer may call
-  buildWinCmdArgs
+  buildWinCmdArgs,
+  buildFolderSizeWinScript
 }
