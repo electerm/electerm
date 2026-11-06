@@ -10,6 +10,8 @@ import {
   ReloadOutlined
 } from '@ant-design/icons'
 import * as ls from '../../common/safe-local-storage'
+import { credentialsFromProvider } from '../../common/credential-provider.jsx'
+import { credentialOptions } from '../../common/credential-provider-utils.js'
 import RemoteFloatControl from '../common/remote-float-control'
 import RemoteSessionShell from '../common/remote-session-shell'
 import { eventToRemotePos } from '../common/remote-pointer'
@@ -216,6 +218,9 @@ export default class SpiceSession extends PureComponent {
     const { config } = this.props
     const { id } = this.props
     const tab = window.store.applyProfile(deepCopy(this.props.tab || {}))
+    // a bookmark that asks a password manager for its password, when it has
+    // none saved
+    Object.assign(tab, credentialOptions(await credentialsFromProvider(tab), 'spice'))
     const {
       type,
       term: terminalType,

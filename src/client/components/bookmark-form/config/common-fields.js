@@ -230,12 +230,12 @@ export const commonFields = {
     name: '__x11__',
     label: 'x11'
   },
-  // this bookmark never asks a password manager widget; shown only with one
-  // installed
-  credentialProviderIgnore: {
+  // this bookmark asks a password manager widget for its password; shown only
+  // with one installed, off unless the user asks for it
+  usePasswordManager: {
     type: 'switch',
-    name: 'credentialProviderIgnore',
-    label: 'Ignore password manager',
+    name: 'usePasswordManager',
+    label: () => e('usePasswordManager'),
     valuePropName: 'checked',
     get hidden () {
       return !hasCredentialProvider()
@@ -362,7 +362,7 @@ export const sshAuthFields = [
     name: 'useSshAgent'
   },
   { type: 'switch', name: 'isMFA', label: () => e('MFA/OTP'), valuePropName: 'checked' },
-  commonFields.credentialProviderIgnore,
+  commonFields.usePasswordManager,
   commonFields.runScripts,
   commonFields.description,
   commonFields.setEnv,
@@ -381,6 +381,7 @@ export const telnetAuthFields = [
   commonFields.host,
   commonFields.username,
   commonFields.password,
+  commonFields.usePasswordManager,
   commonFields.loginPrompt,
   commonFields.passwordPrompt,
   { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.telnet) },

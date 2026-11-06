@@ -176,7 +176,9 @@ function createModalInstance (type, options) {
     destroy()
   }
 
-  const hasCancel = type === 'confirm'
+  // a confirm gets its own cancel button, unless the caller passes
+  // `cancelText: null` and wants its body buttons to be the only actions
+  const hasCancel = type === 'confirm' && cancelText !== null
 
   const footer = (
     <div className='custom-modal-footer-buttons'>
@@ -203,7 +205,10 @@ function createModalInstance (type, options) {
     ...rest,
     title,
     open: true,
-    onCancel: hasCancel ? handleCancel : destroy,
+    // Esc, the close button and the mask are all a cancel: a caller that
+    // waits for one (a dialog holding a connection) has to hear about it even
+    // when the dialog shows no cancel button of its own
+    onCancel: hasCancel || onCancel ? handleCancel : destroy,
     footer,
     children: content
   }
@@ -261,7 +266,7 @@ function createModalInstance (type, options) {
       ...newRest,
       title: newTitle,
       open: true,
-      onCancel: hasCancel ? newHandleCancel : destroy,
+      onCancel: hasCancel || newOnCancel ? newHandleCancel : destroy,
       footer: newFooter,
       children: newContent
     }

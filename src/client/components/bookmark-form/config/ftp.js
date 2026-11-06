@@ -32,6 +32,7 @@ const ftpConfig = {
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.ftp) },
         { type: 'input', name: 'user', label: () => e('username') },
         { type: 'password', name: 'password', label: () => e('password') },
+        commonFields.usePasswordManager,
         { type: 'switch', name: 'secure', label: () => e('secure'), valuePropName: 'checked' },
         commonFields.encode,
         commonFields.proxy,
