@@ -86,7 +86,7 @@ export function getDownloadUrl (browserDownloadUrl, mirror) {
     return ''
   }
   if (mirror === 'gh-proxy') {
-    return `https://electerm-mirror.html5beta.com/${browserDownloadUrl}`
+    return `https://mirror.electerm.org/${browserDownloadUrl}`
   } if (mirror === 'sourceforge') {
     const arr = browserDownloadUrl.split('/')
     const len = arr.length
