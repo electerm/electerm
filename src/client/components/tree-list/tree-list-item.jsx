@@ -24,6 +24,7 @@ function areEqual (prevProps, nextProps) {
     prevProps.item.id === nextProps.item.id &&
     prevProps.itemLevel === nextProps.itemLevel &&
     prevProps.itemColor === nextProps.itemColor &&
+    prevProps.itemIconUrl === nextProps.itemIconUrl &&
     prevProps.itemDescription === nextProps.itemDescription &&
     prevProps.itemLabel === nextProps.itemLabel &&
     prevProps.itemPath === nextProps.itemPath

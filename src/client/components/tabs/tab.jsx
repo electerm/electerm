@@ -22,7 +22,7 @@ import message from '../common/message'
 import classnames from 'classnames'
 import { pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'
-import createName from '../../common/create-title'
+import createName, { createTitleTag } from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
 import isDark from '../../common/is-color-dark'
 import { action } from 'manate'
@@ -584,6 +584,7 @@ class Tab extends Component {
                     )
                   : null}
                 {tab.isPinned && <PushpinFilled className='tab-pin' />}
+                {tab.iconUrl && <span className='mg1r'>{createTitleTag(tab)}</span>}
                 {
                   runningQm && (
                     <LoadingOutlined
