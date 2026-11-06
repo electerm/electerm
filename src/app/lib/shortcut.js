@@ -9,13 +9,21 @@ let shortcut
 /**
  * init hotkey
  * @param {object} globalShortcut
- * @param {object} win
+ * @param {Function} getFocusedWindow
  * @param {object} config
  */
-exports.initShortCut = (globalShortcut, win, config) => {
-  shortcut = config.hotkey || ''
+exports.initShortCut = (globalShortcut, getFocusedWindow, config) => {
+  const newShortcut = config.hotkey || ''
+  if (shortcut) {
+    globalShortcut.unregister(shortcut)
+  }
+  shortcut = newShortcut
   if (shortcut) {
     globalShortcut.register(shortcut, () => {
+      const win = getFocusedWindow()
+      if (!win) {
+        return
+      }
       if (win.isFocused()) {
         win.minimize()
       } else {
@@ -29,14 +37,14 @@ exports.initShortCut = (globalShortcut, win, config) => {
   }
 }
 
-exports.changeHotkeyReg = (globalShortcut, win) => {
+exports.changeHotkeyReg = (globalShortcut, getFocusedWindow) => {
   return newHotkey => {
     if (shortcut) {
       globalShortcut.unregister(shortcut)
     }
     if (newHotkey) {
       globalShortcut.register(newHotkey, () => {
-        win.show()
+        getFocusedWindow()?.show()
       })
       const ok = globalShortcut.isRegistered(newHotkey)
       if (ok) {

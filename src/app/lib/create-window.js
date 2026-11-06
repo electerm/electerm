@@ -22,6 +22,13 @@ const { disableShortCuts } = require('./key-bind')
 const _ = require('./lodash.js')
 const getPort = require('./get-port')
 const globalState = require('./glob-state')
+const {
+  getFocusedWindow,
+  getWindowState,
+  registerWindow,
+  removeWindow,
+  setFocusedWindow
+} = require('./window-manager')
 const webviewHandler = require('./webview-handler')
 const { getTitleBarOptions, windowBackground } = require('./title-bar')
 
@@ -39,10 +46,16 @@ function safeSend (win, channel, data) {
   }
 }
 
-exports.createWindow = async function (userConfig) {
-  globalState.set('closeAction', 'closeApp')
+exports.createWindow = async function (userConfig, { initialTab = null, bounds = null } = {}) {
   globalState.set('requireAuth', !!userConfig.hashedPassword)
-  const { width, height, x, y } = await getWindowSize()
+  const previousWindow = getFocusedWindow()
+  const windowBounds = bounds || (previousWindow
+    ? {
+        ...previousWindow.getBounds(),
+        x: previousWindow.getBounds().x + 24,
+        y: previousWindow.getBounds().y + 24
+      }
+    : await getWindowSize())
   const { useSystemTitleBar = defaults.useSystemTitleBar } = userConfig
   // Windows always keeps the native frame (window controls overlay, see
   // title-bar.js), so the renderer must treat the frame as the system one there
@@ -50,10 +63,7 @@ exports.createWindow = async function (userConfig) {
   // chrome.
   globalState.set('systemTitleBar', isWin || !!useSystemTitleBar)
   const win = new BrowserWindow({
-    width,
-    height,
-    x,
-    y,
+    ...windowBounds,
     fullscreenable: true,
     minWidth: minWindowWidth,
     minHeight: minWindowHeight,
@@ -72,6 +82,7 @@ exports.createWindow = async function (userConfig) {
     },
     icon: iconPath
   })
+  registerWindow(win, { initialTab })
   // Safety net: verify the window is actually visible on a connected
   // display and move it to the primary display if not.
   ensureWindowVisible(win, screen)
@@ -90,8 +101,6 @@ exports.createWindow = async function (userConfig) {
   win.webContents.session.setSpellCheckerDictionaryDownloadURL('https://00.00/')
 
   webviewHandler.init(win)
-
-  globalState.set('win', win)
 
   // A backend that cannot bind its port used to leave this await pending
   // forever: window created, nothing in it, no message, app just sits there.
@@ -146,7 +155,7 @@ exports.createWindow = async function (userConfig) {
     })
     win.on('resize', _.debounce(() => {
       if (!win.isMaximized()) {
-        globalState.set('oldRectangle', win.getBounds())
+        getWindowState(win).oldRectangle = win.getBounds()
       }
     }, 200))
     win.on('move', _.debounce(() => {
@@ -169,6 +178,7 @@ exports.createWindow = async function (userConfig) {
     }
 
     win.on('focus', () => {
+      setFocusedWindow(win)
       safeSend(win, 'focused', null)
     })
     win.on('blur', () => {
@@ -181,7 +191,7 @@ exports.createWindow = async function (userConfig) {
     // frame was repaired, the resize event recovers the renderer with its
     // normal logic.
     if (isMac) {
-      const repairGeometry = () => repairFullScreenGeometry()
+      const repairGeometry = () => repairFullScreenGeometry(win)
       win.on('focus', () => {
         if (win.isFullScreen()) {
           setTimeout(repairGeometry, 300)
@@ -197,5 +207,7 @@ exports.createWindow = async function (userConfig) {
     }
     disableShortCuts(win)
   })
-  win.on('close', onClose)
+  win.on('close', e => onClose(e, win))
+  win.on('closed', () => removeWindow(win))
+  return win
 }

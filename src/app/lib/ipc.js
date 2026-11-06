@@ -12,6 +12,13 @@ const {
   shell
 } = require('electron')
 const globalState = require('./glob-state')
+const {
+  consumeInitialTab,
+  getFocusedWindow,
+  getWindowByWebContents,
+  getWindows,
+  setCloseAction
+} = require('./window-manager')
 const log = require('../common/log')
 const ipcSyncFuncs = require('./ipc-sync')
 const { dbAction } = require('./db')
@@ -129,13 +136,17 @@ function isExportedIpcFunc (obj, name) {
   return Object.prototype.hasOwnProperty.call(obj, name) && typeof obj[name] === 'function'
 }
 
-// Only the main app window's webContents may use the dynamic IPC bridges. This blocks
-// any other renderer frame (webviews, popups, or an attacker page that navigated the
-// window) from reaching runGlobalAsync / runSync (CWE-863 / CWE-749).
+// Only an application main window's webContents may use the dynamic IPC bridges.
+// Webviews, popups and unknown renderers remain blocked (CWE-863 / CWE-749).
 function isTrustedIpcSender (event) {
-  const win = globalState.get('win')
-  return !!win && event.sender === win.webContents
+  return !!getWindowByWebContents(event.sender)
 }
+
+function createNewWindow (options) {
+  return require('./create-window').createWindow(globalState.get('config'), options)
+}
+
+let ipcInitialized = false
 
 // Electron 43 made file dialogs default to Downloads and stopped the OS from
 // restoring the last used directory, so we keep that memory ourselves. See
@@ -180,8 +191,12 @@ async function initAppServer () {
 }
 
 function initIpc () {
+  if (ipcInitialized) {
+    return
+  }
+  ipcInitialized = true
   powerMonitor.on('resume', () => {
-    globalState.get('win').webContents.send('power-resume', null)
+    getWindows().forEach(win => win.webContents.send('power-resume', null))
   })
   async function init () {
     const {
@@ -202,7 +217,7 @@ function initIpc () {
       widgetLogPath: widgetLog.getLogDir()
     }
     initApp(langMap, config)
-    initShortCut(globalShortcut, globalState.get('win'), config)
+    initShortCut(globalShortcut, getFocusedWindow, config)
     return globs
   }
 
@@ -211,7 +226,10 @@ function initIpc () {
       console.error('[security] blocked IPC call: ' + name)
       return
     }
-    const result = ipcSyncFuncs[name](...args)
+    const funcArgs = name === 'isMaximized'
+      ? [getWindowByWebContents(event.sender), ...args]
+      : args
+    const result = ipcSyncFuncs[name](...funcArgs)
     // Electron 44 made the clipboard module async: clipboard.readText() now
     // returns a Promise. A Promise cannot be structured-cloned into a sync IPC
     // reply, so assigning one to event.returnValue throws "An object could not
@@ -260,35 +278,56 @@ function initIpc () {
     safeEncrypt: (str) => safeEncrypt(str),
     safeDecrypt: (str) => safeDecrypt(str),
     dbAction,
+    newWindow: async () => {
+      await createNewWindow()
+      return true
+    },
+    getInitialTab: win => consumeInitialTab(win),
+    moveTabToNewWindow: async (win, tab, position = {}) => {
+      const sourceBounds = win.getBounds()
+      const hasPosition = Number.isFinite(position.x) && Number.isFinite(position.y)
+      const bounds = {
+        ...sourceBounds,
+        x: hasPosition ? Math.round(position.x - sourceBounds.width / 2) : sourceBounds.x + 24,
+        y: hasPosition ? Math.round(position.y - 24) : sourceBounds.y + 24
+      }
+      await createNewWindow({ initialTab: tab, bounds })
+      return true
+    },
     getScreenSize,
-    closeApp: (closeAction = '') => {
-      globalState.set('closeAction', closeAction)
-      const win = globalState.get('win')
-      win && win.close()
+    closeApp: (win, closeAction = '') => {
+      setCloseAction(win, closeAction)
+      win.close()
     },
-    exit: () => {
-      const win = globalState.get('win')
-      win && win.close()
+    exit: win => {
+      win.close()
     },
-    restart: (closeAction = '') => {
-      globalState.set('closeAction', '')
-      globalState.get('win').close()
+    quit: () => {
+      getWindows().forEach(win => setCloseAction(win, ''))
+      app.quit()
+    },
+    restart: () => {
+      getWindows().forEach(win => setCloseAction(win, ''))
       app.relaunch()
+      app.quit()
     },
-    setCloseAction: (closeAction = '') => {
-      globalState.set('closeAction', closeAction)
+    setCloseAction: (win, closeAction = '') => {
+      setCloseAction(win, closeAction)
     },
-    minimize: () => {
-      globalState.get('win').minimize()
+    minimize: win => {
+      win.minimize()
     },
     listItermThemes,
     maximize,
     unmaximize,
-    openDevTools: () => {
-      globalState.get('win').webContents.openDevTools()
+    openDevTools: win => {
+      win.webContents.openDevTools()
     },
-    setWindowSize: (update) => {
-      lastStateManager.set('windowSize', update)
+    setWindowSize: (win, update) => {
+      lastStateManager.set('windowSize', {
+        ...update,
+        windowId: win.id
+      })
     },
     saveUserConfig,
     AIchat,
@@ -297,22 +336,19 @@ function initIpc () {
     getStreamContent,
     stopStream,
     abortAIRequest,
-    setTitle: (title) => {
-      const win = globalState.get('win')
-      win && win.setTitle(packInfo.name + ' - ' + title)
+    setTitle: (win, title) => {
+      win.setTitle(packInfo.name + ' - ' + title)
     },
-    setBackgroundColor: (color = '#33333300') => {
-      const win = globalState.get('win')
-      win && win.setBackgroundColor(color)
+    setBackgroundColor: (win, color = '#33333300') => {
+      win.setBackgroundColor(color)
     },
     // Windows + system title bar only (window controls overlay)
-    setTitleBarOverlay: (opts = {}) => {
-      const win = globalState.get('win')
-      if (win && process.platform === 'win32' && globalState.get('systemTitleBar')) {
+    setTitleBarOverlay: (win, opts = {}) => {
+      if (process.platform === 'win32' && globalState.get('systemTitleBar')) {
         win.setTitleBarOverlay(opts)
       }
     },
-    changeHotkey: changeHotkeyReg(globalShortcut, globalState.get('win')),
+    changeHotkey: changeHotkeyReg(globalShortcut, getFocusedWindow),
     initCommandLine,
     // No renderer-supplied options: the main process owns platform/execPath.
     // `packaged` is the guard against a dev run, where execPath is Electron.
@@ -344,11 +380,8 @@ function initIpc () {
     // but a registered app-menu accelerator (Cmd+C/V/A/Z/X) is consumed by
     // AppKit before the page sees the keydown, so those keys would never reach
     // the remote. The renderer scopes this to "the swapped canvas has focus".
-    setRdpSwapCtrlCmd: (active) => {
-      const win = globalState.get('win')
-      if (win && !win.isDestroyed()) {
-        win.webContents.setIgnoreMenuShortcuts(!!active)
-      }
+    setRdpSwapCtrlCmd: (win, active) => {
+      win.webContents.setIgnoreMenuShortcuts(!!active)
     },
     getEnv: (key) => {
       if (key) {
@@ -361,10 +394,31 @@ function initIpc () {
       )
     }
   }
+  const windowScopedAsyncFuncs = new Set([
+    'getScreenSize',
+    'closeApp',
+    'exit',
+    'restart',
+    'setCloseAction',
+    'minimize',
+    'maximize',
+    'unmaximize',
+    'openDevTools',
+    'setWindowSize',
+    'setTitle',
+    'setBackgroundColor',
+    'setTitleBarOverlay',
+    'setRdpSwapCtrlCmd',
+    'getInitialTab',
+    'moveTabToNewWindow'
+  ])
   ipcMain.handle('async', (event, { name, args }) => {
     if (!isTrustedIpcSender(event) || !isExportedIpcFunc(asyncGlobals, name)) {
       console.error('[security] blocked IPC call: ' + name)
       return
+    }
+    if (windowScopedAsyncFuncs.has(name)) {
+      return asyncGlobals[name](getWindowByWebContents(event.sender), ...args)
     }
     return asyncGlobals[name](...args)
   })
