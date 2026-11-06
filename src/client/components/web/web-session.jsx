@@ -115,6 +115,13 @@ export default function WebSession (props) {
         <iframe {...iframeProps} ref={webviewRef} />
       )
     }
+    // No `disablewebsecurity` here, ever: the guest page is whatever URL the
+    // user opened (a deep link, a pasted address, an MCP call), and turning the
+    // same-origin policy off lets it read any other origin the machine can
+    // reach -- localhost admin panels, cloud metadata, and `file://` URLs like
+    // ~/.ssh/id_rsa. The page itself still loads fine with SOP on, because it
+    // is the top-level document here. main/webview-handler.js enforces this a
+    // second time so a future edit here cannot bring the attribute back.
     const viewProps = {
       src: url,
       style: {
@@ -122,8 +129,6 @@ export default function WebSession (props) {
         height: '100%',
         background: '#fff'
       },
-      disableblinkfeatures: 'true',
-      disablewebsecurity: 'true',
       allowpopups: 'true',
       useragent: tab.useragent || 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
     }
