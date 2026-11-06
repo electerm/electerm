@@ -44,7 +44,7 @@ const commonLangOptions = [
 export const commonFields = {
   // Basic connection fields
   host: {
-    type: 'colorTitle',
+    type: 'input',
     name: 'host',
     label: () => e('host'),
     rules: [{ required: true, message: e('host') + ' required' }]
@@ -351,7 +351,7 @@ export const basicAuthFields = [
 
 export const sshAuthFields = [
   commonFields.category,
-  commonFields.title,
+  commonFields.colorTitle,
   { ...commonFields.host, type: 'sshHostSelector' },
   commonFields.username,
   { type: 'sshAuthTypeSelector', name: 'authType', label: '' },
@@ -377,7 +377,7 @@ export const sshAuthFields = [
 // Telnet auth fields - similar to SSH but with filtered auth types (no privateKey)
 export const telnetAuthFields = [
   commonFields.category,
-  commonFields.title,
+  commonFields.colorTitle,
   commonFields.host,
   commonFields.username,
   commonFields.password,

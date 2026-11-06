@@ -45,8 +45,10 @@ export default class ItemListTree extends Component {
       showNewBookmarkGroupForm: false,
       bookmarkGroupTitle: '',
       bookmarkGroupColor: '',
+      bookmarkGroupIcon: '',
       categoryTitle: '',
       categoryColor: '',
+      categoryIcon: '',
       categoryId: '',
       selectedRowKey: '',
       sort: getItemJSON(treeSortLsKey, null)
@@ -245,7 +247,8 @@ export default class ItemListTree extends Component {
     this.setState({
       showNewBookmarkGroupForm: false,
       bookmarkGroupTitle: '',
-      bookmarkGroupColor: ''
+      bookmarkGroupColor: '',
+      bookmarkGroupIcon: ''
     })
   }
 
@@ -259,7 +262,8 @@ export default class ItemListTree extends Component {
     this.setState({
       categoryId: '',
       categoryTitle: '',
-      categoryColor: ''
+      categoryColor: '',
+      categoryIcon: ''
     })
   }
 
@@ -277,6 +281,7 @@ export default class ItemListTree extends Component {
     const {
       categoryTitle,
       categoryColor,
+      categoryIcon,
       categoryId
     } = this.state
     if (!categoryTitle) {
@@ -292,6 +297,13 @@ export default class ItemListTree extends Component {
     obj.title = categoryTitle
     if (categoryColor) {
       obj.color = categoryColor
+    }
+    // unlike the colour, the icon has to be removable: the picker's default
+    // button sets it back to an empty value
+    if (categoryIcon) {
+      obj.icon = categoryIcon
+    } else {
+      delete obj.icon
     }
     this.setState({
       categoryId: ''
@@ -327,9 +339,21 @@ export default class ItemListTree extends Component {
     })
   }
 
+  handleChangeBookmarkGroupIcon = icon => {
+    this.setState({
+      bookmarkGroupIcon: icon
+    })
+  }
+
   handleChangeCategoryColor = color => {
     this.setState({
       categoryColor: color
+    })
+  }
+
+  handleChangeCategoryIcon = icon => {
+    this.setState({
+      categoryIcon: icon
     })
   }
 
@@ -356,6 +380,9 @@ export default class ItemListTree extends Component {
       }
       if (this.state.bookmarkGroupColor) {
         newGroup.color = this.state.bookmarkGroupColor
+      }
+      if (this.state.bookmarkGroupIcon) {
+        newGroup.icon = this.state.bookmarkGroupIcon
       }
       window.store.addBookmarkGroup(newGroup)
     })
@@ -386,6 +413,9 @@ export default class ItemListTree extends Component {
     if (this.state.bookmarkGroupColor) {
       newCat.color = this.state.bookmarkGroupColor
     }
+    if (this.state.bookmarkGroupIcon) {
+      newCat.icon = this.state.bookmarkGroupIcon
+    }
     bookmarkGroups.unshift(newCat)
     const cat = bookmarkGroups.find(
       d => d.id === id
@@ -404,6 +434,7 @@ export default class ItemListTree extends Component {
       showNewBookmarkGroupForm: true,
       bookmarkGroupTitle: '',
       bookmarkGroupColor: getRandomDefaultColor(),
+      bookmarkGroupIcon: '',
       parentId: ''
     }, this.scrollTreeToTop)
   }
@@ -510,6 +541,7 @@ export default class ItemListTree extends Component {
       this.setState({
         categoryTitle: '' + item.title,
         categoryColor: item.color || '',
+        categoryIcon: item.icon || '',
         categoryId: item.id,
         bookmarkGroupSubParentId: ''
       })
@@ -524,7 +556,8 @@ export default class ItemListTree extends Component {
         showNewBookmarkGroupForm: true,
         parentId: item.id,
         bookmarkGroupTitle: '',
-        bookmarkGroupColor: getRandomDefaultColor()
+        bookmarkGroupColor: getRandomDefaultColor(),
+        bookmarkGroupIcon: ''
       }
     })
     window.store.expandedKeys.push(item.id)
@@ -849,9 +882,11 @@ export default class ItemListTree extends Component {
   getEditorOverlayState = (rows) => {
     const {
       categoryColor,
+      categoryIcon,
       categoryId,
       categoryTitle,
       bookmarkGroupColor,
+      bookmarkGroupIcon,
       bookmarkGroupTitle,
       parentId,
       showNewBookmarkGroupForm
@@ -869,8 +904,10 @@ export default class ItemListTree extends Component {
         left: treeGroupPaddingPx(row.depth),
         title: categoryTitle,
         color: categoryColor,
+        icon: categoryIcon,
         handleTitleChange: this.handleChangeEdit,
         handleColorChange: this.handleChangeCategoryColor,
+        handleIconChange: this.handleChangeCategoryIcon,
         handleSubmit: this.handleSubmitEdit,
         handleCancel: this.handleCancelEdit,
         selectall: true,
@@ -888,8 +925,10 @@ export default class ItemListTree extends Component {
         left: 0,
         title: bookmarkGroupTitle,
         color: bookmarkGroupColor,
+        icon: bookmarkGroupIcon,
         handleTitleChange: this.handleChangeBookmarkGroupTitle,
         handleColorChange: this.handleChangeBookmarkGroupColor,
+        handleIconChange: this.handleChangeBookmarkGroupIcon,
         handleSubmit: this.handleSubmit,
         handleCancel: this.handleCancelNew,
         insertionGap: {
@@ -909,8 +948,10 @@ export default class ItemListTree extends Component {
       left: treeIndentPx(parentRow.depth),
       title: bookmarkGroupTitle,
       color: bookmarkGroupColor,
+      icon: bookmarkGroupIcon,
       handleTitleChange: this.handleChangeBookmarkGroupTitle,
       handleColorChange: this.handleChangeBookmarkGroupColor,
+      handleIconChange: this.handleChangeBookmarkGroupIcon,
       handleSubmit: this.handleSubmit,
       handleCancel: this.handleCancelNew,
       insertionGap: {

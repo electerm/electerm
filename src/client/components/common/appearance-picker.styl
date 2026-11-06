@@ -1,0 +1,32 @@
+// the trigger sits in an input prefix, so keep the row as short as the
+// title/host field it decorates
+.appearance-picker-trigger
+  display inline-flex
+  align-items center
+  justify-content center
+  width 20px
+  height 20px
+  margin-right 6px
+  border-radius 3px
+  vertical-align middle
+  cursor pointer
+  &:hover
+    box-shadow 0 0 0 1px var(--primary)
+  &:focus-visible
+    outline 2px solid var(--primary)
+    outline-offset 1px
+  &.is-disabled
+    cursor default
+    opacity .5
+    box-shadow none
+
+.appearance-picker-panel
+  width 392px
+  max-width calc(100vw - 40px)
+  .ant-tabs-nav
+    margin-bottom 8px
+  // the colour box is built for a popover of its own, here it has to fill the
+  // tab pane instead
+  .color-picker-box
+    width 100%
+    max-width none

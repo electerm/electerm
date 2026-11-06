@@ -584,7 +584,7 @@ class Tab extends Component {
                     )
                   : null}
                 {tab.isPinned && <PushpinFilled className='tab-pin' />}
-                {tab.iconUrl && <span className='mg1r'>{createTitleTag(tab)}</span>}
+                {(tab.color || tab.icon) && <span className='mg1r'>{createTitleTag(tab)}</span>}
                 {
                   runningQm && (
                     <LoadingOutlined

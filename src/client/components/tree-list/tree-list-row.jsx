@@ -58,7 +58,7 @@ function TreeListRow (props) {
     parentId,
     itemLabel: isGroup ? (item?.title || '') : createName(item),
     itemColor: item?.color,
-    itemIconUrl: item?.iconUrl,
+    itemIcon: item?.icon,
     itemDescription: item?.description,
     itemLevel: item?.level,
     itemPath,
