@@ -4,7 +4,10 @@
  * Prerequisites:
  *   - electerm dev app running (npm start + npm run app)
  *   - MCP Server widget started on http://127.0.0.1:30837/mcp, default config
- *     (bookmarks/groups/sftp enabled; tasks extension enabled)
+ *     (bookmarks/groups/sftp read enabled, tasks extension enabled). The
+ *     transfer tests additionally need `enableSftpWrite` on — it is opt-in
+ *     since GHSA-vw4q-c6px-w5p3; without it the write tools are not registered
+ *     and those cases degrade to no-ops via tolerant().
  *   - ELECTERM_MCP_API_KEY set to the key the widget generated. It is in the
  *     URL the widget copies on start (…/mcp?apiKey=…), or in the instance
  *     detail panel. The server requires it — it no longer runs unauthenticated
@@ -462,16 +465,27 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
       'electerm_sftp_list',
       'electerm_sftp_stat',
       'electerm_sftp_read_file',
-      'electerm_sftp_del_file_or_folder',
-      'electerm_sftp_upload',
-      'electerm_sftp_download',
-      'electerm_zmodem_upload',
-      'electerm_zmodem_download',
       'electerm_sftp_transfer_list',
       'electerm_sftp_transfer_history'
     ]) {
       assert.ok(names.includes(expected), `Missing tool: ${expected}`)
     }
+
+    // Write tools are opt-in (enableSftpWrite, off by default since
+    // GHSA-vw4q-c6px-w5p3): either the widget registered all of them or none.
+    const writeTools = [
+      'electerm_sftp_del_file_or_folder',
+      'electerm_sftp_upload',
+      'electerm_sftp_download',
+      'electerm_zmodem_upload',
+      'electerm_zmodem_download'
+    ]
+    const registeredWriteTools = writeTools.filter(name => names.includes(name))
+    assert.ok(
+      registeredWriteTools.length === 0 ||
+        registeredWriteTools.length === writeTools.length,
+      `SFTP write tools must be all-or-nothing, got ${registeredWriteTools.join(', ')}`
+    )
 
     for (const removed of [
       'run_electerm_background_command',
