@@ -11,7 +11,12 @@ describe('Infistar default AI provider', () => {
     const infistar = defaultAIPresets[0]
     assert.equal(infistar.id, 'infistar')
     assert.equal(infistar.pinned, true)
-    assert.equal(infistar.baseURLAI, 'https://infistar.cc/v1')
+    assert.equal(infistar.baseURLAI, 'https://infistar.ai/v1')
+    assert.deepEqual(infistar.baseURLAIs, [
+      'https://infistar.ai/v1',
+      'https://infistar.cc/v1'
+    ])
+    assert.equal(infistar.aliasURLs, undefined)
     assert.equal(infistar.apiPathAI, '/chat/completions')
     assert.equal(infistar.authHeaderNameAI, 'Authorization: Bearer')
     assert.match(infistar.siteUrl, /^https:\/\/www\.infistar\.cc\/register\?aff=/)
@@ -25,15 +30,32 @@ describe('Infistar default AI provider', () => {
     }
   })
 
-  it('resolves aliases, trailing slashes and the build-injected preset', async () => {
-    const { defaultAIPresets, findAIPreset, getAIModelOptions } = await presetsModule
+  it('resolves every provider host, trailing slashes and the build-injected preset', async () => {
+    const { defaultAIPresets, findAIPreset, getAIModelOptions, getPresetBaseURLs } = await presetsModule
     const infistar = defaultAIPresets[0]
+    assert.deepEqual(getPresetBaseURLs(infistar), infistar.baseURLAIs)
     for (const url of ['https://infistar.cc/v1', 'https://infistar.cc/v1/', 'https://infistar.ai/v1']) {
       assert.equal(findAIPreset(url), infistar)
       assert.deepEqual(getAIModelOptions(url, null), infistar.modelAIs)
     }
     const custom = { id: 'custom', baseURLAI: 'https://ai.example.org/api/ai' }
     assert.equal(findAIPreset('https://ai.example.org/api/ai/', [custom]), custom)
+    assert.deepEqual(getPresetBaseURLs(custom), ['https://ai.example.org/api/ai'])
+  })
+})
+
+describe('Multiple provider base URLs', () => {
+  it('keeps one URL list per preset, with the saved URL first', async () => {
+    const { defaultAIPresets, getPresetBaseURLs, findAIPreset } = await presetsModule
+    for (const preset of defaultAIPresets) {
+      assert.equal(preset.aliasURLs, undefined)
+      const urls = getPresetBaseURLs(preset)
+      assert.ok(urls.length > 0)
+      assert.equal(urls[0], preset.baseURLAI)
+      for (const url of urls) {
+        assert.equal(findAIPreset(url), preset)
+      }
+    }
   })
 })
 
@@ -44,6 +66,10 @@ describe('MiniMax presets and model suggestions', () => {
     assert.deepEqual(presets.map(p => p.baseURLAI), [
       'https://api.minimax.io/v1', 'https://api.minimax.cn/v1'
     ])
+    assert.deepEqual(presets[1].baseURLAIs, [
+      'https://api.minimax.cn/v1', 'https://api.minimaxi.com/v1'
+    ])
+    assert.equal(presets[1].aliasURLs, undefined)
     for (const preset of presets) {
       assert.equal(preset.modelAI, 'MiniMax-M3.1-Flash')
       assert.equal(preset.apiPathAI, '/chat/completions')

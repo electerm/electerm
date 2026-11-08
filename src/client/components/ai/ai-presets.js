@@ -3,9 +3,12 @@ export const defaultAIPresets = [
     id: 'infistar',
     nameAI: 'Infistar',
     baseURLAI: 'https://infistar.ai/v1',
-    // The same gateway is served from the international domain. Users who
-    // switch hosts should keep the key link and curated model suggestions.
-    aliasURLs: ['https://infistar.cc/v1'],
+    // Both hosts serve the same gateway. The first one is the default, the
+    // others are offered in the API URL picker.
+    baseURLAIs: [
+      'https://infistar.ai/v1',
+      'https://infistar.cc/v1'
+    ],
     apiPathAI: '/chat/completions',
     modelAI: 'deepseek-v4-flash',
     pinned: true,
@@ -187,7 +190,10 @@ export const defaultAIPresets = [
     nameAI: 'MiniMax (China)',
     baseURLAI: 'https://api.minimax.cn/v1',
     // The same endpoint is documented under the older minimaxi.com host.
-    aliasURLs: ['https://api.minimaxi.com/v1'],
+    baseURLAIs: [
+      'https://api.minimax.cn/v1',
+      'https://api.minimaxi.com/v1'
+    ],
     apiPathAI: '/chat/completions',
     modelAI: 'MiniMax-M3.1-Flash',
     authHeaderNameAI: 'Authorization: Bearer',
@@ -228,15 +234,24 @@ export function normalizeAIBaseURL (url) {
   return (url || '').trim().replace(/\/+$/, '')
 }
 
+// A provider can be reachable at several hosts (Infistar's two domains,
+// MiniMax's older host). `baseURLAI` stays the single value the form saves;
+// the list only drives preset matching and the API URL picker.
+export function getPresetBaseURLs (preset) {
+  if (Array.isArray(preset?.baseURLAIs)) {
+    return preset.baseURLAIs
+  }
+  return preset?.baseURLAI ? [preset.baseURLAI] : []
+}
+
 // `presets` is optional so the config form can search the list it renders,
 // which also contains the build-injected custom preset. Trailing slashes and
-// provider aliases (the international Infistar host, the older MiniMax host)
-// all have to resolve to the same preset, or its key link disappears.
+// alternate provider hosts all have to resolve to the same preset, or its
+// key link and curated model suggestions disappear.
 export function findAIPreset (url, presets = defaultAIPresets) {
   const target = normalizeAIBaseURL(url)
   return presets.find(p =>
-    normalizeAIBaseURL(p.baseURLAI) === target ||
-    (p.aliasURLs || []).some(u => normalizeAIBaseURL(u) === target))
+    getPresetBaseURLs(p).some(u => normalizeAIBaseURL(u) === target))
 }
 
 // Suggestions do not constrain the editable model value or saved configurations.
