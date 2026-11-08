@@ -11,10 +11,10 @@ describe('Infistar default AI provider', () => {
     const infistar = defaultAIPresets[0]
     assert.equal(infistar.id, 'infistar')
     assert.equal(infistar.pinned, true)
-    assert.equal(infistar.baseURLAI, 'https://infistar.ai/v1')
+    assert.equal(infistar.baseURLAI, 'https://infistar.cc/v1')
     assert.deepEqual(infistar.baseURLAIs, [
-      'https://infistar.ai/v1',
-      'https://infistar.cc/v1'
+      'https://infistar.cc/v1',
+      'https://infistar.ai/v1'
     ])
     assert.equal(infistar.aliasURLs, undefined)
     assert.equal(infistar.apiPathAI, '/chat/completions')
@@ -34,7 +34,7 @@ describe('Infistar default AI provider', () => {
     const { defaultAIPresets, findAIPreset, getAIModelOptions, getPresetBaseURLs } = await presetsModule
     const infistar = defaultAIPresets[0]
     assert.deepEqual(getPresetBaseURLs(infistar), infistar.baseURLAIs)
-    for (const url of ['https://infistar.cc/v1', 'https://infistar.cc/v1/', 'https://infistar.ai/v1']) {
+    for (const url of ['https://infistar.cc/v1', 'https://infistar.cc/v1/', 'https://infistar.ai/v1', 'https://infistar.ai/v1/']) {
       assert.equal(findAIPreset(url), infistar)
       assert.deepEqual(getAIModelOptions(url, null), infistar.modelAIs)
     }

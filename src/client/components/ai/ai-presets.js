@@ -2,12 +2,12 @@ export const defaultAIPresets = [
   {
     id: 'infistar',
     nameAI: 'Infistar',
-    baseURLAI: 'https://infistar.ai/v1',
+    baseURLAI: 'https://infistar.cc/v1',
     // Both hosts serve the same gateway. The first one is the default, the
     // others are offered in the API URL picker.
     baseURLAIs: [
-      'https://infistar.ai/v1',
-      'https://infistar.cc/v1'
+      'https://infistar.cc/v1',
+      'https://infistar.ai/v1'
     ],
     apiPathAI: '/chat/completions',
     modelAI: 'deepseek-v4-flash',

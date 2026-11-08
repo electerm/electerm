@@ -73,7 +73,7 @@ module.exports = exports.default = {
   hideIP: false,
   dataSyncSelected: 'all',
   nameAI: 'Infistar',
-  baseURLAI: 'https://infistar.ai/v1',
+  baseURLAI: 'https://infistar.cc/v1',
   modelAI: 'deepseek-v4-flash',
   roleAI: '终端专家,提供不同系统下命令,简要解释用法,用markdown格式',
   apiPathAI: '/chat/completions',
