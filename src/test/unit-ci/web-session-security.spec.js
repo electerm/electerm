@@ -1,5 +1,6 @@
 /**
- * Unit tests for the web session guest hardening (GHSA-m7mf-jvqh-8wwh).
+ * Unit tests for the web session guest hardening (GHSA-m7mf-jvqh-8wwh) and for
+ * origin-bound Basic auth headers (GHSA-3mh6-qf3v-q6cr).
  *
  * A web session renders a URL the user did not write, and the component used to
  * create that <webview> with `disablewebsecurity='true'` — same-origin policy
@@ -8,6 +9,10 @@
  * keeps a renderer from asking for it again. Both halves are asserted here, and
  * the handler is exercised for real (mocked electron, real EventEmitter) rather
  * than grepped.
+ *
+ * The header listener used to be stubbed to a no-op here, which is why the
+ * credential leak survived the hardening pass. It is captured now and driven
+ * through the same IPC path the renderer uses.
  */
 
 const { test, describe } = require('node:test')
@@ -19,8 +24,13 @@ const Module = require('module')
 
 const srcRoot = path.join(__dirname, '../../../src')
 
+let ipcHandler = null
+let lastAuthRequest = null
+
 const mockIpcMain = {
-  on () {},
+  on (channel, fn) {
+    if (channel === 'webview-auth-response') ipcHandler = fn
+  },
   listenerCount () { return 0 },
   removeListener () {}
 }
@@ -46,6 +56,8 @@ function createGuest (opts = {}) {
   guest.windowOpenHandler = null
   guest.setWindowOpenHandler = fn => { guest.windowOpenHandler = fn }
   guest.executeJavaScript = () => Promise.resolve('{}')
+  guest.getURL = () => 'https://example.com/'
+  guest.reload = () => {}
   // setupWebview() schedules an auth probe; keep it inert so it cannot outlive
   // the test
   guest.isDestroyed = () => true
@@ -53,18 +65,34 @@ function createGuest (opts = {}) {
 }
 
 function createSession () {
-  return {
-    webRequest: { onBeforeSendHeaders () {} },
+  const session = {
+    headerFn: null,
+    headerFilter: null,
     permissionHandler: null,
-    setPermissionRequestHandler (fn) { this.permissionHandler = fn }
+    checkHandler: null,
+    setPermissionRequestHandler (fn) { this.permissionHandler = fn },
+    setPermissionCheckHandler (fn) { this.checkHandler = fn }
   }
+  session.webRequest = {
+    onBeforeSendHeaders (filterOrFn, maybeFn) {
+      if (typeof filterOrFn === 'function') {
+        session.headerFn = filterOrFn
+      } else {
+        session.headerFilter = filterOrFn
+        session.headerFn = maybeFn
+      }
+    }
+  }
+  return session
 }
 
 // embedder: the main window whose renderer creates <webview> tags
 function createWindow () {
   const win = new EventEmitter()
   win.webContents = new EventEmitter()
-  win.webContents.send = () => {}
+  win.webContents.send = (channel, data) => {
+    if (channel === 'webview-auth-request') lastAuthRequest = data
+  }
   return win
 }
 
@@ -171,5 +199,190 @@ describe('web session guest hardening', () => {
       assert.equal(ask(guest, p), true, `${p} should stay available for a guest`)
     }
     assert.equal(ask({ getType: () => 'window' }, 'media'), true)
+    assert.equal(ask(null, 'media'), true)
+  })
+
+  test('guest permission checks are denied too, not just permission requests', () => {
+    const win = createWindow()
+    webviewHandler.init(win)
+    const session = createSession()
+    attachWebview(win, createGuest({ session }), {}, { src: 'https://example.com/' })
+
+    assert.equal(typeof session.checkHandler, 'function')
+    const check = (wc, permission) => session.checkHandler(
+      wc, permission, 'https://example.com', {}
+    )
+
+    const guest = { getType: () => 'webview' }
+    for (const p of ['media', 'geolocation', 'midi', 'midiSysex', 'hid', 'serial', 'usb', 'idle-detection', 'clipboard-read']) {
+      assert.equal(check(guest, p), false, `${p} check should be denied for a guest`)
+    }
+    for (const p of ['notifications', 'fullscreen', 'clipboard-sanitized-write']) {
+      assert.equal(check(guest, p), true, `${p} check should stay available for a guest`)
+    }
+    assert.equal(check({ getType: () => 'window' }, 'media'), true)
+    // A check not tied to a document (service worker, notification) arrives
+    // with a null webContents; keep Electron's previous default for those.
+    assert.equal(check(null, 'media'), true)
+  })
+})
+
+// The credentials the user types for host A used to be attached to every
+// request from that webContents, because the only key was webContentsId. That
+// id does not change for cross-origin subresources or top-level navigations.
+describe('web session Basic auth is bound to one origin', () => {
+  const A = 'http://127.0.0.1:45871/'
+  const B = 'http://127.0.0.1:45872/steal'
+  const C = 'http://127.0.0.1:45873/nav'
+  let nextGuestId = 100
+
+  function authHarness (url = A) {
+    lastAuthRequest = null
+    const session = createSession()
+    const guest = createGuest({ session, id: nextGuestId++ })
+    guest.isDestroyed = () => false
+    guest.getURL = () => url
+    guest.executeJavaScript = () => Promise.resolve({ status: 'unauthorized' })
+    const win = createWindow()
+    webviewHandler.init(win)
+    win.webContents.emit('did-attach-webview', {}, guest)
+    return { session, guest }
+  }
+
+  async function raisePrompt (guest) {
+    guest.emit('dom-ready')
+    await new Promise(resolve => setTimeout(resolve, 20))
+    assert.ok(lastAuthRequest, 'the credential prompt should have been raised')
+    return lastAuthRequest
+  }
+
+  function submit (id, username = 'corp-user', password = 'CorpP4ssw0rd!') {
+    ipcHandler({}, { id, username, password })
+  }
+
+  function headersFor (session, guest, url, details = {}) {
+    let headers
+    session.headerFn({
+      webContentsId: guest.id,
+      url,
+      requestHeaders: { 'X-Original': '1' },
+      ...details
+    }, r => { headers = r.requestHeaders })
+    return headers
+  }
+
+  function decoded (headers) {
+    const auth = headers && headers.Authorization
+    return auth
+      ? Buffer.from(auth.replace(/^Basic /, ''), 'base64').toString()
+      : null
+  }
+
+  // setupWebview() leaves a 500 ms probe timer behind. Making the guest
+  // destroyed after each test keeps it inert, and the destroyed handler also
+  // clears that guest's credentials so tests cannot leak state into each other.
+  function cleanup (guest) {
+    guest.isDestroyed = () => true
+    guest.emit('destroyed')
+  }
+
+  test('credentials reach the prompted origin, not any other origin', async () => {
+    const { session, guest } = authHarness(A)
+    const req = await raisePrompt(guest)
+    assert.equal(req.host, '127.0.0.1:45871')
+    submit(req.id)
+
+    assert.equal(decoded(headersFor(session, guest, A)), 'corp-user:CorpP4ssw0rd!')
+    assert.equal(decoded(headersFor(session, guest, B)), null)
+    assert.equal(decoded(headersFor(session, guest, C)), null)
+    assert.equal(headersFor(session, guest, A)['X-Original'], '1')
+    cleanup(guest)
+  })
+
+  test('a different scheme or port is a different origin', async () => {
+    const { session, guest } = authHarness(A)
+    submit((await raisePrompt(guest)).id)
+
+    assert.equal(decoded(headersFor(session, guest, 'https://127.0.0.1:45871/')), null)
+    assert.equal(decoded(headersFor(session, guest, 'http://127.0.0.1:45899/')), null)
+    assert.equal(decoded(headersFor(session, guest, 'http://127.0.0.1:45871/page?q=1')), 'corp-user:CorpP4ssw0rd!')
+    cleanup(guest)
+  })
+
+  test('a malformed request url cannot throw or acquire credentials', async () => {
+    const { session, guest } = authHarness(A)
+    submit((await raisePrompt(guest)).id)
+
+    const headers = headersFor(session, guest, 'not a url')
+    assert.equal(decoded(headers), null)
+    assert.equal(headers['X-Original'], '1')
+    cleanup(guest)
+  })
+
+  test('Electron 22 details with no webContentsId still resolve the guest', async () => {
+    const { session, guest } = authHarness(A)
+    submit((await raisePrompt(guest)).id)
+    // Electron 22 marks webContentsId as optional; `webContents` is still on
+    // the details object there, and the feature must keep working on those
+    // builds rather than silently dropping every Authorization header.
+    const legacy = { webContentsId: undefined, webContents: { id: guest.id } }
+
+    assert.equal(decoded(headersFor(session, guest, A, legacy)), 'corp-user:CorpP4ssw0rd!')
+    assert.equal(decoded(headersFor(session, guest, B, legacy)), null)
+    cleanup(guest)
+  })
+
+  test('a request with no webContents association never gets credentials', async () => {
+    const { session, guest } = authHarness(A)
+    submit((await raisePrompt(guest)).id)
+    const detached = { webContentsId: undefined }
+
+    const headers = headersFor(session, guest, A, detached)
+    assert.equal(decoded(headers), null)
+    assert.equal(headers['X-Original'], '1')
+    cleanup(guest)
+  })
+
+  test('the listener is filtered to http(s) so it cannot stall other schemes', () => {
+    const { session, guest } = authHarness(A)
+    assert.deepEqual(session.headerFilter, { urls: ['http://*/*', 'https://*/*'] })
+    cleanup(guest)
+  })
+
+  test('a non-http guest url cannot raise a credential prompt', async () => {
+    const { guest } = authHarness('file:///etc/passwd')
+    guest.emit('dom-ready')
+    await new Promise(resolve => setTimeout(resolve, 20))
+    assert.equal(lastAuthRequest, null)
+    cleanup(guest)
+  })
+
+  test('navigating away from the origin drops the stored credentials', async () => {
+    const { session, guest } = authHarness(A)
+    submit((await raisePrompt(guest)).id)
+    assert.equal(decoded(headersFor(session, guest, A)), 'corp-user:CorpP4ssw0rd!')
+
+    guest.isDestroyed = () => true
+    guest.emit('did-navigate', {}, C)
+    assert.equal(decoded(headersFor(session, guest, A)), null)
+    cleanup(guest)
+  })
+
+  test('a same-origin reload keeps the credentials', async () => {
+    const { session, guest } = authHarness(A)
+    submit((await raisePrompt(guest)).id)
+
+    guest.isDestroyed = () => true
+    guest.emit('did-navigate', {}, A)
+    assert.equal(decoded(headersFor(session, guest, A)), 'corp-user:CorpP4ssw0rd!')
+    cleanup(guest)
+  })
+
+  test('cancelling the prompt clears credentials', async () => {
+    const { session, guest } = authHarness(A)
+    const req = await raisePrompt(guest)
+    ipcHandler({}, { id: req.id, username: '', password: '' })
+    assert.equal(decoded(headersFor(session, guest, A)), null)
+    cleanup(guest)
   })
 })
