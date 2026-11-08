@@ -35,16 +35,6 @@ export const defaultAIPresets = [
     ]
   },
   {
-    id: 'ApiSmart',
-    nameAI: 'ApiSmart',
-    pinned: true,
-    baseURLAI: 'https://api.apismart.ai/v1',
-    apiPathAI: '/chat/completions',
-    modelAI: 'DEEPSEEK_V4_FLASH',
-    authHeaderNameAI: 'Authorization: Bearer',
-    siteUrl: 'https://apismart.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
-  },
-  {
     id: 'apimart',
     nameAI: 'ApiMart',
     pinned: true,
@@ -53,6 +43,16 @@ export const defaultAIPresets = [
     modelAI: 'deepseek-v4-flash',
     authHeaderNameAI: 'Authorization: Bearer',
     siteUrl: 'https://go.apimart.ai/gh-electerm'
+  },
+  {
+    id: 'ApiSmart',
+    nameAI: 'ApiSmart',
+    pinned: true,
+    baseURLAI: 'https://api.apismart.ai/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'DEEPSEEK_V4_FLASH',
+    authHeaderNameAI: 'Authorization: Bearer',
+    siteUrl: 'https://apismart.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
   },
   {
     id: 'fluxionai',
