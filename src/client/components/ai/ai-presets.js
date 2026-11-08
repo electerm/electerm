@@ -1,5 +1,23 @@
 export const defaultAIPresets = [
   {
+    id: 'infistar',
+    nameAI: 'Infistar',
+    baseURLAI: 'https://infistar.ai/v1',
+    // The same gateway is served from the international domain. Users who
+    // switch hosts should keep the key link and curated model suggestions.
+    aliasURLs: ['https://infistar.cc/v1'],
+    apiPathAI: '/chat/completions',
+    modelAI: 'deepseek-v4-flash',
+    pinned: true,
+    authHeaderNameAI: 'Authorization: Bearer',
+    siteUrl: 'https://www.infistar.cc/register?aff=4R4JT29X&ref_source=link',
+    modelAIs: [
+      { value: 'deepseek-v4-flash' },
+      { value: 'deepseek-v4-pro' },
+      { value: 'claude-sonnet-4-6' }
+    ]
+  },
+  {
     id: 'packycode',
     nameAI: 'PackyCode',
     baseURLAI: 'https://cf.api.fan/v1',
@@ -210,9 +228,15 @@ export function normalizeAIBaseURL (url) {
   return (url || '').trim().replace(/\/+$/, '')
 }
 
-function presetForURL (url) {
-  return defaultAIPresets.find(p =>
-    p.baseURLAI === url || (p.aliasURLs || []).includes(url))
+// `presets` is optional so the config form can search the list it renders,
+// which also contains the build-injected custom preset. Trailing slashes and
+// provider aliases (the international Infistar host, the older MiniMax host)
+// all have to resolve to the same preset, or its key link disappears.
+export function findAIPreset (url, presets = defaultAIPresets) {
+  const target = normalizeAIBaseURL(url)
+  return presets.find(p =>
+    normalizeAIBaseURL(p.baseURLAI) === target ||
+    (p.aliasURLs || []).some(u => normalizeAIBaseURL(u) === target))
 }
 
 // Suggestions do not constrain the editable model value or saved configurations.
@@ -221,7 +245,7 @@ function presetForURL (url) {
 // ignore cached lists. A cached list is not trusted the same way, because it can
 // still hold models the provider retired since it was saved.
 export function getAIModelOptions (baseURL, preset, cachedModels = [], fetched = false) {
-  const target = presetForURL(normalizeAIBaseURL(baseURL)) || preset
+  const target = findAIPreset(baseURL) || preset
   const presetModels = (target?.modelAIs || [])
     .map(o => (typeof o === 'string' ? o : o.value))
   const values = target?.ignoreCachedModels && !fetched

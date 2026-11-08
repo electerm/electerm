@@ -82,7 +82,7 @@ APIMart が electerm をスポンサーしてくれています！APIMart は、
 
 <div align="center">
 
-<a href="https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img align="middle" src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg" alt="DigitalOcean Referral Badge" /></a>&nbsp;&nbsp;&nbsp;<a href="https://www.infistar.cc/register?aff=4R4JT29X&ref_source=link"><img align="middle" src="https://github.com/electerm/electerm-resource/blob/master/static/images/infistar-wordmark.png?raw=true" alt="Infistar" height="24" /></a>
+<a href="https://www.infistar.cc/register?aff=4R4JT29X&ref_source=link"><img align="middle" src="https://github.com/electerm/electerm-resource/blob/master/static/images/infistar-wordmark.png?raw=true" alt="Infistar" height="40" /></a>&nbsp;&nbsp;&nbsp;<a href="https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img align="middle" src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg" alt="DigitalOcean Referral Badge" /></a>
 
 </div>
 

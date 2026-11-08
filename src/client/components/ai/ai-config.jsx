@@ -18,7 +18,7 @@ import {
 import Password from '../common/password'
 import AiHistory, { addHistoryItem } from './ai-history'
 import message from '../common/message'
-import { getAIPresets, getAIModelOptions, normalizeAIBaseURL } from './ai-presets'
+import { getAIPresets, getAIModelOptions, findAIPreset, normalizeAIBaseURL } from './ai-presets'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import './ai-config.styl'
 
@@ -101,7 +101,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   const [modelsFetched, setModelsFetched] = useState(false)
   const baseURLAI = Form.useWatch('baseURLAI', form)
   const presets = useMemo(() => getAIPresets(), [])
-  const currentPreset = presets.find(p => p.baseURLAI === baseURLAI)
+  const currentPreset = findAIPreset(baseURLAI, presets)
 
   useEffect(() => {
     if (initialValues) {

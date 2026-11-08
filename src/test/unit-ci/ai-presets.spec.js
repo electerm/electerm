@@ -2,6 +2,40 @@ const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 
 const presetsModule = import('../../client/components/ai/ai-presets.js')
+const clientDefaultsModule = import('../../client/common/default-setting.js')
+const appDefaults = require('../../app/common/default-setting.js')
+
+describe('Infistar default AI provider', () => {
+  it('is the first preset and matches the shipped default settings', async () => {
+    const { defaultAIPresets } = await presetsModule
+    const infistar = defaultAIPresets[0]
+    assert.equal(infistar.id, 'infistar')
+    assert.equal(infistar.pinned, true)
+    assert.equal(infistar.baseURLAI, 'https://infistar.cc/v1')
+    assert.equal(infistar.apiPathAI, '/chat/completions')
+    assert.equal(infistar.authHeaderNameAI, 'Authorization: Bearer')
+    assert.match(infistar.siteUrl, /^https:\/\/www\.infistar\.cc\/register\?aff=/)
+
+    const clientDefaults = (await clientDefaultsModule).default
+    for (const defaults of [clientDefaults, appDefaults]) {
+      assert.equal(defaults.nameAI, infistar.nameAI)
+      assert.equal(defaults.baseURLAI, infistar.baseURLAI)
+      assert.equal(defaults.modelAI, infistar.modelAI)
+      assert.equal(defaults.apiPathAI, infistar.apiPathAI)
+    }
+  })
+
+  it('resolves aliases, trailing slashes and the build-injected preset', async () => {
+    const { defaultAIPresets, findAIPreset, getAIModelOptions } = await presetsModule
+    const infistar = defaultAIPresets[0]
+    for (const url of ['https://infistar.cc/v1', 'https://infistar.cc/v1/', 'https://infistar.ai/v1']) {
+      assert.equal(findAIPreset(url), infistar)
+      assert.deepEqual(getAIModelOptions(url, null), infistar.modelAIs)
+    }
+    const custom = { id: 'custom', baseURLAI: 'https://ai.example.org/api/ai' }
+    assert.equal(findAIPreset('https://ai.example.org/api/ai/', [custom]), custom)
+  })
+})
 
 describe('MiniMax presets and model suggestions', () => {
   it('defaults both direct regions to Flash with M3 as the alternative', async () => {
