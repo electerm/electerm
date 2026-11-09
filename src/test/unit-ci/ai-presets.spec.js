@@ -116,3 +116,16 @@ describe('MiniMax presets and model suggestions', () => {
     }
   })
 })
+
+describe('Retired model ids in default presets', () => {
+  it('does not offer models the provider has already retired', async () => {
+    const { defaultAIPresets } = await presetsModule
+    const retired = ['gemini-2.0-flash', 'claude-opus-4-1', 'claude-sonnet-4-5']
+    for (const preset of defaultAIPresets) {
+      const ids = [preset.modelAI, ...(preset.modelAIs || []).map(m => m.value)]
+      for (const id of ids) {
+        assert.ok(!retired.includes(id), `${preset.id} still offers retired model ${id}`)
+      }
+    }
+  })
+})

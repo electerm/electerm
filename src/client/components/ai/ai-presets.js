@@ -109,11 +109,11 @@ export const defaultAIPresets = [
     nameAI: 'Anthropic Claude',
     baseURLAI: 'https://api.anthropic.com/v1',
     apiPathAI: '/messages',
-    modelAI: 'claude-sonnet-4-5',
+    modelAI: 'claude-sonnet-4-6',
     authHeaderNameAI: 'x-api-key',
     modelAIs: [
-      { value: 'claude-sonnet-4-5' },
-      { value: 'claude-opus-4-1' },
+      { value: 'claude-sonnet-4-6' },
+      { value: 'claude-opus-4-8' },
       { value: 'claude-haiku-4-5' }
     ],
     siteUrl: 'https://console.anthropic.com/settings/keys?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
@@ -141,7 +141,7 @@ export const defaultAIPresets = [
     nameAI: 'Google Gemini',
     baseURLAI: 'https://generativelanguage.googleapis.com/v1beta/openai',
     apiPathAI: '/chat/completions',
-    modelAI: 'gemini-2.0-flash',
+    modelAI: 'gemini-3.8-flash',
     authHeaderNameAI: 'Authorization: Bearer',
     siteUrl: 'https://aistudio.google.com/apikey'
   },
