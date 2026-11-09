@@ -177,6 +177,22 @@ describe('downloadSource', () => {
     assert.match(http.archiveRequests[0], /codeload\.github\.com\/owner\/repo\/tar\.gz\/HEAD$/)
   })
 
+  it('drops symlinks from a github archive', async () => {
+    const http = tarballHttp({
+      'package.json': widgetPkg,
+      'index.js': 'module.exports = {}\n'
+    })
+    // A registry install hashes the downloaded tree, but a plain folder import
+    // does not, so the archive filter itself must not write links to disk.
+    fs.symlinkSync(
+      '/etc/passwd',
+      path.join(tmp, 'archive-src', 'owner-repo-abc123', 'escape')
+    )
+    const dir = path.join(tmp, 'gh-link')
+    await downloadSource(parseWidgetSource('owner/repo'), dir, http)
+    assert.deepEqual(walk(dir), ['index.js', 'package.json'])
+  })
+
   it('asks for the named branch', async () => {
     const http = tarballHttp({ 'package.json': widgetPkg })
     await downloadSource(parseWidgetSource('owner/repo#dev'), path.join(tmp, 'gh-ref'), http)
@@ -189,11 +205,14 @@ describe('downloadSource', () => {
       lib: [atomFile('a.js', 'lib')]
     }, {
       'https://raw.atomgit.com/owner/repo/blobs/package.json/package.json': widgetPkg,
+      'https://raw.atomgit.com/owner/repo/blobs/.gitignore/.gitignore': 'node_modules/\n',
       'https://raw.atomgit.com/owner/repo/blobs/a.js/a.js': 'module.exports = 1\n'
     })
     const dir = path.join(tmp, 'ag')
     await downloadSource(parseWidgetSource('https://atomgit.com/owner/repo'), dir, http)
-    assert.deepEqual(walk(dir), ['lib/a.js', 'package.json'])
+    // Hidden files belong to the repo too: the registry lists them and the
+    // install hashes the whole tree, so the download must not drop them.
+    assert.deepEqual(walk(dir), ['.gitignore', 'lib/a.js', 'package.json'])
     assert.equal(http.requests[0], 'https://atomgit.com/api/v5/repos/owner/repo/contents')
   })
 
@@ -285,7 +304,7 @@ describe('downloadSource, when github is unreachable', () => {
           files: [
             { name: '/package.json', size: 200 },
             { name: '/lib/a.js', size: 20 },
-            // not part of a widget: hidden, and a name that would escape
+            // hidden files are kept; only names that escape are dropped
             { name: '/.gitignore', size: 10 },
             { name: '/../escape.js', size: 10 }
           ]
@@ -299,12 +318,15 @@ describe('downloadSource, when github is unreachable', () => {
         if (url.endsWith('/lib/a.js')) {
           return Buffer.from('module.exports = 1\n')
         }
+        if (url.endsWith('/.gitignore')) {
+          return Buffer.from('node_modules/\n')
+        }
         throw new Error(`unexpected blob ${url}`)
       }
     }
     const dir = path.join(tmp, 'gh-jsdelivr')
     await downloadSource(parseWidgetSource('owner/repo'), dir, http)
-    assert.deepEqual(walk(dir), ['lib/a.js', 'package.json'])
+    assert.deepEqual(walk(dir), ['.gitignore', 'lib/a.js', 'package.json'])
     assert.ok(urls.includes(
       'https://cdn.jsdelivr.net/gh/owner/repo@HEAD/lib/a.js'
     ))

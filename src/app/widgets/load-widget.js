@@ -12,6 +12,7 @@ const {
   removeUserWidget,
   getUserWidgetDir
 } = require('./user-widget')
+const { importWidgetFromRegistry } = require('./widget-registry')
 const { isValidWidgetId } = require('./paths')
 const { sanitizeAIConfig } = require('./ai-config')
 // const log = require('../common/log')
@@ -336,6 +337,7 @@ module.exports = {
   callWidgetFunc,
   importWidget: importWidgetFolder,
   importWidgetFromSource: importWidgetFromUrl,
+  importWidgetFromRegistry,
   deleteWidget,
   resolveWidgetModule
 }

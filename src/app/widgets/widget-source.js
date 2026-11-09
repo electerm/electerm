@@ -288,7 +288,19 @@ async function fetchTarball (url, dir, http) {
     tar.extract({
       cwd: dir,
       strip: 1,
-      filter: (file) => !file.split('/').includes('.git')
+      // npm creates executable symlinks in node_modules/.bin; a widget loads
+      // its vendored packages with require(), never through those links. The
+      // registry build skips the same folder, so both sides hash an identical
+      // tree — and links are dropped here as well as by the registry check.
+      filter: (file, entry) => {
+        const parts = file.split('/')
+        if (parts.includes('.bin') || parts.includes('.git')) {
+          return false
+        }
+        const type = entry && entry.type
+        return !type || type === 'File' || type === 'OldFile' ||
+          type === 'ContiguousFile' || type === 'Directory'
+      }
     })
   )
 }
@@ -369,7 +381,11 @@ async function walkContents (source, localDir, remotePath, http, ctx) {
   const files = []
   for (const item of list) {
     const name = String((item && item.name) || '')
-    if (!item || !name || name === '.' || name === '..' || /[/\\]/.test(name) || name.startsWith('.')) {
+    // Hidden files are part of the repository too: the registry lists them and
+    // the install verifies the whole tree. Only .git and the npm link folder
+    // .bin are dropped, matching the tarball filter and the site build.
+    if (!item || !name || name === '.' || name === '..' ||
+      /[/\\]/.test(name) || name === '.git' || name === '.bin') {
       continue
     }
     const target = path.resolve(localDir, name)
@@ -468,9 +484,9 @@ function jsdelivrBase (source) {
  * Last resort: fetch the repository file by file from jsDelivr.
  *
  * Its listing is flat — every file of the repo with its size, no folders to
- * walk — and it answers `@HEAD` for the default branch. Hidden files are
- * skipped, as the atomgit walk does, and the same file count and byte budget
- * apply so a link to a huge repo still stops with a readable message.
+ * walk — and it answers `@HEAD` for the default branch. Only .git and .bin are
+ * skipped, as the other two paths do, and the same file count and byte budget apply so a
+ * link to a huge repo still stops with a readable message.
  *
  * jsDelivr will not serve a file over 20MB; a widget that big is not a widget.
  */
@@ -485,7 +501,8 @@ async function walkJsdelivr (source, dir, http) {
   for (const item of list) {
     const name = String((item && item.name) || '').replace(/^\/+/, '')
     const parts = name.split('/')
-    if (!name || parts.some(part => !part || part === '.' || part === '..' || part.startsWith('.'))) {
+    if (!name || parts.some(part => !part || part === '.' || part === '..' ||
+      part === '.git' || part === '.bin')) {
       continue
     }
     const target = path.resolve(dir, name)
