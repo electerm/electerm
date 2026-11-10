@@ -1,212 +1,212 @@
 {
   "release": {
-    "tag_name": "v5.9.0",
-    "body": "### Major updates\r\n\r\n- Fix terminal rendering after WebGL context loss: fall back to the DOM renderer and keep sessions alive (#4702) by @forever765\r\n- Widget: Support password manager: an installed widget can supply passwords for SSH/ftp/VNC/Spice/Telnet/RDP bookmarks (KeePassXC ready), with a per-bookmark opt-in (#4705) by @mkneppe\r\n- UX: Support set icon for custom bookmark/bookmark group by @xinxingi\r\n- Widget: Widgets can offer bookmarks to import, with an import result report and a warning about embedded secrets (#4703) by @mkneppe\r\n- Support create a private key in the SSH bookmark form (#4554)\r\n- Editor: support markdown preview in the built-in editor (#4666)\r\n\r\n### New features/UI/Updates\r\n\r\n- SSH: support PKCS#8, PPK v3 and FIDO2 keys (ssh2 1.23.0), improve MFA support (#4554)\r\n- MCP: add a read-only command rules tool, and a rejected command now points at it (#4699) by @ifyh-W\r\n- Widget install from GitHub now falls back to mirror.electerm.org and jsDelivr when GitHub is unreachable; the in-app updater uses the same mirror\r\n- RDP: can check host reachability before connecting, show readable connect errors (#4685) by @mkneppe\r\n- SSH: a stale or blank private key path no longer blocks a password login (#4684) by @mkneppe\r\n- Use static default local bookmarks, so app start faster (#4672)\r\n- Bookmark import: bookmarks without a category are collected into a standalone category\r\n- VNC: show why a connection failed, with a hint for RealVNC's RA2 security type that no open-source client supports\r\n\r\n### Bug fixes\r\n\r\n- Security: fix MCP server DNS rebinding (GHSA-45rj-2wq9-r9mr)\r\n- Security: require approval for MCP-initiated file transfers (#4706)\r\n- Security: fix local clipboard leaking to the server\r\n- Security: keep the same-origin policy on for web session guests (#4707)\r\n- Security: run Windows PowerShell without a cmd.exe layer and without interpolating local paths into scripts (#4708) (#4710)\r\n- Fix wide-character mouse selection landing one cell off for adjacent CJK/full-width characters\r\n- Fix custom sync to servers with an internal CA: user-installed certificates from the login keychain were dropped\r\n- Fix session log failure breaking the session, and keep local paths and tokens out of imported or synced config (#4688)\r\n- Fix RDP email login (#4676)\r\n- Fix transfer websocket status control (electerm-web#31)\r\n- Fix drag/drop in the FTP server widget\r\n- Windows: do not mistake the WSL bash launcher for Git Bash (#4672) by @pcbeingused333\r\n\r\n-----\r\n\r\n### 重大更新\r\n\r\n- 修复 WebGL 上下文丢失后终端渲染异常：自动回退到 DOM 渲染并保留会话 (#4702)（由 @forever765 提供）\r\n- 小组件：支持密码管理器，安装小组件后可为 SSH/ftp/VNC/Spice/Telnet/RDP 书签提供密码（已适配 KeePassXC），支持按书签单独开启 (#4705)（由 @mkneppe 提供）\r\n- 体验：支持为自定义书签/书签分组设置图标（由 @xinxingi 提供）\r\n- 小组件：可提供书签供导入，导入后显示结果，并对内含密钥的数据给出警告 (#4703)（由 @mkneppe 提供）\r\n- 支持在 SSH 书签表单中创建私钥 (#4554)\r\n- 编辑器：内置编辑器支持 Markdown 预览 (#4666)\r\n\r\n### 新功能/界面/更新\r\n\r\n- SSH：支持 PKCS#8、PPK v3 和 FIDO2 密钥（ssh2 1.23.0），改进 MFA 支持 (#4554)\r\n- MCP：新增只读命令规则工具，命令被拒绝时会提示使用该工具 (#4699)（由 @ifyh-W 提供）\r\n- 从 GitHub 安装小组件时，GitHub 不可达会自动回退到 mirror.electerm.org 和 jsDelivr，应用内更新也改用同一镜像\r\n- RDP：支持连接前检查主机可达性，并显示可读的连接错误 (#4685)（由 @mkneppe 提供）\r\n- SSH：私钥路径为空或失效时不再阻塞密码登录 (#4684)（由 @mkneppe 提供）\r\n- 改用静态默认本地书签，应用启动更快 (#4672)\r\n- 书签导入：没有分类的书签会归入独立分类\r\n- VNC：连接失败时显示具体原因，并对 RealVNC 的 RA2 安全类型（开源客户端均不支持）给出提示\r\n\r\n### 问题修复\r\n\r\n- 安全：修复 MCP 服务器 DNS rebinding 漏洞 (GHSA-45rj-2wq9-r9mr)\r\n- 安全：MCP 发起的文件传输需经用户审批 (#4706)\r\n- 安全：修复本地剪贴板泄漏到服务器的问题\r\n- 安全：Web 版会话访客保持同源策略开启 (#4707)\r\n- 安全：Windows PowerShell 命令不再经过 cmd.exe，也不再把本地路径拼进脚本 (#4708) (#4710)\r\n- 修复相邻的中文/全角字符导致鼠标选择偏移一格的问题\r\n- 修复自定义同步到使用内部 CA 的服务器时，用户安装到登录钥匙串的证书被忽略的问题\r\n- 修复会话日志失败导致会话中断，并避免导入/同步配置覆盖本机路径和令牌 (#4688)\r\n- 修复 RDP 邮箱账号登录问题 (#4676)\r\n- 修复传输 websocket 状态控制 (electerm-web#31)\r\n- 修复 FTP 服务器小组件的拖放\r\n- Windows：不再把 WSL 的 bash 启动器误判为 Git Bash (#4672)（由 @pcbeingused333 提供）\r\n\r\n-------\r\nDownload下载: [https://electerm.org](https://electerm.org)\r\n",
-    "published_at": "2026-11-07T01:28:23Z",
+    "tag_name": "v5.10.0",
+    "body": "### Major updates\r\n\r\n- Widgets: a new \"Online\" tab browses the widgets.electerm.org registry and installs a widget in one click. Before installing, it shows the source repository, pinned commit and file list for review, warns that a widget's main.js runs with full Node privileges, and verifies every downloaded file against the registry hash; revoked widgets are flagged\r\n\r\n### Bug fixes\r\n\r\n- Security: HTTP Basic credentials entered in a web-session tab are now bound to the origin they were typed for, so cross-origin requests and redirects no longer receive them; guest permission checks are denied as well (GHSA-3mh6-qf3v-q6cr)\r\n- Fix AI presets still offering retired Gemini and Claude models, replaced with current ones (#4716) by @pcbeingused333\r\n\r\n-----\r\n\r\n### 重大更新\r\n\r\n- 小组件：新增「在线」标签页，可浏览 widgets.electerm.org 目录并一键安装。安装前会展示来源仓库、锁定的 commit 与文件列表供确认，并提示小组件的 main.js 会以完整 Node 权限运行；安装时会按目录哈希校验每个文件，已撤销的小组件会给出提示\r\n\r\n### 问题修复\r\n\r\n- 安全：修复 Web 会话标签中输入的 HTTP Basic 凭据会被附加到该标签所有请求（包括跨站请求与重定向）的问题，现在凭据仅用于输入时对应的 origin；同时补齐访客权限检查的拦截 (GHSA-3mh6-qf3v-q6cr)\r\n- 修复 AI 预设中仍提供已下线的 Gemini / Claude 模型的问题，更新为当前可用模型 (#4716)（由 @pcbeingused333 提供）\r\n\r\n-------\r\nDownload下载: [https://electerm.org](https://electerm.org)\r\n",
+    "published_at": "2026-11-10T00:43:27Z",
     "assets": [
       {
-        "name": "electerm-5.9.0-linux-aarch64-legacy.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-aarch64-legacy.rpm"
+        "name": "electerm-5.10.0-linux-aarch64-legacy.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-aarch64-legacy.rpm"
       },
       {
-        "name": "electerm-5.9.0-linux-aarch64.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-aarch64.rpm"
+        "name": "electerm-5.10.0-linux-aarch64.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-aarch64.rpm"
       },
       {
-        "name": "electerm-5.9.0-linux-amd64-legacy.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-amd64-legacy.deb"
+        "name": "electerm-5.10.0-linux-amd64-legacy.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-amd64-legacy.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-amd64.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-amd64.deb"
+        "name": "electerm-5.10.0-linux-amd64.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-amd64.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-amd64.snap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-amd64.snap"
+        "name": "electerm-5.10.0-linux-amd64.snap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-amd64.snap"
       },
       {
-        "name": "electerm-5.9.0-linux-arm64-legacy.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-arm64-legacy.AppImage"
+        "name": "electerm-5.10.0-linux-arm64-legacy.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-arm64-legacy.AppImage"
       },
       {
-        "name": "electerm-5.9.0-linux-arm64-legacy.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-arm64-legacy.deb"
+        "name": "electerm-5.10.0-linux-arm64-legacy.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-arm64-legacy.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-arm64-legacy.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-arm64-legacy.tar.gz"
+        "name": "electerm-5.10.0-linux-arm64-legacy.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-arm64-legacy.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-linux-arm64.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-arm64.AppImage"
+        "name": "electerm-5.10.0-linux-arm64.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-arm64.AppImage"
       },
       {
-        "name": "electerm-5.9.0-linux-arm64.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-arm64.deb"
+        "name": "electerm-5.10.0-linux-arm64.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-arm64.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-arm64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-arm64.tar.gz"
+        "name": "electerm-5.10.0-linux-arm64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-arm64.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-linux-armv7l-legacy.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-armv7l-legacy.AppImage"
+        "name": "electerm-5.10.0-linux-armv7l-legacy.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-armv7l-legacy.AppImage"
       },
       {
-        "name": "electerm-5.9.0-linux-armv7l-legacy.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-armv7l-legacy.deb"
+        "name": "electerm-5.10.0-linux-armv7l-legacy.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-armv7l-legacy.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-armv7l-legacy.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-armv7l-legacy.rpm"
+        "name": "electerm-5.10.0-linux-armv7l-legacy.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-armv7l-legacy.rpm"
       },
       {
-        "name": "electerm-5.9.0-linux-armv7l-legacy.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-armv7l-legacy.tar.gz"
+        "name": "electerm-5.10.0-linux-armv7l-legacy.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-armv7l-legacy.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-linux-armv7l.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-armv7l.AppImage"
+        "name": "electerm-5.10.0-linux-armv7l.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-armv7l.AppImage"
       },
       {
-        "name": "electerm-5.9.0-linux-armv7l.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-armv7l.deb"
+        "name": "electerm-5.10.0-linux-armv7l.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-armv7l.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-armv7l.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-armv7l.rpm"
+        "name": "electerm-5.10.0-linux-armv7l.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-armv7l.rpm"
       },
       {
-        "name": "electerm-5.9.0-linux-armv7l.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-armv7l.tar.gz"
+        "name": "electerm-5.10.0-linux-armv7l.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-armv7l.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-linux-loong64-legacy.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-loong64-legacy.deb"
+        "name": "electerm-5.10.0-linux-loong64-legacy.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-loong64-legacy.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-loong64-legacy.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-loong64-legacy.tar.gz"
+        "name": "electerm-5.10.0-linux-loong64-legacy.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-loong64-legacy.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-linux-loong64.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-loong64.deb"
+        "name": "electerm-5.10.0-linux-loong64.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-loong64.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-loong64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-loong64.tar.gz"
+        "name": "electerm-5.10.0-linux-loong64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-loong64.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-linux-loongarch64-legacy.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-loongarch64-legacy.deb"
+        "name": "electerm-5.10.0-linux-loongarch64-legacy.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-loongarch64-legacy.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-loongarch64.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-loongarch64.deb"
+        "name": "electerm-5.10.0-linux-loongarch64.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-loongarch64.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-ppc64el.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-ppc64el.deb"
+        "name": "electerm-5.10.0-linux-ppc64el.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-ppc64el.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-ppc64le.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-ppc64le.tar.gz"
+        "name": "electerm-5.10.0-linux-ppc64le.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-ppc64le.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-linux-riscv64.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-riscv64.deb"
+        "name": "electerm-5.10.0-linux-riscv64.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-riscv64.deb"
       },
       {
-        "name": "electerm-5.9.0-linux-riscv64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-riscv64.tar.gz"
+        "name": "electerm-5.10.0-linux-riscv64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-riscv64.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-linux-x64-legacy.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-x64-legacy.tar.gz"
+        "name": "electerm-5.10.0-linux-x64-legacy.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-x64-legacy.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-linux-x64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-x64.tar.gz"
+        "name": "electerm-5.10.0-linux-x64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-x64.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-linux-x86_64-legacy.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-x86_64-legacy.AppImage"
+        "name": "electerm-5.10.0-linux-x86_64-legacy.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-x86_64-legacy.AppImage"
       },
       {
-        "name": "electerm-5.9.0-linux-x86_64-legacy.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-x86_64-legacy.rpm"
+        "name": "electerm-5.10.0-linux-x86_64-legacy.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-x86_64-legacy.rpm"
       },
       {
-        "name": "electerm-5.9.0-linux-x86_64.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-x86_64.AppImage"
+        "name": "electerm-5.10.0-linux-x86_64.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-x86_64.AppImage"
       },
       {
-        "name": "electerm-5.9.0-linux-x86_64.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-linux-x86_64.rpm"
+        "name": "electerm-5.10.0-linux-x86_64.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-linux-x86_64.rpm"
       },
       {
-        "name": "electerm-5.9.0-mac-arm64.dmg",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-mac-arm64.dmg"
+        "name": "electerm-5.10.0-mac-arm64.dmg",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-mac-arm64.dmg"
       },
       {
-        "name": "electerm-5.9.0-mac-arm64.dmg.blockmap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-mac-arm64.dmg.blockmap"
+        "name": "electerm-5.10.0-mac-arm64.dmg.blockmap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-mac-arm64.dmg.blockmap"
       },
       {
-        "name": "electerm-5.9.0-mac-x64.dmg",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-mac-x64.dmg"
+        "name": "electerm-5.10.0-mac-x64.dmg",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-mac-x64.dmg"
       },
       {
-        "name": "electerm-5.9.0-mac-x64.dmg.blockmap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-mac-x64.dmg.blockmap"
+        "name": "electerm-5.10.0-mac-x64.dmg.blockmap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-mac-x64.dmg.blockmap"
       },
       {
-        "name": "electerm-5.9.0-mac10-x64.dmg",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-mac10-x64.dmg"
+        "name": "electerm-5.10.0-mac10-x64.dmg",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-mac10-x64.dmg"
       },
       {
-        "name": "electerm-5.9.0-mac10-x64.dmg.blockmap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-mac10-x64.dmg.blockmap"
+        "name": "electerm-5.10.0-mac10-x64.dmg.blockmap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-mac10-x64.dmg.blockmap"
       },
       {
-        "name": "electerm-5.9.0-win-arm64-installer.exe",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-win-arm64-installer.exe"
+        "name": "electerm-5.10.0-win-arm64-installer.exe",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-win-arm64-installer.exe"
       },
       {
-        "name": "electerm-5.9.0-win-arm64-installer.exe.blockmap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-win-arm64-installer.exe.blockmap"
+        "name": "electerm-5.10.0-win-arm64-installer.exe.blockmap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-win-arm64-installer.exe.blockmap"
       },
       {
-        "name": "electerm-5.9.0-win-arm64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-win-arm64.tar.gz"
+        "name": "electerm-5.10.0-win-arm64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-win-arm64.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-win-x64-installer.exe",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-win-x64-installer.exe"
+        "name": "electerm-5.10.0-win-x64-installer.exe",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-win-x64-installer.exe"
       },
       {
-        "name": "electerm-5.9.0-win-x64-installer.exe.blockmap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-win-x64-installer.exe.blockmap"
+        "name": "electerm-5.10.0-win-x64-installer.exe.blockmap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-win-x64-installer.exe.blockmap"
       },
       {
-        "name": "electerm-5.9.0-win-x64-loose.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-win-x64-loose.tar.gz"
+        "name": "electerm-5.10.0-win-x64-loose.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-win-x64-loose.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-win-x64-portable.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-win-x64-portable.tar.gz"
+        "name": "electerm-5.10.0-win-x64-portable.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-win-x64-portable.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-win-x64.appx",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-win-x64.appx"
+        "name": "electerm-5.10.0-win-x64.appx",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-win-x64.appx"
       },
       {
-        "name": "electerm-5.9.0-win-x64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-win-x64.tar.gz"
+        "name": "electerm-5.10.0-win-x64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-win-x64.tar.gz"
       },
       {
-        "name": "electerm-5.9.0-win7.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.9.0/electerm-5.9.0-win7.tar.gz"
+        "name": "electerm-5.10.0-win7.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.10.0/electerm-5.10.0-win7.tar.gz"
       }
     ]
   }
