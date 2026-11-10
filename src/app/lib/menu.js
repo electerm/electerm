@@ -8,6 +8,15 @@ const {
 } = require('electron')
 const { packInfo } = require('../common/runtime-constants')
 const globalState = require('./glob-state')
+const { getFocusedWindow, getWindows, setCloseAction } = require('./window-manager')
+
+function sendToFocusedWindow (channel) {
+  getFocusedWindow()?.webContents.send(channel, null)
+}
+
+function createNewWindow () {
+  return require('./create-window').createWindow(globalState.get('config'))
+}
 
 function buildMenu () {
   const e = globalState.get('translate')
@@ -17,9 +26,14 @@ function buildMenu () {
       label: e('edit'),
       submenu: [
         {
+          label: e('newWindow'),
+          accelerator: 'CmdOrCtrl+N',
+          click: createNewWindow
+        },
+        {
           label: e('newBookmark'),
           click () {
-            globalState.get('win').webContents.send('new-ssh', null)
+            sendToFocusedWindow('new-ssh', null)
           }
         },
         {
@@ -59,7 +73,7 @@ function buildMenu () {
           label: e('selectall'),
           accelerator: 'CmdOrCtrl+A',
           click () {
-            globalState.get('win').webContents.send('selectall', null)
+            sendToFocusedWindow('selectall', null)
           }
         },
         {
@@ -68,7 +82,7 @@ function buildMenu () {
         {
           label: e('settings'),
           click () {
-            globalState.get('win').webContents.send('openSettings', null)
+            sendToFocusedWindow('openSettings', null)
           }
         }
       ]
@@ -89,19 +103,19 @@ function buildMenu () {
         },
         {
           click () {
-            globalState.get('win').webContents.send('zoom-reset', null)
+            sendToFocusedWindow('zoom-reset', null)
           },
           label: e('resetzoom')
         },
         {
           click () {
-            globalState.get('win').webContents.send('zoomin', null)
+            sendToFocusedWindow('zoomin', null)
           },
           label: e('zoomin')
         },
         {
           click () {
-            globalState.get('win').webContents.send('zoomout', null)
+            sendToFocusedWindow('zoomout', null)
           },
           label: e('zoomout')
         },
@@ -125,14 +139,15 @@ function buildMenu () {
         {
           label: e('maximize'),
           click () {
-            globalState.get('win').maximize()
+            getFocusedWindow().maximize()
           }
         },
         {
           label: e('restart'),
           click () {
-            globalState.get('win').close()
+            getWindows().forEach(win => setCloseAction(win, ''))
             app.relaunch()
+            app.quit()
           }
         }
       ]
@@ -144,13 +159,13 @@ function buildMenu () {
         {
           label: e('about'),
           click () {
-            globalState.get('win').webContents.send('open-about', null)
+            sendToFocusedWindow('open-about', null)
           }
         },
         {
           label: e('checkUpdate'),
           click () {
-            globalState.get('win').webContents.send('checkupdate', null)
+            sendToFocusedWindow('checkupdate', null)
           }
         },
         {
@@ -177,7 +192,7 @@ function buildMenu () {
         {
           label: e('toggledevtools'),
           click () {
-            globalState.get('win').webContents.openDevTools()
+            getFocusedWindow().webContents.openDevTools()
           }
         }
       ]
@@ -256,9 +271,7 @@ function buildMenu () {
     const dockMenuTemplate = [
       {
         label: e('newWindow'),
-        click () {
-          require('child_process').exec(`"${process.execPath}" --new-window`)
-        }
+        click: createNewWindow
       }
     ]
     const dockMenu = Menu.buildFromTemplate(dockMenuTemplate)

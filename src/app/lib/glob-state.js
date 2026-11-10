@@ -5,9 +5,9 @@ class GlobalState {
     this._state = {
       win: null,
       config: {},
-      closeAction: '',
       requireAuth: false,
       serverInited: false,
+      quitting: false,
       langMap: null,
       getLang: null,
       translate: null,

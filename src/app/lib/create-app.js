@@ -59,6 +59,9 @@ exports.createApp = async function () {
     app.requestSingleInstanceLock()
   }
 
+  app.on('before-quit', () => {
+    globalState.set('quitting', true)
+  })
   app.on('second-instance', (event, commandLine) => {
     const newWindowFlag = commandLine.includes('--new-window')
     if (newWindowFlag) {
@@ -95,7 +98,7 @@ exports.createApp = async function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (globalState.get('win') === null) {
-      app.once('ready', () => createWindow(conf))
+      createWindow(conf)
     }
   })
   return app

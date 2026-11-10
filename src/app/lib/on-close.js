@@ -1,10 +1,16 @@
 /**
- * on close app
+ * on close window
  */
 
 const { dbAction } = require('./db')
+const { app } = require('electron')
 const log = require('../common/log')
 const globalState = require('./glob-state')
+const {
+  getWindowState,
+  getWindows,
+  setCloseAction
+} = require('./window-manager')
 
 exports.getExitStatus = async () => {
   const res = await dbAction('data', 'findOne', {
@@ -13,46 +19,34 @@ exports.getExitStatus = async () => {
   return res && res.value ? res.value : ''
 }
 
-exports.onClose = async function (e) {
+exports.onClose = async function (e, win) {
   const config = globalState.get('config')
-  if (config.confirmBeforeExit && globalState.get('closeAction')) {
-    const win = globalState.get('win')
-    win?.webContents.send(
-      'confirm-exit',
-      globalState.get('closeAction')
-    )
-    globalState.set('closeAction', '')
+  const quitting = globalState.get('quitting')
+  const closeAction = getWindowState(win)?.closeAction
+  if (config.confirmBeforeExit && closeAction) {
+    globalState.set('quitting', false)
+    win.webContents.send('confirm-exit', quitting ? 'quit' : closeAction)
+    setCloseAction(win, '')
     return e.preventDefault()
   }
-  log.debug('Closing app')
-  const childPid = globalState.get('childPid')
-  childPid && process.kill(childPid)
-  globalState.set('serverInited', false)
-  process.on('uncaughtException', function () {
+  if (getWindows().length > 1 && !quitting) {
+    log.debug('Closing window')
+    return
+  }
+  if (globalState.get('serverInited')) {
+    log.debug('Closing app')
     const childPid = globalState.get('childPid')
     childPid && process.kill(childPid)
-    process.exit(0)
-  })
-  log.debug('Child process killed')
-  // await dbAction('data', 'update', {
-  //   _id: 'exitStatus'
-  // }, {
-  //   value: 'ok',
-  //   _id: 'exitStatus'
-  // }, {
-  //   upsert: true
-  // })
-  // await dbAction('data', 'update', {
-  //   _id: 'sessions'
-  // }, {
-  //   value: null,
-  //   _id: 'sessions'
-  // }, {
-  //   upsert: true
-  // })
-  // log.debug('session saved')
+    globalState.set('serverInited', false)
+    process.on('uncaughtException', function () {
+      const childPid = globalState.get('childPid')
+      childPid && process.kill(childPid)
+      process.exit(0)
+    })
+    log.debug('Child process killed')
+  }
   clearTimeout(globalState.get('timer'))
-  globalState.set('win', null)
-  const app = globalState.get('app')
-  app.quit && app.quit()
+  if (!quitting) {
+    app.quit()
+  }
 }

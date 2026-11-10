@@ -29,6 +29,7 @@ import { action } from 'manate'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { isDropAfterHalf } from '../../common/drop-position'
+import isDragOutsideWindow from './detach-tab'
 
 const e = window.translate
 const onDragCls = 'ondrag-tab'
@@ -257,11 +258,24 @@ class Tab extends Component {
     window.store.reloadAllTabs()
   }
 
-  onDragEnd = e => {
+  onDragEnd = async e => {
+    const shouldDetach = e && isDragOutsideWindow(e, {
+      x: window.screenX,
+      y: window.screenY,
+      width: window.outerWidth,
+      height: window.outerHeight
+    })
+    const position = e && {
+      x: e.screenX,
+      y: e.screenY
+    }
     removeClass(this.tabRef.current, onDragCls)
     removeClass(this.tabRef.current, onDragOverAfterCls)
     this.clearCls()
     e && e.dataTransfer && e.dataTransfer.clearData()
+    if (shouldDetach) {
+      await window.store.moveTabToNewWindow(this.props.tab.id, position)
+    }
   }
 
   handleClose = () => {

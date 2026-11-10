@@ -228,15 +228,16 @@ export async function addTabFromCommandLine (store, opts) {
 }
 
 export default (Store) => {
-  Store.prototype.openInitSessions = function () {
+  Store.prototype.openInitSessions = async function () {
     const { store } = window
+    const initialTab = await window.pre.runGlobalAsync('getInitialTab')
     const onStartSessions = store.config.onStartSessions
 
-    // If onStartSessions is a string, it's a workspace ID
-    if (typeof onStartSessions === 'string' && onStartSessions) {
+    if (initialTab) {
+      store.addTab(initialTab)
+    } else if (typeof onStartSessions === 'string' && onStartSessions) {
       store.loadWorkspace(onStartSessions)
     } else {
-      // Otherwise, it's an array of bookmark IDs
       const arr = Array.isArray(onStartSessions) ? onStartSessions : []
       for (const s of arr) {
         store.onSelectBookmark(s)
@@ -255,6 +256,7 @@ export default (Store) => {
       store.loadTime = finishLoadTime - initTime
       window.pre.runSync('setLoadTime', store.loadTime)
     }
+    return !!initialTab
   }
   Store.prototype.fetchSshConfigItems = async function () {
     const arr = await window.pre.runGlobalAsync('loadSshConfig')
@@ -317,9 +319,11 @@ export default (Store) => {
       Object.assign(store, ext)
       store.loadFontList()
       store.fetchItermThemes()
-      store.openInitSessions()
+      const hasInitialTab = await store.openInitSessions()
       store.fetchSshConfigItems()
-      store.initCommandLine().catch(store.onError)
+      if (!hasInitialTab) {
+        store.initCommandLine().catch(store.onError)
+      }
       initWatch(store)
       setTimeout(
         () => {

@@ -20,14 +20,13 @@ const {
 const _ = require('./lodash.js')
 const { getStorageKey } = require('./storage-key')
 
-const isMaximized = () => {
+const isMaximized = (win) => {
   const {
     width: widthMax,
     height: heightMax,
     x: sx,
     y: sy
-  } = getScreenSize()
-  const win = globalState.get('win')
+  } = getScreenSize(win)
   const { width, height, x, y } = win.getBounds()
   return widthMax === width &&
     heightMax === height &&
