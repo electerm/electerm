@@ -5,6 +5,7 @@
  * Uses a simple local MCP implementation
  */
 
+const crypto = require('crypto')
 const { ipcMain } = require('electron')
 const { McpServer } = require('../mcp/server/mcp.js')
 const { StreamableHTTPServerTransport } = require('../mcp/server/streamableHttp.js')
@@ -92,7 +93,7 @@ const widgetInfo = {
       type: 'string',
       default: '',
       showGenerator: true,
-      description: 'Optional API key for authenticating MCP requests. If set, clients must send this in the Authorization header as: Bearer <apiKey>. Leave empty to skip authentication.'
+      description: 'API key for authenticating MCP requests. Generated and remembered on first start; leave empty to keep using the saved one, or fill in your own to replace it. The server URL already carries it, so a client can be configured by pasting the copied URL.'
     },
     {
       name: 'enableBookmarks',
@@ -117,7 +118,19 @@ const widgetInfo = {
       name: 'enableSftp',
       type: 'boolean',
       default: true,
-      description: 'Enable SFTP APIs (list, stat, read, delete, upload, download, trzsz)'
+      description: 'Enable read-only SFTP APIs (list, stat, read, transfer list/history)'
+    },
+    {
+      name: 'enableSftpWrite',
+      type: 'boolean',
+      default: false,
+      description: 'Enable SFTP write APIs (upload, download, delete, trzsz transfer). Off by default: these move files between the remote server and this machine, so an MCP client or an AI steered by injected content could otherwise read and write local files.'
+    },
+    {
+      name: 'autoConfirmTransfers',
+      type: 'boolean',
+      default: false,
+      description: 'Let MCP-initiated transfers overwrite existing files without the transfer conflict dialog. Off by default. Paths that grant code execution (shell rc, ssh trust store, autostart) still require approval.'
     },
     {
       name: 'enableSettings',
@@ -177,13 +190,56 @@ function getDefaultConfig () {
   }, {})
 }
 
+// Host header values accepted for a given bind address. A loopback bind also
+// accepts the other loopback spellings, because a client may reach the server
+// as 127.0.0.1, localhost or [::1] regardless of which one we bound to.
+const WILDCARD_BINDS = ['', '0.0.0.0', '::', '[::]']
+
+function isWildcardBind (host) {
+  return WILDCARD_BINDS.includes(host)
+}
+
+function loopbackAliases (host) {
+  const bare = host.replace(/^\[(.*)\]$/, '$1')
+  if (bare !== '127.0.0.1' && bare !== 'localhost' && bare !== '::1') {
+    return []
+  }
+  return ['127.0.0.1', 'localhost', '::1', '[::1]']
+}
+
+function buildAllowedHosts (host, port) {
+  const out = new Set()
+  for (const h of [host, ...loopbackAliases(host)]) {
+    out.add(h)
+    out.add(`${h}:${port}`)
+  }
+  return out
+}
+
+// Constant-time compare, and length-safe: timingSafeEqual throws on a length
+// mismatch, which would turn a wrong guess into a 500 instead of a 401.
+function apiKeyMatches (provided, expected) {
+  const a = Buffer.from(String(provided || ''))
+  const b = Buffer.from(String(expected || ''))
+  if (!a.length || a.length !== b.length) {
+    return false
+  }
+  return crypto.timingSafeEqual(a, b)
+}
+
 class ElectermMCPServer {
   constructor (config, ctx = {}) {
     this.config = config
     // instance log/event channels, see widgets/instance-log.js — optional so the
     // server still works when constructed without one (tests)
     this.ctx = ctx
-    // API key is optional - skip auth if not provided
+    // The renderer generates and remembers the key (common/widget-api-key.js)
+    // and passes it in; this is the last line of defence, so that no code path
+    // — a stale config, a caller that forgot — can start the server with
+    // authentication off and hand a DNS-rebound page a shell.
+    if (!this.config.apiKey) {
+      this.config.apiKey = 'ett_' + crypto.randomBytes(16).toString('hex')
+    }
     this.instanceId = uid()
     this.httpServer = null
     this.mcpServer = null
@@ -224,39 +280,73 @@ class ElectermMCPServer {
     ]
   }
 
+  // The effective command rules, in the same shape validateCommand applies:
+  // same trimming, same blank-line filtering, same "a non-empty whitelist puts
+  // us in whitelist mode". get_electerm_command_rules returns this verbatim, so
+  // the parsing lives in one place and what an agent reads cannot drift from
+  // what is actually enforced.
+  getCommandRules () {
+    const parse = s => (s || '')
+      .split('\n')
+      .map(x => x.trim())
+      .filter(Boolean)
+    const commandBlacklist = parse(this.config.commandBlacklist)
+    const commandWhitelist = parse(this.config.commandWhitelist)
+    return {
+      mode: commandWhitelist.length > 0 ? 'whitelist' : 'blacklist',
+      // Regex sources: applied with RegExp#test to the whole command string.
+      builtinBlacklist: ElectermMCPServer.BUILTIN_BLACKLIST.map(r => r.source),
+      commandBlacklist,
+      commandWhitelist
+    }
+  }
+
+  // Everything the renderer needs to screen a transfer before queueing it:
+  // strict = whitelist mode (every transfer an MCP client starts is reviewed),
+  // autoConfirm = the user opted out of the transfer conflict dialog.
+  getTransferPolicy () {
+    return {
+      strict: this.getCommandRules().mode === 'whitelist',
+      autoConfirm: !!this.config.autoConfirmTransfers
+    }
+  }
+
+  // Every rejection names the read-only rules tool, so an agent that guessed
+  // wrong learns the boundary from the error instead of bisecting it by trial
+  // and error — in whitelist mode a single miss says nothing about what is
+  // allowed.
+  static get RULES_HINT () {
+    return 'Call get_electerm_command_rules to see the rules this instance enforces.'
+  }
+
   // Validate a command against whitelist/blacklist rules.
   // Returns { allowed: true } or { allowed: false, reason: string }
   validateCommand (command) {
+    const {
+      commandBlacklist: userBlacklist,
+      commandWhitelist: userWhitelist
+    } = this.getCommandRules()
+
     // 1. Always-on built-in blacklist
     for (const pattern of ElectermMCPServer.BUILTIN_BLACKLIST) {
       if (pattern.test(command)) {
-        return { allowed: false, reason: `Command blocked by built-in safety rule: ${pattern}` }
+        return { allowed: false, reason: `Command blocked by built-in safety rule: ${pattern}. ${ElectermMCPServer.RULES_HINT}` }
       }
     }
 
-    // 2. User-defined blacklist (newline-separated regex strings)
-    const userBlacklist = (this.config.commandBlacklist || '')
-      .split('\n')
-      .map(s => s.trim())
-      .filter(Boolean)
-
+    // 2. User-defined blacklist (regex strings)
     for (const raw of userBlacklist) {
       try {
         if (new RegExp(raw).test(command)) {
-          return { allowed: false, reason: `Command blocked by blacklist pattern: ${raw}` }
+          return { allowed: false, reason: `Command blocked by blacklist pattern: ${raw}. ${ElectermMCPServer.RULES_HINT}` }
         }
       } catch (_) {
         // ignore invalid regex in config
       }
     }
 
-    // 3. User-defined whitelist (newline-separated regex strings)
-    //    Only enforced when at least one pattern is configured.
-    const userWhitelist = (this.config.commandWhitelist || '')
-      .split('\n')
-      .map(s => s.trim())
-      .filter(Boolean)
-
+    // 3. User-defined whitelist — only enforced when at least one pattern is
+    //    configured (a non-empty list puts us in whitelist mode).
     if (userWhitelist.length > 0) {
       const allowed = userWhitelist.some(raw => {
         try {
@@ -266,7 +356,7 @@ class ElectermMCPServer {
         }
       })
       if (!allowed) {
-        return { allowed: false, reason: 'Command not in whitelist' }
+        return { allowed: false, reason: `Command not in whitelist. ${ElectermMCPServer.RULES_HINT}` }
       }
     }
 
@@ -699,6 +789,25 @@ class ElectermMCPServer {
       }
     )
 
+    // The two command tools above reject with a reason, but an agent cannot
+    // know where the boundary is in advance — in whitelist mode a non-matching
+    // command is refused outright. Registered unconditionally (never behind a
+    // config switch) so it is available whenever the command tools are.
+    server.registerTool(
+      'get_electerm_command_rules',
+      {
+        description: 'Get the command rules enforced by send_electerm_terminal_command and execute_electerm_command, so a command can be checked before it is sent. ' +
+          'Returns { mode, builtinBlacklist, commandBlacklist, commandWhitelist }. Entries are regular expression sources tested against the command string with RegExp#test. For example, "^ls" matches command strings starting with "ls". ' +
+          'The built-in and configured blacklists take precedence over the whitelist. A non-empty whitelist requires the command to match at least one whitelist entry. Configured patterns are returned even if invalid. Invalid blacklist entries are skipped, and invalid whitelist entries never match. ' +
+          'These are the rules the running instance started with — editing the widget config takes effect only after a restart. They guard against accidents, not a determined bypass: an allowed command still runs with the session user\'s full rights on the remote host.',
+        inputSchema: undefined
+      },
+      async () => {
+        const rules = self.getCommandRules()
+        return { content: [{ type: 'text', text: JSON.stringify(rules, null, 2) }] }
+      }
+    )
+
     // ==================== Direct Tab Open APIs (always enabled) ====================
 
     server.registerTool(
@@ -975,87 +1084,100 @@ class ElectermMCPServer {
         }
       )
 
-      server.registerTool(
-        'electerm_sftp_del_file_or_folder',
-        {
-          description: 'Delete a file or folder on the remote SSH server',
-          inputSchema: {
-            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
-            remotePath: z.string().describe('Remote file or directory path to delete')
+      // Write tools move files between the remote server and this machine, so
+      // a client that can call them can also read and write arbitrary local
+      // paths. Opt-in, like the settings tools.
+      if (this.config.enableSftpWrite) {
+        server.registerTool(
+          'electerm_sftp_del_file_or_folder',
+          {
+            description: 'Delete a file or folder on the remote SSH server',
+            inputSchema: {
+              tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+              remotePath: z.string().describe('Remote file or directory path to delete')
+            }
+          },
+          async ({ tabId, remotePath }) => {
+            const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_del', args: { tabId, remotePath } })
+            return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
           }
-        },
-        async ({ tabId, remotePath }) => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_del', args: { tabId, remotePath } })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
+        )
 
-      server.registerTool(
-        'electerm_sftp_upload',
-        {
-          description: 'Upload a local file or folder to the remote SSH server using the SFTP transfer panel',
-          inputSchema: {
-            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
-            localPath: z.string().describe('Local file or folder path to upload'),
-            remotePath: z.string().describe('Remote destination path'),
-            conflictPolicy: z.enum(['mergeOrOverwriteAll', 'renameAll']).optional().describe('Conflict policy: mergeOrOverwriteAll or renameAll (default: mergeOrOverwriteAll)')
+        server.registerTool(
+          'electerm_sftp_upload',
+          {
+            description: 'Upload a local file or folder to the remote SSH server using the SFTP transfer panel',
+            inputSchema: {
+              tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+              localPath: z.string().describe('Local file or folder path to upload'),
+              remotePath: z.string().describe('Remote destination path'),
+              conflictPolicy: z.enum(['mergeOrOverwriteAll', 'renameAll']).optional().describe('Conflict policy: mergeOrOverwriteAll or renameAll (default: mergeOrOverwriteAll). Only applies when autoConfirmTransfers is on; otherwise the user resolves conflicts in the transfer dialog.')
+            }
+          },
+          async ({ tabId, localPath, remotePath, conflictPolicy }) => {
+            const result = await self.sendToRenderer('tool-call', {
+              toolName: 'sftp_upload',
+              args: { tabId, localPath, remotePath, conflictPolicy },
+              transferPolicy: self.getTransferPolicy()
+            })
+            return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
           }
-        },
-        async ({ tabId, localPath, remotePath, conflictPolicy }) => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_upload', args: { tabId, localPath, remotePath, conflictPolicy } })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
+        )
 
-      server.registerTool(
-        'electerm_sftp_download',
-        {
-          description: 'Download a remote file or folder from the SSH server to a local path using the SFTP transfer panel',
-          inputSchema: {
-            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
-            remotePath: z.string().describe('Remote file or directory path to download'),
-            localPath: z.string().describe('Local destination path'),
-            conflictPolicy: z.enum(['overwrite', 'rename']).optional().describe('Conflict policy: overwrite or rename (default: overwrite)')
+        server.registerTool(
+          'electerm_sftp_download',
+          {
+            description: 'Download a remote file or folder from the SSH server to a local path using the SFTP transfer panel',
+            inputSchema: {
+              tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+              remotePath: z.string().describe('Remote file or directory path to download'),
+              localPath: z.string().describe('Local destination path'),
+              conflictPolicy: z.enum(['mergeOrOverwriteAll', 'renameAll']).optional().describe('Conflict policy: mergeOrOverwriteAll or renameAll (default: mergeOrOverwriteAll). Only applies when autoConfirmTransfers is on; otherwise the user resolves conflicts in the transfer dialog.')
+            }
+          },
+          async ({ tabId, remotePath, localPath, conflictPolicy }) => {
+            const result = await self.sendToRenderer('tool-call', {
+              toolName: 'sftp_download',
+              args: { tabId, remotePath, localPath, conflictPolicy },
+              transferPolicy: self.getTransferPolicy()
+            })
+            return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
           }
-        },
-        async ({ tabId, remotePath, localPath, conflictPolicy }) => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'sftp_download', args: { tabId, remotePath, localPath, conflictPolicy } })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
+        )
 
-      server.registerTool(
-        'electerm_zmodem_upload',
-        {
-          description: 'Upload local files to the remote SSH server using trzsz (trz) or rzsz (rz). The SSH tab must have the chosen protocol installed.',
-          inputSchema: {
-            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
-            files: z.array(z.string()).describe('List of local file paths to upload'),
-            protocol: z.enum(['trzsz', 'rzsz']).optional().describe('Transfer protocol: trzsz (trz) or rzsz (rz) (default: rzsz)')
+        server.registerTool(
+          'electerm_zmodem_upload',
+          {
+            description: 'Upload local files to the remote SSH server using trzsz (trz) or rzsz (rz). The SSH tab must have the chosen protocol installed.',
+            inputSchema: {
+              tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+              files: z.array(z.string()).describe('List of local file paths to upload'),
+              protocol: z.enum(['trzsz', 'rzsz']).optional().describe('Transfer protocol: trzsz (trz) or rzsz (rz) (default: rzsz)')
+            }
+          },
+          async ({ tabId, files, protocol }) => {
+            const result = await self.sendToRenderer('tool-call', { toolName: 'zmodem_upload', args: { tabId, files, protocol } })
+            return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
           }
-        },
-        async ({ tabId, files, protocol }) => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'zmodem_upload', args: { tabId, files, protocol } })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
+        )
 
-      server.registerTool(
-        'electerm_zmodem_download',
-        {
-          description: 'Download remote files from the SSH server using trzsz (tsz) or rzsz (sz). The SSH tab must have the chosen protocol installed.',
-          inputSchema: {
-            tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
-            remoteFiles: z.array(z.string()).describe('List of remote file paths to download'),
-            saveFolder: z.string().describe('Local folder path to save downloaded files'),
-            protocol: z.enum(['trzsz', 'rzsz']).optional().describe('Transfer protocol: trzsz (tsz) or rzsz (sz) (default: rzsz)')
+        server.registerTool(
+          'electerm_zmodem_download',
+          {
+            description: 'Download remote files from the SSH server using trzsz (tsz) or rzsz (sz). The SSH tab must have the chosen protocol installed.',
+            inputSchema: {
+              tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
+              remoteFiles: z.array(z.string()).describe('List of remote file paths to download'),
+              saveFolder: z.string().describe('Local folder path to save downloaded files'),
+              protocol: z.enum(['trzsz', 'rzsz']).optional().describe('Transfer protocol: trzsz (tsz) or rzsz (sz) (default: rzsz)')
+            }
+          },
+          async ({ tabId, remoteFiles, saveFolder, protocol }) => {
+            const result = await self.sendToRenderer('tool-call', { toolName: 'zmodem_download', args: { tabId, remoteFiles, saveFolder, protocol } })
+            return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
           }
-        },
-        async ({ tabId, remoteFiles, saveFolder, protocol }) => {
-          const result = await self.sendToRenderer('tool-call', { toolName: 'zmodem_download', args: { tabId, remoteFiles, saveFolder, protocol } })
-          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] }
-        }
-      )
+        )
+      }
 
       server.registerTool(
         'electerm_sftp_transfer_list',
@@ -1140,18 +1262,51 @@ class ElectermMCPServer {
 
     // Create Express app
     const app = express()
-    app.use(express.json())
 
-    // Handle CORS — restrict to same-origin only (no wildcard)
+    // ── Loopback guard ──────────────────────────────────────────────────────
+    // Binding to 127.0.0.1 does not make this server private. A page served
+    // from an attacker's domain can point that domain at 127.0.0.1 (DNS
+    // rebinding) and then talk to us same-origin, so CORS never applies and
+    // omitting Access-Control-Allow-Origin protects nothing — the page can
+    // call execute_electerm_command and get a shell. What is left is:
+    //   1. the Host it claims to be talking to, which a rebound page cannot
+    //      make loopback-looking while still being same-origin with itself;
+    //   2. any Origin header at all — no browser client is supported, local
+    //      MCP clients are not browsers and do not send one.
+    // Both run before the body parser so an unauthenticated request is refused
+    // before its JSON is read.
+    const bindHost = String(host || '127.0.0.1').trim().toLowerCase()
+    const allowedHosts = buildAllowedHosts(bindHost, port)
+    // bound to 0.0.0.0/:: any hostname reaches us, so the Host check cannot
+    // mean anything; the API key is the only boundary left in that case
+    const checkHost = !isWildcardBind(bindHost)
+
+    const deny = (req, res, status, reason) => {
+      this.reportEvent({
+        type: 'request',
+        ok: false,
+        from: req.socket && req.socket.remoteAddress,
+        msg: `${req.method} ${req.path} -> ${status} ${reason}`
+      })
+      res.status(status).json({
+        jsonrpc: '2.0',
+        error: { code: -32600, message: `Forbidden: ${reason}` },
+        id: null
+      })
+    }
+
     app.use((req, res, next) => {
-      const allowedOrigin = this.config.allowedOrigin || ''
-      if (allowedOrigin) {
-        res.setHeader('Access-Control-Allow-Origin', allowedOrigin)
+      if (checkHost) {
+        const hostHeader = String(req.headers.host || '').trim().toLowerCase()
+        if (!allowedHosts.has(hostHeader)) {
+          deny(req, res, 403, 'invalid Host header')
+          return
+        }
       }
-      // Do NOT set Access-Control-Allow-Origin when no origin is configured
-      // This blocks cross-origin browser requests by default
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, mcp-session-id, Authorization')
+      if (req.headers.origin) {
+        deny(req, res, 403, 'unexpected Origin header')
+        return
+      }
       if (req.method === 'OPTIONS') {
         res.status(204).end()
         return
@@ -1159,31 +1314,38 @@ class ElectermMCPServer {
       next()
     })
 
-    // Authenticate requests with API key (only if apiKey is configured)
-    if (this.config.apiKey) {
-      app.use((req, res, next) => {
-        const authHeader = req.headers.authorization || ''
-        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
-        if (!token || token !== this.config.apiKey) {
-          this.reportEvent({
-            type: 'auth',
-            ok: false,
-            from: req.socket && req.socket.remoteAddress,
-            msg: `${req.method} ${req.originalUrl} -> 401 Unauthorized`
-          })
-          res.status(401).json({
-            jsonrpc: '2.0',
-            error: {
-              code: -32600,
-              message: 'Unauthorized: invalid or missing API key'
-            },
-            id: null
-          })
-          return
-        }
-        next()
-      })
-    }
+    // Authenticate every request. The key is never empty (constructor), and it
+    // is accepted either as `Authorization: Bearer <key>` or as `?apiKey=<key>`
+    // in the URL — the latter so the copied server URL is the whole client
+    // configuration, instead of a URL plus a header the user has to find a
+    // place for in each client.
+    app.use((req, res, next) => {
+      const authHeader = req.headers.authorization || ''
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
+      const provided = token || String(req.query.apiKey || '')
+      if (!apiKeyMatches(provided, this.config.apiKey)) {
+        this.reportEvent({
+          type: 'auth',
+          ok: false,
+          from: req.socket && req.socket.remoteAddress,
+          // path only: the query carries the key, and this log is readable
+          // (and exportable) from the instance panel
+          msg: `${req.method} ${req.path} -> 401 Unauthorized`
+        })
+        res.status(401).json({
+          jsonrpc: '2.0',
+          error: {
+            code: -32600,
+            message: 'Unauthorized: invalid or missing API key'
+          },
+          id: null
+        })
+        return
+      }
+      next()
+    })
+
+    app.use(express.json())
 
     const self = this
 
@@ -1300,14 +1462,15 @@ class ElectermMCPServer {
         }
 
         const serverInfo = {
-          url: `http://${host}:${port}/mcp`,
+          // the key rides in the URL so that "copy the URL" is the whole
+          // client setup: paste it, done, no header to find a field for
+          url: `http://${host}:${port}/mcp?apiKey=${encodeURIComponent(self.config.apiKey)}`,
           protocol: 'mcp',
           version: self.mcpServer.supportedProtocolVersions[0],
           apiKey: self.config.apiKey
         }
-        const authNote = self.config.apiKey ? '(API key required)' : '(no auth required)'
-        const msg = `MCP Server is running at ${serverInfo.url} ${authNote}`
-        self.logLine('info', `${authNote}, ${Object.keys(self.config).length} config options applied`)
+        const msg = `MCP Server is running at http://${host}:${port}/mcp (API key required)`
+        self.logLine('info', `API key required, ${Object.keys(self.config).length} config options applied`)
         resolve({
           serverInfo,
           msg,

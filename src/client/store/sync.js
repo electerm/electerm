@@ -15,6 +15,7 @@ import { update, getData } from '../common/db'
 import fetch from '../common/fetch-from-server'
 import download from '../common/download'
 import { fixBookmarks } from '../common/db-fix'
+import { collectUncategorizedBookmarks } from '../common/bookmark-uncategorized'
 import dayjs from 'dayjs'
 import parseJsonSafe from '../common/parse-json-safe'
 import { runImportTask } from '../common/import-task'
@@ -25,27 +26,32 @@ const {
   version: packVer
 } = packInfo
 
-// Server-managed config keys that must never be overwritten by an
-// imported/synced config, because they are specific to the running
-// server instance.  Overwriting tokenElecterm in particular breaks
-// every subsequent WebSocket connection (terminals, sftp, transfers)
-// because the token no longer matches the server's JWT secret, causing
-// connections to silently fail verification — the terminal appears to
-// connect but input never works until the app is restarted.
-const serverManagedConfigKeys = [
+// Server- and machine-local config keys that must never be overwritten by an
+// imported/synced config, because they describe *this* install. Overwriting
+// tokenElecterm in particular breaks every subsequent WebSocket connection
+// (terminals, sftp, transfers) because the token no longer matches the
+// server's JWT secret, causing connections to silently fail verification — the
+// terminal appears to connect but input never works until the app is
+// restarted. `sessionLogPath` is the same shape of mistake in the filesystem:
+// a full-data import carries `C:\Users\<someone else>\Documents\electerm` over
+// from the machine that exported it, and an unwritable log dir used to take
+// the session down with it (#4688). Keep the path local to the install, the
+// per-OS default (`default-log-path.js`) covers a machine that has none.
+const localConfigKeys = [
   'tokenElecterm',
   'host',
   'port',
   'server',
   'wsHost',
   'wsPort',
-  'useSystemTitleBar'
+  'useSystemTitleBar',
+  'sessionLogPath'
 ]
 
-function stripServerManagedKeys (conf) {
+function stripLocalConfigKeys (conf) {
   if (!conf || typeof conf !== 'object') return conf
   const safe = { ...conf }
-  for (const k of serverManagedConfigKeys) {
+  for (const k of localConfigKeys) {
     delete safe[k]
   }
   return safe
@@ -625,7 +631,7 @@ export default (Store) => {
             get(gist, 'files["userConfig.json"].content')
           )
           if (userConfig) {
-            store.setConfig(stripServerManagedKeys(userConfig))
+            store.setConfig(stripLocalConfigKeys(userConfig))
           }
           if (userConfig && userConfig.theme) {
             store.setTheme(userConfig.theme)
@@ -690,7 +696,7 @@ export default (Store) => {
         get(gist, 'files["userConfig.json"].content')
       )
       if (userConfig) {
-        store.setConfig(stripServerManagedKeys(userConfig))
+        store.setConfig(stripLocalConfigKeys(userConfig))
       }
       if (userConfig && userConfig.theme) {
         store.setTheme(userConfig.theme)
@@ -825,7 +831,19 @@ export default (Store) => {
               store[n].push(...chunk)
             }
           }
-        })
+        }),
+        // the same sweep the bookmarks-only import does: a bookmark the file
+        // left without a category reference is invisible in the sidebar tree,
+        // which is built from those references
+        {
+          label: e('bookmarkCategory'),
+          weight: 1,
+          run: () => {
+            action(() => {
+              collectUncategorizedBookmarks(store.bookmarks, store.bookmarkGroups)
+            })()
+          }
+        }
       ],
       // The import did not complete: put the store back the way it was so the
       // watcher restart below is a no-op instead of deleting the untouched
@@ -838,7 +856,7 @@ export default (Store) => {
         })()
       }
     })
-    store.updateConfig(stripServerManagedKeys(objs.config))
+    store.updateConfig(stripLocalConfigKeys(objs.config))
     if (objs.config?.theme) {
       store.setTheme(objs.config.theme)
     }

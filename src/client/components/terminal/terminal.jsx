@@ -41,6 +41,11 @@ import { touchMixin } from './mixins/term-touch.js'
 import { fileDropMixin } from './mixins/term-file-drop.js'
 import { suggestionsMixin } from './mixins/term-suggestions.js'
 import { shouldOpenContextMenu } from '../../common/right-click-behavior.js'
+import { logTerminalRender } from './terminal-render-diagnostics.mjs'
+import {
+  getWebglCircuitSnapshot,
+  subscribeWebglCircuit
+} from './terminal-webgl-circuit-breaker.mjs'
 
 const e = window.translate
 
@@ -150,7 +155,43 @@ class Term extends Component {
 
   terminalColorQueryDisposables = []
 
+  // ---- Renderer (DOM / WebGL) lifecycle (behaviour lives in
+  // mixins/term-theme.js). The controller instance owns renderer selection; the
+  // plain fields below are the owner-side mirror the diagnostics module reads,
+  // so they must stay in sync through setupRendererLifecycle().
+  rendererLifecycle = null
+  rendererState = 'DOM'
+  rendererGeneration = 0
+  rendererLifecycleReady = false
+  webglCircuitDisposable = null
+  webglCircuitState = 'HEALTHY'
+  // Set to true when activation fails (dynamic import / addon constructor /
+  // loadAddon threw). Blocks later WebGL target selection together with the
+  // breaker; reset only on an explicit DOM -> WebGL config switch.
+  webglActivationFailed = false
+
   componentDidMount () {
+    // The subscription has to be the first thing established: the breaker can
+    // trip during initialisation. The callback only mirrors state and asks for
+    // a reconcile, it never touches the socket/term lifecycle.
+    this.webglCircuitState = getWebglCircuitSnapshot().state
+    this.webglCircuitDisposable = subscribeWebglCircuit(event => {
+      this.webglCircuitState = event.snapshot.state
+      // 'tripped' and 'reset' must carry different reasons: a reset is the
+      // user switching DOM -> WebGL in the settings, a successful action, and
+      // recording it as 'circuit tripped' would pollute the very log this
+      // feature is read from. Both strings are in the diagnostics allow list
+      // (allowedReasons in terminal-render-diagnostics.mjs); anything outside
+      // it is dropped silently by the fail-closed check.
+      const reason = event.type === 'tripped' ? 'circuit tripped' : 'circuit reset'
+      if (event.type === 'tripped') {
+        logTerminalRender(this, 'webgl-circuit-tripped', { reason })
+      }
+      // A failed release in the controller is thrown through the promise, so
+      // this call has to settle its own errors.
+      this.reconcileRenderer(reason)
+        .catch(error => console.error('renderer reconcile failed', error))
+    })
     // xterm and every addon are dynamic imports: a failed chunk fetch would
     // otherwise end as a silent unhandled rejection with a permanently blank
     // terminal pane
@@ -187,16 +228,10 @@ class Term extends Component {
       this.onResize()
     }
     if (shouldChange && this.term) {
-      this.term.focus()
-      // 标签从 display:none 变为可见时，延迟到下一动画帧再 fit，读取正确布局
-      // 尺寸纠正列数；并用 refresh 强制重绘，清除快速连续打开多个连接时隐藏
-      // 标签被 0 列 fit 导致的虚假/重复提示符。
-      requestAnimationFrame(() => {
-        if (this.term && !this.onClose) {
-          this.fitAndRefresh()
-          setTimeout(() => this.fitAndRefresh(), 80)
-        }
-      })
+      // The terminal just became visible. Revalidate its GPU glyph textures as
+      // well as its layout; fit/refresh alone cannot recover a silently lost
+      // WebGL atlas texture whose CPU-side version is unchanged.
+      this.onWindowFocus(true, 'tab-visible')
     }
     this.checkConfigChange(
       prevProps,
@@ -221,12 +256,32 @@ class Term extends Component {
       this.registerTerminalColorQueryHandlers(this.term, this.props.themeConfig)
       this.applyTerminalTheme(true)
     }
+    // Reconcile visibility after every React commit, unconditionally: a tab
+    // that just got hidden must release WebGL here even when shouldChange is
+    // false (that branch above only covers the terminal that just became
+    // visible), because its clientWidth/clientHeight dropped to 0.
+    // reconcileRenderer returns safely when the terminal is not ready yet.
+    this.reconcileRenderer('component update')
+      .catch(error => console.error('renderer reconcile failed', error))
   }
 
   componentWillUnmount () {
+    // Renderer lifecycle first: it must stop reacting (and stop holding the
+    // GPU context) before the terminal and socket it only borrows go away.
+    // Only renderer resources are released here: socket.close() and
+    // term.dispose() stay in the existing cleanup below.
+    this.onClose = true
+    this.rendererLifecycleReady = false
+    this.webglCircuitDisposable?.dispose?.()
+    this.webglCircuitDisposable = null
+    this.rendererLifecycle?.dispose('unmount')
+      ?.catch?.(error => console.error('renderer dispose failed', error))
+    this.rendererLifecycle = null
     refs.remove(this.id)
     // this tab id will never be connected again (reload mints a new one)
     clearNeedsInteractiveInput(this.props.tab.id)
+    window.cancelAnimationFrame(this.timers.focusRefreshRaf)
+    this.timers.focusRefreshRaf = null
     clearTimeout(this.longPressTimer)
     this.longPressTimer = null
     this.touchStartPos = null
@@ -280,13 +335,8 @@ class Term extends Component {
     this.cmdAddon = null
     this.serializeAddon = null
     this.imageAddon = null
-    this.webglContextLossDisposable?.dispose?.()
-    this.webglContextLossDisposable = null
-    try {
-      this.webglAddon?.dispose?.()
-    } catch (_) {}
     this.webglAddon = null
-    this.webglRecovering = false
+    this.webglContextLossDisposable = null
   }
 
   // ---- small helpers other mixins build on ----

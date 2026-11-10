@@ -6,9 +6,10 @@ import copy from 'json-deep-copy'
 import { uniq, isPlainObject } from 'lodash-es'
 import { action } from 'manate'
 import uid from '../../common/uid'
-import time from '../../common/time'
 import { fixBookmarks } from '../../common/db-fix'
 import { runImportTask } from '../../common/import-task'
+import { collectUncategorizedBookmarks } from '../../common/bookmark-uncategorized'
+import parseBookmarkImport from '../../common/parse-bookmark-import'
 
 const e = window.translate
 
@@ -28,26 +29,24 @@ export const bookmarkUpload = action(async (file) => {
   const { store } = window
   const { bookmarks, bookmarkGroups } = store
 
-  const txt = file.fileContent !== undefined
-    ? file.fileContent
-    : await window.fs.readFile(file.filePath)
-
-  const content = JSON.parse(txt)
-  let bookmarkGroups1 = []
-  let bookmarks1 = []
-  if (Array.isArray(content)) {
-    bookmarks1 = fixBookmarksId(content)
-    bookmarkGroups1 = [{
-      id: uid(),
-      title: 'imported_' + time(),
-      color: '#0088cc',
-      bookmarkGroupIds: [],
-      bookmarkIds: bookmarks1.map(b => b.id)
-    }]
-  } else {
-    bookmarkGroups1 = content.bookmarkGroups || []
-    bookmarks1 = fixBookmarksId(content.bookmarks || [])
+  // a bare array (the bookmarks export), a `{ bookmarks, bookmarkGroups }`
+  // object (the full data export), or a single bookmark object; only the
+  // wrapper carries categories, and the sweep at the end of the import puts
+  // every category-less bookmark in `uncategory-bookmarks-<stamp>`
+  let parsed
+  try {
+    const txt = file.fileContent !== undefined
+      ? file.fileContent
+      : await window.fs.readFile(file.filePath)
+    parsed = parseBookmarkImport(JSON.parse(txt))
+  } catch (err) {
+    // a file that is not bookmarks at all used to import nothing and say
+    // nothing; report it instead of leaving the user wondering
+    store.onError(err)
+    return { ok: false, error: err }
   }
+  const bookmarkGroups1 = parsed.bookmarkGroups
+  const bookmarks1 = fixBookmarksId(parsed.bookmarks)
 
   const bookmarkGroups0 = copy(bookmarkGroups)
   const bookmarks0 = copy(bookmarks)
@@ -61,7 +60,7 @@ export const bookmarkUpload = action(async (file) => {
 
   const fixed = fixBookmarks(bookmarks1)
 
-  await runImportTask({
+  const task = await runImportTask({
     title: e('import'),
     batch: 200,
     stopWatchers: ['bookmarks', 'bookmarkGroups'],
@@ -88,6 +87,12 @@ export const bookmarkUpload = action(async (file) => {
               const bg1 = store.bookmarkGroups.find(
                 b => b.id === bg.id
               )
+              // a category is named by `title`; an imported file that names it
+              // (and a category already in the store without one, e.g. written
+              // by a widget that used `name`) leaves a blank node in the tree
+              if (!bg1.title && bg.title) {
+                bg1.title = bg.title
+              }
               bg1.bookmarkIds = uniq(
                 [
                   ...(bg1.bookmarkIds || []),
@@ -108,15 +113,31 @@ export const bookmarkUpload = action(async (file) => {
         label: e('bookmarks'),
         weight: 1,
         run: () => {
-          store.fixBookmarkGroups()
+          // bookmarks the file left uncategorized (all of them, for a bare
+          // array) would be invisible in the sidebar: the tree is built from
+          // the category references, so they need a category of their own
+          action(() => {
+            collectUncategorizedBookmarks(store.bookmarks, store.bookmarkGroups)
+            store.fixBookmarkGroups()
+          })()
         }
       }
     ]
   })
 
-  return false
+  // callers that show the outcome (a widget offering bookmarks) need to know
+  // whether anything was imported: a cancelled task and "another import is
+  // already running" both end here without an exception
+  return {
+    ok: !task.cancelled && !task.error,
+    cancelled: !!task.cancelled,
+    error: task.error || null
+  }
 })
 
 export async function beforeBookmarkUpload (file) {
-  return bookmarkUpload(file)
+  await bookmarkUpload(file)
+  // antd Upload takes `false` as "do not send the file anywhere"; the import
+  // itself already ran above
+  return false
 }

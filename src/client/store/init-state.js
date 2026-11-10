@@ -268,6 +268,9 @@ export default () => {
     widgets: [],
     widgetInstances: [],
     autoRunWidgets: [],
+    // name of the installed password manager widget, '' without one (the
+    // bookmark form shows "Ignore password manager" with one)
+    credentialProviderName: '',
     // move item
     openMoveModal: false,
     moveItem: null,

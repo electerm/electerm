@@ -8,6 +8,17 @@ import {
 } from '../common/constants'
 import settingList from '../common/setting-list'
 import getInitItem from '../common/init-setting-item'
+import { normalizeIcon } from '../common/icon-value'
+
+// Bookmarks and bookmark groups can arrive from the form, a synced file or an
+// MCP/AI caller. Only the three shapes renderer/icon-value.js understands are
+// kept, everything else is dropped here instead of being synced around.
+function normalizeItemIcon (obj) {
+  if (obj && Object.prototype.hasOwnProperty.call(obj, 'icon')) {
+    obj.icon = normalizeIcon(obj.icon)
+  }
+  return obj
+}
 
 export default Store => {
   Store.prototype.addItem = function (item, type) {
@@ -17,7 +28,7 @@ export default Store => {
   Store.prototype.addItems = function (objs, type) {
     const { store } = window
     const items = store.getItems(type)
-    items.push(...objs)
+    items.push(...objs.map(normalizeItemIcon))
   }
 
   Store.prototype.editItem = function (id, updates, type) {
@@ -27,7 +38,7 @@ export default Store => {
     if (!item) {
       return
     }
-    Object.assign(item, updates)
+    Object.assign(item, normalizeItemIcon({ ...updates }))
   }
 
   Store.prototype.delItem = function ({ id }, type) {

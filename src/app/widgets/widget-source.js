@@ -18,6 +18,15 @@
  *     a byte budget are enforced below so a pasted link to a huge repo stops
  *     with a readable message instead of filling the temp dir.
  *
+ * github.com is not reachable everywhere (mainland China, most often), so its
+ * one archive request has three addresses behind it, tried in this order:
+ *   1. codeload.github.com  the real thing, fastest outside the blocked regions
+ *   2. mirror.electerm.org  our own Worker (electerm-mirror); it fetches the
+ *                           same archive from a Cloudflare edge
+ *   3. cdn.jsdelivr.net     a real CDN, file by file, for when both are dead
+ * atomgit has no such chain: it is reachable where github is not, which is the
+ * whole reason it is offered as a host.
+ *
  * Both strategies end in the same place: a folder on disk that `importWidget`
  * can install, so validation, overwrite handling and the id rules stay in one
  * place (./user-widget.js) and a local folder and a repo take the same path.
@@ -40,6 +49,13 @@ const MAX_DEPTH = 3
 const CONCURRENCY = 3
 const TIMEOUT = 30000
 const USER_AGENT = 'electerm'
+
+// Fallbacks for a github archive, in the order they are tried. See the top of
+// this file for why these three.
+const MIRROR_HOST = 'mirror.electerm.org'
+const MIRROR = `https://${MIRROR_HOST}`
+const JSDELIVR_DATA = 'https://data.jsdelivr.com/v1/packages/gh'
+const JSDELIVR_CDN = 'https://cdn.jsdelivr.net/gh'
 
 // One segment of a repo path. `.` and `..` match this on their own, so they are
 // rejected explicitly wherever a path comes from the user or from a server.
@@ -262,10 +278,9 @@ function createHttp () {
   }
 }
 
-async function fetchTarball (source, dir, http) {
+async function fetchTarball (url, dir, http) {
   const tar = require('tar')
-  const host = HOSTS[source.host]
-  const stream = await http.getStream(host.archiveUrl(source.owner, source.repo, source.ref))
+  const stream = await http.getStream(url)
   await pipeline(
     stream,
     zlib.createGunzip(),
@@ -273,7 +288,19 @@ async function fetchTarball (source, dir, http) {
     tar.extract({
       cwd: dir,
       strip: 1,
-      filter: (file) => !file.split('/').includes('.git')
+      // npm creates executable symlinks in node_modules/.bin; a widget loads
+      // its vendored packages with require(), never through those links. The
+      // registry build skips the same folder, so both sides hash an identical
+      // tree — and links are dropped here as well as by the registry check.
+      filter: (file, entry) => {
+        const parts = file.split('/')
+        if (parts.includes('.bin') || parts.includes('.git')) {
+          return false
+        }
+        const type = entry && entry.type
+        return !type || type === 'File' || type === 'OldFile' ||
+          type === 'ContiguousFile' || type === 'Directory'
+      }
     })
   )
 }
@@ -354,7 +381,11 @@ async function walkContents (source, localDir, remotePath, http, ctx) {
   const files = []
   for (const item of list) {
     const name = String((item && item.name) || '')
-    if (!item || !name || name === '.' || name === '..' || /[/\\]/.test(name) || name.startsWith('.')) {
+    // Hidden files are part of the repository too: the registry lists them and
+    // the install verifies the whole tree. Only .git and the npm link folder
+    // .bin are dropped, matching the tarball filter and the site build.
+    if (!item || !name || name === '.' || name === '..' ||
+      /[/\\]/.test(name) || name === '.git' || name === '.bin') {
       continue
     }
     const target = path.resolve(localDir, name)
@@ -381,12 +412,124 @@ async function walkContents (source, localDir, remotePath, http, ctx) {
   })
 }
 
+function describeError (err) {
+  const message = (err && err.message) || String(err)
+  return message.split('\n')[0]
+}
+
+// A failed attempt has already written part of a tree; the next one must not
+// install over it.
+function resetDir (dir) {
+  for (const name of fs.readdirSync(dir)) {
+    fs.rmSync(path.join(dir, name), { recursive: true, force: true })
+  }
+}
+
+/**
+ * Download a github repo from whichever of its three addresses answers.
+ *
+ * The first two are the same request to two different addresses (github itself
+ * and our mirror of it). The third is a different kind of thing — jsDelivr has
+ * no archives, so it is a file-by-file walk — and it exists for the case where
+ * both of the first two are unreachable.
+ */
+async function downloadGithub (source, dir, http) {
+  const archive = HOSTS[source.host].archiveUrl(source.owner, source.repo, source.ref)
+  const attempts = [
+    {
+      name: 'github.com',
+      // codeload answers 404 for a repository that is not there, and that
+      // answer is the same whoever asks, so the chain stops on it
+      authoritative: true,
+      run: () => fetchTarball(archive, dir, http)
+    },
+    {
+      // a 404 here is not authoritative: an older or restricted mirror may
+      // simply not carry this path while the next address still can
+      name: MIRROR_HOST,
+      run: () => fetchTarball(`${MIRROR}/${archive}`, dir, http)
+    },
+    {
+      name: 'cdn.jsdelivr.net',
+      run: () => walkJsdelivr(source, dir, http)
+    }
+  ]
+  const errors = []
+  for (const attempt of attempts) {
+    try {
+      await attempt.run()
+      return
+    } catch (err) {
+      errors.push(`${attempt.name} (${describeError(err)})`)
+      resetDir(dir)
+      if (err && err.status === 404 && attempt.authoritative) {
+        break
+      }
+    }
+  }
+  fail(`cannot download ${source.label}: ${errors.join(', ')}`)
+}
+
+// jsDelivr answers `@HEAD` for "the default branch", which is what a source
+// without a ref means, so the two cases share one base URL.
+function jsdelivrBase (source) {
+  const ref = source.ref || 'HEAD'
+  return {
+    list: `${JSDELIVR_DATA}/${source.owner}/${source.repo}@${ref}?structure=flat`,
+    file: `${JSDELIVR_CDN}/${source.owner}/${source.repo}@${ref}`
+  }
+}
+
+/**
+ * Last resort: fetch the repository file by file from jsDelivr.
+ *
+ * Its listing is flat — every file of the repo with its size, no folders to
+ * walk — and it answers `@HEAD` for the default branch. Only .git and .bin are
+ * skipped, as the other two paths do, and the same file count and byte budget apply so a
+ * link to a huge repo still stops with a readable message.
+ *
+ * jsDelivr will not serve a file over 20MB; a widget that big is not a widget.
+ */
+async function walkJsdelivr (source, dir, http) {
+  const base = jsdelivrBase(source)
+  const data = await http.getJSON(base.list)
+  const list = data && Array.isArray(data.files) ? data.files : []
+  if (!list.length) {
+    fail(`${source.label}: cdn.jsdelivr.net has no files for this repository`)
+  }
+  const files = []
+  for (const item of list) {
+    const name = String((item && item.name) || '').replace(/^\/+/, '')
+    const parts = name.split('/')
+    if (!name || parts.some(part => !part || part === '.' || part === '..' ||
+      part === '.git' || part === '.bin')) {
+      continue
+    }
+    const target = path.resolve(dir, name)
+    // the name comes from the server, so the result is checked before it is used
+    if (!isInside(dir, target)) {
+      fail(`${source.label}: the host returned an unusable path (${name})`)
+    }
+    files.push({ path: parts.map(encodeURIComponent).join('/'), target })
+  }
+  const ctx = { files: 0, bytes: 0 }
+  await runPool(files, CONCURRENCY, async file => {
+    ctx.files++
+    checkBudget(source, ctx)
+    const buffer = await http.getBuffer(`${base.file}/${file.path}`)
+    ctx.bytes += buffer.length
+    checkBudget(source, ctx)
+    fs.mkdirSync(path.dirname(file.target), { recursive: true })
+    fs.writeFileSync(file.target, buffer)
+  })
+}
+
 // Download the tree of `source` into `dir`, whatever the host needs for it.
 async function downloadSource (source, dir, http = createHttp()) {
   fs.mkdirSync(dir, { recursive: true })
   const host = HOSTS[source.host]
   if (host.kind === 'tarball') {
-    await fetchTarball(source, dir, http)
+    await downloadGithub(source, dir, http)
     return dir
   }
   const ctx = { files: 0, bytes: 0 }
@@ -492,7 +635,11 @@ async function fetchWidgetSource (input, opts = {}) {
       if (err && err.status === 429) {
         fail(`${source.label}: the host is rate limiting anonymous downloads, wait a minute and try again`)
       }
-      if (err && err.message && err.message.startsWith(source.label)) {
+      if (err && err.message && (
+        err.message.startsWith(source.label) ||
+        // downloadGithub already named every address it tried
+        err.message.startsWith('cannot download ')
+      )) {
         throw err
       }
       fail(`cannot download ${source.label}: ${(err && err.message) || err}`)

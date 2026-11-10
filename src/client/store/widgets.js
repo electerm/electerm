@@ -10,10 +10,14 @@ import {
 import getInitItem from '../common/init-setting-item'
 import deepCopy from 'json-deep-copy'
 import generate from '../common/uid'
+import { noteWidgets } from '../common/credential-provider.jsx'
 
 export default Store => {
   Store.prototype.listWidgets = async () => {
-    return window.pre.runGlobalAsync('listWidgets')
+    const widgets = await window.pre.runGlobalAsync('listWidgets')
+    // a password manager widget among them (bookmark form, connect)
+    noteWidgets(widgets)
+    return widgets
   }
 
   Store.prototype.runWidget = async (widgetId, config) => {

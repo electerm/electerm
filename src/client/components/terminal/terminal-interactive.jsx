@@ -11,6 +11,7 @@ import {
   markNeedsInteractiveInput,
   clearNeedsInteractiveInput
 } from './interactive-prompt-state.js'
+import { rememberTyped } from '../../common/credential-provider.jsx'
 
 // x11 warnings already shown, keyed by message text
 const shownX11Warnings = new Set()
@@ -173,6 +174,9 @@ export default function TermInteractive () {
   }
 
   function onSend (data) {
+    // a typed password may be offered to a password manager widget once the
+    // tab connected
+    rememberTyped(current?.tabId, current?.options, data.results)
     // An answer means the session can still be revived on its own; an empty
     // answer is the cancel button, and then no retry may re-ask on the user's
     // behalf (see interactive-prompt-state.js).

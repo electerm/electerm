@@ -3,11 +3,24 @@
  */
 
 import { refs } from '../components/common/ref'
+import { recoverVisibleTerminals } from '../components/terminal/terminal-render-recovery.mjs'
 
 export default Store => {
   Store.prototype.focus = function () {
     window.focused = true
-    refs.get('term-' + window.store.activeTabId)?.term?.focus()
+    const { store } = window
+    // Every pane keeps its own current tab in `activeTabId<batch>`, and the
+    // number of batches follows the layout, so they are derived instead of
+    // listing a fixed 0..3 (a stale literal silently stops covering panes as
+    // soon as the pane count changes).
+    const batchTabIds = Object.keys(store)
+      .filter(key => /^activeTabId\d+$/.test(key))
+      .map(key => store[key])
+    recoverVisibleTerminals(
+      [...batchTabIds, store.activeTabId],
+      id => refs.get('term-' + id),
+      store.activeTabId
+    )
   }
 
   Store.prototype.blur = function () {

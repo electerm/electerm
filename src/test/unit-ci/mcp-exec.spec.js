@@ -215,10 +215,15 @@ function parseSseBody (body) {
   }
 }
 
+// The server refuses to run without an API key (see widget-mcp-server.js), so
+// every instance here gets one and every request carries it.
+const TEST_API_KEY = 'test-api-key'
+
 async function mcpPost (port, body, sid) {
   const headers = {
     'Content-Type': 'application/json',
-    Accept: 'application/json, text/event-stream'
+    Accept: 'application/json, text/event-stream',
+    Authorization: `Bearer ${TEST_API_KEY}`
   }
   if (sid) headers['mcp-session-id'] = sid
   // proxy:false — never route localhost through a proxy from env (HTTP_PROXY
@@ -254,6 +259,7 @@ describe('execute_electerm_command – widget config & wiring', () => {
     instance = widgetRun({
       host: '127.0.0.1',
       port: PORT,
+      apiKey: TEST_API_KEY,
       commandBlacklist: '^forbidden-exec'
     })
     await instance.start()
@@ -343,7 +349,7 @@ describe('execute_electerm_command – mode param & legacy tool removal', () => 
   let instance = null
 
   before(async () => {
-    instance = widgetRun({ host: '127.0.0.1', port: PORT })
+    instance = widgetRun({ host: '127.0.0.1', port: PORT, apiKey: TEST_API_KEY })
     await instance.start()
   })
 
@@ -428,5 +434,121 @@ describe('execute_electerm_command – mode param & legacy tool removal', () => 
     assert.equal(result.isError, true)
     const payload = JSON.parse(result.content[0].text)
     assert.ok(/MCP Tasks extension/.test(payload.error), `Expected tasks-required error, got: ${payload.error}`)
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. Loopback guard — DNS rebinding and unauthenticated access
+//    (GHSA-45rj-2wq9-r9mr)
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('MCP server – Host/Origin guard and API key', () => {
+  const PORT = 30854
+  let instance = null
+  let serverInfo = null
+
+  before(async () => {
+    instance = widgetRun({ host: '127.0.0.1', port: PORT, apiKey: TEST_API_KEY })
+    const res = await instance.start()
+    serverInfo = res.serverInfo
+  })
+
+  after(async () => {
+    if (instance) await instance.stop()
+  })
+
+  const initBody = {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'initialize',
+    params: {
+      protocolVersion: '2024-11-05',
+      capabilities: {},
+      clientInfo: { name: 'test', version: '1' }
+    }
+  }
+
+  // no auth helper here on purpose: these tests are about what the server
+  // refuses, so each one states its own headers
+  async function post (headers, body = initBody) {
+    const res = await axios.post(`http://127.0.0.1:${PORT}/mcp`, body, {
+      headers: { 'Content-Type': 'application/json', ...headers },
+      proxy: false,
+      validateStatus: () => true
+    })
+    return res
+  }
+
+  test('serverInfo.url carries the key, so copying it configures the client', () => {
+    assert.ok(serverInfo.url.includes(`apiKey=${TEST_API_KEY}`), serverInfo.url)
+  })
+
+  test('rejects a request whose Host is not the bind address', async () => {
+    // what a DNS-rebound page sends: its own domain, resolved to 127.0.0.1
+    const res = await post({
+      Host: 'rebind.attacker.example:30854',
+      Authorization: `Bearer ${TEST_API_KEY}`
+    })
+    assert.equal(res.status, 403)
+    assert.match(res.data.error.message, /Host/)
+  })
+
+  test('rejects any request carrying an Origin header', async () => {
+    const res = await post({
+      Origin: 'http://rebind.attacker.example:30854',
+      Authorization: `Bearer ${TEST_API_KEY}`
+    })
+    assert.equal(res.status, 403)
+    assert.match(res.data.error.message, /Origin/)
+  })
+
+  test('accepts loopback Host spellings', async () => {
+    for (const host of [`127.0.0.1:${PORT}`, `localhost:${PORT}`]) {
+      const res = await post({ Host: host, Authorization: `Bearer ${TEST_API_KEY}` })
+      assert.equal(res.status, 200, host)
+    }
+  })
+
+  test('rejects a missing or wrong API key', async () => {
+    const missing = await post({})
+    assert.equal(missing.status, 401)
+    const wrong = await post({ Authorization: 'Bearer nope' })
+    assert.equal(wrong.status, 401)
+    // a different length must be a 401 too, not a crash out of timingSafeEqual
+    const short = await post({ Authorization: 'Bearer x' })
+    assert.equal(short.status, 401)
+  })
+
+  test('accepts the key in the query string', async () => {
+    const res = await axios.post(
+      `http://127.0.0.1:${PORT}/mcp?apiKey=${TEST_API_KEY}`,
+      initBody,
+      {
+        headers: { 'Content-Type': 'application/json' },
+        proxy: false,
+        validateStatus: () => true
+      }
+    )
+    assert.equal(res.status, 200)
+    assert.ok(res.headers['mcp-session-id'])
+  })
+
+  test('a rebound request cannot reach a tool even with a valid key', async () => {
+    // the whole point: Host is checked before the key is even compared
+    const res = await post(
+      {
+        Host: 'rebind.attacker.example:30854',
+        Origin: 'http://rebind.attacker.example:30854',
+        Authorization: `Bearer ${TEST_API_KEY}`
+      },
+      {
+        jsonrpc: '2.0',
+        id: 9,
+        method: 'tools/call',
+        params: { name: 'execute_electerm_command', arguments: { command: 'id' } }
+      }
+    )
+    assert.equal(res.status, 403)
+    assert.ok(!JSON.stringify(res.data).includes('stdout'))
   })
 })

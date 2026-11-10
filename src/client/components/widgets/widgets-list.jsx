@@ -16,6 +16,7 @@ import {
 } from '@ant-design/icons'
 import WidgetInstances from './widget-instances'
 import WidgetImportModal from './widget-import-modal'
+import OnlineWidgets from './online-widgets'
 import HelpIcon from '../common/help-icon'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
@@ -36,7 +37,7 @@ const WIDGET_WIKI = 'https://github.com/electerm/electerm/wiki/User-widget-guide
 
 export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) {
   const { widgetInstances } = store
-  const [tab, setTab] = useState('widgets') // or instances
+  const [tab, setTab] = useState('widgets') // widgets, online or instances
   const [widgets, setWidgets] = useState([])
   const [keyword, setKeyword] = useState('')
   const [ready, setReady] = useState(false)
@@ -283,6 +284,11 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
         children: null
       },
       {
+        key: 'online',
+        label: 'Online',
+        children: null
+      },
+      {
         key: 'instances',
         label: instancesTag,
         children: null
@@ -324,7 +330,15 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
         {
           tab === 'widgets'
             ? renderWidgetsList()
-            : renderInstancesSection()
+            : tab === 'online'
+              ? <OnlineWidgets
+                  installed={widgets}
+                  onInstalled={async (result) => {
+                    await afterInstall(result)
+                    setTab('widgets')
+                  }}
+                />
+              : renderInstancesSection()
         }
       </div>
       <WidgetImportModal

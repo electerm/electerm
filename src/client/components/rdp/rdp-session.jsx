@@ -20,6 +20,8 @@ import {
 import * as ls from '../../common/safe-local-storage'
 import { isMac } from '../../common/platform'
 import { getScancode } from './code-scan'
+import { getRDCleanPathDetails, rdCleanPathText, negotiationText } from './rdp-errors'
+import { logonSettings } from './rdp-logon'
 import resolutions from './resolutions'
 import { readClipboardAsync } from '../../common/clipboard'
 import RemoteFloatControl from '../common/remote-float-control'
@@ -29,6 +31,8 @@ import SwitchLabel from '../common/switch'
 import HelpIcon from '../common/help-icon'
 import Modal from '../common/modal'
 import RdpCredForm from './rdp-cred-form'
+import { credentialsFromProvider, connectedToProvider } from '../../common/credential-provider.jsx'
+import { credentialOptions } from '../../common/credential-provider-utils.js'
 import { FileTransferManager, createFileLogger } from './file-transfer'
 import { notification } from '../common/notification'
 import message from '../common/message'
@@ -150,6 +154,9 @@ export default class RdpSession extends PureComponent {
     return `ws://${host}:${port}/${type}/${id}?token=${tokenElecterm}${extra}`
   }
 
+  /**
+   * @param {object} [credOverride] user name and password from the form
+   */
   remoteInit = async (credOverride) => {
     this.setState({
       loading: true
@@ -160,9 +167,16 @@ export default class RdpSession extends PureComponent {
       ...window.store.applyProfile(deepCopy(this.props.tab || {})),
       ...credOverride
     }
+    // a bookmark that asks a password manager for its password, when it has
+    // none saved (without NLA only the user name is used, see rdp-logon.js)
+    if (!credOverride) {
+      this.credentials = await credentialsFromProvider(tab)
+      Object.assign(tab, credentialOptions(this.credentials, 'rdp'))
+    }
     // keep resolved credentials for the connect-time prompt
     this.tab = tab
-    if (!tab.username) {
+    // a new entry: ask for user name and password first
+    if (!tab.username || (!credOverride && this.credentials?.newEntry)) {
       this.setState({
         loading: false,
         showCredPrompt: true
@@ -213,6 +227,8 @@ export default class RdpSession extends PureComponent {
 
     this.setStatus(statusMap.success)
 
+    const mode = logonSettings(tab)
+
     try {
       const canvas = this.canvasRef.current
       if (!canvas) {
@@ -225,10 +241,13 @@ export default class RdpSession extends PureComponent {
       const rdpPort = tab.port || 3389
       const destination = `${rdpHost}:${rdpPort}`
       const username = tab.username || ''
-      const password = tab.password || ''
+      const { password } = mode
 
       const desktopSize = new window.ironRdp.DesktopSize(width, height)
-      const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', true)
+      // NLA only when the bookmark asks for it; without it the server is not
+      // authenticated, so logonSettings drops the password (rdp-logon.js)
+      this.nla = mode.nla
+      const enableCredsspExt = new window.ironRdp.Extension('enable_credssp', mode.nla)
       // Unknown extensions are ignored by older wasm builds, so this is safe to
       // pass unconditionally.
       const pointerExt = new window.ironRdp.Extension('enable_server_pointer', ENABLE_SERVER_POINTER)
@@ -309,6 +328,14 @@ export default class RdpSession extends PureComponent {
       })
 
       this.session = await builder.connect()
+      // logged on with a password typed in the form: save or offer it; only
+      // NLA proves it, without NLA it is not even sent
+      if (credOverride?.password && mode.nla) {
+        connectedToProvider(tab, this.credentials, {
+          username: tab.username,
+          password: credOverride.password
+        })
+      }
 
       const ds = this.session.desktopSize()
 
@@ -375,13 +402,22 @@ export default class RdpSession extends PureComponent {
     if (this.isAuthError(err)) {
       return window.translate('loginFail') + ` (${this.formatError(err)})`
     }
-    return this.formatError(err)
+    const { host, port = 3389 } = this.props.tab || {}
+    return rdCleanPathText(getRDCleanPathDetails(err), host, port) ||
+      negotiationText(err, this.nla !== false) ||
+      this.formatError(err)
   }
 
+  // stays until closed: a connect can fail after a 20s timeout, when
+  // nobody looks at a toast any more
   showError = (err) => {
     const text = this.errText(err)
     this.log(`Connection failed: ${this.formatError(err)}`, 'error')
-    message.error(text, 10)
+    notification.error({
+      message: `RDP: ${this.props.tab?.title || this.props.tab?.host || ''}`,
+      description: text,
+      duration: 0
+    })
   }
 
   onCredSubmit = (res) => {

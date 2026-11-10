@@ -16,14 +16,20 @@
  *       rowButtons?: [{ label, action, danger? }]
  *     },
  *     buttons?: [{ label, action, danger? }],
- *     openTab?: object            // opened as a new terminal tab
+ *     openTab?: object,           // opened as a new terminal tab
+ *     bookmarks?: { bookmarks, bookmarkGroups }  // offered for import; a bare
+ *                                                 // bookmark array works too
  *   }
  *
  * Row buttons call the action with `(row, values)`, other buttons and the
  * submit call it with `(values)`. A row action's result is stacked on top of
  * the current one so there is always a way back.
+ *
+ * An offer (`aiConfig`, `bookmarks`) is drawn right below the message: a long
+ * details list or a table must not push it out of sight, since it is the part
+ * of the result that asks the user to do something.
  */
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   Alert,
   Button,
@@ -43,6 +49,8 @@ import { copy } from '../../common/clipboard'
 import message from '../common/message'
 import openWidgetTab from './widget-open-tab'
 import WidgetAIConfig from './widget-ai-config'
+import WidgetBookmarks, { getBookmarkOffer } from './widget-bookmarks'
+import { widgetRowKey } from './row-key'
 import {
   renderConfigItem,
   configInitialValues
@@ -135,6 +143,12 @@ function ResultButtons ({ buttons, busy, onAction }) {
 
 function ResultView ({ result, busy, onAction, onBack, canBack }) {
   const [revealed, setRevealed] = useState({})
+  // normalized once per result: fixBookmarkData copies every bookmark, and the
+  // panel re-renders on every reveal toggle
+  const bookmarkOffer = useMemo(
+    () => (result ? getBookmarkOffer(result.bookmarks, result.bookmarkGroups) : null),
+    [result]
+  )
   if (!result) {
     return null
   }
@@ -146,7 +160,7 @@ function ResultView ({ result, busy, onAction, onBack, canBack }) {
     buttons,
     aiConfig
   } = result
-  const known = msg || (details && details.length) || (table && table.rows) || (buttons && buttons.length) || aiConfig
+  const known = msg || (details && details.length) || (table && table.rows) || (buttons && buttons.length) || aiConfig || bookmarkOffer
   const toggle = (key) => setRevealed(old => ({ ...old, [key]: !old[key] }))
 
   return (
@@ -171,6 +185,7 @@ function ResultView ({ result, busy, onAction, onBack, canBack }) {
           className='mg1b'
         />
       )}
+      <WidgetBookmarks offer={bookmarkOffer} />
       {details && details.length > 0 && (
         <div className='cwf-details'>
           {details.map((item, i) => (
@@ -212,7 +227,7 @@ function ResultView ({ result, busy, onAction, onBack, canBack }) {
         <Table
           className='cwf-table'
           size='small'
-          rowKey={(row, i) => row.id || i}
+          rowKey={widgetRowKey}
           pagination={table.rows.length > 20 ? { pageSize: 20 } : false}
           dataSource={table.rows || []}
           columns={(table.columns || []).map((column, ci) => ({

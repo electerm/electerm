@@ -175,6 +175,19 @@ export function handleTerminalColorQuery (terminal, identifier, color, fallbackC
   return true
 }
 
+/**
+ * The theme must follow the renderer that is actually active, never the
+ * configured one: after the circuit breaker (or a failed activation) falls back
+ * to DOM, the terminal still has `config.rendererType === 'webGL'` but needs the
+ * transparent DOM theme.
+ *
+ * Pure and import-free so it can be unit-tested directly; `rendererTypes` is
+ * passed in rather than imported to keep this module dependency-free.
+ */
+export function resolveRendererThemeType (hasWebglAddon, rendererTypes) {
+  return hasWebglAddon ? rendererTypes.webGL : rendererTypes.dom
+}
+
 export function createRendererThemeConfig (themeConfig = {}, rendererType, visibleBackground) {
   return {
     ...themeConfig,

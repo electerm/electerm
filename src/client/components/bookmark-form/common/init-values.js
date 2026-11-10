@@ -2,7 +2,7 @@
  * Common utilities for config initValues
  */
 import { newBookmarkIdPrefix, authTypeMap } from '../../../common/constants.js'
-import { getColorFromCategory } from '../../../common/get-category-color.js'
+import { getColorFromCategory, getIconFromCategory } from '../../../common/get-category-color.js'
 import findBookmarkGroupId from '../../../common/find-bookmark-group-id.js'
 import deepCopy from 'json-deep-copy'
 
@@ -33,6 +33,11 @@ export function createBaseInitValues (props, sessionType, defaults = {}) {
   // Only set default color if no color exists (for new bookmarks)
   if (!base.color) {
     base.color = getColorFromCategory(bookmarkGroups, base.category)
+  }
+  // same for the icon: a bookmark filed under a group starts with the group's
+  // icon, and can still be changed or removed on its own
+  if (!base.icon) {
+    base.icon = getIconFromCategory(bookmarkGroups, base.category)
   }
 
   return base

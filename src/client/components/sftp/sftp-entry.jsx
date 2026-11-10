@@ -28,6 +28,8 @@ import {
   sftpRetryInterval
 } from '../../common/constants'
 import { hasFileInClipboardText } from '../../common/clipboard'
+import { credentialsFromProvider } from '../../common/credential-provider.jsx'
+import { credentialOptions } from '../../common/credential-provider-utils.js'
 import Client from '../../common/sftp'
 import ListTable from './list-table-ui'
 import deepCopy from 'json-deep-copy'
@@ -132,6 +134,9 @@ export default class Sftp extends Component {
       termType: 'ftp',
       ...tab
     })
+    // a bookmark that asks a password manager for its password, when it has
+    // none saved: ftp keeps the user name in `user`
+    Object.assign(opts, credentialOptions(await credentialsFromProvider(tab), 'ftp'))
     const r = await createTerm(opts)
       .catch(err => {
         const text = err.message

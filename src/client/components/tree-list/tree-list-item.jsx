@@ -6,6 +6,7 @@ import { memo } from 'react'
 import { createTitleTag } from '../../common/create-title'
 import classnames from 'classnames'
 import highlight from '../common/highlight'
+import ItemIcon from '../common/item-icon'
 import uid from '../../common/uid'
 
 function areEqual (prevProps, nextProps) {
@@ -24,6 +25,7 @@ function areEqual (prevProps, nextProps) {
     prevProps.item.id === nextProps.item.id &&
     prevProps.itemLevel === nextProps.itemLevel &&
     prevProps.itemColor === nextProps.itemColor &&
+    prevProps.itemIcon === nextProps.itemIcon &&
     prevProps.itemDescription === nextProps.itemDescription &&
     prevProps.itemLabel === nextProps.itemLabel &&
     prevProps.itemPath === nextProps.itemPath
@@ -82,6 +84,18 @@ function TreeListItem (props) {
       />
       )
     : null
+  // a group shows its icon when it has one, and its colour square otherwise;
+  // bookmarks go through createTitleTag above
+  const groupTag = isGroup && (item.icon || item.color)
+    ? (
+      <ItemIcon
+        icon={item.icon}
+        color={item.color}
+        size={12}
+        fallback={colorTag}
+      />
+      )
+    : null
   const title = isGroup
     ? item.title
     : props.itemLabel
@@ -130,7 +144,7 @@ function TreeListItem (props) {
       <div
         {...titleProps}
       >
-        {depthMark}{colorTag}{tag}{titleHighlight}
+        {depthMark}{isGroup ? groupTag : tag}{titleHighlight}
       </div>
     </div>
   )

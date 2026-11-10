@@ -4,8 +4,9 @@ const log = require('../common/log')
 const path = require('path')
 const { isWin, isMac } = require('../common/runtime-constants')
 const { promisify } = require('util')
-const { exec, spawn } = require('child_process')
+const { exec, execFile, spawn } = require('child_process')
 const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 const { getSizeCount, getSizeCountWin } = require('../common/get-folder-size-and-file-count.js')
 const { readdirStat, normalizeDirPath } = require('../common/readdir-stat')
 const { generateSshKeyPair } = require('../common/ssh-keygen')
@@ -42,11 +43,34 @@ const run = (cmd) => {
 }
 
 /**
- * run windows cmd
- * @param {string} cmd
+ * build the powershell.exe argument vector for a script.
+ * the script is passed base64 encoded (UTF-16LE, powershell's -EncodedCommand)
+ * as one argv entry, so powershell.exe is spawned directly with no cmd.exe
+ * layer in between. that matters because a cmd.exe layer adds a double quote
+ * context that no amount of escaping on the script side can control: a local
+ * folder name containing `"` used to close the wrapper early and let `&`
+ * reach cmd.exe as a command separator. see GHSA-ph25-cg2g-62cf
+ * @param {string} cmd powershell script
+ * @returns {string[]}
+ */
+const buildWinCmdArgs = (cmd) => {
+  return [
+    '-NoLogo',
+    '-NonInteractive',
+    '-NoProfile',
+    '-EncodedCommand',
+    Buffer.from(String(cmd), 'utf16le').toString('base64')
+  ]
+}
+
+/**
+ * run windows cmd, without a cmd.exe layer
+ * @param {string} cmd powershell script
  */
 const runWinCmd = (cmd) => {
-  return execAsync(`powershell.exe -Command "${cmd}"`)
+  return execFileAsync('powershell.exe', buildWinCmdArgs(cmd), {
+    windowsHide: true
+  })
 }
 
 function spawnDetachedCommand (command, args, options = {}) {
@@ -101,17 +125,24 @@ function escapePosixShellArg (value) {
 }
 
 /**
- * Escape a string for safe use inside PowerShell single-quoted strings.
- * Single quotes are escaped by doubling them:  '  ->  ''
+ * Build the local Windows folder-size script for a path.
+ * The path travels base64-encoded and is decoded inside the script, so no
+ * character of the folder name is ever seen by the PowerShell parser. That
+ * matters because PowerShell treats the typographic quotes U+2018/U+2019/
+ * U+201A/U+201B as ordinary single-quote delimiters, so escaping only the ASCII
+ * apostrophe let a folder name close the literal and run the rest of its name
+ * as code. See GHSA-h4v2-5hq4-wc2g.
+ * @param {string} folderPath
+ * @returns {string}
  */
-function escapePowerShellArg (value) {
-  return String(value).replace(/'/g, "''")
+function buildFolderSizeWinScript (folderPath) {
+  const encoded = encodeUtf8Base64(folderPath)
+  return `$p=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${encoded}'));Get-ChildItem -LiteralPath $p -Recurse | Where-Object { ! $_.PSIsContainer } | Measure-Object -Property Length -Sum`
 }
 
 function getFolderSizeWin (folderPath) {
-  const safePath = escapePowerShellArg(folderPath)
   return runWinCmd(
-    `Get-ChildItem -Path '${safePath}' -Recurse | Where-Object { ! $_.PSIsContainer } | Measure-Object -Property Length -Sum`
+    buildFolderSizeWinScript(folderPath)
   ).then(res => getSizeCountWin(res.stdout))
 }
 
@@ -335,7 +366,9 @@ const fsExport = Object.assign(
     closeCustom,
     statCustom,
     readdirStatAsync,
-    generateSshKeyPair
+    generateSshKeyPair,
+    // download an icon into <data dir>/icons, see lib/icon-download.js
+    saveIconFromUrl: (...args) => require('./icon-download').saveIconFromUrl(...args)
   },
   {
     readdirAsync: readdirNames,
@@ -379,5 +412,8 @@ const fsExport = Object.assign(
 )
 
 module.exports = {
-  fsExport
+  fsExport,
+  // not part of fsExport: this is not something the renderer may call
+  buildWinCmdArgs,
+  buildFolderSizeWinScript
 }

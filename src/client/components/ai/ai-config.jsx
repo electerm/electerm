@@ -18,7 +18,7 @@ import {
 import Password from '../common/password'
 import AiHistory, { addHistoryItem } from './ai-history'
 import message from '../common/message'
-import { getAIPresets, getAIModelOptions, normalizeAIBaseURL } from './ai-presets'
+import { getAIPresets, getAIModelOptions, findAIPreset, getPresetBaseURLs, normalizeAIBaseURL } from './ai-presets'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import './ai-config.styl'
 
@@ -101,7 +101,8 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
   const [modelsFetched, setModelsFetched] = useState(false)
   const baseURLAI = Form.useWatch('baseURLAI', form)
   const presets = useMemo(() => getAIPresets(), [])
-  const currentPreset = presets.find(p => p.baseURLAI === baseURLAI)
+  const currentPreset = findAIPreset(baseURLAI, presets)
+  const baseURLOptions = getPresetBaseURLs(currentPreset).map(value => ({ value }))
 
   useEffect(() => {
     if (initialValues) {
@@ -262,6 +263,26 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     return 'API Key'
   }
 
+  // Presets with more than one host let the user pick one; single-host presets
+  // keep the plain input so custom endpoints never show an empty dropdown.
+  function renderApiURLInput () {
+    if (baseURLOptions.length < 2) {
+      return <Input placeholder='Enter API provider URL' style={{ width: '75%' }} />
+    }
+    // Keep every host visible: the input already holds one of them, so a
+    // value-based filter would hide the very URL the user wants to switch to.
+    return (
+      <AutoComplete
+        options={baseURLOptions}
+        filterOption={filter}
+        popupMatchSelectWidth={false}
+        style={{ width: '75%' }}
+      >
+        <Input placeholder='Enter API provider URL' />
+      </AutoComplete>
+    )
+  }
+
   function renderModelInput () {
     const options = getAIModelOptions(baseURLAI, currentPreset, cachedModels, modelsFetched)
     const title = 'Fetch model list from API URL'
@@ -336,10 +357,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
                 { type: 'url', message: 'Please enter a valid URL!' }
               ]}
             >
-              <Input
-                placeholder='Enter API provider URL'
-                style={{ width: '75%' }}
-              />
+              {renderApiURLInput()}
             </Form.Item>
             <Form.Item
               label='API PATH'

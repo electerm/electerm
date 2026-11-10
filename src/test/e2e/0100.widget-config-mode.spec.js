@@ -1,7 +1,7 @@
 /**
  * Config-mode user widgets: the widget ships only package.json configs + a
  * main-process module. electerm draws the form, calls the action, and renders
- * the returned result (details/table/row buttons/openTab) itself.
+ * the returned result (details/table/row buttons/openTab/bookmarks) itself.
  */
 
 const { _electron: electron, test } = require('@playwright/test')
@@ -118,13 +118,75 @@ test('config mode renders the form and the action result', async () => {
     await page.waitForFunction(() => document.body.textContent.includes('mode ssh'))
     assert.equal(await page.locator('.cwf-table').count(), 0)
 
+    // 6. an action result may offer bookmarks: the list is shown, and nothing
+    //    is added until the user presses the button in the block
+    await page.click('button[type="submit"]')
+    await page.waitForSelector('.cwf-buttons')
+    // a fresh profile ships its own sample bookmarks and categories
+    const baseline = await page.evaluate(() => window.store.bookmarks.length)
+    const existingBm = await page.evaluate(() => window.store.bookmarks[0].id)
+    // an offered category whose id already exists is merged into, not duplicated
+    await page.evaluate((id) => window.store.bookmarkGroups.push({
+      id: 'wbg-a',
+      name: 'Mine',
+      bookmarkIds: [id],
+      bookmarkGroupIds: []
+    }), existingBm)
+    await page.locator('.cwf-buttons button', { hasText: 'Offer bookmarks' }).click()
+    await page.waitForSelector('.wbb')
+    assert.equal(
+      await page.locator('.wbb .wac-title').textContent(),
+      '3 Bookmarks · 2 Category'
+    )
+    // the two facts that matter before consenting: how much of this merges into
+    // what is already there, and how many bookmarks carry a secret
+    const facts = await page.locator('.wbb .wac-row').allTextContents()
+    assert.ok(facts.some(text => text.includes('Merge1')), facts.join('|'))
+    assert.ok(facts.some(text => text.includes('Password / PrivateKey1')), facts.join('|'))
+    // web bookmarks have no host: the address column falls back to the url,
+    // and the type defaults (telnet port) are filled in
+    const rows = await page.locator('.wbb .ant-table-row').allTextContents()
+    assert.ok(rows.some(text => text.includes('tel.example.com:23')), rows.join('|'))
+    assert.ok(rows.some(text => text.includes('https://example.com/admin')), rows.join('|'))
+    assert.equal(
+      await page.evaluate(() => window.store.bookmarks.length),
+      baseline,
+      'offering bookmarks imports nothing by itself'
+    )
+
+    await page.locator('.wbb .wac-head button').click()
+    await page.waitForFunction(
+      (n) => window.store.bookmarks.length === n &&
+        window.store.bookmarkGroups.some(g => g.id === 'wbg-b'),
+      baseline + 3
+    )
+    const after = await page.evaluate(() => ({
+      port: window.store.bookmarks.find(b => b.id === 'wm2').port,
+      mergedInto: window.store.bookmarkGroups
+        .filter(g => g.id === 'wbg-a')
+        .map(g => g.bookmarkIds)
+    }))
+    // the pre-existing category kept what it had and gained the offered ones
+    assert.deepEqual(after, {
+      port: 23,
+      mergedInto: [[existingBm, 'wm1', 'wm2']]
+    })
+    // the store is written batch by batch; the block only says "imported" once
+    // the whole task resolved
+    await page.waitForFunction(() => {
+      const button = document.querySelector('.wbb .wac-head button')
+      return button && button.textContent.includes('Imported')
+    })
+    assert.equal(await page.locator('.wbb .wac-head button').isDisabled(), true)
+    assert.equal(await page.locator('.wbb .wac-head button').textContent(), 'Imported')
+
     await page.screenshot({ path: '/tmp/widget-config-mode.png' })
 
-    // 6. removing the widget removes its folder
+    // 7. removing the widget removes its folder
     await page.evaluate(() => window.pre.runGlobalAsync('deleteWidget', 'form-demo'))
     assert.equal(fs.existsSync(path.join(profileRoot, 'data', 'widgets', 'form-demo')), false)
 
-    // 7. the same field renderer still drives built-in widgets, whose configs
+    // 8. the same field renderer still drives built-in widgets, whose configs
     //    use the key as label and may pass plain strings as choices
     const builtin = await page.evaluate(async () =>
       (await window.store.listWidgets()).find(w => w.id === 'local-file-server'))

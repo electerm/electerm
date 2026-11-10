@@ -1,0 +1,50 @@
+// panel of the icon tab, the shell lives in appearance-picker.styl
+.icon-picker
+  width 100%
+
+.icon-picker-search
+  margin-bottom 8px
+
+.icon-picker-grid
+  display grid
+  grid-template-columns repeat(auto-fill, minmax(34px, 1fr))
+  gap 2px
+  // exactly six rows (6 * 34px + 5 * 2px gap + 2 * 2px padding), so the row
+  // below is hidden instead of peeking out by a few pixels
+  max-height 218px
+  overflow-y auto
+  // a scrollbar inside a popover on a touch screen is hard to hit, so leave a
+  // little padding rather than flush edges
+  padding 2px
+
+.icon-picker-item
+  display flex
+  align-items center
+  justify-content center
+  width 34px
+  height 34px
+  padding 0
+  border 1px solid transparent
+  border-radius 4px
+  background transparent
+  cursor pointer
+  &:hover
+    background rgba(128, 128, 128, .16)
+  &.is-active
+    border-color var(--primary)
+    background rgba(128, 128, 128, .1)
+
+.icon-picker-empty
+  grid-column 1 / -1
+  padding 12px 0
+  opacity .6
+
+.icon-picker-actions
+  display flex
+  gap 6px
+  margin-top 8px
+
+.icon-picker-url
+  display flex
+  gap 6px
+  margin-top 6px

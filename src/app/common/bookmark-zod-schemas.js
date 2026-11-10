@@ -75,6 +75,7 @@ const sshBookmarkSchema = {
   envLang: z.string().optional().describe('ENV LANG, default is en_US.UTF-8'),
   // setEnv: z.string().optional().describe('Environment variables, format: KEY1=VALUE1 KEY2=VALUE2'),
   color: z.string().optional().describe('Tag color, like #000000'),
+  icon: z.string().optional().describe('Icon of the bookmark: `icon:<name>` for a built-in icon (see electerm-icons, e.g. `icon:ubuntu`), or an absolute path of a local image file. Takes precedence over the colour'),
   // interactiveValues: z.string().optional().describe('Strings separated by newline'),
   sshTunnels: z.array(sshTunnelSchema).optional().describe('SSH tunnel definitions'),
   connectionHoppings: z.array(connectionHoppingSchema).optional().describe('Connection hopping definitions')

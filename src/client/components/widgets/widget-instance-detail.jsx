@@ -35,6 +35,7 @@ import {
 } from '@ant-design/icons'
 import { auto } from 'manate/react'
 import { copy } from '../../common/clipboard'
+import { maskUrl } from '../../common/mask-url'
 import parseWidgetLog from '../../common/parse-widget-log'
 import WidgetAIConfig from './widget-ai-config'
 import './widgets.styl'
@@ -51,12 +52,6 @@ function pad (n, len = 2) {
 function formatTime (ts) {
   const d = new Date(ts)
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`
-}
-
-// the URL of a widget that needs credentials carries them; the panel gets
-// screenshotted, so hide the password here (copy still copies the real one)
-function maskUrl (url) {
-  return String(url || '').replace(/\/\/([^:/@]+):([^@/]+)@/, '//$1:••••••@')
 }
 
 function displayValue (key, value) {

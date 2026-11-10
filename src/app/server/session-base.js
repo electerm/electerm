@@ -31,7 +31,11 @@ class TerminalBase {
         logDir: initOptions.sessionLogPath,
         fileName: createLogFileName(initOptions.logName)
       })
-      this._initVtParser()
+      // an unusable log path must not cost the session, and parsing the output
+      // for timestamps nobody can write is pure waste (#4688)
+      if (this.sessionLogger.ready) {
+        this._initVtParser()
+      }
     }
     if (ws) {
       this.ws = ws
@@ -97,7 +101,9 @@ class TerminalBase {
         logDir: this.initOptions.sessionLogPath,
         fileName: createLogFileName(this.initOptions.logName)
       })
-      this._initVtParser()
+      if (this.sessionLogger.ready) {
+        this._initVtParser()
+      }
     }
   }
 
@@ -117,7 +123,9 @@ class TerminalBase {
         logDir: this.initOptions.sessionLogPath,
         fileName: createLogFileName(this.initOptions.logName)
       })
-      this._initVtParser()
+      if (this.sessionLogger.ready) {
+        this._initVtParser()
+      }
     }
   }
 

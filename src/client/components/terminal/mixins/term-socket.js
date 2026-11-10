@@ -10,6 +10,8 @@ import {
   paneMap
 } from '../../../common/constants.js'
 import getProxy from '../../../common/get-proxy.js'
+import { credentialsFromProvider, connectedToProvider } from '../../../common/credential-provider.jsx'
+import { credentialOptions } from '../../../common/credential-provider-utils.js'
 import { refs } from '../../common/ref.js'
 import { createTerm, resizeTerm } from '../terminal-apis.js'
 import { ZmodemClient } from '../zmodem-client.js'
@@ -166,6 +168,13 @@ export const socketMixin = {
     // Renderer-only state can contain a large serialized screen and must not
     // cross the process boundary as part of the SSH connection options.
     delete opts._reloadState
+    // a bookmark that asks a password manager for its password, when it has
+    // none saved: ssh and telnet both take it from the connection options
+    this.credentials = null
+    if (tab.authType !== 'privateKey') {
+      this.credentials = await credentialsFromProvider(tab)
+      Object.assign(opts, credentialOptions(this.credentials, tab.type))
+    }
     const isAutoReconnect = !!(tab.autoReConnect && this.props.config.autoReconnectTerminal)
     const r = await createTerm(opts)
       .catch(err => {
@@ -208,6 +217,7 @@ export const socketMixin = {
     }
     this.port = r.port
     this.setStatus(statusMap.success)
+    connectedToProvider(tab, this.credentials)
     refs.get('sftp-' + id)?.initData(id, r.port)
     term.pid = id
     this.pid = id

@@ -1,6 +1,10 @@
 import message from '../../common/message'
 import ExternalLink from '../../common/external-link.jsx'
-import { isWin } from '../../../common/constants.js'
+import { isWin, rendererTypes } from '../../../common/constants.js'
+import {
+  getWebglCircuitSnapshot,
+  resetWebglCircuit
+} from '../terminal-webgl-circuit-breaker.mjs'
 
 /**
  * Reacting to config changes that cannot be handled by a re-render: they need
@@ -32,14 +36,32 @@ export const configMixin = {
       }
     }
 
-    // Handle renderer type changes (dom <-> webGL) by reloading the
-    // renderer and refreshing the theme so the background color is
-    // correct for the new renderer.
+    // Handle renderer type changes (dom <-> webGL) by letting the lifecycle
+    // controller pick the new renderer, then refreshing the theme so the
+    // background color matches the renderer actually in use.
+    // WebGL -> DOM never resets anything; DOM -> WebGL is the only runtime
+    // reset of the page-level circuit breaker and of this terminal's
+    // activation-failure flag (the two are reset together, nowhere else).
+    const prevRendererType = prevProps.config.rendererType
+    const nextRendererType = props.config.rendererType
     if (
-      prevProps.config.rendererType !== props.config.rendererType &&
+      prevRendererType !== nextRendererType &&
       this.term
     ) {
-      this.reloadWebglRenderer('renderer type change')
+      if (
+        prevRendererType === rendererTypes.dom &&
+        nextRendererType === rendererTypes.webGL
+      ) {
+        // The flag must be cleared first: resetWebglCircuit() broadcasts
+        // synchronously, so this terminal's own subscription re-enters
+        // reconcileRenderer at that instant. While the flag is still true that
+        // re-entry reads a target which is about to be overruled and runs a
+        // pointless deactivate.
+        this.webglActivationFailed = false
+        resetWebglCircuit()
+      }
+      this.webglCircuitState = getWebglCircuitSnapshot().state
+      this.reconcileRenderer('renderer type change')
         .then(() => this.applyTerminalTheme())
         .catch(e => console.error('renderer type change failed', e))
     }

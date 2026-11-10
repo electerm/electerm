@@ -177,6 +177,22 @@ describe('downloadSource', () => {
     assert.match(http.archiveRequests[0], /codeload\.github\.com\/owner\/repo\/tar\.gz\/HEAD$/)
   })
 
+  it('drops symlinks from a github archive', async () => {
+    const http = tarballHttp({
+      'package.json': widgetPkg,
+      'index.js': 'module.exports = {}\n'
+    })
+    // A registry install hashes the downloaded tree, but a plain folder import
+    // does not, so the archive filter itself must not write links to disk.
+    fs.symlinkSync(
+      '/etc/passwd',
+      path.join(tmp, 'archive-src', 'owner-repo-abc123', 'escape')
+    )
+    const dir = path.join(tmp, 'gh-link')
+    await downloadSource(parseWidgetSource('owner/repo'), dir, http)
+    assert.deepEqual(walk(dir), ['index.js', 'package.json'])
+  })
+
   it('asks for the named branch', async () => {
     const http = tarballHttp({ 'package.json': widgetPkg })
     await downloadSource(parseWidgetSource('owner/repo#dev'), path.join(tmp, 'gh-ref'), http)
@@ -189,11 +205,14 @@ describe('downloadSource', () => {
       lib: [atomFile('a.js', 'lib')]
     }, {
       'https://raw.atomgit.com/owner/repo/blobs/package.json/package.json': widgetPkg,
+      'https://raw.atomgit.com/owner/repo/blobs/.gitignore/.gitignore': 'node_modules/\n',
       'https://raw.atomgit.com/owner/repo/blobs/a.js/a.js': 'module.exports = 1\n'
     })
     const dir = path.join(tmp, 'ag')
     await downloadSource(parseWidgetSource('https://atomgit.com/owner/repo'), dir, http)
-    assert.deepEqual(walk(dir), ['lib/a.js', 'package.json'])
+    // Hidden files belong to the repo too: the registry lists them and the
+    // install hashes the whole tree, so the download must not drop them.
+    assert.deepEqual(walk(dir), ['.gitignore', 'lib/a.js', 'package.json'])
     assert.equal(http.requests[0], 'https://atomgit.com/api/v5/repos/owner/repo/contents')
   })
 
@@ -238,6 +257,133 @@ describe('downloadSource', () => {
     const dir = path.join(tmp, 'ag-escape')
     await downloadSource(parseWidgetSource('https://atomgit.com/owner/repo'), dir, http)
     assert.deepEqual(walk(dir), [])
+  })
+})
+
+// github is not reachable everywhere, so its archive has three addresses
+// behind it: codeload, our own mirror, and jsDelivr file by file.
+describe('downloadSource, when github is unreachable', () => {
+  it('retries the same archive through mirror.electerm.org', async () => {
+    const archive = tarballHttp({
+      'package.json': widgetPkg,
+      'lib/helper.js': 'module.exports = 1\n'
+    })
+    const urls = []
+    const http = {
+      async getStream (url) {
+        urls.push(url)
+        if (url.startsWith('https://codeload.github.com/')) {
+          throw new Error('getaddrinfo ENOTFOUND codeload.github.com')
+        }
+        return archive.getStream(url)
+      }
+    }
+    const dir = path.join(tmp, 'gh-mirror')
+    await downloadSource(parseWidgetSource('owner/repo#dev'), dir, http)
+    assert.deepEqual(walk(dir), ['lib/helper.js', 'package.json'])
+    assert.deepEqual(urls, [
+      'https://codeload.github.com/owner/repo/tar.gz/dev',
+      'https://mirror.electerm.org/https://codeload.github.com/owner/repo/tar.gz/dev'
+    ])
+  })
+
+  it('walks cdn.jsdelivr.net when both archives fail', async () => {
+    const urls = []
+    const http = {
+      async getStream (url) {
+        urls.push(url)
+        throw new Error('connection reset')
+      },
+      async getJSON (url) {
+        urls.push(url)
+        assert.equal(
+          url,
+          'https://data.jsdelivr.com/v1/packages/gh/owner/repo@HEAD?structure=flat'
+        )
+        return {
+          files: [
+            { name: '/package.json', size: 200 },
+            { name: '/lib/a.js', size: 20 },
+            // hidden files are kept; only names that escape are dropped
+            { name: '/.gitignore', size: 10 },
+            { name: '/../escape.js', size: 10 }
+          ]
+        }
+      },
+      async getBuffer (url) {
+        urls.push(url)
+        if (url.endsWith('/package.json')) {
+          return Buffer.from(widgetPkg)
+        }
+        if (url.endsWith('/lib/a.js')) {
+          return Buffer.from('module.exports = 1\n')
+        }
+        if (url.endsWith('/.gitignore')) {
+          return Buffer.from('node_modules/\n')
+        }
+        throw new Error(`unexpected blob ${url}`)
+      }
+    }
+    const dir = path.join(tmp, 'gh-jsdelivr')
+    await downloadSource(parseWidgetSource('owner/repo'), dir, http)
+    assert.deepEqual(walk(dir), ['.gitignore', 'lib/a.js', 'package.json'])
+    assert.ok(urls.includes(
+      'https://cdn.jsdelivr.net/gh/owner/repo@HEAD/lib/a.js'
+    ))
+  })
+
+  it('stops at a 404 from github itself instead of asking the other addresses', async () => {
+    const urls = []
+    const http = {
+      async getStream (url) {
+        urls.push(url)
+        const err = new Error('HTTP 404 from codeload.github.com')
+        err.status = 404
+        throw err
+      }
+    }
+    await assert.rejects(
+      downloadSource(parseWidgetSource('owner/repo'), path.join(tmp, 'gh-404'), http),
+      /cannot download github\.com\/owner\/repo: github\.com \(HTTP 404/
+    )
+    assert.equal(urls.length, 1)
+  })
+
+  it('does not treat a 404 from the mirror as the last word', async () => {
+    const http = {
+      async getStream (url) {
+        const mirror = url.startsWith('https://mirror.electerm.org/')
+        const err = new Error(mirror
+          ? 'HTTP 404 from mirror.electerm.org'
+          : 'connection reset')
+        err.status = mirror ? 404 : undefined
+        throw err
+      },
+      async getJSON () {
+        return { files: [{ name: '/package.json', size: 200 }] }
+      },
+      async getBuffer () {
+        return Buffer.from(widgetPkg)
+      }
+    }
+    const dir = path.join(tmp, 'gh-mirror-404')
+    await downloadSource(parseWidgetSource('owner/repo'), dir, http)
+    assert.deepEqual(walk(dir), ['package.json'])
+  })
+
+  it('names every address it tried when all of them fail', async () => {
+    const http = {
+      async getStream () {
+        throw new Error('timeout of 30000ms exceeded')
+      },
+      async getJSON () {
+        throw new Error('HTTP 503 from data.jsdelivr.com')
+      }
+    }
+    await assert.rejects(
+      downloadSource(parseWidgetSource('owner/repo'), path.join(tmp, 'gh-dead'), http),
+      /cannot download github\.com\/owner\/repo: github\.com \(timeout of 30000ms exceeded\), mirror\.electerm\.org \(timeout of 30000ms exceeded\), cdn\.jsdelivr\.net \(HTTP 503 from data\.jsdelivr\.com\)/
+    )
   })
 })
 
@@ -325,5 +471,20 @@ describe('fetchWidgetSource', () => {
     assert.ok(fs.existsSync(result.dir))
     result.cleanup()
     assert.equal(fs.existsSync(result.root), false)
+  })
+
+  it('keeps the per-address failure message without wrapping it twice', async () => {
+    const http = {
+      async getStream () {
+        throw new Error('connect ECONNREFUSED')
+      },
+      async getJSON () {
+        throw new Error('HTTP 500 from data.jsdelivr.com')
+      }
+    }
+    await assert.rejects(
+      fetchWidgetSource('owner/repo', { http }),
+      /cannot download github\.com\/owner\/repo: github\.com \(connect ECONNREFUSED\), mirror\.electerm\.org/
+    )
   })
 })

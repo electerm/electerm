@@ -5,6 +5,7 @@
 import {
   terminalLocalType
 } from './constants'
+import ItemIcon from '../components/common/item-icon.jsx'
 
 const e = window.translate
 
@@ -58,16 +59,28 @@ export default function createTitle (res, hide = true) {
   return f || e(terminalLocalType)
 }
 
+/**
+ * Icon (or colour) shown before the name of a bookmark, a bookmark group or a
+ * tab. The icon wins when the item has one.
+ * @param {{color?: string, icon?: string}} obj
+ */
 export function createTitleTag (obj) {
-  const { color } = obj
-  if (!color) {
+  const { color, icon } = obj
+  if (!color && !icon) {
     return null
   }
   const styleTag = color
     ? { color }
     : {}
   return (
-    <span style={styleTag} className='tab-title-tag'>●</span>
+    <span className='tab-title-tag'>
+      <ItemIcon
+        icon={icon}
+        color={color}
+        size={13}
+        fallback={<span style={styleTag}>●</span>}
+      />
+    </span>
   )
 }
 

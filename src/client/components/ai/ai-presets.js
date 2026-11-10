@@ -1,5 +1,26 @@
 export const defaultAIPresets = [
   {
+    id: 'infistar',
+    nameAI: 'Infistar',
+    baseURLAI: 'https://infistar.cc/v1',
+    // Both hosts serve the same gateway. The first one is the default, the
+    // others are offered in the API URL picker.
+    baseURLAIs: [
+      'https://infistar.cc/v1',
+      'https://infistar.ai/v1'
+    ],
+    apiPathAI: '/chat/completions',
+    modelAI: 'deepseek-v4-flash',
+    pinned: true,
+    authHeaderNameAI: 'Authorization: Bearer',
+    siteUrl: 'https://www.infistar.cc/register?aff=4R4JT29X&ref_source=link',
+    modelAIs: [
+      { value: 'deepseek-v4-flash' },
+      { value: 'deepseek-v4-pro' },
+      { value: 'claude-sonnet-4-6' }
+    ]
+  },
+  {
     id: 'packycode',
     nameAI: 'PackyCode',
     baseURLAI: 'https://cf.api.fan/v1',
@@ -14,16 +35,6 @@ export const defaultAIPresets = [
     ]
   },
   {
-    id: 'ApiSmart',
-    nameAI: 'ApiSmart',
-    pinned: true,
-    baseURLAI: 'https://api.apismart.ai/v1',
-    apiPathAI: '/chat/completions',
-    modelAI: 'DEEPSEEK_V4_FLASH',
-    authHeaderNameAI: 'Authorization: Bearer',
-    siteUrl: 'https://apismart.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
-  },
-  {
     id: 'apimart',
     nameAI: 'ApiMart',
     pinned: true,
@@ -32,6 +43,16 @@ export const defaultAIPresets = [
     modelAI: 'deepseek-v4-flash',
     authHeaderNameAI: 'Authorization: Bearer',
     siteUrl: 'https://go.apimart.ai/gh-electerm'
+  },
+  {
+    id: 'ApiSmart',
+    nameAI: 'ApiSmart',
+    pinned: true,
+    baseURLAI: 'https://api.apismart.ai/v1',
+    apiPathAI: '/chat/completions',
+    modelAI: 'DEEPSEEK_V4_FLASH',
+    authHeaderNameAI: 'Authorization: Bearer',
+    siteUrl: 'https://apismart.ai/?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
   },
   {
     id: 'fluxionai',
@@ -88,11 +109,11 @@ export const defaultAIPresets = [
     nameAI: 'Anthropic Claude',
     baseURLAI: 'https://api.anthropic.com/v1',
     apiPathAI: '/messages',
-    modelAI: 'claude-sonnet-4-5',
+    modelAI: 'claude-sonnet-4-6',
     authHeaderNameAI: 'x-api-key',
     modelAIs: [
-      { value: 'claude-sonnet-4-5' },
-      { value: 'claude-opus-4-1' },
+      { value: 'claude-sonnet-4-6' },
+      { value: 'claude-opus-4-8' },
       { value: 'claude-haiku-4-5' }
     ],
     siteUrl: 'https://console.anthropic.com/settings/keys?utm_source=electerm_app&utm_medium=link&utm_campaign=electerm'
@@ -120,7 +141,7 @@ export const defaultAIPresets = [
     nameAI: 'Google Gemini',
     baseURLAI: 'https://generativelanguage.googleapis.com/v1beta/openai',
     apiPathAI: '/chat/completions',
-    modelAI: 'gemini-2.0-flash',
+    modelAI: 'gemini-3.8-flash',
     authHeaderNameAI: 'Authorization: Bearer',
     siteUrl: 'https://aistudio.google.com/apikey'
   },
@@ -169,7 +190,10 @@ export const defaultAIPresets = [
     nameAI: 'MiniMax (China)',
     baseURLAI: 'https://api.minimax.cn/v1',
     // The same endpoint is documented under the older minimaxi.com host.
-    aliasURLs: ['https://api.minimaxi.com/v1'],
+    baseURLAIs: [
+      'https://api.minimax.cn/v1',
+      'https://api.minimaxi.com/v1'
+    ],
     apiPathAI: '/chat/completions',
     modelAI: 'MiniMax-M3.1-Flash',
     authHeaderNameAI: 'Authorization: Bearer',
@@ -210,9 +234,24 @@ export function normalizeAIBaseURL (url) {
   return (url || '').trim().replace(/\/+$/, '')
 }
 
-function presetForURL (url) {
-  return defaultAIPresets.find(p =>
-    p.baseURLAI === url || (p.aliasURLs || []).includes(url))
+// A provider can be reachable at several hosts (Infistar's two domains,
+// MiniMax's older host). `baseURLAI` stays the single value the form saves;
+// the list only drives preset matching and the API URL picker.
+export function getPresetBaseURLs (preset) {
+  if (Array.isArray(preset?.baseURLAIs)) {
+    return preset.baseURLAIs
+  }
+  return preset?.baseURLAI ? [preset.baseURLAI] : []
+}
+
+// `presets` is optional so the config form can search the list it renders,
+// which also contains the build-injected custom preset. Trailing slashes and
+// alternate provider hosts all have to resolve to the same preset, or its
+// key link and curated model suggestions disappear.
+export function findAIPreset (url, presets = defaultAIPresets) {
+  const target = normalizeAIBaseURL(url)
+  return presets.find(p =>
+    getPresetBaseURLs(p).some(u => normalizeAIBaseURL(u) === target))
 }
 
 // Suggestions do not constrain the editable model value or saved configurations.
@@ -221,7 +260,7 @@ function presetForURL (url) {
 // ignore cached lists. A cached list is not trusted the same way, because it can
 // still hold models the provider retired since it was saved.
 export function getAIModelOptions (baseURL, preset, cachedModels = [], fetched = false) {
-  const target = presetForURL(normalizeAIBaseURL(baseURL)) || preset
+  const target = findAIPreset(baseURL) || preset
   const presetModels = (target?.modelAIs || [])
     .map(o => (typeof o === 'string' ? o : o.value))
   const values = target?.ignoreCachedModels && !fetched

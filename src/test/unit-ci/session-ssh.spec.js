@@ -3,6 +3,7 @@ process.env.NODE_ENV = 'development'
 const { describe, test, beforeEach, afterEach } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
+const net = require('node:net')
 const os = require('node:os')
 const path = require('node:path')
 const { once } = require('node:events')
@@ -93,7 +94,12 @@ function generateClientKey ({ dir, name, type, passphrase, bits }) {
   }
 }
 
-async function startServer (authHandler) {
+/**
+ * @param {function} authHandler
+ * @param {number} [forwardTo] port to forward direct-tcpip channels to, which
+ *   is what makes this server usable as a jump host
+ */
+async function startServer (authHandler, forwardTo) {
   const clients = new Set()
   const server = new Server({
     hostKeys: [HOST_KEY.private]
@@ -116,6 +122,15 @@ async function startServer (authHandler) {
           stream.write('electerm ready\n')
         })
       })
+      if (forwardTo) {
+        client.on('tcpip', (accept) => {
+          const stream = accept()
+          const sock = net.connect(forwardTo, '127.0.0.1')
+          sock.on('error', () => stream.end())
+          stream.pipe(sock)
+          sock.pipe(stream)
+        })
+      }
     })
   })
 
@@ -630,6 +645,179 @@ describe('session-ssh auth flows', () => {
 
     assert.ok(err, 'connecting with an unreadable key file should fail')
     assert.match(err.message, /cannot read privateKey file/)
+  })
+
+  // the form hides the key fields for auth type password, so a key path
+  // left in the bookmark can not be cleared there; a blank one comes from
+  // imports (MobaXterm writes " " for "no key")
+  for (const [name, keyPath] of [
+    ['a blank key path', ' '],
+    ['an unreadable key path with auth type password', 'no-such-key-file']
+  ]) {
+    test(`password login works with ${name}`, async () => {
+      const server = await startServer(passwordOnlyAuth())
+      const ws = createPromptWs(() => [])
+      let term
+      try {
+        term = await session({
+          host: '127.0.0.1',
+          port: server.port,
+          username: USERNAME,
+          password: PASSWORD,
+          authType: 'password',
+          privateKeyPath: keyPath === ' ' ? ' ' : path.join(tmpDir, keyPath),
+          useSshAgent: false,
+          enableSsh: false,
+          readyTimeout: 5000
+        }, ws)
+        assert.ok(term, 'session should be established')
+      } finally {
+        term && term.kill()
+        await server.close()
+      }
+    })
+  }
+
+  // authType only decides which inputs the form shows - it is not a statement
+  // about what the connection holds, and an imported bookmark need not carry
+  // one at all. A saved password is a credential, so a stale key path is
+  // skipped whatever the bookmark calls its auth type, including 'profiles'
+  // (which resolves the credentials but keeps the bookmark's own key path) and
+  // 'privateKey' (the form shows the key fields, but the password is still
+  // there and the auth handler tries it first anyway).
+  for (const [name, authType] of [
+    ['profile auth', 'profiles'],
+    ['auth type privateKey', 'privateKey'],
+    ['no auth type', undefined]
+  ]) {
+    test(`password login works with a stale key path under ${name}`, async () => {
+      const server = await startServer(passwordOnlyAuth())
+      const ws = createPromptWs(() => [])
+      let term
+      try {
+        term = await session({
+          host: '127.0.0.1',
+          port: server.port,
+          username: USERNAME,
+          password: PASSWORD,
+          authType,
+          privateKeyPath: path.join(tmpDir, 'no-such-key-file'),
+          useSshAgent: false,
+          enableSsh: false,
+          readyTimeout: 5000
+        }, ws)
+        assert.ok(term, 'session should be established')
+      } finally {
+        term && term.kill()
+        await server.close()
+      }
+    })
+  }
+
+  // the other side of the gate: no password saved means the key is the only
+  // credential there is, so its absence is worth failing on - with the file
+  // named, instead of a bare "All configured authentication methods failed"
+  test('fails with the real reason when the key is the only credential', async () => {
+    const server = await startServer(passwordOnlyAuth())
+    const ws = createPromptWs(() => [])
+    let err
+    try {
+      await session({
+        host: '127.0.0.1',
+        port: server.port,
+        username: USERNAME,
+        authType: 'privateKey',
+        privateKeyPath: path.join(tmpDir, 'no-such-key-file'),
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+    } catch (e) {
+      err = e
+    } finally {
+      await server.close()
+    }
+    assert.ok(err, 'the key was the only credential, so its absence should fail the login')
+    assert.match(err.message, /cannot read privateKey file/)
+  })
+
+  // a hopping session resolves one connection per hop, and adjustConnectionOrder()
+  // promotes the first hop into initOptions and turns the target into the last
+  // hop: each of them has to be judged on its own credentials, not on the
+  // target's (which is all the connection order used to leave behind)
+  test('password login through a jump host ignores a stale key path on the target', async () => {
+    const target = await startServer(passwordOnlyAuth())
+    const hop = await startServer(passwordOnlyAuth(), target.port)
+    const ws = createPromptWs(() => [])
+    let term
+    try {
+      term = await session({
+        host: '127.0.0.1',
+        port: target.port,
+        username: USERNAME,
+        password: PASSWORD,
+        authType: 'password',
+        privateKeyPath: path.join(tmpDir, 'no-such-key-file'),
+        hasHopping: true,
+        connectionHoppings: [{
+          host: '127.0.0.1',
+          port: hop.port,
+          username: USERNAME,
+          password: PASSWORD,
+          authType: 'password'
+        }],
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+      assert.ok(term, 'session should be established through the jump host')
+    } finally {
+      term && term.kill()
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  test('a jump host key path is judged by the jump host own credentials', async () => {
+    const keyPair = generateClientKey({
+      dir: tmpDir,
+      name: 'ed25519-hop-target',
+      type: 'ed25519'
+    })
+    const target = await startServer(publicKeyOnlyAuth(keyPair.publicKey))
+    const hop = await startServer(passwordOnlyAuth(), target.port)
+    const ws = createPromptWs(() => [])
+    let term
+    try {
+      term = await session({
+        host: '127.0.0.1',
+        port: target.port,
+        username: USERNAME,
+        // a path, not the content: key content would win over the hop's path
+        // below and hide the bug this test is about
+        privateKeyPath: keyPair.keyPath,
+        authType: 'privateKey',
+        hasHopping: true,
+        connectionHoppings: [{
+          host: '127.0.0.1',
+          port: hop.port,
+          username: USERNAME,
+          password: PASSWORD,
+          // the hop logs in with a password, so its own leftover key path is
+          // none of its business - it used to be judged by the target's
+          // settings and failed the whole session before reaching the target
+          privateKeyPath: path.join(tmpDir, 'no-such-hop-key-file')
+        }],
+        useSshAgent: false,
+        enableSsh: false,
+        readyTimeout: 5000
+      }, ws)
+      assert.ok(term, 'the hop should log in with its password')
+    } finally {
+      term && term.kill()
+      await hop.close()
+      await target.close()
+    }
   })
 
   test('handles password and otp in the same keyboard-interactive round', async () => {
