@@ -40,14 +40,18 @@
  * EXPERIMENT 2 - a failed load-stage read empties the store, and the next
  *                ordinary write wipes the table
  * ---------------------------------------------------------------------------
- * src/client/common/db.js:20   .catch(handleError) -> undefined, error lost
- * src/client/common/db.js:133  find() || []          -> "failed" == "empty"
+ * src/client/common/db.js  .catch(handleError) -> undefined, error lost
+ * src/client/common/db.js  find() || []        -> "failed" == "empty"
  *
  * Verified live: after a rejected read the store holds 0 bookmarks while the
  * db still holds all of them. The snapshot is re-seeded empty at the same time
- * (load-data.js:306), so on its own nothing is deleted - which is why a plain
+ * (store/load-data.js), so on its own nothing is deleted - which is why a plain
  * reload does NOT lose data. The deletion needs the snapshot to be stale
  * relative to the store, which is exactly what experiment 1 produces.
+ *
+ * Startup now reads everything through one batched `loadInitData` IPC call;
+ * the stub below rejects it on purpose so the legacy per-table path (the one
+ * that swallows a failed `find`) is the path under test.
  *
  * Run (own DATA_PATH/TMPDIR; common/app-options.js supplies a throwaway
  * Electron userData so a bundle cached by an earlier build can not be picked up
@@ -191,6 +195,11 @@ describe('db corruption repro', function () {
     const state = await client.evaluate(async () => {
       const realRun = window.pre.runGlobalAsync
       window.pre.runGlobalAsync = async (name, ...args) => {
+        // force the legacy per-table path: the batched loader runs inside the
+        // main process, where this renderer-side stub cannot reach it
+        if (name === 'loadInitData') {
+          throw new Error('SQLITE_CORRUPT: database disk image is malformed')
+        }
         if (name === 'dbAction' && args[0] === 'bookmarks' && args[1] === 'find') {
           throw new Error('SQLITE_CORRUPT: database disk image is malformed')
         }

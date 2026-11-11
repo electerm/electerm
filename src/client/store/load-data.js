@@ -2,7 +2,7 @@
  * load data from db
  */
 
-import { dbNames, getData, fetchInitData } from '../common/db'
+import { dbNames, fetchInitDataAll } from '../common/db'
 import deepCopy from 'json-deep-copy'
 import parseInt10 from '../common/parse-int10'
 import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
@@ -286,33 +286,24 @@ export default (Store) => {
     const { store } = window
     store.initLoadingData = true
     try {
-      await store.initApp()
-      const ext = {}
-      const all = dbNames.map(async name => {
-        const data = await fetchInitData(name)
-        return {
-          name,
-          data
-        }
-      })
-      await Promise.all(all)
-        .then(arr => {
-          for (const { name, data } of arr) {
-            const dt = JSON.parse(data || '[]')
-            // seed the watcher snapshot with a *copy* - manate wraps the exact
-            // array assigned into the store, so seeding with `dt` itself would
-            // alias snapshot and store to one backing array; the watcher's
-            // no-change early-return would then skip DB writes forever
-            refsStatic.add('oldState-' + name, deepCopy(dt))
-            if (name === 'bookmarks') {
-              ext.bookmarksMap = new Map(
-                dt.map(d => [d.id, d])
-              )
-            }
-            ext[name] = dt
-          }
-        })
-      ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
+      // initApp() loads locales/config and waits for the common websocket
+      // handshake; the DB read needs neither. Measured cold start: awaiting
+      // initApp first queued the whole DB read behind it. Keep the DB read
+      // first in the array so its IPC is dispatched before init's.
+      const [ext] = await Promise.all([
+        fetchInitDataAll(),
+        store.initApp()
+      ])
+      for (const name of dbNames) {
+        // seed the watcher snapshot with a *copy* - manate wraps the exact
+        // array assigned into the store, so seeding with `ext[name]` itself
+        // would alias snapshot and store to one backing array; the watcher's
+        // no-change early-return would then skip DB writes forever
+        refsStatic.add('oldState-' + name, deepCopy(ext[name]))
+      }
+      ext.bookmarksMap = new Map(
+        ext.bookmarks.map(d => [d.id, d])
+      )
       ext.initLoadingData = false
       Object.assign(store, ext)
       store.loadFontList()

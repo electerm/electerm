@@ -14,7 +14,9 @@ const {
 const globalState = require('./glob-state')
 const log = require('../common/log')
 const ipcSyncFuncs = require('./ipc-sync')
-const { dbAction } = require('./db')
+const { dbAction, tables } = require('./db')
+const { createLoadInitData } = require('./init-data')
+const loadInitData = createLoadInitData(dbAction, tables)
 const { listItermThemes } = require('./iterm-theme')
 const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
@@ -261,6 +263,7 @@ function initIpc () {
     safeEncrypt: (str) => safeEncrypt(str),
     safeDecrypt: (str) => safeDecrypt(str),
     dbAction,
+    loadInitData,
     getScreenSize,
     closeApp: (closeAction = '') => {
       globalState.set('closeAction', closeAction)

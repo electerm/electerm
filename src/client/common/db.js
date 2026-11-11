@@ -10,6 +10,7 @@ import handleError from './error-handler'
 import generate from './uid'
 import safeParse from './to-simple-obj'
 import { decObj } from './pass-enc'
+import { buildInitData } from './init-data'
 
 /**
  * db action, never direct use it
@@ -153,13 +154,51 @@ export async function getData (name) {
 }
 
 /**
- * get sorted data from db
+ * Load every startup table in a single IPC round trip.
+ *
+ * The main process owns the DB. Reading each table and its `:order` record
+ * separately meant 2 * dbNames + 1 round trips (25 today) before the store
+ * could be populated, each with its own structured clone. `loadInitData`
+ * walks the same tables in the main process and sends one payload back.
+ *
+ * Returns plain arrays. The JSON.stringify/JSON.parse pair that used to sit
+ * between fetchInitData and initData was a leftover from when initData kept
+ * `ext['_' + name]` as a serialized snapshot for the sync diff (removed in
+ * 61594d0f); ipcRenderer.invoke already deep-clones, so it only cost two
+ * extra full passes over every table.
+ *
+ * Falls back to per-table reads when the main process comes from an older
+ * build (an unknown IPC name resolves to `undefined`) or the batch rejects.
+ * That keeps a mismatched renderer/app bundle pair bootable, and a corrupt
+ * table still reaches `handleError` through the original path.
+ *
+ * @param {Array<string>} names
+ * @returns {Promise<Object>} fields to assign to the store
+ */
+export async function fetchInitDataAll (names = dbNames) {
+  const payload = await window.pre.runGlobalAsync('loadInitData', names)
+    .catch(() => null)
+  const built = buildInitData(payload, names)
+  if (built) {
+    return built
+  }
+  const ext = {}
+  await Promise.all(names.map(async name => {
+    ext[name] = await fetchInitData(name)
+  }))
+  ext.lastDataUpdateTime = await getData('lastDataUpdateTime') || 0
+  return ext
+}
+
+/**
+ * Per-table fallback for fetchInitDataAll: get sorted data from db
  * @param {string} dbName
  */
-
 export async function fetchInitData (dbName) {
-  const res = await find(dbName)
-  const order = await getData(`${dbName}:order`)
+  const [res, order] = await Promise.all([
+    find(dbName),
+    getData(`${dbName}:order`)
+  ])
   if (order && order.length) {
     // index map instead of findIndex inside the comparator:
     // comparator sort is O(n²) with findIndex, O(n log n) with a map
@@ -169,5 +208,5 @@ export async function fetchInitData (dbName) {
       (orderMap.get(b.id) ?? -1)
     )
   }
-  return JSON.stringify(res)
+  return res
 }
