@@ -169,6 +169,7 @@ function errorEntry (id, message) {
       type: 'frontend',
       builtin: false,
       singleInstance: false,
+      autoRun: false,
       configs: [],
       ui: '',
       action: DEFAULT_ACTION,
@@ -241,6 +242,11 @@ function readWidget (dir, folderName) {
       type,
       builtin: false,
       singleInstance: !!conf.singleInstance,
+      // A widget that ships its own UI has no generated run form to tick
+      // "Start with electerm" in. Declaring it in the manifest lets the panel
+      // start the instance on its own and register it for autorun (see
+      // client/components/widgets/custom-widget-panel.jsx).
+      autoRun: !!conf.autoRun,
       configs: sanitizeConfigs(conf.configs),
       // relative to the widget folder; the renderer builds
       // electerm-widget://<id>/<ui> out of it

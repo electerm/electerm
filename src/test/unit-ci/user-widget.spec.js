@@ -298,3 +298,34 @@ describe('import and delete', () => {
     )
   })
 })
+
+describe('widget UI calls', () => {
+  it('talks to the running module after the require cache is cleared', async () => {
+    writeWidget('state-widget', {
+      name: 'state-widget',
+      main: 'main.js',
+      electerm: { id: 'state-widget', name: 'State', type: 'instance' }
+    }, {
+      'main.js': `
+        let starts = 0
+        exports.widgetRun = () => ({
+          instanceId: 'state-1',
+          start: async () => { starts += 1; return { success: true } },
+          stop: async () => {}
+        })
+        exports.count = () => starts
+      `
+    })
+    const result = await registry.runWidget('state-widget', {})
+    assert.equal(await registry.callWidgetFunc('state-widget', 'count'), 1)
+
+    // Re-importing a widget purges its require cache. Without binding to the
+    // running instance's module, the panel would call a fresh module whose
+    // state (and proxy listener) is empty, e.g. "not running yet".
+    const { entry } = registry.resolveWidgetModule('state-widget')
+    delete require.cache[require.resolve(entry)]
+    assert.equal(await registry.callWidgetFunc('state-widget', 'count'), 1)
+
+    await registry.stopWidget(result.instanceId)
+  })
+})

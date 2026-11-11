@@ -11,13 +11,19 @@
  */
 import React, { useEffect, useRef, useState } from 'react'
 import { Button, Tooltip } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { PlayCircleOutlined, ReloadOutlined, StopOutlined } from '@ant-design/icons'
+import { auto } from 'manate/react'
 import { copy } from '../../common/clipboard'
 import { safeGetItemJSON, safeSetItemJSON } from '../../common/safe-local-storage'
 import isColorDark from '../../common/is-color-dark'
 import openWidgetTab from './widget-open-tab'
+import WidgetAIConfig from './widget-ai-config'
 
 const e = window.translate
+
+// Reopening the settings panel remounts this component. An explicit Stop must
+// survive that until the next app launch, when "Start with electerm" applies.
+const stoppedByUser = new Set()
 
 // A widget's own key/value store, the same one config-mode widgets persist to.
 // Reading it through getConfig is deliberately scoped: handing the whole app
@@ -67,17 +73,31 @@ function themePayload () {
   }
 }
 
-async function handleCall (widgetId, method, args) {
+async function handleCall (widgetId, method, args, onOffer, defaultAutoRun) {
   switch (method) {
     case 'call': {
       const [name, ...rest] = args
       if (typeof name !== 'string' || !name) {
         throw new Error('call needs a function name')
       }
-      return window.pre.runGlobalAsync('callWidgetFunc', widgetId, name, ...rest)
+      const result = await window.pre.runGlobalAsync('callWidgetFunc', widgetId, name, ...rest)
+      // The main process already whitelisted this offer (load-widget.js).
+      // Rendering it in the host panel instead of the iframe keeps "point
+      // electerm at this endpoint" a deliberate click on a host-owned button.
+      if (result && result.aiConfig && onOffer) {
+        onOffer(result.aiConfig)
+      }
+      return result
     }
-    case 'getConfig':
-      return readWidgetConfig(widgetId)
+    case 'getConfig': {
+      const conf = readWidgetConfig(widgetId)
+      // Untouched widgets follow the manifest's autoRun default. Once the user
+      // picks a value it is stored here and in autoRunWidgets together.
+      return {
+        ...conf,
+        autoRun: typeof conf.autoRun === 'boolean' ? conf.autoRun : !!defaultAutoRun
+      }
+    }
     case 'updateConfig': {
       const patch = args[0]
       if (!patch || typeof patch !== 'object' || Array.isArray(patch)) {
@@ -85,6 +105,9 @@ async function handleCall (widgetId, method, args) {
       }
       const next = { ...readWidgetConfig(widgetId), ...patch }
       safeSetItemJSON(widgetConfigKey(widgetId), next)
+      if (typeof patch.autoRun === 'boolean') {
+        window.store.setWidgetAutoRun(widgetId, patch.autoRun, next)
+      }
       return next
     }
     case 'openDialog':
@@ -105,10 +128,16 @@ async function handleCall (widgetId, method, args) {
   }
 }
 
-export default function CustomWidgetPanel ({ widget }) {
+export default auto(function CustomWidgetPanel ({ widget }) {
   const { id, info } = widget
   const frameRef = useRef(null)
   const [nonce, setNonce] = useState(0)
+  const [offer, setOffer] = useState(null)
+  const [error, setError] = useState('')
+  const [working, setWorking] = useState(false)
+  // auto() re-renders on store mutations: the same instance list the widgets
+  // sidebar shows is the source of truth for the Run/Stop state.
+  const running = window.store.widgetInstances.find(i => i.widgetId === id)
   const ui = String(info.ui || '').replace(/^\/+/, '')
   // A browser has no privileged custom scheme, so the web app serves the same
   // folder over http (see src/app/routes/widget-ui.js there). The nonce is a
@@ -140,7 +169,7 @@ export default function CustomWidgetPanel ({ widget }) {
           ...payload
         }, '*')
       }
-      handleCall(id, data.method, data.args || [])
+      handleCall(id, data.method, data.args || [], setOffer, !!info.autoRun)
         .then(result => reply({ ok: true, result }))
         .catch(err => reply({
           ok: false,
@@ -149,6 +178,83 @@ export default function CustomWidgetPanel ({ widget }) {
     }
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
+  }, [id])
+
+  // An instance widget that ships its own UI has no generated run form, so the
+  // panel owns starting it. The same path serves the explicit Run button and
+  // the manifest's `electerm.autoRun`; a failed start is shown here instead of
+  // only in the console, where the widget later fails with "not running".
+  async function run () {
+    if (working) {
+      return
+    }
+    stoppedByUser.delete(id)
+    setWorking(true)
+    setError('')
+    try {
+      const config = readWidgetConfig(id)
+      const result = await window.store.runWidget(id, config)
+      if (!result || !result.instanceId) {
+        return
+      }
+      const instance = {
+        id: result.instanceId,
+        title: `${info.name} (${result.instanceId})`,
+        widgetId: id,
+        serverInfo: result.serverInfo,
+        aiConfig: result.aiConfig || null,
+        config: { ...config },
+        startedAt: Date.now()
+      }
+      window.store.widgetInstances = [
+        ...window.store.widgetInstances.filter(w => w.id !== instance.id),
+        instance
+      ]
+      if (result.aiConfig) {
+        setOffer(result.aiConfig)
+      }
+      // Register for launch only when the user's switch is on. A widget that
+      // never declared autoRun has no switch, so it keeps the old behaviour.
+      if (info.autoRun) {
+        window.store.setWidgetAutoRun(id, config.autoRun !== false, config)
+      }
+    } catch (err) {
+      setError(err.message || String(err))
+    } finally {
+      setWorking(false)
+    }
+  }
+
+  async function stop () {
+    if (!running) {
+      return
+    }
+    setWorking(true)
+    setError('')
+    stoppedByUser.add(id)
+    try {
+      await window.store.stopWidget(running.id)
+      // main process may have lost the instance already (crash, re-import):
+      // drop the stale renderer entry so Run becomes available again
+      if (window.store.widgetInstances.some(w => w.id === running.id)) {
+        window.store.deleteWidgetInstance(running.id)
+      }
+      setOffer(null)
+    } catch (err) {
+      setError(err.message || String(err))
+    } finally {
+      setWorking(false)
+    }
+  }
+
+  useEffect(() => {
+    // "Start with electerm" is the user's switch, not a manifest decision:
+    // turning it off means the panel no longer starts the widget on its own.
+    const autoRun = info.autoRun && readWidgetConfig(id).autoRun !== false
+    if (info.type !== 'instance' || !autoRun || running || stoppedByUser.has(id)) {
+      return
+    }
+    run()
   }, [id])
 
   // init arrives after the bridge is parsed, which is after load for every
@@ -177,15 +283,49 @@ export default function CustomWidgetPanel ({ widget }) {
           {info.name}
           <span className='cwp-version'>{info.version}</span>
         </div>
-        <Tooltip title={e('reload')}>
-          <Button
-            size='small'
-            type='text'
-            icon={<ReloadOutlined />}
-            onClick={() => setNonce(Date.now())}
-          />
-        </Tooltip>
+        <div className='cwp-actions'>
+          {info.type === 'instance'
+            ? (
+              <>
+                {/* The dot carries the state; the button carries the action.
+                    Stopped is the state a user has to notice, so Run is the
+                    only filled control in the panel. */}
+                <span className={'cwp-state' + (running ? ' is-on' : '')}>
+                  {running ? 'Running' : 'Stopped'}
+                </span>
+                <Button
+                  size='small'
+                  type={running ? 'default' : 'primary'}
+                  danger={running}
+                  icon={running ? <StopOutlined /> : <PlayCircleOutlined />}
+                  loading={working}
+                  onClick={running ? stop : run}
+                >
+                  {running ? 'Stop' : 'Run'}
+                </Button>
+              </>
+              )
+            : null}
+          <Tooltip title={e('reload')}>
+            <Button
+              size='small'
+              type='text'
+              icon={<ReloadOutlined />}
+              onClick={() => setNonce(Date.now())}
+            />
+          </Tooltip>
+        </div>
       </div>
+      {error
+        ? <div className='cwp-error'>{running ? 'Stop failed' : 'Run failed'}: {error}</div>
+        : null}
+      {offer
+        ? (
+          <div className='cwp-offer'>
+            <WidgetAIConfig aiConfig={offer} store={window.store} />
+          </div>
+          )
+        : null}
       {/*
         Over http the widget document would otherwise share the app's origin,
         and with it window.store and the token in localStorage. Withholding
@@ -207,4 +347,4 @@ export default function CustomWidgetPanel ({ widget }) {
       />
     </div>
   )
-}
+})

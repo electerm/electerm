@@ -1,17 +1,12 @@
+// Widget list, instance detail and custom-widget panels. Where a rule
+// overrides setting-panel/list.styl or antd, the reason is noted inline.
 
-// hover popover on a running-instance row. A long path makes it wider than the
-// list column, and it then spills over the detail panel's heading, so it is
-// held to the column and wrapped instead.
 .wil-pop-info
   max-width 220px
   word-break break-all
 
-// widget instances list: the auto-run toggle and the delete icon
-// (widget-instance.jsx). `setting-panel/list.styl` parks every `.list-item-*`
-// action icon absolutely at the row's right edge and reveals it on hover — fine
-// for a short title, but this row's title is the point, and the ellipsised text
-// ran straight underneath both icons. In flow they own their width instead, so
-// the title truncates before them.
+// list.styl parks action icons absolutely at the row's right edge; in flow
+// they own their width, so a long title truncates before them, not under them.
 .wil-item-actions
   display flex
   flex 0 0 auto
@@ -22,29 +17,24 @@
     display block
     width 22px
     line-height inherit
-    // the space is kept while they are hidden, so the title does not
-    // re-ellipsise as the pointer enters the row
+    // keep the space while hidden, or the title re-ellipsises on hover
     visibility hidden
-.item-list-unit:hover
-  .wil-item-actions
-    .list-item-autorun
-    .list-item-remove
-      visibility visible
-// a touch screen has no hover: the shared `.is-touch-device` rule shows the
-// icons there, and this has to undo the `visibility` half too
+.item-list-unit:hover,
 .is-touch-device
   .wil-item-actions
     .list-item-autorun
     .list-item-remove
       visibility visible
 
-// widget manager: instance detail view (widget-instance-detail.jsx)
+// column shell and header, shared by instance detail and the UI widget panel
 .widget-instance-detail
+.custom-widget-panel
   display flex
   flex-direction column
   min-height 0
   height 100%
 .wil-head
+.cwp-head
   display flex
   align-items center
   justify-content space-between
@@ -52,16 +42,40 @@
   margin-bottom 10px
   flex-shrink 0
 .wil-head-title
+.cwp-title
   min-width 0
   font-size 14px
+.cwp-version
+  margin-left 8px
+  font-size 11px
+  color var(--text-dark)
+.cwp-actions
+  display flex
+  align-items center
+  gap 8px
+  flex-shrink 0
+.cwp-state
+  display flex
+  align-items center
+  gap 5px
+  font-size 11px
+  color var(--text-dark)
+  &::before
+    content ''
+    width 6px
+    height 6px
+    border-radius 50%
+    background var(--text-disabled)
+  &.is-on
+    color var(--success)
+    &::before
+      background var(--success)
+
 .wil-descriptions
-  // the log is the point of this panel, so a long config list gives up room
-  // (and scrolls) instead of squeezing it: shrinkable, and allowed to go below
-  // its content height, with the pane holding a floor of its own
+  // the log is the point: a long config list shrinks and scrolls instead
   flex 0 1 auto
   min-height 0
   overflow auto
-  // long values (paths, URLs, keys) must wrap instead of widening the panel
   .ant-descriptions-item-label
     width 90px
     white-space nowrap
@@ -75,7 +89,7 @@
   flex-shrink 0
 .wil-pane
   flex 1
-  // a floor, so the log stays readable no matter how long the config list is
+  // floor keeps the log readable below a long config list
   min-height 200px
   overflow auto
   padding 6px 8px
@@ -93,46 +107,40 @@
   border-bottom 1px solid var(--main-light)
   &:last-child
     border-bottom 0
+
 .wil-time
-  flex-shrink 0
-  color var(--text-disabled)
 .wil-mark
 .wil-type
-  flex-shrink 0
 .wil-from
+.wil-path
   flex-shrink 0
-  color var(--text-dark)
 .wil-msg
   min-width 0
+.wil-time
+  color var(--text-disabled)
+.wil-from
 .wil-debug
+.wil-info
+.wil-empty
   color var(--text-dark)
 .wil-log
   color var(--text)
 .wil-warn
   color var(--warn)
 .wil-error
+.wil-fail
   color var(--error)
 .wil-ok
   color var(--success)
-  .wil-mark
-    color var(--success)
-.wil-fail
-  color var(--error)
-  .wil-mark
-    color var(--error)
-.wil-info
-  color var(--text-dark)
+// .wil-mark inherits the state color from .wil-line
 .wil-empty
-  color var(--text-dark)
   padding 6px 0
 .wil-path
-  flex-shrink 0
   margin-top 6px
-  color var(--text-disabled)
   font-size 11px
+  color var(--text-disabled)
 
-// an AI config a widget offers to apply (widget-ai-config.jsx). Sits between
-// the instance facts and the log, and in the config-mode result view.
+// offer cards (.wac, also used by widget-bookmarks) and result rows (.cwf)
 .wac
   flex-shrink 0
   margin 10px 0
@@ -158,45 +166,52 @@
   gap 2px
   margin-bottom 8px
 .wac-row
+.cwf-detail
   display flex
   gap 8px
   align-items flex-start
+.wac-row
   font-size 12px
 .wac-label
   flex 0 0 90px
   color var(--text-dark)
   white-space nowrap
+.cwf-detail-label
+  flex 0 0 110px
+  color var(--text-dark)
+  word-break break-word
 .wac-value
+.cwf-detail-value
   flex 1
   min-width 0
   display flex
   align-items center
   gap 2px
   font-family monospace
+  font-size 12px
   word-break break-all
 .wac-secret
+.cwf-secret
+.cwf-cell
   display flex
   align-items center
   gap 2px
   min-width 0
+.wac-secret
+.cwf-secret
   max-width 100%
 .wac-secret-text
+.cwf-secret-text
   min-width 60px
   font-family monospace
 
-// user widget list: the import button owns a row of its own above the search
-// box, with the wiki help icon beside it (widgets-list.jsx)
 .widgets-import-row
   display flex
   align-items center
-  // `block` gives the button width 100%; as a flex item it must be allowed to
-  // give the help icon its room back
+  // the button is `block` (width 100%); give the help icon its room back
   .ant-btn
     flex 1
     min-width 0
-
-// user widget list: a folder that failed to load stays in the list with a
-// warning instead of disappearing (widgets-list.jsx)
 .list-item-widget-error
   position absolute
   right 0
@@ -206,40 +221,25 @@
   text-align center
   color var(--warn)
 
-// custom widget UI: the widget's own document owns the panel
-// (custom-widget-panel.jsx)
-.custom-widget-panel
-  display flex
-  flex-direction column
-  height 100%
-  min-height 0
-.cwp-head
-  display flex
-  align-items center
-  justify-content space-between
-  gap 8px
-  margin-bottom 10px
+.cwp-error
   flex-shrink 0
-.cwp-title
-  min-width 0
-  font-size 14px
-.cwp-version
-  margin-left 8px
-  font-size 11px
-  color var(--text-dark)
+  margin-bottom 10px
+  color var(--error)
+.cwp-offer
+  flex-shrink 0
+  max-height 45%
+  overflow auto
+  margin-bottom 10px
 .cwp-frame
   flex 1
   min-height 0
   width 100%
   border 0
   border-radius 4px
-  // the widget document inherits nothing; it sets its own colors from the
-  // variables the host hands it (see widget-bridge.js)
+  // the document inherits nothing; widget-bridge.js hands it the theme vars
   background var(--main-dark)
   color-scheme inherit
 
-// config-mode user widget: generated form + the action's result
-// (custom-widget-form.jsx)
 .cwf-desc
   margin-bottom 10px
   color var(--text-dark)
@@ -252,37 +252,6 @@
   flex-direction column
   gap 4px
   margin-bottom 10px
-.cwf-detail
-  display flex
-  gap 8px
-  align-items flex-start
-.cwf-detail-label
-  flex 0 0 110px
-  color var(--text-dark)
-  word-break break-word
-.cwf-detail-value
-  flex 1
-  min-width 0
-  display flex
-  align-items center
-  gap 2px
-  font-family monospace
-  font-size 12px
-  word-break break-all
-.cwf-secret
-  display flex
-  align-items center
-  gap 2px
-  min-width 0
-  max-width 100%
-.cwf-secret-text
-  min-width 60px
-  font-family monospace
-.cwf-cell
-  display flex
-  align-items center
-  gap 2px
-  min-width 0
 .cwf-table
   font-size 12px
   margin-bottom 10px

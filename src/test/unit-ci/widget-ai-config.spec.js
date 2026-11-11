@@ -39,7 +39,7 @@ after(() => {
 })
 
 describe('sanitizeAIConfig', () => {
-  it('keeps the fields a widget may set and trims them', () => {
+  it('keeps the fields a widget may set, trims them and keeps explicit clears', () => {
     const out = sanitizeAIConfig({
       nameAI: '  ChatGPT subscription ',
       baseURLAI: ' http://localhost:8788/v1 ',
@@ -55,7 +55,21 @@ describe('sanitizeAIConfig', () => {
       apiPathAI: '/responses',
       apiKeyAI: 'sk-local-1',
       authHeaderNameAI: 'Authorization: Bearer',
-      modelAI: 'gpt-5.2'
+      modelAI: 'gpt-5.2',
+      proxyAI: ''
+    })
+  })
+
+  it('lets a widget clear the AI proxy but still drops invalid values', () => {
+    const out = sanitizeAIConfig({
+      baseURLAI: 'http://localhost:8788/v1',
+      proxyAI: '   ',
+      nameAI: 'x'.repeat(61),
+      modelAI: 'a\nb'
+    })
+    assert.deepEqual(out, {
+      baseURLAI: 'http://localhost:8788/v1',
+      proxyAI: ''
     })
   })
 
@@ -171,13 +185,16 @@ describe('widget results carry a sanitised aiConfig', () => {
       exports.widgetInfo = { name: 'ai-func', type: 'instance' }
       exports.apply = async () => ({
         message: 'done',
-        aiConfig: { baseURLAI: 'https://api.example.com/v1', languageAI: 'zh' }
+          aiConfig: { baseURLAI: 'https://api.example.com/v1', languageAI: 'zh', proxyAI: '' }
       })
       exports.plain = async () => ({ message: 'no config here' })
       exports.scalar = async () => 'just a string'
     `)
     const applied = await registry.callWidgetFunc('ai-func', 'apply')
-    assert.deepEqual(applied.aiConfig, { baseURLAI: 'https://api.example.com/v1' })
+    assert.deepEqual(applied.aiConfig, {
+      baseURLAI: 'https://api.example.com/v1',
+      proxyAI: ''
+    })
     assert.equal(applied.message, 'done')
 
     const plain = await registry.callWidgetFunc('ai-func', 'plain')

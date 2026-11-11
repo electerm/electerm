@@ -15,6 +15,7 @@ const {
 const { importWidgetFromRegistry } = require('./widget-registry')
 const { isValidWidgetId } = require('./paths')
 const { sanitizeAIConfig } = require('./ai-config')
+const { createProxyAgent } = require('../lib/proxy-agent')
 // const log = require('../common/log')
 
 // Store running widget instances
@@ -158,9 +159,16 @@ async function runWidget (widgetId, config) {
 
   // The widget reports through this context; it is handed the instance log
   // before it knows its own instanceId (see instance-log.js createContext).
+  // A widget that forwards AI traffic decides its own upstream proxy: electerm
+  // only supplies the agent factory, so no proxy value leaks into widget config.
   const ctx = widgetLog.createContext()
-  const instance = widget.widgetRun(config, ctx)
+  ctx.createProxyAgent = createProxyAgent
+  const instance = widget.widgetRun({ ...(config || {}) }, ctx)
   instance.widgetId = widgetId
+  // A UI widget's exported functions close over this module's state. Requiring
+  // the entry again (a re-import purges the require cache) would hand the panel
+  // a fresh module with empty state while this instance is still running.
+  instance.widgetModule = widget
   runningInstances.set(instance.instanceId, instance)
   ctx.bind(instance.instanceId)
 
@@ -196,11 +204,18 @@ async function runWidget (widgetId, config) {
  * This is what a custom widget UI talks to: for `frontend` widgets there is no
  * instance to call methods on (runWidgetFunc needs one), and patching ipc.js is
  * not an option for code that ships after the app does. Only own properties are
- * reachable, the same rule the ipc bridge itself follows.
+ * reachable, the same rule the ipc bridge itself follows. When an instance is
+ * running, its own module is used, so a re-import that clears the require cache
+ * cannot leave the UI talking to a second, empty copy of the widget state.
  */
 async function callWidgetFunc (widgetId, funcName, ...args) {
   const { entry } = resolveWidgetModule(widgetId)
-  const widget = require(entry)
+  // Prefer the module the running instance was created from: its state is the
+  // state the widget UI is supposed to talk to. Frontend widgets have no
+  // instance, so they fall back to a plain require.
+  const running = [...runningInstances.values()]
+    .find(({ widgetId: id }) => id === widgetId)
+  const widget = (running && running.widgetModule) || require(entry)
   if (
     typeof funcName !== 'string' ||
     !Object.prototype.hasOwnProperty.call(widget, funcName) ||

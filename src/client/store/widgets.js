@@ -11,6 +11,16 @@ import getInitItem from '../common/init-setting-item'
 import deepCopy from 'json-deep-copy'
 import generate from '../common/uid'
 import { noteWidgets } from '../common/credential-provider.jsx'
+import { safeGetItemJSON, safeSetItemJSON } from '../common/safe-local-storage'
+
+// A widget with its own UI has no generated form: it keeps its config through
+// window.electerm.updateConfig, which lands in localStorage. Autorun should
+// start with the latest values (e.g. a provider switched in the widget panel),
+// not with the config snapshot taken when it was first started.
+function savedWidgetConfig (widgetId) {
+  const stored = safeGetItemJSON(`widget-config-${widgetId}`, {})
+  return stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {}
+}
 
 export default Store => {
   Store.prototype.listWidgets = async () => {
@@ -104,6 +114,33 @@ export default Store => {
     store.openSettingModal()
   }
 
+  // Autorun has two UIs: the sidebar thunderbolt and a UI widget's own switch.
+  // One idempotent setter keeps the launch list, the sidebar badge and the
+  // widget's stored choice on the same value, whichever one the user used.
+  Store.prototype.setWidgetAutoRun = (widgetId, enabled, config) => {
+    const { store } = window
+    if (!store.autoRunWidgets) {
+      store.autoRunWidgets = []
+    }
+    const list = store.autoRunWidgets
+    const index = list.findIndex(w => w.widgetId === widgetId)
+    if (enabled && index < 0) {
+      list.push({ id: generate(), widgetId, config: deepCopy(config || {}) })
+    } else if (!enabled && index > -1) {
+      list.splice(index, 1)
+    }
+    const item = list.find(w => w.widgetId === widgetId)
+    const instance = store.widgetInstances.find(w => w.widgetId === widgetId)
+    if (instance) {
+      instance.autoRun = !!item
+      instance.autoRunId = item ? item.id : undefined
+    }
+    const key = `widget-config-${widgetId}`
+    const saved = safeGetItemJSON(key, {})
+    const conf = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {}
+    safeSetItemJSON(key, { ...conf, autoRun: !!enabled })
+  }
+
   Store.prototype.toggleAutoRunWidget = (instance) => {
     const { store } = window
     const { widgetId, config } = instance
@@ -127,6 +164,12 @@ export default Store => {
       instance.autoRun = true
       instance.autoRunId = id
     }
+    // A UI widget reads this value through getConfig, so the sidebar toggle
+    // and the widget's own switch never disagree.
+    const key = `widget-config-${widgetId}`
+    const saved = safeGetItemJSON(key, {})
+    const conf = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {}
+    safeSetItemJSON(key, { ...conf, autoRun: !!instance.autoRun })
   }
 
   Store.prototype.startAutoRunWidgets = async function () {
@@ -137,7 +180,16 @@ export default Store => {
     }
     for (const item of items) {
       try {
-        const result = await store.runWidget(item.widgetId, deepCopy(item.config))
+        const runConfig = {
+          ...deepCopy(item.config),
+          ...savedWidgetConfig(item.widgetId)
+        }
+        // The widget's own switch can turn autorun off without the list being
+        // rewritten (older saved entries, or a config restored from backup).
+        if (runConfig.autoRun === false) {
+          continue
+        }
+        const result = await store.runWidget(item.widgetId, runConfig)
         if (result && result.instanceId) {
           const instance = {
             id: result.instanceId,

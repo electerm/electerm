@@ -69,8 +69,12 @@ function sanitizeAIConfig (value) {
     if (!Object.prototype.hasOwnProperty.call(value, field)) {
       continue
     }
-    const clean = cleanString(value[field], MAX_LENGTH[field])
-    if (clean) {
+    const raw = value[field]
+    const clean = cleanString(raw, MAX_LENGTH[field])
+    // An explicit empty string is a value too: a widget that serves a local
+    // endpoint can offer to clear the AI proxy. Invalid values (non-strings,
+    // too long, multiline) are still dropped, not turned into a clear.
+    if (clean || (typeof raw === 'string' && !raw.trim())) {
       out[field] = clean
     }
   }

@@ -84,10 +84,11 @@ export default auto(function WidgetAIConfig ({ aiConfig, store }) {
       </div>
       <p className='wac-desc'>
         This widget can point electerm's AI panel at itself. Nothing changes until you press the
-        button; the values below are exactly what gets written to Settings → AI.
+        button; the values below are exactly what gets written to Settings → AI. A value of
+        "none" clears that setting.
       </p>
       <div className='wac-rows'>
-        {ROWS.filter(([key]) => aiConfig[key]).map(([key, label, secret]) => (
+        {ROWS.filter(([key]) => key in aiConfig).map(([key, label, secret]) => (
           <div className='wac-row' key={key}>
             <span className='wac-label'>{label}</span>
             <span className='wac-value'>
@@ -95,7 +96,7 @@ export default auto(function WidgetAIConfig ({ aiConfig, store }) {
                 ? <Secret value={aiConfig[key]} />
                 : (
                   <>
-                    <span className='elli' title={aiConfig[key]}>{aiConfig[key]}</span>
+                    <span className='elli' title={aiConfig[key]}>{aiConfig[key] || 'none'}</span>
                     <Button
                       size='small'
                       type='text'
