@@ -482,8 +482,8 @@ class Tab extends Component {
 
   renderCloseIcon () {
     return (
-      <span className='tab-close pointer'>
-        <CloseOutlined onClick={this.handleClose} />
+      <span className='tab-close pointer' onClick={this.handleClose}>
+        <CloseOutlined />
       </span>
     )
   }
