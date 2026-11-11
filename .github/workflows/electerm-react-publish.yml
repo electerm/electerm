@@ -19,9 +19,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          registry-url: https://registry.npmjs.org/
+          # no registry-url: it writes a .npmrc with
+          # _authToken=${NODE_AUTH_TOKEN} and a placeholder token, which makes npm
+          # take the token path and skip the OIDC exchange trusted publishing needs
       - run: npm config set legacy-peer-deps true
       - run: npm install shelljs
-      - run: npm install -g @jsdevtools/npm-publish
       - name: build
         run: node src/build/bin/publish-electerm-react.js
