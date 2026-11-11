@@ -15,6 +15,7 @@ import { ReloadOutlined } from '@ant-design/icons'
 import { copy } from '../../common/clipboard'
 import { safeGetItemJSON, safeSetItemJSON } from '../../common/safe-local-storage'
 import isColorDark from '../../common/is-color-dark'
+import { webUrl } from '../../common/web-url'
 import openWidgetTab from './widget-open-tab'
 
 const e = window.translate
@@ -111,10 +112,11 @@ export default function CustomWidgetPanel ({ widget }) {
   const [nonce, setNonce] = useState(0)
   const ui = String(info.ui || '').replace(/^\/+/, '')
   // A browser has no privileged custom scheme, so the web app serves the same
-  // folder over http (see src/app/routes/widget-ui.js there). The nonce is a
-  // cache buster in both cases: a reinstall replaces files in place.
+  // folder over http (see src/app/routes/widget-ui.js there), under an optional
+  // sub-path — hence webUrl. The nonce is a cache buster in both cases: a
+  // reinstall replaces files in place.
   const uiBase = window.et.isWebApp
-    ? `/api/widget-ui/${id}`
+    ? webUrl(`/api/widget-ui/${id}`)
     : `electerm-widget://${id}`
   const src = `${uiBase}/${ui}${nonce ? `?r=${nonce}` : ''}`
 
