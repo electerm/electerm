@@ -17,6 +17,7 @@
 
 import fs from './fs'
 import { iconMimeType } from './icon-value'
+import { webUrl } from './web-url'
 
 const cache = new Map()
 
@@ -29,7 +30,9 @@ const cache = new Map()
 export function builtinIconUrl (name) {
   const base = (window.et && window.et.extIconPath) ||
     (window.pre && window.pre.extIconPath) ||
-    '/icons/'
+    // last resort, only reached when the app injected no path at all: still
+    // resolve it, so a sub-path deployment does not 404 every built-in icon
+    webUrl('/icons/')
   return `${base}${name}.svg`
 }
 
