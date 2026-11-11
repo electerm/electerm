@@ -7,9 +7,10 @@
  * through to the next port. The app then waited for `serverInited` forever:
  * no window, no message.
  *
- * These tests pin the two properties that matter: a port we cannot bind is
- * skipped (whatever the error code), and a port we can bind is reported
- * correctly, including port 0.
+ * These tests pin the three properties that matter: a port we cannot bind is
+ * skipped (whatever the error code), a port we can bind is reported correctly
+ * (including port 0), and a blocked window wider than `tries` still ends in a
+ * usable port instead of an error.
  */
 
 const { test } = require('node:test')
@@ -83,6 +84,30 @@ test('gives up with a clear error when nothing can be bound', async () => {
     getFreePort({ from: 30975, tries: 3, probe }),
     /no free port found from 30975 \(tried 3\)/
   )
+})
+
+test('falls back to a random port when the whole window is a reserved block', async () => {
+  // WSL2 / Hyper-V reserve one long contiguous range, so walking on from `from`
+  // can never leave it -- exactly what issue #4717 ran into
+  const probed = []
+  const probe = async (port) => {
+    probed.push(port)
+    if (port < 32000) {
+      const err = new Error('EACCES: reserved range')
+      err.code = 'EACCES'
+      throw err
+    }
+    return port
+  }
+  const sequential = Array.from({ length: 10 }, (_, i) => 30975 + i)
+  const free = await getFreePort({
+    from: 30975,
+    tries: sequential.length,
+    randomRange: [32000, 32000],
+    probe
+  })
+  assert.equal(free, 32000)
+  assert.deepEqual(probed, [...sequential, 32000])
 })
 
 test('never walks past 65535', async () => {
