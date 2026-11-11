@@ -2,15 +2,20 @@
  * Bookmark from history modal - used to create bookmark from history item
  */
 
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import { Button } from 'antd'
 import message from '../common/message'
 import { PlusOutlined } from '@ant-design/icons'
 import Modal from '../common/modal'
 import { refsStatic } from '../common/ref'
-import AICategorySelect from './common/ai-category-select.jsx'
 import generate from '../../common/uid'
 import copy from 'json-deep-copy'
+
+// the AI category picker is the heaviest thing in this modal (antd Table +
+// Select + the AI category formatters). The modal itself must stay mounted to
+// serve its imperative `show()`, but its children never render while closed,
+// so deferring here keeps that whole subtree out of the startup bundle.
+const AICategorySelect = lazy(() => import('./common/ai-category-select.jsx'))
 
 const e = window.translate
 
@@ -123,11 +128,13 @@ export default class BookmarkFromHistoryModal extends React.PureComponent {
       <Modal {...modalProps}>
         <div className='bookmark-from-history-modal pd2'>
           <div className='pd1b'>
-            <AICategorySelect
-              bookmarkGroups={window.store.bookmarkGroups}
-              value={selectedCategory}
-              onChange={(val) => this.setState({ selectedCategory: val })}
-            />
+            <Suspense fallback={null}>
+              <AICategorySelect
+                bookmarkGroups={window.store.bookmarkGroups}
+                value={selectedCategory}
+                onChange={(val) => this.setState({ selectedCategory: val })}
+              />
+            </Suspense>
           </div>
           <div className='pd1b'>
             <pre className='bookmark-json-preview'>

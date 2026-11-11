@@ -3,8 +3,12 @@ import {
 } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
 import Transports from './transfer-list-control'
-import TransportHistory from './transfer-history-modal'
-import { memo } from 'react'
+import { memo, lazy, Suspense } from 'react'
+
+// the history tab is an antd Table (~137 kB minified) that nobody needs before
+// they actually open it: keep it out of the startup bundle. Only rendered when
+// there is history, and only mounted on the history tab.
+const TransportHistory = lazy(() => import('./transfer-history-modal'))
 
 const e = window.translate
 
@@ -19,9 +23,11 @@ export default memo(function TransferModal (props) {
 
   const renderHistory = () => {
     return (
-      <TransportHistory
-        transferHistory={props.transferHistory}
-      />
+      <Suspense fallback={null}>
+        <TransportHistory
+          transferHistory={props.transferHistory}
+        />
+      </Suspense>
     )
   }
 

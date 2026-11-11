@@ -68,6 +68,26 @@ export default defineConfig({
       input: buildInput(),
       output: {
         format: 'esm',
+        advancedChunks: {
+          minSize: 150000,
+          groups: [
+            {
+              name: 'react-core',
+              test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+              priority: 20
+            },
+            {
+              name: 'antd-icons',
+              test: /node_modules[\\/]@ant-design[\\/]icons[\\/]/,
+              priority: 19
+            },
+            {
+              name: 'vendor-utils',
+              test: /node_modules[\\/](lodash-es|manate|classnames|json-deep-copy|fast-deep-equal|filesize|dayjs|nanoid|uid|is-plain-object|copy-to-clipboard)[\\/]/,
+              priority: 18
+            }
+          ]
+        },
         entryFileNames: `js/[name]-${version}.js`,
         chunkFileNames: `chunk/[name]-${version}-[hash].js`,
         dir: resolve(cwd, '../../../work/app/assets'),

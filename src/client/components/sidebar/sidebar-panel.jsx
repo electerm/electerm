@@ -2,11 +2,11 @@
  * bookmark select
  */
 
-import { memo, useState } from 'react'
+import { memo, useState, lazy, Suspense } from 'react'
 import BookmarkWrap from './bookmark'
 import History from './history'
 import { Tabs, Tooltip } from 'antd'
-import MultiSelectModal from '../common/multi-select-modal'
+import LazyBoundary from '../common/lazy-boundary'
 import {
   ArrowsAltOutlined,
   CloseOutlined,
@@ -16,6 +16,11 @@ import {
   PushpinOutlined,
   SelectOutlined
 } from '@ant-design/icons'
+
+// the bookmark picker pulls antd Tree/Select and the group-tree formatters; it
+// is only reachable from the "select bookmarks" control, so keep it out of the
+// startup bundle and mount it on first open.
+const MultiSelectModal = lazy(() => import('../common/multi-select-modal'))
 
 const e = window.translate
 
@@ -133,10 +138,16 @@ export default memo(function SidebarPanel (props) {
           ? <BookmarkWrap {...props} />
           : <History store={store} />
       }
-      <MultiSelectModal
-        open={openSelectModal}
-        onClose={() => setOpenSelectModal(false)}
-      />
+      {openSelectModal && (
+        <LazyBoundary>
+          <Suspense fallback={null}>
+            <MultiSelectModal
+              open
+              onClose={() => setOpenSelectModal(false)}
+            />
+          </Suspense>
+        </LazyBoundary>
+      )}
     </div>
   )
 })
