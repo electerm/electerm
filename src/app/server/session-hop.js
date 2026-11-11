@@ -10,6 +10,7 @@
 const uid = require('../common/uid')
 const DANGEROUS_SESSION_FIELDS = require('../common/dangerous-session-fields')
 const { session } = require('./session-ssh')
+const { getFreePort } = require('../lib/free-port')
 
 /**
  * A hop entry is spread into its sub-session's initOptions and used to be
@@ -31,15 +32,12 @@ function withoutDangerousFields (hop) {
   return out
 }
 
+// bind probe, not find-free-port's connect probe: a Windows reserved port
+// looks free to a connect and then refuses to bind (see ../lib/free-port.js)
 function getPort (fromPort = 12023) {
-  return new Promise((resolve, reject) => {
-    require('find-free-port')(fromPort, '127.0.0.1', function (err, freePort) {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(freePort)
-      }
-    })
+  return getFreePort({
+    from: fromPort,
+    host: '127.0.0.1'
   })
 }
 

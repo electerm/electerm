@@ -10,6 +10,9 @@ const activeTerminals = new Map()
 let lastPort = 30975
 const MIN_PORT = 30975
 const MAX_PORT = 65534
+// how many ports to walk from the last one before getFreePort starts probing
+// at random
+const PORT_TRIES = 500
 // Add a set to track ports that are currently being assigned
 const pendingPorts = new Set()
 
@@ -27,11 +30,23 @@ function getPort (fromPort = MIN_PORT) {
 
   // bind probe, not connect probe: see ../lib/free-port.js -- a Windows
   // reserved port looks free to a connect and then refuses to bind
-  return getFreePort({ from: startPort, host: '127.0.0.1' })
+  return getFreePort({
+    from: startPort,
+    host: '127.0.0.1',
+    tries: PORT_TRIES
+  })
     .then(freePort => {
       // Remember this port for next time
       lastPort = freePort
       return freePort
+    })
+    .catch(err => {
+      // we could not bind anywhere, not even at random: do not let the next
+      // attempt walk into the exact same window again
+      lastPort = startPort + PORT_TRIES > MAX_PORT
+        ? MIN_PORT
+        : startPort + PORT_TRIES
+      throw err
     })
     .finally(() => {
       pendingPorts.delete(startPort)
