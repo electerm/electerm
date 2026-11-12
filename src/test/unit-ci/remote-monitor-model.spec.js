@@ -259,3 +259,64 @@ describe('remote monitor rate and visual helpers', () => {
     assert.equal(model.formatBytes(null), '—')
   })
 })
+
+describe('remote monitor table filters', () => {
+  const activities = [
+    { pid: 1, user: 'root', cpu: 12, cmd: '/usr/sbin/sshd -D' },
+    { pid: 2, user: 'www', cpu: 8, cmd: '/usr/bin/nginx: worker process' },
+    { pid: 3, user: 'root', cpu: 4, cmd: '[kworker/0:1]' },
+    { pid: 4, user: 'www', cpu: 1, cmd: '/usr/bin/nginx: worker process' }
+  ]
+  const columns = [
+    { key: 'pid', title: 'PID', copyValue: row => row.pid },
+    { key: 'user', title: 'Users', filterValue: row => row.user },
+    { key: 'process', title: 'Process', filterValue: row => model.commandName(row.cmd) }
+  ]
+
+  test('reduces a command line to its executable name', () => {
+    assert.equal(model.commandName('/usr/bin/nginx: worker process'), 'nginx:')
+    assert.equal(model.commandName('  /usr/sbin/sshd -D '), 'sshd')
+    assert.equal(model.commandName('[kworker/0:1]'), '[kworker/0:1]')
+    assert.equal(model.commandName(''), '')
+    assert.equal(model.commandName(undefined), '')
+  })
+
+  test('offers a checklist per categorical column, sorted and de-duplicated', () => {
+    const groups = model.buildTableFilters(columns, activities)
+    assert.deepStrictEqual(groups.map(group => group.key), ['user', 'process'])
+    assert.deepStrictEqual(groups[0].values, ['root', 'www'])
+    assert.deepStrictEqual(groups[1].values, ['[kworker/0:1]', 'nginx:', 'sshd'])
+  })
+
+  test('skips columns that cannot narrow anything', () => {
+    assert.deepStrictEqual(model.buildTableFilters(columns, activities.slice(0, 1)), [])
+    assert.deepStrictEqual(model.buildTableFilters([columns[0]], activities), [])
+  })
+
+  test('filters rows with OR inside a column and AND across columns', () => {
+    assert.equal(model.applyTableFilters(activities, columns, {}).length, 4)
+    assert.deepStrictEqual(
+      model.applyTableFilters(activities, columns, { user: ['root'] }).map(row => row.pid),
+      [1, 3]
+    )
+    assert.deepStrictEqual(
+      model.applyTableFilters(activities, columns, { user: ['root', 'www'], process: ['sshd'] }).map(row => row.pid),
+      [1]
+    )
+  })
+
+  test('drops rows whose filter value is missing instead of leaking them through', () => {
+    const rows = [{ mount: '/', filesystem: '/dev/sda1' }, { mount: '/boot', filesystem: null }]
+    const disks = [{ key: 'filesystem', title: 'Filesystem', filterValue: row => row.filesystem }]
+    assert.deepStrictEqual(
+      model.applyTableFilters(rows, disks, { filesystem: ['/dev/sda1'] }).map(row => row.mount),
+      ['/']
+    )
+  })
+
+  test('counts the checked values across every column', () => {
+    assert.equal(model.countTableFilters({}), 0)
+    assert.equal(model.countTableFilters(null), 0)
+    assert.equal(model.countTableFilters({ user: ['root', 'www'], process: ['sshd'] }), 3)
+  })
+})

@@ -18,11 +18,22 @@
   overflow-x hidden
   overflow-y auto
 
+// section title with the table's filter funnel pinned to its right end; the
+// heading is a flex row even without a funnel so the title keeps its baseline
 .remote-monitor-detail-heading
+  display flex
+  align-items center
+  gap 6px
   margin-bottom 8px
   color var(--text)
   font-size 13px
   font-weight 600
+
+.remote-monitor-detail-heading-text
+  min-width 0
+  overflow hidden
+  text-overflow ellipsis
+  white-space nowrap
 
 .remote-monitor-detail-state
   margin 6px 0

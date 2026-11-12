@@ -245,12 +245,55 @@ test('remote monitor bar renders, shares details, configures and persists', asyn
     })
     assert.equal(await popover.locator('.anticon-close-circle').count(), 0)
 
+    // The table funnel narrows the rows, and the checklist must survive the
+    // pointer leaving the hover popover (it is a portal outside it), or the
+    // popover would close the moment the user reaches for a value.
+    const funnel = popover.locator('.remote-monitor-detail-heading .table-filter')
+    await funnel.waitFor({ state: 'visible' })
+    const rowsBeforeFilter = await popover.locator('.remote-monitor-table tbody tr.ant-table-row').count()
+    await funnel.click()
+    const checklist = running.page.locator('.table-filter-panel:visible')
+    await checklist.waitFor({ state: 'visible' })
+    await running.page.mouse.move(2, 2)
+    await delay(400)
+    await popover.waitFor({ state: 'visible' })
+    await checklist.locator('.item-filter-item').first().click()
+    await running.page.waitForFunction(before => {
+      const rows = document.querySelectorAll('.remote-monitor-popover .remote-monitor-table tbody tr.ant-table-row')
+      return rows.length > 0 && rows.length <= before
+    }, rowsBeforeFilter)
+    assert.equal(await funnel.locator('.item-filter-count').innerText(), '1')
+    await funnel.click()
+    await checklist.waitFor({ state: 'hidden' })
+
     await popover.locator('.ant-btn-link').click()
     await running.page.locator('.right-side-panel').waitFor({ state: 'visible' })
     await running.page.locator('.right-side-panel [data-monitor-detail="cpu"]').waitFor({ state: 'visible' })
     await bar.waitFor({ state: 'hidden' })
     // the info panel reuses the bar's ItemFilter component
-    await running.page.locator('.right-side-panel .item-filter').waitFor({ state: 'visible' })
+    await running.page.locator('.right-side-panel .terminal-info-filter-wrap .item-filter').waitFor({ state: 'visible' })
+
+    // The filter checklist is a fixed 260px box clamped to the viewport and it
+    // opens from a funnel at the left of a section title, which is where a
+    // content-sized panel used to grow past the edge of a phone screen. The info
+    // panel is click driven, so this costs no hover state.
+    await running.page.setViewportSize({ width: 375, height: 800 })
+    await running.page.waitForFunction(() => window.store.width === 375)
+    const panelFunnel = running.page.locator(
+      '.right-side-panel .remote-monitor-detail-heading .table-filter'
+    ).first()
+    await panelFunnel.waitFor({ state: 'visible' })
+    await panelFunnel.click()
+    const panelChecklist = running.page.locator('.table-filter-panel:visible')
+    await panelChecklist.waitFor({ state: 'visible' })
+    const panelChecklistBox = await panelChecklist.boundingBox()
+    assert.ok(panelChecklistBox.x >= 0)
+    assert.ok(panelChecklistBox.x + panelChecklistBox.width <= 375)
+    await panelFunnel.click()
+    await panelChecklist.waitFor({ state: 'hidden' })
+    await running.page.setViewportSize({ width: 1200, height: 800 })
+    await running.page.waitForFunction(() => window.store.width === 1200)
+
     await running.page.locator('.right-side-panel-close').click()
     await bar.waitFor({ state: 'visible' })
 
