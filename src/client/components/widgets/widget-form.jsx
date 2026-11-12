@@ -1,11 +1,15 @@
 /**
  * Widget form component
  */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Form, Button, Tooltip, Alert } from 'antd'
 import { tailFormItemLayout } from '../../common/form-layout'
 import HelpIcon from '../common/help-icon'
 import BatchOpEditor from '../batch-op/batch-op-editor'
+import {
+  rememberedValues,
+  rememberValues
+} from '../../common/widget-form-memory'
 import {
   renderConfigItem,
   configInitialValues
@@ -14,6 +18,16 @@ import {
 export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInstance }) {
   const [form] = Form.useForm()
   const [showDownloadWarning, setShowDownloadWarning] = useState(false)
+  // The run form starts from the values the last run used — a server widget is
+  // normally started with the same host, port and directory every time. Secrets
+  // are excluded, see common/widget-form-memory.js.
+  const info = widget && widget.info
+  const configs = (info && info.configs) || []
+  const widgetId = widget && widget.id
+  const startValues = useMemo(() => ({
+    ...configInitialValues(configs),
+    ...rememberedValues(widgetId, configs)
+  }), [widgetId, configs])
 
   useEffect(() => {
     let timer
@@ -35,14 +49,14 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
     return null
   }
 
-  const { info } = widget
-  const { configs, type, singleInstance } = info
+  const { type, singleInstance } = info
   const isInstanceWidget = type === 'instance'
   const isFrontendWidget = type === 'frontend'
   const txt = isInstanceWidget ? 'Start widget' : 'Run widget'
   const isDisabled = loading || (singleInstance && hasRunningInstance)
 
   const handleSubmit = async (values) => {
+    rememberValues(widgetId, configs, values)
     onSubmit(values)
   }
 
@@ -59,8 +73,6 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
       />
     )
   }
-
-  const initialValues = configInitialValues(configs)
 
   if (isFrontendWidget && info.name === 'Batch Operation') {
     return <BatchOpEditor widget={widget} />
@@ -81,7 +93,8 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
       <Form
         form={form}
         onFinish={handleSubmit}
-        initialValues={initialValues}
+        onValuesChange={(_, allValues) => rememberValues(widgetId, configs, allValues)}
+        initialValues={startValues}
         layout='horizontal'
       >
         {configs.map(config => renderConfigItem(config, form))}

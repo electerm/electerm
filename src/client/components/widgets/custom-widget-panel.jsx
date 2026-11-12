@@ -15,6 +15,7 @@ import { PlayCircleOutlined, ReloadOutlined, StopOutlined } from '@ant-design/ic
 import { auto } from 'manate/react'
 import { copy } from '../../common/clipboard'
 import { safeGetItemJSON, safeSetItemJSON } from '../../common/safe-local-storage'
+import { widgetConfigKey } from '../../common/widget-form-memory-utils'
 import isColorDark from '../../common/is-color-dark'
 import { webUrl } from '../../common/web-url'
 import openWidgetTab from './widget-open-tab'
@@ -26,14 +27,10 @@ const e = window.translate
 // survive that until the next app launch, when "Start with electerm" applies.
 const stoppedByUser = new Set()
 
-// A widget's own key/value store, the same one config-mode widgets persist to.
-// Reading it through getConfig is deliberately scoped: handing the whole app
-// config to a widget page would expose every setting the app has, and letting
-// updateConfig write it would let a widget change them.
-function widgetConfigKey (widgetId) {
-  return `widget-config-${widgetId}`
-}
-
+// A widget's own key/value store, the same one config-mode widgets persist to
+// (widgetConfigKey). Reading it through getConfig is deliberately scoped:
+// handing the whole app config to a widget page would expose every setting the
+// app has, and letting updateConfig write it would let a widget change them.
 function readWidgetConfig (widgetId) {
   const stored = safeGetItemJSON(widgetConfigKey(widgetId), {})
   return stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {}
