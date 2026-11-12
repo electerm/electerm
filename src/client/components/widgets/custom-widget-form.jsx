@@ -44,7 +44,10 @@ import {
   EyeInvisibleOutlined,
   EyeOutlined
 } from '@ant-design/icons'
-import { safeGetItemJSON, safeSetItemJSON } from '../../common/safe-local-storage'
+import {
+  rememberedValues,
+  rememberValues
+} from '../../common/widget-form-memory'
 import { copy } from '../../common/clipboard'
 import message from '../common/message'
 import openWidgetTab from './widget-open-tab'
@@ -58,39 +61,14 @@ import {
 
 const e = window.translate
 
-function storageKey (id) {
-  return `widget-config-${id}`
-}
-
-// Only keys the manifest declares are restored: local storage outlives widget
-// versions, and a stale row must not become a ghost form value.
+// The form starts from the values the user last ran this widget with, so a
+// second visit does not have to be typed in again. `persist: false` in the
+// manifest turns that off (see common/widget-form-memory.js).
 function initialValues (info) {
-  const defaults = configInitialValues(info.configs)
-  if (!info.persist) {
-    return defaults
+  return {
+    ...configInitialValues(info.configs),
+    ...(info.persist === false ? {} : rememberedValues(info.id, info.configs))
   }
-  const saved = safeGetItemJSON(storageKey(info.id || ''), {}) || {}
-  const res = { ...defaults }
-  info.configs.forEach(config => {
-    if (Object.prototype.hasOwnProperty.call(saved, config.name)) {
-      res[config.name] = saved[config.name]
-    }
-  })
-  return res
-}
-
-function persistValues (info, values) {
-  if (!info.persist) {
-    return
-  }
-  const out = {}
-  info.configs.forEach(config => {
-    // a passphrase must never reach local storage
-    if (config.type !== 'password' && Object.prototype.hasOwnProperty.call(values, config.name)) {
-      out[config.name] = values[config.name]
-    }
-  })
-  safeSetItemJSON(storageKey(info.id || ''), out)
 }
 
 function SecretValue ({ value, revealed, onToggle }) {
@@ -307,10 +285,19 @@ export default function CustomWidgetForm ({ widget }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [results, setResults] = useState([])
+  const startValues = useMemo(() => initialValues({ ...info, id }), [id, info])
+
+  // Every edit is remembered, not just a submit: a value typed and left behind
+  // is what the user expects to find when the panel is opened again.
+  const remember = (vals) => {
+    if (info.persist !== false) {
+      rememberValues(id, info.configs, vals)
+    }
+  }
 
   const values = () => {
     const v = form.getFieldsValue()
-    persistValues({ ...info, id }, v)
+    remember(v)
     return v
   }
 
@@ -343,7 +330,7 @@ export default function CustomWidgetForm ({ widget }) {
   }
 
   const submit = async (formValues) => {
-    persistValues({ ...info, id }, formValues)
+    remember(formValues)
     await invoke(info.action || 'run', [formValues], 'replace')
   }
 
@@ -365,7 +352,8 @@ export default function CustomWidgetForm ({ widget }) {
       <Form
         form={form}
         onFinish={submit}
-        initialValues={initialValues({ ...info, id })}
+        onValuesChange={(_, allValues) => remember(allValues)}
+        initialValues={startValues}
         layout='horizontal'
       >
         {info.configs.map(config => renderConfigItem(config, form))}

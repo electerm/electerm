@@ -10,7 +10,6 @@
     "description": "A config-mode widget: no HTML, electerm draws the form and the result.",
     "type": "frontend",
     "submitLabel": "Search",
-    "persist": true,
     "configs": [
       {
         "name": "host",

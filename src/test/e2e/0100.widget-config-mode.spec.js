@@ -180,6 +180,22 @@ test('config mode renders the form and the action result', async () => {
     assert.equal(await page.locator('.wbb .wac-head button').isDisabled(), true)
     assert.equal(await page.locator('.wbb .wac-head button').textContent(), 'Imported')
 
+    // 6b. the form remembers what it was last used with, and the manifest does
+    //     not have to ask for it: an edit that was never submitted is kept too,
+    //     while a passphrase is the one thing never handed back
+    await page.fill('#port', '2222')
+    await page.fill('#passphrase', 'pw-999')
+    const other = await page.evaluate(async () =>
+      (await window.store.listWidgets()).find(w => w.id === 'local-file-server'))
+    await page.evaluate((w) => window.store.setSettingItem(w), other)
+    await page.waitForSelector('.widget-form')
+    await page.evaluate((w) => window.store.setSettingItem(w), widget)
+    await page.waitForSelector('.custom-widget-form')
+    assert.equal(await page.locator('#host').inputValue(), 'demo.local', 'host is remembered')
+    assert.equal(await page.locator('#port').inputValue(), '2222', 'an unsubmitted edit is remembered')
+    assert.equal(await page.locator('#keyPath').inputValue(), '/tmp/demo.key')
+    assert.equal(await page.locator('#passphrase').inputValue(), '', 'a passphrase is never restored')
+
     await page.screenshot({ path: '/tmp/widget-config-mode.png' })
 
     // 7. removing the widget removes its folder
@@ -194,6 +210,21 @@ test('config mode renders the form and the action result', async () => {
     await page.waitForSelector('.widget-form')
     assert.equal(await page.locator('.custom-widget-form').count(), 0)
     assert.equal(await page.locator('label[for="dotfiles"]').count(), 1)
+    assert.equal(
+      await page.locator('.ant-select:has(#dotfiles) .ant-select-content').getAttribute('title'),
+      'allow'
+    )
+
+    // 8b. a built-in run form remembers its values the same way: a file server
+    //     or an MCP server is normally started with the same port every time
+    await page.fill('#port', '3499')
+    const sshServer = await page.evaluate(async () =>
+      (await window.store.listWidgets()).find(w => w.id === 'ssh-server'))
+    await page.evaluate((w) => window.store.setSettingItem(w), sshServer)
+    await page.waitForSelector('#username')
+    await page.evaluate((w) => window.store.setSettingItem(w), builtin)
+    await page.waitForSelector('#maxAge')
+    assert.equal(await page.locator('#port').inputValue(), '3499', 'built-in form values are remembered')
     assert.equal(
       await page.locator('.ant-select:has(#dotfiles) .ant-select-content').getAttribute('title'),
       'allow'

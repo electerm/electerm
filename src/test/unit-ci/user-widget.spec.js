@@ -160,6 +160,25 @@ describe('runWidget', () => {
 })
 
 describe('config mode metadata', () => {
+  it('remembers form values unless the manifest opts out', () => {
+    writeWidget('default-persist-widget', {
+      name: 'default-persist-widget',
+      main: 'main.js',
+      electerm: { id: 'default-persist-widget', type: 'frontend', configs: [] }
+    }, { 'main.js': 'module.exports = {}\n' })
+    writeWidget('no-persist-widget', {
+      name: 'no-persist-widget',
+      main: 'main.js',
+      electerm: { id: 'no-persist-widget', type: 'frontend', persist: false, configs: [] }
+    }, { 'main.js': 'module.exports = {}\n' })
+
+    const widgets = registry.listWidgets()
+    // a config-mode widget has no reason to be re-typed on every visit, so
+    // remembering is the default and `persist: false` is the opt-out
+    assert.equal(widgets.find(w => w.id === 'default-persist-widget').info.persist, true)
+    assert.equal(widgets.find(w => w.id === 'no-persist-widget').info.persist, false)
+  })
+
   it('sanitizes config entries and defaults the action to run', () => {
     writeWidget('form-widget', {
       name: 'form-widget',
