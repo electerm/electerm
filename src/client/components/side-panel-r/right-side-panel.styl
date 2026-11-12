@@ -40,8 +40,36 @@
   overflow-y scroll
   position absolute
   left 0
+  // the title row: 22px of text (antd Typography.Text, 14px / 1.5714) + 2 * 16px
+  // (pd2) + the 1px border
   top 55px
   right 0
   bottom 0
+
+// Windows draws its native min/max/close over the top-right corner of the
+// window (window controls overlay — .wco on the root, see tabs.styl). The
+// pinned panel is the right column and starts at the window's top edge, so its
+// title row landed under those buttons: the title was covered, and the pin and
+// close controls could not be clicked at all, because the OS takes every click
+// in that strip. Reserve the strip — squeezing the title sideways instead would
+// leave a 400px-wide panel with almost nothing, and the controls still have to
+// be reachable.
+// The band above the title is painted like the tab bar beside it: the OS paints
+// the buttons with main-dark (title-bar-overlay.js), so the two read as one
+// title bar rather than a dark notch floating in the panel's header.
+.wco
+  .right-side-panel.right-side-panel-pinned
+    padding-top 36px
+    &::before
+      content ''
+      position absolute
+      top 0
+      left 0
+      right 0
+      height 36px
+      background var(--main-dark)
+    .right-side-panel-content
+      // the 55px title row above, pushed down by the strip
+      top 91px
 .animate-fast
   animation-duration .2s
