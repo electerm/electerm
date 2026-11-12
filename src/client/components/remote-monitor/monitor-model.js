@@ -623,6 +623,16 @@ export function parseActivities (input) {
   return activities.sort((a, b) => b.cpu - a.cpu || a.pid - b.pid)
 }
 
+// The activity table renders the full command line, which is unique per row and
+// therefore useless as a filter value. The executable name is what groups rows:
+// filtering on "nginx" keeps every worker, whatever its arguments.
+// Kernel threads are bracketed (`[kworker/0:1]`) and carry a slash of their own,
+// so they are returned whole instead of being cut at it.
+export function commandName (cmd) {
+  const first = String(cmd || '').trim().split(/\s+/)[0] || ''
+  return first.startsWith('[') ? first : first.split('/').pop()
+}
+
 export function getUsageLevel (value, previous = 'normal') {
   const number = numeric(value)
   if (number === null || number < 0) {
@@ -761,4 +771,61 @@ export function getInfoPanelItems (items = []) {
   if (selected.has('memory')) selected.delete('swap')
   // Always render in the fixed order, no matter how the user toggled them
   return INFO_PANEL_ORDER.filter(id => selected.has(id) && MONITOR_ITEM_GROUP[id])
+}
+
+// Table filtering is opt-in per column through `filterValue(row)`: only
+// categorical columns declare it. A checklist of distinct CPU percentages or
+// byte counts would be noise, while user / interface / mount is exactly what
+// narrows a 300 row `ps` output down to the interesting part.
+// `filterValue` is also what the row is matched on, so it may differ from what
+// the cell renders (see commandName above).
+export function buildTableFilters (columns, rows) {
+  const groups = []
+  for (const column of columns) {
+    if (typeof column.filterValue !== 'function') {
+      continue
+    }
+    const values = new Set()
+    for (const row of rows) {
+      const value = column.filterValue(row)
+      if (value !== null && value !== undefined && value !== '') {
+        values.add(String(value))
+      }
+    }
+    // A single distinct value filters nothing, so no icon should appear for it
+    if (values.size < 2) {
+      continue
+    }
+    groups.push({
+      key: column.key,
+      title: column.title,
+      values: [...values].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+    })
+  }
+  return groups
+}
+
+// `selected` maps a column key to the checked values. Columns are checked in
+// order and a row must satisfy every active column (AND across columns, OR
+// within one), which is what a checklist per column means.
+export function applyTableFilters (rows, columns, selected) {
+  const active = Object.entries(selected || {})
+    .filter(([, values]) => Array.isArray(values) && values.length)
+  if (!active.length) {
+    return rows
+  }
+  const byKey = new Map(columns.map(column => [column.key, column]))
+  return rows.filter(row => active.every(([key, values]) => {
+    const column = byKey.get(key)
+    if (!column || typeof column.filterValue !== 'function') {
+      return true
+    }
+    const value = column.filterValue(row)
+    return value !== null && value !== undefined && values.includes(String(value))
+  }))
+}
+
+export function countTableFilters (selected) {
+  return Object.values(selected || {})
+    .reduce((total, values) => total + (Array.isArray(values) ? values.length : 0), 0)
 }

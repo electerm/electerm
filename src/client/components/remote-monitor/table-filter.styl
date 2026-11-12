@@ -1,0 +1,33 @@
+// The funnel and its checkable rows are `.item-filter` / `.item-filter-item`
+// (../common/item-filter.styl); only what stacking several columns needs is here.
+.table-filter
+  &-on
+    color var(--primary)
+
+// A fixed width, not `max-content`: the popover is positioned from the funnel,
+// which sits at the left of the section title, so a content-sized panel would
+// re-measure itself into an overflow on a narrow screen. 260px holds a full
+// mount path and still fits the 375px phone case.
+.table-filter-panel
+  width 260px
+  max-width calc(100vw - 32px)
+  max-height 320px
+  overflow-y auto
+  // the popover default is 14px, which is bigger than the 11-13px this panel uses
+  font-size 12px
+
+.table-filter-group + .table-filter-group
+  margin-top 8px
+
+.table-filter-group-title
+  padding 2px 8px
+  color var(--text-dark)
+  font-size 11px
+  font-weight 600
+
+// "Filter" on the left, Reset on the right, both outside the scrolling list
+.table-filter-title
+  display flex
+  align-items center
+  justify-content space-between
+  gap 8px

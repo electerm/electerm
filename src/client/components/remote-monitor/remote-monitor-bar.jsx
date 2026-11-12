@@ -178,6 +178,10 @@ export default auto(function RemoteMonitorBar ({ store, style }) {
   const enabledItems = items.filter(item => item.enabled)
   const [openId, setOpenId] = useState(null)
   const [pinnedId, setPinnedId] = useState(null)
+  // a second, temporary pin: the filter checklist lives in a portal outside this
+  // popover, so reaching for it counts as leaving. It must not turn into the
+  // click pin, or the popover would stay open after the checklist is closed.
+  const [filterPinnedId, setFilterPinnedId] = useState(null)
   const [filterOpen, setFilterOpen] = useState(false)
   // Touch has no hover, so the details popover there is click-driven: a tap
   // toggles it and a tap outside closes it (store.isTouchDevice follows the
@@ -192,6 +196,7 @@ export default auto(function RemoteMonitorBar ({ store, style }) {
   useEffect(() => {
     setOpenId(null)
     setPinnedId(null)
+    setFilterPinnedId(null)
   }, [tab.id, itemsKey, visible])
 
   // keep the controls revealed while the filter popover is open, the popover
@@ -214,12 +219,14 @@ export default auto(function RemoteMonitorBar ({ store, style }) {
       }
       return
     }
+    // either pin keeps the popover open while the pointer is on the portal
+    const pinned = pinnedId || filterPinnedId
     if (open) {
       setOpenId(id)
-      if (pinnedId && pinnedId !== id) {
+      if (pinned && pinned !== id) {
         setPinnedId(null)
       }
-    } else if (pinnedId !== id) {
+    } else if (pinned !== id) {
       setOpenId(current => current === id ? null : current)
     }
   }
@@ -240,6 +247,7 @@ export default auto(function RemoteMonitorBar ({ store, style }) {
 
   function closePopover () {
     setPinnedId(null)
+    setFilterPinnedId(null)
     setOpenId(null)
   }
 
@@ -290,6 +298,13 @@ export default auto(function RemoteMonitorBar ({ store, style }) {
                         id={item.id}
                         levels={levels}
                         onClose={closePopover}
+                        onFilterOpen={open => {
+                          // the filter checklist is a portal outside this popover, so
+                          // moving to it counts as leaving: hold the popover open while
+                          // it is there, and drop that hold once it closes so a plain
+                          // hover-out still closes the popover
+                          setFilterPinnedId(open ? item.id : null)
+                        }}
                         onKillProcess={pid => runCmd(tab.id, `kill ${pid}`)}
                         snapshot={snapshot}
                         tab={tab}
