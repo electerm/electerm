@@ -474,6 +474,12 @@ function parseAnthropicResponse (data) {
       }
     }
   }
+  // max_tokens means the model was cut off. A tool_use block in that reply
+  // can carry a partial input, and the agent would run it. A stop_reason of
+  // tool_use means the call finished; that one is returned below.
+  if (data.stop_reason === 'max_tokens' && toolCalls.length) {
+    return { error: 'AI response truncated (max_tokens)' }
+  }
   const message = {
     role: 'assistant',
     content: text || null
@@ -607,6 +613,14 @@ function createStreamParser (format) {
       ) {
         const call = getToolCall(`b:${data.index}`)
         call.function.arguments += delta.partial_json
+      }
+    } else if (type === 'message_delta') {
+      // Same cut-off as the non-streaming parser: a proxy that ignores
+      // stream:false still delivers the reply as SSE, and a partial tool
+      // argument must not be executed.
+      const reason = data.delta && data.delta.stop_reason
+      if (reason === 'max_tokens' && toolCalls.size) {
+        setError('AI response truncated (max_tokens)')
       }
     } else if (type === 'message_stop') {
       state.completed = true
