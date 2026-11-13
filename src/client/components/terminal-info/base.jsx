@@ -5,6 +5,8 @@ import { Component } from 'react'
 import ItemFilter from '../common/item-filter'
 import SwitchLabel from '../common/switch'
 import { INFO_PANEL_ITEM_IDS } from '../remote-monitor/monitor-model'
+import { setWatcherEnabled } from '../remote-monitor/watcher-toggle'
+import { watcherLabels } from '../../common/custom-watcher'
 import { toggleTerminalLog, toggleTerminalLogTimestamp } from '../terminal/terminal-apis'
 import { refs } from '../common/ref'
 import ShowItem from '../common/show-item'
@@ -52,6 +54,12 @@ export default class TerminalInfoBase extends Component {
   }
 
   handleToggleInfo = (id) => {
+    // a watcher is not part of the panel's global item list: it belongs to the
+    // bookmark, and switching it off stops it polling as well
+    if (this.isWatcher(id)) {
+      setWatcherEnabled(this.props.tab, id)
+      return
+    }
     const selected = new Set(this.props.terminalInfos || [])
     if (selected.has(id)) {
       selected.delete(id)
@@ -59,6 +67,11 @@ export default class TerminalInfoBase extends Component {
       selected.add(id)
     }
     window.store.setTerminalInfos(INFO_PANEL_ITEM_IDS.filter(x => selected.has(x)))
+  }
+
+  isWatcher (id) {
+    const watchers = this.props.watchers || []
+    return watchers.some(watcher => watcher.id === id)
   }
 
   handleToggle = () => {
@@ -113,11 +126,19 @@ export default class TerminalInfoBase extends Component {
   }
 
   renderInfoFilter () {
+    const watchers = this.props.watchers || []
+    // built-in sections come from the global config, watchers from the bookmark:
+    // one checklist, two stores, both toggled here
+    const selected = [
+      ...(this.props.terminalInfos || []),
+      ...watchers.filter(watcher => watcher.enabled).map(watcher => watcher.id)
+    ]
     return (
       <ItemFilter
-        ids={INFO_PANEL_ITEM_IDS}
+        ids={[...INFO_PANEL_ITEM_IDS, ...watchers.map(watcher => watcher.id)]}
+        labels={watcherLabels(watchers)}
         onToggle={this.handleToggleInfo}
-        selected={this.props.terminalInfos || []}
+        selected={selected}
       />
     )
   }

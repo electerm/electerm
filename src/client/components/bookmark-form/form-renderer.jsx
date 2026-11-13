@@ -183,6 +183,10 @@ export default function FormRenderer ({ config, props, onForm }) {
       window.store.currentLayoutBatch = window.openTabBatch || 0
       props.store.addTab({
         ...copy(obj),
+        // remember which bookmark this session came from: the tab is a copy of
+        // it, so anything bookmark-owned (watchers, credentials) has to be able
+        // to write back to the original
+        srcId: obj.id,
         ...newTerm(true, true),
         batch: window.openTabBatch ?? window.store.currentLayoutBatch
       })

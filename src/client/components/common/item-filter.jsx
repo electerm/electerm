@@ -11,6 +11,9 @@ const e = window.translate
 export default function ItemFilter (props) {
   const {
     ids = [],
+    // built-in items are labelled from the locale; anything without a key (a
+    // bookmark watcher, say) passes its own name in here
+    labels = {},
     selected,
     onToggle,
     onOpenChange,
@@ -28,6 +31,7 @@ export default function ItemFilter (props) {
       {
         ids.map(id => {
           const active = chosen.has(id)
+          const label = labels[id] || e(id)
           return (
             <div
               aria-checked={active}
@@ -43,11 +47,12 @@ export default function ItemFilter (props) {
               }}
               role='menuitemcheckbox'
               tabIndex={0}
+              title={label}
             >
               <span className='item-filter-check'>
                 {active ? <CheckOutlined /> : null}
               </span>
-              <span className='item-filter-label'>{e(id)}</span>
+              <span className='item-filter-label'>{label}</span>
             </div>
           )
         })

@@ -28,6 +28,7 @@ const bookmarkSchema = {
     compress: 'array - compression algorithms (zlib@openssh.com, zlib, none)',
     runScripts: 'array - run scripts after connected ({delay,script})',
     quickCommands: 'array - quick commands ({name,command})',
+    watchers: 'array - custom monitor watchers polled while the session is open ({id,name,command,interval,enabled}), interval in seconds, shown in the monitor bar and the info panel',
     triggers: 'array - declarative auto triggers ({id,name,enabled,match:{type:text|regex,value,caseSensitive},action:{type:send|notify,value},sendEnter,mode:repeat|once|cooldown,cooldownMs})',
     proxy: 'string - proxy address (socks5://...)',
     proxyCommand: 'string - ssh proxy command, supports %h (host) %p (port) %r (username) placeholders, e.g. `netbird ssh proxy %h %p` or `cloudflared access ssh --hostname %h`',
