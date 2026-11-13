@@ -7,6 +7,12 @@ const examples = [
   'Write a script to clean up old log files'
 ]
 
+// Ask mode carries no tools, so an action example would dead-end there: the
+// model can only answer that it cannot touch bookmarks. Offer it to the agent.
+const agentExamples = [
+  'Export all SSH bookmarks with a private key'
+]
+
 function useExample (text) {
   const inst = refsStatic.get('AIChat')
   if (inst) {
@@ -14,7 +20,8 @@ function useExample (text) {
   }
 }
 
-export default function AiChatEmpty () {
+export default function AiChatEmpty ({ isAgent }) {
+  const list = isAgent ? [...examples, ...agentExamples] : examples
   return (
     <div className='ai-chat-empty'>
       <div className='ai-chat-empty-inner'>
@@ -27,7 +34,7 @@ export default function AiChatEmpty () {
           Explain output, debug errors, or switch to Agent to let AI run commands
         </div>
         <div className='ai-chat-empty-examples'>
-          {examples.map(t => (
+          {list.map(t => (
             <div
               key={t}
               className='ai-chat-empty-example'

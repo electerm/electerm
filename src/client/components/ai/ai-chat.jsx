@@ -35,6 +35,14 @@ import './ai.styl'
 const { TextArea } = Input
 const MAX_HISTORY = 500
 
+// The composer keeps a hint in its placeholder once the transcript is no
+// longer empty (the empty state, ai-chat-empty.jsx, is what shows examples
+// before that). Agent mode can act, so its example is a tool-using one.
+const promptPlaceholder = {
+  ask: 'Enter your prompt here\ne.g. Explain the current terminal output',
+  agent: 'Enter your prompt here\ne.g. Export all SSH bookmarks with a private key'
+}
+
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
   const [compressing, setCompressing] = useState(false)
@@ -222,6 +230,7 @@ export default function AIChat (props) {
     return (
       <AiChatHistory
         history={sessionHistory}
+        isAgent={isAgent}
       />
     )
   }
@@ -411,7 +420,7 @@ export default function AIChat (props) {
           value={prompt}
           onChange={handlePromptChange}
           onPressEnter={handleKeyPress}
-          placeholder='Enter your prompt here'
+          placeholder={isAgent ? promptPlaceholder.agent : promptPlaceholder.ask}
           autoSize={{ minRows: 3, maxRows: 10 }}
           className='ai-chat-textarea'
         />

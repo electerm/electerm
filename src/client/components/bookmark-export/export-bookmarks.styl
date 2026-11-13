@@ -1,0 +1,29 @@
+// Only what the layout cannot express with the shared utilities (elli,
+// overscroll-y, pd1y, pointer) or with antd Flex.
+
+// muted caption: filter description, row meta, the plain-text warning
+.export-bookmarks-hint
+  color var(--text-dark)
+  font-size 12px
+
+.export-bookmarks-warn
+  color var(--warn)
+
+.export-bookmarks-list
+  max-height 50vh
+
+.export-bookmarks-item
+  padding 4px 0
+  border-bottom 1px solid var(--main-darker)
+  &:hover
+    background var(--main-light)
+
+// the middle column absorbs the slack, and min-width 0 lets .elli clip
+.export-bookmarks-text
+  flex-grow 1
+  min-width 0
+
+// antd gives every Tag a trailing 8px margin, which doubles the Flex gap
+.export-bookmarks-tag
+  margin-inline-end 0
+  flex-shrink 0

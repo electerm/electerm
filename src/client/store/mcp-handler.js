@@ -19,6 +19,10 @@ import {
 import newTerm from '../common/new-terminal'
 import dangerousSessionFields from '../common/dangerous-session-fields'
 import {
+  describeBookmarkExportFilter,
+  filterBookmarksForExport
+} from '../common/bookmark-export-filter'
+import {
   decideTransferApproval,
   normalizeConflictPolicy
 } from '../common/mcp-transfer-guard.js'
@@ -418,6 +422,46 @@ export default Store => {
     return {
       success: true,
       message: `Opened bookmark "${bookmark.title}"`
+    }
+  }
+
+  // Open the export panel for a filtered set of bookmarks.
+  //
+  // The caller (the AI agent) only supplies a filter. Matching runs here,
+  // against the live store, and the panel is what the user acts on -- so the
+  // reply can carry counts and nothing else. That is the point: a bookmark
+  // export is exactly the request that would otherwise tempt a model into
+  // reading every credential, and this path never hands one over.
+  Store.prototype.mcpExportBookmarks = function (args) {
+    const { store } = window
+    const { ids, byType, total, filter } = filterBookmarksForExport(
+      store.bookmarks,
+      store.bookmarkGroups,
+      args || {}
+    )
+    const described = describeBookmarkExportFilter(filter)
+
+    if (!total) {
+      return {
+        matched: 0,
+        filter: described,
+        panelOpened: false,
+        message: 'No bookmark matches that filter, so no export panel was opened.'
+      }
+    }
+
+    store.bookmarkExport = {
+      filter,
+      ids,
+      requestedAt: Date.now()
+    }
+
+    return {
+      matched: total,
+      byType,
+      filter: described,
+      panelOpened: true,
+      message: 'The export panel is open with the matches. The user reviews and confirms the export there. Bookmark field values are not available to you.'
     }
   }
 

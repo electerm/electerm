@@ -246,6 +246,10 @@ export default () => {
     // where running widgets write their logs, from the main process
     widgetLogPath: '',
     showSshConfigModal: false,
+    // pending bookmark export request from the AI agent: { filter, ids,
+    // requestedAt }, rendered by components/bookmark-export. Null when the
+    // panel is closed.
+    bookmarkExport: null,
 
     // batch inputs
     batchInputs: ls.getItemJSON(batchInputLsKey, []),
