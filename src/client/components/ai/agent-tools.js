@@ -26,6 +26,66 @@ function buildAddBookmarkParameters () {
   }
 }
 
+function buildExportBookmarkParameters () {
+  const types = Object.keys(bookmarkSchemas)
+  const flag = description => ({
+    type: 'boolean',
+    description
+  })
+  return {
+    type: 'object',
+    properties: {
+      type: {
+        type: 'string',
+        enum: [...types, 'any'],
+        description: 'Bookmark type to match, or "any" (default) for every type.'
+      },
+      types: {
+        type: 'array',
+        items: { type: 'string', enum: types },
+        description: 'Match any of several types. Same meaning as type, for a list.'
+      },
+      keyword: {
+        type: 'string',
+        description: 'Case-insensitive match on title, host, username, url, path or description.'
+      },
+      host: {
+        type: 'string',
+        description: 'Host contains this text.'
+      },
+      port: {
+        type: 'number',
+        description: 'Exact port. Default ports are filled in, so 22 matches an ssh bookmark that left the port empty.'
+      },
+      username: {
+        type: 'string',
+        description: 'Username contains this text.'
+      },
+      group: {
+        type: 'string',
+        description: 'Bookmark category id or title.'
+      },
+      authType: {
+        type: 'string',
+        enum: ['password', 'privateKey', 'profiles'],
+        description: 'Auth type configured on the bookmark.'
+      },
+      hasPrivateKey: flag('true: only bookmarks carrying private key content or a private key path. false: only those without.'),
+      hasPassword: flag('true: only bookmarks with a saved password. false: only those without.'),
+      hasCertificate: flag('true: only bookmarks with a certificate. false: only those without.'),
+      hasProxy: flag('true: only bookmarks going through a proxy. false: only those without.'),
+      hasSshTunnels: flag('true: only bookmarks with ssh tunnels defined. false: only those without.'),
+      hasConnectionHoppings: flag('true: only bookmarks with connection hopping defined. false: only those without.'),
+      hasQuickCommands: flag('true: only bookmarks with quick commands. false: only those without.'),
+      ids: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Export exactly these bookmark ids.'
+      }
+    }
+  }
+}
+
 export const agentTools = [
   {
     type: 'function',
@@ -169,6 +229,14 @@ export const agentTools = [
       name: 'add_bookmark',
       description: 'Create a new bookmark. Specify the type and provide type-specific fields. Supported types: ' + Object.keys(bookmarkSchemas).join(', ') + '.',
       parameters: buildAddBookmarkParameters()
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'export_bookmarks',
+      description: 'Open a panel that exports a filtered set of bookmarks to a JSON file. Use it when the user asks to export a subset of bookmarks, e.g. "all SSH bookmarks that use a private key": build the filter, call this once, and tell the user the panel is open. Matching runs inside the app, the user sees the matches and confirms the export there, and no bookmark field value (host, username, password, private key, ...) is returned to you.',
+      parameters: buildExportBookmarkParameters()
     }
   },
   {
@@ -499,6 +567,8 @@ export async function executeToolCall (toolName, args) {
       const typeFields = args[type] || {}
       return JSON.stringify(await store.mcpAddBookmark({ type, ...typeFields }))
     }
+    case 'export_bookmarks':
+      return JSON.stringify(store.mcpExportBookmarks(args))
     case 'open_tab': {
       const { type } = args
       const typeFields = args[type] || {}

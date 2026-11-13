@@ -7,7 +7,8 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   CodeOutlined,
-  DatabaseOutlined
+  DatabaseOutlined,
+  ExportOutlined
 } from '@ant-design/icons'
 import CopyIcon from './copy-icon'
 
@@ -20,7 +21,8 @@ const toolIcons = {
   switch_tab: CodeOutlined,
   list_bookmarks: DatabaseOutlined,
   open_bookmark: DatabaseOutlined,
-  add_bookmark: DatabaseOutlined
+  add_bookmark: DatabaseOutlined,
+  export_bookmarks: ExportOutlined
 }
 
 function formatResult (result) {

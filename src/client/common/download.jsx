@@ -8,6 +8,13 @@ import { DownloadOutlined } from '@ant-design/icons'
 
 const e = window.translate
 
+/**
+ * Save `text` to a file the user picks.
+ *
+ * @returns {Promise<boolean>} true when the file was written, false when the
+ * user cancelled the picker or the write failed -- callers that hold a panel
+ * open across the save (the bookmark export) need to tell those apart.
+ */
 export default async function download (filename, text) {
   // iOS WKWebView: sandbox targets are invisible to the Files app and
   // blob-anchor downloads are a no-op — save to Documents (visible in
@@ -16,7 +23,7 @@ export default async function download (filename, text) {
   if (window.et && window.et.isWebApp && window.et.saveTextNative) {
     try {
       await window.et.saveTextNative(filename, text)
-      return
+      return true
     } catch (err) {
       console.log('native save failed, falling back to sandbox save:', err)
     }
@@ -26,13 +33,13 @@ export default async function download (filename, text) {
     : undefined
   const savePath = await chooseSaveDirectory(opts)
   if (!savePath) {
-    return
+    return false
   }
   const path = window.require('path')
   const filePath = path.join(savePath, filename)
   const r = await window.fs.writeFile(filePath, text).catch(window.store.onError)
   if (!r) {
-    return
+    return false
   }
   notification.success({
     message: <DownloadOutlined />,
@@ -49,4 +56,5 @@ export default async function download (filename, text) {
       </>
     )
   })
+  return true
 }

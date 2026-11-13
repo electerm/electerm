@@ -4,7 +4,7 @@ import { auto } from 'manate/react'
 import AIChatHistoryItem from './ai-chat-history-item'
 import AiChatEmpty from './ai-chat-empty'
 
-export default auto(function AIChatHistory ({ history }) {
+export default auto(function AIChatHistory ({ history, isAgent }) {
   const historyRef = useRef(null)
 
   useLayoutEffect(() => {
@@ -13,7 +13,7 @@ export default auto(function AIChatHistory ({ history }) {
     }
   }, [history])
   if (!history.length) {
-    return <AiChatEmpty />
+    return <AiChatEmpty isAgent={isAgent} />
   }
   return (
     <div ref={historyRef} className='ai-history-wrap'>
