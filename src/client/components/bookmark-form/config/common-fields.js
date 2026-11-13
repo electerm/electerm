@@ -273,6 +273,13 @@ export const commonFields = {
     label: ''
   },
 
+  // per-bookmark monitor commands, polled while the session is open
+  watchers: {
+    type: 'watchers',
+    name: '__watchers__',
+    label: ''
+  },
+
   enableTerminalImage: {
     type: 'switch',
     name: 'enableTerminalImage',
@@ -407,6 +414,12 @@ export const triggersTab = () => ({
   key: 'triggers',
   label: e('triggers'),
   fields: [commonFields.triggers]
+})
+
+export const watchersTab = () => ({
+  key: 'watchers',
+  label: 'Watchers',
+  fields: [commonFields.watchers]
 })
 
 export const sshTunnelTab = () => ({

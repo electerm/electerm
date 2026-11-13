@@ -1,7 +1,13 @@
 import { createContext, useContext, useState } from 'react'
 import { auto } from 'manate/react'
 import { Button, Popconfirm, Table } from 'antd'
-import { BarChartOutlined, CloseCircleOutlined, DoubleLeftOutlined } from '@ant-design/icons'
+import {
+  BarChartOutlined,
+  CloseCircleOutlined,
+  CopyOutlined,
+  DoubleLeftOutlined,
+  ReloadOutlined
+} from '@ant-design/icons'
 import {
   applyTableFilters,
   buildTableFilters,
@@ -14,6 +20,7 @@ import {
   sortDisks
 } from './monitor-model'
 import TableFilter from './table-filter'
+import { refreshCustomWatcher } from './custom-watcher-pool'
 import { copy } from '../../common/clipboard'
 import './monitor-details.styl'
 
@@ -135,7 +142,7 @@ function useTableFilter (columns, rows) {
 }
 
 // The section title, with the filter funnel sitting right beside it.
-function DetailHeading ({ title, filter }) {
+function DetailHeading ({ title, filter, extra }) {
   const onFilterOpenChange = useContext(FilterOpenContext)
   return (
     <div className='remote-monitor-detail-heading'>
@@ -152,6 +159,7 @@ function DetailHeading ({ title, filter }) {
             )
           : null
       }
+      {extra || null}
     </div>
   )
 }
@@ -487,14 +495,116 @@ function DisksDetail ({ snapshot, levels, title }) {
   )
 }
 
+function formatUpdatedTime (value) {
+  if (!value) {
+    return null
+  }
+  return new Date(value).toLocaleTimeString()
+}
+
+// The interval can be minutes long, so the popover carries a manual run button.
+function WatcherRefreshButton ({ onRefresh }) {
+  if (!onRefresh) {
+    return null
+  }
+  return (
+    <Button
+      aria-label={e('refresh')}
+      className='remote-monitor-custom-refresh'
+      icon={<ReloadOutlined />}
+      onClick={onRefresh}
+      size='small'
+      title={e('refresh')}
+      type='text'
+    />
+  )
+}
+
+function WatcherError ({ error }) {
+  if (!error) {
+    return null
+  }
+  return (
+    <div className='remote-monitor-detail-state remote-monitor-level-warning'>
+      {error}
+    </div>
+  )
+}
+
+// "Loading" only applies while there is nothing to show: once output exists it
+// stays on screen through a refresh.
+function WatcherPlaceholder ({ output, error }) {
+  if (output || error) {
+    return null
+  }
+  return <div className='remote-monitor-detail-state'>{e('loading')}</div>
+}
+
+function WatcherOutput ({ output }) {
+  if (!output) {
+    return null
+  }
+  return (
+    <>
+      <pre className='remote-monitor-custom-output'>{output}</pre>
+      <Button icon={<CopyOutlined />} onClick={() => copy(output)} size='small' type='link'>
+        {e('copy')}
+      </Button>
+    </>
+  )
+}
+
+function watcherRefreshHandler (tab, id) {
+  if (!tab || !tab.id) {
+    return null
+  }
+  return () => refreshCustomWatcher(tab.id, id)
+}
+
+// A bookmark watcher has no schema to render: the command decides the output, so
+// it is shown verbatim in a monospace block that can be scrolled and copied.
+// `watch`-style full-screen tools cannot run over an exec channel, which is why
+// the bookmark form unwraps them and the app owns the refresh loop.
+function WatcherDetail ({ watcher, state, onRefresh }) {
+  const output = state?.output || ''
+  const error = state?.error
+  return (
+    <>
+      <DetailHeading
+        extra={<WatcherRefreshButton onRefresh={onRefresh} />}
+        title={watcher.name}
+      />
+      <DetailRows rows={[
+        [e('interval'), `${watcher.interval}s`],
+        [e('command'), watcher.command],
+        [e('updated'), formatUpdatedTime(state?.updatedAt)]
+      ]}
+      />
+      <WatcherError error={error} />
+      <WatcherPlaceholder error={error} output={output} />
+      <WatcherOutput output={output} />
+    </>
+  )
+}
+
 // auto so a resize that flips store.isMobile re-renders the columns right away
-export default auto(function MonitorDetails ({ id, snapshot, tab, config, levels, onClose, includeActivity = true, onKillProcess, onFilterOpen }) {
+export default auto(function MonitorDetails ({ id, snapshot, tab, config, levels, onClose, includeActivity = true, onKillProcess, onFilterOpen, customWatchers = {} }) {
   const sysInfo = groupOf(snapshot, 'sysinfo')
+  const custom = customWatchers[id]
   let body
   // sections with a table render their own heading so the filter funnel can sit
   // on the same line as the title; the rest keep the one rendered below
   let selfTitled = false
-  if (id === 'hostname') {
+  if (custom) {
+    selfTitled = true
+    body = (
+      <WatcherDetail
+        onRefresh={watcherRefreshHandler(tab, id)}
+        state={custom.state}
+        watcher={custom.watcher}
+      />
+    )
+  } else if (id === 'hostname') {
     body = (
       <>
         <GroupState group={sysInfo} />

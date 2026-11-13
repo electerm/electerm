@@ -96,6 +96,29 @@
   &:hover
     color var(--primary)
 
+// user-defined watcher output: raw text, so it keeps its own whitespace and
+// scrolls instead of stretching the 488px popover
+.remote-monitor-custom-output
+  max-height 320px
+  margin 4px 0
+  padding 6px 8px
+  overflow auto
+  border-radius 4px
+  background var(--main-light)
+  color var(--text)
+  font-family inherit
+  font-size 11px
+  line-height 1.45
+  white-space pre
+  user-select text
+
+.remote-monitor-custom-refresh
+  flex-shrink 0
+  margin-left auto
+  color var(--text-dark)
+  &:hover
+    color var(--text)
+
 .remote-monitor-item.remote-monitor-level-warning,
 .remote-monitor-level-warning
   color var(--warn)

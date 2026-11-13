@@ -1,0 +1,86 @@
+// bookmark watcher editor (see ./watchers.jsx)
+.watcher-editor-toolbar
+  margin-bottom 8px
+
+.watcher-row
+  margin-bottom 6px
+  padding 6px 8px
+  border 1px solid var(--main-light)
+  border-radius 4px
+
+.watcher-row-off
+  opacity 0.6
+
+.watcher-row-head
+  display flex
+  align-items center
+  gap 6px
+  min-width 0
+
+.watcher-row-name
+  min-width 0
+  overflow hidden
+  color var(--text)
+  text-overflow ellipsis
+  white-space nowrap
+
+.watcher-row-interval
+  flex-shrink 0
+  margin 0
+  font-variant-numeric tabular-nums
+
+.watcher-row-actions
+  flex-shrink 0
+  display flex
+  align-items center
+  gap 2px
+  margin-left auto
+
+.watcher-row-command
+  display block
+  margin-top 2px
+  overflow hidden
+  color var(--text-dark)
+  font-size 11px
+  text-overflow ellipsis
+  white-space nowrap
+
+.watcher-form
+  display flex
+  flex-direction column
+  gap 10px
+
+.watcher-form-row
+  display flex
+  flex-direction column
+  gap 4px
+  label
+    color var(--text-dark)
+    font-size 11px
+
+.watcher-form-row-interval
+  max-width 140px
+
+.watcher-form-row-command textarea
+  font-family inherit
+
+.watcher-form-detected
+  color var(--text-dark)
+  font-size 11px
+  code
+    color var(--text)
+    font-family inherit
+
+.watcher-form-hint
+  color var(--text-dark)
+  font-size 11px
+  line-height 1.6
+  code
+    padding 0 3px
+    border-radius 3px
+    background var(--main-light)
+
+.watcher-form-actions
+  display flex
+  justify-content flex-end
+  gap 8px

@@ -17,6 +17,7 @@ import TerminalBackgroundField from './terminal-background.jsx'
 import ExecSettingsField from './exec-settings-field.jsx'
 import useQuickCmds from './quick-commands.jsx'
 import TriggersField from '../../triggers/triggers-field.jsx'
+import WatcherEditor from './watchers.jsx'
 import ProfileItem from './profile-item.jsx'
 import renderRunScripts from './run-scripts.jsx'
 import SerialPathSelector from './serial-path-selector.jsx'
@@ -182,6 +183,14 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
       return <Fragment key={name}>{useQuickCmds(form, ctxProps.formData || {})}</Fragment>
     case 'triggers':
       return <TriggersField key={name} />
+    case 'watchers':
+      // the field name is fixed here (like triggers): the editor owns the list
+      // and antd injects value/onChange into it
+      return (
+        <FormItem key={name} label='Watchers' name='watchers'>
+          <WatcherEditor />
+        </FormItem>
+      )
     case 'runScripts':
       return <Fragment key={name}>{renderRunScripts()}</Fragment>
     case 'serialPathSelector':
