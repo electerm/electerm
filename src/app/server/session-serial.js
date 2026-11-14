@@ -9,6 +9,9 @@ const { SerialView } = require('./serial-view')
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
 
+// how long a break holds the line low
+const BREAK_MS = 250
+
 class TerminalSerial extends TerminalBase {
   async init () {
     const { SerialPort } = require('serialport')
@@ -76,24 +79,42 @@ class TerminalSerial extends TerminalBase {
     })
   }
 
+  /**
+   * break holds the line low, so it is a pulse, not a switch: a break left
+   * on silences the port until somebody clicks it again
+   */
+  pulseBreak () {
+    clearTimeout(this._breakTimer)
+    this.signals.brk = true
+    return this.setSignals().finally(() => {
+      this._breakTimer = setTimeout(() => {
+        this.signals.brk = false
+        this.setSignals().catch(e => log.error('serial break off', e))
+      }, BREAK_MS)
+    })
+  }
+
   resize (cols, rows) {
     if (rows) {
       this.view.rows = rows
     }
   }
 
-  // to the terminal, in order with the received data
+  // to the terminal, in order with the received data, but not into the
+  // session log: this is the same received bytes drawn another way, not new
+  // output (see _wsUiHandler in session-server.js)
   show (buf) {
-    if (this._wsDataHandler) {
-      this._wsDataHandler(buf)
+    if (this._wsUiHandler) {
+      this._wsUiHandler(buf)
     } else {
       this.ws?.send(buf)
     }
   }
 
-  // all kept bytes again in the current view, on a cleared terminal
+  // all kept bytes again in the current view, on a cleared terminal. The
+  // scrollback is kept: the ascii output before the switch stays reachable
   replay () {
-    const clear = '\x1b[H\x1b[2J\x1b[3J'
+    const clear = '\x1b[H\x1b[2J'
     if (this.view.mode !== 'ascii') {
       return Buffer.from(clear + this.view.screen(), 'latin1')
     }
@@ -200,8 +221,8 @@ class TerminalSerial extends TerminalBase {
   }
 
   /**
-   * serial icons of the session toolbar: control lines, rx view, raw bytes
-   * @param {{cmd: string}} msg set {dtr, rts, brk}
+   * serial controls of the session toolbar: control lines, rx view, raw bytes
+   * @param {{cmd: string}} msg set {dtr, rts, brk: true is a pulse}
    *   | view {mode, ascii, start, stop} (frame bytes, null: off)
    *   | send {data: number[]} | get
    */
@@ -209,12 +230,19 @@ class TerminalSerial extends TerminalBase {
     let error
     try {
       if (msg.cmd === 'set') {
-        for (const k of Object.keys(this.signals)) {
+        for (const k of ['dtr', 'rts']) {
           if (typeof msg[k] === 'boolean') {
             this.signals[k] = msg[k]
           }
         }
-        await this.setSignals()
+        if (msg.brk === true) {
+          await this.pulseBreak()
+        } else {
+          if (msg.brk === false) {
+            this.signals.brk = false
+          }
+          await this.setSignals()
+        }
       } else if (msg.cmd === 'view') {
         if (this.view.set(msg)) {
           // the ascii view goes on from the end of the redrawn data
@@ -226,32 +254,43 @@ class TerminalSerial extends TerminalBase {
           this.show(out)
         }
       } else if (msg.cmd === 'send' && Array.isArray(msg.data)) {
-        this.writeRaw(Buffer.from(msg.data.filter(b => b >= 0 && b <= 255)))
+        const bytes = msg.data.filter(b => Number.isInteger(b) && b >= 0 && b <= 255)
+        this.writeRaw(Buffer.from(bytes))
       }
     } catch (e) {
       error = e.message
     }
-    // cts, dsr, dcd
-    const lines = await new Promise(resolve => {
-      this.port?.get((err, res) => {
-        error = error || err?.message
-        resolve(res || {})
-      })
-    })
-    ws.s({
+    const state = {
       action: 'serial-event',
       ...this.signals,
-      ...lines,
+      brk: false,
       mode: this.view.mode,
       ascii: this.view.ascii,
       start: this.view.start,
       stop: this.view.stop,
       cursor: this.view.cursorInfo(),
       error
+    }
+    // cts, dsr, dcd: no change event, so every reply carries them
+    const lines = await new Promise(resolve => {
+      if (!this.port) {
+        return resolve({})
+      }
+      this.port.get((err, res) => {
+        if (!error && err) {
+          error = err.message
+        }
+        resolve(res || {})
+      })
     })
+    if (typeof ws.s !== 'function' || ws.readyState !== 1) {
+      return
+    }
+    ws.s({ ...state, ...lines, error })
   }
 
   kill () {
+    clearTimeout(this._breakTimer)
     if (this.sessionLogger) {
       this.sessionLogger.destroy()
     }
@@ -266,6 +305,9 @@ exports.session = async function (initOptions, ws) {
   await term.init()
   return term
 }
+
+// for the unit tests, which never open a port
+exports.TerminalSerial = TerminalSerial
 
 /**
  * test ssh connection

@@ -345,6 +345,26 @@ if (type === 'rdp') {
     term._wsDataHandler = onTermData
     term.on('data', onTermData)
 
+    // Serial UI output (hex view lines, a view redraw, the byte cursor) is
+    // the received bytes drawn another way, not new output: it goes out in
+    // order with the data but around the log and the zmodem/xmodem parsers.
+    // See TerminalSerial.show().
+    const onUiData = function (data) {
+      const chunk = Buffer.isBuffer(data) ? data : Buffer.from(data)
+      if (sendTimeout) {
+        clearTimeout(sendTimeout)
+        sendTimeout = null
+      }
+      // whatever was received before this goes first
+      if (dataBuffer.length) {
+        flushBufferedData()
+      }
+      if (ws.readyState === 1) {
+        ws.send(chunk)
+      }
+    }
+    term._wsUiHandler = onUiData
+
     // For serial terminals, register a raw data listener directly on the port to
     // feed binary XMODEM data to xmodemManager without rxLineEnding transformation.
     if (term.port) {
@@ -398,6 +418,9 @@ if (type === 'rdp') {
       }
       if (term._wsDataHandler === onTermData) {
         term._wsDataHandler = null
+      }
+      if (term._wsUiHandler === onUiData) {
+        term._wsUiHandler = null
       }
       if (term._wsPortDataHandler && term.port) {
         try {
@@ -466,6 +489,7 @@ if (type === 'rdp') {
             if (parsed.action === 'serial-event') {
               if (typeof term.serialEvent === 'function') {
                 term.serialEvent(parsed, ws)
+                  .catch(err => log.error('serial-event', err))
               }
               return
             }

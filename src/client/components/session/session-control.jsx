@@ -238,12 +238,14 @@ export default function SessionControl (props) {
     )
   }
 
-  // control lines, rx view and raw send, see serial-control.jsx
+  // control lines, received data view and raw send, see serial-control.jsx.
+  // mobile has one icon that opens a panel: the toolbar is too narrow for
+  // the row of controls
   function renderSerialControl () {
     if (tab.type !== terminalSerialType) {
       return null
     }
-    return <SerialControl tabId={tab.id} />
+    return <SerialControl tabId={tab.id} compact={isMobile} />
   }
 
   function renderSearchIcon () {
