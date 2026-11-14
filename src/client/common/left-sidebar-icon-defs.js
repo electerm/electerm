@@ -6,12 +6,19 @@
  * they are always visible / conditionally rendered and not part of the
  * customizable set.
  *
+ * `fallback` is the English wording used while `text` is still on its way
+ * through the electerm-locales release (see common/tr.js); drop it once the key
+ * is published.
+ *
  * order of `leftSidebarIconOptions` is the default order shown in the sidebar.
  */
 export const leftSidebarIconOptions = [
   { id: 'newBookmark', text: 'newBookmark' },
   { id: 'quickConnect', text: 'quickConnect' },
   { id: 'bookmarks', text: 'bookmarks' },
+  // the bookmark tree and the bookmark bar are two views of the same data, so
+  // they sit next to each other here too
+  { id: 'bookmarkBar', text: 'bookmarkBar', fallback: 'bookmark bar' },
   { id: 'terminalThemes', text: 'terminalThemes' },
   { id: 'setting', text: 'setting' },
   { id: 'settingSync', text: 'settingSync' },

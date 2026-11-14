@@ -27,10 +27,12 @@ export default class Sessions extends Component {
 
   computeHeight = (height) => {
     const {
-      tabsHeight
+      tabsHeight,
+      bookmarkBarHeight
     } = this.props
     return height -
       tabsHeight -
+      (bookmarkBarHeight || 0) -
       termControlHeight
   }
 
@@ -75,6 +77,7 @@ export default class Sessions extends Component {
           'fileOperation',
           'pinnedQuickCommandBar',
           'tabsHeight',
+          'bookmarkBarHeight',
           'appPath',
           'leftSidePanelWidth',
           'pinned',

@@ -35,6 +35,10 @@ export default function Sidebar (props) {
     pinned,
     fileTransfers,
     openedSideBar,
+    // the bookmark bar is a store getter, so it has to arrive as a prop read
+    // during main.jsx's (tracked) render or the icon's active state would go
+    // stale
+    bookmarkBarVisible,
     transferHistory,
     transferTab,
     showModal,
@@ -93,6 +97,10 @@ export default function Sidebar (props) {
       store.showModal = 0
     }
     store.openLeftSidePanel()
+  }
+
+  const handleToggleBookmarkBar = () => {
+    store.toggleBookmarkBar()
   }
 
   const handleShowUpgrade = () => {
@@ -158,12 +166,14 @@ export default function Sidebar (props) {
         <LeftSidebarIcons
           iconIds={leftSideBarIcons}
           handleClickBookmark={handleClickBookmark}
+          handleToggleBookmarkBar={handleToggleBookmarkBar}
           onNewSsh={onNewSsh}
           openSetting={openSetting}
           openSettingSync={openSettingSync}
           openTerminalThemes={openTerminalThemes}
           openWidgetsModal={openWidgetsModal}
           bookmarksActive={bookmarksActive}
+          bookmarkBarActive={bookmarkBarVisible}
           themeActive={themeActive}
           settingActive={settingActive}
           syncActive={syncActive}
