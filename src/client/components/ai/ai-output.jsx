@@ -156,7 +156,7 @@ export default function AIOutput ({ item }) {
       {renderFlag()}
       <div className='pd1'>
         {item.flagged && enableAIFlag
-          ? <Alert type='warning' message='user flagged as harmful info' />
+          ? <Alert type='warning' title='user flagged as harmful info' />
           : (
             <>
               {renderBrand()}

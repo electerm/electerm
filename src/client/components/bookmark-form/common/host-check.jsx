@@ -97,7 +97,7 @@ export default function HostCheck ({ form }) {
           <Alert
             className='mg1t'
             type={hint.type}
-            message={hint.text}
+            title={hint.text}
             showIcon
             closable
             onClose={() => setHint(null)}

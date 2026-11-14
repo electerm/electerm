@@ -120,7 +120,7 @@ export default auto(function TriggerSessionModal (props) {
           type='info'
           showIcon
           className='mg1b'
-          message='All predefined triggers. Switches change the global on/off default.'
+          title='All predefined triggers. Switches change the global on/off default.'
         />
         {
           !predefined.length

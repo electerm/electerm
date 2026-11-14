@@ -232,7 +232,7 @@ export default function GenerateSshKeyModal (props) {
         <Alert
           type='success'
           showIcon
-          message={e('saved')}
+          title={e('saved')}
         />
         {/* private key: the path to use in "select file path", and the content
             for anyone who wants it pasted into the privateKey field instead */}

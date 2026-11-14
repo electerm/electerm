@@ -4,10 +4,26 @@
  */
 
 import { CloseOutlined } from '@ant-design/icons'
+import { ConfigProvider } from 'antd'
 import classnames from 'classnames'
 import React, { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import './modal.styl'
+
+// The imperative dialogs below render into a root of their own, which inherits
+// no context from the app's ConfigProvider. Anything antd that a caller puts in
+// `content` (an Alert, a Space) would then fall back to the light theme inside
+// a dark dialog, so the root gets the same theme the app itself is using.
+function themed (node) {
+  let theme
+  try {
+    theme = window.store && window.store.uiThemeConfig
+  } catch (err) {
+    // a dialog that fails to render is far worse than an unthemed one
+    console.error('modal theme lookup error', err)
+  }
+  return theme ? <ConfigProvider theme={theme}>{node}</ConfigProvider> : node
+}
 
 function isEmptyNode (node) {
   if (node === null || node === undefined || node === false || node === '') {
@@ -213,7 +229,7 @@ function createModalInstance (type, options) {
     children: content
   }
 
-  root.render(<Modal {...modalProps} />)
+  root.render(themed(<Modal {...modalProps} />))
 
   const update = (newOptions) => {
     const updatedOptions = { ...options, ...newOptions }
@@ -271,7 +287,7 @@ function createModalInstance (type, options) {
       children: newContent
     }
 
-    root.render(<Modal {...newModalProps} />)
+    root.render(themed(<Modal {...newModalProps} />))
   }
 
   return {

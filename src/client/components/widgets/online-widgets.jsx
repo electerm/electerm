@@ -7,16 +7,17 @@
  * out that main.js runs with full Node privileges. Only after that does the
  * main process fetch the pinned commit and verify every file.
  *
- * Everything here is laid out by antd (List/Space/Typography/Alert) plus the
- * shared utility classes, so the tab needs no stylesheet of its own.
+ * Everything here is laid out by antd (Space/Typography/Alert/Spin) plus the
+ * shared utility classes; the row chrome is the `.ow-item` rules in
+ * widgets.styl. antd 6 deprecated `List`, so the rows are plain markup.
  */
 import React, { useEffect, useState } from 'react'
 import {
   Alert,
   Button,
   Input,
-  List,
   Space,
+  Spin,
   Typography
 } from 'antd'
 import Modal from '../common/modal'
@@ -94,23 +95,26 @@ export default function OnlineWidgets ({ installed, onInstalled }) {
       okText: e('import'),
       cancelText: e('cancel'),
       content: (
-        <Space direction='vertical' size={4} className='width-100'>
-          <Paragraph type='danger' className='mg0'>
-            A widget's main.js runs inside electerm's main process with full
-            Node permissions — it can read files and run commands. Install only
-            widgets whose source you trust.
-          </Paragraph>
-          <Text className='wordbreak'>Version: {record.version}</Text>
-          <Text className='wordbreak'>Author: {record.author || 'unknown'}</Text>
-          <Text className='wordbreak'>Repository: {record.host}/{record.owner}/{record.repo}</Text>
-          <Text className='wordbreak'>Commit: {record.ref}</Text>
-          <Text className='wordbreak'>
-            Files: {record.fileCount} ({formatSize(record.totalSize)}), pinned and verified
-          </Text>
-          <Link onClick={() => window.pre.openExternal(registrySourceUrl(record))}>
-            View source at this commit
-          </Link>
-        </Space>
+        <div>
+          <Alert
+            type='warning'
+            showIcon
+            className='mg1b'
+            title="A widget's main.js runs inside electerm's main process with full Node permissions — it can read files and run commands. Install only widgets whose source you trust."
+          />
+          <Space orientation='vertical' size={4} className='width-100'>
+            <p className='mg0 wordbreak'>Version: {record.version}</p>
+            <p className='mg0 wordbreak'>Author: {record.author || 'unknown'}</p>
+            <p className='mg0 wordbreak'>Repository: {record.host}/{record.owner}/{record.repo}</p>
+            <p className='mg0 wordbreak'>Commit: {record.ref}</p>
+            <p className='mg0 wordbreak'>
+              Files: {record.fileCount} ({formatSize(record.totalSize)}), pinned and verified
+            </p>
+            <Link onClick={() => window.pre.openExternal(registrySourceUrl(record))}>
+              View source at this commit
+            </Link>
+          </Space>
+        </div>
       ),
       onOk: () => install(record, false)
     })
@@ -132,49 +136,43 @@ export default function OnlineWidgets ({ installed, onInstalled }) {
     const revoked = revokedIds.has(record.id)
     const busy = busyId === record.id
     return (
-      <List.Item key={record.id}>
-        <List.Item.Meta
-          title={
-            <Space size={8} wrap>
-              <span className='wordbreak'>{record.name}</span>
-              <Text type='secondary'>{record.version}</Text>
-              {isInstalled ? <Text type='secondary'>installed</Text> : null}
-            </Space>
-          }
-          description={
-            <Space direction='vertical' size={2} className='width-100'>
-              <span className='wordbreak'>{record.description}</span>
-              <Text type='secondary' className='wordbreak'>
-                {record.author || 'unknown'} · {record.host}/{record.owner}/{record.repo} · {record.license || 'no license'}
-              </Text>
-              <Text type='secondary' className='wordbreak'>
-                {record.fileCount} files · {formatSize(record.totalSize)} · {record.ref.slice(0, 7)}
-              </Text>
-              {revoked
-                ? <Text type='danger'>This widget was removed from the registry. Do not reinstall it.</Text>
-                : null}
-              <Space size={4}>
-                <Button
-                  size='small'
-                  type='primary'
-                  disabled={revoked || busy}
-                  loading={busy}
-                  onClick={() => confirmInstall(record)}
-                >
-                  {isInstalled ? 'Update' : 'Install'}
-                </Button>
-                <Button
-                  type='link'
-                  size='small'
-                  onClick={() => window.pre.openExternal(registrySourceUrl(record))}
-                >
-                  Source
-                </Button>
-              </Space>
-            </Space>
-          }
-        />
-      </List.Item>
+      <div key={record.id} className='ow-item'>
+        <div className='ow-item-head'>
+          <span className='wordbreak'>{record.name}</span>
+          <Text type='secondary'>{record.version}</Text>
+          {isInstalled ? <Text type='secondary'>installed</Text> : null}
+        </div>
+        <Space orientation='vertical' size={2} className='width-100'>
+          <span className='wordbreak'>{record.description}</span>
+          <Text type='secondary' className='wordbreak'>
+            {record.author || 'unknown'} · {record.host}/{record.owner}/{record.repo} · {record.license || 'no license'}
+          </Text>
+          <Text type='secondary' className='wordbreak'>
+            {record.fileCount} files · {formatSize(record.totalSize)} · {record.ref.slice(0, 7)}
+          </Text>
+          {revoked
+            ? <Text type='danger'>This widget was removed from the registry. Do not reinstall it.</Text>
+            : null}
+          <Space size={4}>
+            <Button
+              size='small'
+              type='primary'
+              disabled={revoked || busy}
+              loading={busy}
+              onClick={() => confirmInstall(record)}
+            >
+              {isInstalled ? 'Update' : 'Install'}
+            </Button>
+            <Button
+              type='link'
+              size='small'
+              onClick={() => window.pre.openExternal(registrySourceUrl(record))}
+            >
+              Source
+            </Button>
+          </Space>
+        </Space>
+      </div>
     )
   }
 
@@ -193,7 +191,7 @@ export default function OnlineWidgets ({ installed, onInstalled }) {
         ? <Alert
             type='error'
             showIcon
-            message={`Could not load the registry: ${error}`}
+            title={`Could not load the registry: ${error}`}
             action={<Button type='link' size='small' onClick={load}>Retry</Button>}
           />
         : null}
@@ -203,13 +201,11 @@ export default function OnlineWidgets ({ installed, onInstalled }) {
           widgets.electerm.org
         </Link>. Nothing is installed until you confirm.
       </Paragraph>
-      <List
-        size='small'
-        loading={loading}
-        dataSource={filtered}
-        locale={{ emptyText: error || loading ? null : 'No widgets found.' }}
-        renderItem={renderItem}
-      />
+      <Spin spinning={loading}>
+        {!loading && !error && !filtered.length
+          ? <Text type='secondary'>No widgets found.</Text>
+          : filtered.map(renderItem)}
+      </Spin>
     </div>
   )
 }
