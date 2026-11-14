@@ -10,6 +10,8 @@ import {
 import { CommandTrackerAddon } from '../command-tracker-addon.js'
 import { Osc52Addon } from '../osc52-addon.js'
 import { rendererTypes } from '../../../common/constants.js'
+import { isWin } from '../../../common/platform.js'
+import { fileUrlToPath } from '../local-path-links.js'
 import { refsStatic } from '../../common/ref.js'
 import keyControlPressed from '../../../common/key-control-pressed.js'
 
@@ -97,6 +99,7 @@ export const initMixin = {
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
+    this.initOsc8LinkHandler(term)
     // Every terminal starts on the built-in DOM renderer; only a really
     // visible one gets WebGL, activated lazily by the lifecycle controller on
     // the next animation frame. A hidden terminal still connects its
@@ -124,15 +127,104 @@ export const initMixin = {
     refsStatic.get('unix-timestamp-tooltip')?.onSelection(txt)
   },
 
+  /**
+   * OSC 8 hyperlinks. xterm drops every non-http URI before it is activated
+   * unless a handler opts in, so `file://` links printed by a tool did nothing.
+   * `allowNonHttpProtocols` only becomes safe because the handler below
+   * forwards `file:` to the file manager and http(s) to the browser, and
+   * ignores every other scheme - `shell.openExternal` would happily hand
+   * `smb:`/`search-ms:`/... to the OS (#4737).
+   */
+  initOsc8LinkHandler (term) {
+    if (!term || !term.options) {
+      return
+    }
+    term.options.linkHandler = {
+      allowNonHttpProtocols: true,
+      activate: (event, url) => this.activateOsc8Link(event, url)
+    }
+  },
+
+  /**
+   * One click gate for everything clickable in the terminal: web links, OSC 8
+   * hyperlinks and local file paths all follow `ctrlOrMetaOpenTerminalLink`.
+   * With it on, only ctrl/cmd+click activates; with it off, a plain click does.
+   * A right click is never an activation, so the context menu keeps working on
+   * top of a link.
+   */
+  shouldActivateTerminalLink (event) {
+    if (event?.button === 2) {
+      return false
+    }
+    return !this.props.config.ctrlOrMetaOpenTerminalLink ||
+      !!keyControlPressed(event)
+  },
+
+  activateOsc8Link (event, url) {
+    const text = String(url || '')
+    if (/^https?:\/\//i.test(text)) {
+      if (this.shouldActivateTerminalLink(event)) {
+        window.openLink(text, '_blank')
+      }
+      return
+    }
+    if (!this.canLinkLocalPaths() || !this.shouldActivateTerminalLink(event)) {
+      return
+    }
+    const path = fileUrlToPath(text, { isWin })
+    if (path) {
+      window.pre.showItemInFolder(path)
+    }
+  },
+
   webLinkHandler (event, url) {
     if (event?.button === 2) {
       return false
     }
-    if (!this.props.config.ctrlOrMetaOpenTerminalLink) {
-      return window.openLink(url, '_blank')
-    }
-    if (keyControlPressed(event)) {
+    if (this.shouldActivateTerminalLink(event)) {
       window.openLink(url, '_blank')
     }
+  },
+
+  /**
+   * Ctrl+click on a local file path reveals it in the file manager (#4737).
+   * The ctrl/cmd requirement follows `ctrlOrMetaOpenTerminalLink`, exactly like
+   * a printed web link, so the user has one rule to remember.
+   *
+   * Local tabs only: a path printed by an ssh/telnet/serial session belongs to
+   * the far machine, and the web build has no file manager to reveal it in.
+   * Registered per connection, so a reconnect replaces the previous provider
+   * instead of stacking a second one that would open the same folder twice.
+   */
+  async initLocalPathLinks (term) {
+    this.localPathLinkDisposable?.dispose()
+    this.localPathLinkDisposable = null
+    if (!this.canLinkLocalPaths()) {
+      return
+    }
+    try {
+      const { LocalPathLinkProvider } = await import('../local-path-link-provider.js')
+      this.localPathLinkDisposable = term.registerLinkProvider(
+        new LocalPathLinkProvider({
+          term,
+          isWin,
+          getCwd: () => this.getLinkCwd(),
+          openPath: path => window.pre.showItemInFolder(path),
+          shouldActivate: event => this.shouldActivateTerminalLink(event)
+        })
+      )
+    } catch (err) {
+      // a failed chunk fetch must not take the session down with it: the
+      // terminal simply stays without local path links
+      console.error('local path links unavailable', err)
+    }
+  },
+
+  canLinkLocalPaths () {
+    // the web app runs on another machine: a "local" path there is not on the
+    // user's disk and it has no file manager to reveal it in
+    return !window.et?.isWebApp &&
+      this.isLocal() &&
+      !!(window.pre && window.pre.showItemInFolder)
   }
 }

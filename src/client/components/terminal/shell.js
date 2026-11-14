@@ -16,6 +16,13 @@
 
 /* eslint-disable no-template-curly-in-string, no-useless-escape */
 
+// The PowerShell integration script is shared with the server, which hands it
+// to the pty as a spawn argument instead of typing it (server-local PowerShell
+// is the one shell where the typed form can not be hidden, #4737). It is still
+// typed here for `pwsh` running as a *local* shell on macOS/Linux, where the
+// pty is not spawnable by us.
+import { getPowerShellIntegrationScript } from '../../common/powershell-integration.js'
+
 /**
  * Get inline shell integration command for bash (one-liner format)
  * Properly formatted for semicolon joining
@@ -99,11 +106,21 @@ function getShInlineIntegration () {
 }
 
 export function detectShellType (shellStr) {
-  if (shellStr.includes('bash')) {
+  const shell = String(shellStr || '').trim().replace(/^"|"$/g, '')
+  // PowerShell first: `pwsh` also contains no other shell name, but a path
+  // such as `C:\Program Files\PowerShell\7\pwsh.exe` must not fall through to
+  // the POSIX `sh` default.
+  if (/(?:^|[/\\])(?:powershell|pwsh)(?:\.exe)?$/i.test(shell)) {
+    return 'powershell'
+  }
+  if (/(?:^|[/\\])cmd(?:\.exe)?$/i.test(shell)) {
+    return 'cmd'
+  }
+  if (shell.includes('bash')) {
     return 'bash'
-  } else if (shellStr.includes('zsh')) {
+  } else if (shell.includes('zsh')) {
     return 'zsh'
-  } else if (shellStr.includes('fish')) {
+  } else if (shell.includes('fish')) {
     return 'fish'
   } else {
     return 'sh'
@@ -134,7 +151,7 @@ export function parseRemoteShell (output) {
 
 /**
  * Get shell integration command based on detected shell type
- * @param {string} shellType - 'bash', 'zsh', or 'fish'
+ * @param {string} shellType - 'bash', 'zsh', 'fish', 'sh' or 'powershell'
  * @returns {string} Shell integration command to send
  */
 export function getInlineShellIntegration (shellType) {
@@ -145,11 +162,26 @@ export function getInlineShellIntegration (shellType) {
       return getZshInlineIntegration()
     case 'fish':
       return getFishInlineIntegration()
+    case 'powershell':
+      return getPowerShellIntegrationScript()
     default:
       // Try bash as default for sh-compatible shells
       return getShInlineIntegration()
   }
 }
+
+/**
+ * Shell types this module can produce an integration script for.
+ * `cmd` is not one of them: its prompt cannot report a path as an escape
+ * sequence, and typing the POSIX script there would only print an error.
+ */
+export const shellIntegrationTypes = new Set([
+  'bash',
+  'zsh',
+  'fish',
+  'sh',
+  'powershell'
+])
 
 /**
  * Wrap shell integration command for execution
@@ -177,6 +209,11 @@ export function getShellIntegrationCommand (shellType = 'bash') {
     // is a parse error in fish (nested single quotes stay unbalanced), so
     // the whole injection silently fails. Send the script raw instead —
     // it is already valid fish syntax as-is.
+    return ' ' + getInlineShellIntegration(shellType) + '\r'
+  }
+  if (shellType === 'powershell') {
+    // Same reason: `eval '...'` is not PowerShell either. The leading space
+    // keeps the line out of the PSReadLine history.
     return ' ' + getInlineShellIntegration(shellType) + '\r'
   }
   const cmd = getInlineShellIntegration(shellType)

@@ -33,6 +33,9 @@ const localConfig = {
         commonFields.description,
         commonFields.enableTerminalImage,
         commonFields.runScripts,
+        // where the shell starts; also the base a ctrl+clicked relative path is
+        // resolved against, and the pty's own cwd (#4737)
+        commonFields.startDirectoryLocal,
         { type: 'input', name: 'type', label: 'type', hidden: true }
       ]
     },

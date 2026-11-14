@@ -90,7 +90,10 @@ export const configMixin = {
       !prevSftpFollow &&
       currSftpFollow &&
       this.isLocal() &&
-      isWin
+      isWin &&
+      // PowerShell reports its cwd (see shell.js), so the follow feature does
+      // work there; only the shells that cannot report one are unsupported.
+      this.startupQueue.getLocalShellType() !== 'powershell'
     ) {
       return this.warnSftpFollowUnsupported()
     }

@@ -177,7 +177,7 @@ export default class BatchOpRunner extends Component {
       encode: p.encode || 'utf8',
       envLang: p.envLang || 'en_US.UTF-8',
       setEnv: p.setEnv || '',
-      startDirectoryRemote: p.startDirectoryRemote || '',
+      startDirectory: p.startDirectory || '',
       startDirectoryLocal: p.startDirectoryLocal || '',
       proxy: p.proxy || '',
       x11: p.x11 || false,

@@ -184,14 +184,39 @@ export class CommandTrackerAddon {
   /**
    * Deserialize OSC 633 escaped values
    * Handles: \\ -> \, \x3b -> ;
+   *
+   * Single pass on purpose: two chained regexes cannot tell an escaped
+   * backslash from the start of an escape sequence once they are applied one
+   * after the other. A Windows cwd like `D:\x86\build` (emitted as
+   * `D:\\x86\\build`) was read back as `D:\x86\build` -> `D:V\build`, because
+   * the `\x..` pass ran before `\\` was collapsed.
    * @param {string} value - Escaped value
    * @returns {string} Unescaped value
    */
   _deserializeOscValue (value) {
     if (!value) return ''
-    return value
-      .replace(/\\x([0-9a-fA-F]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
-      .replace(/\\\\/g, '\\')
+    let out = ''
+    for (let i = 0; i < value.length; i++) {
+      const char = value[i]
+      if (char !== '\\') {
+        out += char
+        continue
+      }
+      const next = value[i + 1]
+      if (next === '\\') {
+        out += '\\'
+        i++
+        continue
+      }
+      const hex = value.substr(i + 2, 2)
+      if (next === 'x' && /^[0-9a-fA-F]{2}$/.test(hex)) {
+        out += String.fromCharCode(parseInt(hex, 16))
+        i += 3
+        continue
+      }
+      out += char
+    }
+    return out
   }
 
   /**

@@ -13,7 +13,7 @@
  *
  * Why a denylist and not an allowlist: a quick connect string may legitimately
  * carry any session option (encode, term, authType, agentForward, sshTunnels,
- * startDirectoryRemote, ...). An allowlist would silently break every field it
+ * startDirectory, ...). An allowlist would silently break every field it
  * does not know about, which is a worse failure than the one it prevents. The
  * cost of that choice is that a future exec-capable option must be added here.
  *

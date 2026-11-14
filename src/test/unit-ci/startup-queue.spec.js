@@ -64,7 +64,12 @@ const makeQueue = async (options) => {
   const { StartupQueue } = await loadModule()
   const addon = makeAddon(options)
   const host = makeHost(addon, options)
-  return { queue: new StartupQueue(host), addon, host }
+  const queue = new StartupQueue(host)
+  // These tests are about what gets typed and in which order; the "wait until
+  // the shell has drawn a prompt" gate has its own spec
+  // (startup-queue-injection.spec.js), with a clock to test against.
+  queue.waitForFirstPrompt = () => Promise.resolve(true)
+  return { queue, addon, host }
 }
 
 describe('startup queue', () => {

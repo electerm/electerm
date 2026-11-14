@@ -349,7 +349,7 @@ export default class Sftp extends Component {
     let path
 
     if (type === typeMap.remote) {
-      path = this.props.tab.startDirectoryRemote
+      path = this.props.tab.startDirectory
       if (!path && this.sftp) {
         path = await this.getPwd(this.props.tab.username)
       }

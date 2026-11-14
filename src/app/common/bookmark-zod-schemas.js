@@ -49,7 +49,7 @@ const commonNetworkBookmarkProps = {
   password: z.string().optional().describe('Password'),
   description: z.string().optional().describe('Bookmark description'),
   // runScripts: z.array(runScriptSchema).optional().describe('Run scripts after connected'),
-  startDirectoryRemote: z.string().optional().describe('Remote starting directory'),
+  startDirectory: z.string().optional().describe('Remote starting directory'),
   startDirectoryLocal: z.string().optional().describe('Local starting directory'),
   profile: z.string().optional().describe('Profile id'),
   proxy: z.string().optional().describe('Proxy address (socks5://...)')

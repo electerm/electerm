@@ -265,6 +265,28 @@ export const suggestionsMixin = {
     this.props.setCwd(cwd, this.state.id)
   },
 
+  /**
+   * Where the shell was started. Shell integration reports the live cwd, but
+   * only some shells can (PowerShell, bash/zsh/fish - not cmd), and it arrives
+   * one prompt late; a relative path the user ctrl+clicks still has to resolve
+   * before that, so this is the base until a live cwd exists.
+   */
+  setInitialCwd (cwd) {
+    this.initialCwd = cwd || ''
+  },
+
+  /**
+   * Base directory for resolving a local path from terminal output: the live
+   * shell cwd when shell integration gives us one, else the start directory.
+   */
+  getLinkCwd () {
+    const live = this.cmdAddon?.getCwd()
+    if (live) {
+      return live
+    }
+    return this.initialCwd || ''
+  },
+
   shouldUseManualHistory () {
     return !this.cmdAddon || !this.cmdAddon.hasShellIntegration()
   },
