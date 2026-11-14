@@ -168,6 +168,14 @@ export const socketMixin = {
     // Renderer-only state can contain a large serialized screen and must not
     // cross the process boundary as part of the SSH connection options.
     delete opts._reloadState
+    if (isLocalType) {
+      // The local pty is spawned in this directory (server/session-local.js),
+      // so the bookmark value - and, when the bookmark has none, the global
+      // "start directory: local" setting - has to reach the server (#4737).
+      opts.startDirectoryLocal = tab.startDirectoryLocal ||
+        config.startDirectoryLocal ||
+        ''
+    }
     // a bookmark that asks a password manager for its password, when it has
     // none saved: ssh and telnet both take it from the connection options
     this.credentials = null
@@ -250,6 +258,7 @@ export const socketMixin = {
     term.buffer.onBufferChange(this.onBufferChange)
     const WebLinksAddon = await loadWebLinksAddon()
     term.loadAddon(new WebLinksAddon(this.webLinkHandler))
+    await this.initLocalPathLinks(term)
     term.focus()
     this.zmodemClient = new ZmodemClient(this)
     this.zmodemClient.init(socket)

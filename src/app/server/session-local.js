@@ -2,11 +2,56 @@
  * terminal/sftp/serial class
  */
 
-const { resolve: pathResolve } = require('path')
+const {
+  resolve: pathResolve,
+  isAbsolute
+} = require('path')
+const { statSync } = require('fs')
 const { TerminalBase } = require('./session-base')
 const globalState = require('./global-state')
+const {
+  getPowerShellSpawnArgs
+} = require('../common/powershell-integration')
 // const { MockBinding } = require('@serialport/binding-mock')
 // MockBinding.createPort('/dev/ROBOT', { echo: true, record: true })
+
+const maxStartDirectoryLength = 4096
+
+/**
+ * The directory a local pty should start in.
+ *
+ * The shell used to be spawned in the user's home directory and then told to
+ * move with an injected `cd`/`Set-Location`. Anything that resolves a path
+ * against the *process* cwd in that window - a tool printing relative paths,
+ * the "open file location" action - landed in the home directory (or the
+ * desktop, when the app was started from a shortcut) instead of the directory
+ * the bookmark asked for (#4737). Starting the shell where it belongs makes the
+ * injected `cd` a no-op and keeps every relative path honest.
+ *
+ * Only an existing absolute directory is accepted: node-pty fails to spawn on a
+ * cwd it cannot use, so a stale bookmark path must fall back, not break the tab.
+ */
+const resolveStartDirectory = (dir) => {
+  if (typeof dir !== 'string') {
+    return ''
+  }
+  const value = dir.trim()
+  if (
+    !value ||
+    value.length > maxStartDirectoryLength ||
+    // control characters would be trimmed/interpreted by the OS in unclear ways
+    /[\0\r\n]/.test(value) ||
+    !isAbsolute(value)
+  ) {
+    return ''
+  }
+  try {
+    const abs = pathResolve(value)
+    return statSync(abs).isDirectory() ? abs : ''
+  } catch (err) {
+    return ''
+  }
+}
 
 class TerminalLocal extends TerminalBase {
   init () {
@@ -20,7 +65,8 @@ class TerminalLocal extends TerminalBase {
       execMacArgs,
       execLinuxArgs,
       termType,
-      term
+      term,
+      startDirectoryLocal
     } = this.initOptions
     this.isLocal = true
     const { platform } = process
@@ -37,8 +83,24 @@ class TerminalLocal extends TerminalBase {
     const arg = isWin
       ? execWindowsArgs
       : platform === 'darwin' ? execMacArgs : execLinuxArgs
-    const cwd = process.env[platform === 'win32' ? 'USERPROFILE' : 'HOME']
-    const argv = platform.startsWith('darwin') ? ['--login', ...arg] : arg
+    // Only the local start directory makes sense for a local pty: the remote
+    // `startDirectory` belongs to the far machine, so it is never consulted
+    // here (#4737).
+    const cwd = resolveStartDirectory(startDirectoryLocal) ||
+      process.env[platform === 'win32' ? 'USERPROFILE' : 'HOME']
+    const userArgs = Array.isArray(arg) ? arg : []
+    // Windows PowerShell gets the shell integration in its own argument list
+    // instead of having it typed into the shell after connect: the script can
+    // not be hidden that way (see common/powershell-integration.js). `null`
+    // means "not PowerShell, or the user's arguments own execution" - then the
+    // shell is spawned exactly as configured. The *platform's* shell is what
+    // counts: the Windows setting exists on every platform, but it is not what
+    // runs here.
+    const shellPath = isWin
+      ? execWindows
+      : platform === 'darwin' ? execMac : execLinux
+    const argv = getPowerShellSpawnArgs(shellPath, userArgs) ||
+      (platform.startsWith('darwin') ? ['--login', ...userArgs] : userArgs)
     const pty = require('node-pty')
     const env = Object.assign({}, process.env)
     delete env.ELECTRON_RUN_AS_NODE

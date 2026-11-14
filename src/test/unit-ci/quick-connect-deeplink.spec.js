@@ -107,7 +107,7 @@ describe('deep link surface: safe fields still get through', function () {
     'enableSftp',
     'keepaliveInterval',
     'readyTimeout',
-    'startDirectoryRemote',
+    'startDirectory',
     'startDirectoryLocal',
     'description',
     'profile',
