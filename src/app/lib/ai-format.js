@@ -652,6 +652,16 @@ function createStreamParser (format) {
       }
     } else if (type === 'response.completed') {
       state.completed = true
+    } else if (type === 'response.incomplete') {
+      // Keep any partial output; only an empty reply is an error, same as
+      // parseResponsesResponse.
+      state.completed = true
+      if (!state.content && !toolCalls.size) {
+        const resp = data.response
+        const details = resp && resp.incomplete_details
+        const reason = details && details.reason
+        setError(`AI response incomplete${reason ? `: ${reason}` : ''}`)
+      }
     } else if (type === 'response.failed' || type === 'error') {
       const resp = data.response
       const msg = (resp && resp.error && resp.error.message) ||

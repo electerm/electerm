@@ -726,6 +726,24 @@ describe('createStreamParser - openai responses', () => {
     assert.equal(parser.error, 'boom')
     assert.equal(parser.completed, true)
   })
+
+  it('reports an incomplete response that produced no output', () => {
+    const parser = runStream(FORMAT_OPENAI_RESPONSES, [
+      'event: response.incomplete\ndata: {"type":"response.incomplete","response":{"status":"incomplete","incomplete_details":{"reason":"max_output_tokens"}}}\n\n'
+    ])
+    assert.equal(parser.error, 'AI response incomplete: max_output_tokens')
+    assert.equal(parser.completed, true)
+  })
+
+  it('keeps partial text of an incomplete response without an error', () => {
+    const parser = runStream(FORMAT_OPENAI_RESPONSES, [
+      'event: response.output_text.delta\ndata: {"type":"response.output_text.delta","delta":"Hel"}\n\n',
+      'event: response.incomplete\ndata: {"type":"response.incomplete","response":{"status":"incomplete","incomplete_details":{"reason":"max_output_tokens"}}}\n\n'
+    ])
+    assert.equal(parser.content, 'Hel')
+    assert.equal(parser.error, null)
+    assert.equal(parser.completed, true)
+  })
 })
 
 describe('createStreamParser - anthropic', () => {
