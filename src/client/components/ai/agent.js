@@ -241,9 +241,28 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
 
         let args
         try {
-          args = JSON.parse(toolCall.function.arguments)
+          args = JSON.parse(toolCall.function.arguments || '{}')
         } catch {
-          args = {}
+          // The argument string did not parse, so the reply was cut off or
+          // garbled. Running the tool with `{}` would execute something the
+          // model never asked for, so report it back and let it retry.
+          const errorText = `Invalid tool arguments JSON: ${toolCall.function.arguments}`
+          toolCallsLog.push({
+            id: toolCall.id,
+            name: toolCall.function.name,
+            args: {},
+            status: 'error',
+            result: errorText
+          })
+          updateChatEntry(chatEntry, {
+            toolCalls: [...toolCallsLog]
+          })
+          messages.push({
+            role: 'tool',
+            tool_call_id: toolCall.id,
+            content: errorText
+          })
+          continue
         }
 
         toolCallsLog.push({

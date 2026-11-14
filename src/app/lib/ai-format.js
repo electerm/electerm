@@ -13,7 +13,9 @@
 const {
   resolveAIResponse,
   errorMessageFromData,
-  stringifyData
+  stringifyData,
+  toolArgumentsComplete,
+  normalizeToolArguments
 } = require('./ai-response')
 
 const FORMAT_OPENAI_CHAT = 'openai-chat'
@@ -429,14 +431,22 @@ function parseResponsesResponse (data) {
     role: 'assistant',
     content: text || null
   }
-  if (toolCalls.length) {
-    message.tool_calls = toolCalls
+  const calls = normalizeToolArguments(toolCalls)
+  if (calls.length) {
+    message.tool_calls = calls
   }
-  if (!text && !toolCalls.length) {
-    if (data.status === 'incomplete') {
-      const reason = data.incomplete_details && data.incomplete_details.reason
+  // An incomplete response may hold a function call whose arguments were cut
+  // off; the agent would run it with empty input.
+  if (data.status === 'incomplete') {
+    const reason = data.incomplete_details && data.incomplete_details.reason
+    if (calls.length || !text) {
       return { error: `AI response incomplete${reason ? `: ${reason}` : ''}` }
     }
+  }
+  if (calls.length && !toolArgumentsComplete(calls)) {
+    return { error: 'AI response truncated (incomplete tool call)' }
+  }
+  if (!text && !calls.length) {
     return {
       error: `Unexpected AI response(no message): ${stringifyData(data)}`
     }
@@ -585,6 +595,11 @@ function createStreamParser (format) {
     }
     if (choice.finish_reason) {
       state.completed = true
+      // Same cut-off as the non-streaming chat parser: 'length' means the
+      // provider stopped at the token limit, so a tool input may be partial.
+      if (choice.finish_reason === 'length' && toolCalls.size) {
+        setError('AI response truncated (length)')
+      }
     }
   }
 
@@ -653,10 +668,10 @@ function createStreamParser (format) {
     } else if (type === 'response.completed') {
       state.completed = true
     } else if (type === 'response.incomplete') {
-      // Keep any partial output; only an empty reply is an error, same as
-      // parseResponsesResponse.
+      // Partial text is still worth showing, but a function call whose
+      // arguments were cut off must not be run.
       state.completed = true
-      if (!state.content && !toolCalls.size) {
+      if (toolCalls.size || !state.content) {
         const resp = data.response
         const details = resp && resp.incomplete_details
         const reason = details && details.reason
