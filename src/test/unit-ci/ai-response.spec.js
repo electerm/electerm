@@ -46,6 +46,110 @@ describe('resolveAIResponse', () => {
     assert.equal(res.message.tool_calls[0].function.name, 'run_command')
   })
 
+  it('refuses a tool call cut off by finish_reason length', () => {
+    const res = resolveAIResponse({
+      choices: [
+        {
+          finish_reason: 'length',
+          message: {
+            role: 'assistant',
+            content: null,
+            tool_calls: [
+              {
+                id: 'call_1',
+                type: 'function',
+                function: {
+                  name: 'run_command',
+                  arguments: '{"cmd":"rm -rf '
+                }
+              }
+            ]
+          }
+        }
+      ]
+    })
+    assert.match(res.error, /truncated \(length\)/)
+    assert.equal(res.message, undefined)
+  })
+
+  it('refuses a tool call whose arguments are not valid json', () => {
+    const res = resolveAIResponse({
+      choices: [
+        {
+          finish_reason: 'stop',
+          message: {
+            role: 'assistant',
+            content: null,
+            tool_calls: [
+              {
+                id: 'call_1',
+                type: 'function',
+                function: {
+                  name: 'run_command',
+                  arguments: '{"cmd":'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    })
+    assert.match(res.error, /incomplete tool call/)
+    assert.equal(res.message, undefined)
+  })
+
+  it('recovers a complete call followed by provider markers', () => {
+    const res = resolveAIResponse({
+      choices: [
+        {
+          finish_reason: 'tool_calls',
+          message: {
+            role: 'assistant',
+            content: null,
+            tool_calls: [
+              {
+                id: 'call_1',
+                type: 'function',
+                function: {
+                  name: 'run_command',
+                  arguments: '{"cmd":"ls-la"}</think><|DSML|calls>'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    })
+    assert.equal(res.error, undefined)
+    assert.equal(res.message.tool_calls[0].function.arguments, '{"cmd":"ls-la"}')
+  })
+
+  it('accepts a tool call without arguments', () => {
+    const res = resolveAIResponse({
+      choices: [
+        {
+          finish_reason: 'tool_calls',
+          message: {
+            role: 'assistant',
+            content: null,
+            tool_calls: [
+              {
+                id: 'call_1',
+                type: 'function',
+                function: {
+                  name: 'list_dir',
+                  arguments: ''
+                }
+              }
+            ]
+          }
+        }
+      ]
+    })
+    assert.equal(res.error, undefined)
+    assert.equal(res.message.tool_calls[0].function.arguments, '')
+  })
+
   it('reports string error body instead of crashing', () => {
     const res = resolveAIResponse({ error: 'Invalid or expired API key' })
     assert.deepEqual(res, { error: 'Invalid or expired API key' })

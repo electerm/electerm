@@ -454,6 +454,54 @@ describe('parseResponse - openai responses', () => {
     assert.match(res.error, /incomplete: max_output_tokens/)
   })
 
+  it('refuses an incomplete response that carries a function call', () => {
+    const res = parseResponse(FORMAT_OPENAI_RESPONSES, {
+      status: 'incomplete',
+      incomplete_details: { reason: 'max_output_tokens' },
+      output: [
+        {
+          type: 'function_call',
+          call_id: 'call_1',
+          name: 'run_command',
+          arguments: '{"cmd":"rm -rf '
+        }
+      ]
+    })
+    assert.match(res.error, /incomplete: max_output_tokens/)
+    assert.equal(res.message, undefined)
+  })
+
+  it('refuses a function call whose arguments are not valid json', () => {
+    const res = parseResponse(FORMAT_OPENAI_RESPONSES, {
+      status: 'completed',
+      output: [
+        {
+          type: 'function_call',
+          call_id: 'call_1',
+          name: 'run_command',
+          arguments: '{"cmd":'
+        }
+      ]
+    })
+    assert.match(res.error, /incomplete tool call/)
+    assert.equal(res.message, undefined)
+  })
+
+  it('keeps partial text of an incomplete response without a function call', () => {
+    const res = parseResponse(FORMAT_OPENAI_RESPONSES, {
+      status: 'incomplete',
+      incomplete_details: { reason: 'max_output_tokens' },
+      output: [
+        {
+          type: 'message',
+          content: [{ type: 'output_text', text: 'partial' }]
+        }
+      ]
+    })
+    assert.equal(res.error, undefined)
+    assert.equal(res.message.content, 'partial')
+  })
+
   it('errors on empty output', () => {
     const res = parseResponse(FORMAT_OPENAI_RESPONSES, { output: [] })
     assert.match(res.error, /^Unexpected AI response\(no message\)/)
@@ -689,6 +737,26 @@ describe('createStreamParser - openai chat', () => {
     ])
     assert.equal(parser.content, 'raw')
   })
+
+  it('refuses a tool call cut off by finish_reason length', () => {
+    const parser = runStream(FORMAT_OPENAI_CHAT, [
+      'data: {"choices":[{"delta":{"tool_calls":[{"index":0,"id":"call_1","function":{"name":"run_command","arguments":"{\\"cmd\\":\\"rm -rf "}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{},"finish_reason":"length"}]}\n\n',
+      'data: [DONE]\n'
+    ])
+    assert.match(parser.error, /truncated \(length\)/)
+    assert.equal(parser.completed, true)
+  })
+
+  it('keeps a tool call that finished normally', () => {
+    const parser = runStream(FORMAT_OPENAI_CHAT, [
+      'data: {"choices":[{"delta":{"tool_calls":[{"index":0,"id":"call_1","function":{"name":"run_command","arguments":"{\\"cmd\\":\\"ls\\"}"}}]}}]}\n\n',
+      'data: {"choices":[{"delta":{},"finish_reason":"tool_calls"}]}\n\n',
+      'data: [DONE]\n'
+    ])
+    assert.equal(parser.error, null)
+    assert.equal(parser.toolCalls[0].function.arguments, '{"cmd":"ls"}')
+  })
 })
 
 describe('createStreamParser - openai responses', () => {
@@ -742,6 +810,16 @@ describe('createStreamParser - openai responses', () => {
     ])
     assert.equal(parser.content, 'Hel')
     assert.equal(parser.error, null)
+    assert.equal(parser.completed, true)
+  })
+
+  it('refuses a function call cut off by response.incomplete', () => {
+    const parser = runStream(FORMAT_OPENAI_RESPONSES, [
+      'event: response.output_item.added\ndata: {"type":"response.output_item.added","item":{"id":"fc_1","type":"function_call","call_id":"call_1","name":"run_command","arguments":""}}\n\n',
+      'event: response.function_call_arguments.delta\ndata: {"type":"response.function_call_arguments.delta","item_id":"fc_1","delta":"{\\"cmd\\":\\"rm -rf "}\n\n',
+      'event: response.incomplete\ndata: {"type":"response.incomplete","response":{"status":"incomplete","incomplete_details":{"reason":"max_output_tokens"}}}\n\n'
+    ])
+    assert.match(parser.error, /incomplete: max_output_tokens/)
     assert.equal(parser.completed, true)
   })
 })
