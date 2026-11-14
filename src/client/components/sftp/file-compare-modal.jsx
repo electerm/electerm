@@ -185,7 +185,6 @@ export default class FileCompareModal extends React.PureComponent {
           activeKey={activeTab}
           onChange={key => this.setState({ activeTab: key })}
           items={tabItems}
-          destroyInactiveTabPane={false}
         />
       </Modal>
     )

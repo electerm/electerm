@@ -205,6 +205,20 @@
   min-width 60px
   font-family monospace
 
+// online registry rows: antd 6 deprecated `List`, so these replace its
+// item chrome (a rule between rows, no rule after the last one)
+.ow-item
+  padding 8px 0
+  border-bottom 1px solid var(--main-light)
+  &:last-child
+    border-bottom 0
+.ow-item-head
+  display flex
+  flex-wrap wrap
+  align-items center
+  gap 8px
+  margin-bottom 2px
+
 .widgets-import-row
   display flex
   align-items center
