@@ -18,6 +18,30 @@ const formatError = (e) => {
   return detail ? `${e.message}: ${detail}` : e.message
 }
 
+// With responseType 'stream' axios leaves the error body as an unread stream,
+// read it so formatError can show the provider's message
+const readErrorStream = async (e) => {
+  const data = e.response && e.response.data
+  if (!data || typeof data.on !== 'function') {
+    return
+  }
+  try {
+    const decoder = new StringDecoder('utf8')
+    let text = ''
+    for await (const chunk of data) {
+      text += typeof chunk === 'string' ? chunk : decoder.write(chunk)
+    }
+    text += decoder.end()
+    try {
+      e.response.data = JSON.parse(text)
+    } catch (err) {
+      e.response.data = text
+    }
+  } catch (err) {
+    e.response.data = null
+  }
+}
+
 // Store for ongoing streaming sessions
 const streamingSessions = new Map()
 
@@ -263,6 +287,7 @@ exports.AIchat = async (
       }
     }
   } catch (e) {
+    await readErrorStream(e)
     log.error('AI chat error')
     log.error(e)
     return {

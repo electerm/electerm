@@ -537,6 +537,34 @@ describe('error handling', () => {
   })
 })
 
+describe('error handling - streaming request', () => {
+  it('surfaces the error body of a non 2xx streaming response', async () => {
+    const badServer = http.createServer((req, res) => {
+      res.writeHead(401, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: { message: 'invalid api key provided' } }))
+    })
+    await new Promise(resolve => badServer.listen(0, '127.0.0.1', resolve))
+    const badPort = badServer.address().port
+    try {
+      const res = await AIchat(
+        'hello',
+        'gpt-4o',
+        'role',
+        `http://127.0.0.1:${badPort}`,
+        '/chat/completions',
+        'bad',
+        '',
+        true,
+        'Authorization: Bearer'
+      )
+      assert.match(res.error, /401/)
+      assert.match(res.error, /invalid api key provided/)
+    } finally {
+      badServer.close()
+    }
+  })
+})
+
 describe('AIlistModels', () => {
   it('normalizes and dedupes the openai style model list', async () => {
     const res = await AIlistModels(baseURL(), 'test-key', 'Authorization: Bearer')
