@@ -4,9 +4,11 @@
  * byte cursor) and raw byte send. Talks to TerminalSerial.serialEvent
  * (app/server/session-serial.js) over the tab's terminal socket.
  *
- * Desktop keeps the icons inline in the toolbar. The toolbar has no room for
- * a row of controls on a phone, so mobile gets a single icon that opens one
- * panel with all of it (see session-control.jsx, compact).
+ * One icon in the toolbar, one panel behind it: the toolbar row is 32px high
+ * and shared with the terminal / sftp icons, a row of pins and leds does not
+ * fit it (and does not fit a phone at all). Desktop opens the panel as a
+ * popover, next to the terminal; mobile opens the same panel as a modal
+ * (see session-control.jsx, compact).
  */
 
 import { useEffect, useRef, useState } from 'react'
@@ -14,7 +16,7 @@ import {
   Button, Checkbox, Divider, Input, Modal, Popover, Radio, Select, Space, Tooltip
 } from 'antd'
 import {
-  EyeOutlined, SendOutlined, SlidersOutlined, ThunderboltOutlined, WarningOutlined
+  SlidersOutlined, ThunderboltOutlined
 } from '@ant-design/icons'
 import classnames from 'classnames'
 import { parseSerialInput } from '../../common/serial-input'
@@ -311,27 +313,62 @@ export default function SerialControl ({ tabId, compact }) {
     </Tooltip>
   )
 
-  // ---- mobile: one panel, the toolbar has no room for the row ----
+  const lineButton = (name, label) => (
+    <Button
+      key={name}
+      size='small'
+      type={st[name] ? 'primary' : 'default'}
+      onClick={() => lineSwitch(name)}
+    >
+      {label}
+    </Button>
+  )
 
+  // ---- one icon, one panel, on both ----
+
+  const panel = (
+    <Space direction='vertical' size='small' style={{ width: '100%' }}>
+      <Space size='small' wrap>
+        {lineButton('dtr', 'DTR')}
+        {lineButton('rts', 'RTS')}
+        <Button size='small' icon={<ThunderboltOutlined />} onClick={onBreak}>
+          Break
+        </Button>
+      </Space>
+      <div className='font12'>
+        {['cts', 'dsr', 'dcd'].map(n => led(n, true, 'mg2r'))}
+      </div>
+      <Divider style={{ margin: '4px 0' }} />
+      {viewBody}
+      <Divider style={{ margin: '4px 0' }} />
+      {sendBody(false)}
+      {cur
+        ? (
+          <div className='font12'>
+            Byte at the cursor: {cursorText}
+          </div>
+          )
+        : null}
+      {st.error ? <div className='color-red font12'>{st.error}</div> : null}
+    </Space>
+  )
+
+  const trigger = onClick => (
+    // no tooltip while the panel is open: it paints over the panel
+    <Tooltip title={open ? undefined : 'Serial: DTR / RTS / break, view of received data, send bytes'}>
+      <SlidersOutlined
+        className={litIf(mode !== 'ascii' || framed || brk, 'sess-icon pointer')}
+        onClick={onClick}
+      />
+    </Tooltip>
+  )
+
+  // a phone: a popover inside the "…" popover lands off the screen, and the
+  // panel is taller than the room under the toolbar
   if (compact) {
-    const lineButton = (name, label) => (
-      <Button
-        key={name}
-        size='small'
-        type={st[name] ? 'primary' : 'default'}
-        onClick={() => lineSwitch(name)}
-      >
-        {label}
-      </Button>
-    )
     return (
       <>
-        <Tooltip title='Serial: DTR / RTS / break, view of received data, send bytes'>
-          <SlidersOutlined
-            className={litIf(mode !== 'ascii' || framed || brk, 'sess-icon pointer')}
-            onClick={() => setOpen(true)}
-          />
-        </Tooltip>
+        {trigger(() => setOpen(true))}
         <Modal
           open={open}
           onCancel={() => setOpen(false)}
@@ -340,89 +377,22 @@ export default function SerialControl ({ tabId, compact }) {
           width={320}
           destroyOnHidden
         >
-          <Space direction='vertical' size='small' style={{ width: '100%' }}>
-            <Space size='small' wrap>
-              {lineButton('dtr', 'DTR')}
-              {lineButton('rts', 'RTS')}
-              <Button size='small' icon={<ThunderboltOutlined />} onClick={onBreak}>
-                Break
-              </Button>
-            </Space>
-            <div className='font12'>
-              {['cts', 'dsr', 'dcd'].map(n => led(n, true, 'mg2r'))}
-            </div>
-            <Divider style={{ margin: '4px 0' }} />
-            {viewBody}
-            <Divider style={{ margin: '4px 0' }} />
-            {sendBody(false)}
-            {cur
-              ? (
-                <div className='font12'>
-                  Byte at the cursor: {cursorText}
-                </div>
-                )
-              : null}
-            {st.error ? <div className='color-red font12'>{st.error}</div> : null}
-          </Space>
+          {panel}
         </Modal>
       </>
     )
   }
 
-  // ---- desktop: the row in the toolbar ----
-
-  const lineChip = (name, label) => (
-    <Tooltip key={name} title={`${onOff(name)}, click to switch`}>
-      <span
-        className={litIf(st[name], 'sess-icon pointer font12')}
-        onClick={() => lineSwitch(name)}
-      >
-        {label}
-      </span>
-    </Tooltip>
-  )
-
+  // desktop: a popover, so the terminal stays visible while the view changes
   return (
-    <>
-      {lineChip('dtr', 'DTR')}
-      {lineChip('rts', 'RTS')}
-      <Tooltip title='Break: hold the line low for a moment'>
-        <ThunderboltOutlined
-          className={litIf(brk, 'sess-icon pointer')}
-          onClick={onBreak}
-        />
-      </Tooltip>
-      {['cts', 'dsr', 'dcd'].map(n => led(n, false, 'sess-icon'))}
-      {st.error
-        ? (
-          <Tooltip title={st.error}>
-            <WarningOutlined className='sess-icon color-red' />
-          </Tooltip>
-          )
-        : null}
-      <Popover content={viewBody} trigger='click' placement='bottom'>
-        <Tooltip title='Received data as ASCII / HEX / DEC / BIN, frame bytes'>
-          <span className={classnames('sess-icon pointer', { active: mode !== 'ascii' || framed })}>
-            <EyeOutlined /> {mode.toUpperCase()}
-          </span>
-        </Tooltip>
-      </Popover>
-      {cur
-        ? (
-          <Tooltip title={`Byte at the cursor, ${cursorText}`}>
-            <code className='sess-icon font12'>
-              0x{hexByte(cur.byte)} {printable(cur.byte)}
-            </code>
-          </Tooltip>
-          )
-        : null}
-      <Popover content={sendBody(true)} trigger='click' placement='bottom'>
-        <Tooltip title='Send bytes: hex, dec, bin, or ascii with \r \n \t \xHH'>
-          <span className='sess-icon pointer'>
-            <SendOutlined />
-          </span>
-        </Tooltip>
-      </Popover>
-    </>
+    <Popover
+      content={<div style={{ width: 300 }}>{panel}</div>}
+      trigger='click'
+      placement='bottomRight'
+      open={open}
+      onOpenChange={setOpen}
+    >
+      {trigger()}
+    </Popover>
   )
 }
