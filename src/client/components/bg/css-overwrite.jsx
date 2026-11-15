@@ -11,6 +11,25 @@ const themeDomId = 'css-overwrite-terminal-backgrounds'
 // default terminal background at its original size on wide terminals
 const watermarkWidth = 766
 
+// Which background the app is painting, as one attribute on <html>. A widget
+// that replaces the built-in watermark has to switch itself off the moment the
+// user picks their own image, text, or nothing — and the only DOM signal for
+// that is the content of the generated stylesheet, which css cannot inspect.
+// With this attribute the widget stays pure css: no script in this document.
+const BACKGROUND_ATTR = 'data-terminal-background'
+
+// Every tab inherits the global image unless it has one of its own; the
+// built-in watermark is painted only when nobody set anything.
+function hasDefaultBackground (props) {
+  if (props.terminalBackgroundImagePath) {
+    return false
+  }
+  return (props.tabs || []).every(tab => {
+    const bg = tab.terminalBackground || {}
+    return !bg.terminalBackgroundImagePath
+  })
+}
+
 function createBackgroundStyle (imagePath) {
   if (!imagePath || imagePath === '') {
     return ''
@@ -210,6 +229,13 @@ export default function CssOverwrite (props) {
       styleTagRef.current.id = themeDomId
       document.getElementsByTagName('head')[0].appendChild(styleTagRef.current)
     }
+
+    // Set before the debounced write, so a widget stylesheet keyed off it is
+    // right from the first paint (see BACKGROUND_ATTR).
+    document.documentElement.setAttribute(
+      BACKGROUND_ATTR,
+      hasDefaultBackground(props) ? 'default' : 'custom'
+    )
 
     const timeoutId = setTimeout(() => {
       writeCss(props, styleTagRef.current)

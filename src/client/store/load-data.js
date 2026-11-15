@@ -328,9 +328,17 @@ export default (Store) => {
       if (store.config.checkUpdateOnStart) {
         store.onCheckUpdate(false)
       }
-      store.startAutoRunWidgets().catch(err => {
-        console.error('Failed to start autorun widgets:', err)
-      })
+      // What the main process is already running, then autorun: a reloaded
+      // window has to adopt the live instances before deciding what to start,
+      // or it would start duplicates of them (refreshWidgetInstances).
+      store.refreshWidgetInstances()
+        .catch(err => {
+          console.error('Failed to list widget instances:', err)
+        })
+        .then(() => store.startAutoRunWidgets())
+        .catch(err => {
+          console.error('Failed to start autorun widgets:', err)
+        })
       // is a password manager widget installed (bookmark form)
       store.listWidgets().catch(err => {
         console.error('Failed to list widgets:', err)

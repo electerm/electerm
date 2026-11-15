@@ -163,6 +163,9 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
     try {
       await window.pre.runGlobalAsync('deleteWidget', widget.id)
       await loadWidgets()
+      // deleting stops whatever the widget had running, and the instance list
+      // is the main process's (see refreshWidgetInstances)
+      await window.store.refreshWidgetInstances()
       if (activeItemId === widget.id) {
         window.store.closeWidgetInstance()
       }
