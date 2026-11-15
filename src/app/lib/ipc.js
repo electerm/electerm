@@ -16,7 +16,11 @@ const log = require('../common/log')
 const ipcSyncFuncs = require('./ipc-sync')
 const { dbAction, tables } = require('./db')
 const { createLoadInitData } = require('./init-data')
-const loadInitData = createLoadInitData(dbAction, tables)
+// The upgrade module owns the "a brand new db has to be seeded before anyone
+// reads it" rule, so the batched read asks it first. Called (not required)
+// lazily: `upgrade` is a getter for the default-data modules, which stay off
+// the pre-window startup path until the renderer actually asks for data.
+const loadInitData = createLoadInitData(dbAction, tables, () => upgrade().ensureDbInit())
 const { listItermThemes } = require('./iterm-theme')
 const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
@@ -74,9 +78,10 @@ const {
 const { openFileWithEditor } = require('./open-file-with-editor')
 const { loadFontList } = require('./font-list')
 // `../upgrade` pulls in the whole default-data set (db-defaults,
-// default-local-bookmarks, init-db, version-upgrade) and nothing needs it until
-// the renderer asks -- and it asks only *after* the UI has mounted. Require it
-// lazily so it stays off the pre-window startup path.
+// default-local-bookmarks, init-db, version-upgrade). Not needed to open the
+// window: first use is the renderer's startup db read (loadInitData awaits its
+// ensureDbInit so a fresh db is seeded before the tables are read), later ones
+// are the upgrade calls. Require it lazily so it stays off the pre-window path.
 let upgradeMod
 const upgrade = () => (upgradeMod || (upgradeMod = require('../upgrade')))
 const { listSerialPorts } = require('./serial-port')

@@ -337,17 +337,65 @@ async function openNewConnectionForm (client) {
   await delay(500)
 }
 
-async function confirmSshHostKeyVerificationIfNeeded (client, timeout = 4000) {
-  const trustButton = client.locator('.custom-modal-wrap button:has-text("Trust and Save")').first()
-  try {
-    await trustButton.waitFor({ state: 'visible', timeout })
-  } catch {
-    return false
-  }
+/**
+ * Whether the connection the form just opened has already settled, i.e. it is
+ * either up or failed. While a host key dialog is waiting for an answer the
+ * tab stays in `processing`, so this is how the wait below can tell "no dialog
+ * needed, the host is already in known_hosts" from "dialog should be up".
+ *
+ * @param {Object} client - The Playwright client
+ */
+async function sshTabSettled (client) {
+  return await client.evaluate(() => {
+    const tabs = window.store?.tabs || []
+    const tab = tabs[tabs.length - 1]
+    return !!tab && (tab.status === 'success' || tab.status === 'error')
+  }).catch(() => false)
+}
 
-  await trustButton.click()
-  await delay(500)
-  return true
+/**
+ * Answer the host key dialog ("Trust and Save") if it shows up.
+ *
+ * The dialog is a plain modal with no session to observe, and the main process
+ * takes it back as soon as the attempt that asked for it dies
+ * (`session-interactive-close`, see abortPendingPrompts in
+ * src/app/server/session-ssh.js). 0101 runs with sshReadyTimeout=100ms, so on a
+ * fast runner the handshake gets far enough to ask about the host key and the
+ * dialog is gone again a moment later: a plain click() throws "element is not
+ * stable" / "was detached from the DOM" there even though the flow under test
+ * did nothing wrong. Click with force, tolerate the dialog vanishing, and let
+ * the caller assert the outcome.
+ *
+ * @param {Object} client - The Playwright client
+ * @param {Number} timeout - how long to wait for the dialog, when one is needed
+ * @returns {Promise<boolean>} true when the dialog was answered
+ */
+async function confirmSshHostKeyVerificationIfNeeded (client, timeout = 15000) {
+  const selector = '.custom-modal-wrap button:has-text("Trust and Save")'
+  const start = Date.now()
+  let clicked = false
+  while (Date.now() - start < timeout) {
+    const button = client.locator(selector).first()
+    if (await button.count()) {
+      try {
+        // force: the dialog may be mid-animation, or already on its way out
+        await button.click({ timeout: 2000, force: true })
+        clicked = true
+        await delay(300)
+        break
+      } catch (e) {
+        // withdrawn while being clicked: the attempt it belonged to is gone
+        await delay(100)
+        continue
+      }
+    }
+    // no dialog and the session is already up: the host key was known
+    if (await sshTabSettled(client)) {
+      break
+    }
+    await delay(100)
+  }
+  return clicked
 }
 
 /**
@@ -363,7 +411,10 @@ async function setupSshConnection (client, options = {}) {
     port = TEST_PORT,
     openForm = true,
     waitAfterConnect = 2000,
-    hostKeyModalTimeout = 4000
+    // long enough for a loaded runner: the dialog only shows up after the
+    // child process spawned and the key exchange finished, and the wait costs
+    // nothing when the host key is already known (the session settles first)
+    hostKeyModalTimeout = 15000
   } = options
 
   if (openForm) {

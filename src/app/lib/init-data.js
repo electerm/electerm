@@ -7,8 +7,8 @@
  * round trip with its own structured clone. This walks the same tables in the
  * main process and sends one payload back.
  *
- * Kept dependency free (dbAction is injected) so it stays off the pre-window
- * startup path and can be tested in plain node.
+ * Kept dependency free (dbAction and ensureReady are injected) so it stays off
+ * the pre-window startup path and can be tested in plain node.
  *
  * dbAction is `async` but fully synchronous inside: sqlite/nedb decrypt every
  * row and JSON.parse it inline, and rows in bookmark-like tables are encrypted
@@ -25,11 +25,19 @@
 /**
  * @param {Function} dbAction main process db dispatcher
  * @param {Array<string>} tables known table names, used as an allowlist
+ * @param {Function} [ensureReady] awaited before the first table is read.
+ *   The startup read must not run against a db that has not been seeded yet:
+ *   on a brand new profile the default data (sample bookmarks, default
+ *   quick commands) is written by the upgrade path, and a read that wins that
+ *   race leaves the store empty for the whole session -- nothing re-reads it.
  * @returns {(names: Array<string>) => Promise<Object>}
  */
-function createLoadInitData (dbAction, tables) {
+function createLoadInitData (dbAction, tables, ensureReady) {
   const known = new Set(tables)
   return async function loadInitData (names) {
+    if (ensureReady) {
+      await ensureReady()
+    }
     const list = Array.isArray(names) ? names.filter(n => known.has(n)) : []
     const result = {}
     for (const name of list) {

@@ -32,6 +32,40 @@ async function getDBVersion () {
 }
 
 /**
+ * Seed the default data of a db that has never been initialised.
+ *
+ * Memoized on purpose: the startup read (ipc loadInitData) and the renderer's
+ * checkDbUpgrade ask for it at the same moment on a brand new profile. Two
+ * concurrent runs would both see `0.0.0` and insert the defaults twice, so
+ * they share one promise instead.
+ *
+ * @returns {Promise<boolean>} true when this call seeded the db
+ */
+let ensureDbInitPromise
+function ensureDbInit () {
+  if (!ensureDbInitPromise) {
+    ensureDbInitPromise = seedIfEmpty().catch(e => {
+      // A db init failure must not take the startup read down with it: an
+      // empty store is the state the app already knows how to run in.
+      log.error('init db fails', e)
+      return false
+    })
+  }
+  return ensureDbInitPromise
+}
+
+async function seedIfEmpty () {
+  const dbVersion = await getDBVersion()
+  log.info('database version:', dbVersion)
+  if (dbVersion !== emptyVersion) {
+    return false
+  }
+  await initData()
+  await updateDBVersion(packVersion)
+  return true
+}
+
+/**
  * get upgrade versions should be run as version upgrade
  */
 function parseUpgradeFile (f) {
@@ -55,24 +89,19 @@ async function getUpgradeVersionList () {
     return compare(parseUpgradeFile(a), parseUpgradeFile(b))
   })
 }
-async function versionShouldUpgrade () {
-  const dbVersion = await getDBVersion()
-  log.info('database version:', dbVersion)
-  return compare(dbVersion, packVersion) < 0
-}
 
 async function shouldUpgrade () {
-  const shouldUpgradeVersion = await versionShouldUpgrade()
-  if (!shouldUpgradeVersion) {
+  // A db that was never initialised is not an upgrade: seed it here, then let
+  // the caller carry on with complete data. Idempotent through ensureDbInit,
+  // so a startup read racing this call cannot seed twice.
+  if (await ensureDbInit()) {
     return false
   }
   const dbVersion = await getDBVersion()
-  log.info('dbVersion', dbVersion)
-  if (dbVersion === emptyVersion) {
-    await initData()
-    await updateDBVersion(packVersion)
+  if (compare(dbVersion, packVersion) >= 0) {
     return false
   }
+  log.info('dbVersion', dbVersion)
   const list = await getUpgradeVersionList()
   if (_.isEmpty(list)) {
     await updateDBVersion(packVersion)
@@ -106,6 +135,7 @@ async function doUpgrade () {
 }
 
 exports.checkDbUpgrade = shouldUpgrade
+exports.ensureDbInit = ensureDbInit
 exports.doUpgrade = doUpgrade
 exports.parseUpgradeFile = parseUpgradeFile
 exports.getUpgradeVersionList = getUpgradeVersionList
