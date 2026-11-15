@@ -14,10 +14,19 @@ import { MatchWholWordIcon } from '../icons/match-whole-word'
 import { RegularExpIcon } from '../icons/regular-exp'
 import classNames from 'classnames'
 import copy from 'json-deep-copy'
+import { debounce } from 'lodash-es'
 import { refsStatic, refs } from '../common/ref'
 import './term-search.styl'
 
 const e = window.translate
+
+/**
+ * A keystroke here used to run a full highlight pass, which costs
+ * matches x the length of the logical line each match sits in (#4726). One
+ * pass after the typing settles keeps the input responsive; Enter and the
+ * prev/next arrows still search immediately.
+ */
+const searchDebounceMs = 150
 
 export default class TermSearch extends PureComponent {
   searchControls = [{
@@ -48,8 +57,14 @@ export default class TermSearch extends PureComponent {
     cls: 'mg2l'
   }]
 
+  runSearchDebounced = debounce(v => this.prev(v), searchDebounceMs)
+
   componentDidMount () {
     refsStatic.add('term-search', this)
+  }
+
+  componentWillUnmount () {
+    this.runSearchDebounced.cancel()
   }
 
   toggleSearch = () => {
@@ -64,6 +79,7 @@ export default class TermSearch extends PureComponent {
   }
 
   prev = (searchTerm) => {
+    this.runSearchDebounced.cancel()
     const {
       activeTabId,
       termSearchOptions
@@ -76,6 +92,7 @@ export default class TermSearch extends PureComponent {
   }
 
   next = () => {
+    this.runSearchDebounced.cancel()
     refs.get('term-' + this.props.activeTabId)
       ?.searchNext(
         this.props.termSearch,
@@ -86,10 +103,17 @@ export default class TermSearch extends PureComponent {
   handleChange = e => {
     const v = e.target.value
     window.store.termSearch = v
-    this.prev(v)
+    if (!v) {
+      // nothing to scan: clearing the highlights can happen right away
+      this.runSearchDebounced.cancel()
+      this.prev(v)
+      return
+    }
+    this.runSearchDebounced(v)
   }
 
   clearSearch = () => {
+    this.runSearchDebounced.cancel()
     const term = refs.get('term-' + this.props.activeTabId)
     term?.searchAddon.clearDecorations()
     term.setState({
@@ -128,6 +152,13 @@ export default class TermSearch extends PureComponent {
     } = this.props
     if (!termSearchMatchCount) {
       return null
+    }
+    // Only the first `highlightLimit` matches are tracked, so a search that
+    // starts from the bottom (findPrevious) often selects a match outside that
+    // window and the addon reports index -1. Show the count alone rather than
+    // a bogus "(0/100)".
+    if (termSearchMatchIndex < 0) {
+      return <span className='mg1x'>({termSearchMatchCount}+)</span>
     }
     return <span className='mg1x'>({termSearchMatchIndex + 1}/{termSearchMatchCount})</span>
   }

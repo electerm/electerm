@@ -16,6 +16,16 @@ import { refsStatic } from '../../common/ref.js'
 import keyControlPressed from '../../../common/key-control-pressed.js'
 
 /**
+ * How many matches the search addon highlights (and reports) at once. Its
+ * highlight pass re-scans the logical line of every match, so the cost is
+ * matches x line length: on an 8000 row buffer the upstream default of 1000
+ * took ~3s when the text sat on a handful of very long lines (minified json, a
+ * one-line log, an LF-only log that staircases into wrapped rows) and froze the
+ * app on every search (#4726). 100 keeps the worst case around 0.1s.
+ */
+const termSearchHighlightLimit = 100
+
+/**
  * Terminal bootstrap: create the xterm instance, load every addon and wire
  * the handlers that must exist before the connection is opened. Connection
  * setup continues in `socketMixin.remoteInit`.
@@ -73,7 +83,9 @@ export const initMixin = {
     // without integration are covered by `exitCloseWindow` instead.
     this.cmdAddon.onPrompt(() => this.clearUserTypeExit())
     const SearchAddon = await loadSearchAddon()
-    this.searchAddon = new SearchAddon()
+    this.searchAddon = new SearchAddon({
+      highlightLimit: termSearchHighlightLimit
+    })
     const LigaturesAddon = await loadLigaturesAddon()
     const ligtureAddon = new LigaturesAddon()
     this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
