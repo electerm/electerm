@@ -180,6 +180,37 @@ describe('createLoadInitData', () => {
     )
   })
 
+  test('seeds through ensureReady before the first table is read', async () => {
+    // A brand new profile has no data until the upgrade path seeds it, and the
+    // store reads the tables once: a read that runs first leaves the store
+    // empty for the whole session (empty bookmark list on a fresh install).
+    const { calls, dbAction } = makeDb()
+    let seeded = false
+    const readyAtRead = []
+    const traced = async (...args) => {
+      readyAtRead.push(seeded)
+      return dbAction(...args)
+    }
+    const res = await createLoadInitData(traced, tables, async () => {
+      await new Promise(resolve => setTimeout(resolve, 10))
+      seeded = true
+    })(['bookmarks'])
+    assert.equal(res.tables.bookmarks.rows.length, 2)
+    assert.equal(calls.length, 3)
+    assert.deepEqual(
+      readyAtRead,
+      [true, true, true],
+      'every read waits for the seed'
+    )
+  })
+
+  test('ensureReady runs once per call, even when nothing is read', async () => {
+    const { dbAction } = makeDb()
+    let calls = 0
+    await createLoadInitData(dbAction, tables, async () => { calls++ })(null)
+    assert.equal(calls, 1)
+  })
+
   test('yields a macrotask between tables so startup IPC is not starved', async () => {
     // dbAction is async but synchronous inside, so a plain Promise.all would
     // keep the main process busy for the whole read. A macrotask queued before
