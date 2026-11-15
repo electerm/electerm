@@ -87,13 +87,42 @@ export default Store => {
     })
   }
 
-  Store.prototype.deleteWidgetInstance = (instanceId) => {
+  // Drop one renderer-side entry. Only for reconciling a row whose instance the
+  // main process no longer has (crash, re-import): everything else reads the
+  // list back from the main process instead (refreshWidgetInstances).
+  Store.prototype.dropWidgetInstance = (instanceId) => {
     const {
       widgetInstances
     } = window.store
     // assigned, not spliced: an in-place mutation fires no subscriber, and the
     // instance list, the sidebar badge and the detail panel all read this array
     window.store.widgetInstances = widgetInstances.filter(w => w.id !== instanceId)
+  }
+
+  /**
+   * Delete a running instance — the × on its row, labelled "delete", so it has
+   * to stay deleted.
+   *
+   * Stopping alone is not enough: the widget is also in the launch list
+   * (store.autoRunWidgets), and a reload starts everything in it, which put the
+   * row straight back — that is why the green "autoRun" tag is the tell. So
+   * stop it *and* take it out of the launch list.
+   */
+  Store.prototype.deleteWidgetInstance = async (instanceId) => {
+    const { store } = window
+    const instance = store.widgetInstances.find(w => w.id === instanceId)
+    if (!instance) {
+      return
+    }
+    const stopped = await store.stopWidget(instanceId)
+    if (!stopped) {
+      // still running: leave the launch entry alone rather than half-delete
+      return
+    }
+    store.setWidgetAutoRun(instance.widgetId, false)
+    if (store.settingItem && store.settingItem.id === instanceId) {
+      store.closeWidgetInstance()
+    }
   }
 
   // Selecting a running instance in the widgets list shows its detail + log in
@@ -117,15 +146,18 @@ export default Store => {
     const {
       store
     } = window
-    const r = await window.pre.runGlobalAsync('stopWidget', instanceId)
-      .catch(err => {
-        console.error('stopWidget error', err)
-        message.error(window.translate('stopWidgetFailed') + ': ' + err.message)
-        return false
-      })
-    if (r) {
-      await store.refreshWidgetInstances()
+    try {
+      // the main process answers undefined for an instance it has already
+      // lost, which is a stop that succeeded as far as the renderer cares: the
+      // refresh below then drops the stale row
+      await window.pre.runGlobalAsync('stopWidget', instanceId)
+    } catch (err) {
+      console.error('stopWidget error', err)
+      message.error(window.translate('stopWidgetFailed') + ': ' + err.message)
+      return false
     }
+    await store.refreshWidgetInstances()
+    return true
   }
 
   Store.prototype.runWidgetFunc = async (instanceId, funcName, ...args) => {
@@ -188,6 +220,16 @@ export default Store => {
     const saved = safeGetItemJSON(key, {})
     const conf = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {}
     safeSetItemJSON(key, { ...conf, autoRun: !!enabled })
+  }
+
+  // Uninstall: the launch list is the renderer's, so the entry has to go here
+  // as well — otherwise every launch tries to start a folder that is gone.
+  Store.prototype.forgetWidgetAutoRun = (widgetId) => {
+    const { store } = window
+    if (!store.autoRunWidgets) {
+      return
+    }
+    store.autoRunWidgets = store.autoRunWidgets.filter(w => w.widgetId !== widgetId)
   }
 
   Store.prototype.toggleAutoRunWidget = (instance) => {

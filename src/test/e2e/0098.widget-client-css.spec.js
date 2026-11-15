@@ -136,7 +136,39 @@ describe('widget css', function () {
     assert.equal(!!afterStop.derived.probe, false)
     assert.equal(afterStop.listed, 0)
 
-    // 4. a widget whose UI restyles the app: no node script involved
+    // 4. delete an instance — stopping is not the same thing: the widget is
+    //    also in the launch list, and a reload starts everything in it, which
+    //    is how the deleted row used to come back
+    const deleted = await client.evaluate(async () => {
+      const r = await window.store.runWidget('probe', {})
+      window.store.setWidgetAutoRun('probe', true, {})
+      const tagged = window.store.widgetInstances.map(i => !!i.autoRun)
+      await window.store.deleteWidgetInstance(r.instanceId)
+      return {
+        tagged,
+        listed: window.store.widgetInstances.length,
+        launch: window.store.autoRunWidgets.filter(w => w.widgetId === 'probe').length
+      }
+    })
+    log('after delete', deleted)
+    assert.deepEqual(deleted.tagged, [true])
+    assert.equal(deleted.listed, 0)
+    assert.equal(deleted.launch, 0)
+
+    await client.reload()
+    await delay(3500)
+    const afterDeleteReload = await client.evaluate((sel) => ({
+      tag: !!document.querySelector(sel),
+      listed: window.store.widgetInstances.map(i => i.widgetId),
+      launch: (window.store.autoRunWidgets || [])
+        .filter(w => w.widgetId === 'probe').length
+    }), cssTag('probe'))
+    log('after delete + reload', afterDeleteReload)
+    assert.deepEqual(afterDeleteReload.listed, [])
+    assert.equal(afterDeleteReload.tag, false)
+    assert.equal(afterDeleteReload.launch, 0)
+
+    // 5. a widget whose UI restyles the app: no node script involved
     const listed = await client.evaluate(async () => {
       const w = (await window.store.listWidgets()).find(x => x.id === 'uiprobe')
       if (!w) {

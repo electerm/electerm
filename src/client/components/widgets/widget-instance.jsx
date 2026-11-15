@@ -28,7 +28,8 @@ export default auto(function WidgetInstance ({ item, active, onClick }) {
     />
   )
   function onConfirm () {
-    window.store.stopWidget(id)
+    // delete, not pause: the row must not be started again on the next reload
+    window.store.deleteWidgetInstance(id)
   }
   // the row itself opens the instance detail, so the action icons must not
   // also trigger it

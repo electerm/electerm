@@ -252,7 +252,7 @@ export default auto(function CustomWidgetPanel ({ widget }) {
       // main process may have lost the instance already (crash, re-import):
       // drop the stale renderer entry so Run becomes available again
       if (window.store.widgetInstances.some(w => w.id === running.id)) {
-        window.store.deleteWidgetInstance(running.id)
+        window.store.dropWidgetInstance(running.id)
       }
       setOffer(null)
     } catch (err) {

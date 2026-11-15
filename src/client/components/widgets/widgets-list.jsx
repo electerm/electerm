@@ -162,6 +162,10 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
   const handleDelete = async (widget) => {
     try {
       await window.pre.runGlobalAsync('deleteWidget', widget.id)
+      // the launch list lives in the renderer, so uninstalling has to clear it
+      // here: a leftover entry tries to start a folder that is gone, on every
+      // launch
+      window.store.forgetWidgetAutoRun(widget.id)
       await loadWidgets()
       // deleting stops whatever the widget had running, and the instance list
       // is the main process's (see refreshWidgetInstances)
