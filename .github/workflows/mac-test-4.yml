@@ -12,7 +12,7 @@ jobs:
 
     runs-on: ubuntu-latest
     environment: build
-    if: ${{ !contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip mac]') && !contains(github.event.head_commit.message, '[skip test4]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[skip test]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip test4]') }}
 
     steps:
     - uses: actions/checkout@v4
