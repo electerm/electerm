@@ -12,6 +12,9 @@ import multer from 'multer'
 const devPort = env.DEV_PORT || 5570
 const host = env.DEV_HOST || '127.0.0.1'
 const h = `http://${host}:${devPort}`
+// Absolute, unix-style path of the repo-root temp dir. chokidar matches ignored
+// entries against unix-normalized paths, so this stays correct on Windows too.
+const tempDir = path.resolve(conf.root, 'temp').replace(/\\/g, '/')
 const defaultAIPreset = {
   baseURLAI: 'https://ai.electerm.org/api/ai',
   apiPathAI: '/chat/completions',
@@ -63,6 +66,12 @@ async function createServer () {
       hmr: {
         port: 30085,
         overlay: true
+      },
+      // Only <repo root>/temp: generated build/release scratch files, not modules.
+      // Anchored to the absolute path so temp dirs elsewhere stay watched.
+      // Vite appends these to its own ignored list (no need to repeat them).
+      watch: {
+        ignored: [tempDir, `${tempDir}/**`]
       }
     },
     appType: 'custom'
