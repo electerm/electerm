@@ -18,10 +18,15 @@ import { safeGetItemJSON, safeSetItemJSON } from '../../common/safe-local-storag
 import { widgetConfigKey } from '../../common/widget-form-memory-utils'
 import isColorDark from '../../common/is-color-dark'
 import { webUrl } from '../../common/web-url'
+import { applyWidgetStyle, getWidgetStyle } from '../../common/widget-style-host'
 import openWidgetTab from './widget-open-tab'
 import WidgetAIConfig from './widget-ai-config'
 
 const e = window.translate
+
+// A stylesheet from a widget UI is applied here, in this document. 512KB is far
+// above any real theme and still keeps a runaway loop from freezing the window.
+const MAX_WIDGET_CSS = 512 * 1024
 
 // Reopening the settings panel remounts this component. An explicit Stop must
 // survive that until the next app launch, when "Start with electerm" applies.
@@ -121,6 +126,28 @@ async function handleCall (widgetId, method, args, onOffer, defaultAutoRun) {
     case 'log':
       console.log(`[widget:${widgetId}]`, ...args)
       return null
+    // window.electerm.css: the widget restyles electerm from its own UI, so a
+    // widget that only changes how the app looks needs no server script and no
+    // round trip: the change lands in this document, where css means something.
+    // It lasts as long as the window does; a widget that wants it on every
+    // launch declares `styles` in its manifest instead.
+    case 'css.apply': {
+      const css = args[0]
+      if (typeof css !== 'string') {
+        throw new Error('css.apply needs a string')
+      }
+      if (css.length > MAX_WIDGET_CSS) {
+        throw new Error(`css.apply got ${css.length} chars, the limit is ${MAX_WIDGET_CSS}`)
+      }
+      applyWidgetStyle(widgetId, css)
+      return getWidgetStyle(widgetId)
+    }
+    case 'css.remove': {
+      applyWidgetStyle(widgetId, '')
+      return ''
+    }
+    case 'css.get':
+      return getWidgetStyle(widgetId)
     default:
       throw new Error(`unknown widget host method: ${method}`)
   }
@@ -196,19 +223,8 @@ export default auto(function CustomWidgetPanel ({ widget }) {
       if (!result || !result.instanceId) {
         return
       }
-      const instance = {
-        id: result.instanceId,
-        title: `${info.name} (${result.instanceId})`,
-        widgetId: id,
-        serverInfo: result.serverInfo,
-        aiConfig: result.aiConfig || null,
-        config: { ...config },
-        startedAt: Date.now()
-      }
-      window.store.widgetInstances = [
-        ...window.store.widgetInstances.filter(w => w.id !== instance.id),
-        instance
-      ]
+      // runWidget refreshed the instance list from the main process, so the
+      // Running state above follows it without a copy made here
       if (result.aiConfig) {
         setOffer(result.aiConfig)
       }

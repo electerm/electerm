@@ -83,22 +83,16 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
         }
         return
       }
-      // Add instance to the store
-      const instance = {
-        id: result.instanceId,
-        title: `${widget.info.name} (${result.instanceId})`,
-        widgetId: result.widgetId,
-        serverInfo: result.serverInfo,
-        // an AI config the widget offers to apply, sanitised in the main
-        // process (app/widgets/ai-config.js)
-        aiConfig: result.aiConfig || null,
-        config,
-        startedAt: Date.now()
-      }
-      // assigned, not pushed: see deleteWidgetInstance in store/widgets.js
-      window.store.widgetInstances = [...window.store.widgetInstances, instance]
-      if (config.autoRun) {
-        window.store.toggleAutoRunWidget(instance)
+      // The instance list belongs to the main process: runWidget refreshed it,
+      // so this is the same instance the panel, the sidebar badge and the
+      // detail view read (store/widgets.js refreshWidgetInstances)
+      const instance = window.store.widgetInstances.find(
+        i => i.id === result.instanceId
+      )
+      if (config.autoRun && instance) {
+        // set, not toggle: the switch reads "on", and a widget that was already
+        // in the auto-run list must not be flipped out of it by pressing Run
+        window.store.setWidgetAutoRun(widget.id, true, config)
       }
       showMsg(msg, 'success', result.serverInfo, 10)
     } catch (err) {

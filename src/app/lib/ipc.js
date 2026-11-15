@@ -9,7 +9,8 @@ const {
   dialog,
   powerMonitor,
   globalShortcut,
-  shell
+  shell,
+  webContents
 } = require('electron')
 const globalState = require('./glob-state')
 const log = require('../common/log')
@@ -27,6 +28,7 @@ const { getConfig } = require('./get-config')
 const loadSshConfig = require('./ssh-config')
 const {
   listWidgets,
+  listWidgetInstances,
   runWidget,
   stopWidget,
   runWidgetFunc,
@@ -37,6 +39,7 @@ const {
   deleteWidget
 } = require('../widgets/load-widget')
 const widgetLog = require('../widgets/instance-log')
+const cssBus = require('../widgets/css-bus')
 const {
   checkMigrate,
   migrate
@@ -187,7 +190,35 @@ async function initAppServer () {
   globalState.set('config', config)
 }
 
+// The app renderer is a plain window on http://127.0.0.1:<port>; devtools, the
+// widget iframes (electerm-widget://) and about:blank are webContents too, and
+// styling any of those would be pointless or wrong.
+const NON_APP_SCHEME = /^(devtools|electerm-widget|chrome|chrome-extension|about|data):/i
+
+function appWindows () {
+  return webContents.getAllWebContents().filter(wc => (
+    !wc.isDestroyed() &&
+    wc.getType() === 'window' &&
+    !NON_APP_SCHEME.test(wc.getURL() || '')
+  ))
+}
+
+// One widget css change -> every app window. A window that is not ready yet
+// picks the full set up at boot through getWidgetStyles (ipc-sync.js).
+function broadcastWidgetCss (payload) {
+  for (const wc of appWindows()) {
+    try {
+      wc.send('widget-css', payload)
+    } catch (e) {}
+  }
+}
+
 function initIpc () {
+  // Widget stylesheets are applied in the renderer (see
+  // client/common/widget-style-host.js), so a widget's css travels as an ipc
+  // event to every app window. Same code path on desktop and in the web app:
+  // only this transport differs.
+  cssBus.configure(broadcastWidgetCss)
   powerMonitor.on('resume', () => {
     globalState.get('win').webContents.send('power-resume', null)
   })
@@ -335,6 +366,9 @@ function initIpc () {
     unwatchFile,
     openFileWithEditor,
     listWidgets,
+    // the panel mirrors this instead of remembering each run result, so a
+    // reloaded renderer still knows what is running
+    listWidgetInstances,
     runWidget,
     stopWidget,
     runWidgetFunc,

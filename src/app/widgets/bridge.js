@@ -7,6 +7,11 @@
  * host answers over postMessage (the widget document is its own origin, so it
  * cannot touch the app's window).
  *
+ * `css` is answered in the renderer, by the host panel, without a round trip to
+ * the node side: restyling electerm is a DOM change in the document the user is
+ * looking at, so a widget that only changes styles needs no server script at all
+ * (`electerm.styles` in the manifest, or this, from its own UI).
+ *
  * Kept as a plain string (ES5, no imports) because it is shipped as-is to a
  * document the bundler never sees.
  */
@@ -102,6 +107,21 @@ const bridgeSource = `(function () {
     },
     log: function () {
       return request('log', Array.prototype.slice.call(arguments))
+    },
+    // Restyle the app from the widget's own UI: no main.js needed for a widget
+    // that only changes how electerm looks. The host applies it and keeps the
+    // stylesheet for as long as the widget runs.
+    css: {
+      apply: function (css) {
+        return request('css.apply', [css])
+      },
+      remove: function () {
+        return request('css.remove')
+      },
+      // what the host currently applies for this widget ('' when nothing)
+      get: function () {
+        return request('css.get')
+      }
     }
   }
 })()
