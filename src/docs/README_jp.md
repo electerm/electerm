@@ -8,6 +8,7 @@
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/electerm/electerm/blob/master/LICENSE)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
 [![star](https://atomgit.com/electerm/electerm/star/badge.svg)](https://atomgit.com/electerm/electerm)
+[![X](https://img.shields.io/badge/X-@zxdong-black?logo=x)](https://x.com/zxdong)
 
 [English](../../README.md) | [中文](README_cn.md) | [日本語](README_jp.md)
 
