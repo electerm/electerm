@@ -20,7 +20,8 @@ const { Sender, Receiver } = require('zmodem2')
 const {
   ZmodemSession,
   ZMODEM_STATE,
-  ZMODEM_HEADER
+  ZMODEM_HEADER,
+  getFreeDownloadPath
 } = require('../../../src/app/server/zmodem')
 
 // ─── wire harness ───────────────────────────────────────────────────────────
@@ -492,17 +493,24 @@ describe('zmodem session', () => {
       assert.ok(eventsOf('session-end').length === 1)
     })
 
-    test('existing file is not clobbered', () => {
-      const wire = new Wire()
-      const s = makeSession(wire)
-      s.handleData(zrqinitFrame())
-      s.setSavePath(tmpDir)
+    test('existing file is not clobbered and keeps its extension', () => {
       fs.writeFileSync(path.join(tmpDir, 'dup.txt'), 'old')
-      s.prepareReceiveFile('dup.txt', 3)
-      const prepared = eventsOf('file-prepared')
-      assert.ok(prepared[0].path !== path.join(tmpDir, 'dup.txt'))
-      assert.ok(prepared[0].path.includes('dup.txt.'))
-      s.cancel()
+      const result = getFreeDownloadPath(tmpDir, 'dup.txt')
+      assert.match(path.basename(result), /^dup\.[\w-]{7}\.txt$/)
+      assert.strictEqual(fs.readFileSync(path.join(tmpDir, 'dup.txt'), 'utf8'), 'old')
+    })
+
+    test('existing file without extension keeps the id suffix', () => {
+      fs.writeFileSync(path.join(tmpDir, 'Makefile'), 'old')
+      const result = getFreeDownloadPath(tmpDir, 'Makefile')
+      assert.match(path.basename(result), /^Makefile\.[\w-]{7}$/)
+    })
+
+    test('free file name is left untouched', () => {
+      assert.strictEqual(
+        getFreeDownloadPath(tmpDir, 'fresh.txt'),
+        path.join(tmpDir, 'fresh.txt')
+      )
     })
 
     test('flooding while waiting for the user aborts the session', () => {
