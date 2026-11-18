@@ -212,7 +212,7 @@ test('config mode renders the form and the action result', async () => {
     assert.equal(await page.locator('label[for="dotfiles"]').count(), 1)
     assert.equal(
       await page.locator('.ant-select:has(#dotfiles) .ant-select-content').getAttribute('title'),
-      'allow'
+      'deny'
     )
 
     // 8b. a built-in run form remembers its values the same way: a file server
@@ -227,7 +227,7 @@ test('config mode renders the form and the action result', async () => {
     assert.equal(await page.locator('#port').inputValue(), '3499', 'built-in form values are remembered')
     assert.equal(
       await page.locator('.ant-select:has(#dotfiles) .ant-select-content').getAttribute('title'),
-      'allow'
+      'deny'
     )
   } finally {
     await app.close()
