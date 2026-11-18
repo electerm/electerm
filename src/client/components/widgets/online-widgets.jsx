@@ -21,6 +21,7 @@ import {
   Typography
 } from 'antd'
 import Modal from '../common/modal'
+import WidgetTrustWarning from './widget-trust-warning'
 import message from '../common/message'
 import {
   loadWidgetRegistry,
@@ -96,12 +97,7 @@ export default function OnlineWidgets ({ installed, onInstalled }) {
       cancelText: e('cancel'),
       content: (
         <div>
-          <Alert
-            type='warning'
-            showIcon
-            className='mg1b'
-            title="A widget's main.js runs inside electerm's main process with full Node permissions — it can read files and run commands. Install only widgets whose source you trust."
-          />
+          <WidgetTrustWarning className='mg1b' />
           <Space orientation='vertical' size={4} className='width-100'>
             <p className='mg0 wordbreak'>Version: {record.version}</p>
             <p className='mg0 wordbreak'>Author: {record.author || 'unknown'}</p>
