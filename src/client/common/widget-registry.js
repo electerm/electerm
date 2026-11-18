@@ -12,6 +12,11 @@
  */
 
 import fetchFromServer from './fetch-from-server'
+import {
+  currentLang,
+  localizeRegistryWidget,
+  sanitizeWidgetI18n
+} from './widget-i18n'
 
 const BASE = window.et.widgetRegistryUrl || 'https://widgets.electerm.org/api/v1'
 const TIMEOUT = 15000
@@ -63,6 +68,7 @@ function sanitizeSummary (item) {
     version: str(item.version, 64),
     name: str(item.name, 200) || item.id,
     description: str(item.description, 2000),
+    i18n: sanitizeWidgetI18n(item.i18n),
     author: str(item.author, 200),
     license: str(item.license, 100),
     homepage: str(item.homepage, 500),
@@ -78,8 +84,11 @@ export async function loadWidgetRegistry () {
     loadJson('/index.json'),
     loadJson('/revocations.json').catch(() => ({ revocations: [] }))
   ])
+  const lang = currentLang()
   const widgets = Array.isArray(index.widgets)
-    ? index.widgets.filter(isSummary).map(sanitizeSummary)
+    ? index.widgets
+      .filter(isSummary)
+      .map(item => localizeRegistryWidget(sanitizeSummary(item), lang))
     : []
   const revocations = Array.isArray(revoked.revocations)
     ? revoked.revocations

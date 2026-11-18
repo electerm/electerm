@@ -51,6 +51,16 @@ const bridgeSource = `(function () {
     if (init.colorScheme) {
       document.documentElement.style.colorScheme = init.colorScheme
     }
+    // electerm's UI language, from window.store.config.language in the host.
+    // A widget UI can pick its own strings without reaching into the app.
+    if (init.language) {
+      window.electerm.language = init.language
+    }
+    // The host can send init again when the user changes electerm's language.
+    // A widget UI that wants to retranslate in place sets this callback.
+    if (window.electerm && typeof window.electerm.onLanguageChange === 'function') {
+      window.electerm.onLanguageChange(window.electerm.language)
+    }
     readyResolve(init)
   }
 
@@ -78,6 +88,8 @@ const bridgeSource = `(function () {
   window.electerm = {
     // the protocol host is the widget id: electerm-widget://<id>/<ui>
     id: location.host,
+    // electerm locale code (en_us, zh_cn, ...), updated by the host's init
+    language: 'en_us',
     ready: ready,
     // call a function exported by the widget's main-process module
     call: function (name) {

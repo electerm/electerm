@@ -47,6 +47,12 @@
  * Config-mode action results only: a run result carrying `bookmarks` is
  * ignored.
  *
+ * `electerm.i18n: { "zh_cn": { name, description, submitLabel, configs } }`
+ * carries a widget's own translations. The manifest stays English as the base;
+ * the renderer picks a locale from window.store.config.language and applies the
+ * display strings (see client/common/widget-i18n.js). Only text is copied here,
+ * so a translation cannot add configs, entries or behaviour.
+ *
  * Metadata is read from package.json only: listing a widget must never execute
  * its code, so a broken widget still shows up (as an error) instead of taking
  * the whole list down.
@@ -160,6 +166,76 @@ function sanitizeConfigs (configs) {
 // and applies them, so the widget needs no server script at all. Resolved and
 // checked here, at manifest time, so a typo reads as a broken widget instead of
 // a silently unstyled app.
+// Display strings a widget translates in its own package.json. Keys are
+// electerm locale codes (en_us, zh_cn, ...); configs are keyed by field name so
+// renaming a config cannot silently inherit the wrong label.
+const LOCALE_RE = /^[a-z]{2}_[a-z]{2}$/
+const CONFIG_NAME_RE = /^[A-Za-z_$][A-Za-z0-9_$]*$/
+const I18N_TEXT = ['name', 'description', 'submitLabel']
+const I18N_CONFIG_TEXT = ['label', 'description', 'placeholder']
+
+function clipped (value, max) {
+  return typeof value === 'string' && value ? value.slice(0, max) : ''
+}
+
+function sanitizeI18n (value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {}
+  }
+  const out = {}
+  for (const lang of Object.keys(value)) {
+    const raw = value[lang]
+    if (!LOCALE_RE.test(lang) || !raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      continue
+    }
+    const item = {}
+    for (const key of I18N_TEXT) {
+      const text = clipped(raw[key], key === 'description' ? 2000 : 300)
+      if (text) {
+        item[key] = text
+      }
+    }
+    if (raw.configs && typeof raw.configs === 'object' && !Array.isArray(raw.configs)) {
+      const configs = {}
+      for (const name of Object.keys(raw.configs)) {
+        const conf = raw.configs[name]
+        if (!CONFIG_NAME_RE.test(name) || !conf || typeof conf !== 'object' || Array.isArray(conf)) {
+          continue
+        }
+        const patch = {}
+        for (const key of I18N_CONFIG_TEXT) {
+          const text = clipped(conf[key], 2000)
+          if (text) {
+            patch[key] = text
+          }
+        }
+        if (conf.choices && typeof conf.choices === 'object' && !Array.isArray(conf.choices)) {
+          const choices = {}
+          for (const val of Object.keys(conf.choices)) {
+            const label = clipped(conf.choices[val], 200)
+            if (label) {
+              choices[val] = label
+            }
+          }
+          if (Object.keys(choices).length) {
+            patch.choices = choices
+          }
+        }
+        if (Object.keys(patch).length) {
+          configs[name] = patch
+        }
+      }
+      if (Object.keys(configs).length) {
+        item.configs = configs
+      }
+    }
+    if (Object.keys(item).length) {
+      out[lang] = item
+    }
+  }
+  return out
+}
+
 function sanitizeStyles (dir, value) {
   if (!Array.isArray(value)) {
     return []
@@ -210,6 +286,7 @@ function errorEntry (id, message) {
       styles: [],
       action: DEFAULT_ACTION,
       submitLabel: '',
+      i18n: {},
       persist: false
     }
   }
@@ -300,6 +377,7 @@ function readWidget (dir, folderName) {
       styles,
       action,
       submitLabel: typeof conf.submitLabel === 'string' ? conf.submitLabel : '',
+      i18n: sanitizeI18n(conf.i18n),
       // Remember the values this form was last used with, so a second visit
       // does not have to be typed in again (client/common/widget-form-memory.js).
       // On by default; `persist: false` opts out. Passwords and generated

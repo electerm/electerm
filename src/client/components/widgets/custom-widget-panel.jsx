@@ -72,7 +72,10 @@ function themePayload () {
   })
   return {
     cssVars,
-    colorScheme: isColorDark(cssVars['--main']) ? 'dark' : 'light'
+    colorScheme: isColorDark(cssVars['--main']) ? 'dark' : 'light',
+    // The widget document cannot see window.store; hand it the locale so it
+    // can pick its own strings (window.electerm.language).
+    language: window.store.config.language || 'en_us'
   }
 }
 
@@ -164,6 +167,8 @@ export default auto(function CustomWidgetPanel ({ widget }) {
   // sidebar shows is the source of truth for the Run/Stop state.
   const running = window.store.widgetInstances.find(i => i.widgetId === id)
   const ui = String(info.ui || '').replace(/^\/+/, '')
+  const language = window.store.config.language || 'en_us'
+  const lastLanguage = useRef(language)
   // A browser has no privileged custom scheme, so the web app serves the same
   // folder over http (see src/app/routes/widget-ui.js there), under an optional
   // sub-path — hence webUrl. The nonce is a cache buster in both cases: a
@@ -290,6 +295,16 @@ export default auto(function CustomWidgetPanel ({ widget }) {
       }
     }, '*')
   }
+
+  // A locale change does not reload the iframe, so tell the bridge as well.
+  // The first render is covered by the iframe's own onLoad -> sendInit.
+  useEffect(() => {
+    if (lastLanguage.current === language) {
+      return
+    }
+    lastLanguage.current = language
+    sendInit()
+  }, [language])
 
   return (
     <div className='custom-widget-panel'>
