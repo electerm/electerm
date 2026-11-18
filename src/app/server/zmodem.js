@@ -82,6 +82,33 @@ const MIN_CAN_RUN = 4
 const NOISE_SUPPRESS_MS = 3000
 
 /**
+ * Build a free download path that keeps the file extension intact:
+ * `report.pdf` -> `report.<id>.pdf` instead of `report.pdf.<id>`.
+ * Never falls back to overwriting an existing file.
+ * @param {string} dir - save directory
+ * @param {string} name - file name reported by the sender
+ * @returns {string}
+ */
+function getFreeDownloadPath (dir, name) {
+  const safeName = sanitizeFilename(name)
+  const ext = path.extname(safeName)
+  const base = ext ? safeName.slice(0, -ext.length) : safeName
+  const makeName = (id) => ext ? `${base}.${id}${ext}` : `${base}.${id}`
+  const original = path.join(dir, safeName)
+  if (!fs.existsSync(original)) return original
+  for (let i = 0; i < 10; i++) {
+    const candidate = path.join(dir, makeName(generate()))
+    if (!fs.existsSync(candidate)) return candidate
+  }
+  // nanoid collisions are vanishingly unlikely; still never clobber.
+  let id = `${Date.now()}`
+  while (fs.existsSync(path.join(dir, makeName(id)))) {
+    id += '0'
+  }
+  return path.join(dir, makeName(id))
+}
+
+/**
  * ZmodemSession class handles zmodem file transfers for a terminal session
  */
 class ZmodemSession {
@@ -636,12 +663,7 @@ class ZmodemSession {
    */
   prepareReceiveFile (name, size) {
     try {
-      let filePath = path.join(this.savePath, sanitizeFilename(name))
-
-      // Avoid clobbering an existing file
-      if (fs.existsSync(filePath)) {
-        filePath = `${filePath}.${generate()}`
-      }
+      const filePath = getFreeDownloadPath(this.savePath, name)
 
       this.downloadPath = filePath
       const stream = fs.createWriteStream(filePath, {
@@ -1252,6 +1274,7 @@ module.exports = {
   ZmodemSession,
   ZmodemManager,
   zmodemManager,
+  getFreeDownloadPath,
   ZMODEM_STATE,
   ZMODEM_HEADER,
   WATCHDOG,
