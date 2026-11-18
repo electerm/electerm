@@ -223,7 +223,8 @@ describe('window.electerm, the widget UI bridge', () => {
   function loadBridge (host = 'probe') {
     const vm = require('node:vm')
     const sent = []
-    const win = { addEventListener () {} }
+    let onMessage
+    const win = { addEventListener (name, fn) { onMessage = fn } }
     const ctx = {
       window: win,
       location: { host },
@@ -236,7 +237,11 @@ describe('window.electerm, the widget UI bridge', () => {
     }
     vm.createContext(ctx)
     vm.runInContext(require('../../app/widgets/bridge'), ctx)
-    return { api: win.electerm, sent }
+    return {
+      api: win.electerm,
+      sent,
+      init: data => onMessage({ data: { __electermWidgetHost: true, method: 'init', data } })
+    }
   }
 
   it('gives a widget UI the client-side css api, so style needs no server script', () => {
@@ -258,6 +263,16 @@ describe('window.electerm, the widget UI bridge', () => {
     assert.equal(typeof api.call, 'function')
     assert.equal(typeof api.getConfig, 'function')
     assert.equal(typeof api.updateConfig, 'function')
+  })
+
+  it('hands the widget UI electerm\'s current language with init', () => {
+    const { api, init } = loadBridge()
+    assert.equal(api.language, 'en_us')
+    let notified
+    api.onLanguageChange = lang => { notified = lang }
+    init({ language: 'zh_cn', cssVars: { '--main': '#fff' } })
+    assert.equal(api.language, 'zh_cn')
+    assert.equal(notified, 'zh_cn')
   })
 })
 

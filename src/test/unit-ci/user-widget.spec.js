@@ -69,6 +69,31 @@ describe('user widget registry', () => {
     assert.deepEqual(widget.info.configs.map(c => c.name), ['text'])
   })
 
+  it('copies only display strings from a widget manifest i18n block', () => {
+    writeWidget('i18n-widget', {
+      ...simplePkg(),
+      electerm: {
+        type: 'once',
+        name: 'I18n Widget',
+        configs: [{ name: 'query', type: 'string' }],
+        i18n: {
+          zh_cn: {
+            name: '多语言组件',
+            type: 'instance',
+            configs: { query: { label: '关键词', type: 'password' } }
+          },
+          nope: { name: 'bad locale' }
+        }
+      }
+    }, { 'main.js': '' })
+
+    const widget = registry.listWidgets().find(w => w.id === 'i18n-widget')
+    assert.deepStrictEqual(widget.info.i18n, {
+      zh_cn: { name: '多语言组件', configs: { query: { label: '关键词' } } }
+    })
+    assert.equal(widget.info.name, 'I18n Widget')
+  })
+
   it('ignores a folder that has no package.json', () => {
     fs.mkdirSync(path.join(tmp, 'widgets', 'notes'), { recursive: true })
     const ids = registry.listWidgets().map(w => w.id)

@@ -12,6 +12,7 @@ import deepCopy from 'json-deep-copy'
 import generate from '../common/uid'
 import { noteWidgets } from '../common/credential-provider.jsx'
 import { safeGetItemJSON, safeSetItemJSON } from '../common/safe-local-storage'
+import { currentLang, localizeWidgetInfo } from '../common/widget-i18n'
 
 // A widget with its own UI has no generated form: it keeps its config through
 // window.electerm.updateConfig, which lands in localStorage. Autorun should
@@ -25,9 +26,17 @@ function savedWidgetConfig (widgetId) {
 export default Store => {
   Store.prototype.listWidgets = async () => {
     const widgets = await window.pre.runGlobalAsync('listWidgets')
+    // The manifest is English; a widget may ship its own translations in
+    // electerm.i18n. The language lives here, in the renderer, so apply it
+    // before any panel or list sees the info object.
+    const lang = currentLang()
+    const localized = widgets.map(widget => ({
+      ...widget,
+      info: localizeWidgetInfo(widget.info, lang)
+    }))
     // a password manager widget among them (bookmark form, connect)
-    noteWidgets(widgets)
-    return widgets
+    noteWidgets(localized)
+    return localized
   }
 
   Store.prototype.runWidget = async (widgetId, config) => {
