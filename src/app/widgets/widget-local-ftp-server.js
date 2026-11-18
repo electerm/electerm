@@ -1,4 +1,6 @@
+const fs = require('fs')
 const os = require('os')
+const path = require('path')
 const uid = require('../common/uid')
 const FtpSrv = require('@electerm/ftp-srv')
 
@@ -7,6 +9,26 @@ const FtpSrv = require('@electerm/ftp-srv')
 // in a high, predictable range instead of letting the library scan from 1024.
 const PASV_MIN_PORT = 50000
 const PASV_MAX_PORT = 51000
+
+// The old defaults exposed a LAN-reachable FTP server with known credentials
+// rooted at $HOME. Keep the safe values for new instances and refuse to start
+// saved instances that still carry the shipped password.
+const SHARE_DIR = path.join(os.homedir(), 'electerm-ftp-share')
+const LEGACY_PASSWORD = 'ftppass'
+const WILDCARD_BINDS = ['', '0.0.0.0', '::', '[::]']
+
+function isWildcardBind (host) {
+  return WILDCARD_BINDS.includes(host)
+}
+
+function isHomeDir (dir) {
+  return path.resolve(String(dir || '')) === path.resolve(os.homedir())
+}
+
+function urlHost (host) {
+  const bare = host.replace(/^\[(.*)\]$/, '$1')
+  return bare.includes(':') ? `[${bare}]` : bare
+}
 
 const widgetInfo = {
   name: 'Local FTP Server',
@@ -19,8 +41,8 @@ const widgetInfo = {
     {
       name: 'host',
       type: 'string',
-      default: '0.0.0.0',
-      description: 'The IP address to bind the FTP server to'
+      default: '127.0.0.1',
+      description: 'The IP address to bind the FTP server to (default: loopback only; a wildcard bind exposes FTP to the LAN)'
     },
     {
       name: 'port',
@@ -31,8 +53,8 @@ const widgetInfo = {
     {
       name: 'directory',
       type: 'string',
-      default: os.homedir(),
-      description: 'The directory to serve files from (default: user\'s home directory)'
+      default: SHARE_DIR,
+      description: 'The directory to serve files from (default: ~/electerm-ftp-share, not the whole home directory)'
     },
     {
       name: 'anonymous',
@@ -49,8 +71,9 @@ const widgetInfo = {
     {
       name: 'password',
       type: 'string',
-      default: 'ftppass',
-      description: 'Password for FTP authentication (used when anonymous is false)'
+      default: '',
+      showGenerator: true,
+      description: 'Password for FTP authentication (used when anonymous is false). Generate a unique one before starting; the old shipped default is rejected.'
     },
     {
       name: 'pasvUrl',
@@ -130,10 +153,31 @@ function widgetRun (instanceConfig, ctx = {}) {
       throw new Error('Server is already running')
     }
 
+    const bindHost = String(config.host || '127.0.0.1').trim().toLowerCase()
+    const directory = path.resolve(String(config.directory || SHARE_DIR))
+    if (!config.anonymous) {
+      if (!config.password) {
+        throw new Error('Set an FTP password before starting the server')
+      }
+      if (config.password === LEGACY_PASSWORD) {
+        throw new Error('The shipped default FTP password is no longer accepted; generate a new one')
+      }
+    }
+    if (config.anonymous && isHomeDir(directory)) {
+      throw new Error('Anonymous FTP cannot use the home directory as its root')
+    }
+    if (isWildcardBind(bindHost)) {
+      log('warn', `${widgetInfo.name} is binding to all interfaces; FTP credentials are sent in clear text`)
+    }
+    if (isHomeDir(directory)) {
+      log('warn', `${widgetInfo.name} is serving the whole home directory`)
+    }
+    fs.mkdirSync(directory, { recursive: true })
+
     server = new FtpSrv({
-      url: `ftp://${config.host}:${config.port}`,
+      url: `ftp://${urlHost(bindHost)}:${config.port}`,
       anonymous: config.anonymous,
-      root: config.directory,
+      root: directory,
       pasv_url: config.pasvUrl || undefined,
       pasv_min: PASV_MIN_PORT,
       pasv_max: PASV_MAX_PORT,
@@ -150,7 +194,7 @@ function widgetRun (instanceConfig, ctx = {}) {
             from,
             msg: `user ${username} accepted`
           })
-          return resolve({ root: config.directory })
+          return resolve({ root: directory })
         }
         event({
           type: 'login',
@@ -197,14 +241,17 @@ function widgetRun (instanceConfig, ctx = {}) {
     return new Promise((resolve, reject) => {
       server.listen()
         .then(() => {
+          const baseUrl = `ftp://${urlHost(bindHost)}:${config.port}`
+          // The copyable URL keeps the credentials; the status message and
+          // console log must not leak them into notifications or log files.
           const url = config.anonymous
-            ? `ftp://${config.host}:${config.port}`
-            : `ftp://${config.username}:${config.password}@${config.host}:${config.port}`
+            ? baseUrl
+            : `ftp://${encodeURIComponent(config.username)}:${encodeURIComponent(config.password)}@${urlHost(bindHost)}:${config.port}`
           const serverInfo = {
             url,
-            path: config.directory
+            path: directory
           }
-          const msg = `${widgetInfo.name} is running at ${serverInfo.url}`
+          const msg = `${widgetInfo.name} is running at ${baseUrl}`
           log('info', `passive data ports ${PASV_MIN_PORT}-${PASV_MAX_PORT}, advertised address: ${config.pasvUrl || 'auto-detected'}`)
           console.log(msg)
           console.log(`Serving files from: ${serverInfo.path}`)
