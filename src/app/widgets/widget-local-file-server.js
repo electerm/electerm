@@ -1,7 +1,10 @@
 const os = require('os')
-// const path = require('path')
+const fs = require('fs')
+const path = require('path')
 const express = require('express')
 const uid = require('../common/uid')
+
+const SHARE_DIR = path.join(os.homedir(), 'electerm-share')
 
 const widgetInfo = {
   name: 'Static File Server',
@@ -26,8 +29,8 @@ const widgetInfo = {
     {
       name: 'directory',
       type: 'string',
-      default: os.homedir(),
-      description: 'The directory to serve files from (default: user\'s home directory)'
+      default: SHARE_DIR,
+      description: 'The directory to serve files from (default: ~/electerm-share, not the whole home directory)'
     },
     {
       name: 'maxAge',
@@ -92,9 +95,9 @@ const widgetInfo = {
     {
       name: 'dotfiles',
       type: 'string',
-      default: 'allow',
+      default: 'deny',
       choices: ['allow', 'deny', 'ignore'],
-      description: 'Option for serving dotfiles'
+      description: 'Option for serving dotfiles (denied by default)'
     },
     {
       name: 'acceptRanges',
@@ -116,6 +119,35 @@ function getDefaultConfig () {
     acc[config.name] = config.default
     return acc
   }, {})
+}
+
+// Keep in sync with the loopback guard in widget-mcp-server.js. Binding to
+// 127.0.0.1 does not make a server private: a page served from an attacker
+// domain can rebind that domain to loopback and talk to us same-origin, so
+// CORS never applies. The Host it claims and the presence of Origin are what
+// is left to check. Unlike the MCP server we have no token, so a wildcard
+// bind cannot be Host-checked at all — Origin is still rejected there.
+const WILDCARD_BINDS = ['', '0.0.0.0', '::', '[::]']
+
+function isWildcardBind (host) {
+  return WILDCARD_BINDS.includes(host)
+}
+
+function loopbackAliases (host) {
+  const bare = host.replace(/^\[(.*)\]$/, '$1')
+  if (bare !== '127.0.0.1' && bare !== 'localhost' && bare !== '::1') {
+    return []
+  }
+  return ['127.0.0.1', 'localhost', '::1', '[::1]']
+}
+
+function buildAllowedHosts (host, port) {
+  const out = new Set()
+  for (const h of [host, ...loopbackAliases(host)]) {
+    out.add(h)
+    out.add(`${h}:${port}`)
+  }
+  return out
 }
 
 const noop = () => {}
@@ -158,6 +190,43 @@ function widgetRun (instanceConfig, ctx = {}) {
         host,
         ...rest
       } = config
+      const bindHost = String(host || '127.0.0.1').trim().toLowerCase()
+      const checkHost = !isWildcardBind(bindHost)
+      // port 0 is used by tests; the real port is only known in the listen
+      // callback, so build the allowlist per request from the current value.
+      let boundPort = port
+
+      const deny = (req, res, reason) => {
+        const msg = `${req.method} ${req.originalUrl} -> 403 ${reason}`
+        event({
+          type: req.method,
+          ok: false,
+          from: req.socket && req.socket.remoteAddress,
+          msg
+        })
+        log('warn', msg)
+        res.status(403).send(`Forbidden: ${reason}`)
+      }
+
+      // Both checks must run before express.static. A rebound page is
+      // same-origin with us, so CORS would not help; the Host it can claim
+      // and the presence of Origin are the only browser-side tells we get.
+      app.use((req, res, next) => {
+        if (req.headers.origin) {
+          deny(req, res, 'unexpected Origin header')
+          return
+        }
+        if (checkHost) {
+          const hostHeader = String(req.headers.host || '').trim().toLowerCase()
+          if (!buildAllowedHosts(bindHost, boundPort).has(hostHeader)) {
+            deny(req, res, 'invalid Host header')
+            return
+          }
+        }
+        next()
+      })
+
+      fs.mkdirSync(directory, { recursive: true })
       app.use(express.static(directory, rest))
 
       server = app.listen(port, host, (err) => {
@@ -165,12 +234,15 @@ function widgetRun (instanceConfig, ctx = {}) {
           console.error(`Failed to start ${widgetInfo.name}:`, err)
           reject(err)
         } else {
+          const address = server.address()
+          const actualPort = address && typeof address === 'object' ? address.port : port
+          boundPort = actualPort
           const serverInfo = {
-            url: `http://${host}:${port}`,
+            url: `http://${host}:${actualPort}`,
             path: directory
           }
           const msg = `${widgetInfo.name} is running at ${serverInfo.url}`
-          log('info', `serving ${serverInfo.path} on ${config.host}:${config.port}`)
+          log('info', `serving ${serverInfo.path} on ${bindHost}:${actualPort}`)
           console.log(msg)
           console.log(`Serving files from: ${serverInfo.path}`)
           resolve({ serverInfo, msg, success: true })
