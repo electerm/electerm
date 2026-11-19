@@ -67,6 +67,7 @@ function buildMenu () {
         },
         {
           label: e('settings'),
+          accelerator: process.platform === 'darwin' ? 'Cmd+,' : undefined,
           click () {
             globalState.get('win').webContents.send('openSettings', null)
           }
