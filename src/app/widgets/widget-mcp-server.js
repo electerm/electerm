@@ -1110,7 +1110,7 @@ class ElectermMCPServer {
             inputSchema: {
               tabId: z.string().optional().describe('SSH tab ID (default: active tab)'),
               localPath: z.string().describe('Local file or folder path to upload'),
-              remotePath: z.string().describe('Remote destination path'),
+              remotePath: z.string().describe('Remote destination path. When uploading a file to an existing directory, the local filename is appended.'),
               conflictPolicy: z.enum(['mergeOrOverwriteAll', 'renameAll']).optional().describe('Conflict policy: mergeOrOverwriteAll or renameAll (default: mergeOrOverwriteAll). Only applies when autoConfirmTransfers is on; otherwise the user resolves conflicts in the transfer dialog.')
             }
           },

@@ -393,7 +393,7 @@ export default class TransportAction extends Component {
       return this.onEnd()
     }
 
-    if (policy === fileActions.rename) {
+    if (policy === fileActions.rename || policy === fileActions.renameAll) {
       const {
         typeTo,
         toPath
@@ -440,8 +440,11 @@ export default class TransportAction extends Component {
   handleRename = (fromPath, isRemote) => {
     const { path, base, ext } = getFolderFromFilePath(fromPath, isRemote)
     const newName = `${base}(rename-${generate()})${ext ? '.' + ext : ''}`
+    const newPath = isRemote
+      ? fromPath.slice(0, fromPath.lastIndexOf('/') + 1) + newName
+      : resolve(path, newName)
     return {
-      newPath: resolve(path, newName),
+      newPath,
       newName
     }
   }

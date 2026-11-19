@@ -1059,27 +1059,35 @@ describe('MCP server integration (live app + in-process SSH server)', () => {
         )
       }
 
-      // Upload: local scratch file → remote / (confined to sftpRoot)
-      const localUp = path.join(os.tmpdir(), `mcp-it-up-${uid}.txt`)
-      fs.writeFileSync(localUp, `upload content ${uid}`)
-      const up = tolerant(await callTool(sid, 'electerm_sftp_upload', {
-        tabId,
-        localPath: localUp,
-        remotePath: `/mcp-it-up-${uid}.txt`
-      }), 'sftp_upload')
-      if (up) {
-        assert.equal(up.success, true)
-        assert.ok(up.transferId)
-        // The transfer panel uploads asynchronously — poll for arrival
-        const upDeadline = Date.now() + 20000
-        let arrived = false
-        while (Date.now() < upDeadline && !arrived) {
-          arrived = fs.existsSync(path.join(sftpRoot, `mcp-it-up-${uid}.txt`))
-          if (!arrived) await sleep(500)
+      // Upload by both explicit filename and existing remote directory.
+      const localName = `mcp-it-up-${uid}.txt`
+      const localUp = path.join(os.tmpdir(), localName)
+      const directory = `mcp-it-dir-${uid}`
+      const uploadContent = `upload content ${uid}`
+      fs.mkdirSync(path.join(sftpRoot, directory))
+      fs.writeFileSync(localUp, uploadContent)
+      t.after(() => fs.rmSync(localUp, { force: true }))
+      for (const [remotePath, remoteUp] of [
+        [`/${localName}`, path.join(sftpRoot, localName)],
+        [`/${directory}/`, path.join(sftpRoot, directory, localName)]
+      ]) {
+        const up = tolerant(await callTool(sid, 'electerm_sftp_upload', {
+          tabId,
+          localPath: localUp,
+          remotePath
+        }), 'sftp_upload')
+        if (up) {
+          assert.equal(up.success, true)
+          assert.ok(up.transferId)
+          const upDeadline = Date.now() + 20000
+          let arrived = false
+          while (Date.now() < upDeadline && !arrived) {
+            arrived = fs.existsSync(remoteUp) && fs.readFileSync(remoteUp, 'utf8') === uploadContent
+            if (!arrived) await sleep(500)
+          }
+          assert.ok(arrived, `uploaded content must land at ${remoteUp}`)
         }
-        assert.ok(arrived, 'uploaded file must land in the confined SFTP root')
       }
-      fs.rmSync(localUp, { force: true })
 
       // Download: remote hello.txt → local scratch path
       const localDown = path.join(os.tmpdir(), `mcp-it-down-${uid}.txt`)
