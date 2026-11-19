@@ -40,16 +40,6 @@
 ## 赞助商
 
 <div align="center">
-  <a href="https://www.atlascloud.ai/?ref=PCAEL2&utm_source=github&utm_medium=link&utm_campaign=electerm">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/atlas-cloud.png?raw=true" alt="Atlas Cloud" width="260" />
-  </a>
-</div>
-
-[Atlas Cloud](https://www.atlascloud.ai/?ref=PCAEL2&utm_source=github&utm_medium=link&utm_campaign=electerm) 提供与 OpenAI 兼容的 AI API 和模型访问，用于在 electerm 中实现 AI 驱动的工作流程。
-
-----
-
-<div align="center">
   <a href="https://www.packyapi.ai/register?aff=DOZI">
     <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/packy-api.png?raw=true" alt="PackyCode" width="210" />
   </a>
