@@ -46,6 +46,21 @@ describe('resolveAIResponse', () => {
     assert.equal(res.message.tool_calls[0].function.name, 'run_command')
   })
 
+  it('reports an empty message without tool calls as an error', () => {
+    for (const content of ['', '  ', null, undefined]) {
+      const res = resolveAIResponse({
+        choices: [
+          {
+            finish_reason: 'content_filter',
+            message: { role: 'assistant', content }
+          }
+        ]
+      })
+      assert.match(res.error, /^Unexpected AI response\(no message\)/)
+      assert.equal(res.message, undefined)
+    }
+  })
+
   it('refuses a tool call cut off by finish_reason length', () => {
     const res = resolveAIResponse({
       choices: [

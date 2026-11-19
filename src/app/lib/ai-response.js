@@ -152,6 +152,16 @@ function normalizeToolArguments (toolCalls) {
   })
 }
 
+function isEmptyContent (content) {
+  if (content === null || content === undefined) {
+    return true
+  }
+  if (typeof content === 'string') {
+    return !content.trim()
+  }
+  return Array.isArray(content) && !content.length
+}
+
 // Returns { message } on success, { error } otherwise
 exports.resolveAIResponse = (data) => {
   const error = errorMessageFromData(data)
@@ -173,6 +183,12 @@ exports.resolveAIResponse = (data) => {
         return { error: 'AI response truncated (incomplete tool call)' }
       }
       return { message: { ...message, tool_calls: toolCalls } }
+    }
+    if (isEmptyContent(message.content)) {
+      // e.g. finish_reason 'content_filter' or 'length' with nothing generated
+      return {
+        error: `Unexpected AI response(no message): ${stringifyData(data)}`
+      }
     }
     return { message }
   }
