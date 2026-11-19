@@ -23,6 +23,7 @@
   <a href="https://github.com/electerm/electerm-web-docker">Docker</a> ·
   <a href="https://demo.electerm.org">在线演示</a> ·
   <a href="https://github.com/electerm/electerm-android">Android</a> ·
+  <a href="https://play.google.com/store/apps/details?id=org.electerm.electerm">Google Play</a> ·
   <a href="https://github.com/electerm/electerm-harmony">鸿蒙</a> ·
   <a href="https://apps.apple.com/us/app/electerm/id6792971552">App Store</a> ·
   <a href="https://appgallery.huawei.com/app/detail?id=org.electerm.electerm">华为应用市场</a> ·
