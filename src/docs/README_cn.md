@@ -60,20 +60,6 @@
 ----
 
 <div align="center">
-  <br />
-  <br />
-  <a href="https://go.apimart.ai/gh-electerm">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apimart.jpg?raw=true" alt="ApiMart" width="200" />
-  </a>
-  <br />
-  <br />
-</div>
-
-感谢 APIMart 赞助 electerm！APIMart 是一个低成本的 AI 图像和视频生成 API 平台 —— GPT-Image-2 低至 $0.006/张，1 美元可生成 160+ 张图片。一个异步 API 同时支持图像和视频：提交任务，获取任务 ID，通过轮询或回调获取结果。可批量生成数万张图片而不超时，切换模型无需修改代码。按量付费，无月费 —— [点击这里注册开始使用](https://go.apimart.ai/gh-electerm)。
-
-----
-
-<div align="center">
 
 <a href="https://www.infistar.cc/register?aff=4R4JT29X&ref_source=link"><img align="middle" src="https://github.com/electerm/electerm-resource/blob/master/static/images/infistar-wordmark.png?raw=true" alt="Infistar" height="40" /></a>&nbsp;&nbsp;&nbsp;<a href="https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img align="middle" src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg" alt="DigitalOcean Referral Badge" /></a>
 

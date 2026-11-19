@@ -59,20 +59,6 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS
 ----
 
 <div align="center">
-  <br />
-  <br />
-  <a href="https://go.apimart.ai/gh-electerm">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/apimart.jpg?raw=true" alt="ApiMart" width="200" />
-  </a>
-  <br />
-  <br />
-</div>
-
-Thanks to APIMart for sponsoring electerm! APIMart is a low-cost API platform for AI image & video generation — GPT-Image-2 from $0.006/image, 160+ images per dollar. One async API covers both image and video: submit a task, get an ID, fetch results via polling or callback. Batch tens of thousands of images without timeouts, switch models without changing code. Pay-as-you-go with no monthly fee — [sign up here to get started](https://go.apimart.ai/gh-electerm).
-
-----
-
-<div align="center">
 
 <a href="https://www.infistar.cc/register?aff=4R4JT29X&ref_source=link"><img align="middle" src="https://github.com/electerm/electerm-resource/blob/master/static/images/infistar-wordmark.png?raw=true" alt="Infistar" height="40" /></a>&nbsp;&nbsp;&nbsp;<a href="https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img align="middle" src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg" alt="DigitalOcean Referral Badge" /></a>
 
