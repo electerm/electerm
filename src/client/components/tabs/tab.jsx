@@ -29,6 +29,7 @@ import { action } from 'manate'
 import iconsMap from '../sys-menu/icons-map.jsx'
 import { shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { isDropAfterHalf } from '../../common/drop-position'
+import getSourceBookmark from '../../common/get-source-bookmark'
 
 const e = window.translate
 const onDragCls = 'ondrag-tab'
@@ -328,6 +329,14 @@ class Tab extends Component {
     window.store.pinTab(tab.id, !tab.isPinned)
   }
 
+  editBookmark = () => {
+    const item = getSourceBookmark(this.props.tab, window.store)
+    if (!item) {
+      return
+    }
+    window.store.openBookmarkEdit(item)
+  }
+
   renderContext = () => {
     const { tabs, tabIndex, tab } = this.props
     const len = tabs.length
@@ -339,6 +348,7 @@ class Tab extends Component {
     const duplicateShortcut = this.getShortcut('app_duplicateTab')
     const reloadAllShortcut = this.getShortcut('app_reloadAll')
     const qmRunning = !!window.store.runningQuickCommands[tab.id]
+    const hasSourceBookmark = !!getSourceBookmark(tab, window.store)
 
     const x = [
       qmRunning && {
@@ -385,6 +395,11 @@ class Tab extends Component {
         key: 'doRename',
         icon: <iconsMap.EditOutlined />,
         label: e('rename')
+      },
+      hasSourceBookmark && {
+        key: 'editBookmark',
+        icon: <iconsMap.ContainerOutlined />,
+        label: e('edit') + ' ' + e('bookmarks')
       },
       !window.store.isMobile && {
         key: 'togglePin',

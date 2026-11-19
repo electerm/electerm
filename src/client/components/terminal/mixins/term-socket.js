@@ -29,6 +29,7 @@ import {
   clearNeedsInteractiveInput
 } from '../interactive-prompt-state.js'
 import { decideSessionEnd } from '../session-end.js'
+import getSourceBookmark from '../../../common/get-source-bookmark.js'
 
 // Expands \n \t \r \\ and \xHH hex byte escapes, used to let users type
 // control bytes (e.g. \x01 = Ctrl+A) in the serial "closeSequence" field.
@@ -298,12 +299,7 @@ export const socketMixin = {
   },
 
   handleEditBookmarkFromError () {
-    const error = this.state.terminalError
-    if (!error || error.from !== 'bookmarks' || !error.srcId) {
-      return
-    }
-    const item = window.store.bookmarksMap?.get(error.srcId) ||
-      window.store.bookmarks?.find(d => d.id === error.srcId)
+    const item = getSourceBookmark(this.state.terminalError, window.store)
     if (!item) {
       return
     }
