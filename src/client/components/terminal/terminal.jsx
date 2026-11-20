@@ -192,6 +192,10 @@ class Term extends Component {
       this.reconcileRenderer(reason)
         .catch(error => console.error('renderer reconcile failed', error))
     })
+    // Attached before the terminal exists: the guard bails out on a missing
+    // `term`, and a right click during the (async) xterm bootstrap has nothing
+    // to report to yet either. See mixins/term-context-menu.jsx.
+    this.attachRightClickGuard()
     // xterm and every addon are dynamic imports: a failed chunk fetch would
     // otherwise end as a silent unhandled rejection with a permanently blank
     // terminal pane
@@ -278,6 +282,7 @@ class Term extends Component {
       ?.catch?.(error => console.error('renderer dispose failed', error))
     this.rendererLifecycle = null
     refs.remove(this.id)
+    this.detachRightClickGuard()
     // this tab id will never be connected again (reload mints a new one)
     clearNeedsInteractiveInput(this.props.tab.id)
     window.cancelAnimationFrame(this.timers.focusRefreshRaf)

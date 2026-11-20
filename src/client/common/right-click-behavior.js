@@ -8,6 +8,10 @@
  *  - `passthrough`: do nothing at all — no menu, no paste, and no
  *    `preventDefault()`, so the event reaches xterm (which may report it to
  *    the running program when mouse reporting is on) and the OS
+ *
+ * The first two own the click outright: a program that asked for mouse reports
+ * does not get that right click either, so it cannot act on a click the user
+ * aimed at the menu (see terminal/right-click-report.js).
  */
 
 export const rightClickBehaviors = {
