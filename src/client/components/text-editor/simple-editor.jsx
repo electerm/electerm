@@ -10,7 +10,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { copy } from '../../common/clipboard'
 import { escapeRegExp } from 'lodash-es'
-import Link from '../common/external-link'
+import MarkdownLink from '../common/markdown-link'
 import './simple-editor.styl'
 
 const e = window.translate
@@ -23,18 +23,6 @@ const markdownExtRe = /\.(md|markdown|mdown|mkdn|mkd)$/i
  */
 export function isMarkdownFile (path) {
   return markdownExtRe.test(path || '')
-}
-
-// a link in the preview must not navigate the app window away, and a
-// relative or anchor link has nothing to resolve against here, so only real
-// external urls become clickable
-const externalUrlRe = /^(https?|mailto):/i
-
-function renderLink ({ node, href, children, ...rest }) {
-  if (!externalUrlRe.test(href || '')) {
-    return <span {...rest}>{children}</span>
-  }
-  return <Link to={href} {...rest}>{children}</Link>
 }
 
 export default function SimpleEditor (props) {
@@ -266,7 +254,7 @@ export default function SimpleEditor (props) {
       {activeTab === 'preview' && (
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
-          components={{ a: renderLink }}
+          components={{ a: MarkdownLink }}
         >
           {props.value || ''}
         </ReactMarkdown>
