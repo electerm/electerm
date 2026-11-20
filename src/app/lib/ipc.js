@@ -13,6 +13,7 @@ const {
   webContents
 } = require('electron')
 const globalState = require('./glob-state')
+const { isSameOrigin } = require('./nav-guard')
 const log = require('../common/log')
 const ipcSyncFuncs = require('./ipc-sync')
 const { dbAction, tables } = require('./db')
@@ -140,12 +141,22 @@ function isExportedIpcFunc (obj, name) {
   return Object.prototype.hasOwnProperty.call(obj, name) && typeof obj[name] === 'function'
 }
 
-// Only the main app window's webContents may use the dynamic IPC bridges. This blocks
+// Only the main app window's own document may use the dynamic IPC bridges. This blocks
 // any other renderer frame (webviews, popups, or an attacker page that navigated the
 // window) from reaching runGlobalAsync / runSync (CWE-863 / CWE-749).
+//
+// The webContents identity alone is not enough: a navigated window keeps both
+// that object and the preload bridge, so the sender frame's origin has to
+// still be ours (./nav-guard.js enforces the same thing at the navigation).
+// `event.senderFrame` is null once the frame is gone (reload/crash race).
 function isTrustedIpcSender (event) {
   const win = globalState.get('win')
-  return !!win && event.sender === win.webContents
+  if (!win || win.isDestroyed()) {
+    return false
+  }
+  return event.sender === win.webContents &&
+    !!event.senderFrame &&
+    isSameOrigin(event.senderFrame.url, globalState.get('appOrigin'))
 }
 
 // Electron 43 made file dialogs default to Downloads and stopped the OS from
@@ -413,6 +424,10 @@ function initIpc () {
     return asyncGlobals[name](...args)
   })
   ipcMain.handle('show-open-dialog-sync', async (event, ...args) => {
+    if (!isTrustedIpcSender(event)) {
+      console.error('[security] blocked IPC call: show-open-dialog-sync')
+      return
+    }
     const win = BrowserWindow.fromWebContents(event.sender)
     const opts = args[0] && typeof args[0] === 'object' ? args[0] : {}
     const res = dialog.showOpenDialogSync(
@@ -423,6 +438,10 @@ function initIpc () {
     return res
   })
   ipcMain.handle('show-save-dialog', async (event, ...args) => {
+    if (!isTrustedIpcSender(event)) {
+      console.error('[security] blocked IPC call: show-save-dialog')
+      return
+    }
     const win = BrowserWindow.fromWebContents(event.sender)
     const res = await dialog.showSaveDialog(
       win,
