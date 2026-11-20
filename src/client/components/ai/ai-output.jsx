@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { copy } from '../../common/clipboard'
 import Link from '../common/external-link'
+import MarkdownLink from '../common/markdown-link'
 import { Tag, Popconfirm, Button, Alert } from 'antd'
 import {
   CopyOutlined,
@@ -143,11 +144,16 @@ export default function AIOutput ({ item }) {
   // remark-gfm: react-markdown only does CommonMark by default, so GFM tables
   // (and strikethrough / task lists / autolinks) arrive as literal text.
   // Styling for the resulting table lives in ai.styl.
+  //
+  // `a`: an AI answer is untrusted content, and a bare anchor click would load
+  // the target into this window, preload bridge included. MarkdownLink keeps
+  // external links going to the system browser and everything else inert.
   const mdProps = {
     children: response,
     remarkPlugins: [remarkGfm],
     components: {
-      code: renderCode
+      code: renderCode,
+      a: MarkdownLink
     }
   }
 
