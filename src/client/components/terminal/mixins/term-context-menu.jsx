@@ -9,6 +9,10 @@ import {
   getRightClickBehavior,
   rightClickBehaviors
 } from '../../../common/right-click-behavior.js'
+import {
+  isMouseTrackingActive,
+  shouldForwardRightClick
+} from '../right-click-report.js'
 
 const e = window.translate
 
@@ -136,6 +140,43 @@ export const contextMenuMixin = {
     if (behavior === rightClickBehaviors.paste) {
       return this.onPaste()
     }
+  },
+
+  /**
+   * Stop a right click that electerm is going to act on from also reaching the
+   * program in the terminal - see ../right-click-report.js for why one click
+   * must have one owner (vim's `'mousemodel'` turns a forwarded right click
+   * into a visual selection, and on Linux the release is lost on top of that).
+   *
+   * Registered in the capture phase on the terminal's own container: that is
+   * the only place left to stop the event, because xterm's `mousedown` listener
+   * sits on the element inside it and encodes the report.
+   */
+  onRightMouseDownCapture (e) {
+    if (e.button !== 2 || !this.term) {
+      return
+    }
+    if (shouldForwardRightClick({
+      config: this.props.config,
+      mouseTrackingActive: isMouseTrackingActive(this.term),
+      altKey: e.altKey
+    })) {
+      return
+    }
+    e.stopPropagation()
+    // xterm's own mousedown handler is also what focuses the terminal, and it
+    // no longer runs.
+    this.term.focus()
+  },
+
+  attachRightClickGuard () {
+    const el = this.domRef?.current
+    el?.addEventListener('mousedown', this.onRightMouseDownCapture, true)
+  },
+
+  detachRightClickGuard () {
+    const el = this.domRef?.current
+    el?.removeEventListener('mousedown', this.onRightMouseDownCapture, true)
   },
 
   onSelection () {
