@@ -357,6 +357,11 @@ export default Store => {
     delete p.id
     if (type === connectionMap.rdp) {
       const filtered = pickBy(p.rdp, (value) => value !== undefined && value !== '')
+      // which client opens this bookmark is the bookmark's own decision. A
+      // profile is shared by many bookmarks (and syncs), so a `false` left in a
+      // profile must never turn the local client off for a bookmark that asks
+      // for it
+      delete filtered.nativeRdp
       return {
         ...tab,
         ...filtered

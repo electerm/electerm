@@ -128,7 +128,8 @@ export const rdpBookmarkSchema = {
   ...commonNetworkBookmarkProps,
   host: z.string().describe('RDP host address'),
   port: z.number().optional().describe('RDP port (default 3389)'),
-  domain: z.string().optional().describe('Login domain')
+  domain: z.string().optional().describe('Login domain'),
+  nativeRdp: z.boolean().optional().describe('Windows only: open the bookmark with the local RDP client (mstsc.exe) instead of the built-in one, default is false')
 }
 
 export const ftpBookmarkSchema = {

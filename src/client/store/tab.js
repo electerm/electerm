@@ -20,6 +20,7 @@ import { action } from 'manate'
 import { shouldCaptureTerminalReloadState } from '../components/terminal/ssh-reload-state.js'
 import dangerousSessionFields from '../common/dangerous-session-fields'
 import { distributeTabsEvenly } from '../common/distribute-tabs'
+import { isNativeRdpTab, openNativeRdp } from '../common/native-rdp.js'
 
 function captureSshSessionState (tab, config) {
   return shouldCaptureTerminalReloadState(tab, config)
@@ -396,6 +397,18 @@ export default Store => {
       return message.warning(
         'local terminal is not supported, due to node-pty not working in this build'
       )
+    }
+    // A bookmark that asks for the local RDP client never becomes a tab: the
+    // session lives in mstsc's own window, so a tab here could only hold a
+    // placeholder, could not close it (mstsc reuses one process), and would be
+    // relaunched by reload/duplicate/workspace restore. Every "open a
+    // connection" path funnels through here -- bookmark click, form connect,
+    // history, quick connect, deep link, MCP -- which is exactly why the check
+    // lives here and not in each of them.
+    if (isNativeRdpTab(newTab)) {
+      window.store.updateHistory(newTab)
+      openNativeRdp(newTab)
+      return
     }
     const { store } = window
     const { tabs } = store

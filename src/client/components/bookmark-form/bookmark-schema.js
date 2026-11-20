@@ -129,7 +129,8 @@ const bookmarkSchema = {
     description: 'string - bookmark description',
     profile: 'string - profile id',
     proxy: 'string - proxy address (socks5://...)',
-    domain: 'string - login domain'
+    domain: 'string - login domain',
+    nativeRdp: 'boolean - Windows only: open with the local RDP client (mstsc.exe) instead of the built-in one, default is false'
   },
   ftp: {
     type: 'ftp',
