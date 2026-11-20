@@ -1,5 +1,5 @@
 const {
-  BrowserWindow, screen, dialog, app
+  BrowserWindow, screen, dialog, app, shell
 } = require('electron')
 const { resolve } = require('path')
 const {
@@ -23,6 +23,7 @@ const _ = require('./lodash.js')
 const getPort = require('./get-port')
 const globalState = require('./glob-state')
 const webviewHandler = require('./webview-handler')
+const { installNavGuard } = require('./nav-guard')
 const { getTitleBarOptions, windowBackground } = require('./title-bar')
 
 // A crashed / reloaded renderer leaves the window object alive, and sending to
@@ -120,6 +121,10 @@ exports.createWindow = async function (userConfig) {
     ? process.env.devPort || 5570
     : await getPort()
   const opts = `http://127.0.0.1:${port}/index.html?v=${packInfo.version}`
+  // The window keeps its preload bridge across a navigation, so anything but
+  // our own origin must be stopped before it loads; the origin is then reused
+  // by the IPC sender check.
+  globalState.set('appOrigin', installNavGuard(win, opts, shell))
   // If loading the URL fails (e.g. proxy/firewall interference), show error page
   win.webContents.once('did-fail-load', (event, errorCode, errorDescription) => {
     console.error('Failed to load app URL:', errorCode, errorDescription)
