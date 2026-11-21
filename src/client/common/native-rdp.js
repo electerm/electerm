@@ -48,16 +48,15 @@ function errorText (err) {
 }
 
 /**
- * Start the local client. Never throws: addTab is synchronous and the user gets
- * the result as a message.
+ * Start the local client and report whether its process launched.
  * @param {object} tab
- * @returns {Promise<*>}
+ * @returns {Promise<boolean>}
  */
-export function openNativeRdp (tab) {
+export async function openNativeRdp (tab) {
   if (!window.pre || typeof window.pre.runGlobalAsync !== 'function') {
     // same guard host-check.jsx uses: 'not available in this version'
     message.error('the local RDP client is not available in this build')
-    return
+    return false
   }
   const host = tab.host || ''
   const payload = {
@@ -79,19 +78,17 @@ export function openNativeRdp (tab) {
   if (tab.connectionHoppings && tab.connectionHoppings.length) {
     ignored.push('connection hopping')
   }
-  return window.pre.runGlobalAsync('launchNativeRdp', payload)
-    .then(res => {
-      message.success(`opened ${host} with the local RDP client`)
-      if (ignored.length) {
-        message.warning(`the local RDP client ignores ${ignored.join(' and ')}`)
-      }
-      // cmdkey refused the password (a double quote in it, most likely): the
-      // connection still opens, mstsc just asks for the password itself
-      if (tab.password && res && res.credentialStored === false) {
-        message.warning('the password could not be saved for the local RDP client, it will ask for it')
-      }
-    })
-    .catch(err => {
-      message.error(`cannot open ${host} with the local RDP client: ${errorText(err)}`)
-    })
+  try {
+    const res = await window.pre.runGlobalAsync('launchNativeRdp', payload)
+    if (ignored.length) {
+      message.warning(`the local RDP client ignores ${ignored.join(' and ')}`)
+    }
+    if (tab.password && res && res.credentialStored === false) {
+      message.warning('the password could not be saved for the local RDP client, it will ask for it')
+    }
+    return true
+  } catch (err) {
+    message.error(`cannot open ${host} with the local RDP client: ${errorText(err)}`)
+    return false
+  }
 }

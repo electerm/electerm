@@ -116,7 +116,7 @@ export default Store => {
       ...oldTab,
       tabCount: store.nextTabCount(),
       id: generate(), // Need to create new ID
-      status: statusMap.processing // Reset status
+      status: isNativeRdpTab(oldTab) ? statusMap.default : statusMap.processing
     }
     delete newTab._reloadState
     // Keepalive is per-session runtime state (the toolbar heartbeat icon /
@@ -182,7 +182,7 @@ export default Store => {
       ...deepCopy(sourceTab),
       id: generate(),
       tabCount: store.nextTabCount(),
-      status: statusMap.processing,
+      status: isNativeRdpTab(sourceTab) ? statusMap.default : statusMap.processing,
       isTransporting: undefined
     }
     delete duplicatedTab._reloadState
@@ -398,18 +398,6 @@ export default Store => {
         'local terminal is not supported, due to node-pty not working in this build'
       )
     }
-    // A bookmark that asks for the local RDP client never becomes a tab: the
-    // session lives in mstsc's own window, so a tab here could only hold a
-    // placeholder, could not close it (mstsc reuses one process), and would be
-    // relaunched by reload/duplicate/workspace restore. Every "open a
-    // connection" path funnels through here -- bookmark click, form connect,
-    // history, quick connect, deep link, MCP -- which is exactly why the check
-    // lives here and not in each of them.
-    if (isNativeRdpTab(newTab)) {
-      window.store.updateHistory(newTab)
-      openNativeRdp(newTab)
-      return
-    }
     const { store } = window
     const { tabs } = store
     newTab.tabCount = store.nextTabCount()
@@ -451,6 +439,22 @@ export default Store => {
     store.activeTabId = newTab.id
     store.currentLayoutBatch = batchNum
     store.updateHistory(newTab)
+    if (isNativeRdpTab(newTab)) {
+      store.launchNativeRdpTab(newTab.id)
+    }
+  }
+
+  Store.prototype.launchNativeRdpTab = async function (id) {
+    const { store } = window
+    const tab = store.tabs.find(tab => tab.id === id)
+    if (!isNativeRdpTab(tab)) {
+      return
+    }
+    store.updateTab(id, { status: statusMap.processing })
+    const opened = await openNativeRdp(tab)
+    if (tab.nativeRdp) {
+      store.updateTab(id, { status: opened ? statusMap.success : statusMap.error })
+    }
   }
 
   Store.prototype.ipcOpenTab = function (parsed) {
