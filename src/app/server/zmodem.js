@@ -43,6 +43,9 @@ const ZMODEM_STATE = {
 // Zmodem header signature: ** + ZDLE(0x18) + B(0x42)
 const ZMODEM_HEADER = Buffer.from([0x2a, 0x2a, 0x18, 0x42])
 
+// All detected hex frame types start with the high nibble '0'.
+const INIT_PREFIX = Buffer.concat([ZMODEM_HEADER, Buffer.from('0')])
+
 // ZRQINIT = "00" (remote wants to send -> we receive)
 const ZRQINIT_HEX = Buffer.from([0x30, 0x30])
 // ZRINIT = "01" (remote ready to receive -> we send)
@@ -81,31 +84,21 @@ const MIN_CAN_RUN = 4
 // display always recovers).
 const NOISE_SUPPRESS_MS = 3000
 
-/**
- * Build a free download path that keeps the file extension intact:
- * `report.pdf` -> `report.<id>.pdf` instead of `report.pdf.<id>`.
- * Never falls back to overwriting an existing file.
- * @param {string} dir - save directory
- * @param {string} name - file name reported by the sender
- * @returns {string}
- */
-function getFreeDownloadPath (dir, name) {
+// Reserve the name before creating the asynchronous stream. Other sessions
+// may be receiving a file with the same name in this directory.
+function openDownloadFile (dir, name) {
   const safeName = sanitizeFilename(name)
   const ext = path.extname(safeName)
-  const base = ext ? safeName.slice(0, -ext.length) : safeName
-  const makeName = (id) => ext ? `${base}.${id}${ext}` : `${base}.${id}`
-  const original = path.join(dir, safeName)
-  if (!fs.existsSync(original)) return original
-  for (let i = 0; i < 10; i++) {
-    const candidate = path.join(dir, makeName(generate()))
-    if (!fs.existsSync(candidate)) return candidate
+  const base = path.basename(safeName, ext)
+  let filePath = path.join(dir, safeName)
+  while (true) {
+    try {
+      return { filePath, fd: fs.openSync(filePath, 'wx') }
+    } catch (err) {
+      if (err.code !== 'EEXIST') throw err
+      filePath = path.join(dir, base + '.' + generate() + ext)
+    }
   }
-  // nanoid collisions are vanishingly unlikely; still never clobber.
-  let id = `${Date.now()}`
-  while (fs.existsSync(path.join(dir, makeName(id)))) {
-    id += '0'
-  }
-  return path.join(dir, makeName(id))
 }
 
 /**
@@ -143,7 +136,9 @@ class ZmodemSession {
 
     this.watchdogTimer = null
     this.destroyed = false
-    this._drainTimer = null
+    this.receivePaused = false
+    this.receiveQueue = []
+    this.receiveQueueBytes = 0
 
     // Set while the dying peer's trailing garbage is still expected on
     // the wire; see NOISE_SUPPRESS_MS.
@@ -246,11 +241,11 @@ class ZmodemSession {
    * @returns {number}
    */
   partialHeaderLength (data) {
-    const max = Math.min(data.length, ZMODEM_HEADER.length + 1)
+    const max = Math.min(data.length, INIT_PREFIX.length)
     for (let len = max; len > 0; len--) {
       let ok = true
       for (let j = 0; j < len; j++) {
-        if (data[data.length - len + j] !== ZMODEM_HEADER[j]) {
+        if (data[data.length - len + j] !== INIT_PREFIX[j]) {
           ok = false
           break
         }
@@ -410,11 +405,6 @@ class ZmodemSession {
       } else {
         this.residueTail = null
       }
-      // Debris still flowing past the window cap: keep swallowing
-      // (extend) — a large pty-buffer flush can outlast one window.
-      if (Date.now() + 50 >= this.suppressNoiseUntil) {
-        this.suppressNoiseUntil = Date.now() + NOISE_SUPPRESS_MS
-      }
       return true
     }
     this.residueTail = null
@@ -564,13 +554,21 @@ class ZmodemSession {
    */
   handleReceiverData (data) {
     if (!this.receiver) return
-    const u8 = Buffer.isBuffer(data) ? new Uint8Array(data) : new Uint8Array(Buffer.from(data))
     let offset = 0
-    let iterations = 0
-
-    while (offset < u8.length && iterations++ < 1000 && this.receiver) {
+    while (offset < data.length && this.receiver) {
+      if (this.receivePaused) {
+        const remaining = data.subarray(offset)
+        if (this.receiveQueueBytes + remaining.length > MAX_BUFFERED_BYTES) {
+          this.sendToClient({ event: 'transfer-error', message: 'Download buffer exceeded while waiting for disk' })
+          this.abort(true)
+        } else {
+          this.receiveQueue.push(remaining)
+          this.receiveQueueBytes += remaining.length
+        }
+        return
+      }
       try {
-        const consumed = this.receiver.feedIncoming(u8.subarray(offset))
+        const consumed = this.receiver.feedIncoming(data.subarray(offset))
         offset += consumed
         const drained = this.pumpReceiver()
         if (consumed === 0 && !drained) break
@@ -586,6 +584,17 @@ class ZmodemSession {
     }
   }
 
+  resumeReceiver () {
+    this.receivePaused = false
+    const queued = this.receiveQueue.length > 1
+      ? Buffer.concat(this.receiveQueue, this.receiveQueueBytes)
+      : this.receiveQueue[0]
+    this.receiveQueue = []
+    this.receiveQueueBytes = 0
+    this.pumpReceiver()
+    if (queued) this.handleReceiverData(queued)
+  }
+
   /**
    * Drain receiver outputs: wire replies, events, file data
    * @returns {boolean} - True if work was done
@@ -596,14 +605,14 @@ class ZmodemSession {
 
     try {
       // Order matters: drain file data FIRST. finishSubpacket (triggered
-      // by drainFile/advanceFile) queues ZACK replies; draining outgoing
+      // by drainFile) queues ZACK replies; draining outgoing
       // last flushes them in the same pump. With the opposite order a
       // trailing ZACK stays queued when input runs out, and the peer
       // stalls forever waiting for its ack.
       const chunk = this.receiver.drainFile()
       if (chunk && chunk.length > 0) {
         this.handleFileData(Buffer.from(chunk))
-        this.receiver.advanceFile(chunk.length)
+        if (this.receivePaused) return true
         didWork = true
       }
 
@@ -616,8 +625,10 @@ class ZmodemSession {
             this.receiver.getFileSize(),
             this.receiver.getFileMtime()
           )
+          if (!this.receiver) return true
         } else if (event === ReceiverEvent.FileComplete) {
           this.handleFileComplete()
+          return true
         } else if (event === ReceiverEvent.SessionComplete) {
           // Drain the queued ZFIN ack BEFORE resetting: the remote
           // waits for it to leave state 6 and print its exit message.
@@ -652,8 +663,8 @@ class ZmodemSession {
     this.transferredBytes = 0
     this.currentMtime = mtime || 0
     this.lastProgressUpdate = 0
-    this.prepareReceiveFile(name, size)
     this.sendToClient({ event: 'file-start', name, size })
+    this.prepareReceiveFile(name, size)
   }
 
   /**
@@ -662,36 +673,26 @@ class ZmodemSession {
    * @param {number} size
    */
   prepareReceiveFile (name, size) {
+    let fd
     try {
-      const filePath = getFreeDownloadPath(this.savePath, name)
-
-      this.downloadPath = filePath
-      const stream = fs.createWriteStream(filePath, {
-        highWaterMark: 64 * 1024
-      })
-      // A failed write (disk full, permission) must end the session
-      // instead of leaking a broken stream.
-      stream.on('error', (e) => {
-        log.error('zmodem download stream error', e)
-        this.sendToClient({
-          event: 'transfer-error',
-          message: `Failed to write ${filePath}: ${e.message}`
-        })
-        this.downloadStream = null
-        this.abort(true)
-      })
+      const file = openDownloadFile(this.savePath, name)
+      fd = file.fd
+      this.downloadPath = file.filePath
+      const stream = fs.createWriteStream(file.filePath, { fd, highWaterMark: 64 * 1024 })
       this.downloadStream = stream
-
-      this.sendToClient({
-        event: 'file-prepared',
-        name,
-        path: filePath,
-        size
+      stream.once('error', (err) => {
+        if (this.downloadStream === stream) this.failDownload(file.filePath, err)
       })
-    } catch (e) {
-      log.error('Failed to prepare receive file', e)
-      this.abort(true)
+      this.sendToClient({ event: 'file-prepared', name, path: file.filePath, size })
+    } catch (err) {
+      if (fd !== undefined && !this.downloadStream) fs.closeSync(fd)
+      this.failDownload(this.downloadPath || name, err)
     }
+  }
+
+  failDownload (filePath, err) {
+    this.sendToClient({ event: 'transfer-error', message: `Failed to write ${filePath}: ${err.message}` })
+    this.abort(true)
   }
 
   /**
@@ -705,7 +706,13 @@ class ZmodemSession {
       this.startTime = Date.now()
     }
 
-    this.downloadStream.write(data)
+    const stream = this.downloadStream
+    if (!stream.write(data)) {
+      this.receivePaused = true
+      stream.once('drain', () => {
+        if (this.downloadStream === stream) this.resumeReceiver()
+      })
+    }
     this.transferredBytes += data.length
 
     const now = Date.now()
@@ -721,41 +728,29 @@ class ZmodemSession {
   handleFileComplete () {
     const filePath = this.downloadPath
     const fileMtime = this.currentMtime
-    const currentTransfer = this.currentTransfer
-
-    // Notify the client immediately: the protocol has all bytes, and the
-    // ZFIN handshake (session-end) often wins the race against the
-    // stream's async finish event, which would otherwise report the
-    // transfer complete only after the session already closed.
-    this.sendToClient({
-      event: 'file-complete',
-      name: currentTransfer?.name,
-      path: filePath
-    })
-    this.currentTransfer = null
-    this.downloadPath = null
-    this.currentMtime = 0
-
-    const finalize = () => {
-      if (filePath && fileMtime > 0) {
+    const stream = this.downloadStream
+    const { name } = this.currentTransfer
+    // Release ZRINIT only after the file is written. This also keeps the
+    // next file and ZFIN ordered behind the local completion event.
+    this.receivePaused = true
+    stream.once('finish', () => {
+      if (this.downloadStream !== stream) return
+      if (fileMtime > 0) {
         try {
-          const mtimeDate = new Date(fileMtime)
-          fs.utimesSync(filePath, mtimeDate, mtimeDate)
-        } catch (e) {
-          log.error('Failed to set file modification time', e)
+          const date = new Date(fileMtime)
+          fs.futimesSync(stream.fd, date, date)
+        } catch (err) {
+          log.error('Failed to set file modification time', err)
         }
       }
-    }
-
-    if (this.downloadStream) {
-      const stream = this.downloadStream
       this.downloadStream = null
-      stream.on('finish', finalize)
-      stream.on('error', () => {}) // error path already handled above
-      stream.end()
-    } else {
-      finalize()
-    }
+      this.downloadPath = null
+      this.currentTransfer = null
+      this.currentMtime = 0
+      this.sendToClient({ event: 'file-complete', name, path: filePath })
+      this.resumeReceiver()
+    })
+    stream.end()
   }
 
   // ── send (upload) ───────────────────────────────────────────
@@ -1099,7 +1094,6 @@ class ZmodemSession {
       const stream = this.downloadStream
       this.downloadStream = null
       stream.destroy()
-      try { stream.end() } catch (e) { /* already destroyed */ }
     }
 
     if (this.uploadFd !== null && this.uploadFd !== undefined) {
@@ -1111,6 +1105,9 @@ class ZmodemSession {
       this.uploadFd = null
     }
 
+    this.receivePaused = false
+    this.receiveQueue = []
+    this.receiveQueueBytes = 0
     this.disarmWatchdog()
 
     // Only an aborted transfer leaves debris on the wire. A clean ZFIN
@@ -1274,7 +1271,7 @@ module.exports = {
   ZmodemSession,
   ZmodemManager,
   zmodemManager,
-  getFreeDownloadPath,
+  openDownloadFile,
   ZMODEM_STATE,
   ZMODEM_HEADER,
   WATCHDOG,

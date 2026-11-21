@@ -13,6 +13,7 @@ process.env.NODE_ENV = 'development'
 const { test, describe, beforeEach, afterEach } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
+const { once } = require('node:events')
 const os = require('node:os')
 const path = require('node:path')
 const { Sender, Receiver } = require('zmodem2')
@@ -21,7 +22,7 @@ const {
   ZmodemSession,
   ZMODEM_STATE,
   ZMODEM_HEADER,
-  getFreeDownloadPath
+  openDownloadFile
 } = require('../../../src/app/server/zmodem')
 
 // ─── wire harness ───────────────────────────────────────────────────────────
@@ -98,6 +99,12 @@ function zskipFrame () {
 
 // ─── environment ────────────────────────────────────────────────────────────
 
+function reserveDownloadPath (dir, name) {
+  const { filePath, fd } = openDownloadFile(dir, name)
+  fs.closeSync(fd)
+  return filePath
+}
+
 let tmpDir
 let clientEvents // messages the session pushed to the renderer
 let wsSent // raw buffers the session forwarded to the terminal UI
@@ -159,6 +166,21 @@ describe('zmodem session', () => {
       assert.strictEqual(s.idleScanTail.toString(), '**\x18')
       assert.strictEqual(s.handleData(frame.subarray(3)), true)
       assert.strictEqual(s.state, ZMODEM_STATE.WAITING_SAVE_PATH)
+    })
+
+    test('detects both init types at every signature split', () => {
+      for (const [frame, state] of [
+        [zrqinitFrame(), ZMODEM_STATE.WAITING_SAVE_PATH],
+        [zrinitFrame(), ZMODEM_STATE.WAITING_FILES]
+      ]) {
+        for (let split = 1; split < 6; split++) {
+          const s = makeSession(new Wire())
+          s.handleData(frame.subarray(0, split))
+          s.handleData(frame.subarray(split))
+          assert.equal(s.state, state)
+          s.destroy()
+        }
+      }
     })
 
     test('repeated stars are not withheld as protocol fragments', () => {
@@ -290,15 +312,19 @@ describe('zmodem session', () => {
       assert.ok(wsSent[0].toString().includes('user@host:~$ '))
     })
 
-    test('after the suppression window everything passes through again', () => {
+    test('traffic near the suppression deadline does not extend it', (t) => {
+      let now = 10000
+      t.mock.method(Date, 'now', () => now)
       const wire = new Wire()
       const s = makeSession(wire)
       s.handleData(zrqinitFrame())
       s.cancel()
-      // expire the window (and stop the auto-extension by making the
-      // next chunk arrive "late")
-      s.suppressNoiseUntil = Date.now() - 100
-      assert.strictEqual(s.handleData(Buffer.from('prompt$ ')), false)
+      const deadline = s.suppressNoiseUntil
+      now = deadline - 1
+      s.handleData(Buffer.from('still printing'))
+      assert.equal(s.suppressNoiseUntil, deadline)
+      now = deadline
+      assert.strictEqual(s.handleData(Buffer.from('ordinary output')), false)
     })
 
     test('endSession is idempotent', () => {
@@ -401,11 +427,13 @@ describe('zmodem session', () => {
   // ── receive (download) happy path ────────────────────────────────────────
 
   describe('receive', () => {
-    test('downloads a full file from a live sz endpoint', async () => {
+    test('downloads a multi-frame file across disk backpressure from a live sz endpoint', async () => {
       const wire = new Wire()
       const s = makeSession(wire)
 
-      const content = Buffer.from('electerm zmodem test payload\n'.repeat(200))
+      const content = Buffer.alloc(256 * 1024)
+      for (let i = 0; i < content.length; i++) content[i] = i & 0xff
+      const mtime = 1700000000000
       let remoteFinished = false
 
       // remote sz: initiator sender. `pumpRemoteAll` keeps draining the
@@ -445,12 +473,11 @@ describe('zmodem session', () => {
         while (guard++ < 1000) {
           pumpRemoteAll()
           if (!wire.raw.length) break
-          wire.flushTo(s, 7)
+          wire.flushTo(s, 4093)
         }
       }
 
-      // 1. sz announces itself (ZRQINIT); deliver in 7-byte chunks to
-      // stress the parser across split frames
+      // 1. sz announces itself (ZRQINIT).
       pumpRemoteAll()
       drainWire()
       assert.strictEqual(s.state, ZMODEM_STATE.WAITING_SAVE_PATH)
@@ -461,7 +488,7 @@ describe('zmodem session', () => {
       assert.strictEqual(s.state, ZMODEM_STATE.RECEIVING)
 
       // 3. remote starts the file
-      remote.startFile('hello.bin', content.length, 0)
+      remote.startFile('hello.bin', content.length, mtime)
       pumpRemoteAll()
       drainWire()
 
@@ -475,16 +502,20 @@ describe('zmodem session', () => {
       pumpRemoteAll()
       drainWire()
 
-      // let the write stream flush, the finish event land, and the
-      // remote ZFIN ack ripple through the wire one last time
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      drainWire()
-      await new Promise((resolve) => setTimeout(resolve, 50))
+      assert.ok(s.receivePaused)
+      assert.ok(s.receiveQueueBytes > 0)
+      const stream = s.downloadStream
+      while (s.downloadStream) {
+        const resumed = once(stream, stream.writableEnded ? 'finish' : 'drain')
+        await resumed
+        drainWire()
+      }
       drainWire()
 
       // file landed with the right content
       const saved = fs.readFileSync(path.join(tmpDir, 'hello.bin'))
       assert.strictEqual(saved.equals(content), true)
+      assert.equal(fs.statSync(prepared[0].path).mtimeMs, mtime)
       assert.ok(eventsOf('file-complete').length === 1)
 
       // session ended on both sides
@@ -493,22 +524,75 @@ describe('zmodem session', () => {
       assert.ok(eventsOf('session-end').length === 1)
     })
 
+    test('concurrent same-name downloads preserve both payloads', async () => {
+      const contents = ['first payload', 'second payload']
+      const downloads = contents.map((content) => {
+        const s = makeSession(new Wire())
+        s.handleData(zrqinitFrame())
+        s.setSavePath(tmpDir)
+        s.handleFileStart('same.bin', content.length, 0)
+        const target = s.downloadPath
+        const closed = once(s.downloadStream, 'close')
+        s.handleFileData(Buffer.from(content))
+        s.handleFileComplete()
+        return { target, closed, s }
+      })
+      assert.notEqual(downloads[0].target, downloads[1].target)
+      for (const [index, { target, closed, s }] of downloads.entries()) {
+        await closed
+        assert.equal(fs.readFileSync(target, 'utf8'), contents[index])
+        s.destroy()
+      }
+    })
+
+    test('a pending write failure reports an error without completing the file', async () => {
+      const s = makeSession(new Wire())
+      s.handleData(zrqinitFrame())
+      s.setSavePath(tmpDir)
+      s.handleFileStart('fail.bin', 8, 0)
+      const stream = s.downloadStream
+      const closed = new Promise(resolve => stream.once('close', resolve))
+      s.handleFileData(Buffer.from('inflight'))
+      s.handleFileComplete()
+      assert.equal(eventsOf('file-complete').length, 0)
+      stream.destroy(new Error('disk full'))
+      await closed
+      assert.match(eventsOf('transfer-error')[0].message, /disk full/)
+      assert.equal(eventsOf('file-complete').length, 0)
+      assert.equal(s.isActive(), false)
+    })
+
+    test('bounds input queued behind a blocked download stream', async () => {
+      const s = makeSession(new Wire())
+      s.handleData(zrqinitFrame())
+      s.setSavePath(tmpDir)
+      s.handleFileStart('slow.bin', 65536, 0)
+      const closed = once(s.downloadStream, 'close')
+      s.handleFileData(Buffer.alloc(65536))
+      assert.equal(s.receivePaused, true)
+      s.handleData(Buffer.alloc(5 * 1024 * 1024))
+      assert.equal(s.isActive(), false)
+      assert.equal(s.receiveQueueBytes, 0)
+      assert.equal(eventsOf('transfer-error').length, 1)
+      await closed
+    })
+
     test('existing file is not clobbered and keeps its extension', () => {
       fs.writeFileSync(path.join(tmpDir, 'dup.txt'), 'old')
-      const result = getFreeDownloadPath(tmpDir, 'dup.txt')
+      const result = reserveDownloadPath(tmpDir, 'dup.txt')
       assert.match(path.basename(result), /^dup\.[\w-]{7}\.txt$/)
       assert.strictEqual(fs.readFileSync(path.join(tmpDir, 'dup.txt'), 'utf8'), 'old')
     })
 
     test('existing file without extension keeps the id suffix', () => {
       fs.writeFileSync(path.join(tmpDir, 'Makefile'), 'old')
-      const result = getFreeDownloadPath(tmpDir, 'Makefile')
+      const result = reserveDownloadPath(tmpDir, 'Makefile')
       assert.match(path.basename(result), /^Makefile\.[\w-]{7}$/)
     })
 
     test('free file name is left untouched', () => {
       assert.strictEqual(
-        getFreeDownloadPath(tmpDir, 'fresh.txt'),
+        reserveDownloadPath(tmpDir, 'fresh.txt'),
         path.join(tmpDir, 'fresh.txt')
       )
     })
@@ -627,6 +711,49 @@ describe('zmodem session', () => {
       assert.strictEqual(s.handleData(Buffer.from('rz: error\r\n$ ')), true)
       assert.ok(wsSent.some((b) => b.toString().includes('$ ')))
     })
+  })
+
+  test('two terminal sessions transfer a batch including an empty file', { timeout: 5000 }, async (t) => {
+    const sources = ['', 'batch payload']
+    const files = sources.map((content, index) => {
+      const source = path.join(tmpDir, 'source-' + index)
+      fs.writeFileSync(source, content)
+      return { path: source, name: 'batch.txt', size: Buffer.byteLength(content) }
+    })
+    const output = path.join(tmpDir, 'downloads')
+    fs.mkdirSync(output)
+    const saved = []
+    const session = (peer, events) => {
+      let ended
+      const done = new Promise(resolve => { ended = resolve })
+      const handler = new ZmodemSession({
+        write: bytes => setImmediate(() => peer().handleData(bytes))
+      }, {
+        s: msg => {
+          if (msg.event === 'session-end') ended()
+          events.push(msg)
+        }
+      })
+      t.after(() => handler.destroy())
+      return { handler, done }
+    }
+    const sent = []
+    const upload = session(() => download.handler, sent)
+    const download = session(() => upload.handler, saved)
+    download.handler.handleData(zrqinitFrame())
+    download.handler.setSavePath(output)
+    // Allow the receiver's initial ZRINIT to reach the uploader.
+    await new Promise(resolve => setImmediate(resolve))
+    upload.handler.setSendFiles(files)
+    await Promise.all([upload.done, download.done])
+
+    for (const events of [sent, saved]) {
+      assert.equal(events.filter(e => e.event === 'transfer-error').length, 0)
+      assert.equal(events.filter(e => e.event === 'file-complete').length, 2)
+      assert.equal(events.at(-1).event, 'session-end')
+    }
+    const completed = saved.filter(e => e.event === 'file-complete')
+    assert.deepEqual(completed.map(e => fs.readFileSync(e.path, 'utf8')), sources)
   })
 
   // ── misc invariants ──────────────────────────────────────────────────────
