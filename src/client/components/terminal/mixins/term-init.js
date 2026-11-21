@@ -7,7 +7,7 @@ import {
   loadUnicode11Addon,
   loadImageAddon
 } from '../xterm-loader.js'
-import { handleStoppedSessionEnter } from '../session-end.js'
+import { canReloadWithEnter, handleStoppedSessionEnter } from '../session-end.js'
 import { CommandTrackerAddon } from '../command-tracker-addon.js'
 import { Osc52Addon } from '../osc52-addon.js'
 import { rendererTypes } from '../../../common/constants.js'
@@ -112,7 +112,7 @@ export const initMixin = {
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
     term.attachCustomKeyEventHandler(event => {
-      if (handleStoppedSessionEnter(event, this.state, this.handleReloadStoppedSession)) {
+      if (canReloadWithEnter(this.state) && handleStoppedSessionEnter(event, this.handleReloadStoppedSession)) {
         return false
       }
       return this.handleKeyboardEvent(event)

@@ -504,6 +504,7 @@ class Term extends Component {
             // alert says what went wrong, these are the way out of it. The two
             // do not stack - the alert is pinned to the top of the pane and
             // this one is centred, so the message stays readable.
+            active={isActive}
             stopped={this.state.sessionStopped}
             countdown={this.state.reconnectCountdown}
             reloadShortcut={reloadKeys.filter(Boolean).join(' / ')}

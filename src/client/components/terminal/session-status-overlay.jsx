@@ -1,9 +1,11 @@
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import { Button } from 'antd'
 import {
   ReloadOutlined,
   CloseOutlined
 } from '@ant-design/icons'
+
+import { handleStoppedSessionEnter } from './session-end.js'
 
 const e = window.translate
 
@@ -26,6 +28,7 @@ const e = window.translate
  * and that alert is pinned to the top of the pane, so neither hides the other.
  */
 export default memo(function SessionStatusOverlay ({
+  active,
   stopped,
   countdown,
   reloadShortcut,
@@ -34,6 +37,18 @@ export default memo(function SessionStatusOverlay ({
   onClose
 }) {
   const reconnecting = countdown !== null && countdown !== undefined
+  useEffect(() => {
+    if (!active || (!stopped && !reconnecting)) return
+    // A failed start can leave focus on the document body. Listen after
+    // document shortcuts and let focused controls handle their own Enter.
+    const onKeyDown = event => {
+      if (event.target === document.body && !event.defaultPrevented) {
+        handleStoppedSessionEnter(event, onReload)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [active, stopped, reconnecting, onReload])
   if (!reconnecting && !stopped) {
     return null
   }

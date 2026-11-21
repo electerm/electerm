@@ -85,15 +85,15 @@ describe('Enter to reload a stopped terminal session', () => {
   const stopped = { sessionStopped: true, reconnectCountdown: null }
 
   async function press (state, overrides = {}) {
-    const { handleStoppedSessionEnter } = await loadDecide()
+    const { canReloadWithEnter, handleStoppedSessionEnter } = await loadDecide()
     const calls = []
-    const handled = handleStoppedSessionEnter({
+    const handled = canReloadWithEnter(state) && handleStoppedSessionEnter({
       type: 'keydown',
       key: 'Enter',
       preventDefault: () => calls.push('prevent'),
       stopPropagation: () => calls.push('stop'),
       ...overrides
-    }, state, () => calls.push('reload'))
+    }, () => calls.push('reload'))
     return { handled, calls }
   }
 
