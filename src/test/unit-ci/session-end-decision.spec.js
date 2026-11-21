@@ -81,11 +81,10 @@ describe('session end decision', () => {
   })
 })
 
-describe('Enter to reload a stopped SSH session', () => {
+describe('Enter to reload a stopped terminal session', () => {
   const stopped = { sessionStopped: true, reconnectCountdown: null }
-  const ssh = { host: 'example', type: 'ssh' }
 
-  async function press (tab, state, overrides = {}) {
+  async function press (state, overrides = {}) {
     const { handleStoppedSessionEnter } = await loadDecide()
     const calls = []
     const handled = handleStoppedSessionEnter({
@@ -94,27 +93,25 @@ describe('Enter to reload a stopped SSH session', () => {
       preventDefault: () => calls.push('prevent'),
       stopPropagation: () => calls.push('stop'),
       ...overrides
-    }, tab, state, () => calls.push('reload'))
+    }, state, () => calls.push('reload'))
     return { handled, calls }
   }
 
   test('consumes Enter and reloads once, including during a retry countdown', async () => {
     const reloaded = { handled: true, calls: ['prevent', 'stop', 'reload'] }
-    assert.deepEqual(await press(ssh, stopped), reloaded)
-    assert.deepEqual(await press({ host: 'example' }, { sessionStopped: false, reconnectCountdown: 2 }), reloaded)
-    assert.deepEqual(await press(ssh, stopped, { repeat: true }), { handled: true, calls: ['prevent', 'stop'] })
+    assert.deepEqual(await press(stopped), reloaded)
+    assert.deepEqual(await press({ sessionStopped: false, reconnectCountdown: 2 }), reloaded)
+    assert.deepEqual(await press(stopped, { repeat: true }), { handled: true, calls: ['prevent', 'stop'] })
   })
 
-  test('leaves live sessions, other protocols, IME and modified keys alone', async () => {
+  test('leaves live sessions, IME and modified keys alone', async () => {
     const ignored = { handled: false, calls: [] }
-    assert.deepEqual(await press(ssh, { sessionStopped: false, reconnectCountdown: null }), ignored)
-    assert.deepEqual(await press({ type: 'local' }, stopped), ignored)
-    assert.deepEqual(await press({ ...ssh, type: 'telnet' }, stopped), ignored)
+    assert.deepEqual(await press({ sessionStopped: false, reconnectCountdown: null }), ignored)
     for (const overrides of [
       { isComposing: true }, { shiftKey: true }, { ctrlKey: true }, { altKey: true },
       { metaKey: true }, { type: 'keyup' }, { key: 'Escape' }
     ]) {
-      assert.deepEqual(await press(ssh, stopped, overrides), ignored)
+      assert.deepEqual(await press(stopped, overrides), ignored)
     }
   })
 })

@@ -112,7 +112,7 @@ export const initMixin = {
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
     term.attachCustomKeyEventHandler(event => {
-      if (handleStoppedSessionEnter(event, this.props.tab, this.state, this.handleReloadStoppedSession)) {
+      if (handleStoppedSessionEnter(event, this.state, this.handleReloadStoppedSession)) {
         return false
       }
       return this.handleKeyboardEvent(event)

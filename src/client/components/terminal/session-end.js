@@ -1,13 +1,11 @@
-import { isSshTab } from './ssh-reload-state.js'
-
-export function canReloadWithEnter (tab, { sessionStopped, reconnectCountdown }) {
-  return isSshTab(tab) && (sessionStopped || reconnectCountdown != null)
+export function canReloadWithEnter ({ sessionStopped, reconnectCountdown }) {
+  return sessionStopped || reconnectCountdown != null
 }
 
-export function handleStoppedSessionEnter (event, tab, state, reload) {
+export function handleStoppedSessionEnter (event, state, reload) {
   if (event.type !== 'keydown' || event.key !== 'Enter' ||
       event.isComposing || event.shiftKey || event.ctrlKey || event.altKey || event.metaKey ||
-      !canReloadWithEnter(tab, state)) {
+      !canReloadWithEnter(state)) {
     return false
   }
   event.preventDefault()

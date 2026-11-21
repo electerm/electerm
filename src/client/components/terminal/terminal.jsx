@@ -422,7 +422,7 @@ class Term extends Component {
     const { id } = this.props.tab
     const isActive = this.isActiveTerminal()
     const reloadKeys = [this.getShortcut('app_reloadCurrentTab')]
-    if (canReloadWithEnter(this.props.tab, this.state)) reloadKeys.push('Enter')
+    if (canReloadWithEnter(this.state)) reloadKeys.push('Enter')
     const cls = classnames(
       'term-wrap',
       'tw-' + id,
