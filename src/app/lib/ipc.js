@@ -80,6 +80,7 @@ const {
   unmaximize
 } = require('./window-control')
 const { openFileWithEditor } = require('./open-file-with-editor')
+const { launchNativeRdp, clearRdpCredential } = require('./native-rdp-win')
 const { loadFontList } = require('./font-list')
 // `../upgrade` pulls in the whole default-data set (db-defaults,
 // default-local-bookmarks, init-db, version-upgrade). Not needed to open the
@@ -157,6 +158,17 @@ function isTrustedIpcSender (event) {
   return event.sender === win.webContents &&
     !!event.senderFrame &&
     isSameOrigin(event.senderFrame.url, globalState.get('appOrigin'))
+}
+
+// ./native-rdp-win.js never fails a launch just because the Windows credential
+// could not be stored -- it reports that as a warning, mstsc then asks for the
+// password itself. The renderer only shows the connection result, so the
+// warnings are written to the main log where a bug report can find them.
+function logNativeRdpWarnings (res) {
+  for (const warning of (res && res.warnings) || []) {
+    log.warn('native rdp:', warning)
+  }
+  return res
 }
 
 // Electron 43 made file dialogs default to Downloads and stopped the OS from
@@ -376,6 +388,9 @@ function initIpc () {
     watchFile,
     unwatchFile,
     openFileWithEditor,
+    // open an RDP bookmark with the local Windows client, see ./native-rdp-win.js
+    launchNativeRdp: (...args) => launchNativeRdp(...args).then(logNativeRdpWarnings),
+    clearRdpCredential,
     listWidgets,
     // the panel mirrors this instead of remembering each run result, so a
     // reloaded renderer still knows what is running
