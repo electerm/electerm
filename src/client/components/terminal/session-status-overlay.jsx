@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import { Button } from 'antd'
 import {
   ReloadOutlined,
@@ -26,6 +26,8 @@ const e = window.translate
  * and that alert is pinned to the top of the pane, so neither hides the other.
  */
 export default memo(function SessionStatusOverlay ({
+  active,
+  terminalInput,
   stopped,
   countdown,
   reloadShortcut,
@@ -34,9 +36,29 @@ export default memo(function SessionStatusOverlay ({
   onClose
 }) {
   const reconnecting = countdown !== null && countdown !== undefined
-  if (!reconnecting && !stopped) {
-    return null
-  }
+  const visible = stopped || reconnecting
+  useEffect(() => {
+    if (!active || !visible) return
+
+    // A failed start can leave focus on body. After a disconnect, it can
+    // still be on this pane's xterm textarea, which handles keys at target.
+    const onKeyDown = event => {
+      if (event.key !== 'Enter' || event.defaultPrevented || event.isComposing ||
+          event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
+          (event.target !== document.body && event.target !== terminalInput)) return
+      const dialogs = document.querySelectorAll('.custom-modal-wrap, [aria-modal="true"]')
+      if (Array.from(dialogs).some(dialog => dialog.getClientRects().length)) return
+
+      event.preventDefault()
+      event.stopPropagation()
+      if (!event.repeat) onReload()
+    }
+    document.body.addEventListener('keydown', onKeyDown, true)
+    return () => document.body.removeEventListener('keydown', onKeyDown, true)
+  }, [active, visible, terminalInput, onReload])
+  if (!visible) return null
+
+  const reloadKeys = [reloadShortcut, 'Enter'].filter(Boolean).join(' / ')
   // The click must not reach `session.jsx`'s handleClick, which does
   // `store.activeTabId = this.props.tab.id`. It fires after this handler, so it
   // would point activeTabId back at the tab we are in the middle of replacing
@@ -60,11 +82,11 @@ export default memo(function SessionStatusOverlay ({
           <Button
             type='default'
             icon={<ReloadOutlined />}
-            title={`${e('reload')} (${reloadShortcut})`}
+            title={`${e('reload')} (${reloadKeys})`}
             onClick={stop(onReload)}
           >
             {e('reload')}
-            <span className='mg1l'>{reloadShortcut}</span>
+            <span className='mg1l'>{reloadKeys}</span>
           </Button>
         </p>
         <p>

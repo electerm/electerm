@@ -464,6 +464,7 @@ export const socketMixin = {
    * tab) as the shortcuts.
    */
   handleReloadStoppedSession () {
+    this.handleCancelAutoReconnect()
     this.props.reloadTab(this.props.tab)
   },
 
