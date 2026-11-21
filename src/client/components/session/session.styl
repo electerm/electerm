@@ -52,7 +52,9 @@
   position absolute
   overflow hidden
   z-index 3
-  padding-top 36px
+  // tab strip + optional bookmark bar (--bookmark-bar-height is set on the app
+  // root, main.jsx, from store.bookmarkBarHeight)
+  padding-top calc(36px + var(--bookmark-bar-height, 0px))
   box-shadow 0px 0px 1px 1px var(--main-darker)
   &.session-batch-active
     display block

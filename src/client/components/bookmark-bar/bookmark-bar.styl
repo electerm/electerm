@@ -1,0 +1,69 @@
+/**
+ * chrome-style bookmark bar under the tab strip.
+ *
+ * The height here has to match `bookmarkBarHeight` in common/constants.js: the
+ * session content is pushed down by that constant (sessions.jsx computeHeight
+ * and the --bookmark-bar-height padding in session.styl), so a taller bar here
+ * would paint over the terminal.
+ */
+
+.bookmark-bar
+  position relative
+  // above .sessions (z-index auto, background var(--main)), which is a sibling
+  // of the whole layout and would otherwise paint over this strip
+  z-index 11
+  display flex
+  align-items center
+  gap 2px
+  box-sizing border-box
+  height 28px
+  padding 0 6px
+  background var(--main)
+  border-bottom 1px solid var(--main-darker)
+  white-space nowrap
+  overflow hidden
+
+.bookmark-bar-item
+  display flex
+  align-items center
+  gap 4px
+  flex 0 0 auto
+  // long titles are capped and ellipsised rather than pushing the next item
+  // into the » menu
+  max-width 200px
+  height 22px
+  padding 0 6px
+  border-radius 3px
+  color var(--text)
+  font-size 12px
+  line-height 22px
+  cursor pointer
+  user-select none
+  &:hover
+    background var(--main-dark)
+
+.bookmark-bar-name
+  // .elli does the clipping; flex-shrink lets the title give way to the icon
+  flex 0 1 auto
+  min-width 0
+
+.bookmark-bar-folder-icon
+.bookmark-bar-menu-folder
+  flex none
+  color var(--text-dark)
+  font-size 12px
+
+.bookmark-bar-overflow
+  color var(--text-dark)
+  padding 0 4px
+  &:hover
+    color var(--text)
+
+.bookmark-bar-menu-item
+  display flex
+  align-items center
+  gap 4px
+  max-width 260px
+
+.bookmark-bar-menu-name
+  min-width 0

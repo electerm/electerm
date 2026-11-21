@@ -9,6 +9,7 @@ import {
   leftSidebarIconOptions,
   defaultLeftSideBarIcons
 } from '../../common/left-sidebar-icon-defs'
+import tr from '../../common/tr'
 
 const { Option } = Select
 const e = window.translate
@@ -43,7 +44,7 @@ export default function SettingLeftSidebarIcons (props) {
                 key={opt.id}
                 value={opt.id}
               >
-                {e(opt.text)}
+                {tr(opt.text, opt.fallback)}
               </Option>
             )
           })

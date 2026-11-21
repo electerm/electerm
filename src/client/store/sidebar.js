@@ -4,7 +4,8 @@
 
 import {
   openedSidebarKey,
-  sidebarPinnedKey
+  sidebarPinnedKey,
+  bookmarkBarVisibleKey
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
 
@@ -33,6 +34,17 @@ export default Store => {
       return
     }
     store.setOpenedSideBar(store.openedSideBar ? '' : field)
+  }
+
+  // The bookmark bar is a second way to show the same bookmarks, not a
+  // replacement for the tree: a user may keep the bar for quick access and
+  // still open the tree to manage them, the way chrome keeps the bar while the
+  // bookmark manager is open. So this does not touch openedSideBar.
+  Store.prototype.toggleBookmarkBar = function () {
+    const { store } = window
+    const willShow = !store._bookmarkBarVisible
+    store._bookmarkBarVisible = willShow
+    ls.setItem(bookmarkBarVisibleKey, willShow ? 'true' : 'false')
   }
 
   Store.prototype.handlePin = function (pinned) {
