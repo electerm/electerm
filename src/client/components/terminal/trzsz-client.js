@@ -100,8 +100,7 @@ export class TrzszClient extends TransferClientBase {
     } else {
       // User cancelled, end session
       this.sendToServer({
-        event: 'set-save-path',
-        path: null
+        event: 'cancel'
       })
       this.onSessionEnd()
     }
@@ -130,8 +129,7 @@ export class TrzszClient extends TransferClientBase {
     } else {
       // User cancelled, end session
       this.sendToServer({
-        event: 'send-files',
-        files: []
+        event: 'cancel'
       })
       this.onSessionEnd()
     }

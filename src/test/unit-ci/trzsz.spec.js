@@ -122,14 +122,6 @@ async function waitFor (cond, label, timeoutMs = 4000) {
   throw new Error(`timed out waiting for ${label}`)
 }
 
-/** Wait until every FileWriter has flushed and closed its stream. */
-async function waitForFlush (session) {
-  await waitFor(
-    () => session.fileWriters.every((w) => w.writeStream === null),
-    'file writers to flush'
-  )
-}
-
 /**
  * Byte comparison with a compact, useful failure message: how many bytes
  * differ, where the first one is, and what is actually on disk there.
@@ -169,7 +161,6 @@ async function receiveFile (session, peer, events, { name, src, config }) {
   const done = runPeer(peer, makeRemoteReader(name, src), config)
   session.handleData(TRZSZ_RECEIVE_MAGIC)
   await done
-  await waitForFlush(session)
   // The real remote prints "Success" once it has saved the file; that text is
   // what makes the session deliver session-complete and tear itself down.
   await waitFor(() => session._pendingComplete !== null, 'pending completion')
@@ -191,6 +182,45 @@ describe('trzsz session', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true })
   })
 
+  test('cancelling the save dialog ends the waiting receiver once', async () => {
+    const { session, peer, events } = makePair()
+    session.handleData(TRZSZ_RECEIVE_MAGIC)
+    await peer.recvAction()
+    await peer.sendConfig({}, [], undefined, 0)
+    await waitFor(() => session._savePathResolve, 'save dialog')
+    await session.cancel()
+    await new Promise(resolve => setImmediate(resolve))
+    assert.equal(session._savePathResolve, null)
+    assert.equal(events.filter(e => e.event === 'session-end').length, 1)
+    assert.ok(!events.some(e => e.event === 'session-error'))
+    session.destroy()
+  })
+
+  test('uploads negotiated chunks including status-like binary payloads', async () => {
+    const { session, peer } = makePair()
+    const src = Buffer.concat([makePattern(4096), Buffer.from('Saved file')])
+    const sourcePath = path.join(tmpDir, 'upload.bin')
+    fs.writeFileSync(sourcePath, src)
+    session.setSendFiles([sourcePath])
+    for (const byte of Buffer.from('::TRZSZGO:TRANSFER:R:1.0.0:test\r\n')) {
+      session.handleData(Buffer.from([byte]))
+    }
+    await peer.recvAction()
+    await peer.sendConfig({ binary: true, bufsize: 1024, timeout: 1 }, [], undefined, 0)
+    const chunks = []
+    await peer.recvFiles(null, async () => ({
+      getFileName: () => 'upload.bin',
+      getLocalName: () => 'upload.bin',
+      isDir: () => false,
+      writeFile: async data => chunks.push(Buffer.from(data)),
+      closeFile: () => {}
+    }))
+    await waitFor(() => session._pendingComplete, 'upload completion')
+    session.handleData(Buffer.from('Success'))
+    assert.deepEqual(chunks.map(chunk => chunk.length), [1024, 1024, 1024, 1024, 10])
+    assert.deepEqual(Buffer.concat(chunks), src)
+  })
+
   describe('download', () => {
     test('binary mode (tsz -b, empty escape_chars) writes a byte-exact file', async () => {
       const { session, peer, events } = makePair()
@@ -205,6 +235,31 @@ describe('trzsz session', () => {
         config
       })
       assertByteExact(actual, src, 'binary-mode download')
+    })
+
+    test('creates empty files and reports actual paths once for a batch', async () => {
+      fs.writeFileSync(path.join(tmpDir, 'a.txt'), 'existing')
+      const { session, peer, events } = makePair()
+      session.setSavePath(tmpDir)
+      session.handleData(TRZSZ_RECEIVE_MAGIC)
+      await peer.recvAction()
+      await peer.sendConfig({ binary: true, timeout: 1 }, [], undefined, 0)
+      await peer.sendFiles([
+        makeRemoteReader('a.txt', Buffer.from('abc')),
+        makeRemoteReader('empty', Buffer.alloc(0))
+      ])
+      await waitFor(() => session._pendingComplete, 'pending completion')
+      session.handleData(Buffer.from('Saved file'))
+      const summary = events.find(e => e.event === 'session-complete')
+      assert.equal(summary.totalBytes, 3)
+      assert.deepEqual(summary.files, ['a.1.txt', 'empty'].map(name => path.join(tmpDir, name)))
+      assert.deepEqual(summary.completedFiles.map(f => f.path), summary.files)
+      assert.equal(fs.readFileSync(summary.files[0], 'utf8'), 'abc')
+      assert.equal(fs.statSync(summary.files[1]).size, 0)
+      assert.equal(fs.readFileSync(path.join(tmpDir, 'a.txt'), 'utf8'), 'existing')
+      for (const event of ['file-start', 'file-complete']) {
+        assert.deepEqual(events.filter(e => e.event === event).map(e => e.name), ['a.txt', 'empty'])
+      }
     })
 
     test('base64 mode writes a byte-exact file', async () => {
