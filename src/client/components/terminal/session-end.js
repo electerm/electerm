@@ -1,18 +1,3 @@
-export function canReloadWithEnter ({ sessionStopped, reconnectCountdown }) {
-  return sessionStopped || reconnectCountdown != null
-}
-
-export function handleStoppedSessionEnter (event, reload) {
-  if (event.type !== 'keydown' || event.key !== 'Enter' ||
-      event.isComposing || event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
-    return false
-  }
-  event.preventDefault()
-  event.stopPropagation()
-  if (!event.repeat) reload()
-  return true
-}
-
 /**
  * Decide what a terminal pane does when its connection ends.
  *

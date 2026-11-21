@@ -50,6 +50,15 @@ test('Enter retries a failed SSH connection and reconnects after a network drop'
 
     server.listen(port, '127.0.0.1')
     await once(server, 'listening')
+    // Modified, composing and held keys must leave the stopped tab in place.
+    const failedTab = await page.evaluate(() => window.store.activeTabId)
+    await page.keyboard.press('Shift+Enter')
+    for (const extra of [{ isComposing: true }, { repeat: true }]) {
+      await page.evaluate(extra => document.activeElement.dispatchEvent(new window.KeyboardEvent('keydown', {
+        key: 'Enter', bubbles: true, cancelable: true, ...extra
+      })), extra)
+    }
+    expect(await page.evaluate(() => window.store.activeTabId)).toBe(failedTab)
     // Press the key wherever the failed connection naturally left focus.
     await page.keyboard.press('Enter')
     await page.getByRole('button', { name: 'Trust and Save' }).click({ timeout: 15000 })

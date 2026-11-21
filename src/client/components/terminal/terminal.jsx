@@ -19,7 +19,6 @@ import NormalBuffer from './normal-buffer.jsx'
 import createDefaultLogPath from '../../common/default-log-path.js'
 import SearchResultBar from './terminal-search-bar'
 import RemoteFloatControl from '../common/remote-float-control'
-import { canReloadWithEnter } from './session-end.js'
 import SessionStatusOverlay from './session-status-overlay.jsx'
 import TerminalErrorHandle from './terminal-error-handle.jsx'
 import DropFileModal from './drop-file-modal.jsx'
@@ -421,8 +420,6 @@ class Term extends Component {
     const { height, width, left, top, fullscreen } = this.props
     const { id } = this.props.tab
     const isActive = this.isActiveTerminal()
-    const reloadKeys = [this.getShortcut('app_reloadCurrentTab')]
-    if (canReloadWithEnter(this.state)) reloadKeys.push('Enter')
     const cls = classnames(
       'term-wrap',
       'tw-' + id,
@@ -505,9 +502,10 @@ class Term extends Component {
             // do not stack - the alert is pinned to the top of the pane and
             // this one is centred, so the message stays readable.
             active={isActive}
+            terminalInput={this.term?.textarea}
             stopped={this.state.sessionStopped}
             countdown={this.state.reconnectCountdown}
-            reloadShortcut={reloadKeys.filter(Boolean).join(' / ')}
+            reloadShortcut={this.getShortcut('app_reloadCurrentTab')}
             closeShortcut={this.getShortcut('app_closeCurrentTab')}
             onReload={this.handleReloadStoppedSession}
             onClose={this.handleCloseStoppedSession}

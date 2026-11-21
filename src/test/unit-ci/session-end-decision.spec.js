@@ -80,38 +80,3 @@ describe('session end decision', () => {
     )
   })
 })
-
-describe('Enter to reload a stopped terminal session', () => {
-  const stopped = { sessionStopped: true, reconnectCountdown: null }
-
-  async function press (state, overrides = {}) {
-    const { canReloadWithEnter, handleStoppedSessionEnter } = await loadDecide()
-    const calls = []
-    const handled = canReloadWithEnter(state) && handleStoppedSessionEnter({
-      type: 'keydown',
-      key: 'Enter',
-      preventDefault: () => calls.push('prevent'),
-      stopPropagation: () => calls.push('stop'),
-      ...overrides
-    }, () => calls.push('reload'))
-    return { handled, calls }
-  }
-
-  test('consumes Enter and reloads once, including during a retry countdown', async () => {
-    const reloaded = { handled: true, calls: ['prevent', 'stop', 'reload'] }
-    assert.deepEqual(await press(stopped), reloaded)
-    assert.deepEqual(await press({ sessionStopped: false, reconnectCountdown: 2 }), reloaded)
-    assert.deepEqual(await press(stopped, { repeat: true }), { handled: true, calls: ['prevent', 'stop'] })
-  })
-
-  test('leaves live sessions, IME and modified keys alone', async () => {
-    const ignored = { handled: false, calls: [] }
-    assert.deepEqual(await press({ sessionStopped: false, reconnectCountdown: null }), ignored)
-    for (const overrides of [
-      { isComposing: true }, { shiftKey: true }, { ctrlKey: true }, { altKey: true },
-      { metaKey: true }, { type: 'keyup' }, { key: 'Escape' }
-    ]) {
-      assert.deepEqual(await press(stopped, overrides), ignored)
-    }
-  })
-})
