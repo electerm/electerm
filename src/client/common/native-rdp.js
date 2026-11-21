@@ -6,7 +6,7 @@
  * would have to start mstsc.
  *
  * The work happens in the main process (src/app/lib/native-rdp-win.js, exposed
- * as 'launchNativeRdp' / 'clearRdpCredential' in src/app/lib/ipc.js).
+ * as 'launchNativeRdp' in src/app/lib/ipc.js).
  *
  * 'rdp' is spelled out instead of importing constants.js for the same reason
  * parse-quick-connect.js does: constants.js pulls in the logo .png files and
@@ -63,7 +63,6 @@ export async function openNativeRdp (tab) {
     host,
     port: tab.port,
     username: tab.username,
-    password: tab.password,
     domain: tab.domain,
     // the bookmark's own choice, same field the built-in client uses
     nla: tab.nla !== false
@@ -79,12 +78,9 @@ export async function openNativeRdp (tab) {
     ignored.push('connection hopping')
   }
   try {
-    const res = await window.pre.runGlobalAsync('launchNativeRdp', payload)
+    await window.pre.runGlobalAsync('launchNativeRdp', payload)
     if (ignored.length) {
       message.warning(`the local RDP client ignores ${ignored.join(' and ')}`)
-    }
-    if (tab.password && res && res.credentialStored === false) {
-      message.warning('the password could not be saved for the local RDP client, it will ask for it')
     }
     return true
   } catch (err) {

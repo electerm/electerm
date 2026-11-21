@@ -43,8 +43,6 @@ const rdpConfig = {
           label: 'Open with the local RDP client (Windows Only)',
           valuePropName: 'checked'
         },
-        // stores/forgets the Windows credential mstsc picks up (native-rdp-win.js)
-        { type: 'nativeRdpCredential', name: '__nativeRdpCredential__', label: '' },
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.rdp) },
         commonFields.username,
         commonFields.password,

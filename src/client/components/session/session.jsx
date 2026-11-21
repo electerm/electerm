@@ -262,7 +262,7 @@ export default class SessionWrapper extends Component {
         <div className='external-rdp-session'>
           <Space direction='vertical' align='center' size='middle'>
             <h3 role='status'>{statusText[status] || 'External RDP client'}</h3>
-            <div>Windows Remote Desktop runs in a separate window.</div>
+            <div>Use the separate Windows Remote Desktop window to sign in.</div>
             <Space wrap>
               <Button
                 loading={status === statusMap.processing}
