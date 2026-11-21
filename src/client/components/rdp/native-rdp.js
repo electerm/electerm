@@ -12,8 +12,8 @@
  * parse-quick-connect.js does: constants.js pulls in the logo .png files and
  * window, which would make this module unloadable under plain node.
  */
-import { isWin } from './platform.js'
-import message from '../components/common/message'
+import { isWin } from '../../common/platform.js'
+import message from '../common/message'
 
 const RDP_TYPE = 'rdp'
 

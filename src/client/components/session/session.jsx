@@ -29,7 +29,7 @@ import sanitizeFilename from '../../common/sanitize-filename.js'
 import { getRightClickBehavior } from '../../common/right-click-behavior.js'
 import SessionControl from './session-control'
 import NativeRdpSession from '../rdp/native-rdp-session.jsx'
-import { isNativeRdpTab } from '../../common/native-rdp.js'
+import { isNativeRdpTab } from '../rdp/native-rdp.js'
 import LazyBoundary from '../common/lazy-boundary'
 import './session.styl'
 

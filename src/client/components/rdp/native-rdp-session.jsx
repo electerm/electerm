@@ -1,7 +1,7 @@
 import { Component } from 'manate/react/class-components'
 import { Button, Space } from 'antd'
 import { statusMap } from '../../common/constants'
-import { openNativeRdp } from '../../common/native-rdp.js'
+import { openNativeRdp } from './native-rdp.js'
 
 const launchStatusText = {
   [statusMap.success]: 'Opened with the external RDP client',

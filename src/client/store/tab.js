@@ -20,7 +20,7 @@ import { action } from 'manate'
 import { shouldCaptureTerminalReloadState } from '../components/terminal/ssh-reload-state.js'
 import dangerousSessionFields from '../common/dangerous-session-fields'
 import { distributeTabsEvenly } from '../common/distribute-tabs'
-import { isNativeRdpTab } from '../common/native-rdp.js'
+import { isNativeRdpTab } from '../components/rdp/native-rdp.js'
 
 function captureSshSessionState (tab, config) {
   return shouldCaptureTerminalReloadState(tab, config)
