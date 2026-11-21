@@ -18,10 +18,6 @@ const TRZSZ_MAGIC_KEY_PREFIX_BUFFER = Buffer.from('::TRZSZ:TRANSFER:')
 const TRZSZ_GO_MAGIC_KEY_PREFIX_BUFFER = Buffer.from('::TRZSZGO:TRANSFER:')
 const TRZSZ_SUCCESS_BUFFER = Buffer.from('Success')
 const TRZSZ_SAVED_BUFFER = Buffer.from('Saved')
-const TRZSZ_SAVED_FILE_BUFFER = Buffer.from('Saved file')
-const TRZSZ_SAVED_DIR_BUFFER = Buffer.from('Saved directory')
-const READ_CHUNK_SIZE = 10 * 1024 * 1024
-const WRITE_HIGH_WATER_MARK = 10 * 1024 * 1024
 const PROGRESS_INTERVAL_MS = 300
 const COMPLETION_TIMEOUT_MS = 5000
 /**
@@ -37,15 +33,11 @@ class FileReader {
     this.pathId = 0
     this.relPath = [fileName]
     this.isDirectory = false
-    this._cacheBuffer = null
-    this._cacheOffset = 0
-    this._cacheEnd = 0
   }
 
   async open () {
-    const stats = fs.statSync(this.filePath)
-    this.size = stats.size
     this.fileHandle = await open(this.filePath, 'r')
+    this.size = (await this.fileHandle.stat()).size
   }
 
   getPathId () { return this.pathId }
@@ -53,28 +45,11 @@ class FileReader {
   isDir () { return this.isDirectory }
   getSize () { return this.size }
   async readFile (buf) {
-    if (this._cacheBuffer && this._cacheOffset < this._cacheEnd) {
-      const available = this._cacheEnd - this._cacheOffset
-      const result = new Uint8Array(this._cacheBuffer.buffer, this._cacheBuffer.byteOffset + this._cacheOffset, available)
-      this._cacheOffset = this._cacheEnd
-      this.offset += available
-      return result
-    }
-
-    const remaining = this.size - this.offset
-    if (remaining <= 0) return new Uint8Array(0)
-
-    const readSize = Math.min(READ_CHUNK_SIZE, remaining)
-    if (!this._cacheBuffer || this._cacheBuffer.byteLength < readSize) {
-      this._cacheBuffer = Buffer.allocUnsafe(readSize)
-    }
-    const { bytesRead } = await this.fileHandle.read(this._cacheBuffer, 0, readSize, this.offset)
-    if (bytesRead === 0) return new Uint8Array(0)
-
+    const chunk = new Uint8Array(buf, 0, Math.min(buf.byteLength, this.size - this.offset))
+    const { bytesRead } = await this.fileHandle.read(chunk, 0, chunk.length, this.offset)
+    if (!bytesRead && this.offset < this.size) throw new Error('Unexpected end of file')
     this.offset += bytesRead
-    this._cacheOffset = bytesRead
-    this._cacheEnd = bytesRead
-    return new Uint8Array(this._cacheBuffer.buffer, this._cacheBuffer.byteOffset, bytesRead)
+    return chunk.subarray(0, bytesRead)
   }
 
   async closeFile () {
@@ -82,94 +57,42 @@ class FileReader {
       await this.fileHandle.close().catch(() => {})
       this.fileHandle = null
     }
-    this._cacheBuffer = null
-    this._cacheOffset = 0
-    this._cacheEnd = 0
   }
 }
 
-/**
- * Optimized FileWriter - buffered writes with backpressure handling
- */
 class FileWriter {
-  constructor (filePath, fileName) {
+  constructor (fileHandle, filePath, fileName) {
+    this.fileHandle = fileHandle
     this.filePath = filePath
     this.fileName = fileName
-    this.localName = fileName
-    this.isDirectory = false
-    this.writeStream = null
-    this._drainPromise = null
+    this.closePromise = null
   }
 
   getFileName () { return this.fileName }
-  getLocalName () { return this.localName }
-  isDir () { return this.isDirectory }
-  _ensureStream () {
-    if (this.writeStream === null) {
-      this.writeStream = fs.createWriteStream(this.filePath, {
-        highWaterMark: WRITE_HIGH_WATER_MARK,
-        flags: 'w'
-      })
-      this.writeStream.on('error', (err) => {
-        log.error('FileWriter stream error:', err)
-      })
-    }
-  }
+  getLocalName () { return path.basename(this.filePath) }
+  isDir () { return false }
 
   async writeFile (buf) {
-    this._ensureStream()
-    // Never hand the caller's buffer straight to the stream.
-    //
-    // In binary mode (tsz -b) the remote announces `escape_chars: []`, so
-    // TrzszBuffer.readBinary() returns a view over its own reusable arrBuf
-    // and unescapeData() passes that view through untouched. A WriteStream
-    // keeps the reference until the data actually reaches the file, so the
-    // very next protocol read (the next `#DATA:<len>\n` header, or the
-    // trailing `#MD5:` line) rewrites arrBuf offset 0 while this chunk is
-    // still queued — and the file on disk comes out with protocol text
-    // spliced into it. Copy so the bytes we queued are ours.
-    const chunk = Buffer.from(
-      buf instanceof ArrayBuffer ? new Uint8Array(buf) : buf
-    )
-    const canContinue = this.writeStream.write(chunk)
-    if (!canContinue) {
-      if (!this._drainPromise) {
-        this._drainPromise = new Promise((resolve) => {
-          this.writeStream.once('drain', () => {
-            this._drainPromise = null
-            resolve()
-          })
-        })
-      }
-      await this._drainPromise
-    }
+    // Await the write before the protocol reuses its receive buffer.
+    await this.fileHandle.writeFile(buf)
+  }
+
+  closeFile () {
+    if (!this.closePromise) this.closePromise = this.fileHandle.close()
+    return this.closePromise
   }
 
   async deleteFile () {
-    await this._closeStream()
+    await this.closeFile()
+    await fs.promises.unlink(this.filePath)
     return this.filePath
   }
-
-  async _closeStream () {
-    if (this.writeStream !== null) {
-      return new Promise((resolve) => {
-        this.writeStream.end(() => {
-          this.writeStream = null
-          resolve()
-        })
-      })
-    }
-  }
-
-  async closeFile () {
-    await this._closeStream()
-  }
 }
-/**
- * Optimized TrzszSession - event-driven, minimal allocations
- */
+
 class TrzszSession {
   constructor (term, ws) {
+    this.magicSuffix = null
+    this.readingMagicLine = false
     this.term = term
     this.ws = ws
     this.state = TRZSZ_STATE.IDLE
@@ -255,13 +178,9 @@ class TrzszSession {
     }
     if (this._pendingComplete) {
       const buf = Buffer.isBuffer(data) ? data : Buffer.from(data)
-      if (buf.indexOf(TRZSZ_SUCCESS_BUFFER) >= 0) {
+      if (buf.includes(TRZSZ_SUCCESS_BUFFER) || buf.includes(TRZSZ_SAVED_BUFFER)) {
         this.sendToClient(this._pendingComplete)
         this._pendingComplete = null
-        this.endSession()
-        return true
-      }
-      if (buf.indexOf(TRZSZ_SAVED_BUFFER) >= 0) {
         this.endSession()
         return true
       }
@@ -271,19 +190,31 @@ class TrzszSession {
       }
     }
     if (this.state === TRZSZ_STATE.RECEIVING || this.state === TRZSZ_STATE.SENDING) {
-      this.transfer.addReceivedData(data)
+      if (this.readingMagicLine) {
+        const buf = Buffer.isBuffer(data) ? data : Buffer.from(data)
+        if (buf[0] === 35) {
+          // Some peers start the first protocol frame directly after the marker.
+          this.transfer.addReceivedData(buf)
+        } else {
+          const end = buf.indexOf(10)
+          if (end < 0) return true
+          if (end + 1 < buf.length) this.transfer.addReceivedData(buf.subarray(end + 1))
+        }
+        this.readingMagicLine = false
+      } else {
+        this.transfer.addReceivedData(data)
+      }
       return true
     }
-    const detected = this.detectTrzszStart(data)
+    let buf = Buffer.isBuffer(data) ? data : Buffer.from(data)
+    if (this.magicSuffix) {
+      buf = Buffer.concat([this.magicSuffix, buf])
+      this.magicSuffix = null
+    }
+    const detected = this.detectTrzszStart(buf)
     if (detected) {
-      // Extract any data AFTER the magic key line to feed to the buffer.
-      // The magic key itself is terminal output, NOT a protocol message —
-      // feeding it to the buffer pollutes recvLine's junk handling and can
-      // cause deadlocks or parse errors depending on \r\n patterns.
-      // This aligns with how TrzszFilter (reference impl) works: it never
-      // feeds the magic-key-containing output to addReceivedData.
-      const buf = Buffer.isBuffer(data) ? data : Buffer.from(data)
-      const newlineIdx = buf.indexOf(10, detected.offset) // find \n ending magic key line
+      const newlineIdx = buf.indexOf(10, detected.offset)
+      this.readingMagicLine = newlineIdx < 0
       const trailing = (newlineIdx >= 0 && newlineIdx + 1 < buf.length)
         ? buf.slice(newlineIdx + 1)
         : null
@@ -298,6 +229,10 @@ class TrzszSession {
       }
       return true
     }
+    // Remember a possible split marker without delaying normal terminal output.
+    const tail = buf.subarray(-TRZSZ_GO_MAGIC_KEY_PREFIX_BUFFER.length)
+    const colon = tail.indexOf(58)
+    if (colon >= 0) this.magicSuffix = Buffer.from(tail.subarray(colon))
     return false
   }
 
@@ -311,6 +246,7 @@ class TrzszSession {
   }
 
   async startUploadProcess () {
+    const transfer = this.transfer
     try {
       this._cancelling = false
       this._setNoDelay(true)
@@ -323,7 +259,8 @@ class TrzszSession {
         event: 'send-start',
         message: 'TRZSZ send session started, please select files'
       })
-      await this.transfer.recvConfig()
+      await transfer.recvConfig()
+      if (this.transfer !== transfer) return
 
       const files = await this._waitForFiles()
       if (this.state !== TRZSZ_STATE.SENDING) return
@@ -331,7 +268,13 @@ class TrzszSession {
         const filePath = typeof file === 'string' ? file : file.path
         return new FileReader(filePath, path.basename(filePath))
       })
-      await Promise.all(this.fileReaders.map(r => r.open()))
+      for (const reader of this.fileReaders) {
+        await reader.open()
+        if (this.transfer !== transfer) {
+          await reader.closeFile()
+          return
+        }
+      }
       this.totalBytes = this.fileReaders.reduce((sum, r) => sum + r.size, 0)
       this.transferStartTime = Date.now()
 
@@ -358,11 +301,10 @@ class TrzszSession {
           this.endSession()
         }
       }, COMPLETION_TIMEOUT_MS)
-      await this.transfer.clientExit('Success')
-      await Promise.all(this.fileReaders.map(r => r.closeFile()))
       this.state = TRZSZ_STATE.IDLE
+      await transfer.clientExit('Success')
     } catch (err) {
-      if (this._cancelling) {
+      if (this._cancelling || this.transfer !== transfer) {
         log.info('Trzsz upload cancelled by user')
       } else {
         log.error('Trzsz upload error:', err)
@@ -378,16 +320,6 @@ class TrzszSession {
         this.sendToClient({ event: 'file-count', count: num })
       },
       onName: (name) => {
-        if (this.currentTransfer && this.currentTransfer.size > 0) {
-          this.completedFiles.push({
-            name: this.currentTransfer.name,
-            size: this.currentTransfer.size,
-            ...(type === 'download' ? { path: this.downloadPath } : {})
-          })
-          if (type === 'download') {
-            this.totalBytes += this.currentTransfer.size
-          }
-        }
         this.currentTransfer = { name, size: 0 }
         if (!this.transferStartTime) {
           this.transferStartTime = Date.now()
@@ -409,7 +341,7 @@ class TrzszSession {
         }
       },
       onDone: () => {
-        if (this.currentTransfer && this.currentTransfer.size > 0) {
+        if (this.currentTransfer) {
           this.completedFiles.push({
             name: this.currentTransfer.name,
             size: this.currentTransfer.size,
@@ -430,28 +362,7 @@ class TrzszSession {
 
   createTransfer () {
     this.transfer = new TrzszTransfer((data) => {
-      if (typeof data === 'string') {
-        if (
-          data.length < 200 &&
-          (data.includes('Saved file') || data.includes('Saved directory'))
-        ) {
-          return
-        }
-        this.writeToTerminal(data)
-        return
-      }
-
-      // In binary mode, sendData passes Uint8Array directly.
-      // Convert to Buffer for reliable channel.write() compatibility.
-      const buf = Buffer.isBuffer(data) ? data : Buffer.from(data)
-      if (
-        buf.length < 200 &&
-        (buf.indexOf(TRZSZ_SAVED_FILE_BUFFER) >= 0 ||
-        buf.indexOf(TRZSZ_SAVED_DIR_BUFFER) >= 0)
-      ) {
-        return
-      }
-      this.writeToTerminal(buf)
+      this.writeToTerminal(typeof data === 'string' ? data : Buffer.from(data))
     }, false)
 
     return this.transfer
@@ -485,13 +396,16 @@ class TrzszSession {
   }
 
   async _runReceiverHandshake () {
+    const transfer = this.transfer
     try {
       await this.transfer.sendAction(true, false)
-      await this.transfer.recvConfig()
+      await transfer.recvConfig()
+      if (this.transfer !== transfer) return
       await this._waitForSavePath()
       if (this.state !== TRZSZ_STATE.RECEIVING) return
       await this._startFileReceiving()
     } catch (err) {
+      if (this._cancelling || this.transfer !== transfer) return
       log.error('Trzsz receiver handshake error:', err)
       this.sendToClient({ event: 'session-error', error: err.message })
       this.endSession()
@@ -499,6 +413,7 @@ class TrzszSession {
   }
 
   async _startFileReceiving () {
+    const transfer = this.transfer
     try {
       const downloadDir = this.savePath
       if (!fs.existsSync(downloadDir)) {
@@ -506,21 +421,13 @@ class TrzszSession {
       }
 
       const openSaveFile = async (saveParam, fileName, directory, overwrite) => {
-        const filePath = this.getUniqueFilePath(downloadDir, fileName)
-        const writer = new FileWriter(filePath, fileName)
-        this.fileWriters.push(writer)
-        if (this.currentTransfer) {
-          this.sendToClient({
-            event: 'file-complete',
-            name: this.currentTransfer.name,
-            path: this.downloadPath
-          })
+        const writer = await this.openDownloadFile(downloadDir, fileName)
+        if (this.transfer !== transfer) {
+          await writer.deleteFile()
+          throw new Error('Transfer ended')
         }
-        this.currentTransfer = { name: fileName, size: 0 }
-        this.downloadPath = filePath
-        this.transferredBytes = 0
-        this.startTime = Date.now()
-        this.sendToClient({ event: 'file-start', name: fileName, size: 0 })
+        this.fileWriters.push(writer)
+        this.downloadPath = writer.filePath
         return writer
       }
       const progressCallback = this._createProgressCallback('download')
@@ -530,7 +437,7 @@ class TrzszSession {
         progressCallback
       )
 
-      const savedFilePaths = savedFiles.map(name => path.join(downloadDir, sanitizeFilename(name)))
+      const savedFilePaths = savedFiles.map(name => path.join(downloadDir, name))
       await Promise.all(this.fileWriters.map(w => w.closeFile()))
       const totalElapsed = this.transferStartTime > 0
         ? (Date.now() - this.transferStartTime) / 1000
@@ -557,7 +464,7 @@ class TrzszSession {
       this.state = TRZSZ_STATE.IDLE
       await this.transfer.clientExit('Success')
     } catch (err) {
-      if (this._cancelling) {
+      if (this._cancelling || this.transfer !== transfer) {
         log.info('Trzsz download cancelled by user')
       } else {
         log.error('Trzsz download error:', err)
@@ -567,18 +474,18 @@ class TrzszSession {
     }
   }
 
-  getUniqueFilePath (dir, fileName) {
+  async openDownloadFile (dir, fileName) {
     const safeName = sanitizeFilename(fileName)
-    let filePath = path.join(dir, safeName)
-    if (!fs.existsSync(filePath)) return filePath
     const ext = path.extname(safeName)
-    const baseName = path.basename(safeName, ext)
-    let counter = 1
-    while (fs.existsSync(filePath)) {
-      filePath = path.join(dir, `${baseName}.${counter}${ext}`)
-      counter++
+    const base = path.basename(safeName, ext)
+    for (let i = 0; ; i++) {
+      const filePath = path.join(dir, i ? `${base}.${i}${ext}` : safeName)
+      try {
+        return new FileWriter(await open(filePath, 'wx'), filePath, fileName)
+      } catch (err) {
+        if (err.code !== 'EEXIST') throw err
+      }
     }
-    return filePath
   }
 
   sendProgress () {
@@ -634,8 +541,12 @@ class TrzszSession {
       this._filesResolve([])
       this._filesResolve = null
     }
+    if (this._savePathResolve) {
+      this._savePathResolve(null)
+      this._savePathResolve = null
+    }
     for (const writer of this.fileWriters) {
-      try { writer.closeFile() } catch (e) { log.error('Error closing file writer', e) }
+      writer.closeFile().catch(e => log.error('Error closing file writer', e))
     }
     for (const reader of this.fileReaders) {
       try { reader.closeFile() } catch (e) { log.error('Error closing file reader', e) }
@@ -652,7 +563,8 @@ class TrzszSession {
     this.pendingFiles = []
     this.fileReaders = []
     this.fileWriters = []
-    this.pendingData = []
+    this.magicSuffix = null
+    this.readingMagicLine = false
     this.savePath = null
     this.completedFiles = []
     this.totalBytes = 0
@@ -696,6 +608,7 @@ class TrzszSession {
   }
 
   destroy () {
+    this.transfer?.stopTransferring()
     this.endSession()
     this.term = null
     this.ws = null
