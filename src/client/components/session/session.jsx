@@ -9,8 +9,6 @@ import {
   FullscreenOutlined
 } from '@ant-design/icons'
 import {
-  Button,
-  Space,
   Tooltip,
   Splitter
 } from 'antd'
@@ -19,7 +17,6 @@ import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
   paneMap,
-  statusMap,
   terminalRdpType,
   terminalVncType,
   terminalWebType,
@@ -31,6 +28,7 @@ import { refs } from '../common/ref'
 import sanitizeFilename from '../../common/sanitize-filename.js'
 import { getRightClickBehavior } from '../../common/right-click-behavior.js'
 import SessionControl from './session-control'
+import NativeRdpSession from '../rdp/native-rdp-session.jsx'
 import { isNativeRdpTab } from '../../common/native-rdp.js'
 import LazyBoundary from '../common/lazy-boundary'
 import './session.styl'
@@ -252,34 +250,7 @@ export default class SessionWrapper extends Component {
       )
     }
     if (isNativeRdpTab(tab)) {
-      const { id, status } = tab
-      const statusText = {
-        [statusMap.success]: 'Opened with the external RDP client',
-        [statusMap.processing]: 'Opening the external RDP client?',
-        [statusMap.error]: 'Could not open the external RDP client'
-      }
-      return (
-        <div className='external-rdp-session'>
-          <Space direction='vertical' align='center' size='middle'>
-            <h3 role='status'>{statusText[status] || 'External RDP client'}</h3>
-            <div>Use the separate Windows Remote Desktop window to sign in.</div>
-            <Space wrap>
-              <Button
-                loading={status === statusMap.processing}
-                onClick={() => window.store.launchNativeRdpTab(id)}
-              >
-                Open in Remote Desktop
-              </Button>
-              <Button
-                type='primary'
-                onClick={() => this.editTab({ nativeRdp: false, status: statusMap.processing })}
-              >
-                Switch to built-in RDP
-              </Button>
-            </Space>
-          </Space>
-        </div>
-      )
+      return <NativeRdpSession tab={tab} editTab={this.props.editTab} />
     }
     if (type === terminalRdpType || type === terminalVncType || type === terminalSpiceType) {
       const rdpProps = {

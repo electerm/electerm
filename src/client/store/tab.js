@@ -20,7 +20,7 @@ import { action } from 'manate'
 import { shouldCaptureTerminalReloadState } from '../components/terminal/ssh-reload-state.js'
 import dangerousSessionFields from '../common/dangerous-session-fields'
 import { distributeTabsEvenly } from '../common/distribute-tabs'
-import { isNativeRdpTab, openNativeRdp } from '../common/native-rdp.js'
+import { isNativeRdpTab } from '../common/native-rdp.js'
 
 function captureSshSessionState (tab, config) {
   return shouldCaptureTerminalReloadState(tab, config)
@@ -439,22 +439,6 @@ export default Store => {
     store.activeTabId = newTab.id
     store.currentLayoutBatch = batchNum
     store.updateHistory(newTab)
-    if (isNativeRdpTab(newTab)) {
-      store.launchNativeRdpTab(newTab.id)
-    }
-  }
-
-  Store.prototype.launchNativeRdpTab = async function (id) {
-    const { store } = window
-    const tab = store.tabs.find(tab => tab.id === id)
-    if (!isNativeRdpTab(tab)) {
-      return
-    }
-    store.updateTab(id, { status: statusMap.processing })
-    const opened = await openNativeRdp(tab)
-    if (tab.nativeRdp) {
-      store.updateTab(id, { status: opened ? statusMap.success : statusMap.error })
-    }
   }
 
   Store.prototype.ipcOpenTab = function (parsed) {
