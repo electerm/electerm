@@ -6,14 +6,14 @@
  * would have to start mstsc.
  *
  * The work happens in the main process (src/app/lib/native-rdp-win.js, exposed
- * as 'launchNativeRdp' / 'clearRdpCredential' in src/app/lib/ipc.js).
+ * as 'launchNativeRdp' in src/app/lib/ipc.js).
  *
  * 'rdp' is spelled out instead of importing constants.js for the same reason
  * parse-quick-connect.js does: constants.js pulls in the logo .png files and
  * window, which would make this module unloadable under plain node.
  */
-import { isWin } from './platform.js'
-import message from '../components/common/message'
+import { isWin } from '../../common/platform.js'
+import message from '../common/message'
 
 const RDP_TYPE = 'rdp'
 
@@ -48,23 +48,21 @@ function errorText (err) {
 }
 
 /**
- * Start the local client. Never throws: addTab is synchronous and the user gets
- * the result as a message.
+ * Start the local client and report whether its process launched.
  * @param {object} tab
- * @returns {Promise<*>}
+ * @returns {Promise<boolean>}
  */
-export function openNativeRdp (tab) {
+export async function openNativeRdp (tab) {
   if (!window.pre || typeof window.pre.runGlobalAsync !== 'function') {
     // same guard host-check.jsx uses: 'not available in this version'
     message.error('the local RDP client is not available in this build')
-    return
+    return false
   }
   const host = tab.host || ''
   const payload = {
     host,
     port: tab.port,
     username: tab.username,
-    password: tab.password,
     domain: tab.domain,
     // the bookmark's own choice, same field the built-in client uses
     nla: tab.nla !== false
@@ -79,19 +77,14 @@ export function openNativeRdp (tab) {
   if (tab.connectionHoppings && tab.connectionHoppings.length) {
     ignored.push('connection hopping')
   }
-  return window.pre.runGlobalAsync('launchNativeRdp', payload)
-    .then(res => {
-      message.success(`opened ${host} with the local RDP client`)
-      if (ignored.length) {
-        message.warning(`the local RDP client ignores ${ignored.join(' and ')}`)
-      }
-      // cmdkey refused the password (a double quote in it, most likely): the
-      // connection still opens, mstsc just asks for the password itself
-      if (tab.password && res && res.credentialStored === false) {
-        message.warning('the password could not be saved for the local RDP client, it will ask for it')
-      }
-    })
-    .catch(err => {
-      message.error(`cannot open ${host} with the local RDP client: ${errorText(err)}`)
-    })
+  try {
+    await window.pre.runGlobalAsync('launchNativeRdp', payload)
+    if (ignored.length) {
+      message.warning(`the local RDP client ignores ${ignored.join(' and ')}`)
+    }
+    return true
+  } catch (err) {
+    message.error(`cannot open ${host} with the local RDP client: ${errorText(err)}`)
+    return false
+  }
 }

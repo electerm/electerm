@@ -1,6 +1,6 @@
 /**
- * The local RDP launcher hands values from a bookmark to two Windows binaries
- * (cmdkey.exe, mstsc.exe). A bookmark can arrive from a synced file, a deep
+ * The local RDP launcher hands connection settings to mstsc.exe. A bookmark
+ * can arrive from a synced file, a deep
  * link, an import or an AI caller, so what ends up in the argv and in the temp
  * `.rdp` file is pinned here: a line break must not be able to append settings
  * to the `.rdp` file, the password must never be written to that file, and a
@@ -88,23 +88,21 @@ test('buildRdpFileContent writes the connection without the password', () => {
     port: 3390,
     username: 'admin',
     domain: 'CORP',
-    hasPassword: true,
+    password: 'secret',
     nla: true
   })
 
   assert.match(content, /^full address:s:192\.168\.1\.10:3390\r\n/)
   assert.match(content, /\r\nusername:s:admin\r\n/)
   assert.match(content, /\r\ndomain:s:CORP$/)
-  assert.match(content, /prompt for credentials:i:0/)
+  assert.doesNotMatch(content, /prompt for credentials/)
   assert.match(content, /enablecredsspsupport:i:1/)
   assert.ok(!/password/i.test(content), 'the .rdp file must not carry the password')
 })
 
-test('buildRdpFileContent asks for the password when none is stored', () => {
+test('buildRdpFileContent defaults to port 3389 and enables NLA', () => {
   const { buildRdpFileContent } = getMod()
-  const content = buildRdpFileContent({ host: 'h', hasPassword: false })
-  assert.match(content, /prompt for credentials:i:1/)
-  // default port, and the bookmark's NLA choice defaults to on
+  const content = buildRdpFileContent({ host: 'h' })
   assert.match(content, /full address:s:h:3389/)
   assert.match(content, /enablecredsspsupport:i:1/)
 })
@@ -143,90 +141,7 @@ test('buildRdpFileContent leaves out a domain the user name already carries', ()
   assert.ok(!/domain:s:/.test(content))
 })
 
-test('credentialTargets covers the port mstsc may look up', () => {
-  const { credentialTargets } = getMod()
-  assert.deepEqual(
-    credentialTargets({ host: 'h', port: 3389 }),
-    ['TERMSRV/h']
-  )
-  assert.deepEqual(
-    credentialTargets({ host: 'h', port: 3390 }),
-    ['TERMSRV/h', 'TERMSRV/h:3390']
-  )
-  assert.deepEqual(credentialTargets({ host: 'h' }), ['TERMSRV/h'])
-})
-
-test('qualifiedUser does not prefix a user name that has its domain', () => {
-  const { qualifiedUser } = getMod()
-  assert.equal(qualifiedUser({ username: 'admin', domain: 'CORP' }), 'CORP\\admin')
-  assert.equal(qualifiedUser({ username: 'CORP\\admin', domain: 'CORP' }), 'CORP\\admin')
-  assert.equal(qualifiedUser({ username: 'admin@corp.com', domain: 'CORP' }), 'admin@corp.com')
-  assert.equal(qualifiedUser({ username: 'admin' }), 'admin')
-  assert.equal(qualifiedUser({}), '')
-})
-
-test('buildCmdkeyArgs quotes a value carrying a space, for cmdkey own parser', () => {
-  const { buildCmdkeyArgs } = getMod()
-  // cmdkey splits its command line at spaces and only honours a quote that
-  // reaches it verbatim, so the quotes go inside the argument and runCmdkey
-  // spawns the argv verbatim. Wrapping the whole argument instead makes cmdkey
-  // answer "this parameter requires /U" and store nothing.
-  assert.deepEqual(
-    buildCmdkeyArgs({
-      target: 'TERMSRV/h',
-      username: 'John Smith',
-      domain: 'CORP',
-      password: 'pa ss'
-    }),
-    [
-      '/generic:TERMSRV/h',
-      '/user:"CORP\\John Smith"',
-      '/pass:"pa ss"'
-    ]
-  )
-  assert.deepEqual(
-    buildCmdkeyArgs({
-      target: 'TERMSRV/h',
-      username: 'admin',
-      password: 'p$s&s%w/ord'
-    }),
-    [
-      '/generic:TERMSRV/h',
-      '/user:admin',
-      '/pass:p$s&s%w/ord'
-    ]
-  )
-  // a double quote cannot be expressed for that parser, so it stays as it is;
-  // launchNativeRdp does not even try to store such a password
-  assert.deepEqual(
-    buildCmdkeyArgs({ target: 'TERMSRV/h', password: 'pa"s s' }),
-    ['/generic:TERMSRV/h', '/pass:pa"s s']
-  )
-})
-
-test('launchNativeRdp does not hand cmdkey a password it cannot parse', async () => {
-  const execCalls = mockExecFile()
-  const spawnCalls = mockSpawn()
-
-  await withPlatform('win32', async () => {
-    const { launchNativeRdp } = getMod()
-    const res = await launchNativeRdp({
-      host: 'h',
-      username: 'admin',
-      password: 'pa"ss'
-    })
-
-    assert.deepEqual(execCalls, [])
-    assert.equal(res.credentialStored, false)
-    assert.match(res.warnings[0], /double quote/)
-    // mstsc asks for it instead of trying a password that was not stored
-    assert.match(readRdpFile(res.file), /prompt for credentials:i:1/)
-    assert.equal(spawnCalls.length, 1)
-    fs.unlinkSync(res.file)
-  })
-})
-
-test('launchNativeRdp stores the credential and starts mstsc on the temp file', async () => {
+test('launchNativeRdp starts only mstsc and leaves authentication to Windows', async () => {
   const execCalls = mockExecFile()
   const spawnCalls = mockSpawn()
 
@@ -240,16 +155,7 @@ test('launchNativeRdp stores the credential and starts mstsc on the temp file', 
       nla: true
     })
 
-    assert.equal(res.credentialStored, true)
-    assert.deepEqual(res.warnings, [])
-    assert.equal(execCalls.length, 2, 'both credential targets are written')
-    assert.ok(execCalls.every(c => /cmdkey\.exe$/.test(c.command)))
-    assert.deepEqual(execCalls[0].args, [
-      '/generic:TERMSRV/192.168.1.10',
-      '/user:admin',
-      '/pass:secret'
-    ])
-
+    assert.equal(execCalls.length, 0)
     assert.equal(spawnCalls.length, 1)
     assert.match(spawnCalls[0].command, /mstsc\.exe$/)
     assert.deepEqual(spawnCalls[0].args, [res.file])
@@ -258,44 +164,6 @@ test('launchNativeRdp stores the credential and starts mstsc on the temp file', 
     const content = readRdpFile(res.file)
     assert.match(content, /full address:s:192\.168\.1\.10:3390/)
     assert.ok(!content.includes('secret'), 'password must not reach the disk')
-    fs.unlinkSync(res.file)
-  })
-})
-
-test('launchNativeRdp still connects when the credential cannot be stored', async () => {
-  childProcess.execFile = (command, args, options, cb) => {
-    process.nextTick(() => cb(new Error('denied'), '', 'denied'))
-  }
-  const spawnCalls = mockSpawn()
-
-  await withPlatform('win32', async () => {
-    const { launchNativeRdp } = getMod()
-    const res = await launchNativeRdp({ host: 'h', username: 'admin', password: 'secret' })
-
-    assert.equal(res.credentialStored, false)
-    // one credential target for the default port, so one warning
-    assert.equal(res.warnings.length, 1)
-    assert.match(res.warnings[0], /cmdkey\.exe .* failed: denied/)
-    // nothing was stored, so mstsc has to ask -- and the launch goes ahead
-    assert.match(readRdpFile(res.file), /prompt for credentials:i:1/)
-    assert.equal(spawnCalls.length, 1)
-    fs.unlinkSync(res.file)
-  })
-})
-
-test('launchNativeRdp stores nothing without a user name', async () => {
-  const execCalls = mockExecFile()
-  const spawnCalls = mockSpawn()
-
-  await withPlatform('win32', async () => {
-    const { launchNativeRdp } = getMod()
-    // cmdkey needs a user name with the password, mstsc has to ask for both
-    const res = await launchNativeRdp({ host: 'h', password: 'secret' })
-
-    assert.deepEqual(execCalls, [])
-    assert.equal(res.credentialStored, false)
-    assert.match(readRdpFile(res.file), /prompt for credentials:i:1/)
-    assert.equal(spawnCalls.length, 1)
     fs.unlinkSync(res.file)
   })
 })
@@ -317,26 +185,8 @@ test('launchNativeRdp removes the temp file when mstsc cannot start', async () =
 
 test('only Windows is supported', async () => {
   await withPlatform('linux', async () => {
-    const { isSupported, launchNativeRdp, clearRdpCredential } = getMod()
+    const { isSupported, launchNativeRdp } = getMod()
     assert.equal(isSupported(), false)
     await assert.rejects(launchNativeRdp({ host: 'h' }), /only supported on Windows/)
-    await assert.rejects(clearRdpCredential({ host: 'h' }), /only supported on Windows/)
-  })
-})
-
-test('clearRdpCredential reports each target instead of throwing', async () => {
-  const execCalls = mockExecFile()
-
-  await withPlatform('win32', async () => {
-    const { clearRdpCredential } = getMod()
-    const res = await clearRdpCredential({ host: 'h', port: 3390 })
-    assert.deepEqual(execCalls.map(c => c.args), [
-      ['/delete:TERMSRV/h'],
-      ['/delete:TERMSRV/h:3390']
-    ])
-    assert.deepEqual(res, [
-      { target: 'TERMSRV/h', ok: true },
-      { target: 'TERMSRV/h:3390', ok: true }
-    ])
   })
 })
