@@ -3,9 +3,11 @@ import { Button, Space } from 'antd'
 import { statusMap } from '../../common/constants'
 import { openNativeRdp } from './native-rdp.js'
 
+const e = window.translate
+
 const launchStatusText = {
-  [statusMap.success]: 'Opened with the external RDP client',
-  [statusMap.processing]: 'Opening the external RDP client…',
+  [statusMap.success]: e('openedWithExternalRdp'),
+  [statusMap.processing]: e('openedWithExternalRdp') + '...',
   [statusMap.error]: 'Could not open the external RDP client'
 }
 
@@ -52,10 +54,10 @@ export default class NativeRdpSession extends Component {
           <div>Use the separate Windows Remote Desktop window to sign in.</div>
           <Space wrap>
             <Button loading={status === statusMap.processing} onClick={this.handleLaunch}>
-              Open in Remote Desktop
+              {e('openedWithExternalRdp')}
             </Button>
             <Button type='primary' onClick={this.handleSwitchToBuiltIn}>
-              Switch to built-in RDP
+              {e('switchToBuiltInRdp')}
             </Button>
           </Space>
         </Space>

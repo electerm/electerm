@@ -40,7 +40,7 @@ const rdpConfig = {
         {
           type: 'switch',
           name: 'nativeRdp',
-          label: 'Open with the local RDP client (Windows Only)',
+          label: e('openWithLocalRdp') + ' (Windows Only)',
           valuePropName: 'checked'
         },
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.rdp) },
