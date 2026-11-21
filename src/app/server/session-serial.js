@@ -126,6 +126,10 @@ class TerminalSerial extends TerminalBase {
     return Buffer.concat([Buffer.from(clear), Buffer.from(s, 'latin1')])
   }
 
+  get outputStreams () {
+    return [this.port]
+  }
+
   on (event, cb) {
     if (event === 'data') {
       const wrapper = (data) => {

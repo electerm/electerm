@@ -1318,6 +1318,10 @@ class TerminalSshBase extends TerminalBase {
     this.channel?.setWindow(rows, cols)
   }
 
+  get outputStreams () {
+    return [this.channel, this.channel?.stderr]
+  }
+
   on (event, cb) {
     this.channel.on(event, cb)
     this.channel.stderr.on(event, cb)

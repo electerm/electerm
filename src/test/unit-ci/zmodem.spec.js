@@ -503,7 +503,8 @@ describe('zmodem session', () => {
       drainWire()
 
       assert.ok(s.receivePaused)
-      assert.ok(s.receiveQueueBytes > 0)
+      // The peer now waits for our ACK at the advertised buffer limit.
+      assert.equal(s.receiveQueueBytes, 0)
       const stream = s.downloadStream
       while (s.downloadStream) {
         const resumed = once(stream, stream.writableEnded ? 'finish' : 'drain')
@@ -560,6 +561,29 @@ describe('zmodem session', () => {
       assert.match(eventsOf('transfer-error')[0].message, /disk full/)
       assert.equal(eventsOf('file-complete').length, 0)
       assert.equal(s.isActive(), false)
+    })
+
+    test('cancelling during a disk stall releases only streams paused by the transfer', async () => {
+      const { PassThrough } = require('node:stream')
+      const active = new PassThrough()
+      const paused = new PassThrough()
+      active.resume()
+      paused.pause()
+      const s = makeSession(new Wire())
+      s.term.outputStreams = [active, paused]
+      s.handleData(zrqinitFrame())
+      s.setSavePath(tmpDir)
+      s.handleFileStart('cancel.bin', 65536, 0)
+      const closed = once(s.downloadStream, 'close')
+      s.handleFileData(Buffer.alloc(65536))
+      assert.equal(active.isPaused(), true)
+      s.cancel()
+      assert.equal(active.isPaused(), false)
+      assert.equal(paused.isPaused(), true)
+      await closed
+      assert.equal(eventsOf('file-complete').length, 0)
+      active.destroy()
+      paused.destroy()
     })
 
     test('bounds input queued behind a blocked download stream', async () => {

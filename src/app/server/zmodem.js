@@ -136,6 +136,7 @@ class ZmodemSession {
 
     this.watchdogTimer = null
     this.destroyed = false
+    this.pausedStreams = []
     this.receivePaused = false
     this.receiveQueue = []
     this.receiveQueueBytes = 0
@@ -584,6 +585,26 @@ class ZmodemSession {
     }
   }
 
+  pauseReceiver () {
+    this.receivePaused = true
+    // drain may immediately encounter backpressure again while replaying
+    // buffered input. Keep the same transport paused across both waits.
+    if (this.pausedStreams.length) return
+    for (const stream of this.term?.outputStreams || []) {
+      if (!stream?.pause || !stream.resume || stream.destroyed || stream.isPaused?.()) continue
+      stream.pause()
+      this.pausedStreams.push(stream)
+    }
+  }
+
+  resumeTransport () {
+    const streams = this.pausedStreams
+    this.pausedStreams = []
+    for (const stream of streams) {
+      if (!stream.destroyed) stream.resume()
+    }
+  }
+
   resumeReceiver () {
     this.receivePaused = false
     const queued = this.receiveQueue.length > 1
@@ -593,6 +614,7 @@ class ZmodemSession {
     this.receiveQueueBytes = 0
     this.pumpReceiver()
     if (queued) this.handleReceiverData(queued)
+    if (!this.receivePaused) this.resumeTransport()
   }
 
   /**
@@ -708,7 +730,7 @@ class ZmodemSession {
 
     const stream = this.downloadStream
     if (!stream.write(data)) {
-      this.receivePaused = true
+      this.pauseReceiver()
       stream.once('drain', () => {
         if (this.downloadStream === stream) this.resumeReceiver()
       })
@@ -732,7 +754,7 @@ class ZmodemSession {
     const { name } = this.currentTransfer
     // Release ZRINIT only after the file is written. This also keeps the
     // next file and ZFIN ordered behind the local completion event.
-    this.receivePaused = true
+    this.pauseReceiver()
     stream.once('finish', () => {
       if (this.downloadStream !== stream) return
       if (fileMtime > 0) {
@@ -1138,6 +1160,7 @@ class ZmodemSession {
     this.carrySince = 0
     this.lastProgressUpdate = 0
     this.residueTail = null
+    this.resumeTransport()
     // keep suppressNoiseUntil: it was just armed above
   }
 
