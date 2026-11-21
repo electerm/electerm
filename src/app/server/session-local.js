@@ -134,6 +134,10 @@ class TerminalLocal extends TerminalBase {
     this.term.resize(cols, rows)
   }
 
+  get outputStreams () {
+    return [this.term]
+  }
+
   on (event, cb) {
     this.term.on(event, cb)
   }
