@@ -7,6 +7,7 @@ import {
   loadUnicode11Addon,
   loadImageAddon
 } from '../xterm-loader.js'
+import { handleStoppedSessionEnter } from '../session-end.js'
 import { CommandTrackerAddon } from '../command-tracker-addon.js'
 import { Osc52Addon } from '../osc52-addon.js'
 import { rendererTypes } from '../../../common/constants.js'
@@ -110,7 +111,12 @@ export const initMixin = {
     term.onData(this.onData)
     this.term = term
     term.onSelectionChange(this.onSelectionChange)
-    term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
+    term.attachCustomKeyEventHandler(event => {
+      if (handleStoppedSessionEnter(event, this.props.tab, this.state, this.handleReloadStoppedSession)) {
+        return false
+      }
+      return this.handleKeyboardEvent(event)
+    })
     this.initOsc8LinkHandler(term)
     // Every terminal starts on the built-in DOM renderer; only a really
     // visible one gets WebGL, activated lazily by the lifecycle controller on
