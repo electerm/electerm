@@ -62,6 +62,10 @@ export class ZmodemClient extends TransferClientBase {
       case 'file-skipped':
         this.onFileSkipped(msg.name, msg.message)
         break
+      case 'transfer-error':
+      case 'session-timeout':
+        this.writeToTerminal(`\r\n${msg.message}\r\n`)
+        break
       case 'session-end':
         this.onSessionEnd()
         break
