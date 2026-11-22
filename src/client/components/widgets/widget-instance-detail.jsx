@@ -160,7 +160,7 @@ export default auto(function WidgetInstanceDetail ({ instance, store }) {
     {
       key: 'status',
       label: 'Status',
-      children: running ? <Tag color='green'>running</Tag> : <Tag>stopped</Tag>
+      children: <Tag color={running ? 'green' : undefined}>{e(running ? 'running' : 'stopped')}</Tag>
     }
   ]
   if (instance.serverInfo && instance.serverInfo.url) {
@@ -313,12 +313,12 @@ export default auto(function WidgetInstanceDetail ({ instance, store }) {
             ? (
               <Popconfirm
                 title='Stop this widget?'
-                okText='Stop'
+                okText={e('stop')}
                 cancelText={e('cancel')}
                 onOpenChange={open => setConfirming(open ? 'stop' : '')}
                 onConfirm={stopInstance}
               >
-                <Tooltip title='Stop' open={confirming === 'stop' ? false : undefined}>
+                <Tooltip title={e('stop')} open={confirming === 'stop' ? false : undefined}>
                   <Button
                     size='small'
                     danger

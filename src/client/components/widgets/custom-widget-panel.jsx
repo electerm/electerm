@@ -321,7 +321,7 @@ export default auto(function CustomWidgetPanel ({ widget }) {
                     Stopped is the state a user has to notice, so Run is the
                     only filled control in the panel. */}
                 <span className={'cwp-state' + (running ? ' is-on' : '')}>
-                  {running ? 'Running' : 'Stopped'}
+                  {e(running ? 'running' : 'stopped')}
                 </span>
                 <Button
                   size='small'
@@ -331,7 +331,7 @@ export default auto(function CustomWidgetPanel ({ widget }) {
                   loading={working}
                   onClick={running ? stop : run}
                 >
-                  {running ? 'Stop' : 'Run'}
+                  {e(running ? 'stop' : 'run')}
                 </Button>
               </>
               )

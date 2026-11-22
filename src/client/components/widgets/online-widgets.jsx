@@ -136,7 +136,7 @@ export default function OnlineWidgets ({ installed, onInstalled }) {
         <div className='ow-item-head'>
           <span className='wordbreak'>{record.name}</span>
           <Text type='secondary'>{record.version}</Text>
-          {isInstalled ? <Text type='secondary'>installed</Text> : null}
+          {isInstalled ? <Text type='secondary'>{e('installed')}</Text> : null}
         </div>
         <Space orientation='vertical' size={2} className='width-100'>
           <span className='wordbreak'>{record.description}</span>
@@ -157,14 +157,14 @@ export default function OnlineWidgets ({ installed, onInstalled }) {
               loading={busy}
               onClick={() => confirmInstall(record)}
             >
-              {isInstalled ? 'Update' : 'Install'}
+              {e(isInstalled ? 'update' : 'install')}
             </Button>
             <Button
               type='link'
               size='small'
               onClick={() => window.pre.openExternal(registrySourceUrl(record))}
             >
-              Source
+              {e('source')}
             </Button>
           </Space>
         </Space>
@@ -177,7 +177,7 @@ export default function OnlineWidgets ({ installed, onInstalled }) {
       <div className='pd1y'>
         <Input.Search
           type='text'
-          placeholder='Search online widgets...'
+          placeholder={e('search')}
           value={keyword}
           onChange={ev => setKeyword(ev.target.value)}
           className='form-control'
@@ -188,7 +188,7 @@ export default function OnlineWidgets ({ installed, onInstalled }) {
             type='error'
             showIcon
             title={`Could not load the registry: ${error}`}
-            action={<Button type='link' size='small' onClick={load}>Retry</Button>}
+            action={<Button type='link' size='small' onClick={load}>{e('retry')}</Button>}
           />
         : null}
       <Paragraph type='secondary'>

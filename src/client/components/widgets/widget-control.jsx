@@ -15,7 +15,7 @@ export default function WidgetControl ({ formData, widgetInstancesLength }) {
   if (!widget.id) {
     return (
       <div className='widget-control-empty aligncenter pd3'>
-        <p>Select a widget to configure</p>
+        <p>{window.translate('selectWidgetToConfigure')}</p>
       </div>
     )
   }

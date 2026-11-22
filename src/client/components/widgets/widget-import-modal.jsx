@@ -61,7 +61,7 @@ export default function WidgetImportModal ({ open, onCancel, onImport, onChooseF
         disabled={busy}
         onClick={onChooseFolder}
       >
-        {e('import')} folder
+        {e('import')} {e('folder')}
       </Button>
       <Button
         disabled={busy}
@@ -82,7 +82,7 @@ export default function WidgetImportModal ({ open, onCancel, onImport, onChooseF
   return (
     <Modal
       open={open}
-      title={e('import') + ' widget'}
+      title={e('import')}
       width={480}
       onCancel={close}
       footer={footer}
