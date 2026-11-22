@@ -1,8 +1,8 @@
 # Build electerm for riscv64 Linux
 #
 # This workflow:
-# 1. Builds x64 version with electron v42.8.1 to get the asar
-# 2. Downloads electron riscv64 v42.8.1 from riscv-forks/electron-riscv-releases
+# 1. Builds x64 version with electron v44.11.5 to get the asar
+# 2. Downloads electron riscv64 v44.11.5 from riscv-forks/electron-riscv-releases
 # 3. Cross-compiles native modules for riscv64
 # 4. Merges x64 asar with riscv64 electron and native modules
 # 5. Uploads tar.gz to GitHub release draft

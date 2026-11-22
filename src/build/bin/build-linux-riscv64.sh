@@ -2,8 +2,8 @@
 # Build electerm for riscv64 Linux
 #
 # Strategy:
-# 1. Build x64 version with electron v42.8.1 to get the asar (arch independent)
-# 2. Download electron riscv64 v42.8.1 from riscv-forks/electron-riscv-releases
+# 1. Build x64 version with electron v44.11.5 to get the asar (arch independent)
+# 2. Download electron riscv64 v44.11.5 from riscv-forks/electron-riscv-releases
 # 3. Cross-compile native modules for riscv64
 # 4. Merge x64 asar with riscv64 electron and native modules
 # 5. Upload tar.gz to GitHub release draft
@@ -21,7 +21,7 @@ WORK_DIR="$PROJECT_ROOT/work-riscv64"
 ARCH="riscv64"
 DEB_ARCH="riscv64"
 CROSS_PREFIX="riscv64-linux-gnu"
-ELECTRON_VERSION="44.7.0"
+ELECTRON_VERSION="44.11.5"
 ELECTRON_RISCV64_URL="https://github.com/riscv-forks/electron-riscv-releases/releases/download/v${ELECTRON_VERSION}/electron-v${ELECTRON_VERSION}-linux-${ARCH}.zip"
 OUTPUT_DIR="$PROJECT_ROOT/dist-riscv64"
 SKIP_NATIVE="${SKIP_NATIVE:-0}"  # Set to 1 to skip native module rebuild
