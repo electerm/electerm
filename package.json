@@ -157,6 +157,9 @@
     "brace-expansion@2": "2.1.7",
     "brace-expansion@5": "5.0.12",
     "minimatch@10": "^11.0.5",
+    "@electron/asar": {
+      "minimatch": "3.1.5"
+    },
     "@electron/universal": {
       "minimatch": "^11.0.5"
     },

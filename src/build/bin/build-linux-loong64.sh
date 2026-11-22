@@ -42,9 +42,11 @@ get_version() {
 
 write_install_src() {
     local src="$1"
+    # Keep a fixed-width slot so install-src can be patched in place later
     node -e "
         const { writeFileSync } = require('fs');
-        writeFileSync('$PROJECT_ROOT/work/app/lib/install-src.js', \"module.exports = '${src}'\");
+        const content = \"module.exports = '${src}'\";
+        writeFileSync('$PROJECT_ROOT/work/app/lib/install-src.js', content.padEnd(64, ' '));
     "
 }
 
@@ -295,17 +297,8 @@ patch_asar_install_src() {
     local new_src="$2"
 
     log_info "Patching asar install-src to '${new_src}'..."
-
-    local asar_bin="$PROJECT_ROOT/node_modules/@electron/asar/bin/asar.js"
-    local tmp_dir
-    tmp_dir=$(mktemp -d)
-
-    # Extract, patch, repack using CLI
-    node "$asar_bin" extract "$asar_file" "$tmp_dir"
-    echo "module.exports = '${new_src}'" > "$tmp_dir/lib/install-src.js"
-    node "$asar_bin" pack "$tmp_dir" "$asar_file"
-
-    rm -rf "$tmp_dir"
+    # In-place patch keeps unpacked native modules and their asar metadata.
+    node "$SCRIPT_DIR/patch-asar-install-src.js" "$asar_file" "$new_src"
     log_info "Asar patched successfully."
 }
 
