@@ -1,212 +1,212 @@
 {
   "release": {
-    "tag_name": "v5.11.8",
-    "body": "### Major updates\r\n\r\n- Serial: new session toolbar for serial tabs: DTR/RTS/break control, CTS/DSR/DCD status LEDs, ascii/hex/dec/bin views and raw hex/dec/bin/ascii send (#4680) (by @mkneppe)\r\n- Add per-bookmark custom server watchers (#4730)\r\n- Rename a file by clicking it again when it is already selected (#4729)\r\n- Add a column value filter to the remote monitor detail tables (#4723)\r\n- Rewrite widget API\r\n\r\n### New features/UI/Updates\r\n\r\n- Add a filtered bookmark export tool to the AI agent (#4728)\r\n- Remember widget form values between visits (#4725)\r\n- #4717 Fall back to random ports when the whole port window is blocked (#4720)\r\n- Improve app init speed\r\n- Improve code split\r\n\r\n### Bug fixes\r\n\r\n- fix(terminal): start local shell in the bookmark directory and open ctrl+clicked local paths (#4737) (by @mkneppe)\r\n- fix(ai): never run a tool call whose arguments were cut off\r\n- fix(ai): show the provider error body for failed streaming chat requests (by @pcbeingused333)\r\n- fix(ai): report an empty response.incomplete in the Responses stream (by @pcbeingused333)\r\n- fix(ai): refuse an Anthropic tool call cut off by max_tokens (by @pcbeingused333)\r\n- Fix UI when the right panel is pinned (#4735)\r\n- Resolve web urls through the host's sub-path helper (#4721)\r\n- Keep the pinned right panel header clear of the Windows caption buttons (#4724)\r\n- Fix tab close button hit area (#4718) (by @forever765)\r\n- Fix terminal search performance, avoid stuck\r\n\r\n-----\r\n\r\n### 重大更新\r\n\r\n- 串口：新增串口标签页会话工具栏：DTR/RTS/break 控制、CTS/DSR/DCD 状态指示、ascii/hex/dec/bin 数据视图，以及以 hex/dec/bin/ascii 原始发送数据 (#4680)（由 @mkneppe 提供）\r\n- 支持为每个书签添加自定义服务器监控 (#4730)\r\n- 文件已选中时再次点击即可重命名 (#4729)\r\n- 远程监控详情表格支持按列值过滤 (#4723)\r\n\r\n### 新功能/界面/更新\r\n\r\n- 为 AI 智能体添加带过滤条件的书签导出工具 (#4728)\r\n- 记住小组件表单在多次访问之间的填写内容 (#4725)\r\n- #4717 当整个端口区间都被占用时回退到随机端口 (#4720)\r\n- 提升应用启动速度\r\n- 改进代码分包\r\n- 重写小组件 API\r\n\r\n### 问题修复\r\n\r\n- 修复终端：本地 shell 在书签目录中启动，并支持 ctrl+点击打开本地路径 (#4737)（由 @mkneppe 提供）\r\n- 修复 AI：不再执行参数被截断的工具调用\r\n- 修复 AI：流式对话请求失败时显示服务商返回的错误内容 (by @pcbeingused333)\r\n- 修复 AI：Responses 流中空的 response.incomplete 上报 (by @pcbeingused333)\r\n- 修复 AI：拒绝被 max_tokens 截断的 Anthropic 工具调用 (by @pcbeingused333)\r\n- 修复固定右侧面板时的界面问题 (#4735)\r\n- 修复 Web 版在子路径下部署时的地址解析问题 (#4721)\r\n- 修复固定右侧面板标题被 Windows 窗口按钮遮挡的问题 (#4724)\r\n- 修复标签关闭按钮点击区域过小的问题 (#4718)（由 @forever765 提供）\r\n- 修复终端搜索性能，避免卡顿\r\n\r\n-------\r\n\r\nDownload下载: [https://electerm.org](https://electerm.org)\r\n",
-    "published_at": "2026-11-16T00:23:02Z",
+    "tag_name": "v5.12.6",
+    "body": "### Major updates\r\n\r\n- RDP: open RDP bookmarks with the local Windows client (mstsc.exe) via a per-bookmark switch, for old or non-standard servers the built-in client cannot reach (#4420) (#4761) by @H-TWINKLE\r\n\r\n### New features/UI/Updates\r\n\r\n- Reload a stopped terminal with Enter (#4773)\r\n- Add direct bookmark edit to the tab context menu (#4755)\r\n- Bind Cmd+, to the settings item on macOS (#4760) by @pcbeingused333\r\n- Localize widget metadata from the widget's own repo (#4745)\r\n- Clarify the widget install warning (#4749)\r\n\r\n### Bug fixes\r\n\r\n- Security: keep Markdown links out of the app window (#4763)\r\n- Security: keep the main window on the app origin (#4762)\r\n- Security: harden built-in FTP server widget defaults\r\n- Harden static file server widget against DNS rebinding\r\n- Propagate ZMODEM disk backpressure to terminal transports (#4772)\r\n- Fix trzsz transfer framing, file handling and cancellation (#4771)\r\n- Fix ZMODEM download completion, backpressure and split detection (#4770)\r\n- Keep the extension for duplicate ZMODEM downloads (#4750)\r\n- Stop a right click electerm handles from also reaching the program\r\n- Report an empty OpenAI chat message as an error (#4754) by @pcbeingused333\r\n- Fix MCP SFTP upload destinations and conflict handling (#4753) by @cccy0\r\n\r\n-----\r\n\r\n### 重大更新\r\n\r\n- RDP：支持通过书签设置使用 Windows 本地远程桌面客户端 (mstsc.exe) 打开 RDP 书签，可连接内置客户端无法访问的旧版或非标准服务器 (#4420) (#4761)（由 @H-TWINKLE 提供）\r\n\r\n### 新功能/界面/更新\r\n\r\n- 按回车键重新加载已停止的终端 (#4773)\r\n- 标签页右键菜单支持直接编辑书签 (#4755)\r\n- macOS 菜单支持用 Cmd+, 打开设置 (#4760)（由 @pcbeingused333 提供）\r\n- 小组件元数据从小组件自己的仓库获取本地化文案 (#4745)\r\n- 明确小组件安装警告文案 (#4749)\r\n\r\n### 问题修复\r\n\r\n- 安全：阻止 Markdown 链接在应用窗口内打开 (#4763)\r\n- 安全：主窗口限制在应用来源内 (#4762)\r\n- 安全：加固内置 FTP 服务器小组件的默认设置\r\n- 加固静态文件服务器小组件，防范 DNS rebinding 攻击\r\n- 修复 ZMODEM：将磁盘背压传递到终端传输层 (#4772)\r\n- 修复 trzsz 传输的分帧、文件处理和取消逻辑 (#4771)\r\n- 修复 ZMODEM 下载完成判定、背压和分片检测 (#4770)\r\n- 修复 ZMODEM：重复下载时保留扩展名 (#4750)\r\n- 修复终端：electerm 处理的右键事件不再同时传递给程序\r\n- 修复 AI：OpenAI 空聊天消息现在会报错误 (#4754)（由 @pcbeingused333 提供）\r\n- 修复 MCP SFTP 上传目标路径和冲突处理 (#4753)（由 @cccy0 提供）\r\n\r\n-------\r\nDownload下载: [https://electerm.org](https://electerm.org)\r\n",
+    "published_at": "2026-11-22T03:34:20Z",
     "assets": [
       {
-        "name": "electerm-5.11.8-linux-aarch64-legacy.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-aarch64-legacy.rpm"
+        "name": "electerm-5.12.6-linux-aarch64-legacy.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-aarch64-legacy.rpm"
       },
       {
-        "name": "electerm-5.11.8-linux-aarch64.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-aarch64.rpm"
+        "name": "electerm-5.12.6-linux-aarch64.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-aarch64.rpm"
       },
       {
-        "name": "electerm-5.11.8-linux-amd64-legacy.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-amd64-legacy.deb"
+        "name": "electerm-5.12.6-linux-amd64-legacy.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-amd64-legacy.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-amd64.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-amd64.deb"
+        "name": "electerm-5.12.6-linux-amd64.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-amd64.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-amd64.snap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-amd64.snap"
+        "name": "electerm-5.12.6-linux-amd64.snap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-amd64.snap"
       },
       {
-        "name": "electerm-5.11.8-linux-arm64-legacy.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-arm64-legacy.AppImage"
+        "name": "electerm-5.12.6-linux-arm64-legacy.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-arm64-legacy.AppImage"
       },
       {
-        "name": "electerm-5.11.8-linux-arm64-legacy.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-arm64-legacy.deb"
+        "name": "electerm-5.12.6-linux-arm64-legacy.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-arm64-legacy.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-arm64-legacy.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-arm64-legacy.tar.gz"
+        "name": "electerm-5.12.6-linux-arm64-legacy.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-arm64-legacy.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-linux-arm64.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-arm64.AppImage"
+        "name": "electerm-5.12.6-linux-arm64.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-arm64.AppImage"
       },
       {
-        "name": "electerm-5.11.8-linux-arm64.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-arm64.deb"
+        "name": "electerm-5.12.6-linux-arm64.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-arm64.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-arm64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-arm64.tar.gz"
+        "name": "electerm-5.12.6-linux-arm64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-arm64.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-linux-armv7l-legacy.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-armv7l-legacy.AppImage"
+        "name": "electerm-5.12.6-linux-armv7l-legacy.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-armv7l-legacy.AppImage"
       },
       {
-        "name": "electerm-5.11.8-linux-armv7l-legacy.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-armv7l-legacy.deb"
+        "name": "electerm-5.12.6-linux-armv7l-legacy.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-armv7l-legacy.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-armv7l-legacy.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-armv7l-legacy.rpm"
+        "name": "electerm-5.12.6-linux-armv7l-legacy.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-armv7l-legacy.rpm"
       },
       {
-        "name": "electerm-5.11.8-linux-armv7l-legacy.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-armv7l-legacy.tar.gz"
+        "name": "electerm-5.12.6-linux-armv7l-legacy.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-armv7l-legacy.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-linux-armv7l.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-armv7l.AppImage"
+        "name": "electerm-5.12.6-linux-armv7l.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-armv7l.AppImage"
       },
       {
-        "name": "electerm-5.11.8-linux-armv7l.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-armv7l.deb"
+        "name": "electerm-5.12.6-linux-armv7l.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-armv7l.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-armv7l.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-armv7l.rpm"
+        "name": "electerm-5.12.6-linux-armv7l.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-armv7l.rpm"
       },
       {
-        "name": "electerm-5.11.8-linux-armv7l.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-armv7l.tar.gz"
+        "name": "electerm-5.12.6-linux-armv7l.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-armv7l.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-linux-loong64-legacy.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-loong64-legacy.deb"
+        "name": "electerm-5.12.6-linux-loong64-legacy.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-loong64-legacy.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-loong64-legacy.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-loong64-legacy.tar.gz"
+        "name": "electerm-5.12.6-linux-loong64-legacy.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-loong64-legacy.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-linux-loong64.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-loong64.deb"
+        "name": "electerm-5.12.6-linux-loong64.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-loong64.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-loong64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-loong64.tar.gz"
+        "name": "electerm-5.12.6-linux-loong64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-loong64.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-linux-loongarch64-legacy.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-loongarch64-legacy.deb"
+        "name": "electerm-5.12.6-linux-loongarch64-legacy.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-loongarch64-legacy.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-loongarch64.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-loongarch64.deb"
+        "name": "electerm-5.12.6-linux-loongarch64.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-loongarch64.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-ppc64el.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-ppc64el.deb"
+        "name": "electerm-5.12.6-linux-ppc64el.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-ppc64el.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-ppc64le.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-ppc64le.tar.gz"
+        "name": "electerm-5.12.6-linux-ppc64le.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-ppc64le.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-linux-riscv64.deb",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-riscv64.deb"
+        "name": "electerm-5.12.6-linux-riscv64.deb",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-riscv64.deb"
       },
       {
-        "name": "electerm-5.11.8-linux-riscv64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-riscv64.tar.gz"
+        "name": "electerm-5.12.6-linux-riscv64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-riscv64.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-linux-x64-legacy.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-x64-legacy.tar.gz"
+        "name": "electerm-5.12.6-linux-x64-legacy.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-x64-legacy.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-linux-x64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-x64.tar.gz"
+        "name": "electerm-5.12.6-linux-x64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-x64.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-linux-x86_64-legacy.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-x86_64-legacy.AppImage"
+        "name": "electerm-5.12.6-linux-x86_64-legacy.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-x86_64-legacy.AppImage"
       },
       {
-        "name": "electerm-5.11.8-linux-x86_64-legacy.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-x86_64-legacy.rpm"
+        "name": "electerm-5.12.6-linux-x86_64-legacy.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-x86_64-legacy.rpm"
       },
       {
-        "name": "electerm-5.11.8-linux-x86_64.AppImage",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-x86_64.AppImage"
+        "name": "electerm-5.12.6-linux-x86_64.AppImage",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-x86_64.AppImage"
       },
       {
-        "name": "electerm-5.11.8-linux-x86_64.rpm",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-linux-x86_64.rpm"
+        "name": "electerm-5.12.6-linux-x86_64.rpm",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-linux-x86_64.rpm"
       },
       {
-        "name": "electerm-5.11.8-mac-arm64.dmg",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-mac-arm64.dmg"
+        "name": "electerm-5.12.6-mac-arm64.dmg",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-mac-arm64.dmg"
       },
       {
-        "name": "electerm-5.11.8-mac-arm64.dmg.blockmap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-mac-arm64.dmg.blockmap"
+        "name": "electerm-5.12.6-mac-arm64.dmg.blockmap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-mac-arm64.dmg.blockmap"
       },
       {
-        "name": "electerm-5.11.8-mac-x64.dmg",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-mac-x64.dmg"
+        "name": "electerm-5.12.6-mac-x64.dmg",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-mac-x64.dmg"
       },
       {
-        "name": "electerm-5.11.8-mac-x64.dmg.blockmap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-mac-x64.dmg.blockmap"
+        "name": "electerm-5.12.6-mac-x64.dmg.blockmap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-mac-x64.dmg.blockmap"
       },
       {
-        "name": "electerm-5.11.8-mac10-x64.dmg",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-mac10-x64.dmg"
+        "name": "electerm-5.12.6-mac10-x64.dmg",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-mac10-x64.dmg"
       },
       {
-        "name": "electerm-5.11.8-mac10-x64.dmg.blockmap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-mac10-x64.dmg.blockmap"
+        "name": "electerm-5.12.6-mac10-x64.dmg.blockmap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-mac10-x64.dmg.blockmap"
       },
       {
-        "name": "electerm-5.11.8-win-arm64-installer.exe",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-win-arm64-installer.exe"
+        "name": "electerm-5.12.6-win-arm64-installer.exe",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-win-arm64-installer.exe"
       },
       {
-        "name": "electerm-5.11.8-win-arm64-installer.exe.blockmap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-win-arm64-installer.exe.blockmap"
+        "name": "electerm-5.12.6-win-arm64-installer.exe.blockmap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-win-arm64-installer.exe.blockmap"
       },
       {
-        "name": "electerm-5.11.8-win-arm64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-win-arm64.tar.gz"
+        "name": "electerm-5.12.6-win-arm64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-win-arm64.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-win-x64-installer.exe",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-win-x64-installer.exe"
+        "name": "electerm-5.12.6-win-x64-installer.exe",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-win-x64-installer.exe"
       },
       {
-        "name": "electerm-5.11.8-win-x64-installer.exe.blockmap",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-win-x64-installer.exe.blockmap"
+        "name": "electerm-5.12.6-win-x64-installer.exe.blockmap",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-win-x64-installer.exe.blockmap"
       },
       {
-        "name": "electerm-5.11.8-win-x64-loose.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-win-x64-loose.tar.gz"
+        "name": "electerm-5.12.6-win-x64-loose.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-win-x64-loose.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-win-x64-portable.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-win-x64-portable.tar.gz"
+        "name": "electerm-5.12.6-win-x64-portable.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-win-x64-portable.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-win-x64.appx",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-win-x64.appx"
+        "name": "electerm-5.12.6-win-x64.appx",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-win-x64.appx"
       },
       {
-        "name": "electerm-5.11.8-win-x64.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-win-x64.tar.gz"
+        "name": "electerm-5.12.6-win-x64.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-win-x64.tar.gz"
       },
       {
-        "name": "electerm-5.11.8-win7.tar.gz",
-        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.11.8/electerm-5.11.8-win7.tar.gz"
+        "name": "electerm-5.12.6-win7.tar.gz",
+        "browser_download_url": "https://github.com/electerm/electerm/releases/download/v5.12.6/electerm-5.12.6-win7.tar.gz"
       }
     ]
   }
