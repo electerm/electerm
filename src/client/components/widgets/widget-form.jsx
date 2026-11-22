@@ -15,6 +15,8 @@ import {
   configInitialValues
 } from './config-fields'
 
+const e = window.translate
+
 export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInstance }) {
   const [form] = Form.useForm()
   const [showDownloadWarning, setShowDownloadWarning] = useState(false)
@@ -52,7 +54,7 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
   const { type, singleInstance } = info
   const isInstanceWidget = type === 'instance'
   const isFrontendWidget = type === 'frontend'
-  const txt = isInstanceWidget ? 'Start widget' : 'Run widget'
+  const txt = `${e(isInstanceWidget ? 'start' : 'run')} ${e('widgets')}`
   const isDisabled = loading || (singleInstance && hasRunningInstance)
 
   const handleSubmit = async (values) => {
@@ -74,7 +76,7 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
     )
   }
 
-  if (isFrontendWidget && info.name === 'Batch Operation') {
+  if (isFrontendWidget && widgetId === 'batch-op') {
     return <BatchOpEditor widget={widget} />
   }
 
@@ -83,7 +85,7 @@ export default function WidgetForm ({ widget, onSubmit, loading, hasRunningInsta
       <div className='pd1b alignright'>
         <h4>
           {info.name}
-          {info.name === 'MCP Server' && (
+          {widgetId === 'mcp-server' && (
             <HelpIcon link='https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide' />
           )}
         </h4>

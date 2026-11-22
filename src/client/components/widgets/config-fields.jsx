@@ -157,7 +157,7 @@ export function renderConfigItem (config, form) {
               {input}
             </Form.Item>
             <Button onClick={() => form.setFieldValue(name, 'ett_' + nanoid())}>
-              Generate
+              {e('generate')}
             </Button>
           </Space.Compact>,
           { noOuterName: true }

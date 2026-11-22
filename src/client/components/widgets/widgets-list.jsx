@@ -269,7 +269,7 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
         <div className='pd1y'>
           <Input.Search
             type='text'
-            placeholder='Search widgets...'
+            placeholder={e('search')}
             value={keyword}
             onChange={handleSearch}
             className='form-control'
@@ -292,7 +292,7 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
       },
       {
         key: 'online',
-        label: 'Online',
+        label: e('online'),
         children: null
       },
       {

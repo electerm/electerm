@@ -316,7 +316,7 @@ export default function CustomWidgetForm ({ widget }) {
         delete result.openTab
         openWidgetTab(id, tab)
         if (!result.message && !result.details && !result.table && !result.buttons) {
-          result.message = e('Done')
+          result.message = 'Done'
           result.messageType = 'success'
         }
       }

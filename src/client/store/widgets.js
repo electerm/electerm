@@ -14,6 +14,20 @@ import { noteWidgets } from '../common/credential-provider.jsx'
 import { safeGetItemJSON, safeSetItemJSON } from '../common/safe-local-storage'
 import { currentLang, localizeWidgetInfo } from '../common/widget-i18n'
 
+const builtinNameKeys = new Map([
+  ['batch-op', 'batchOperation'],
+  ['local-file-server', 'staticFileServer'],
+  ['local-ftp-server', 'localFtpServer'],
+  ['mcp-server', 'mcpServer'],
+  ['rename', 'fileRenamer'],
+  ['ssh-server', 'sshServer']
+])
+
+function builtinName (widgetId, fallback) {
+  const key = builtinNameKeys.get(widgetId)
+  return window.getLang()?.[key] ? window.translate(key) : fallback
+}
+
 // A widget with its own UI has no generated form: it keeps its config through
 // window.electerm.updateConfig, which lands in localStorage. Autorun should
 // start with the latest values (e.g. a provider switched in the widget panel),
@@ -32,7 +46,9 @@ export default Store => {
     const lang = currentLang()
     const localized = widgets.map(widget => ({
       ...widget,
-      info: localizeWidgetInfo(widget.info, lang)
+      info: widget.builtin
+        ? { ...widget.info, name: builtinName(widget.id, widget.info.name) }
+        : localizeWidgetInfo(widget.info, lang)
     }))
     // a password manager widget among them (bookmark form, connect)
     noteWidgets(localized)
@@ -82,7 +98,7 @@ export default Store => {
       const auto = autoRun.get(item.widgetId)
       return {
         id: item.instanceId,
-        title: `${item.name} (${item.instanceId})`,
+        title: `${builtinName(item.widgetId, item.name)} (${item.instanceId})`,
         widgetId: item.widgetId,
         serverInfo: item.serverInfo,
         // an AI config the widget offered to apply, whitelisted in the main
@@ -162,7 +178,7 @@ export default Store => {
       await window.pre.runGlobalAsync('stopWidget', instanceId)
     } catch (err) {
       console.error('stopWidget error', err)
-      message.error(window.translate('stopWidgetFailed') + ': ' + err.message)
+      message.error('Failed to stop widget: ' + err.message)
       return false
     }
     await store.refreshWidgetInstances()
