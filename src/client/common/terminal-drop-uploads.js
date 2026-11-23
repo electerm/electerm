@@ -6,6 +6,12 @@ export const terminalDropUploads = [
   { command: 'rz -y', protocol: 'rz', action: 'overwrite' }
 ]
 
-export function dropUploadLabel ({ protocol, action }, translate) {
-  return action ? `${protocol} ${translate(action)}` : protocol
+export function terminalDropOptions (translate, isSerial = false) {
+  const uploads = isSerial
+    ? [{ value: 'xmodem', label: 'XMODEM' }]
+    : terminalDropUploads.map(({ command, protocol, action }) => ({
+      value: command,
+      label: action ? `${protocol} ${translate(action)}` : protocol
+    }))
+  return [...uploads, { value: 'inputOnly', label: translate('inputOnly') }]
 }

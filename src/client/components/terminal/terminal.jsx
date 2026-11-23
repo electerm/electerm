@@ -511,13 +511,14 @@ class Term extends Component {
             onClose={this.handleCloseStoppedSession}
           />
           {this.renderResetFontSizeButton()}
-          <DropFileModal
-            visible={this.state.dropFileModalVisible}
-            files={this.state.droppedFiles}
-            isSerial={this.props.tab?.type === connectionMap.serial}
-            onSelect={this.handleDropFileAction}
-            onCancel={this.handleDropFileModalCancel}
-          />
+          {this.state.dropFileModalVisible && (
+            <DropFileModal
+              files={this.state.droppedFiles}
+              isSerial={this.props.tab?.type === connectionMap.serial}
+              onSelect={this.handleDropFileAction}
+              onCancel={this.handleDropFileModalCancel}
+            />
+          )}
           {spin}
           <TerminalSelectText
             visible={this.state.selectTextVisible}

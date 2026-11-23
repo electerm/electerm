@@ -21,7 +21,7 @@ import {
   terminalTypes,
   toggleWikiMap
 } from '../../common/constants'
-import { terminalDropUploads, dropUploadLabel } from '../../common/terminal-drop-uploads'
+import { terminalDropOptions } from '../../common/terminal-drop-uploads'
 import defaultSettings from '../../common/default-setting'
 import ShowItem from '../common/show-item'
 import InputConfirm from '../common/input-confirm'
@@ -616,10 +616,9 @@ export default class SettingTerminal extends Component {
           popupMatchSelectWidth={false}
         >
           <Option value='ask'>{e('ask')}</Option>
-          {terminalDropUploads.map(upload => (
-            <Option key={upload.command} value={upload.command}>{dropUploadLabel(upload, e)}</Option>
+          {terminalDropOptions(e).map(({ value, label }) => (
+            <Option key={value} value={value}>{label}</Option>
           ))}
-          <Option value='inputOnly'>{e('inputOnly')}</Option>
         </Select>
         <div className='pd1b'>{e('terminalBackSpaceMode')}</div>
         <Select
