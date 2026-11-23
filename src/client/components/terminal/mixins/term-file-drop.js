@@ -1,3 +1,4 @@
+import { terminalDropUploads } from '../../../common/terminal-drop-uploads.js'
 import resolve from '../../../common/resolve.js'
 import message from '../../common/message'
 import { getFilePath, isUnsafeFilename } from '../../../common/file-drop-utils.js'
@@ -102,27 +103,20 @@ export const fileDropMixin = {
 
     const filePaths = droppedFiles.map(f => f.path)
 
+    const upload = terminalDropUploads.find(option => option.command === action)
+    if (upload) {
+      const client = upload.protocol === 'trz' ? this.trzszClient : this.zmodemClient
+      if (client?.isActive) {
+        message.warning('A transfer is already in progress')
+      } else {
+        window._apiControlSelectFile = filePaths
+        this.attachAddon._sendData(`${upload.command}\r`)
+      }
+      this.handleDropFileModalCancel()
+      return
+    }
+
     switch (action) {
-      case 'trz': {
-        if (this.trzszClient && this.trzszClient.isActive) {
-          message.warning('A transfer is already in progress')
-          this.handleDropFileModalCancel()
-          return
-        }
-        window._apiControlSelectFile = filePaths
-        this.attachAddon._sendData('trz\r')
-        break
-      }
-      case 'rz':{
-        if (this.zmodemClient && this.zmodemClient.isActive) {
-          message.warning('A transfer is already in progress')
-          this.handleDropFileModalCancel()
-          return
-        }
-        window._apiControlSelectFile = filePaths
-        this.attachAddon._sendData('rz\r')
-        break
-      }
       case 'xmodem': {
         if (this.xmodemClient && this.xmodemClient.isActive) {
           message.warning('A transfer is already in progress')

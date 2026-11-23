@@ -21,6 +21,7 @@ import {
   terminalTypes,
   toggleWikiMap
 } from '../../common/constants'
+import { terminalDropOptions } from '../../common/terminal-drop-uploads'
 import defaultSettings from '../../common/default-setting'
 import ShowItem from '../common/show-item'
 import InputConfirm from '../common/input-confirm'
@@ -614,8 +615,9 @@ export default class SettingTerminal extends Component {
           value={dragDropBehavior}
           popupMatchSelectWidth={false}
         >
-          {['ask', 'trz', 'rz', 'inputOnly'].map(id => (
-            <Option key={id} value={id}>{e(id)}</Option>
+          <Option value='ask'>{e('ask')}</Option>
+          {terminalDropOptions(e).map(({ value, label }) => (
+            <Option key={value} value={value}>{label}</Option>
           ))}
         </Select>
         <div className='pd1b'>{e('terminalBackSpaceMode')}</div>

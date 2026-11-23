@@ -1,94 +1,57 @@
+import { useState } from 'react'
+import { Select } from 'antd'
+import { FileOutlined } from '@ant-design/icons'
+import { getItem, setItem } from '../../common/safe-local-storage'
+import { terminalDropOptions } from '../../common/terminal-drop-uploads'
 import Modal from '../common/modal'
+import './drop-file-modal.styl'
 
 const e = window.translate
 
-export function DropFileModal (props) {
-  const {
-    visible,
-    files,
-    isSerial,
-    onSelect,
-    onCancel
-  } = props
+export default function DropFileModal ({ files, isSerial, onSelect, onCancel }) {
+  const options = terminalDropOptions(e, isSerial)
+  const storageKey = isSerial ? 'lastSerialDropAction' : 'lastSshDropAction'
+  const [action, setAction] = useState(() => {
+    const saved = getItem(storageKey)
+    return options.some(option => option.value === saved) ? saved : 'inputOnly'
+  })
 
-  const renderSerialFooter = () => {
-    return (
-      <>
-        <button
-          type='button'
-          className='custom-modal-ok-btn'
-          onClick={() => onSelect('xmodem')}
-        >
-          XMODEM
-        </button>
-        <button
-          type='button'
-          className='custom-modal-cancel-btn'
-          onClick={() => onSelect('inputOnly')}
-        >
-          {e('inputOnly')}
-        </button>
-      </>
-    )
-  }
-
-  const renderSshFooter = () => {
-    return (
-      <>
-        <button
-          type='button'
-          className='custom-modal-ok-btn'
-          onClick={() => onSelect('trz')}
-        >
-          trz
-        </button>
-        <button
-          type='button'
-          className='custom-modal-cancel-btn'
-          onClick={() => onSelect('rz')}
-        >
-          rz
-        </button>
-        <button
-          type='button'
-          className='custom-modal-cancel-btn'
-          onClick={() => onSelect('inputOnly')}
-        >
-          {e('inputOnly')}
-        </button>
-      </>
-    )
-  }
-
-  const renderList = () => {
-    return (
-      <ul>
-        {files?.map(f => (
-          <li key={f.path}>{f.path}</li>
-        ))}
-      </ul>
-    )
-  }
-
-  if (!visible) {
-    return null
+  function confirm () {
+    setItem(storageKey, action)
+    onSelect(action)
   }
 
   return (
     <Modal
-      title='?'
-      open={visible}
+      title={e('dragDropBehavior')}
+      open
       onCancel={onCancel}
-      footer={
-        <div className='custom-modal-footer-buttons'>
-          {isSerial ? renderSerialFooter() : renderSshFooter()}
-        </div>
-      }
+      className='drop-file-modal'
       width={400}
+      footer={
+        <button type='button' className='custom-modal-ok-btn' onClick={confirm}>
+          {e('ok')}
+        </button>
+      }
     >
-      {renderList()}
+      <ul className='drop-file-list'>
+        {files?.map(file => (
+          <li key={file.path}><FileOutlined /><span>{file.path}</span></li>
+        ))}
+      </ul>
+      <div onKeyDown={event => {
+        // The modal also handles Enter and Space as confirmation shortcuts.
+        if (event.key === 'Enter' || event.key === ' ') event.stopPropagation()
+      }}
+      >
+        <Select
+          aria-label={e('dragDropBehavior')}
+          value={action}
+          options={options}
+          onChange={setAction}
+          getPopupContainer={trigger => trigger.parentElement}
+        />
+      </div>
     </Modal>
   )
 }
-
-export default DropFileModal
