@@ -1,16 +1,26 @@
 /**
- * Copy the bookmark form's current values: as a quick connect string, or as
- * the raw JSON that lands in the config file.
+ * Copy connection details or the whole bookmark.
  */
 import { useState } from 'react'
 import { Dropdown } from 'antd'
-import { CopyOutlined } from '@ant-design/icons'
+import { CopyOutlined, ShareAltOutlined } from '@ant-design/icons'
 import { copy } from '../../common/clipboard'
 import { stringifyQuickConnect } from '../../common/quick-connect-string'
 
 const e = window.translate
 
 const maxLen = 50
+
+function sftpLink ({ type = 'ssh', host, port, username, startDirectory = '' }) {
+  if (type !== 'ssh' || !host) {
+    return ''
+  }
+  const user = username ? encodeURIComponent(username) + '@' : ''
+  const hostname = host.includes(':') && !host.startsWith('[') ? `[${host}]` : host
+  const portPart = port && Number(port) !== 22 ? ':' + port : ''
+  const path = startDirectory && startDirectory.split('/').map(encodeURIComponent).join('/')
+  return `sftp://${user}${hostname}${portPart}${path ? '/' + path.replace(/^\//, '') : ''}`
+}
 
 function oneLine (str) {
   const s = String(str || '').replace(/\s+/g, ' ').trim()
@@ -27,13 +37,14 @@ function label (name, value) {
   )
 }
 
-export default function CopyBookmark ({ getValues }) {
+export default function CopyBookmark ({ getValues, className }) {
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState([])
 
   const getStrings = () => {
     const values = getValues() || {}
     return {
+      sftp: sftpLink(values),
       quickConnect: stringifyQuickConnect(values),
       json: JSON.stringify(values, null, 2)
     }
@@ -44,8 +55,8 @@ export default function CopyBookmark ({ getValues }) {
     if (!next) {
       return
     }
-    const { quickConnect, json } = getStrings()
-    setItems([
+    const { sftp, quickConnect, json } = getStrings()
+    const items = [
       {
         key: 'quickConnect',
         disabled: !quickConnect,
@@ -55,12 +66,15 @@ export default function CopyBookmark ({ getValues }) {
         key: 'json',
         label: label('JSON', json)
       }
-    ])
+    ]
+    if (sftp) {
+      items.unshift({ key: 'sftp', label: label('SFTP URL', sftp) })
+    }
+    setItems(items)
   }
 
   const onClick = ({ key }) => {
-    const { quickConnect, json } = getStrings()
-    const value = key === 'json' ? json : quickConnect
+    const value = getStrings()[key]
     if (value) {
       copy(value)
     }
@@ -75,9 +89,7 @@ export default function CopyBookmark ({ getValues }) {
       trigger={['click']}
       placement='bottomRight'
     >
-      <span className='pointer fright' title={e('copy')}>
-        <CopyOutlined />
-      </span>
+      <ShareAltOutlined className={className} title={e('copy')} />
     </Dropdown>
   )
 }
