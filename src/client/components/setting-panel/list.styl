@@ -3,24 +3,25 @@
   overflow-y scroll
   &::-webkit-scrollbar
     width 0
-.list-item-edit
-.list-item-apply
-.list-item-remove
-.list-item-bookmark
-.list-item-duplicate
-.list-item-autorun
-  display none
-  width 24px
-  line-height 35px
-  text-align center
-  position absolute
-  right 0
-  top 0
-.list-item-autorun
-  right 24px
-
 .list-item-title
-  flex-grow: 1
+  flex 1
+  min-width 0
+
+.list-item-actions
+  display none
+  flex none
+  align-items stretch
+  > *
+    display inline-flex
+    align-items center
+    justify-content center
+    width 24px
+
+.item-list-unit:hover .list-item-actions
+.list-item-actions:has(.ant-tooltip-open, .ant-popover-open)
+.is-touch-device .list-item-actions
+  display flex
+
 .item-list-unit
   display flex
   position relative
@@ -35,38 +36,5 @@
   &:hover
     background var(--primary)
     color var(--primary-contrast)
-    .list-item-apply
-    .list-item-edit
-    .list-item-remove
-    .list-item-bookmark
-    .list-item-duplicate
-    .list-item-autorun
-      display block
-.theme-item:hover
-    .list-item-remove
-      right 24px
-// touch screens have no hover — always reveal the hover-only action icons
-.is-touch-device
-  .list-item-edit
-  .list-item-apply
-  .list-item-remove
-  .list-item-bookmark
-  .list-item-duplicate
-  .list-item-autorun
-    display block
-  .theme-item
-    .list-item-remove
-      right 24px
-.setting-tabs-setting
-  .item-list-unit
-    .list-item-remove
-      display none
-// .item-list
-//   .list-item-edit
-//   .list-item-apply
-//     right 20px
-.item-list-unit
-  .list-item-bookmark
-    right 18px
-  .list-item-duplicate
-    right 24px
+.setting-tabs-setting .list-item-actions .list-item-remove
+  display none

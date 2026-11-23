@@ -1,6 +1,7 @@
 /**
  * history list
  */
+import ListItemActions from '../common/list-item-actions'
 import React from 'react'
 import { CloseOutlined, EditOutlined, LoadingOutlined } from '@ant-design/icons'
 import { Popconfirm } from 'antd'
@@ -134,8 +135,10 @@ export default class ItemList extends React.PureComponent {
         >
           {tag}{titleHighlight || e('new')}
         </div>
-        {this.renderDelBtn(item)}
-        {this.renderEditBtn(item, isGroup)}
+        <ListItemActions>
+          {this.renderDelBtn(item)}
+          {this.renderEditBtn(item, isGroup)}
+        </ListItemActions>
       </div>
     )
   }
@@ -160,7 +163,6 @@ export default class ItemList extends React.PureComponent {
       <EditOutlined
         title={e('edit')}
         onClick={(e) => this.editItem(e, item, isGroup)}
-        className='pointer list-item-edit'
       />
     )
   }

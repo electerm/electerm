@@ -2,6 +2,7 @@
  * quick command list render
  */
 
+import ListItemActions from '../common/list-item-actions'
 import List from '../setting-panel/list'
 import { PlusOutlined, CopyOutlined, TagsOutlined } from '@ant-design/icons'
 import { Select, Button } from 'antd'
@@ -97,7 +98,6 @@ export default class QuickCommandsList extends List {
     return (
       <CopyOutlined
         title={e('duplicate')}
-        className='pointer list-item-duplicate'
         onClick={(e) => this.duplicateItem(e, item)}
       />
     )
@@ -134,7 +134,7 @@ export default class QuickCommandsList extends List {
         onDragEnter={this.handleDragEnter}
         onDragLeave={this.handleDragLeave}
       >
-        <div className='elli pd1y pd2x' title={name}>
+        <div className='elli pd1y pd2x list-item-title' title={name}>
           {
             !id
               ? <PlusOutlined className='mg1r' />
@@ -142,8 +142,10 @@ export default class QuickCommandsList extends List {
           }
           {title}
         </div>
-        {this.renderDuplicateBtn(item)}
-        {this.renderDelBtn(item)}
+        <ListItemActions>
+          {this.renderDuplicateBtn(item)}
+          {this.renderDelBtn(item)}
+        </ListItemActions>
       </div>
     )
   }

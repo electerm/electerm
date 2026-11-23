@@ -5,27 +5,6 @@
   max-width 220px
   word-break break-all
 
-// list.styl parks action icons absolutely at the row's right edge; in flow
-// they own their width, so a long title truncates before them, not under them.
-.wil-item-actions
-  display flex
-  flex 0 0 auto
-  align-items center
-  .list-item-autorun
-  .list-item-remove
-    position static
-    display block
-    width 22px
-    line-height inherit
-    // keep the space while hidden, or the title re-ellipsises on hover
-    visibility hidden
-.item-list-unit:hover,
-.is-touch-device
-  .wil-item-actions
-    .list-item-autorun
-    .list-item-remove
-      visibility visible
-
 // column shell and header, shared by instance detail and the UI widget panel
 .widget-instance-detail
 .custom-widget-panel
@@ -226,13 +205,9 @@
   .ant-btn
     flex 1
     min-width 0
+.list-item-actions:has(.list-item-widget-error)
+  display flex
 .list-item-widget-error
-  position absolute
-  right 0
-  top 0
-  width 24px
-  line-height 35px
-  text-align center
   color var(--warn)
 
 .cwp-error

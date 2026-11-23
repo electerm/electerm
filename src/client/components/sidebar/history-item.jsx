@@ -1,3 +1,4 @@
+import ListItemActions from '../common/list-item-actions'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import classnames from 'classnames'
 import createTitle, { createTitleWithTag } from '../../common/create-title'
@@ -75,18 +76,20 @@ export default function HistoryItem (props) {
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
     >
-      <div className='elli pd1y pd2x'>
+      <div className='elli pd1y pd2x list-item-title'>
         {title}
       </div>
-      <BookFilled
-        className='list-item-bookmark'
-        title={window.translate('bookmark')}
-        onClick={handleBookmark}
-      />
-      <DeleteOutlined
-        className='list-item-edit'
-        onClick={handleDelete}
-      />
+      <ListItemActions>
+        <BookFilled
+          className='list-item-bookmark'
+          title={window.translate('bookmark')}
+          onClick={handleBookmark}
+        />
+        <DeleteOutlined
+          className='list-item-edit'
+          onClick={handleDelete}
+        />
+      </ListItemActions>
     </div>
   )
 }

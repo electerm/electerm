@@ -2,6 +2,7 @@
  * quick command list render
  */
 
+import ListItemActions from '../common/list-item-actions'
 import List from '../setting-panel/list'
 import { PlusOutlined } from '@ant-design/icons'
 import classnames from 'classnames'
@@ -45,7 +46,7 @@ export default class ProfileList extends List {
         onClick={() => this.onClickItem(item)}
         data-id={id}
       >
-        <div className='elli pd1y pd2x' title={name}>
+        <div className='elli pd1y pd2x list-item-title' title={name}>
           {
             !id
               ? <PlusOutlined className='mg1r' />
@@ -53,7 +54,9 @@ export default class ProfileList extends List {
           }
           {title}
         </div>
-        {this.renderDelBtn(item)}
+        <ListItemActions>
+          {this.renderDelBtn(item)}
+        </ListItemActions>
       </div>
     )
   }

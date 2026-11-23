@@ -1,6 +1,7 @@
 /**
  * Trigger list for the settings panel (left col), follows quick commands list.
  */
+import ListItemActions from '../common/list-item-actions'
 import List from '../setting-panel/list'
 import { PlusOutlined, CopyOutlined } from '@ant-design/icons'
 import classnames from 'classnames'
@@ -36,7 +37,6 @@ export default class TriggerSettingList extends List {
     return (
       <CopyOutlined
         title={e('duplicate')}
-        className='pointer list-item-duplicate'
         onClick={(e) => this.duplicateItem(e, item)}
       />
     )
@@ -65,7 +65,7 @@ export default class TriggerSettingList extends List {
         className={cls}
         onClick={() => this.onClickItem(item)}
       >
-        <div className='elli pd1y pd2x' title={name}>
+        <div className='elli pd1y pd2x list-item-title' title={name}>
           {
             !id
               ? <PlusOutlined className='mg1r' />
@@ -73,8 +73,10 @@ export default class TriggerSettingList extends List {
           }
           {title}
         </div>
-        {this.renderDuplicateBtn(item)}
-        {this.renderDelBtn(item)}
+        <ListItemActions>
+          {this.renderDuplicateBtn(item)}
+          {this.renderDelBtn(item)}
+        </ListItemActions>
       </div>
     )
   }
