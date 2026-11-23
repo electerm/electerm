@@ -161,6 +161,41 @@ describe('local PowerShell startup', () => {
 // and the window that hides its echo still has to behave: nothing before the
 // prompt, and on giving up the buffered echo is discarded, never flushed.
 describe('remote shell integration window', () => {
+  const idleSshQueue = async (t) => {
+    const { StartupQueue } = await loadQueue()
+    const addon = makeAddon()
+    addon.hasReceivedInitialData = true
+    addon.lastOutput = Date.now() - 2000
+    addon.onInitialData = cb => cb()
+    const queue = new StartupQueue({
+      attachAddon: addon,
+      props: { tab: { type: 'ssh' }, config: {}, sftpPathFollowSsh: true }
+    }, { detectRemoteShell: async () => 'bash' })
+    t.after(() => queue.dispose())
+    queue.promptReadyTimeoutMs = 500
+    return { queue, addon }
+  }
+
+  test('enabling SFTP follow at an idle SSH prompt requests the cwd without another output chunk', async (t) => {
+    const { queue, addon } = await idleSshQueue(t)
+    queue.enqueueShellIntegration(true)
+    await t.waitFor(() => assert.ok(addon.sent.length))
+    assert.match(addon.sent[0], /ELECTERM_SHELL_INTEGRATION/)
+    addon.stopOutputSuppression() // Simulate the shell confirming integration.
+    await t.waitFor(() => assert.equal(queue.running, false))
+    assert.equal(queue.shellInjected, true)
+    assert.deepEqual(addon.sent.slice(1), ['\r'], 'request a fresh cwd from the prompt')
+  })
+
+  test('enabling SFTP follow leaves pending SSH input untouched', async (t) => {
+    const { queue, addon } = await idleSshQueue(t)
+    addon._lineHasUnsubmittedInput = () => true
+    queue.enqueueShellIntegration(true)
+    await t.waitFor(() => assert.equal(queue.running, false))
+    assert.deepEqual(addon.sent, [])
+    assert.equal(queue.shellInjected, false)
+  })
+
   test('types nothing until the shell has drawn a prompt', async () => {
     const addon = makeAddon()
     const queue = await makeQueue(addon, { remote: true })
