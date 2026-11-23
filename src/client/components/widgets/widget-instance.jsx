@@ -1,3 +1,4 @@
+import ListItemActions from '../common/list-item-actions'
 import {
   Popconfirm,
   Popover,
@@ -30,11 +31,6 @@ export default auto(function WidgetInstance ({ item, active, onClick }) {
   function onConfirm () {
     // delete, not pause: the row must not be started again on the next reload
     window.store.deleteWidgetInstance(id)
-  }
-  // the row itself opens the instance detail, so the action icons must not
-  // also trigger it
-  function stopPropagation (evt) {
-    evt.stopPropagation()
   }
   function handleClick () {
     if (onClick) {
@@ -98,13 +94,9 @@ export default auto(function WidgetInstance ({ item, active, onClick }) {
             )
           : titleDiv
       }
-      <div
-        className='wil-item-actions'
-        onClick={stopPropagation}
-      >
+      <ListItemActions>
         <Tooltip title='Toggle auto-run'>
           <ThunderboltOutlined
-            className='pointer list-item-autorun'
             onClick={handleToggleAutoRun}
           />
         </Tooltip>
@@ -113,7 +105,7 @@ export default auto(function WidgetInstance ({ item, active, onClick }) {
         >
           {icon}
         </Popconfirm>
-      </div>
+      </ListItemActions>
     </div>
   )
 })

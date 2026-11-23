@@ -1,6 +1,7 @@
 /**
  * widgets list
  */
+import ListItemActions from '../common/list-item-actions'
 import React, { useState, useEffect } from 'react'
 import {
   Button,
@@ -241,7 +242,9 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
         >
           {tag}{titleHighlight || e('new')}
         </div>
-        {renderWidgetActions(widget)}
+        <ListItemActions>
+          {renderWidgetActions(widget)}
+        </ListItemActions>
       </div>
     )
   }

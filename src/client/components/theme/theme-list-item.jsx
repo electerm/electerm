@@ -2,6 +2,7 @@
  * theme list render
  */
 
+import ListItemActions from '../common/list-item-actions'
 import { useEffect, useState } from 'react'
 import {
   CheckCircleOutlined,
@@ -122,14 +123,7 @@ export default function ThemeListItem (props) {
         placement='top'
       >
         <CheckCircleOutlined
-          className={
-            classnames(
-              'pointer list-item-apply',
-              {
-                'list-item-apply-previewing': isPreviewing
-              }
-            )
-          }
+          className={classnames({ 'list-item-apply-previewing': isPreviewing })}
           onClick={handleClickApplyIcon}
         />
       </Tooltip>
@@ -186,7 +180,7 @@ export default function ThemeListItem (props) {
       className={cls}
       onClick={handleClickTheme}
     >
-      <div className='elli pd1y pd2x' title={name}>
+      <div className='elli pd1y pd2x list-item-title' title={name}>
         {
           !id
             ? <PlusOutlined className='mg1r' />
@@ -194,12 +188,14 @@ export default function ThemeListItem (props) {
         }
         {renderTag()}{title}
       </div>
-      {
-        id === defaultTheme().id || type === 'iterm'
-          ? null
-          : props.renderDelBtn(item)
-      }
-      {renderApplyBtn(item)}
+      <ListItemActions>
+        {
+          id === defaultTheme().id || type === 'iterm'
+            ? null
+            : props.renderDelBtn(item)
+        }
+        {renderApplyBtn(item)}
+      </ListItemActions>
     </div>
   )
 }
