@@ -139,6 +139,7 @@ export default auto(function WidgetsList ({ activeItemId, store, onClickItem }) 
     const item = installed.find(w => w.id === result.id)
     if (item) {
       onClickWidget(item)
+      await window.store.startInstalledAssetWidget(item)
     }
   }
 

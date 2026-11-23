@@ -13,6 +13,7 @@ import encodes from '../components/bookmark-form/common/encodes'
 import { initWsCommon } from '../common/fetch-from-server'
 import safeParse from '../common/parse-json-safe'
 import initWatch from './watch'
+import { initWidgetAssets } from '../common/widget-assets.js'
 import { parseQuickConnect } from '../common/parse-quick-connect'
 import message from '../components/common/message'
 import fs from '../common/fs'
@@ -308,6 +309,7 @@ export default (Store) => {
       Object.assign(store, ext)
       store.loadFontList()
       store.fetchItermThemes()
+      initWidgetAssets()
       store.openInitSessions()
       store.fetchSshConfigItems()
       store.initCommandLine().catch(store.onError)

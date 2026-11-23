@@ -21,6 +21,7 @@ import { shouldCaptureTerminalReloadState } from '../components/terminal/ssh-rel
 import dangerousSessionFields from '../common/dangerous-session-fields'
 import { distributeTabsEvenly } from '../common/distribute-tabs'
 import { isNativeRdpTab } from '../components/rdp/native-rdp.js'
+import { publishTabEvent } from '../common/widget-tab-events'
 
 function captureSshSessionState (tab, config) {
   return shouldCaptureTerminalReloadState(tab, config)
@@ -42,6 +43,7 @@ export default Store => {
     store.tabs.forEach(tab => {
       if (tab.host && tab.status !== statusMap.error) {
         tab.status = statusMap.error
+        publishTabEvent('tabStatusChange', tab)
       }
     })
   }
@@ -152,6 +154,7 @@ export default Store => {
       store[batchProp] = newTab.id
     }
 
+    publishTabEvent('tabOpen', newTab)
     return newTab
   }
 
@@ -199,6 +202,7 @@ export default Store => {
     // Set the duplicated tab as current
     store.activeTabId = duplicatedTab.id
     store[`activeTabId${sourceTab.batch}`] = duplicatedTab.id
+    publishTabEvent('tabOpen', duplicatedTab)
   }
 
   // only toggles the flag: the tabs bar renders pinned tabs first,
@@ -365,7 +369,12 @@ export default Store => {
       return
     }
     // Directly update the tab properties
-    Object.assign(tabs[targetIndex], update)
+    const tab = tabs[targetIndex]
+    const previousStatus = tab.status
+    Object.assign(tab, update)
+    if (tab.status !== previousStatus) {
+      publishTabEvent('tabStatusChange', tab)
+    }
   }
 
   Store.prototype.clickTab = function (id, batch) {
@@ -439,6 +448,7 @@ export default Store => {
     store.activeTabId = newTab.id
     store.currentLayoutBatch = batchNum
     store.updateHistory(newTab)
+    publishTabEvent('tabOpen', newTab)
   }
 
   Store.prototype.ipcOpenTab = function (parsed) {

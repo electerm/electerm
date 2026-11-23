@@ -18,6 +18,10 @@ const read = (name) => {
 
 export const isWin = read('isWin')
 
+export function canUseNativeRdp () {
+  return isWin && !window.et.isWebApp
+}
+
 export const isMac = read('isMac')
 
 export const isMacJs = typeof navigator !== 'undefined' &&

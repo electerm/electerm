@@ -24,6 +24,12 @@
  * the bookmark form) and have none saved (a password manager widget), see
  * client/common/credential-provider.jsx.
  *
+ * A client-only instance lists relative files in electerm.assets.css and .js.
+ * Its scripts run in order in a worker and use electerm.onTabOpen(fn),
+ * electerm.onTabStatusChange(fn), and electerm.closeTab(id).
+ * Both subscriptions return an unsubscribe function and receive a snapshot
+ * with the tab's public fields at the top level (see widget-tab-events.js).
+ *
  * `electerm.styles: ["style.css"]` is the whole widget for a restyling one: the
  * host reads those files and hands them to the renderer for as long as an
  * instance runs, so there is no server script, and it works in the web app too
@@ -64,6 +70,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const { assetFiles } = require('./client-assets')
 const {
   getUserWidgetDir,
   ensureUserWidgetDir,
@@ -292,6 +299,18 @@ function errorEntry (id, message) {
   }
 }
 
+function mainEntry (pkg, conf) {
+  if (conf.assets) {
+    return ''
+  }
+  if (typeof pkg.main === 'string' && pkg.main) {
+    return pkg.main
+  }
+  return conf.ui || (Array.isArray(conf.styles) && conf.styles.length)
+    ? ''
+    : WORKER_DEFAULT_ENTRY
+}
+
 // Resolve one folder into a registry entry. Throws with a readable message so
 // the caller can list the widget as broken rather than drop it silently.
 function readWidget (dir, folderName) {
@@ -318,9 +337,7 @@ function readWidget (dir, folderName) {
   // css itself (load-widget.js runDeclarativeWidget). `main` stays the default
   // entry when it is declared, and when the folder has always relied on
   // index.js, so nothing that worked before changes.
-  const main = typeof pkg.main === 'string' && pkg.main
-    ? pkg.main
-    : (styles.length || ui ? '' : WORKER_DEFAULT_ENTRY)
+  const main = mainEntry(pkg, { ui, assets: conf.assets, styles })
   if (main) {
     const mainPath = path.resolve(dir, main)
     if (!isInside(dir, mainPath)) {
@@ -337,6 +354,20 @@ function readWidget (dir, folderName) {
     }
     if (!fs.existsSync(uiPath)) {
       throw new Error(`widget ui not found: ${ui}`)
+    }
+  }
+  if (conf.assets) {
+    if (pkg.main || ui || type !== 'instance') {
+      throw new Error('client assets require an instance without main or ui')
+    }
+    assetFiles(dir, conf.assets)
+    const settings = conf.assets.settings ?? []
+    const configs = sanitizeConfigs(conf.configs)
+    if (!Array.isArray(settings) || settings.some(name => !configs.some(field =>
+      field.name === name && /^[a-zA-Z][a-zA-Z0-9-]*$/.test(name) &&
+      ['boolean', 'select', 'number'].includes(field.type)
+    ))) {
+      throw new Error('asset settings must name boolean, select, or number fields')
     }
   }
 
@@ -372,6 +403,10 @@ function readWidget (dir, folderName) {
       // relative to the widget folder; the renderer builds
       // electerm-widget://<id>/<ui> out of it
       ui,
+      hasClientAssets: !!conf.assets,
+      assetCss: conf.assets?.css || [],
+      assetScripts: !!conf.assets?.js?.length,
+      assetSettings: conf.assets?.settings || [],
       // stylesheets the host applies to the app for as long as an instance
       // runs — the no-script way to restyle electerm, on desktop and on web
       styles,
@@ -436,13 +471,10 @@ function resolveUserWidgetEntry (id) {
   }
   const pkg = readJSON(pkgFile)
   const conf = pkg.electerm && typeof pkg.electerm === 'object' ? pkg.electerm : {}
-  const declared = typeof pkg.main === 'string' && pkg.main
-  const hasStyles = Array.isArray(conf.styles) && conf.styles.length > 0
-  const hasOwnEntry = !!declared || (!hasStyles && !conf.ui)
-  if (!hasOwnEntry) {
+  const main = mainEntry(pkg, conf)
+  if (!main) {
     return ''
   }
-  const main = declared ? pkg.main : WORKER_DEFAULT_ENTRY
   const entry = path.resolve(dir, main)
   if (!isInside(dir, entry)) {
     throw new Error(`Invalid widget ID: ${id}`)

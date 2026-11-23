@@ -30,6 +30,7 @@ const loadSshConfig = require('./ssh-config')
 const {
   listWidgets,
   listWidgetInstances,
+  clientAssetEvents,
   runWidget,
   stopWidget,
   runWidgetFunc,
@@ -41,6 +42,7 @@ const {
 } = require('../widgets/load-widget')
 const widgetLog = require('../widgets/instance-log')
 const cssBus = require('../widgets/css-bus')
+const { getUserWidgetDir } = require('../widgets/paths')
 const {
   checkMigrate,
   migrate
@@ -69,6 +71,7 @@ const { getPendingVvFile } = require('./vv-file-open')
 const {
   packInfo,
   appPath,
+  isDev,
   isMac,
   exePath,
   isPortable,
@@ -187,6 +190,8 @@ async function initAppServer () {
   if (!globalState.get('serverInited')) {
     const child = await initServer(config, {
       ...process.env,
+      widgetRoot: getUserWidgetDir(),
+      widgetAppOrigin: `http://127.0.0.1:${isDev ? process.env.devPort || 5570 : config.port}`,
       appPath,
       sshKeysPath
     }, sysLocale)
@@ -215,12 +220,11 @@ function appWindows () {
   ))
 }
 
-// One widget css change -> every app window. A window that is not ready yet
-// picks the full set up at boot through getWidgetStyles (ipc-sync.js).
-function broadcastWidgetCss (payload) {
+// Each window applies widget changes locally and reads a snapshot on reload.
+function broadcastWidgetEvent (event, payload) {
   for (const wc of appWindows()) {
     try {
-      wc.send('widget-css', payload)
+      wc.send(event, payload)
     } catch (e) {}
   }
 }
@@ -230,7 +234,8 @@ function initIpc () {
   // client/common/widget-style-host.js), so a widget's css travels as an ipc
   // event to every app window. Same code path on desktop and in the web app:
   // only this transport differs.
-  cssBus.configure(broadcastWidgetCss)
+  cssBus.configure(payload => broadcastWidgetEvent('widget-css', payload))
+  clientAssetEvents.on('change', payload => broadcastWidgetEvent('widget-assets', payload))
   powerMonitor.on('resume', () => {
     globalState.get('win').webContents.send('power-resume', null)
   })

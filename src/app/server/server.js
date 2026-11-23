@@ -10,6 +10,7 @@ const initFileServer = require('../lib/file-server')
 const appDec = require('./app-wrap')
 
 appDec(app)
+require('../widgets/client-assets').mountWidgetAssets(app, process.env.widgetRoot, process.env.widgetAppOrigin)
 
 app.get('/run', function (req, res) {
   res.send('ok')
