@@ -13,6 +13,9 @@ const rdpConfig = {
     return createBaseInitValues(props, terminalRdpType, {
       port: 3389,
       nla: true,
+      // a bookmark written before this option existed has no value: default to
+      // the tab, which is what it did (see also opensWithoutTab())
+      nativeRdpTab: true,
       connectionHoppings: [],
       ...getAuthTypeDefault(props)
     })
@@ -43,6 +46,9 @@ const rdpConfig = {
           label: e('openWithLocalRdp') + ' (Windows Only)',
           valuePropName: 'checked'
         },
+        // only rendered while the switch above is on: the tab is a placeholder
+        // for the external window and takes a pane in a split layout
+        { type: 'nativeRdpTab', name: '__nativeRdpTab__', label: '' },
         { type: 'profileItem', name: '__profile__', label: '', profileFilter: d => !isEmpty(d.rdp) },
         commonFields.username,
         commonFields.password,

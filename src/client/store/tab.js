@@ -20,7 +20,7 @@ import { action } from 'manate'
 import { shouldCaptureTerminalReloadState } from '../components/terminal/ssh-reload-state.js'
 import dangerousSessionFields from '../common/dangerous-session-fields'
 import { distributeTabsEvenly } from '../common/distribute-tabs'
-import { isNativeRdpTab } from '../components/rdp/native-rdp.js'
+import { isNativeRdpTab, openNativeRdp, opensWithoutTab } from '../components/rdp/native-rdp.js'
 
 function captureSshSessionState (tab, config) {
   return shouldCaptureTerminalReloadState(tab, config)
@@ -397,6 +397,17 @@ export default Store => {
       return message.warning(
         'local terminal is not supported, due to node-pty not working in this build'
       )
+    }
+    // A bookmark that asks for the local RDP client and does not want the
+    // placeholder tab (see nativeRdpTab in bookmark-form/config/rdp.js): start
+    // the external window and leave nothing behind. Only this path skips the
+    // tab -- the built-in client, and every other bookmark, needs one.
+    if (opensWithoutTab(newTab)) {
+      // addTab's own updateHistory() is further down and would be skipped, and
+      // without it the attempt never shows up in the connection history
+      window.store.updateHistory(newTab)
+      openNativeRdp(newTab)
+      return
     }
     const { store } = window
     const { tabs } = store

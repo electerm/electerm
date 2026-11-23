@@ -8,31 +8,20 @@
  * The work happens in the main process (src/app/lib/native-rdp-win.js, exposed
  * as 'launchNativeRdp' in src/app/lib/ipc.js).
  *
- * 'rdp' is spelled out instead of importing constants.js for the same reason
- * parse-quick-connect.js does: constants.js pulls in the logo .png files and
- * window, which would make this module unloadable under plain node.
+ * Which client opens a bookmark, and whether that leaves a tab, lives in
+ * src/client/common/native-rdp.js instead: that module imports nothing but the
+ * platform flags, so it can be unit tested under plain node. This one owns the
+ * launch and therefore needs the message UI.
  */
-import { isWin } from '../../common/platform.js'
 import message from '../common/message'
 
-const RDP_TYPE = 'rdp'
-
-export function canUseNativeRdp () {
-  return isWin && !window.et.isWebApp
-}
-
-/**
- * Is this tab a bookmark that asks for the local client on a platform that has
- * one?
- * @param {object} tab
- * @returns {boolean}
- */
-export function isNativeRdpTab (tab) {
-  return !!tab &&
-    tab.type === RDP_TYPE &&
-    !!tab.nativeRdp &&
-    canUseNativeRdp()
-}
+// re-exported so call sites keep importing one module for the whole feature
+export {
+  canUseNativeRdp,
+  isNativeRdpTab,
+  opensWithoutTab,
+  RDP_TYPE
+} from '../../common/native-rdp.js'
 
 /**
  * Electron wraps a rejected main-process call as

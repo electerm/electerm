@@ -362,6 +362,8 @@ export default Store => {
       // profile must never turn the local client off for a bookmark that asks
       // for it
       delete filtered.nativeRdp
+      // ...and neither is whether that client leaves a tab
+      delete filtered.nativeRdpTab
       return {
         ...tab,
         ...filtered
