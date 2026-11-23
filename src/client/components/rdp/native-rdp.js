@@ -12,14 +12,12 @@
  * parse-quick-connect.js does: constants.js pulls in the logo .png files and
  * window, which would make this module unloadable under plain node.
  */
-import { isWin } from '../../common/platform.js'
+import { canUseNativeRdp } from '../../common/platform.js'
 import message from '../common/message'
 
 const RDP_TYPE = 'rdp'
 
-export function canUseNativeRdp () {
-  return isWin && !window.et.isWebApp
-}
+export { canUseNativeRdp }
 
 /**
  * Is this tab a bookmark that asks for the local client on a platform that has

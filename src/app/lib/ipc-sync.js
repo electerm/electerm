@@ -52,6 +52,7 @@ module.exports = {
   // stored), so a renderer that just loaded can rebuild it without waiting for
   // a widget to re-apply (client/common/widget-style-host.js).
   getWidgetStyles: () => widgetLoader.runningCss(),
+  getWidgetAssetInstances: () => widgetLoader.widgetAssetInstances(),
   readClipboard: () => {
     return clipboard.readText()
   },

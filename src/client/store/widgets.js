@@ -288,6 +288,25 @@ export default Store => {
     safeSetItemJSON(key, { ...conf, autoRun: !!instance.autoRun })
   }
 
+  Store.prototype.startInstalledAssetWidget = async function (widget) {
+    const { id, info } = widget
+    if (!info.hasClientAssets || !info.autoRun) {
+      return
+    }
+    const config = savedWidgetConfig(id)
+    if (config.autoRun === false) {
+      return
+    }
+    const { store } = window
+    const instance = store.widgetInstances.find(instance => instance.widgetId === id)
+    const defaults = Object.fromEntries(info.configs.map(field => [field.name, field.default]))
+    const runConfig = { ...defaults, ...config }
+    if (!instance) {
+      await store.runWidget(id, runConfig)
+    }
+    store.setWidgetAutoRun(id, true, instance ? instance.config : runConfig)
+  }
+
   Store.prototype.startAutoRunWidgets = async function () {
     const { store } = window
     const items = store.autoRunWidgets

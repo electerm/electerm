@@ -47,6 +47,81 @@ after(() => {
 })
 
 describe('user widget registry', () => {
+  it('serves only the declared client assets in manifest order', async () => {
+    const id = 'asset-order'
+    writeWidget(id, {
+      name: id, electerm: { assets: { js: ['b.js', 'a.js'], css: ['theme.css'], images: ['images/icon.png'] } }
+    }, {
+      'a.js': '/* second script */',
+      'b.js': '/* first script */',
+      'theme.css': '.widget-theme { color: blue }',
+      'images/icon.png': 'fixture image',
+      'unused.js': '/* unlisted script */'
+    })
+    const app = require('express')()
+    const { mountWidgetAssets } = require('../../app/widgets/client-assets')
+    mountWidgetAssets(app, widgetsRoot, 'http://127.0.0.1')
+    const server = await new Promise(resolve => {
+      const server = app.listen(0, '127.0.0.1', () => resolve(server))
+    })
+    try {
+      const res = await fetch(`http://127.0.0.1:${server.address().port}/api/widget-assets/${id}`)
+      assert.equal(res.status, 200)
+      assert.match(res.headers.get('content-security-policy'), /default-src 'none'/)
+      const html = await res.text()
+      assert.match(html, /first script.*second script/)
+      const css = await fetch(res.url + '/files/theme.css')
+      assert.match(await css.text(), /\.widget-theme/)
+      const image = await fetch(res.url + '/files/images/icon.png')
+      assert.equal(image.headers.get('content-type'), 'image/png')
+      assert.equal(await image.text(), 'fixture image')
+      assert.equal((await fetch(res.url + '/files/unused.js')).status, 404)
+      assert.doesNotMatch(html, /unlisted script/)
+    } finally {
+      await new Promise(resolve => server.close(resolve))
+    }
+  })
+
+  it('activates listed client assets until their instance stops', async () => {
+    const id = 'tab-listener'
+    const dir = writeWidget(id, {
+      name: id,
+      electerm: {
+        assets: { js: ['js/main.js'], settings: ['compact', 'theme', 'size'] },
+        configs: [
+          { name: 'compact', type: 'boolean' },
+          { name: 'theme', type: 'select', default: 'dark', choices: ['dark', 'light'] },
+          { name: 'size', type: 'number', default: 78 },
+          { name: 'secret', type: 'password' }
+        ]
+      }
+    }, { 'js/main.js': 'throw new Error("asset code must never run in Node")' })
+    const changes = []
+    const record = list => changes.push(list)
+    registry.clientAssetEvents.on('change', record)
+    try {
+      const { instanceId } = await registry.runWidget(id, { compact: true, size: 40, secret: 'private' })
+      const active = [{
+        instanceId,
+        widgetId: id,
+        css: [],
+        scripts: true,
+        tokens: ['compact', 'theme-dark'],
+        numbers: { size: 40 }
+      }]
+      assert.deepEqual(registry.widgetAssetInstances(), active)
+      await registry.stopWidget(instanceId)
+      assert.deepEqual(changes, [active, []])
+      assert.deepEqual(registry.widgetAssetInstances(), [])
+    } finally {
+      registry.clientAssetEvents.off('change', record)
+    }
+    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({
+      name: id, electerm: { assets: { js: ['../outside.js'] } }
+    }))
+    assert.equal(userWidget.listUserWidgets().find(w => w.id === id).state, 'error')
+  })
+
   it('lists a widget from its package.json without running it', () => {
     writeWidget('hello-widget', {
       ...simplePkg(),

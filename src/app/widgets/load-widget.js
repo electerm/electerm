@@ -1,6 +1,7 @@
 // load-widget.js
 
 const fs = require('fs')
+const { EventEmitter } = require('events')
 const path = require('path')
 const widgetLog = require('./instance-log')
 const {
@@ -28,6 +29,13 @@ requireGuard.install()
 
 // Store running widget instances
 const runningInstances = new Map()
+const clientAssetEvents = new EventEmitter()
+
+function widgetAssetInstances () {
+  return [...runningInstances.values()].filter(i => i.hasClientAssets).map(i => ({
+    instanceId: i.instanceId, widgetId: i.widgetId, ...i.clientAssets
+  }))
+}
 
 function resolveBuiltinPath (widgetId) {
   if (!isValidWidgetId(widgetId)) {
@@ -262,10 +270,7 @@ function hasRunningInstance (widgetId) {
   return false
 }
 
-// A widget that is nothing but stylesheets: the manifest lists them, electerm
-// reads and applies them, and there is no server script to require (see
-// ./user-widget.js readWidget). Same lifecycle as any other instance, so the
-// panel's Run/Stop and the auto-run list work unchanged.
+// Client assets and declarative styles use the normal instance lifecycle.
 function runDeclarativeWidget (widgetId, info, config) {
   const instanceId = `${widgetId}-${Date.now()}`
   const logger = widgetLog.loggerFor(instanceId)
@@ -283,6 +288,9 @@ function runDeclarativeWidget (widgetId, info, config) {
     declaredCss: '',
     css: null,
     async start () {
+      if (!info.styles.length) {
+        return { success: true }
+      }
       this.declaredCss = declaredStyles(widgetId, info)
       const css = broadcastCss(widgetId)
       const size = Buffer.byteLength(css, 'utf8')
@@ -291,7 +299,7 @@ function runDeclarativeWidget (widgetId, info, config) {
       return { success: true, msg }
     },
     async stop () {
-      logger.log('info', 'style removed')
+      logger.log('info', 'stopped')
     }
   }
 }
@@ -302,7 +310,7 @@ async function runWidget (widgetId, config) {
   const { type, singleInstance } = info
   // the '@electerm/widget-api' shim has to be on disk before the entry is
   // required; built-in widgets import the host's own modules and need nothing
-  if (!builtin) {
+  if (!builtin && entry) {
     prepareUserWidget(widgetId)
   }
   const widget = entry ? require(entry) : {}
@@ -322,19 +330,39 @@ async function runWidget (widgetId, config) {
   }
 
   if (typeof widget.widgetRun !== 'function') {
-    if (!(info.styles || []).length) {
+    if (!(info.styles || []).length && !info.hasClientAssets) {
       throw new Error(`Widget ${widgetId} has no widgetRun export`)
     }
     const instance = runDeclarativeWidget(widgetId, info, config)
     runningInstances.set(instance.instanceId, instance)
     widgetApi.bindInstance(widgetId, instance.instanceId)
     return instance.start()
-      .then(result => ({
-        instanceId: instance.instanceId,
-        widgetId,
-        singleInstance: !!singleInstance,
-        ...result
-      }))
+      .then(result => {
+        if (info.hasClientAssets) {
+          instance.hasClientAssets = true
+          const tokens = []
+          const numbers = {}
+          for (const name of info.assetSettings) {
+            const field = info.configs.find(field => field.name === name)
+            const value = instance.config[name] ?? field.default
+            if (field.type === 'boolean' && value === true) {
+              tokens.push(name)
+            } else if (field.type === 'select' && field.choices?.some(c => c.value === value) && /^[\w-]+$/.test(value)) {
+              tokens.push(name + '-' + value)
+            } else if (field.type === 'number' && Number.isFinite(Number(value))) {
+              numbers[name] = Number(value)
+            }
+          }
+          instance.clientAssets = { css: info.assetCss, scripts: info.assetScripts, tokens, numbers }
+          clientAssetEvents.emit('change', widgetAssetInstances())
+        }
+        return {
+          instanceId: instance.instanceId,
+          widgetId,
+          singleInstance: !!singleInstance,
+          ...result
+        }
+      })
       .catch((err) => {
         runningInstances.delete(instance.instanceId)
         widgetApi.unbindInstance(widgetId, instance.instanceId)
@@ -490,6 +518,9 @@ function stopWidget (instanceId) {
     .then(() => {
       logger.log('info', 'Stopped')
       runningInstances.delete(instanceId)
+      if (instance.hasClientAssets) {
+        clientAssetEvents.emit('change', widgetAssetInstances())
+      }
       widgetApi.unbindInstance(instance.widgetId, instanceId)
       // The css lived on the instance, so it is already gone here: broadcast the
       // recomputed value ('' once the last instance of that widget stopped).
@@ -566,6 +597,8 @@ function registerCleanupHandlers () {
 registerCleanupHandlers()
 
 module.exports = {
+  clientAssetEvents,
+  widgetAssetInstances,
   listWidgets,
   runWidget,
   stopWidget,

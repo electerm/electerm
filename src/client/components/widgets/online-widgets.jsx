@@ -80,7 +80,7 @@ export default function OnlineWidgets ({ installed, onInstalled }) {
         })
         return
       }
-      onInstalled(result)
+      await onInstalled(result)
     } catch (err) {
       console.error('install registry widget error', err)
       message.error((err && err.message) || String(err))
