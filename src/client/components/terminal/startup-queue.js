@@ -138,8 +138,8 @@ export class StartupQueue {
   }
 
   /**
-   * Resolve once the shell has drawn a prompt of its own: something we had not
-   * seen before arrived, and the shell has been quiet for `quietMs` since.
+   * Wait for output followed by `quietMs` of silence. An SSH prompt may have
+   * arrived before shell detection finished or SFTP follow was enabled.
    *
    * Both halves matter. Silence alone is not "ready" - a shell that is still
    * booting (profile loading, conpty starting OpenConsole) is silent too, and
@@ -160,7 +160,7 @@ export class StartupQueue {
     return new Promise((resolve) => {
       const startedAt = Date.now()
       let last = addon.getLastOutputTime ? addon.getLastOutputTime() : startedAt
-      let sawNew = false
+      let sawOutput = this.isSsh() && addon.hasReceivedInitialData
       let done = false
       const finish = (result) => {
         if (done) {
@@ -178,9 +178,9 @@ export class StartupQueue {
         const seen = addon.getLastOutputTime ? addon.getLastOutputTime() : now
         if (seen > last) {
           last = seen
-          sawNew = true
+          sawOutput = true
         }
-        if (sawNew && now - last >= quietMs) {
+        if (sawOutput && now - last >= quietMs) {
           return finish(true)
         }
         if (now - startedAt >= timeoutMs) {
@@ -341,7 +341,7 @@ export class StartupQueue {
         // A fresh prompt makes the shell emit OSC 633 ;P Cwd= right away, so
         // the file manager picks the current path up without waiting for the
         // user's next command.
-        if (sendEnter && this.addon) {
+        if (sendEnter && this.shellInjected && this.addon && !this.addon._lineHasUnsubmittedInput?.()) {
           this.addon._sendData('\r')
         }
       }
@@ -623,7 +623,7 @@ export class StartupQueue {
           if (done || this.addon !== addon || addon.disposed) {
             return finish()
           }
-          if (!ready) {
+          if (!ready || (this.isSsh() && addon._lineHasUnsubmittedInput?.())) {
             // Booting shell, or one that never settles. Skip the injection:
             // a plain terminal is a far better outcome than a screen full of
             // script.
