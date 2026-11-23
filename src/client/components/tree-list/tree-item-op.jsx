@@ -11,6 +11,7 @@ import {
   Tooltip
 } from 'antd'
 import { useState } from 'react'
+import CopyBookmark from '../bookmark-form/copy-bookmark'
 import {
   defaultBookmarkGroupId
 } from '../../common/constants'
@@ -68,6 +69,12 @@ export default function TreeItemOp (props) {
   }
 
   const buttons = []
+
+  if (!isGroup && item.id) {
+    buttons.push(
+      <CopyBookmark key='share-bookmark' getValues={() => item} />
+    )
+  }
 
   if (isGroup && !staticList) {
     buttons.push(

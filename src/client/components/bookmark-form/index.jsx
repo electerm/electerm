@@ -162,7 +162,7 @@ export default class BookmarkIndex2 extends PureComponent {
   }
 
   renderCopy () {
-    return <CopyBookmark getValues={this.getFormValues} />
+    return <CopyBookmark getValues={this.getFormValues} className='pointer fright' />
   }
 
   renderForm () {
