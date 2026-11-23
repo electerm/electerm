@@ -1,13 +1,6 @@
-
-.tree-control-btn
-  display inline-flex
-  align-items center
-  justify-content center
-  margin-left 3px
-  width 16px
-  line-height 30px
-  height 26px
 .tree-item
+  flex 1
+  min-width 0
   display flex
   position relative
   line-height 26px
@@ -45,8 +38,6 @@
   font-size 11px
   margin-right 4px
 
-.sidebar-panel .tree-item-title
-   max-width 100%
 .with-plus
   &:after
     content '+'
@@ -54,19 +45,6 @@
     font-size 16px
     top 2px
     right 2px
-.add-menu-wrap
-  .tree-item-title
-    padding-right 20px
-  .is-category
-    .tree-item-title
-      padding-right 40px
-  .edit-icon.tree-control-btn
-  .open-all-icon.tree-control-btn
-    position absolute
-    right 0
-    top 0
-  .open-all-icon.tree-control-btn
-    right 20px
 .group-container
   padding-left 12px
   position relative
@@ -162,25 +140,17 @@
   right 0
 
 .tree-list-row
+  display flex
   box-sizing border-box
   width 100%
   position relative
   &.is-hidden
     visibility hidden
-  &:hover
-    .tree-item-title
-      padding-right 60px
-    .tree-item-op-wrap
-      opacity 1
-      pointer-events auto
-.add-menu-wrap
-.sidebar-panel
-  .tree-list-row
-    &:hover
-      .tree-item-title
-        padding-right 20px
 
 .tree-list-row-group
+  display flex
+  flex 1
+  min-width 0
   position relative
   padding-left 12px
 
@@ -190,28 +160,20 @@
   z-index 4
 
 .tree-item-op-wrap
-  position absolute
-  top 0
-  bottom 0
-  right 4px
-  display flex
+  display none
+  flex none
   align-items center
-  z-index 3
-  opacity 0
-  pointer-events none
-  &.is-active
-    opacity 1
-    pointer-events auto
-// touch screens have no hover — always reveal the hover-only action icons
-.is-touch-device
-  .tree-list-row
-    .tree-item-title
-      padding-right 60px
-    .tree-item-op-wrap
-      opacity 1
-      pointer-events auto
-  .add-menu-wrap
-  .sidebar-panel
-    .tree-list-row
-      .tree-item-title
-        padding-right 20px
+  gap 3px
+  padding 0 4px 0 3px
+  > *
+    display inline-flex
+    align-items center
+    justify-content center
+    width 16px
+    height 26px
+    cursor pointer
+
+.tree-list-row:hover .tree-item-op-wrap
+.tree-item-op-wrap.is-active
+.is-touch-device .tree-item-op-wrap
+  display flex
