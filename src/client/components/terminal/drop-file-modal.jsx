@@ -13,7 +13,7 @@ export default function DropFileModal ({ files, isSerial, onSelect, onCancel }) 
   const storageKey = isSerial ? 'lastSerialDropAction' : 'lastSshDropAction'
   const [action, setAction] = useState(() => {
     const saved = getItem(storageKey)
-    return options.some(option => option.value === saved) ? saved : options[0].value
+    return options.some(option => option.value === saved) ? saved : 'inputOnly'
   })
 
   function confirm () {
