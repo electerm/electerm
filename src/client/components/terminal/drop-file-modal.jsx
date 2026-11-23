@@ -1,3 +1,4 @@
+import { terminalDropUploads, dropUploadLabel } from '../../common/terminal-drop-uploads'
 import Modal from '../common/modal'
 
 const e = window.translate
@@ -35,20 +36,16 @@ export function DropFileModal (props) {
   const renderSshFooter = () => {
     return (
       <>
-        <button
-          type='button'
-          className='custom-modal-ok-btn'
-          onClick={() => onSelect('trz')}
-        >
-          trz
-        </button>
-        <button
-          type='button'
-          className='custom-modal-cancel-btn'
-          onClick={() => onSelect('rz')}
-        >
-          rz
-        </button>
+        {terminalDropUploads.map(upload => (
+          <button
+            key={upload.command}
+            type='button'
+            className='custom-modal-cancel-btn'
+            onClick={() => onSelect(upload.command)}
+          >
+            {dropUploadLabel(upload, e)}
+          </button>
+        ))}
         <button
           type='button'
           className='custom-modal-cancel-btn'
@@ -76,11 +73,11 @@ export function DropFileModal (props) {
 
   return (
     <Modal
-      title='?'
+      title={e('dragDropBehavior')}
       open={visible}
       onCancel={onCancel}
       footer={
-        <div className='custom-modal-footer-buttons'>
+        <div className='custom-modal-footer-buttons' style={{ flexWrap: 'wrap' }}>
           {isSerial ? renderSerialFooter() : renderSshFooter()}
         </div>
       }
