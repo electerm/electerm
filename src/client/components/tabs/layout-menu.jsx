@@ -5,7 +5,6 @@
 import React, { useState } from 'react'
 import { Dropdown, Tabs } from 'antd'
 import {
-  DownOutlined,
   AppstoreOutlined,
   LayoutOutlined
 } from '@ant-design/icons'
@@ -67,8 +66,8 @@ export default function LayoutMenu (props) {
       placement='bottomRight'
       trigger={['click']}
     >
-      <span className='tabs-dd-icon layout-dd-icon mg1l'>
-        <Icon /> <DownOutlined />
+      <span className='tabs-dd-icon layout-dd-icon' title={e('layout')}>
+        <Icon />
       </span>
     </Dropdown>
   )

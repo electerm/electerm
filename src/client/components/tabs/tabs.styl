@@ -356,3 +356,49 @@
   .tab-reload
   .tabs-extra
     -webkit-app-region no-drag
+
+.session-list-trigger
+.session-list-row button
+  border 0
+  background transparent
+  color inherit
+  font inherit
+  cursor pointer
+  &:hover
+    background var(--main-dark)
+
+.session-list-trigger
+.tabs-extra .layout-dd-icon
+  display inline-flex
+  align-items center
+  justify-content center
+  width 32px
+  height 32px
+  vertical-align middle
+  cursor pointer
+
+.tabs-extra .session-list-trigger
+  font-size 16px
+  + .layout-dd-icon
+    margin-left 8px
+
+.session-list
+  width min(320px, 80vw)
+
+.session-list-results
+  margin-top 6px
+  max-height min(320px, 50vh)
+  overflow-y auto
+
+.session-list-row
+  display flex
+  button
+    padding 6px 8px
+    border-radius 4px
+  .session-list-title
+    flex 1
+    min-width 0
+    text-align left
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap

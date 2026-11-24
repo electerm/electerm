@@ -6,13 +6,11 @@ import { Component } from 'manate/react/class-components'
 import React from 'react'
 import runIdle from '../../common/run-idle'
 import { throttle } from 'lodash-es'
-import TabTitle from './tab-title'
+import SessionList from './session-list'
 import {
-  DownOutlined,
   LeftOutlined,
   RightOutlined
 } from '@ant-design/icons'
-import { Dropdown } from 'antd'
 import Tab from './tab'
 import LayoutMenu from './layout-menu'
 import './tabs.styl'
@@ -219,9 +217,14 @@ export default class Tabs extends Component {
     }
   }, 100, { leading: true, trailing: true })
 
-  handleClickMenu = ({ key }) => {
-    const id = key.split('##')[1]
-    window.store['activeTabId' + this.props.batch] = id
+  renderSessionList (tabs) {
+    return (
+      <SessionList
+        tabs={tabs}
+        config={this.props.config}
+        batch={this.props.batch}
+      />
+    )
   }
 
   renderAddBtn = () => {
@@ -250,22 +253,6 @@ export default class Tabs extends Component {
   }
 
   renderExtra () {
-    const items = this.getSortedTabs().map((t, i) => {
-      return {
-        key: i + '##' + t.id,
-        label: (
-          <span><TabTitle tab={t} config={this.props.config} /></span>
-        ),
-        onClick: () => this.handleClickMenu({ key: i + '##' + t.id })
-      }
-    })
-    const dropProps = {
-      className: 'tabs-add-btn font16',
-      menu: {
-        items
-      },
-      placement: 'bottomRight'
-    }
     return (
       <div className='tabs-extra pd1x'>
         {this.renderAddBtn()}
@@ -277,11 +264,7 @@ export default class Tabs extends Component {
           className='mg1x iblock pointer font12 tab-scroll-icon'
           onClick={this.handleScrollRight}
         />
-        <Dropdown
-          {...dropProps}
-        >
-          <DownOutlined className='tabs-dd-icon' />
-        </Dropdown>
+        {this.renderSessionList(this.getSortedTabs())}
         {
           this.renderLayoutMenu()
         }
@@ -440,25 +423,13 @@ export default class Tabs extends Component {
     return null
   }
 
-  renderMobileTabsDropdown (items) {
-    return (
-      <Dropdown
-        menu={{ items }}
-        placement='bottomRight'
-        trigger={['click']}
-      >
-        <DownOutlined className='tabs-dd-icon' />
-      </Dropdown>
-    )
-  }
-
-  renderMobileTabsExtra (items) {
+  renderMobileTabsExtra (tabs) {
     return (
       <div className='mobile-tabs-extra'>
         {this.renderAddBtn()}
         {
-          items && items.length
-            ? this.renderMobileTabsDropdown(items)
+          tabs.length
+            ? this.renderSessionList(tabs)
             : null
         }
       </div>
@@ -484,15 +455,6 @@ export default class Tabs extends Component {
   renderMobileTabs () {
     const { tabs = [], currentBatchTabId } = this.props
     const currentTab = tabs.find(t => t.id === currentBatchTabId)
-    const items = tabs.map((t, i) => {
-      return {
-        key: i + '##' + t.id,
-        label: (
-          <span><TabTitle tab={t} config={this.props.config} /></span>
-        ),
-        onClick: () => this.handleClickMenu({ key: i + '##' + t.id })
-      }
-    })
     const tabProps = {
       ...this.props,
       tab: currentTab,
@@ -506,7 +468,7 @@ export default class Tabs extends Component {
     return (
       <div className={this.tabsClassName('mobile-tabs')} ref={this.tabsRef}>
         {this.renderMobileTabsInner(currentTabEl)}
-        {this.renderMobileTabsExtra(items)}
+        {this.renderMobileTabsExtra(tabs)}
         {this.renderWindowControl()}
       </div>
     )
