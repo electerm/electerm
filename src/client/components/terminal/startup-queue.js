@@ -26,6 +26,7 @@ import {
 import {
   createRestoreCwdCommand,
   createWindowsRestoreCwdCommand,
+  isPowerShellExecutable,
   isRestorableTerminalTab
 } from './ssh-reload-state.js'
 import { getPowerShellSpawnArgs } from '../../common/powershell-integration.js'
@@ -229,10 +230,6 @@ export class StartupQueue {
     return getPowerShellSpawnArgs(shell, args) !== null
   }
 
-  isPosixShell = () => {
-    return this.isRemoteShell() || (this.isLocal() && !isWin)
-  }
-
   sleep = (ms) => {
     if (ms <= 0) {
       return Promise.resolve()
@@ -283,9 +280,11 @@ export class StartupQueue {
       // refuse (control characters, over-long), and interpolating the raw value
       // instead would hand `startDirectory` - which a quick-connect link can
       // set - straight to the shell as a command.
-      cwdCommand = this.isPosixShell()
+      const shell = localShell || this.getLocalExec().shell
+      const usePosix = this.isRemoteShell() || (this.isLocal() && !isWin && !isPowerShellExecutable(shell))
+      cwdCommand = usePosix
         ? createRestoreCwdCommand(startFolder)
-        : createWindowsRestoreCwdCommand(startFolder, localShell || term.props.config.execWindows)
+        : createWindowsRestoreCwdCommand(startFolder, shell)
     }
     if (cwdCommand) {
       scripts.unshift({ script: cwdCommand, delay: 0 })
