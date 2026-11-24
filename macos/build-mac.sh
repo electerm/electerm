@@ -26,7 +26,7 @@ install -m 644 Assets/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
 cp LICENSE "$app/Contents/Resources/"
 cp .build/vendor/SwiftTerm/LICENSE "$app/Contents/Resources/LICENSE-SwiftTerm"
 plutil -lint "$app/Contents/Info.plist"
-lipo -verify_arch arm64 "$app/Contents/MacOS/ElectermMac"
+lipo "$app/Contents/MacOS/ElectermMac" -verify_arch arm64
 if otool -L "$app/Contents/MacOS/ElectermMac" | grep -Eq 'JavaScriptCore|WebKit|Electron'; then
   echo "Unexpected web engine in the executable" >&2; exit 1
 fi
