@@ -403,3 +403,13 @@
     overflow hidden
     text-overflow ellipsis
     white-space nowrap
+
+.session-list-close
+  visibility hidden
+
+.session-list-row:hover
+.session-list-row:focus-within
+// The popover is portaled to body, outside the app's input-modality class.
+body:has(.is-touch-device) .session-list-row
+  .session-list-close
+    visibility visible

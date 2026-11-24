@@ -29,7 +29,7 @@ export default function SessionList ({ tabs, config, batch }) {
         <button type='button' className='session-list-title' title={label} onClick={() => selectTab(tab.id)}>
           <span aria-hidden='true' style={{ color: tab.color }}>● </span>{label}
         </button>
-        <button type='button' title={e('close')} aria-label={`${e('close')} ${label}`} onClick={() => window.store.delTab(tab.id)}>
+        <button type='button' className='session-list-close' title={e('close')} aria-label={`${e('close')} ${label}`} onClick={() => window.store.delTab(tab.id)}>
           <CloseOutlined />
         </button>
       </div>
