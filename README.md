@@ -1,12 +1,12 @@
 # Electerm Terminal · Mac 原生版
 
-这是独立源码工程，面向 macOS 14 及以上的 Apple Silicon（含 M5）。相邻的 `electerm/` 保留 Windows R7；
-本工程不读取、构建或修改它，也不使用原 Electron 版的 `.runtime`、书签数据库或界面设置。
+本 fork 只维护 SwiftUI、AppKit 和 SwiftTerm 的 Mac 原生版，面向 macOS 14 及以上的 Apple Silicon（含 M5）。
+不依赖 Electron，也不读取旧版 `.runtime`、书签数据库或界面设置。
 
 ## 在 Mac 构建
 
-把整个 `electerm-mac` 文件夹放到 Mac 上。需要 Swift 6.2 或更新的 Apple 工具链和 Git。
-在该文件夹的终端中执行：
+下载 GitHub Actions 的 `Electerm-Terminal-mac-arm64` 成品无需安装开发工具。
+自行构建需要 Swift 6.2 或更新的 Apple 工具链和 Git，在仓库根目录执行：
 
 ```sh
 sh build-mac.sh
@@ -31,7 +31,11 @@ sh build-mac.sh
   启动时记录登录 shell PID，在输入命令后通过 SFTP 解析 `/proc/<pid>/cwd`。不猜提示符，不改远程配置文件。
   不支持 `/proc` 且没有 OSC 的主机可手动浏览。受限 SSH 设备或配置了 `RemoteCommand` 的主机，
   可以在设置里关闭“探测远程 shell 目录”再连接，保留其原始登录方式。
-- 远程监控默认关闭，开启时对当前 Linux 会话采样 CPU 和内存；其他服务器可能显示 `n/a`。
+- 左栏书签与文件图标可切换或收起，单击目录进入，双击普通文件下载。开启跟随会切回远程文件栏。
+  目录浏览和 `/proc` 探测复用一个 SFTP 子系统，传输不占用浏览通道。
+- 设置按终端、SSH 与文件、远程监控分组，支持历史行数、默认换行、默认跟随、隐藏文件和采样间隔。
+- 监控默认关闭，开启后采样 CPU 和内存，详情按钮按需读取系统、负载、交换区、根盘、接口流量累计、登录用户与进程。
+  详细指标针对 Linux，缺少相应工具或权限时并非每项都有数据。
 
 ## 实现与验收
 

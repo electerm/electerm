@@ -10,6 +10,12 @@ struct MainPage: View {
     @AppStorage("fontSize") private var fontSize = 13.0
     @AppStorage("keepalive") private var keepalive = true
     @AppStorage("shellTracking") private var shellTracking = true
+    @AppStorage("scrollback") private var scrollback = 3000
+    @AppStorage("defaultWrap") private var defaultWrap = true
+    @AppStorage("defaultFollow") private var defaultFollow = true
+    @AppStorage("showHiddenFiles") private var showHiddenFiles = false
+    @AppStorage("defaultMonitor") private var defaultMonitor = false
+    @AppStorage("monitorInterval") private var monitorInterval = 3
     @State private var quick = ""
     @State private var name = ""
     @State private var address = ""
@@ -46,10 +52,26 @@ struct MainPage: View {
                         panel = nil
                     }.keyboardShortcut(.defaultAction)
                 } else {
-                    Stepper("终端字号：\(Int(fontSize))", value: $fontSize, in: 9...28)
-                    Toggle("浅色界面", isOn: $light)
-                    Toggle("SSH 保活（新连接）", isOn: $keepalive)
-                    Toggle("探测远程 shell 目录（新连接）", isOn: $shellTracking)
+                    Form {
+                        Section("终端") {
+                            Stepper("终端字号：\(Int(fontSize))", value: $fontSize, in: 9...28)
+                            Stepper("历史行数（新标签）：\(scrollback)", value: $scrollback, in: 500...20000, step: 500)
+                            Toggle("自动换行（新标签）", isOn: $defaultWrap)
+                            Toggle("浅色界面", isOn: $light)
+                        }
+                        Section("SSH 与文件") {
+                            Toggle("SSH 保活（新连接）", isOn: $keepalive)
+                            Toggle("探测远程 shell 目录（新连接）", isOn: $shellTracking)
+                            Toggle("SFTP 跟随终端（新标签）", isOn: $defaultFollow)
+                            Toggle("显示隐藏文件", isOn: $showHiddenFiles)
+                        }
+                        Section("远程监控") {
+                            Toggle("连接时开启监控（新标签）", isOn: $defaultMonitor)
+                            Picker("采样间隔", selection: $monitorInterval) {
+                                ForEach([2, 3, 5, 10], id: \.self) { Text("\($0) 秒").tag($0) }
+                            }
+                        }
+                    }.formStyle(.grouped).frame(height: 400)
                 }
             }.padding(18).frame(width: 350)
         }
@@ -66,7 +88,7 @@ struct MainPage: View {
                             }
                             tool("terminal.fill", "本地", .green) { work.add() }
                             if s.endpoint != nil {
-                                Toggle("SFTP 与终端同步", isOn: Binding(get: { s.follow }, set: { s.follow = $0; s.resumePane() }))
+                                Toggle("SFTP 与终端同步", isOn: Binding(get: { s.follow }, set: s.setFollow))
                                     .toggleStyle(.checkbox)
                                 tool("heart", "保活", keepalive ? .cyan : .primary) {
                                     keepalive.toggle()
@@ -97,13 +119,19 @@ struct MainPage: View {
                                 }.padding(.horizontal, 7).frame(height: 28).background(chrome)
                             }
                             HStack(alignment: .top, spacing: 0) {
-                                VStack(spacing: 12) {
-                                    icon("star.fill", "书签夹") { s.toggle(.bookmarks) }.foregroundStyle(.yellow)
-                                    if s.endpoint != nil { icon("folder", "远程文件") { s.toggle(.files) } }
+                                VStack(spacing: 0) {
+                                    railButton("bookmark", "书签夹", selected: s.pane == .bookmarks) { s.toggle(.bookmarks) }
+                                    if s.endpoint != nil {
+                                        railButton("folder", "远程文件", selected: s.pane == .files) { s.toggle(.files) }
+                                    }
                                     Spacer()
-                                }.padding(.top, 6).frame(width: 28).background(chrome)
-                                if s.pane == .bookmarks { BookmarkList(work: work) }
-                                else if s.pane == .files { FilePane(session: s) }
+                                }.frame(width: 28).background(chrome)
+                                if s.pane != .hidden {
+                                    Group {
+                                        if s.pane == .bookmarks { BookmarkList(work: work) }
+                                        else { FilePane(session: s) }
+                                    }.frame(minWidth: 0, maxWidth: .infinity).clipped()
+                                }
                             }
                         }.frame(width: width).background(bodyColor)
                         if s.pane != .hidden {
@@ -167,6 +195,16 @@ private struct ObservedSession<Content: View>: View {
     @ObservedObject var session: Session
     @ViewBuilder var content: (Session) -> Content
     var body: some View { content(session) }
+}
+
+private func railButton(_ image: String, _ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
+    Button(action: action) {
+        Image(systemName: selected ? image + ".fill" : image)
+            .foregroundStyle(selected ? Color.accentColor : Color.primary)
+            .frame(width: 28, height: 28)
+            .background(selected ? Color.accentColor.opacity(0.16) : .clear)
+            .contentShape(Rectangle())
+    }.buttonStyle(.plain).accessibilityLabel(title).help(title)
 }
 
 func icon(_ image: String, _ title: String, _ action: @escaping () -> Void) -> some View {

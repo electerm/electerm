@@ -12,8 +12,8 @@ enum TerminalInput { case bytes(Data), paste(String) }
     var title: String { endpoint == nil ? "Local" : address }
     @Published var pane: Pane
     @Published private(set) var live = false
-    @Published var follow = true
-    @Published var wrap = true
+    @Published private(set) var follow = UserDefaults.standard.object(forKey: "defaultFollow") as? Bool ?? true
+    @Published var wrap = UserDefaults.standard.object(forKey: "defaultWrap") as? Bool ?? true
     @Published var path = "."
     @Published var entries: [RemoteFile] = []
     @Published var message = ""
@@ -24,26 +24,36 @@ enum TerminalInput { case bytes(Data), paste(String) }
     var broadcast: ((TerminalInput) -> Void)?
     var isSelected: Bool { active }
     private var terminal: PseudoTerminal?, remote: Remote?, generation = UUID()
+    private var browser: DirectoryChannel?
+    private var hasListing = false
+    private var followingRequest = false
+    @Published private(set) var loadingDirectory = false
     private var listing = UUID(), cwd: String?, requestedDirectory: String?, shellPID: Int?, pending: DispatchWorkItem?
     private var active = true, authenticated = false, probePending = false, probing = false
+    private var watchCommandOutput = false
+    private var lastOutput = TimeInterval.zero
     private var trackShellPID = false
     private var prevCPU: (Double, Double)?, sampling = false
-    private var loadingDirectory = false
     init(_ number: Int, _ address: String = "", endpoint: Endpoint? = nil) {
         self.number = number; self.address = address; self.endpoint = endpoint
+        monitor = endpoint != nil && UserDefaults.standard.bool(forKey: "defaultMonitor")
         pane = endpoint == nil ? .bookmarks : .files
         screen.view.session = self
         screen.directory = { [weak self] dir in
             guard let self, self.endpoint != nil else { return }
             self.cwd = dir
-            self.probePending = false
+            self.probePending = false; self.watchCommandOutput = false
+            self.listing = UUID()
             self.pending?.cancel(); self.pending = nil
             if self.follow && self.active && self.pane == .files && (self.requestedDirectory ?? self.path) != dir {
-                self.refresh(dir)
+                self.refresh(dir, following: true)
             }
         }
         screen.shellReady = { [weak self] pid in
-            if let self, self.trackShellPID, self.shellPID == nil { self.shellPID = pid }
+            if let self, self.trackShellPID, self.shellPID == nil {
+                self.shellPID = pid
+                if self.probePending { self.scheduleProbe(immediate: true) }
+            }
         }
     }
     func start() {
@@ -55,6 +65,7 @@ enum TerminalInput { case bytes(Data), paste(String) }
             if let endpoint {
                 let link = try Remote(endpoint)
                 remote = link
+                browser = DirectoryChannel { try SFTP(link) }
                 cmd = "/usr/bin/ssh"
                 let prefs = UserDefaults.standard
                 trackShellPID = prefs.object(forKey: "shellTracking") as? Bool ?? true
@@ -68,6 +79,10 @@ enum TerminalInput { case bytes(Data), paste(String) }
                                           output: { [weak self] data in
                 guard let self, self.generation == token else { return }
                 self.screen.receive(data)
+                if self.watchCommandOutput && self.active && self.follow && self.pane == .files {
+                    self.lastOutput = ProcessInfo.processInfo.systemUptime
+                    self.probePending = true
+                }
                 if self.probePending { self.scheduleProbe() }
             }, ended: { [weak self] in
                 guard let self, self.generation == token else { return }
@@ -91,11 +106,13 @@ enum TerminalInput { case bytes(Data), paste(String) }
         }
     }
     func stop() {
-        generation = UUID(); listing = UUID(); requestedDirectory = nil; loadingDirectory = false
+        generation = UUID(); listing = UUID(); requestedDirectory = nil; loadingDirectory = false; hasListing = false
         live = false; authenticated = false; trackShellPID = false
-        pending?.cancel(); pending = nil; probePending = false; probing = false; sampling = false; working = false
+        pending?.cancel(); pending = nil; probePending = false; probing = false; watchCommandOutput = false; lastOutput = 0
+        sampling = false; working = false
         screen.view.replies.bind(nil)
         terminal?.stop(); terminal = nil; remote?.dispose(); remote = nil
+        browser = nil
     }
     func close() { stop(); screen.close() }
     func resize(_ w: Int, _ h: Int) {
@@ -105,7 +122,9 @@ enum TerminalInput { case bytes(Data), paste(String) }
         guard live else { return }
         terminal?.write(data)
         if enabled { broadcast?(.bytes(data)) }
-        if shellPID != nil && (data.contains(13) || data.contains(10)) { probePending = true; scheduleProbe() }
+        if shellPID != nil && follow && pane == .files && (data.contains(13) || data.contains(10)) {
+            watchCommandOutput = true; probePending = true; scheduleProbe()
+        }
     }
     func paste(_ text: String, broadcast enabled: Bool) {
         guard live else { return }
@@ -118,60 +137,82 @@ enum TerminalInput { case bytes(Data), paste(String) }
         if enabled { broadcast?(.paste(body)) }
     }
     func select(_ value: Bool) { active = value; if value { resumePane() } }
+    func setFollow(_ enabled: Bool) {
+        guard endpoint != nil else { return }
+        follow = enabled
+        if enabled {
+            pane = .files
+            resumePane()
+        } else {
+            pending?.cancel(); pending = nil; probePending = false; watchCommandOutput = false
+            listing = UUID()
+            if followingRequest { requestedDirectory = nil }
+            if !hasListing && pane == .files { refresh(path) }
+        }
+    }
     func toggle(_ choice: Pane) {
+        guard choice != .files || endpoint != nil else { return }
         pane = pane == choice ? .hidden : choice
         if pane == .files { resumePane() } else { listing = UUID(); requestedDirectory = nil }
     }
     func resumePane() {
         guard authenticated, active, pane == .files else { return }
-        refresh(follow ? cwd ?? path : path)
-        if follow { probePending = true; scheduleProbe() }
+        if follow, let cwd, cwd != path { refresh(cwd, following: true) }
+        else if !hasListing { refresh(path) }
+        if follow { probePending = true; scheduleProbe(immediate: true) }
     }
-    private func scheduleProbe() {
+    private func scheduleProbe(immediate: Bool = false) {
         guard active, follow, authenticated, pane == .files, let pid = shellPID,
-              let remote, !probing, pending == nil else { return }
+              let browser, !probing, pending == nil else { return }
         let token = generation, previousList = listing
         let work = DispatchWorkItem { [weak self] in
             guard let self, self.generation == token else { return }
             self.pending = nil
             guard self.active, self.follow, self.pane == .files else { return }
+            if !immediate, self.watchCommandOutput, ProcessInfo.processInfo.systemUptime - self.lastOutput < 0.15 {
+                self.scheduleProbe()
+                return
+            }
             self.probePending = false; self.probing = true
             DispatchQueue.global(qos: .utility).async { [weak self] in
-                let next = try? SFTP(remote).resolve("/proc/\(pid)/cwd")
+                let next = try? browser.withClient { try $0.resolve("/proc/\(pid)/cwd") }
                 DispatchQueue.main.async {
                     guard let self, self.generation == token else { return }
                     self.probing = false
                     if let next, previousList == self.listing {
+                        if next != self.cwd { self.watchCommandOutput = false }
                         self.cwd = next
-                        if self.active && self.follow && self.pane == .files && self.path != next { self.refresh(next) }
+                        if self.active && self.follow && self.pane == .files && self.path != next { self.refresh(next, following: true) }
                     }
                     if self.probePending { self.scheduleProbe() }
                 }
             }
         }
         pending = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + (immediate ? 0 : 0.15), execute: work)
     }
-    func refresh(_ next: String) {
-        guard let remote, authenticated, requestedDirectory != next else { return }
+    func refresh(_ next: String, following: Bool = false) {
+        guard let browser, authenticated else { return }
+        followingRequest = following
+        guard requestedDirectory != next else { return }
         requestedDirectory = next
         listing = UUID()
         guard !loadingDirectory else { return }
-        loadDirectory(next, remote)
+        loadDirectory(next, browser)
     }
-    private func loadDirectory(_ next: String, _ remote: Remote) {
+    private func loadDirectory(_ next: String, _ browser: DirectoryChannel) {
         let token = generation
         loadingDirectory = true
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            let result = Result { try SFTP(remote).list(next) }
+            let result = Result { try browser.withClient { try $0.list(next) } }
             DispatchQueue.main.async { [weak self] in
                 guard let self, self.generation == token else { return }
                 self.loadingDirectory = false
                 guard let wanted = self.requestedDirectory else { return }
-                if next != wanted { self.loadDirectory(wanted, remote); return }
+                if next != wanted { self.loadDirectory(wanted, browser); return }
                 self.requestedDirectory = nil
                 switch result {
-                case let .success((dir, files)): self.path = dir; self.entries = files; self.message = ""
+                case let .success((dir, files)): self.hasListing = true; self.path = dir; self.entries = files; self.message = ""
                 case let .failure(err): self.message = err.localizedDescription
                 }
             }
@@ -253,6 +294,13 @@ enum TerminalInput { case bytes(Data), paste(String) }
                 self.memory = "\(Int((values[2] - values[3]) / 1024)) / \(Int(values[2] / 1024)) MiB"
             }
         }
+    }
+    func monitorDetails() async throws -> [MonitorSection] {
+        guard monitor, authenticated, let remote else { throw TerminalError("监控已关闭或 SSH 尚未就绪") }
+        let token = generation
+        let sections = try await Task.detached(priority: .utility) { try remote.monitorDetails() }.value
+        guard token == generation else { throw CancellationError() }
+        return sections
     }
     deinit { terminal?.stop(); remote?.dispose() }
 }

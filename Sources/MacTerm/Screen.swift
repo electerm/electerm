@@ -18,7 +18,7 @@ import SwiftTerm
     }
     init() {
         var options = TerminalOptions.default
-        options.scrollback = 3000
+        options.scrollback = min(20000, max(500, UserDefaults.standard.object(forKey: "scrollback") as? Int ?? 3000))
         options.maximumOscBytes = 8192
         options.kittyGraphics.storageLimitBytesPerScreen = 0
         options.enableSixelReported = false

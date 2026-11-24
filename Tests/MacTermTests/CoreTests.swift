@@ -3,6 +3,50 @@ import XCTest
 @testable import MacTerm
 
 final class CoreTests: XCTestCase {
+    @MainActor func testSidebarAndFollowSwitchWithoutWaitingForSSH() throws {
+        let ssh = Session(1, "example", endpoint: try XCTUnwrap(Endpoint("example")))
+        let local = Session(2)
+        defer { ssh.close(); local.close() }
+        XCTAssertEqual(ssh.pane, .files)
+        ssh.toggle(.bookmarks)
+        XCTAssertEqual(ssh.pane, .bookmarks)
+        ssh.setFollow(true)
+        XCTAssertEqual(ssh.pane, .files)
+        ssh.setFollow(false)
+        XCTAssertFalse(ssh.follow)
+        XCTAssertEqual(ssh.pane, .files)
+        ssh.toggle(.files)
+        XCTAssertEqual(ssh.pane, .hidden)
+        ssh.toggle(.files)
+        XCTAssertEqual(ssh.pane, .files)
+        local.toggle(.files)
+        local.setFollow(true)
+        XCTAssertEqual(local.pane, .bookmarks)
+    }
+
+    func testDirectoryChannelReusesSubsystemAfterMissingDirectory() throws {
+        let server = "/usr/libexec/sftp-server"
+        guard FileManager.default.isExecutableFile(atPath: server) else { throw XCTSkip("No SFTP subsystem") }
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: false)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        var opens = 0
+        let channel = DirectoryChannel {
+            opens += 1
+            return try SFTP(executable: server, arguments: ["-d", dir.path])
+        }
+        let home = try channel.withClient { try $0.resolve(".") }
+        XCTAssertThrowsError(try channel.withClient { try $0.list("missing") })
+        XCTAssertEqual(try channel.withClient { try $0.list(".").0 }, home)
+        XCTAssertEqual(opens, 1)
+    }
+
+    func testMonitorOmitsUnavailableSections() {
+        let sections = MonitorSection.parse(":::系统\nLinux\n:::用户\n:::磁盘\n42%\n")
+        XCTAssertEqual(sections.map(\.title), ["系统", "磁盘"])
+        XCTAssertEqual(sections.map(\.text), ["Linux", "42%"])
+    }
+
     func testEndpoint() throws {
         let a = try XCTUnwrap(Endpoint("ssh://tester@[2001:db8::1]:2222"))
         XCTAssertEqual(a.target, "tester@2001:db8::1")

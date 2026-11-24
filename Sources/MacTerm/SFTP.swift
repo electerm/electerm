@@ -39,7 +39,32 @@ private struct Reader {
     }
 }
 
-// One short-lived SFTP v3 subsystem per operation, multiplexed over the existing SSH login.
+// Browsing reuses one SFTP subsystem; transfers have separate channels so a large
+// transfer cannot hold up navigation. Call withClient only from background queues.
+final class DirectoryChannel {
+    private let makeClient: () throws -> SFTP
+    private var client: SFTP?
+    private let lock = NSLock()
+    init(_ makeClient: @escaping () throws -> SFTP) { self.makeClient = makeClient }
+
+    func withClient<T>(_ body: (SFTP) throws -> T) throws -> T {
+        try lock.withLock {
+            do {
+                let current = try client ?? makeClient()
+                client = current
+                return try body(current)
+            } catch {
+                if !(error is SFTPStatusError) { client = nil }
+                throw error
+            }
+        }
+    }
+}
+
+private struct SFTPStatusError: LocalizedError {
+    let errorDescription: String?
+}
+
 // Paths are length-prefixed bytes, never interpolated into a remote shell or an ls command.
 final class SFTP {
     private let process = Process()
@@ -102,7 +127,7 @@ final class SFTP {
         if tag == 101 {
             let code = try result.number()
             if eof && code == 1 { return nil }
-            if code != 0 { throw TerminalError(try result.string()) }
+            if code != 0 { throw SFTPStatusError(errorDescription: try result.string()) }
         }
         guard tag == expected else { throw TerminalError("Unexpected SFTP response \(tag)") }
         return result

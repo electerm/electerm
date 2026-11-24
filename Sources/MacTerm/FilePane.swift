@@ -4,12 +4,16 @@ import UniformTypeIdentifiers
 struct FilePane: View {
     @ObservedObject var session: Session
     @State private var draft = ""
-    @State private var hidden = false
+    @AppStorage("showHiddenFiles") private var hidden = false
     @State private var selection: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("远程：\(session.endpoint?.target ?? "")").lineLimit(1).frame(height: 28)
+            HStack {
+                Text("远程：\(session.endpoint?.target ?? "")").lineLimit(1)
+                Spacer()
+                if session.loadingDirectory { ProgressView().controlSize(.small).accessibilityLabel("读取目录") }
+            }.frame(height: 28)
             HStack(spacing: 2) {
                 icon(hidden ? "eye.slash" : "eye", "隐藏文件") { hidden.toggle() }
                 icon("arrow.up", "上一级") { session.refresh(session.child("..")) }
@@ -30,13 +34,16 @@ struct FilePane: View {
             }.frame(height: 23)
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 0) {
-                    row("..", true).onTapGesture(count: 2) { session.refresh(session.child("..")) }
+                    Button { session.refresh(session.child("..")) } label: { row("..", true) }
                     ForEach(session.entries.filter { hidden || !$0.name.hasPrefix(".") }) { file in
-                        let item = row(file.name, file.directory)
-                            .onTapGesture(count: 2) { open(file) }.onTapGesture { selection = file.name }
-                            .contextMenu { Button(file.directory ? "打开" : "下载…") { open(file) } }
-                        if file.directory { item }
-                        else { item.onDrag { session.fileProvider(file.name) } }
+                        if file.directory {
+                            Button { selection = file.name; open(file) } label: { row(file.name, true) }
+                        } else {
+                            row(file.name, false)
+                                .onTapGesture(count: 2) { open(file) }.onTapGesture { selection = file.name }
+                                .contextMenu { Button("下载…") { open(file) } }
+                                .onDrag { session.fileProvider(file.name) }
+                        }
                     }
                 }
             }
@@ -66,6 +73,8 @@ struct FilePane: View {
 
 struct StatusLine: View {
     @ObservedObject var session: Session
+    @AppStorage("monitorInterval") private var interval = 3
+    @State private var details = false
     var body: some View {
         HStack(spacing: 9) {
             if session.endpoint != nil {
@@ -82,15 +91,17 @@ struct StatusLine: View {
                         }
                     }.frame(height: 15)
                     Divider(); Text("内存 \(session.memory)")
+                    icon("info.circle", "服务器详情") { details = true }
+                        .popover(isPresented: $details) { MonitorDetails(session: session).id(session.id) }
                 }
             }
             Text("UTF-8"); Divider()
             Text(session.message).lineLimit(1).help(session.message)
             Spacer()
-        }.padding(.horizontal, 8).font(.system(size: 11)).task(id: "\(session.id)-\(session.monitor)") {
+        }.padding(.horizontal, 8).font(.system(size: 11)).task(id: "\(session.id)-\(session.monitor)-\(interval)") {
             guard session.monitor else { return }
             while !Task.isCancelled {
-                do { try await Task.sleep(nanoseconds: 3_000_000_000) } catch { return }
+                do { try await Task.sleep(nanoseconds: UInt64(max(2, min(60, interval))) * 1_000_000_000) } catch { return }
                 session.sample()
             }
         }
