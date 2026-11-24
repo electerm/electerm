@@ -12,10 +12,7 @@ export const leftSidebarIconOptions = [
   { id: 'newBookmark', text: 'newBookmark' },
   { id: 'quickConnect', text: 'quickConnect' },
   { id: 'bookmarks', text: 'bookmarks' },
-  { id: 'terminalThemes', text: 'terminalThemes' },
-  { id: 'setting', text: 'setting' },
-  { id: 'settingSync', text: 'settingSync' },
-  { id: 'widgets', text: 'widgets' }
+  { id: 'setting', text: 'setting' }
 ]
 
 // default ordered list of icon ids — mirrors the order above

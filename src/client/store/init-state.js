@@ -266,7 +266,7 @@ export default () => {
     // mouse → false / touch → true on the first real pointer event.
     isTouchDevice: false,
     fullscreen: false,
-    tabsHeight: 36,
+    tabsHeight: 28,
 
     // widgets
     widgets: [],

@@ -7,7 +7,7 @@ import Modal from '../components/common/modal'
 import { appendMandatoryGuardrails } from '../components/ai/ai-guardrails'
 import { buildSessionMessages } from '../components/ai/ai-context'
 import { COMPRESS_SUMMARY_PROMPT } from '../components/ai/ai-auto-compress'
-import { debounce, some, get, pickBy } from 'lodash-es'
+import { debounce, some, pickBy } from 'lodash-es'
 import {
   leftSidePanelWidthKey,
   leftSideBarOpenKey,
@@ -666,7 +666,7 @@ export default Store => {
   Store.prototype.getLangName = function (
     lang = window.store?.config.language || 'en_us'
   ) {
-    return get(window.langMap, `[${lang}].name`)
+    return window.et.langs?.find(l => l.id === lang)?.name || window.langMap[lang]?.name
   }
 
   Store.prototype.getLangNames = function () {

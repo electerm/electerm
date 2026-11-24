@@ -8,7 +8,6 @@ const log = require('../common/log')
 const { Upgrade } = require('./download-upgrade')
 const { transferKeys } = require('./transfer')
 const fetch = require('./fetch')
-const sync = require('./sync')
 const {
   createTerm,
   testTerm,
@@ -84,8 +83,6 @@ const initWs = function (app) {
         const { action } = msg
         if (action === 'fetch') {
           fetch(ws, msg)
-        } else if (action === 'sync') {
-          sync(ws, msg)
         } else if (action === 'fs') {
           fs(ws, msg)
         } else if (action === 'create-terminal') {

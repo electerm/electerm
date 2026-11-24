@@ -295,8 +295,7 @@ export const terminalSettings = [
   commonFields.displayRaw,
   commonFields.fontFamily,
   commonFields.fontSize,
-  commonFields.keepaliveInterval,
-  commonFields.terminalBackground
+  commonFields.keepaliveInterval
 ]
 
 // Line-ending conversion, for the transports that have no pty line discipline
@@ -321,12 +320,6 @@ export const lineEndingFields = [
 export const sshSettings = [
   {
     type: 'switch',
-    name: 'enableSsh',
-    label: 'SSH',
-    valuePropName: 'checked'
-  },
-  {
-    type: 'switch',
     name: 'enableSftp',
     label: 'SFTP',
     valuePropName: 'checked'
@@ -338,10 +331,9 @@ export const sshSettings = [
     valuePropName: 'checked'
   },
   commonFields.enableTerminalImage,
-  ...terminalSettings.slice(0, -1), // All except terminalBackground
+  ...terminalSettings,
   commonFields.proxyCommand,
-  commonFields.x11,
-  commonFields.terminalBackground
+  commonFields.x11
 ]
 
 // Common auth fields

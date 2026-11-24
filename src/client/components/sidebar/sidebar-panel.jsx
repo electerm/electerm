@@ -10,7 +10,6 @@ import LazyBoundary from '../common/lazy-boundary'
 import {
   ArrowsAltOutlined,
   CloseOutlined,
-  EditOutlined,
   PlusCircleOutlined,
   ShrinkOutlined,
   PushpinOutlined,
@@ -110,11 +109,6 @@ export default memo(function SidebarPanel (props) {
         <div className='pd1y pd2t pd2x sidebar-panel-control alignright'>
           <Tooltip title={e('newBookmark')}>
             <PlusCircleOutlined
-              {...pop1}
-            />
-          </Tooltip>
-          <Tooltip title={`${e('edit')} ${e('bookmarks')}`}>
-            <EditOutlined
               {...pop1}
             />
           </Tooltip>

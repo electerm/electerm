@@ -3,10 +3,10 @@ import { lazy, Suspense, useEffect } from 'react'
 import Layout from '../layout/layout'
 import FileInfoModal from '../sftp/file-info-modal'
 import FileCompareModal from '../sftp/file-compare-modal'
-import UpdateCheck from './upgrade'
 import SettingModal from '../setting-panel/setting-modal'
 import TextEditor from '../text-editor/text-editor-entry'
 import Sidebar from '../sidebar'
+import TransferList from '../sidebar/transfer-list'
 import CssOverwrite from '../bg/css-overwrite'
 import UiTheme from './ui-theme'
 import TitleBarOverlay from './title-bar-overlay'
@@ -15,7 +15,6 @@ import TerminalInteractive from '../terminal/terminal-interactive'
 import ConfirmModalStore from '../file-transfer/conflict-resolve.jsx'
 import TransferQueue from '../file-transfer/transfer-queue'
 import Remote2RemoteHandlers from '../file-transfer/remote2remote-handlers.jsx'
-import TerminalCmdSuggestions from '../terminal/terminal-command-dropdown'
 import TransportsActionStore from '../file-transfer/transports-action-store.jsx'
 import classnames from 'classnames'
 import ShortcutControl from '../shortcuts/shortcut-control.jsx'
@@ -23,42 +22,30 @@ import {
   footerHeight,
   isMac,
   isWin,
-  remoteMonitorBarHeight,
   textTerminalBgValue
 } from '../../common/constants'
-import { isAIDisabled } from '../../common/ai-feature'
 import { ConfigProvider } from 'antd'
 import { NotificationContainer } from '../common/notification'
 import RightSidePanel from '../side-panel-r/side-panel-r'
 import CmdHistory from '../footer/cmd-history'
-import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import ConnectionHoppingWarning from './connection-hopping-warnning'
 import SshConfigLoadNotify from '../ssh-config/ssh-config-load-notify'
 import LoadSshConfigs from '../ssh-config/load-ssh-configs'
-import AIChat from '../ai/ai-chat-entry'
 import MoveItemModal from '../tree-list/move-item-modal'
 import InputContextMenu from '../common/input-context-menu'
 import WorkspaceSaveModal from '../tabs/workspace-save-modal'
 import BookmarkFromHistoryModal from '../bookmark-form/bookmark-from-history-modal'
-import AutoSync from '../setting-sync/auto-sync'
-import BatchOpRunner from '../batch-op/batch-op-runner'
 import UnixTimestampTooltip from '../terminal/unix-timestamp-tooltip'
 import ImportProgress from '../common/import-progress.jsx'
 import ExportBookmarksModal from '../bookmark-export/export-bookmarks-modal'
 import { pick } from 'lodash-es'
 import deepCopy from 'json-deep-copy'
 import './wrapper.styl'
-import TerminalInfo from '../terminal-info/terminal-info-entry'
-import ShortcutBarEntry from '../terminal/shortcut-bar-entry'
 import LazyBoundary from '../common/lazy-boundary'
-import { isRemoteMonitorBarVisible } from '../remote-monitor/visibility'
 import '../../common/fs.js'
-import { initWidgetStyleHost } from '../../common/widget-style-host'
 import './term-fullscreen.styl'
 
-const Resolutions = lazy(() => import('../rdp/resolution-edit'))
 const InfoModal = lazy(() => import('../sidebar/info-modal.jsx'))
-const AIConfigModal = lazy(() => import('../ai/ai-config-modal'))
 // window opacity is electron-only: lazy so the web app never loads the chunk
 const Opacity = lazy(() => import('../common/opacity'))
 
@@ -68,9 +55,6 @@ export default auto(function Index (props) {
     window.addEventListener('resize', store.onResize)
     setTimeout(store.triggerResize, 200)
     const { ipcOnEvent } = window.pre
-    // widgets that restyle the app: their css is applied here, in the document
-    // the user is looking at, on desktop and in the web app alike
-    initWidgetStyleHost()
     ipcOnEvent('checkupdate', store.onCheckUpdate)
     ipcOnEvent('open-about', store.openAbout)
     ipcOnEvent('new-ssh', store.onNewSsh)
@@ -100,9 +84,7 @@ export default auto(function Index (props) {
     store.isSecondInstance = window.pre.runSync('isSecondInstance')
     store.initData()
     store.checkForDbUpgrade()
-    store.handleGetSerials()
     store.checkPendingDeepLink()
-    store.checkPendingVvFile()
   }, [])
 
   // Track the actual input modality rather than a static capability probe:
@@ -143,13 +125,11 @@ export default auto(function Index (props) {
     uiThemeConfig,
     transferHistory,
     transferToConfirm,
-    openResolutionEdit,
     rightPanelTitle,
     rightPanelTab,
     widgetInstances
   } = store
   const upgradeInfo = deepCopy(store.upgradeInfo)
-  const remoteMonitorBarVisible = isRemoteMonitorBarVisible(store)
   const cls = classnames({
     loaded: configLoaded,
     'not-webapp': !window.et.isWebApp,
@@ -180,14 +160,14 @@ export default auto(function Index (props) {
     'is-main': !isSecondInstance,
     'is-mobile': store.isMobile,
     'is-desktop': !store.isMobile,
-    'is-touch-device': store.isTouchDevice,
-    'remote-monitor-bar-on': remoteMonitorBarVisible
+    'is-touch-device': store.isTouchDevice
   })
   const ext1 = {
     className: cls,
     style: {
       '--left-side-bar-width': store.leftSideBarWidth + 'px',
-      '--footer-stack-height': `${footerHeight + (remoteMonitorBarVisible ? remoteMonitorBarHeight : 0)}px`
+      '--tabs-height': `${store.tabsHeight}px`,
+      '--footer-stack-height': `${footerHeight}px`
     }
   }
   // Get active tab IDs
@@ -266,10 +246,6 @@ export default auto(function Index (props) {
     fileTransferChanged: JSON.stringify(copiedTransfer),
     fileTransfers: copiedTransfer
   }
-  const resProps = {
-    resolutions: deepCopy(store.resolutions),
-    openResolutionEdit
-  }
 
   const rightPanelProps = {
     rightPanelVisible: store.rightPanelVisible,
@@ -289,23 +265,6 @@ export default auto(function Index (props) {
   const warningProps = {
     hasOldConnectionHoppingBookmark: store.hasOldConnectionHoppingBookmark,
     configLoaded
-  }
-  const aiChatProps = {
-    aiChatHistory: store.aiChatHistory,
-    config,
-    selectedTabIds: store.batchInputSelectedTabIds,
-    tabs: store.getTabs(),
-    activeTabId: store.activeTabId,
-    showAIConfig: store.showAIConfig,
-    rightPanelTab,
-    agentRunning: store.agentRunning,
-    aiContextInfo: store.aiContextInfo,
-    aiAutoCompress: store.aiAutoCompress,
-    currentChatSessionId: store.currentChatSessionId,
-    showChatSessions: store.showChatSessions
-  }
-  const cmdSuggestionsProps = {
-    suggestions: store.terminalCommandSuggestions
   }
   return (
     <ConfigProvider
@@ -338,11 +297,6 @@ export default auto(function Index (props) {
         {store.textEditorRequested && (
           <TextEditor />
         )}
-        <UpdateCheck
-          skipVersion={config.skipVersion}
-          upgradeInfo={upgradeInfo}
-          installSrc={installSrc}
-        />
         <FileInfoModal />
         <FileCompareModal />
         <SettingModal store={store} />
@@ -353,6 +307,7 @@ export default auto(function Index (props) {
           <Sidebar {...sidebarProps} />
           <Layout
             store={store}
+            transfers={<TransferList fileTransfers={copiedTransfer} transferHistory={copiedHistory} transferTab={store.transferTab} />}
           />
         </div>
         <ConfirmModalStore
@@ -363,13 +318,6 @@ export default auto(function Index (props) {
           config={config}
         />
         <Remote2RemoteHandlers />
-        {openResolutionEdit && (
-          <LazyBoundary>
-            <Suspense fallback={null}>
-              <Resolutions {...resProps} />
-            </Suspense>
-          </LazyBoundary>
-        )}
         {store.showInfoModal && (
           <LazyBoundary>
             <Suspense fallback={null}>
@@ -378,14 +326,9 @@ export default auto(function Index (props) {
           </LazyBoundary>
         )}
         <RightSidePanel {...rightPanelProps}>
-          {!isAIDisabled() && <AIChat {...aiChatProps} />}
-          <TerminalInfo key={store.activeTabId} store={store} {...deepCopy(store.terminalInfoProps)} />
           {/* the cmd history panel has two homes; the footer popover is the
               other one, and both are the same component (see cmd-history.jsx) */}
           <CmdHistory store={store} inline />
-          {/* same for the quick command panel: the footer box is the other home
-              (see quick-commands-box.jsx) */}
-          <QuickCommandsFooterBox store={store} inline />
         </RightSidePanel>
         <SshConfigLoadNotify {...sshConfigProps} />
         <LoadSshConfigs
@@ -393,9 +336,7 @@ export default auto(function Index (props) {
           sshConfigs={store.sshConfigs}
         />
         <ConnectionHoppingWarning {...warningProps} />
-        <TerminalCmdSuggestions {...cmdSuggestionsProps} />
         <TransferQueue />
-        <AutoSync config={config} />
         <WorkspaceSaveModal store={store} />
         <BookmarkFromHistoryModal />
         {/* opened by the AI agent's export_bookmarks tool, see
@@ -404,16 +345,7 @@ export default auto(function Index (props) {
           <ExportBookmarksModal request={store.bookmarkExport} />
         )}
         <NotificationContainer />
-        <BatchOpRunner />
         <ImportProgress />
-        <ShortcutBarEntry store={store} />
-        {!isAIDisabled() && store.showAIConfigModal && (
-          <LazyBoundary>
-            <Suspense fallback={null}>
-              <AIConfigModal store={store} />
-            </Suspense>
-          </LazyBoundary>
-        )}
         <UnixTimestampTooltip />
       </div>
     </ConfigProvider>

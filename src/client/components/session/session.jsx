@@ -1,7 +1,8 @@
 /**
  * terminal/sftp wrapper
  */
-import { createRef, lazy, Suspense } from 'react'
+import { createRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Component } from 'manate/react/class-components'
 import Term from '../terminal/terminal.jsx'
 import Sftp from '../sftp/sftp-entry'
@@ -28,13 +29,9 @@ import { refs } from '../common/ref'
 import sanitizeFilename from '../../common/sanitize-filename.js'
 import { getRightClickBehavior } from '../../common/right-click-behavior.js'
 import SessionControl from './session-control'
-import LazyBoundary from '../common/lazy-boundary'
+import SessionSidebar, { railWidth } from './session-sidebar'
 import './session.styl'
 
-const RdpSession = lazy(() => import('../rdp/rdp-session'))
-const VncSession = lazy(() => import('../vnc/vnc-session'))
-const WebSession = lazy(() => import('../web/web-session.jsx'))
-const SpiceSession = lazy(() => import('../spice/spice-session'))
 const e = window.translate
 const SplitterPane = Splitter.Panel
 
@@ -44,16 +41,17 @@ export default class SessionWrapper extends Component {
     this.domRef = createRef()
     this.state = {
       cwd: '',
+      bookmarksOpen: !props.tab.authType || props.tab.enableSftp === false,
       sftpPathFollowSsh: !!props.config.sftpPathFollowSsh,
       key: Math.random(),
-      splitSize: [50, 50],
       sessionOptions: null,
       broadcastInput: false,
       wrapDisabled: false
     }
     if (props.tab.sshSftpSplitView === undefined) {
-      props.tab.sshSftpSplitView = !!props.config.sshSftpSplitView
+      props.tab.sshSftpSplitView = !!props.tab.authType
     }
+    props.tab.pane = paneMap.terminal
   }
 
   minWithForSplit = 640
@@ -78,39 +76,30 @@ export default class SessionWrapper extends Component {
 
   handleSshSftpSplitView = () => {
     const nv = !this.props.tab.sshSftpSplitView
+    this.setState({ bookmarksOpen: false })
     this.editTab({
       sshSftpSplitView: nv
     })
     window.store.triggerResize()
   }
 
-  canSplitView = () => {
-    const {
-      width,
-      height
-    } = this.props
-    if (this.isDisabled()) {
-      return false
+  handleToggleBookmarks = () => {
+    this.setState(({ bookmarksOpen }) => ({ bookmarksOpen: !bookmarksOpen }))
+    if (this.props.tab.sshSftpSplitView && this.canSplitView()) {
+      this.editTab({ sshSftpSplitView: false })
     }
-    return width > this.minWithForSplit ||
-      height > this.minHeightForSplit
   }
 
-  getSplitDirection = () => {
-    const {
-      sshSftpSplitView
-    } = this.props.tab
-    if (!sshSftpSplitView || !this.canSplitView()) {
-      return 'tabed'
-    }
-    const {
-      width,
-      height
-    } = this.props
-    const ratio = width / height
-    const baseRatio = this.minWithForSplit / this.minHeightForSplit
-    const wider = ratio > baseRatio
-    return wider ? 'leftRight' : 'topDown'
+  leftPaneWidth = () => {
+    const { tab, width, sidebarWidth, sftpPercent } = this.props
+    if (this.canSplitView() && tab.sshSftpSplitView) return sidebarWidth || width * sftpPercent / 100
+    if (tab.pane === paneMap.fileManager) return width
+    if (!sidebarWidth) return 0
+    return this.state.bookmarksOpen ? sidebarWidth : railWidth
+  }
+
+  canSplitView = () => {
+    return !!this.isSsh() && !this.isDisabled()
   }
 
   handleClick = () => {
@@ -230,88 +219,10 @@ export default class SessionWrapper extends Component {
       tab
     } = this.props
     const {
-      pane, type, sshSftpSplitView
+      pane, sshSftpSplitView
     } = tab
-    if (type === terminalWebType) {
-      const webProps = {
-        tab,
-        width: this.props.width,
-        height: this.props.height,
-        reloadTab: this.props.reloadTab
-      }
-      return (
-        <LazyBoundary>
-          <WebSession
-            {...webProps}
-          />
-        </LazyBoundary>
-      )
-    }
-    if (type === terminalRdpType || type === terminalVncType || type === terminalSpiceType) {
-      const rdpProps = {
-        tab: this.props.tab,
-        ...pick(this.props, [
-          'resolutions',
-          'height',
-          'width',
-          'tabsHeight',
-          'leftSidePanelWidth',
-          'pinned',
-          'openedSideBar',
-          'delTab',
-          'config',
-          'reloadTab',
-          'editTab',
-          'fullscreen'
-        ]),
-        ...pick(
-          this,
-          [
-            'fullscreenIcon'
-          ])
-      }
-      if (type === terminalVncType) {
-        return (
-          <LazyBoundary>
-            <VncSession
-              {...rdpProps}
-            />
-          </LazyBoundary>
-        )
-      }
-      if (type === terminalSpiceType) {
-        return (
-          <LazyBoundary>
-            <SpiceSession
-              {...rdpProps}
-            />
-          </LazyBoundary>
-        )
-      }
-
-      return (
-        <LazyBoundary>
-          <RdpSession
-            {...rdpProps}
-          />
-        </LazyBoundary>
-      )
-    }
-
-    if (type === terminalFtpType) {
-      const ftpProps = {
-        ...this.props,
-        ...pick(this, [
-          'onChangePane',
-          'setCwd'
-        ]),
-        isFtp: true
-      }
-      return (
-        <Sftp
-          {...ftpProps}
-        />
-      )
+    if (this.isNotTerminalType()) {
+      return null
     }
 
     const cls = pane === paneMap.terminal ||
@@ -378,13 +289,9 @@ export default class SessionWrapper extends Component {
         height
       }
     }
-    const direction = this.getSplitDirection()
-    const [, size2] = this.state.splitSize
-    const w = direction === 'leftRight' ? size2 * width / 100 : width
-    const h = direction === 'leftRight' ? height : size2 * height / 100
     return {
-      width: w,
-      height: h
+      width: this.leftPaneWidth() - (this.props.sidebarWidth ? railWidth : 0),
+      height: this.props.computeHeight(height)
     }
   }
 
@@ -393,19 +300,9 @@ export default class SessionWrapper extends Component {
     const height = this.props.computeHeight(
       this.props.height
     )
-    if (!this.canSplitView() || !this.props.tab.sshSftpSplitView) {
-      return {
-        width,
-        height
-      }
-    }
-    const direction = this.getSplitDirection()
-    const [size1] = this.state.splitSize
-    const w = direction === 'leftRight' ? size1 * width / 100 : width
-    const h = direction === 'leftRight' ? height : size1 * height / 100
     return {
-      width: w,
-      height: h
+      width: width - this.leftPaneWidth(),
+      height
     }
   }
 
@@ -419,7 +316,8 @@ export default class SessionWrapper extends Component {
     const { pane, id, sshSftpSplitView } = this.props.tab
     if (
       this.isNotTerminalType() ||
-      this.isSftpDisabled()
+      this.isSftpDisabled() ||
+      !this.isSsh()
     ) {
       return null
     }
@@ -438,6 +336,7 @@ export default class SessionWrapper extends Component {
       pid: id,
       enableSftp,
       sessionOptions,
+      remoteOnly: true,
       height,
       pane,
       ...this.calcSftpWidthHeight()
@@ -531,72 +430,45 @@ export default class SessionWrapper extends Component {
     return tab.authType
   }
 
-  onSplitResize = (sizes) => {
-    const direction = this.getSplitDirection()
-    const {
-      width,
-      height
-    } = this.props
-    const all = direction === 'leftRight' ? width : height
-    const size = sizes.map(d => d * 100 / all)
-    this.setState({
-      splitSize: size
-    })
+  handleSplitResize = ([left, right]) => {
+    if (left + right > 0) {
+      this.props.setSftpPercent(100 * left / (left + right))
+    }
   }
 
   renderViews = () => {
     if (this.isNotTerminalType()) {
       return this.renderTerminals()
     }
-    const notSplitVew = !this.canSplitView() || !this.props.tab.sshSftpSplitView
-    const { pane } = this.props.tab
-    const show1 = notSplitVew && pane === paneMap.terminal
-    const show2 = notSplitVew && pane === paneMap.fileManager
-    const direction = this.getSplitDirection()
-    const layout = direction === 'leftRight' ? 'horizontal' : 'vertical'
-    const [size1, size2] = this.state.splitSize
-    const splitterProps = {
-      orientation: layout,
-      onResize: this.onSplitResize,
-      onResizeEnd: this.onSplitResize,
-      className: notSplitVew ? 'not-split-view' : '',
-      style: {
-        width: this.props.width + 'px',
-        height: this.props.height + 'px'
-      }
-    }
-    const paneProps = {
-      min: '20%',
-      max: '80%',
-      style: {
-        overflow: 'hidden'
-      }
-    }
-    const s1 = show1
-      ? '100%'
-      : show2
-        ? '0%'
-        : size1 + '%'
-    const s2 = show2
-      ? '100%'
-      : show1
-        ? '0%'
-        : size2 + '%'
-    const paneProps1 = {
-      ...paneProps,
-      size: s1
-    }
-    const paneProps2 = {
-      ...paneProps,
-      size: s2
-    }
+    const { sidebarWidth, width, tab, currentBatchTabId } = this.props
+    const files = this.canSplitView() && !!tab.sshSftpSplitView
+    const bookmarks = !!sidebarWidth && this.state.bookmarksOpen && !files
+    const split = files || bookmarks
+    const left = this.leftPaneWidth()
+    const style = { overflow: 'hidden' }
     return (
-      <Splitter {...splitterProps}>
-        <SplitterPane {...paneProps1}>
-          {this.renderTerminals()}
+      <Splitter
+        lazy
+        onResizeEnd={this.handleSplitResize}
+        className={split ? '' : 'not-split-view'}
+        style={{ width: this.props.width, height: this.props.computeHeight(this.props.height) }}
+      >
+        <SplitterPane style={style} size={left} min={split && sidebarWidth ? Math.min(144, width * 0.6) : 0} max={split ? '60%' : '100%'} resizable={!!split}>
+          <SessionSidebar
+            bookmarks={bookmarks}
+            files={files}
+            canShowFiles={this.canSplitView()}
+            active={tab.id === currentBatchTabId}
+            onActivate={this.handleClick}
+            batch={tab.batch}
+            onToggleBookmarks={this.handleToggleBookmarks}
+            onToggleFiles={this.handleSshSftpSplitView}
+          >
+            {this.renderSftp()}
+          </SessionSidebar>
         </SplitterPane>
-        <SplitterPane {...paneProps2}>
-          {this.renderSftp()}
+        <SplitterPane style={style} size={width - left} min={split ? '40%' : 0}>
+          {this.renderTerminals()}
         </SplitterPane>
       </Splitter>
     )
@@ -608,7 +480,8 @@ export default class SessionWrapper extends Component {
       'term-sftp-box',
       pane,
       {
-        'is-transporting': this.props.tab.isTransporting
+        'is-transporting': this.props.tab.isTransporting,
+        'has-session-sidebar': !!this.props.sidebarWidth
       },
       {
         'disable-ssh': this.props.tab.enableSsh === false
@@ -622,39 +495,40 @@ export default class SessionWrapper extends Component {
       onDragEnd: this.onDragEnd,
       onClick: this.handleClick
     }
+    const controls = (
+      <SessionControl
+        tab={this.props.tab}
+        isMobile={window.store.isMobile}
+        isTouchDevice={window.store.isTouchDevice}
+        isDisabled={this.isDisabled()}
+        isSshDisabled={this.isSshDisabled()}
+        isNotTerminalType={this.isNotTerminalType()}
+        canSplitView={!this.props.sidebarWidth && this.canSplitView()}
+        sftpPathFollowSsh={this.state.sftpPathFollowSsh}
+        keepaliveEnabled={!!this.props.tab.keepaliveEnabled}
+        broadcastInput={this.state.broadcastInput}
+        wrapDisabled={this.state.wrapDisabled}
+        rightClickBehavior={getRightClickBehavior(this.props.config)}
+        onChangePane={(pane) => this.onChangePane(pane)}
+        toggleCheckSftpPathFollowSsh={this.toggleCheckSftpPathFollowSsh}
+        onSshSftpSplitView={this.handleSshSftpSplitView}
+        toggleKeepalive={this.toggleKeepalive}
+        toggleBroadcastInput={this.toggleBroadcastInput}
+        toggleWrap={this.toggleWrap}
+        onFullscreen={this.handleFullscreen}
+        onZoomFontSize={this.handleZoomFontSize}
+        onOpenSearch={this.handleOpenSearch}
+        onOpenContextMenu={this.handleOpenContextMenu}
+        onExitGracefully={this.handleExitGracefully}
+      />
+    )
+    const { controlsHost, activeTabId, tab } = this.props
     return (
-      <div
-        ref={this.domRef}
-        {...divProps}
-      >
-        <SessionControl
-          tab={this.props.tab}
-          isMobile={window.store.isMobile}
-          isTouchDevice={window.store.isTouchDevice}
-          isDisabled={this.isDisabled()}
-          isSshDisabled={this.isSshDisabled()}
-          isNotTerminalType={this.isNotTerminalType()}
-          canSplitView={this.canSplitView()}
-          sftpPathFollowSsh={this.state.sftpPathFollowSsh}
-          keepaliveEnabled={!!this.props.tab.keepaliveEnabled}
-          broadcastInput={this.state.broadcastInput}
-          wrapDisabled={this.state.wrapDisabled}
-          rightClickBehavior={getRightClickBehavior(this.props.config)}
-          onChangePane={(pane) => this.onChangePane(pane)}
-          toggleCheckSftpPathFollowSsh={this.toggleCheckSftpPathFollowSsh}
-          onSshSftpSplitView={this.handleSshSftpSplitView}
-          toggleKeepalive={this.toggleKeepalive}
-          toggleBroadcastInput={this.toggleBroadcastInput}
-          toggleWrap={this.toggleWrap}
-          onFullscreen={this.handleFullscreen}
-          onZoomFontSize={this.handleZoomFontSize}
-          onOpenSearch={this.handleOpenSearch}
-          onOpenContextMenu={this.handleOpenContextMenu}
-          onExitGracefully={this.handleExitGracefully}
-        />
-        <Suspense fallback={null}>
-          {this.renderViews()}
-        </Suspense>
+      <div ref={this.domRef} {...divProps}>
+        {controlsHost
+          ? tab.id === activeTabId && createPortal(controls, controlsHost)
+          : controls}
+        {this.renderViews()}
       </div>
     )
   }

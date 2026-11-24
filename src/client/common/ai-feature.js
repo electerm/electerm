@@ -6,5 +6,5 @@
  * AI-related button / icon / setting menu in the UI.
  */
 export const isAIDisabled = () => {
-  return !!(window.et && window.et.disableAIFeature)
+  return true
 }

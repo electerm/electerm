@@ -2,7 +2,7 @@
  * Config-driven bookmark form (drop-in replacement)
  */
 import { PureComponent } from 'react'
-import { Radio, Button } from 'antd'
+import { Radio } from 'antd'
 import {
   settingMap,
   connectionMap,
@@ -17,10 +17,9 @@ import {
   terminalSpiceType
 } from '../../common/constants'
 import { createTitleWithTag } from '../../common/create-title'
-import { LoadingOutlined, BookOutlined, RobotOutlined } from '@ant-design/icons'
+import { LoadingOutlined, BookOutlined } from '@ant-design/icons'
 import sessionConfig from './config/session-config'
 import renderForm from './render-form'
-import AIBookmarkForm from './ai-bookmark-form'
 import CopyBookmark from './copy-bookmark'
 import { isAIDisabled } from '../../common/ai-feature'
 import './bookmark-form.styl'
@@ -98,14 +97,6 @@ export default class BookmarkIndex2 extends PureComponent {
     this.setState({ aiMode: false })
   }
 
-  handleToggleAIMode = () => {
-    if (window.store.aiConfigMissing()) {
-      window.store.toggleAIConfig()
-      return
-    }
-    this.setState(prev => ({ aiMode: !prev.aiMode }))
-  }
-
   renderTypes (bookmarkType, isNew, keys) {
     if (!isNew || this.state.aiMode) return null
     const filtered = window.et && Array.isArray(window.et.supportSessionTypes)
@@ -138,27 +129,7 @@ export default class BookmarkIndex2 extends PureComponent {
   }
 
   renderAIButton (isNew) {
-    if (!isNew || this.state.aiMode || isAIDisabled()) {
-      return null
-    }
-    return (
-      <Button
-        size='small'
-        className='mg1l create-ai-btn'
-        icon={<RobotOutlined />}
-        onClick={this.handleToggleAIMode}
-      >
-        {e('createBookmarkByAI')}
-      </Button>
-    )
-  }
-
-  renderAiForm () {
-    return (
-      <AIBookmarkForm
-        onCancel={this.handleCancelAiMode}
-      />
-    )
+    return null
   }
 
   renderCopy () {
@@ -166,10 +137,7 @@ export default class BookmarkIndex2 extends PureComponent {
   }
 
   renderForm () {
-    const { bookmarkType, aiMode } = this.state
-    if (aiMode) {
-      return this.renderAiForm()
-    }
+    const { bookmarkType } = this.state
     return renderForm(bookmarkType, this.props, this.handleFormReady)
   }
 

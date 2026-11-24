@@ -9,10 +9,9 @@ import { NewPromise } from './promise-timeout'
 const id = 's'
 window.et.wsOpened = false
 
-export const initWsCommon = async () => {
-  if (window.et.wsOpened) {
-    return
-  }
+let opening
+
+async function openCommonSocket () {
   const ws = await initWs('common', id, undefined, true)
   if (!ws) {
     return
@@ -23,6 +22,20 @@ export const initWsCommon = async () => {
   }
   window.et.commonWs = ws
   window.store.wsInited = true
+}
+
+export const initWsCommon = async () => {
+  if (window.et.wsOpened) {
+    return
+  }
+  // The worker indexes pending creates by socket ID. Share the handshake
+  // so concurrent callers cannot replace each other's resolver for 's'.
+  if (!opening) {
+    opening = openCommonSocket().finally(() => {
+      opening = undefined
+    })
+  }
+  return opening
 }
 
 window.pre.ipcOnEvent('power-resume', initWsCommon)

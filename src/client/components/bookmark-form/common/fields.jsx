@@ -13,15 +13,9 @@ import X11Field from './x11.jsx'
 import SshTunnels from './ssh-tunnels.jsx'
 import SshAgent from './ssh-agent.jsx'
 import ConnectionHopping from './connection-hopping.jsx'
-import TerminalBackgroundField from './terminal-background.jsx'
 import ExecSettingsField from './exec-settings-field.jsx'
-import useQuickCmds from './quick-commands.jsx'
-import TriggersField from '../../triggers/triggers-field.jsx'
-import WatcherEditor from './watchers.jsx'
 import ProfileItem from './profile-item.jsx'
 import renderRunScripts from './run-scripts.jsx'
-import SerialPathSelector from './serial-path-selector.jsx'
-import VvFileField from './vv-file-field.jsx'
 import HostCheck from './host-check.jsx'
 import SshHostSelector from './ssh-host-selector.jsx'
 import SshAuthTypeSelector from './ssh-auth-type-selector.jsx'
@@ -153,8 +147,6 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
       )
     case 'proxy':
       return <ProxyField key={name} bookmarks={ctxProps.bookmarks} />
-    case 'vvFile':
-      return <VvFileField key={name} form={form} />
     case 'hostCheck':
       return <HostCheck key={name} form={form} />
     case 'x11':
@@ -173,36 +165,12 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
           store={ctxProps.store}
         />
       )
-    case 'terminalBackground':
-      return <TerminalBackgroundField key={name} />
     case 'execSettings':
       return <ExecSettingsField key={name} />
     case 'profileItem':
       return <ProfileItem key={name} store={ctxProps.store} form={form} profileFilter={item.profileFilter} />
-    case 'quickCommands':
-      return <Fragment key={name}>{useQuickCmds(form, ctxProps.formData || {})}</Fragment>
-    case 'triggers':
-      return <TriggersField key={name} />
-    case 'watchers':
-      // the field name is fixed here (like triggers): the editor owns the list
-      // and antd injects value/onChange into it
-      return (
-        <FormItem key={name} label='Watchers' name='watchers'>
-          <WatcherEditor />
-        </FormItem>
-      )
     case 'runScripts':
       return <Fragment key={name}>{renderRunScripts()}</Fragment>
-    case 'serialPathSelector':
-      return (
-        <SerialPathSelector
-          key={name}
-          serials={ctxProps.serials}
-          loaddingSerials={ctxProps.loaddingSerials}
-          store={ctxProps.store}
-          {...item.props}
-        />
-      )
     case 'sshHostSelector':
       return (
         <SshHostSelector

@@ -52,19 +52,51 @@
   position absolute
   overflow hidden
   z-index 3
-  padding-top 36px
+  padding-top var(--tabs-height)
   box-shadow 0px 0px 1px 1px var(--main-darker)
   &.session-batch-active
     display block
 
 .term-sftp-box
   height 100%
+  // Keep xterm's z-index inside its pane so it can't cover the resize handle.
+  > .ant-splitter > .ant-splitter-panel
+    isolation isolate
 .web-session-wrap
   height 100%
   background var(--main)
   overflow hidden
   display flex
   flex-direction column
+.session-sidebar
+  display flex
+  height 100%
+.session-sidebar-body
+  flex 1
+  min-width 0
+  overflow hidden
+.session-bookmarks
+  height 100%
+.session-sidebar-rail
+  display none
+.has-session-sidebar .session-sidebar-rail
+  display flex
+  flex none
+  flex-direction column
+  background var(--main-dark)
+  border-right 1px solid var(--text-disabled)
+  box-sizing border-box
+  button
+    border 0
+    background transparent
+    height 28px
+    padding 0
+    cursor pointer
+    color var(--text)
+    &:hover, &[aria-expanded=true]
+      background var(--main-light)
+    .anticon-star
+      color #d9ab40
 .web-session-content
   flex 1
   min-height 0

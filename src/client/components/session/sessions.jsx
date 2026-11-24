@@ -31,7 +31,7 @@ export default class Sessions extends Component {
     } = this.props
     return height -
       tabsHeight -
-      termControlHeight
+      (this.props.controlsHost ? 0 : termControlHeight)
   }
 
   computeSessionStyle = (batch) => {
@@ -51,7 +51,7 @@ export default class Sessions extends Component {
       const { id, batch } = tab
       // MCP/AI-created tabs may carry an out-of-range or missing batch.
       // Never crash the whole UI on bad data — fall back to batch 0 size.
-      const { height, width } = sizes[batch] || fallbackSize
+      const { height, width, sidebarWidth } = sizes[batch] || fallbackSize
       const currentBatchTabId = this.props['activeTabId' + batch]
       const cls = classNames(
         `session-wrap session-${id}`,
@@ -65,10 +65,14 @@ export default class Sessions extends Component {
         className: cls
       }
       const sessProps = {
+        sftpPercent: this.props.sftpPercent,
+        setSftpPercent: this.props.setSftpPercent,
+        controlsHost: this.props.controlsHost,
         activeTabId,
         layout: this.props.layout,
         tab,
         width,
+        sidebarWidth: tab.enableSsh === false ? 0 : sidebarWidth,
         height,
         ...pick(this.props, [
           'resolutions',

@@ -43,7 +43,6 @@ const { mkdtempSync, mkdirSync, rmSync, existsSync } = require('fs')
 const { DatabaseSync } = require('node:sqlite')
 const { tmpdir } = require('os')
 const { dirname, join, resolve } = require('path')
-const base = require('./app-options-webgl')
 const { userNoEncryptConfigId } = require('../../../app/common/constants')
 const defaultUserName = require('../../../app/common/default-user-name')
 
@@ -98,6 +97,7 @@ function seedIsolatedData (dataPath) {
  *   object; the shared base is never mutated.
  */
 function createWebglLaunchOptions () {
+  const base = require('./app-options-webgl')
   const root = mkdtempSync(join(tmpdir(), ROOT_PREFIX))
   ownedRoots.add(root)
   const dataPath = join(root, 'data')
@@ -172,6 +172,7 @@ function cleanupWebglLaunchOptions (options) {
 
 module.exports = {
   ROOT_PREFIX,
+  seedIsolatedData,
   createWebglLaunchOptions,
   cleanupWebglLaunchOptions
 }

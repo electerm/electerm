@@ -1,7 +1,8 @@
 const {
-  BrowserWindow, screen, dialog, app
+  BrowserWindow, screen, dialog, app, shell
 } = require('electron')
 const { resolve } = require('path')
+const { readFile, writeFile } = require('fs/promises')
 const {
   isDev, packInfo, iconPath, isMac, isWin,
   minWindowWidth, minWindowHeight
@@ -23,6 +24,7 @@ const _ = require('./lodash.js')
 const getPort = require('./get-port')
 const globalState = require('./glob-state')
 const webviewHandler = require('./webview-handler')
+const { installNavGuard } = require('./nav-guard')
 const { getTitleBarOptions, windowBackground } = require('./title-bar')
 
 // A crashed / reloaded renderer leaves the window object alive, and sending to
@@ -44,10 +46,7 @@ exports.createWindow = async function (userConfig) {
   globalState.set('requireAuth', !!userConfig.hashedPassword)
   const { width, height, x, y } = await getWindowSize()
   const { useSystemTitleBar = defaults.useSystemTitleBar } = userConfig
-  // Windows always keeps the native frame (window controls overlay, see
-  // title-bar.js), so the renderer must treat the frame as the system one there
-  // regardless of the setting; useSystemTitleBar only decides the macOS/Linux
-  // chrome.
+  // Windows always uses a separate system title bar.
   globalState.set('systemTitleBar', isWin || !!useSystemTitleBar)
   const win = new BrowserWindow({
     width,
@@ -55,6 +54,7 @@ exports.createWindow = async function (userConfig) {
     x,
     y,
     fullscreenable: true,
+    autoHideMenuBar: isWin,
     minWidth: minWindowWidth,
     minHeight: minWindowHeight,
     title: packInfo.name,
@@ -79,11 +79,6 @@ exports.createWindow = async function (userConfig) {
   if (isMac) {
     win.setWindowButtonVisibility(true)
   } else if (useSystemTitleBar && !isWin) {
-    // The system title bar would otherwise show Electron's default
-    // Edit/View/Window/Help menu bar; hide it (its keyboard accelerators still
-    // work). Windows is excluded on purpose: there the window is frameless
-    // (titleBarStyle 'hidden'), RootView::SetMenu bails out for a frameless
-    // window and no menu bar is ever created, so the call would be a no-op.
     win.setMenuBarVisibility(false)
   }
 
@@ -119,7 +114,23 @@ exports.createWindow = async function (userConfig) {
   const port = isDev
     ? process.env.devPort || 5570
     : await getPort()
+  if (packInfo.uiRevision) {
+    const marker = resolve(app.getPath('sessionData'), 'ui-revision')
+    try {
+      const previous = await readFile(marker, 'utf8').catch(err => {
+        if (err.code !== 'ENOENT') throw err
+      })
+      if (previous !== packInfo.uiRevision) {
+        // Only invalidate HTTP resources, never cookies, local storage or bookmarks.
+        await win.webContents.session.clearCache()
+        await writeFile(marker, packInfo.uiRevision)
+      }
+    } catch (err) {
+      console.warn('Could not refresh the UI cache:', err.message)
+    }
+  }
   const opts = `http://127.0.0.1:${port}/index.html?v=${packInfo.version}`
+  globalState.set('appOrigin', installNavGuard(win, opts, shell))
   // If loading the URL fails (e.g. proxy/firewall interference), show error page
   win.webContents.once('did-fail-load', (event, errorCode, errorDescription) => {
     console.error('Failed to load app URL:', errorCode, errorDescription)

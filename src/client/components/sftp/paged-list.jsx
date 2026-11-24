@@ -16,7 +16,7 @@
 
 import { Component, createRef } from 'react'
 
-const ITEM_SIZE = 36 // 32px item height + 4px margin-bottom
+const ITEM_SIZE = 21 // 20px item height + 1px margin-bottom
 const OVERSCAN = 5
 
 export default class VirtualList extends Component {

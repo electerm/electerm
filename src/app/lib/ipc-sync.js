@@ -19,7 +19,6 @@ const {
 } = require('./window-control')
 const _ = require('./lodash.js')
 const { getStorageKey } = require('./storage-key')
-const widgetLoader = require('../widgets/load-widget')
 
 const isMaximized = () => {
   const {
@@ -48,10 +47,6 @@ module.exports = {
   },
   // the title bar the window was created with - a changed setting only applies after restart
   isSystemTitleBar: () => !!globalState.get('systemTitleBar'),
-  // The css of every running widget, derived from the instances (nothing is
-  // stored), so a renderer that just loaded can rebuild it without waiting for
-  // a widget to re-apply (client/common/widget-style-host.js).
-  getWidgetStyles: () => widgetLoader.runningCss(),
   readClipboard: () => {
     return clipboard.readText()
   },
@@ -107,11 +102,15 @@ module.exports = {
   },
   getInitLocale: () => {
     const config = globalState.get('config')
-    const langMap = globalState.get('langMap')
+    const language = config?.language || 'en_us'
     return {
-      language: config?.language || 'en_us',
-      langMap: langMap || {}
+      language,
+      langMap: { [language]: globalState.get('langMap')?.[language] }
     }
+  },
+  getLocaleDictionary: id => {
+    const locales = globalState.get('langMap')
+    return typeof id === 'string' && locales && Object.hasOwn(locales, id) ? locales[id] : null
   },
   getConstants: () => {
     return {

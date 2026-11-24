@@ -20,7 +20,7 @@ import { Badge, Popover } from 'antd'
 import SideIcon from './side-icon'
 import QuickConnect from '../tabs/quick-connect'
 import { settingMap } from '../../common/constants'
-import { defaultLeftSideBarIcons } from '../../common/left-sidebar-icon-defs'
+import { defaultLeftSideBarIcons, normalizeLeftSideBarIcons } from '../../common/left-sidebar-icon-defs'
 
 const e = window.translate
 
@@ -43,7 +43,7 @@ export default function LeftSidebarIcons (props) {
   } = props
 
   const ids = Array.isArray(iconIds) && iconIds.length
-    ? iconIds
+    ? normalizeLeftSideBarIcons(iconIds)
     : defaultLeftSideBarIcons
 
   const registry = {

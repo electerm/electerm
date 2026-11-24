@@ -15,7 +15,7 @@ function normalizeHost (host = '') {
 }
 
 function getKnownHostsPath () {
-  return join(os.homedir(), '.ssh', 'known_hosts')
+  return join(process.env.DATA_PATH || os.homedir(), '.ssh', 'known_hosts')
 }
 
 function getKnownHostCandidates (host, port) {

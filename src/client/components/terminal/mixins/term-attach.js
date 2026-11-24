@@ -1,8 +1,6 @@
 import { debounce } from 'lodash-es'
 import message from '../../common/message'
-import { notification } from '../../common/notification'
 import AttachAddon from '../attach-addon-custom.js'
-import { createTriggerManager } from '../automation/index.js'
 import { isWin } from '../../../common/constants.js'
 import { isUnsafeFilename } from '../../../common/file-drop-utils.js'
 import { createCdCommand } from '../ssh-reload-state.js'
@@ -23,7 +21,6 @@ export const attachMixin = {
       this.encode || this.props.tab.encode || 'utf-8'
     )
     await this.attachAddon.activate(this.term)
-    this.initTriggerManager()
   },
 
   switchEncoding (encode) {
@@ -77,38 +74,6 @@ export const attachMixin = {
     if (cmd) {
       this.runQuickCommand(cmd)
     }
-  },
-
-  initTriggerManager () {
-    this.disposeTriggerManager()
-    if (!this.attachAddon) {
-      return
-    }
-    const attachAddon = this.attachAddon
-    this.triggerManager = createTriggerManager({
-      attachAddon,
-      send: (payload) => {
-        if (payload) {
-          attachAddon._sendData(payload)
-        }
-      },
-      getTriggers: () => {
-        try {
-          return window.store.getEffectiveTriggers(this.props.tab)
-        } catch (e) {
-          return []
-        }
-      },
-      onFire: ({ rule, matched, kind }) => {
-        if (kind === 'notify' && rule) {
-          notification.warning({
-            message: window.translate('triggers') + ': ' + (rule.name || rule.match?.value || ''),
-            description: String(matched || '').slice(-240),
-            duration: 6
-          })
-        }
-      }
-    })
   },
 
   refreshTriggers () {

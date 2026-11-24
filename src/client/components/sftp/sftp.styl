@@ -5,14 +5,18 @@
   flex 1
 .sftp-title-wrap
   position relative
+.sftp-wrap .sftp-panel-title
+  padding-block 2px
+  font-size 12px
+  line-height 18px
 .sftp-item
   position relative
   z-index 3
   padding 0
-  line-height 26px
-  height 32px
+  line-height 20px
+  height 20px
   user-select none
-  margin-bottom 4px
+  margin-bottom 1px
   &:nth-child(even)
     .sftp-file-prop
       background var(--main)
@@ -93,8 +97,9 @@
 //list table
 .sftp-file-prop
   flex 0 0 auto
-  height 32px
-  line-height 30px
+  height 20px
+  line-height 20px
+  font-size 12px
   padding 0 5px
   background var(--main)
   overflow hidden
@@ -109,7 +114,7 @@
   left 0
   top 0
   right 0
-  height 32px
+  height 20px
   z-index 3
 
 .sftp-header-item
@@ -156,6 +161,21 @@
 //sftp
 .sftp-panel
   background var(--main)
+.sftp-section
+  > .ant-spin, .ant-spin-container, .sftp-panel
+    height 100%
+    box-sizing border-box
+  .sftp-panel, .file-list, .sftp-table
+    display flex
+    flex-direction column
+    min-height 0
+  .sftp-panel
+    padding-bottom 0
+  .file-list, .sftp-table, .sftp-table-content
+    flex 1
+    min-height 0
+  .sftp-file-table-header
+    flex none
 
 .file-list
   ::-webkit-scrollbar-thumb

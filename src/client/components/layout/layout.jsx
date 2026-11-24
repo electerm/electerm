@@ -1,22 +1,19 @@
 import { auto } from 'manate/react'
+import { useState } from 'react'
 import Layouts from './layouts'
 import TabsWrap from '../tabs/index'
+import QuickConnect from '../tabs/quick-connect'
 import {
   splitConfig,
-  quickCommandBoxHeight,
-  footerHeight,
-  remoteMonitorBarHeight,
-  shortcutBarHeight
+  footerHeight
 } from '../../common/constants'
 import layoutAlg from './layout-alg'
 import calcSessionSize from './session-size-alg'
 import TermSearch from '../terminal/term-search'
 import Footer from '../footer/footer-entry'
-import RemoteMonitorBar from '../remote-monitor/remote-monitor-bar-entry'
-import { isRemoteMonitorBarVisible } from '../remote-monitor/visibility'
 import SessionsWrap from '../session/sessions'
-import QuickCommandsFooterBox from '../quick-commands/quick-commands-box'
 import pixed from './pixed'
+import TerminalToolbar, { toolbarHeight } from './terminal-toolbar'
 import { pick } from 'lodash-es'
 import './layout.styl'
 
@@ -26,6 +23,9 @@ export default auto(function Layout (props) {
     layout, config, currentTab
   } = store
   const conf = splitConfig[layout]
+  const toolbar = !store.isMobile && !store.fullscreen
+  const [controlsHost, setControlsHost] = useState(null)
+  const [sftpPercent, setSftpPercent] = useState(20)
 
   const handleMousedown = (e) => {
 
@@ -36,33 +36,21 @@ export default auto(function Layout (props) {
       width,
       height,
       isMobile,
-      pinnedQuickCommandBar,
-      quickCommandsInRightPanel,
       leftSidePanelWidth,
       leftSideBarWidth,
       pinned,
       rightPanelVisible,
       rightPanelPinned,
       rightPanelWidth,
-      resizeTrigger,
-      inActiveTerminal,
-      shortcutBarVisible,
-      shortcutBarKbOffset
+      resizeTrigger
     } = props.store
-    const monitorHeight = isRemoteMonitorBarVisible(props.store) ? remoteMonitorBarHeight : 0
-    // a pin left on while the panel is docked in the right side panel reserves
-    // nothing: the footer box is not rendered then (quick-commands-box.jsx)
-    const qmPinnedHeight = inActiveTerminal &&
-      pinnedQuickCommandBar &&
-      !quickCommandsInRightPanel
-      ? quickCommandBoxHeight
-      : 0
-    const h = height - footerHeight - monitorHeight - qmPinnedHeight - (shortcutBarVisible ? shortcutBarHeight + shortcutBarKbOffset : 0) + resizeTrigger
+    const top = toolbar ? toolbarHeight : 0
+    const h = height - footerHeight - top + resizeTrigger
     const l = pinned && !isMobile ? leftSideBarWidth + leftSidePanelWidth : leftSideBarWidth
     const r = rightPanelVisible && rightPanelPinned && !isMobile ? rightPanelWidth : 0
     return {
       height: h,
-      top: 0,
+      top,
       left: l,
       width: Math.max(0, width - l - r)
     }
@@ -81,7 +69,10 @@ export default auto(function Layout (props) {
     layoutStyle: pixedLayoutStyle,
     handleMousedown
   }
-  const sizes = calcSessionSize(layout, width, height)
+  const sizes = calcSessionSize(layout, width, height).map(size => ({
+    ...size,
+    sidebarWidth: toolbar ? Math.min(size.width * 0.6, Math.max(144, size.width * sftpPercent / 100)) : 0
+  }))
 
   function renderSessions (conf, layout) {
     const {
@@ -104,12 +95,16 @@ export default auto(function Layout (props) {
       tabsBatch[batch].push(tab)
     }
     return sizes.map((v, i) => {
+      const batchTabs = tabsBatch[i] || []
+      const currentBatchTabId = store[`activeTabId${i}`]
+      const connectWidth = v.sidebarWidth
       const sessProps = {
         batch: i,
         layout,
-        currentBatchTabId: store[`activeTabId${i}`],
+        currentBatchTabId,
         ...v,
-        tabs: tabsBatch[i] || [],
+        width: v.width - connectWidth,
+        tabs: batchTabs,
         ...pick(store, [
           'isMaximized',
           'config',
@@ -126,10 +121,14 @@ export default auto(function Layout (props) {
         ])
       }
       return (
-        <TabsWrap
-          key={'sess' + i}
-          {...sessProps}
-        />
+        <div className='pane-header' key={'sess' + i}>
+          {connectWidth > 0 && (
+            <div className='pane-connect' style={{ width: connectWidth }}>
+              <QuickConnect inputOnly compact batch={i} />
+            </div>
+          )}
+          <TabsWrap {...sessProps} />
+        </div>
       )
     })
   }
@@ -149,10 +148,10 @@ export default auto(function Layout (props) {
   const footerProps = {
     store
   }
-  const qmProps = {
-    store
-  }
   const sessionsProps = {
+    sftpPercent,
+    setSftpPercent,
+    controlsHost: toolbar ? controlsHost : null,
     styles: styles.wrapStyles,
     sizes,
     width,
@@ -181,6 +180,9 @@ export default auto(function Layout (props) {
     layout
   }
   return [
+    toolbar && (
+      <TerminalToolbar key='toolbar' store={store} transfers={props.transfers} controlsRef={setControlsHost} />
+    ),
     <Layouts {...layoutProps} key='layouts'>
       {renderSessions(conf, layout)}
     </Layouts>,
@@ -188,15 +190,6 @@ export default auto(function Layout (props) {
     <TermSearch
       key='TermSearch'
       {...termProps}
-    />,
-    <QuickCommandsFooterBox
-      key='QuickCommandsFooterBox'
-      {...qmProps}
-    />,
-    <RemoteMonitorBar
-      key='RemoteMonitorBar'
-      store={store}
-      style={{ left: layoutSize.left, width, height: remoteMonitorBarHeight }}
     />,
     <Footer
       key='Footer'

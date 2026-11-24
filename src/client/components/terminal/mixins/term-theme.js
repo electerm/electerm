@@ -247,18 +247,7 @@ export const themeMixin = {
   },
 
   getVisibleTerminalBackground () {
-    const uiThemeConfig = window.store?.getUiThemeConfig?.() || {}
-    // The store value (uiThemeConfig.main) is always immediately up-to-date
-    // when the theme changes, because it reads directly from store.config.theme.
-    // The CSS --main variable lags behind because UiTheme's useEffect runs
-    // asynchronously after componentDidUpdate. So we prioritise the store
-    // value, and only fall back to CSS (for custom-CSS edge cases) or the
-    // terminal theme background (last resort).
-    const root = document.documentElement
-    const cssMain = root && window.getComputedStyle
-      ? window.getComputedStyle(root).getPropertyValue('--main').trim()
-      : ''
-    return uiThemeConfig.main || cssMain || this.props.themeConfig.background
+    return this.props.themeConfig?.background || '#1e1e1e'
   },
 
   getVisibleTerminalForeground () {
@@ -287,11 +276,14 @@ export const themeMixin = {
     themeConfig = this.props.themeConfig,
     rendererType = resolveRendererThemeType(!!this.webglAddon, rendererTypes)
   ) {
-    return createRendererThemeConfig(
-      deepCopy(themeConfig),
-      rendererType,
-      this.getVisibleTerminalBackground()
-    )
+    return {
+      ...createRendererThemeConfig(
+        deepCopy(themeConfig),
+        rendererType,
+        this.getVisibleTerminalBackground()
+      ),
+      background: themeConfig?.background || this.getVisibleTerminalBackground()
+    }
   },
 
   /**

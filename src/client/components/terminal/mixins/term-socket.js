@@ -212,15 +212,11 @@ export const socketMixin = {
       loading: false
     })
     if (!r) {
+      this.setStatus(statusMap.error)
+      this.setState({ sessionStopped: true })
       if (isAutoReconnect && !needsInteractiveInput(id)) {
         this.scheduleAutoReconnect(3000)
-        return
       }
-      this.setStatus(statusMap.error)
-      // The pane is dead even though the socket never opened. The notice itself
-      // stays hidden while `terminalError` is set - the error alert is already
-      // the message.
-      this.setState({ sessionStopped: true })
       return
     }
     this.port = r.port
@@ -241,11 +237,12 @@ export const socketMixin = {
     this.trackSessionExit(socket)
     this.term = term
     socket.onopen = async () => {
+      if (socket !== this.socket || this.onClose) return
       // attach addon is a dynamic import too — report a failed chunk fetch
       // instead of leaving an unhandled rejection behind
       try {
         await this.initAttachAddon()
-        this.startupQueue.runInitScript(opts[execPropName])
+        if (socket === this.socket && !this.onClose) this.startupQueue.runInitScript(opts[execPropName])
       } catch (e) {
         console.error(e)
         this.handleError({ message: e.message })
@@ -311,10 +308,12 @@ export const socketMixin = {
   },
 
   initSocketEvents () {
-    const originalSend = this.socket.send
-    this.socket.send = (data) => {
+    const socket = this.socket
+    const originalSend = socket.send
+    socket.send = (data) => {
+      if (socket !== this.socket) return
       // Call original send first
-      originalSend.call(this.socket, data)
+      originalSend.call(socket, data)
 
       // Broadcast to other terminals
       this.broadcastSocketData(data)
@@ -329,7 +328,7 @@ export const socketMixin = {
    */
   trackSessionExit (socket) {
     socket.addEventListener('message', (ev) => {
-      if (typeof ev.data !== 'string') {
+      if (socket !== this.socket || typeof ev.data !== 'string') {
         return
       }
       let msg
@@ -354,14 +353,14 @@ export const socketMixin = {
    * @returns {{ close: boolean, reason: string }}
    */
   sessionEndDecision () {
+    const userTypeExit = this.isUserTypeExit()
     return decideSessionEnd({
       exitStatus: this.sessionExit,
       // Fallback only: backends that can not report a status (telnet, serial,
       // a device that omits SSH exit-status) keep the old typed-line rule,
       // time-boxed so a nested `exit` can not poison it.
-      userTypeExit: this.isUserTypeExit()
-      // closeOnCleanExit stays at its default (close, i.e. today's `exit`
-      // behaviour) until the keep-the-tab decision in #4629 is made.
+      userTypeExit,
+      closeOnCleanExit: !!userTypeExit
     })
   },
 
@@ -392,8 +391,8 @@ export const socketMixin = {
     console.error('onerrorSocket', err)
   },
 
-  oncloseSocket () {
-    if (this.onClose || this.props.tab.enableSsh === false) {
+  oncloseSocket (event) {
+    if (event?.target !== this.socket || this.onClose || this.props.tab.enableSsh === false) {
       return
     }
     this.setStatus(
@@ -468,6 +467,7 @@ export const socketMixin = {
    * tab) as the shortcuts.
    */
   handleReloadStoppedSession () {
+    this.handleCancelAutoReconnect()
     this.props.reloadTab(this.props.tab)
   },
 
@@ -502,8 +502,8 @@ export const socketMixin = {
     this.props.delTab(tab.id)
   },
 
-  getReloadState () {
-    if (!shouldCaptureTerminalReloadState(this.props.tab, this.props.config)) {
+  getReloadState (stopped = false) {
+    if (!shouldCaptureTerminalReloadState(this.props.tab, this.props.config, stopped)) {
       return undefined
     }
     let screen = ''
@@ -524,21 +524,26 @@ export const socketMixin = {
       console.warn('Failed to serialize terminal before reload', e)
     }
     const cwd = this.cmdAddon?.getCwd() || this.props.tab._reloadState?.cwd || ''
-    return createTerminalReloadState({ cwd, screen })
+    const state = createTerminalReloadState({ cwd, screen })
+    if (state && stopped) state.stopped = true
+    return state
   },
 
-  restoreReloadScreen (term) {
-    const screen = this.props.tab._reloadState?.screen
-    if (!screen) {
-      return Promise.resolve()
+  async restoreReloadScreen (term) {
+    const state = this.props.tab._reloadState
+    if (!state?.screen) return
+    await new Promise(resolve => term.write(state.screen, resolve))
+    delete state.screen
+    if (state.stopped && !this.onClose) {
+      // ConPTY may repaint the new shell from row one. Move the old viewport
+      // into scrollback first, without changing how later clears behave.
+      const previous = term.options.scrollOnEraseInDisplay
+      term.options.scrollOnEraseInDisplay = true
+      try {
+        await new Promise(resolve => term.write('\x1b[2J\x1b[H', resolve))
+      } finally {
+        term.options.scrollOnEraseInDisplay = previous
+      }
     }
-    return new Promise(resolve => {
-      term.write(screen, () => {
-        // The framebuffer has been replayed; do not keep a potentially large
-        // duplicate string on the live tab. A later reload serializes afresh.
-        delete this.props.tab._reloadState.screen
-        resolve()
-      })
-    })
   }
 }

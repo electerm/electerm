@@ -9,10 +9,10 @@ const {
   dialog,
   powerMonitor,
   globalShortcut,
-  shell,
-  webContents
+  shell
 } = require('electron')
 const globalState = require('./glob-state')
+const { isSameOrigin } = require('./nav-guard')
 const log = require('../common/log')
 const ipcSyncFuncs = require('./ipc-sync')
 const { dbAction, tables } = require('./db')
@@ -26,20 +26,6 @@ const { listItermThemes } = require('./iterm-theme')
 const installSrc = require('./install-src')
 const { getConfig } = require('./get-config')
 const loadSshConfig = require('./ssh-config')
-const {
-  listWidgets,
-  listWidgetInstances,
-  runWidget,
-  stopWidget,
-  runWidgetFunc,
-  callWidgetFunc,
-  importWidget,
-  importWidgetFromSource,
-  importWidgetFromRegistry,
-  deleteWidget
-} = require('../widgets/load-widget')
-const widgetLog = require('../widgets/instance-log')
-const cssBus = require('../widgets/css-bus')
 const {
   checkMigrate,
   migrate
@@ -87,7 +73,6 @@ const { loadFontList } = require('./font-list')
 // are the upgrade calls. Require it lazily so it stays off the pre-window path.
 let upgradeMod
 const upgrade = () => (upgradeMod || (upgradeMod = require('../upgrade')))
-const { listSerialPorts } = require('./serial-port')
 const initApp = require('./init-app')
 const { encryptAsync, decryptAsync } = require('./enc')
 const { safeEncrypt, safeDecrypt } = require('./safe-storage')
@@ -99,14 +84,6 @@ const {
 } = require('./install-command')
 const { watchFile, unwatchFile } = require('./watch-file')
 const lookup = require('../common/lookup')
-const {
-  AIchat,
-  AIchatWithTools,
-  AIlistModels,
-  getStreamContent,
-  stopStream,
-  abortAIRequest
-} = require('./ai')
 
 // Security: whitelist of safe environment variables for Linux/Mac/Windows
 const SAFE_ENV_KEYS = [
@@ -140,12 +117,11 @@ function isExportedIpcFunc (obj, name) {
   return Object.prototype.hasOwnProperty.call(obj, name) && typeof obj[name] === 'function'
 }
 
-// Only the main app window's webContents may use the dynamic IPC bridges. This blocks
-// any other renderer frame (webviews, popups, or an attacker page that navigated the
-// window) from reaching runGlobalAsync / runSync (CWE-863 / CWE-749).
+// A navigated window keeps its webContents and preload, so check the frame origin too.
 function isTrustedIpcSender (event) {
   const win = globalState.get('win')
-  return !!win && event.sender === win.webContents
+  return !!win && !win.isDestroyed() && event.sender === win.webContents &&
+    !!event.senderFrame && isSameOrigin(event.senderFrame.url, globalState.get('appOrigin'))
 }
 
 // Electron 43 made file dialogs default to Downloads and stopped the OS from
@@ -172,6 +148,7 @@ async function initAppServer () {
   const language = getLang(config, sysLocale, langs)
   config.language = language
   globalState.set('langMap', langMap)
+  globalState.set('localeChoices', langs)
   if (!globalState.get('serverInited')) {
     const child = await initServer(config, {
       ...process.env,
@@ -190,55 +167,20 @@ async function initAppServer () {
   globalState.set('config', config)
 }
 
-// The app renderer is a plain window on http://127.0.0.1:<port>; devtools, the
-// widget iframes (electerm-widget://) and about:blank are webContents too, and
-// styling any of those would be pointless or wrong.
-const NON_APP_SCHEME = /^(devtools|electerm-widget|chrome|chrome-extension|about|data):/i
-
-function appWindows () {
-  return webContents.getAllWebContents().filter(wc => (
-    !wc.isDestroyed() &&
-    wc.getType() === 'window' &&
-    !NON_APP_SCHEME.test(wc.getURL() || '')
-  ))
-}
-
-// One widget css change -> every app window. A window that is not ready yet
-// picks the full set up at boot through getWidgetStyles (ipc-sync.js).
-function broadcastWidgetCss (payload) {
-  for (const wc of appWindows()) {
-    try {
-      wc.send('widget-css', payload)
-    } catch (e) {}
-  }
-}
-
 function initIpc () {
-  // Widget stylesheets are applied in the renderer (see
-  // client/common/widget-style-host.js), so a widget's css travels as an ipc
-  // event to every app window. Same code path on desktop and in the web app:
-  // only this transport differs.
-  cssBus.configure(broadcastWidgetCss)
   powerMonitor.on('resume', () => {
     globalState.get('win').webContents.send('power-resume', null)
   })
   async function init () {
-    const {
-      langs,
-      langMap
-    } = await loadLocales()
+    const langMap = globalState.get('langMap')
     const config = globalState.get('config')
     const globs = {
       config,
-      langs,
-      langMap,
+      langs: globalState.get('localeChoices'),
       installSrc,
       appPath,
       exePath,
-      isPortable,
-      // where running widgets write their logs; the widget manager reads them
-      // straight off disk (see widgets/instance-log.js)
-      widgetLogPath: widgetLog.getLogDir()
+      isPortable
     }
     initApp(langMap, config)
     initShortCut(globalShortcut, globalState.get('win'), config)
@@ -283,7 +225,6 @@ function initIpc () {
     lookup,
     loadSshConfig,
     init,
-    listSerialPorts,
     loadFontList,
     doUpgrade: (...args) => upgrade().doUpgrade(...args),
     checkDbUpgrade: (...args) => upgrade().checkDbUpgrade(...args),
@@ -331,12 +272,6 @@ function initIpc () {
       lastStateManager.set('windowSize', update)
     },
     saveUserConfig,
-    AIchat,
-    AIchatWithTools,
-    AIlistModels,
-    getStreamContent,
-    stopStream,
-    abortAIRequest,
     setTitle: (title) => {
       const win = globalState.get('win')
       win && win.setTitle(packInfo.name + ' - ' + title)
@@ -365,20 +300,6 @@ function initIpc () {
     watchFile,
     unwatchFile,
     openFileWithEditor,
-    listWidgets,
-    // the panel mirrors this instead of remembering each run result, so a
-    // reloaded renderer still knows what is running
-    listWidgetInstances,
-    runWidget,
-    stopWidget,
-    runWidgetFunc,
-    // user widgets: main-process functions their own UI calls, install and
-    // uninstall of a widget folder
-    callWidgetFunc,
-    importWidget,
-    importWidgetFromSource,
-    importWidgetFromRegistry,
-    deleteWidget,
     registerDeepLink,
     unregisterDeepLink,
     checkProtocolRegistration,
@@ -413,6 +334,10 @@ function initIpc () {
     return asyncGlobals[name](...args)
   })
   ipcMain.handle('show-open-dialog-sync', async (event, ...args) => {
+    if (!isTrustedIpcSender(event)) {
+      console.error('[security] blocked IPC call: show-open-dialog-sync')
+      return
+    }
     const win = BrowserWindow.fromWebContents(event.sender)
     const opts = args[0] && typeof args[0] === 'object' ? args[0] : {}
     const res = dialog.showOpenDialogSync(
@@ -423,6 +348,10 @@ function initIpc () {
     return res
   })
   ipcMain.handle('show-save-dialog', async (event, ...args) => {
+    if (!isTrustedIpcSender(event)) {
+      console.error('[security] blocked IPC call: show-save-dialog')
+      return
+    }
     const win = BrowserWindow.fromWebContents(event.sender)
     const res = await dialog.showSaveDialog(
       win,

@@ -1,7 +1,6 @@
 const express = require('express')
 const { Sftp } = require('./session-sftp')
 const { instSftpKeys } = require('../common/constants')
-const { Ftp } = require('./session-ftp')
 const {
   sftp,
   transfer,
@@ -11,7 +10,6 @@ const {
   cleanAllSessions
 } = require('./remote-common')
 const { Transfer, transferKeys } = require('./transfer')
-const { Transfer: FtpTransfer } = require('./ftp-transfer')
 const app = express()
 const log = require('../common/log')
 const appDec = require('./app-wrap')
@@ -223,26 +221,10 @@ if (type === 'rdp') {
       }
     }
 
-    // Detach listeners from a previous WS connection for the same term.
-    // Reconnects create a new WS but reuse the same term instance; without
-    // this each reconnect stacks another 'data' handler, duplicating output
-    // and pinning closed sockets/buffers in memory.
-    if (term._wsDataHandler && typeof term.off === 'function') {
-      try {
-        term.off('data', term._wsDataHandler)
-      } catch (_) {}
-    }
-    if (term._wsPortDataHandler && term.port) {
-      try {
-        term.port.removeListener('data', term._wsPortDataHandler)
-      } catch (_) {}
-    }
-    if (term._wsCloseHandler && typeof term.off === 'function') {
-      try {
-        term.off('close', term._wsCloseHandler)
-        term.off('exit', term._wsCloseHandler)
-      } catch (_) {}
-    }
+    // A replaced socket no longer owns input, output or session teardown.
+    term._detachSocket?.()
+    term._detachSocket = detach
+    const started = Date.now()
 
     const onTermData = function (data) {
       // Check if zmodem session is active and handle data
@@ -342,7 +324,6 @@ if (type === 'rdp') {
         sendTimeout = setTimeout(flushBufferedData, flushIntervalMs - elapsed)
       }
     }
-    term._wsDataHandler = onTermData
     term.on('data', onTermData)
 
     // Serial UI output (hex view lines, a view redraw, the byte cursor) is
@@ -367,18 +348,17 @@ if (type === 'rdp') {
 
     // For serial terminals, register a raw data listener directly on the port to
     // feed binary XMODEM data to xmodemManager without rxLineEnding transformation.
+    let onPortData
     if (term.port) {
-      const onPortData = function (rawData) {
+      onPortData = function (rawData) {
         if (xmodemManager.isActive(pid)) {
           term.writeLog(rawData)
           xmodemManager.handleData(pid, rawData, term, ws)
         }
       }
-      term._wsPortDataHandler = onPortData
       term.port.on('data', onPortData)
     }
 
-    let onCloseCalled = false
     // How the pty / ssh channel ended. `null` until the backend reports it, and
     // it stays null when the connection dies without an exit status, which is
     // the renderer's cue that this was not a clean exit (#4629).
@@ -392,9 +372,20 @@ if (type === 'rdp') {
       } catch (_) {}
     }
 
+    function detach () {
+      term._detachSocket = null
+      term._wsUiHandler = null
+      term.off?.('data', onTermData)
+      term.off?.('exit', onTermExit)
+      term.off?.(term.isLocal ? 'exit' : 'close', onClose)
+      if (onPortData) term.port.removeListener('data', onPortData)
+      clearTimeout(sendTimeout)
+      dataBuffer.length = 0
+    }
+
     function onClose () {
-      if (onCloseCalled) return
-      onCloseCalled = true
+      if (term._detachSocket !== detach) return
+      detach()
       // Report the exit status while the socket can still carry it. The
       // tab decides between "the user ended this session" and "the
       // connection dropped" from this, not from the keystrokes it saw.
@@ -404,45 +395,9 @@ if (type === 'rdp') {
             exitStatus || normalizeExitStatus(null, null)))
         } catch (_) {}
       }
-      // Detach this connection's listeners so a reconnect does not stack
-      // duplicates on the reused term instance.
-      if (typeof term.off === 'function') {
-        try {
-          term.off('exit', onTermExit)
-        } catch (_) {}
+      if (ws.readyState === 1 && (exitStatus?.code !== 0 || exitStatus.signal)) {
+        log.warn('terminal channel ended', { type, code: exitStatus?.code ?? null, seconds: Math.round((Date.now() - started) / 1000) })
       }
-      if (term._wsDataHandler && typeof term.off === 'function') {
-        try {
-          term.off('data', term._wsDataHandler)
-        } catch (_) {}
-      }
-      if (term._wsDataHandler === onTermData) {
-        term._wsDataHandler = null
-      }
-      if (term._wsUiHandler === onUiData) {
-        term._wsUiHandler = null
-      }
-      if (term._wsPortDataHandler && term.port) {
-        try {
-          term.port.removeListener('data', term._wsPortDataHandler)
-        } catch (_) {}
-        term._wsPortDataHandler = null
-      }
-      if (typeof term.off === 'function') {
-        try {
-          term.off('close', onClose)
-          term.off('exit', onClose)
-        } catch (_) {}
-      }
-      if (term._wsCloseHandler === onClose) {
-        term._wsCloseHandler = null
-      }
-      // Cancel any pending batched send
-      if (sendTimeout) {
-        clearTimeout(sendTimeout)
-        sendTimeout = null
-      }
-      dataBuffer.length = 0
       // Clean up zmodem session
       zmodemManager.destroySession(pid)
       // Clean up trzsz session
@@ -456,7 +411,6 @@ if (type === 'rdp') {
       cleanup()
     }
 
-    term._wsCloseHandler = onClose
     // node-pty on unix emits 'close' *before* 'exit', so a local session that
     // also listened to 'close' would report "no exit status" for a clean
     // `exit` and fall back to guessing. The pty's own 'exit' is the
@@ -469,6 +423,7 @@ if (type === 'rdp') {
     }
 
     ws.on('message', function (msg) {
+      if (term._detachSocket !== detach) return
       try {
         // Check if message is a zmodem or trzsz control message (JSON)
         if (typeof msg === 'string') {
@@ -527,7 +482,13 @@ if (type === 'rdp') {
       log.error(err)
     })
 
-    ws.on('close', onClose)
+    ws.on('close', (code) => {
+      if (term._detachSocket !== detach) return
+      if (![1000, 1005].includes(code)) {
+        log.warn('terminal transport closed', { type, code, seconds: Math.round((Date.now() - started) / 1000) })
+      }
+      onClose()
+    })
   })
 
   // sftp function
@@ -544,8 +505,7 @@ if (type === 'rdp') {
 
       if (action === 'sftp-new') {
         const { id, terminalId, type } = msg
-        const Cls = type === 'ftp' ? Ftp : Sftp
-        sftp(id, new Cls({
+        sftp(id, new Sftp({
           uid: id,
           terminalId,
           type
@@ -617,8 +577,7 @@ if (type === 'rdp') {
           ws,
           encode
         })
-        const Cls = isFtp ? FtpTransfer : Transfer
-        transfer(id, sftpId, new Cls(opts))
+        transfer(id, sftpId, new Transfer(opts))
       } else if (action === 'transfer-func') {
         const { id, func, args, sftpId } = msg
         if (func === 'destroy') {

@@ -7,7 +7,14 @@ module.exports = exports.default = {
   sshReadyTimeout: 50000,
   scrollback: 3000,
   onStartSessions: [],
-  fontSize: 16,
+  fontSize: 13,
+  keywords: [
+    { keyword: '\\b(errors?|failed|failure|denied|refused|not (?:ok|allowed|permitted|implemented|supported)|invalid|unsupported|corrupt(?:ed|ion)?|overflow|underrun|false|ko)\\b', color: 'red' },
+    { keyword: '\\b(ok|true|yes|accepted|allowed|enabled|connected|success(?:ful(?:ly)?)?|succeeded)\\b', color: 'green' },
+    { keyword: '\\b(warn(?:ings?)?|alerts?|unexpected|unknown|closed|terminated|stopped|disconnected|disabled|deprecated|not found|out of (?:memory|space)|unable to|could not)\\b', color: 'yellow' },
+    { keyword: '\\b(?:localhost|null|none|(?:\\d{1,3}\\.){3}\\d{1,3})\\b', color: 'magenta' },
+    { keyword: '\\b(?:last (?:failed )?login|launching|checking|loading|creating|building|important|booting|starting|notice|info(?:rmation(?:al)?)?|note)\\b', color: 'cyan' }
+  ],
   fontFamily: 'Maple Mono, mono, courier-new, courier, monospace',
   execWindows: 'System32/WindowsPowerShell/v1.0/powershell.exe',
   execMac: 'zsh',
@@ -29,7 +36,7 @@ module.exports = exports.default = {
   terminalType: 'xterm-256color',
   keepaliveCountMax: 10,
   saveTerminalLogToFile: false,
-  checkUpdateOnStart: true,
+  checkUpdateOnStart: false,
   cursorBlink: false,
   cursorStyle: 'block',
   useSystemTitleBar: false,
@@ -40,6 +47,9 @@ module.exports = exports.default = {
   initDefaultTabOnStart: true,
   screenReaderMode: false,
   autoRefreshWhenSwitchToSftp: false,
+  sftpPathFollowSsh: true,
+  copyWhenSelect: false,
+  rightClickBehavior: 'context',
   addTimeStampToTermLog: false,
   keepaliveInterval: 10000,
   backspaceMode: '^?',
@@ -80,7 +90,7 @@ module.exports = exports.default = {
   authHeaderNameAI: 'Authorization: Bearer',
   proxyAI: '',
   sessionLogPath: '',
-  sshSftpSplitView: false,
+  sshSftpSplitView: true,
   showCmdSuggestions: false,
   restoreTerminalSessionOnReload: false,
   startDirectoryLocal: '',
@@ -89,16 +99,13 @@ module.exports = exports.default = {
   dragDropBehavior: 'ask',
   switchTabOnHover: false,
   autoDistributeTabsWhenLayoutChange: false,
-  disableShortcutBar: false,
+  disableShortcutBar: true,
   onlyShowTitleInTab: false,
   disableConfirmForLargeClipboardContent: false,
   doubleClickToOpenBookmark: false,
   leftSideBarIcons: [
     'bookmarks',
     'quickConnect',
-    'terminalThemes',
-    'setting',
-    'settingSync',
-    'widgets'
+    'setting'
   ]
 }

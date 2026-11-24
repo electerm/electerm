@@ -4,11 +4,11 @@
   top 36px
   // Unpinned is an overlay, so stop above the footer: the footer is app chrome
   // and holds the very icon that toggles this panel, so a full-height overlay
-  // would bury its own trigger. 36px is footerHeight (common/constants.js).
+  // would bury its own trigger.
   // Two cases move or remove the footer, and are handled where their sibling
   // rules already live — see shortcut-bar.styl (.shortcut-bar-on lifts the
   // footer) and term-fullscreen.styl (rdp/vnc/spice fullscreen hides it).
-  bottom 36px
+  bottom var(--footer-stack-height)
   z-index 200
   background var(--main)
   color var(--text)

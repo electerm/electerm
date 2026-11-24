@@ -1,6 +1,7 @@
 /**
  * app entry
  */
+require('./lib/portable-paths')
 const { dialog } = require('electron')
 const log = require('./common/log')
 const { createApp } = require('./lib/create-app')

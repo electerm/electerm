@@ -3,6 +3,7 @@ import { Button } from 'antd'
 import { notification } from '../common/notification'
 import * as ls from '../../common/safe-local-storage'
 import {
+  modals,
   sshConfigKey,
   sshConfigLoadKey
 } from '../../common/constants'
@@ -49,12 +50,13 @@ export default function SshConfigLoadNotify (props) {
       sshConfigs.length &&
       ignoreSshConfig !== 'yes' &&
       settingTab === 'bookmarks' &&
-      showModal &&
+      showModal === modals.setting &&
       sshConfigLoaded !== 'yes' &&
       window.store.hasNodePty
 
     if (shouldShow) {
       showNotification()
+      return () => notification.destroy('sshConfigNotify')
     }
   }, [settingTab, showModal, sshConfigs.length])
 

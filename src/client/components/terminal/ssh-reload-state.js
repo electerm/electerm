@@ -96,8 +96,8 @@ export function createCdCommand (dir, { remote = false, shell = '' } = {}) {
     : createWindowsRestoreCwdCommand(safeDir, shell)
 }
 
-export function shouldCaptureTerminalReloadState (tab, config = {}) {
-  return !!config.restoreTerminalSessionOnReload && isRestorableTerminalTab(tab)
+export function shouldCaptureTerminalReloadState (tab, config = {}, stopped = false) {
+  return (stopped || !!config.restoreTerminalSessionOnReload) && isRestorableTerminalTab(tab)
 }
 
 // Kept for backward compatibility - now covers all shell terminals

@@ -2,26 +2,18 @@ const { describe, test } = require('node:test')
 const assert = require('node:assert/strict')
 
 const {
-  getTitleBarOptions,
-  windowBackground
+  getTitleBarOptions
 } = require('../../../src/app/lib/title-bar')
 
 const platforms = [true, false]
 const modes = [true, false]
 
 describe('title bar window options', () => {
-  test('Windows always: native frame + window controls overlay', () => {
-    // useSystemTitleBar is ignored on Windows: the frameless/transparent
-    // alternative loses the resize border, shadow and Aero Snap
+  test('Windows keeps caption controls outside web content in either mode', () => {
     const expected = {
       frame: true,
       transparent: false,
-      titleBarStyle: 'hidden',
-      titleBarOverlay: {
-        color: windowBackground,
-        symbolColor: '#dddddd',
-        height: 36
-      }
+      titleBarStyle: 'default'
     }
     for (const useSystemTitleBar of modes) {
       assert.deepEqual(getTitleBarOptions(useSystemTitleBar, true), expected)
@@ -44,11 +36,11 @@ describe('title bar window options', () => {
     })
   })
 
-  test('the overlay is set on every Windows window, and only there', () => {
+  test('web controls never share a native overlay hit region', () => {
     for (const useSystemTitleBar of modes) {
       for (const isWin of platforms) {
         const opts = getTitleBarOptions(useSystemTitleBar, isWin)
-        assert.equal('titleBarOverlay' in opts, isWin)
+        assert.equal('titleBarOverlay' in opts, false)
       }
     }
   })
@@ -60,12 +52,5 @@ describe('title bar window options', () => {
         assert.equal(transparent, !frame)
       }
     }
-  })
-
-  test('the overlay first paint matches the window background', () => {
-    // otherwise a dark caption strip flashes on light themes before the
-    // renderer recolors it
-    const { titleBarOverlay } = getTitleBarOptions(true, true)
-    assert.equal(titleBarOverlay.color, windowBackground)
   })
 })

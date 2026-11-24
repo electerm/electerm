@@ -29,6 +29,14 @@ import './session-control.styl'
 
 const e = window.translate
 
+function Action ({ icon: Icon, label, title = label, className, pressed, onClick }) {
+  return (
+    <button type='button' className={classnames('session-action', className)} title={title} aria-pressed={pressed} onClick={onClick}>
+      <Icon />{label}
+    </button>
+  )
+}
+
 export default function SessionControl (props) {
   const {
     tab,
@@ -43,7 +51,6 @@ export default function SessionControl (props) {
     broadcastInput,
     wrapDisabled,
     rightClickBehavior,
-    onChangePane,
     toggleCheckSftpPathFollowSsh,
     onSshSftpSplitView,
     toggleKeepalive,
@@ -67,50 +74,7 @@ export default function SessionControl (props) {
   // ---- sub-renderers ----
 
   function renderPaneControl () {
-    if (isDisabled) {
-      return null
-    }
-    const { sshSftpSplitView, pane } = tab
-    if (sshSftpSplitView && canSplitView) {
-      return null
-    }
-    const types = [
-      paneMap.terminal,
-      paneMap.fileManager
-    ]
-    const controls = [
-      isSsh ? paneMap.ssh : paneMap.terminal
-    ]
-    if (isSsh || isLocal) {
-      controls.push(isSsh ? paneMap.sftp : paneMap.fileManager)
-    }
-    return (
-      <div className='term-sftp-tabs fleft'>
-        {
-          controls.map((type, i) => {
-            const cls = classnames(
-              'type-tab',
-              type,
-              {
-                active: types[i] === pane
-              }
-            )
-            return (
-              <span
-                className={cls}
-                key={type + '_' + i}
-                onClick={() => onChangePane(types[i])}
-              >
-                <span className='type-tab-txt'>
-                  {e(type)}
-                  <span className='type-tab-line' />
-                </span>
-              </span>
-            )
-          })
-        }
-      </div>
-    )
+    return null
   }
 
   function renderSftpPathFollowControl () {
@@ -119,6 +83,14 @@ export default function SessionControl (props) {
     }
     const { enableSsh } = tab
     const checkTxt = e('sftpPathFollowSsh')
+    if (isSsh && !isMobile && enableSsh !== false) {
+      return (
+        <label className='sftp-follow-label'>
+          <input type='checkbox' checked={sftpPathFollowSsh} onChange={toggleCheckSftpPathFollowSsh} />
+          {checkTxt}
+        </label>
+      )
+    }
     const checkProps = {
       onClick: toggleCheckSftpPathFollowSsh,
       className: classnames(
@@ -131,7 +103,7 @@ export default function SessionControl (props) {
     return (
       <>
         {
-          (isSsh && enableSsh) || isLocal
+          isSsh && enableSsh !== false
             ? (
               <Tooltip title={checkTxt}>
                 <span {...checkProps}>
@@ -146,10 +118,7 @@ export default function SessionControl (props) {
   }
 
   function renderSplitToggle () {
-    if (isMobile) {
-      return null
-    }
-    if (!canSplitView || isNotTerminalType || !showSshFeatures) {
+    if (!canSplitView || isNotTerminalType || !isSsh) {
       return null
     }
     const title = e('sshSftpSplitView')
@@ -162,12 +131,16 @@ export default function SessionControl (props) {
     )
     return (
       <Tooltip title={title} placement='bottomLeft'>
-        <span
+        <button
+          type='button'
+          aria-label='SFTP'
+          aria-expanded={!!sshSftpSplitView}
           className={cls}
           onClick={onSshSftpSplitView}
         >
           <SplitViewIcon />
-        </span>
+          {!isMobile && ' SFTP'}
+        </button>
       </Tooltip>
     )
   }
@@ -176,51 +149,19 @@ export default function SessionControl (props) {
     if (isSshDisabled || !showSshFeatures) {
       return null
     }
-    const title = e('keepalive')
-    const iconProps = {
-      className: classnames('sess-icon pointer keepalive-icon', {
-        active: keepaliveEnabled
-      }),
-      onClick: toggleKeepalive
-    }
-    return (
-      <Tooltip title={title}>
-        <HeartbeatIcon {...iconProps} />
-      </Tooltip>
-    )
+    return <Action icon={HeartbeatIcon} label={e('keepalive')} className='keepalive-icon' pressed={keepaliveEnabled} onClick={toggleKeepalive} />
   }
 
   function renderBroadcastIcon () {
     if (isSshDisabled || !showSshFeatures) {
       return null
     }
-    const title = e('broadcastInput')
-    const iconProps = {
-      className: classnames('sess-icon pointer broadcast-icon', {
-        active: broadcastInput
-      }),
-      onClick: toggleBroadcastInput
-    }
-    return (
-      <Tooltip title={title}>
-        <ApartmentOutlined {...iconProps} />
-      </Tooltip>
-    )
+    return <Action icon={ApartmentOutlined} label={window.getLang()?.broadcastLabel || e('broadcastInput')} title={e('broadcastInput')} className='broadcast-icon' pressed={broadcastInput} onClick={toggleBroadcastInput} />
   }
 
   function renderWrapIcon () {
     const title = e(wrapDisabled ? 'enableWrap' : 'disableWrap')
-    const iconProps = {
-      className: classnames('sess-icon pointer wrap-toggle-icon', {
-        active: wrapDisabled
-      }),
-      onClick: toggleWrap
-    }
-    return (
-      <Tooltip title={title}>
-        <ColumnWidthOutlined {...iconProps} />
-      </Tooltip>
-    )
+    return <Action icon={ColumnWidthOutlined} label={title} className='wrap-toggle-icon' onClick={toggleWrap} />
   }
 
   function renderExitGracefullyIcon () {
@@ -249,27 +190,11 @@ export default function SessionControl (props) {
   }
 
   function renderSearchIcon () {
-    const title = e('search')
-    return (
-      <Tooltip title={title} placement='bottomLeft'>
-        <SearchOutlined
-          className='mg1r icon-info iblock pointer spliter'
-          onClick={onOpenSearch}
-        />
-      </Tooltip>
-    )
+    return <Action icon={SearchOutlined} label={e('search')} onClick={onOpenSearch} />
   }
 
   function renderFullscreenIcon () {
-    const title = e('fullscreen')
-    return (
-      <Tooltip title={title} placement='bottomLeft'>
-        <FullscreenOutlined
-          className='mg1r icon-info iblock pointer spliter fullscreen-control-icon'
-          onClick={onFullscreen}
-        />
-      </Tooltip>
-    )
+    return <Action icon={FullscreenOutlined} label={e('fullscreen')} className='fullscreen-control-icon' onClick={onFullscreen} />
   }
 
   function renderFontSizeIcons () {
@@ -282,11 +207,13 @@ export default function SessionControl (props) {
     const cls = 'mg1r icon-info iblock pointer spliter font-size-control-icon'
     return (
       <>
-        <MinusOutlined
+        <Action
+          icon={MinusOutlined} label={e('zoomout')}
           className={cls}
           onClick={() => onZoomFontSize(-1)}
         />
-        <PlusOutlined
+        <Action
+          icon={PlusOutlined} label={e('zoomin')}
           className={cls}
           onClick={() => onZoomFontSize(1)}
         />
@@ -315,7 +242,8 @@ export default function SessionControl (props) {
       inMobileBar ? 'mobile-context-menu-toggle' : 'mg1r icon-info'
     )
     return (
-      <MenuOutlined
+      <Action
+        icon={MenuOutlined} label={e('menu')}
         className={cls}
         onClick={onOpenContextMenu}
       />
@@ -342,6 +270,7 @@ export default function SessionControl (props) {
   if (isMobile) {
     const extraIcons = (
       <div className='mobile-control-icons'>
+        {renderSplitToggle()}
         {renderSftpPathFollowControl()}
         {renderKeepaliveIcon()}
         {renderBroadcastIcon()}
@@ -370,8 +299,8 @@ export default function SessionControl (props) {
   return (
     <div className='terminal-control fix'>
       {renderPaneControl()}
-      {renderSftpPathFollowControl()}
       {renderSplitToggle()}
+      {renderSftpPathFollowControl()}
       {renderKeepaliveIcon()}
       {renderBroadcastIcon()}
       {renderWrapIcon()}

@@ -19,16 +19,10 @@ function loadModule (type) {
  */
 exports.startSession = async function (initOptions, ws, func = 'session') {
   const type = initOptions.termType || initOptions.type || 'ssh'
-  const tail = [
-    'telnet',
-    'serial',
-    'local',
-    'rdp',
-    'vnc',
-    'spice'
-  ].includes(type)
-    ? type
-    : 'ssh'
+  if (!['ssh', 'local', 'terminal'].includes(type)) {
+    throw new Error('Only SSH and local terminals are supported')
+  }
+  const tail = type === 'local' ? 'local' : 'ssh'
   const module = loadModule(tail)
   return module[func](initOptions, ws)
 }

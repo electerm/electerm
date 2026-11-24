@@ -7,7 +7,7 @@ import {
   getTerminalBackgroundDefaults
 } from '../common/init-values.js'
 import defaultSettings from '../../../common/default-setting.js'
-import { commonFields, triggersTab } from './common-fields.js'
+import { commonFields } from './common-fields.js'
 
 const e = window.translate
 
@@ -48,19 +48,10 @@ const localConfig = {
         commonFields.fontFamily,
         commonFields.fontSize,
         commonFields.keepaliveInterval,
-        commonFields.terminalBackground,
         // Exec settings - stored as flat properties on bookmark
         { type: 'execSettings' }
       ]
-    },
-    {
-      key: 'quickCommands',
-      label: e('quickCommands'),
-      fields: [
-        commonFields.quickCommands
-      ]
-    },
-    triggersTab()
+    }
   ]
 }
 

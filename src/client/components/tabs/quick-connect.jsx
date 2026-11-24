@@ -24,7 +24,7 @@ function connectWithOptions (opts, batch) {
   store.addTab(tabOptions)
 }
 
-export default function QuickConnect ({ batch, inputOnly }) {
+export default function QuickConnect ({ batch, inputOnly, compact }) {
   const [showInput, setShowInput] = useState(false)
   const [inputValue, setInputValue] = useState('')
   const inputRef = useRef(null)
@@ -58,6 +58,9 @@ export default function QuickConnect ({ batch, inputOnly }) {
     if (!opts) {
       return message.error('Format error, please check the input', 10)
     }
+    if (opts.type && opts.type !== 'ssh') {
+      return message.error('Only SSH connections are supported', 10)
+    }
 
     connectWithOptions(opts, batch)
     setInputValue('')
@@ -74,22 +77,19 @@ export default function QuickConnect ({ batch, inputOnly }) {
       onChange: handleChange,
       className: 'width-100 quick-connect-input',
       onPressEnter: handleConnect,
-      placeholder: 'ssh|rdp|vnc|spice|serial|http|https://[username]:[password]@host:port?opts={...}',
-      prefix: inputOnly ? <HelpIcon link={wiki} /> : undefined
+      placeholder: compact ? e('quickConnect') : 'ssh://[username]:[password]@host:port',
+      title: compact ? 'user@host:port' : undefined,
+      'aria-label': e('quickConnect'),
+      prefix: inputOnly && !compact ? <HelpIcon link={wiki} /> : undefined
     }
     const iconProps = {
       onClick: handleConnect,
+      disabled: !inputValue.trim(),
       title: e('connect'),
       icon: <ArrowRightOutlined />
     }
-    const iconsProps1 = {
-      icon: <ThunderboltOutlined />
-    }
     return (
       <Space.Compact className='pd1y pd2x width-100'>
-        <Button
-          {...iconsProps1}
-        />
         {inputOnly ? <Input {...inputProps} /> : <InputAutoFocus {...inputProps} />}
         <Button
           {...iconProps}

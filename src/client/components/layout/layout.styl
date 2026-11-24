@@ -5,3 +5,119 @@
   overflow hidden
   &.drag-over
     border 2px solid var(--primary)
+
+.terminal-toolbar
+  position absolute
+  inset 0 0 auto
+  display flex
+  align-items center
+  gap 2px
+  padding 0 6px
+  box-sizing border-box
+  background var(--main-dark)
+  border-bottom 1px solid var(--text-disabled)
+  z-index 13
+  > button, .session-action, .transfer-trigger
+    display inline-flex
+    align-items center
+    justify-content center
+    gap 4px
+    flex none
+    min-width 28px
+    height 28px
+    padding 0 5px
+    border 1px solid transparent
+    border-radius 3px
+    background transparent
+    color var(--text)
+    font-family inherit
+    font-size 12px
+    line-height 15px
+    white-space nowrap
+    cursor pointer
+    -webkit-app-region no-drag
+    &:hover, &:focus-visible, &[aria-expanded=true]
+      background var(--main-light)
+      border-color var(--text-disabled)
+    .anticon
+      font-size 15px
+    .anticon-file-add
+      color #509ecd
+    .anticon-code
+      color #4ba979
+  .toolbar-session-controls
+    flex 1
+    min-width max-content
+    -webkit-app-region no-drag
+    .terminal-control
+      display flex
+      align-items center
+      white-space nowrap
+      width max-content
+      background transparent
+  .term-controls
+    display inline-flex
+    align-items center
+  .session-action[aria-pressed=true]
+    color var(--primary)
+    background var(--main-light)
+  overflow-x auto
+  overflow-y hidden
+  &::-webkit-scrollbar
+    height 4px
+.sidebar .transfer-label
+  display none
+.sidebar .transfer-trigger
+  border 0
+  background transparent
+  color inherit
+.wco .terminal-toolbar
+  padding-right var(--wco-controls-width)
+.not-system-ui.is-mac .terminal-toolbar
+  padding-left 76px
+.not-system-ui .terminal-toolbar
+  -webkit-app-region drag
+.terminal-toolbar > .control-icon-wrap
+  padding 0 5px
+  -webkit-app-region no-drag
+.is-desktop .sidebar .sidebar-panel
+  top 0
+  padding-top 0
+.is-desktop .tabs .tab.active
+  box-shadow inset 0 2px var(--primary)
+.is-desktop .tabs .tab
+  border 1px solid var(--text-disabled)
+  border-bottom 0
+  border-radius 4px 4px 0 0
+  line-height 25px
+  margin-top 2px
+.is-desktop .tabs .tab-count
+  background transparent
+  color var(--primary)
+.is-desktop .sftp-wrap
+  border-right 1px solid var(--text-disabled)
+
+.pane-header
+  display flex
+  > .tabs, > .tabs-outer
+    flex 1
+    min-width 0
+.pane-connect
+  position relative
+  z-index 12
+  flex none
+  display flex
+  align-items center
+  box-sizing border-box
+  height var(--tabs-height)
+  padding 0 4px
+  overflow hidden
+  border-right 1px solid var(--text-disabled)
+  background var(--main)
+  .ant-space-compact
+    padding 0
+  .ant-input, .ant-btn
+    height 24px
+    font-size 12px
+  .ant-btn
+    padding 0 6px

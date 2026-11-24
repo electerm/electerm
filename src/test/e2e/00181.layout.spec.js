@@ -83,7 +83,7 @@ describe('layouts', function () {
     }
     let dd = await client.countElem('.ant-dropdown')
     expect(dd).equal(0)
-    await client.click('.tabs .layout-dd-icon')
+    await client.click('.terminal-toolbar .layout-menu-trigger')
     await delay(500)
     dd = await client.countElem('.ant-dropdown')
     expect(dd).equal(1)

@@ -25,8 +25,6 @@ import transferHistoryExtend from './transfer-history'
 import batchInputHistory from './batch-input-history'
 import transferExtend from './transfer-list'
 import addressBookmarkExtend from './address-bookmark'
-import widgetsExtend from './widgets'
-import mcpHandlerExtend from './mcp-handler'
 import workspaceExtend from './workspace'
 import isColorDark from '../common/is-color-dark'
 import { getReverseColor } from '../common/reverse-color'
@@ -80,7 +78,7 @@ class Store {
   // every platform: sidebarWidth when open, 0 when hidden.
   get leftSideBarWidth () {
     const { store } = window
-    return store._leftSideBarOpen ? sidebarWidth : 0
+    return store.isMobile && store._leftSideBarOpen ? sidebarWidth : 0
   }
 
   // Same as leftSidePanelWidth: full-screen drawer on mobile, width not
@@ -140,19 +138,10 @@ class Store {
     return store._isSystemTitleBar
   }
 
-  // Windows: the native caption buttons are drawn over the tab bar (window
-  // controls overlay), so there is no separate title strip and the tab bar is
-  // the drag area. Always on for the desktop app.
   get isWindowControlsOverlay () {
-    return isWin && !window.et.isWebApp && this.isSystemTitleBar
+    return isWin && !window.et.isWebApp && !!navigator.windowControlsOverlay?.visible
   }
 
-  // Whether the window has a title strip of its own to drag the window by —
-  // macOS' traffic-light area, or a Linux native title bar. Windows never has
-  // one: isSystemTitleBar is true there (the frame really is the system one)
-  // but the caption buttons sit *over* the tab bar, so the tab bar is the drag
-  // area instead. This is the derived "is there a strip" question the UI asks;
-  // the name above is about the frame.
   get hasNativeTitleStrip () {
     return this.isSystemTitleBar && !this.isWindowControlsOverlay
   }
@@ -375,8 +364,6 @@ transferHistoryExtend(Store)
 batchInputHistory(Store)
 transferExtend(Store)
 addressBookmarkExtend(Store)
-widgetsExtend(Store)
-mcpHandlerExtend(Store)
 workspaceExtend(Store)
 
 export const StateStore = Store

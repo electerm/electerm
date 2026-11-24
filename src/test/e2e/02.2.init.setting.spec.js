@@ -42,7 +42,7 @@ describe('init setting buttons', function () {
     await delay(900)
 
     log('open setting')
-    await client.click('.btns .anticon-setting')
+    await client.click('.terminal-toolbar button:has(.anticon-setting)')
     await delay(2500)
     const active1 = await client.element(sel)
     expect(active1).toBeVisible()

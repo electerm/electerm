@@ -19,16 +19,11 @@ import {
   typeMap
 } from '../../common/constants'
 import classnames from 'classnames'
-import AddrBookmark from './address-bookmark'
 
 const e = window.translate
 
 function AddressPrefixIcons (props) {
-  const {
-    type,
-    host,
-    realPath
-  } = props
+  const { type } = props
   const isShow = props[`${type}ShowHiddenFile`]
   const title = `${isShow ? e('hide') : e('show')} ${e('hfd')}`
   const Icon = isShow ? EyeFilled : EyeInvisibleFilled
@@ -58,14 +53,6 @@ function AddressPrefixIcons (props) {
       <HomeOutlined
         onClick={() => props.gotoHome(type)}
         className='mg1r'
-      />
-      <AddrBookmark
-        store={window.store}
-        realPath={realPath}
-        host={host}
-        type={type}
-        className='mg1r'
-        onClickHistory={props.onClickHistory}
       />
     </>
   )

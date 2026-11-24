@@ -14,7 +14,6 @@ import {
 } from '@ant-design/icons'
 import { Dropdown } from 'antd'
 import Tab from './tab'
-import LayoutMenu from './layout-menu'
 import './tabs.styl'
 import {
   tabWidth,
@@ -75,6 +74,7 @@ export default class Tabs extends Component {
     if (!domRef.current) {
       return
     }
+    resizeObserver.observe(domRef.current)
     domRef.current.querySelectorAll('.tab').forEach(el => {
       resizeObserver.observe(el)
     })
@@ -83,7 +83,7 @@ export default class Tabs extends Component {
   // render reads the tab widths from the DOM before React commits the new
   // titles, so render again once the measured widths differ
   handleTabsResize = () => {
-    if (this.tabsWidth() !== this.renderedTabsWidth) {
+    if (this.tabsWidth() !== this.renderedTabsWidth || this.state.overflow !== this.isOverflow()) {
       this.setState({
         overflow: this.isOverflow()
       })
@@ -94,18 +94,9 @@ export default class Tabs extends Component {
     runIdle(() => this.setState(...args))
   }
 
-  handleNewTab = () => {
-    window.store.addTab(undefined, undefined, this.props.batch)
-  }
-
-  handleNewSsh = () => {
-    window.store.onNewSsh()
-  }
-
   tabsWidth = () => {
-    const { batch } = this.props
     return Array.from(
-      document.querySelectorAll(`.v${batch + 1} .tab`)
+      this.domRef.current?.querySelectorAll('.tab') || []
     ).reduce((prev, c) => {
       return prev + c.clientWidth
     }, 0)
@@ -124,14 +115,11 @@ export default class Tabs extends Component {
   }
 
   getInnerWidth = () => {
-    const { batch } = this.props
-    const cls = `.v${batch + 1} .tabs-inner`
-    const inner = document.querySelector(cls)
-    return inner ? inner.clientWidth : 0
+    return this.domRef.current?.clientWidth || 0
   }
 
   handleAdd = e => {
-    if (!e.target.className.includes('tabs-wrapper')) {
+    if (e.target !== e.currentTarget) {
       return
     }
     window.store.addTab(
@@ -166,11 +154,11 @@ export default class Tabs extends Component {
     if (this.props.isMobile || !this.domRef.current) {
       return
     }
-    const { currentBatchTabId, batch } = this.props
+    const { currentBatchTabId } = this.props
     const tabs = this.getSortedTabs()
     const index = tabs.findIndex(t => t.id === currentBatchTabId)
     const tabsDomWith = Array.from(
-      document.querySelectorAll(`.v${batch + 1} .tab`)
+      this.domRef.current.querySelectorAll('.tab')
     ).slice(0, index + 2).reduce((prev, c) => {
       return prev + c.clientWidth
     }, 0)
@@ -221,7 +209,7 @@ export default class Tabs extends Component {
 
   handleClickMenu = ({ key }) => {
     const id = key.split('##')[1]
-    window.store['activeTabId' + this.props.batch] = id
+    window.store.clickTab(id, this.props.batch)
   }
 
   renderAddBtn = () => {
@@ -241,14 +229,6 @@ export default class Tabs extends Component {
     )
   }
 
-  renderNoExtra () {
-    return (
-      <div className='tabs-extra pd1x'>
-        {this.renderLayoutMenu()}
-      </div>
-    )
-  }
-
   renderExtra () {
     const items = this.getSortedTabs().map((t, i) => {
       return {
@@ -264,6 +244,7 @@ export default class Tabs extends Component {
       menu: {
         items
       },
+      trigger: ['click'],
       placement: 'bottomRight'
     }
     return (
@@ -282,9 +263,6 @@ export default class Tabs extends Component {
         >
           <DownOutlined className='tabs-dd-icon' />
         </Dropdown>
-        {
-          this.renderLayoutMenu()
-        }
       </div>
     )
   }
@@ -313,9 +291,7 @@ export default class Tabs extends Component {
     const w1 = isMacJs && (window.store.isSystemTitleBar || window.et.isWebApp)
       ? 30
       : this.getExtraTabWidth()
-    const style = {
-      width: width - w1 - 166
-    }
+    const style = { width: Math.max(32, width - w1 - 166) }
     return (
       <div
         className='tabs-inner'
@@ -359,15 +335,6 @@ export default class Tabs extends Component {
           }
         </div>
       </div>
-    )
-  }
-
-  renderLayoutMenu = () => {
-    return (
-      <LayoutMenu
-        layout={this.props.layout}
-        visible={this.shouldRenderWindowControl()}
-      />
     )
   }
 
@@ -523,11 +490,7 @@ export default class Tabs extends Component {
         {
           this.renderWindowControl()
         }
-        {
-          overflow
-            ? this.renderExtra()
-            : this.renderNoExtra()
-        }
+        {overflow && this.renderExtra()}
       </div>
     )
   }
@@ -535,9 +498,6 @@ export default class Tabs extends Component {
   renderNoSession = () => {
     return (
       <NoSession
-        height={this.props.height}
-        onNewTab={this.handleNewTab}
-        onNewSsh={this.handleNewSsh}
         batch={this.props.batch}
       />
     )

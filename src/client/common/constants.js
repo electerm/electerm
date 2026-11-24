@@ -80,8 +80,7 @@ export const authTypeMap = buildConst([
   'profiles'
 ])
 
-export const footerHeight = 36
-export const remoteMonitorBarHeight = 28
+export const footerHeight = 24
 export const quickCommandBoxHeight = 180
 export const shortcutBarHeight = 44
 export const shortcutBarLsKey = 'shortcut-bar-buttons'

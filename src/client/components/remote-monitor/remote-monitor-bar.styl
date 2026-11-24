@@ -1,10 +1,10 @@
 .remote-monitor-bar
-  position absolute
-  bottom 36px
-  z-index 188
+  min-width 0
+  flex 1
+  height 100%
   overflow hidden
   display flex
-  background var(--main)
+  background var(--main-dark)
   color var(--text)
   font-size 12px
   font-variant-numeric tabular-nums
@@ -30,11 +30,12 @@
   display inline-flex
   align-items center
   gap 4px
-  padding 0 9px
+  padding 0 7px
   border 0
+  border-inline-start 1px solid var(--text-disabled)
   outline none
   background transparent
-  color var(--text)
+  color var(--text-light)
   font inherit
   white-space nowrap
   cursor default

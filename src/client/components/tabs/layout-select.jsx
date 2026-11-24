@@ -33,11 +33,7 @@ export function getLayoutIcon (layout) {
 }
 
 export default function LayoutSelect (props) {
-  const { layout } = props
-
-  function handleChangeLayout (key) {
-    window.store.setLayout(key)
-  }
+  const { layout, onSelect } = props
 
   return (
     <div className='layout-menu-content'>
@@ -49,7 +45,7 @@ export default function LayoutSelect (props) {
           <div
             key={t}
             className={`layout-menu-item ${isActive ? 'active' : ''}`}
-            onClick={() => handleChangeLayout(t)}
+            onClick={() => onSelect(t)}
           >
             <Icon /> {e(v)}
           </div>

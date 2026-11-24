@@ -1,29 +1,41 @@
-
-
+.custom-drawer.setting-wrap
+  left 0
+  --settings-header 48px
+  .custom-drawer-content-wrapper
+    overflow hidden
+// Native drag regions ignore DOM stacking. A covered tab or toolbar must
+// never claim clicks through the settings panel in a frameless window.
+.setting-wrap ~ #outside-context
+  .app-drag, .terminal-toolbar
+    -webkit-app-region no-drag !important
 .close-setting-wrap
   position absolute
-  top 70px
+  top 6px
+  right 12px
+  width 32px
+  height 32px
+  display grid
+  place-items center
+  padding 0
+  border 0
+  border-radius 3px
+  background transparent
+  color var(--text)
   font-size 16px
   cursor pointer
-  z-index 889
-  right 20px
-  &:hover
-    color var(--success)
-.alt-close-setting-wrap
-  left 20px
-  right auto
-.batch-op-wrap .close-setting-wrap
-  top 40px
-  right 30px
+  z-index 5
+  -webkit-app-region no-drag
+  &:hover, &:focus-visible
+    background var(--main-dark)
 .setting-row
   position absolute
-  top 127px
+  top var(--settings-header)
   overflow-y scroll
 .setting-row-left
   left 0
-  width 340px
+  width 27%
   bottom 0
-  padding 20px 0 20px 20px
+  padding 12px
   display flex
   flex-direction column
   .model-bookmark-tree-wrap
@@ -33,15 +45,15 @@
     overflow hidden
     min-height 0
 .setting-row-right
-  left 340px
+  left 27%
   right 0
   bottom 0
-  top 129px
-  padding 20px
+  padding 12px 18px
+  border-left 1px solid var(--main-light)
   display flex
   flex-direction column
   overflow hidden
-  min-height 400px
+  min-height 0
 .setting-col-content
   flex 1
   overflow-y auto
@@ -52,27 +64,29 @@
   justify-content flex-end
   .carbonads-wrap
     margin 8px 0 0
-.setting-tabs-bookmarks
-  .setting-row-left
-    width 440px
-  .setting-row-right
-    left 483px
 .setting-tabs
   position absolute
   z-index 4
   left 0
   top 0
   right 0
-  padding 55px 20px 0 50px
+  height var(--settings-header)
+  box-sizing border-box
+  padding 5px 54px 0 12px
+  background var(--main-dark)
+  .ant-tabs-nav
+    margin 0
+.is-mac.not-system-ui .setting-tabs
+  padding-left 78px
 .setting-col
   ::-webkit-scrollbar
     width 0
 @media (max-width: 800px)
   .setting-col
-    position fixed
-    top 128px
+    position absolute
+    top var(--settings-header)
     bottom 0
-    left var(--left-side-bar-width, 43px)
+    left 0
     right 0
     display flex
     flex-direction column
@@ -80,9 +94,6 @@
   .setting-row
     position static
     top auto
-  // right close button is redundant with the left one on mobile
-  .close-setting-wrap:not(.alt-close-setting-wrap)
-    display none
   // menu view by default: the left col list fills the panel
   .setting-row-left
     flex 1

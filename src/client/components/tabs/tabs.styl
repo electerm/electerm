@@ -1,7 +1,7 @@
 
 .tabs
   position relative
-  height 36px
+  height var(--tabs-height)
   overflow hidden
   background var(--main-dark)
   z-index 12
@@ -42,7 +42,7 @@
   padding 0
   margin-top 0
   display inline-block
-  height 36px
+  height var(--tabs-height)
   overflow-x scroll
   overflow-y hidden
 
@@ -56,7 +56,7 @@
   padding 0 14px
   min-width 100px
   max-width 200px
-  line-height 36px
+  line-height var(--tabs-height)
   margin 0 1px 0 0
   border-radius 3px 3px 0 0
   background var(--main-dark)
@@ -84,7 +84,7 @@
     top 0
     width 1px
     border 1px dashed var(--text-dark)
-    height 36px
+    height var(--tabs-height)
   &.dragover-tab-after::after
     position absolute
     content ''
@@ -92,7 +92,7 @@
     top 0
     width 1px
     border 1px dashed var(--text-dark)
-    height 36px
+    height var(--tabs-height)
 @keyframes blink
   0%
     background-color #e0e0e0
@@ -130,7 +130,7 @@
   color var(--success)
   font-size 12px
   left 2px
-  top 24px
+  bottom 1px
   background none
   background-color transparent !important
   animation blink 2s infinite
@@ -169,10 +169,10 @@
     color var(--text-light)
 .tabs-extra
   position absolute
-  height 40px
+  height var(--tabs-height)
   top 0
   right 0
-  line-height 40px
+  line-height var(--tabs-height)
   z-index 20
 
   .tabs-dd-icon

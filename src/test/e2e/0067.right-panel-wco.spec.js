@@ -137,12 +137,13 @@ test('pinned right panel clears the Windows caption buttons', async () => {
     // .tabs-extra { right 96px }). That strip is not empty, so it does not
     // count as the dead gap this checks for — the CI runner is Linux, and it
     // would otherwise read those 96px as a regression.
+    // The end controls only exist on overflow. Widen a tab to exercise them
+    // without opening more shell processes.
+    await page.addStyleTag({ content: '.tabs-inner .tab { min-width: 1400px !important; }' })
+    await page.waitForSelector('.tabs-extra')
     const tabBarGap = () => page.evaluate(() => {
       const bar = document.querySelector('.tabs')
       const extra = document.querySelector('.tabs-extra')
-      if (!bar || !extra) {
-        return null
-      }
       const barRect = bar.getBoundingClientRect()
       const ownControls = document.querySelector('.window-controls')
       // offsetWidth is 0 when the class hides them (system title bar), so a
@@ -166,7 +167,7 @@ test('pinned right panel clears the Windows caption buttons', async () => {
     const pinnedGap = await tabBarGap()
     assert.ok(pinnedGap.toWindowEdge > 50, 'the panel, not the bar, owns the right edge')
     assert.ok(
-      pinnedGap.gap < 10,
+      !pinnedGap.wcoBar && pinnedGap.gap < 10,
       `no dead gap at the end of the tab bar, got ${pinnedGap.gap}px`
     )
 

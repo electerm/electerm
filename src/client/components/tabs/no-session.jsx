@@ -1,31 +1,24 @@
 import { Button } from 'antd'
-import { RobotOutlined } from '@ant-design/icons'
-import LogoElem from '../common/logo-elem.jsx'
 import HistoryPanel from '../sidebar/history'
 import QuickConnect from './quick-connect'
-import { isAIDisabled } from '../../common/ai-feature'
 import './no-session.styl'
 
 const e = window.translate
 
-export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
-  const props = {
-    style: {
-      height: height + 'px'
-    }
-  }
+export default function NoSessionPanel ({ batch }) {
   const handleClick = () => {
     window.openTabBatch = batch
   }
 
-  const handleCreateAIBookmark = () => {
-    window.store.onNewSshAI()
+  const onNewSsh = () => {
+    handleClick()
+    window.store.onNewSsh()
   }
 
   const newTabDom = window.store.hasNodePty
     ? (
       <Button
-        onClick={onNewTab}
+        onClick={() => window.store.addTab(undefined, undefined, batch)}
         className='add-new-tab-btn'
       >
         {e('newTab')}
@@ -33,7 +26,7 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
       )
     : null
   return (
-    <div className='no-sessions electerm-logo-bg' {...props}>
+    <div className='no-sessions'>
       <div className='no-session-btns'>
         {newTabDom}
         <Button
@@ -41,18 +34,7 @@ export default function NoSessionPanel ({ height, onNewTab, onNewSsh, batch }) {
         >
           {e('newBookmark')}
         </Button>
-        {!isAIDisabled() && (
-          <Button
-            onClick={handleCreateAIBookmark}
-            icon={<RobotOutlined />}
-          >
-            {e('createBookmarkByAI')}
-          </Button>
-        )}
         <QuickConnect batch={batch} />
-      </div>
-      <div className='no-session-logo'>
-        <LogoElem />
       </div>
       <div className='no-session-history' onClick={handleClick}>
         <HistoryPanel sort />

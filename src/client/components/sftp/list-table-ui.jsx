@@ -33,6 +33,17 @@ export default class FileListTable extends Component {
 
   containerRef = createRef()
 
+  componentDidMount () {
+    this.viewportObserver = new ResizeObserver(([entry]) => {
+      this.setState({ containerHeight: entry.contentRect.height })
+    })
+    this.viewportObserver.observe(this.containerRef.current)
+  }
+
+  componentWillUnmount () {
+    this.viewportObserver.disconnect()
+  }
+
   onDragOver = e => {
     e.preventDefault()
   }
@@ -143,7 +154,7 @@ export default class FileListTable extends Component {
    * table header and individual file items.
    */
   getRenderProperties = () => {
-    if (window.store.isMobile) {
+    if (window.store.isMobile || (this.props.remoteOnly && this.props.width < 380)) {
       return [{
         id: 'name',
         max: 98,
@@ -362,14 +373,11 @@ export default class FileListTable extends Component {
   }
 
   render () {
-    const { fileList, height, type } = this.props
-    const containerHeight = height - 42 - 30 - 32 - 90
+    const { fileList, type } = this.props
+    const { containerHeight } = this.state
     const props = {
       ref: this.containerRef,
       className: 'sftp-table-content overscroll-y relative',
-      style: {
-        height: containerHeight
-      },
       draggable: false,
       onScroll: this.onScroll,
       onClick: this.handleClick,

@@ -160,7 +160,8 @@ export class StartupQueue {
     return new Promise((resolve) => {
       const startedAt = Date.now()
       let last = addon.getLastOutputTime ? addon.getLastOutputTime() : startedAt
-      let sawNew = false
+      // Initial data may already have arrived while the remote shell probe ran.
+      let sawNew = last > 0 && !!addon.hasReceivedInitialData
       let done = false
       const finish = (result) => {
         if (done) {
@@ -623,7 +624,7 @@ export class StartupQueue {
           if (done || this.addon !== addon || addon.disposed) {
             return finish()
           }
-          if (!ready) {
+          if (!ready || addon._lineHasUnsubmittedInput?.()) {
             // Booting shell, or one that never settles. Skip the injection:
             // a plain terminal is a far better outcome than a screen full of
             // script.

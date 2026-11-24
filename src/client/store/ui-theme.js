@@ -5,9 +5,7 @@
 import {
   settingMap
 } from '../common/constants'
-import {
-  defaultTheme
-} from '../common/theme-defaults'
+import { defaultTheme } from '../common/theme-defaults'
 
 import copy from 'json-deep-copy'
 
@@ -16,7 +14,7 @@ export default Store => {
     const { store } = window
     const theme = store.getSidebarList(settingMap.terminalThemes)
       .find(d => d.id === store.config.theme)
-    return theme && theme.uiThemeConfig
+    return theme?.uiThemeConfig
       ? copy(theme.uiThemeConfig)
       : defaultTheme().uiThemeConfig
   }

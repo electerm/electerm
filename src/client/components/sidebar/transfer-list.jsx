@@ -57,13 +57,10 @@ export default memo(function TransferList (props) {
       <Popover
         {...popProps}
       >
-        <Badge
-          {...bdProps}
-        >
-          <SwapOutlined
-            className='iblock font20 control-icon'
-          />
-        </Badge>
+        <button type='button' className='transfer-trigger' aria-label={e('fileTransfers')} aria-expanded={open}>
+          <Badge {...bdProps}><SwapOutlined className='iblock font20 control-icon' /></Badge>
+          <span className='transfer-label'>{e('fileTransfers')}</span>
+        </button>
       </Popover>
     </div>
   )

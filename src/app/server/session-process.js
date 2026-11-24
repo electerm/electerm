@@ -244,7 +244,9 @@ exports.terminal = async function (initOptions, ws, uid) {
   }
   child.on('exit', () => {
     onChildExit(child)
-    activeTerminals.delete(pid)
+    if (activeTerminals.get(pid)?.child === child) {
+      activeTerminals.delete(pid)
+    }
   })
   if (type !== 'ftp') {
     try {

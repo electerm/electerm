@@ -17,6 +17,20 @@ function fakeTerminal () {
 }
 
 describe('keyword highlight addon', () => {
+  test('defaults colour plain status text and preserve shell styles and write callbacks', async () => {
+    const { KeywordHighlighterAddon } = await loadAddon()
+    const addon = new KeywordHighlighterAddon(require('../../app/common/default-setting').keywords)
+    const written = []
+    const term = { write (data, done) { written.push(data); done() } }
+    addon.activate(term)
+    let callbacks = 0
+    for (const data of ['error', '\x1b[35m', 'error', RESET, 'ok']) {
+      term.write(data, () => callbacks++)
+    }
+    assert.deepEqual(written, [`${RED}error${RESET}`, '\x1b[35m', 'error', RESET, `${GREEN}ok${RESET}`])
+    assert.equal(callbacks, written.length)
+  })
+
   test('highlights writes larger than the per-line limit line by line', async () => {
     const { KeywordHighlighterAddon } = await loadAddon()
     const addon = new KeywordHighlighterAddon([{ keyword: '\\bdown\\b', color: 'red' }])

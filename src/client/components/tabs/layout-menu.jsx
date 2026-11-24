@@ -5,23 +5,21 @@
 import React, { useState } from 'react'
 import { Dropdown, Tabs } from 'antd'
 import {
-  DownOutlined,
   AppstoreOutlined,
   LayoutOutlined
 } from '@ant-design/icons'
-import { splitMapDesc } from '../../common/constants'
-import LayoutSelect, { getLayoutIcon } from './layout-select'
+import LayoutSelect from './layout-select'
 import WorkspaceSelect from './workspace-select'
 import HelpIcon from '../common/help-icon'
 
 const e = window.translate
 
-export default function LayoutMenu (props) {
-  const { layout, visible } = props
+export default function LayoutMenu ({ layout, children }) {
   const [activeTab, setActiveTab] = useState('layout')
-
-  if (!visible) {
-    return null
+  const [open, setOpen] = useState(false)
+  const selectLayout = key => {
+    window.store.setLayout(key)
+    setOpen(false)
   }
 
   const tabItems = [
@@ -44,9 +42,6 @@ export default function LayoutMenu (props) {
     }
   ]
 
-  const v = splitMapDesc[layout]
-  const Icon = getLayoutIcon(v)
-
   const dropdownContent = (
     <div className='layout-workspace-dropdown'>
       <Tabs
@@ -56,20 +51,20 @@ export default function LayoutMenu (props) {
         onChange={setActiveTab}
       />
       {activeTab === 'layout'
-        ? <LayoutSelect layout={layout} />
+        ? <LayoutSelect layout={layout} onSelect={selectLayout} />
         : <WorkspaceSelect store={window.store} />}
     </div>
   )
 
   return (
     <Dropdown
+      open={open}
+      onOpenChange={setOpen}
       popupRender={() => dropdownContent}
       placement='bottomRight'
       trigger={['click']}
     >
-      <span className='tabs-dd-icon layout-dd-icon mg1l'>
-        <Icon /> <DownOutlined />
-      </span>
+      {children}
     </Dropdown>
   )
 }

@@ -21,9 +21,9 @@ import { shouldCaptureTerminalReloadState } from '../components/terminal/ssh-rel
 import dangerousSessionFields from '../common/dangerous-session-fields'
 import { distributeTabsEvenly } from '../common/distribute-tabs'
 
-function captureSshSessionState (tab, config) {
-  return shouldCaptureTerminalReloadState(tab, config)
-    ? refs.get(`term-${tab.id}`)?.getReloadState?.()
+function captureSshSessionState (tab, config, stopped = false) {
+  return shouldCaptureTerminalReloadState(tab, config, stopped)
+    ? refs.get(`term-${tab.id}`)?.getReloadState?.(stopped)
     : undefined
 }
 
@@ -108,12 +108,13 @@ export default Store => {
     // Reload state is captured only for a shell terminal refresh/reconnect
     // (ssh, local, telnet, serial). Closing a tab goes through removeTabs
     // and never reaches this code path.
-    const reloadState = captureSshSessionState(oldTab, store.config)
+    const stopped = oldTab.status === statusMap.error
+    const reloadState = captureSshSessionState(oldTab, store.config, stopped)
 
     // Create copy of old tab with new ID
     const newTab = {
       ...oldTab,
-      tabCount: store.nextTabCount(),
+      tabCount: stopped ? oldTab.tabCount : store.nextTabCount(),
       id: generate(), // Need to create new ID
       status: statusMap.processing // Reset status
     }

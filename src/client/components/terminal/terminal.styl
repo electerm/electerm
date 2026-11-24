@@ -1,6 +1,6 @@
 
 .terms-box
-  background var(--main)
+  background #1e1e1e
   position relative
 .loading-wrapper
   padding 30px
@@ -19,7 +19,7 @@
 .terms-box
   position relative
 .term-wrap
-  background var(--main)
+  background var(--terminal-bg)
   position absolute
 
 .vertical
@@ -224,16 +224,20 @@
 
 .terminal-session-stopped
   position absolute
-  left 50%
-  top 50%
-  transform translate(-50%, -50%)
-  padding 8px 14px
+  bottom 8px
+  right 8px
+  padding 3px 6px
   background var(--main)
   color var(--text)
   border-radius 4px
   line-height 1.7
   white-space nowrap
   z-index 110
+  .terminal-session-actions
+    display flex
+    gap 4px
+    p
+      margin 0
 
 .terminal-error-handle
   position absolute

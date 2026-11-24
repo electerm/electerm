@@ -15,12 +15,8 @@ import {
   settingPanelMobileBreakpoint
 } from '../../common/constants'
 const TabBookmarks = lazy(() => import('./tab-bookmarks'))
-const TabQuickCommands = lazy(() => import('./tab-quick-commands'))
 const TabSettings = lazy(() => import('./tab-settings'))
-const TabThemes = lazy(() => import('./tab-themes'))
 const TabProfiles = lazy(() => import('./tab-profiles'))
-const TabWidgets = lazy(() => import('./tab-widgets'))
-const TabTriggers = lazy(() => import('./tab-triggers'))
 
 const Loading = () => <div style={{ padding: 20, textAlign: 'center' }}><Spin /></div>
 
@@ -101,28 +97,8 @@ export default auto(function SettingModalWrap (props) {
         children: null
       },
       {
-        key: settingMap.terminalThemes,
-        label: e('uiThemes'),
-        children: null
-      },
-      {
-        key: settingMap.quickCommands,
-        label: e(settingMap.quickCommands),
-        children: null
-      },
-      {
-        key: settingMap.triggers,
-        label: <span>{e('triggers')} <sup>Beta</sup></span>,
-        children: null
-      },
-      {
         key: settingMap.profiles,
         label: e(settingMap.profiles),
-        children: null
-      },
-      {
-        key: settingMap.widgets,
-        label: <>{e(settingMap.widgets)} <sup>Beta</sup></>,
         children: null
       }
     ]
@@ -146,52 +122,15 @@ export default auto(function SettingModalWrap (props) {
         />
         <LazyBoundary>
           <Suspense fallback={<Loading />}>
-            <TabQuickCommands
-              listProps={props0}
-              settingItem={settingItem}
-              formProps={formProps}
-              store={store}
-              settingTab={settingTab}
-            />
-            <TabTriggers
-              listProps={props0}
-              settingItem={settingItem}
-              store={store}
-              settingTab={settingTab}
-            />
-            <TabBookmarks
-              treeProps={treeProps}
-              settingItem={settingItem}
-              formProps={formProps}
-              settingTab={settingTab}
-            />
-            <TabSettings
-              listProps={props0}
-              settingItem={settingItem}
-              settingTab={settingTab}
-              store={store}
-            />
-            <TabThemes
-              listProps={props0}
-              settingItem={settingItem}
-              formProps={formProps}
-              store={store}
-              settingTab={settingTab}
-            />
-            <TabProfiles
-              listProps={props0}
-              settingItem={settingItem}
-              formProps={formProps}
-              store={store}
-              settingTab={settingTab}
-            />
-            <TabWidgets
-              listProps={props0}
-              settingItem={settingItem}
-              formProps={formProps}
-              store={store}
-              settingTab={settingTab}
-            />
+            {settingTab === settingMap.bookmarks && (
+              <TabBookmarks treeProps={treeProps} settingItem={settingItem} formProps={formProps} settingTab={settingTab} />
+            )}
+            {settingTab === settingMap.setting && (
+              <TabSettings listProps={props0} settingItem={settingItem} settingTab={settingTab} store={store} />
+            )}
+            {settingTab === settingMap.profiles && (
+              <TabProfiles listProps={props0} settingItem={settingItem} formProps={formProps} store={store} settingTab={settingTab} />
+            )}
           </Suspense>
         </LazyBoundary>
       </>
@@ -200,9 +139,7 @@ export default auto(function SettingModalWrap (props) {
 
   const {
     showModal,
-    hideSettingModal,
-    innerWidth,
-    hasNativeTitleStrip
+    hideSettingModal
   } = props.store
   const show = showModal === modals.setting
   if (!show) {
@@ -212,8 +149,6 @@ export default auto(function SettingModalWrap (props) {
     <SettingModal
       onCancel={hideSettingModal}
       visible={show}
-      hasNativeTitleStrip={hasNativeTitleStrip}
-      innerWidth={innerWidth}
     >
       {renderTabs()}
     </SettingModal>

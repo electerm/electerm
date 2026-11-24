@@ -998,6 +998,10 @@ class TerminalSshBase extends TerminalBase {
       conn
         .on('ready', () => resolve(true))
         .on('error', err => {
+          if (this.channel && this.conn === conn) {
+            const cause = err.level === 'client-timeout' ? 'timeout' : 'transport'
+            log.warn('established SSH connection error', { cause })
+          }
           // Whatever prompt asked for input on this connection can not be
           // answered any more. Take it back before the renderer hears that the
           // attempt failed, so the dialog is already gone when the error shows.

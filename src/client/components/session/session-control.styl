@@ -1,4 +1,23 @@
 // Mobile session control: pane tabs always visible,
+.sftp-follow-label
+  display inline-flex
+  align-items center
+  gap 5px
+  margin-right 12px
+  font-size 12px
+  cursor pointer
+  input
+    accent-color var(--primary)
+
+.terminal-control button.split-view-toggle, .mobile-control-icons button.split-view-toggle
+  border 0
+  background transparent
+  color inherit
+  font inherit
+  padding 0 6px
+  &.active
+    color var(--primary)
+
 // other icons shown in a floating Popover overlay
 .mobile-session-control
   background var(--main)

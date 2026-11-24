@@ -95,9 +95,14 @@ export class KeywordHighlighterAddon {
     // to prevent patterns from interfering with each other's ANSI codes
     const result = segments.map(seg => {
       if (seg.type === 'ansi') {
+        // Shell-provided styling takes precedence, including across writes.
+        if (seg.content.startsWith('\x1b[') && seg.content.endsWith('m')) {
+          this.styled = !/^\x1b\[(?:0;)*0?m$/.test(seg.content) // eslint-disable-line no-control-regex
+        }
         return seg.content
       }
       const content = seg.content
+      if (this.styled) return content
       // Phase 1: collect all match positions from all patterns on original text
       const matches = []
       for (const { regex, colorCode } of this.compiledPatterns) {
@@ -163,20 +168,20 @@ export class KeywordHighlighterAddon {
     // Store the original write method properly bound to terminal
     this.originalWrite = terminal.write.bind(terminal)
     const self = this
-    terminal.write = function (data) {
+    terminal.write = function (data, callback) {
       if (typeof data !== 'string') {
-        return self.originalWrite(data)
+        return self.originalWrite(data, callback)
       }
-      if (self.containsDcsSequence(data)) {
-        return self.originalWrite(data)
+      if (self.containsDcsSequence(data) || terminal.buffer?.active.type === 'alternate') {
+        return self.originalWrite(data, callback)
       }
       // displayRaw applies to every write regardless of size: raw mode shows
       // escape sequences as text, so skipping escape() for large chunks would
       // let raw ESC bytes be interpreted by xterm instead of displayed.
       if (terminal.displayRaw) {
-        return self.originalWrite(self.escape(data))
+        return self.originalWrite(self.escape(data), callback)
       }
-      self.originalWrite(self.highlightChunk(data))
+      return self.originalWrite(self.highlightChunk(data), callback)
     }
   }
 

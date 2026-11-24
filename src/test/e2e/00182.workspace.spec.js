@@ -19,7 +19,7 @@ describe('workspace', function () {
 
     // Test 1: Open layout dropdown and verify tabs exist
     log('Test 1: Opening layout dropdown')
-    await client.click('.tabs .layout-dd-icon')
+    await client.click('.terminal-toolbar .layout-menu-trigger')
     await delay(500)
     const dropdown = await client.countElem('.layout-workspace-dropdown')
     expect(dropdown).equal(1)
@@ -71,7 +71,7 @@ describe('workspace', function () {
 
     // Test 11: Open dropdown again and switch to workspace tab
     log('Test 11: Reopening dropdown')
-    await client.click('.tabs .layout-dd-icon')
+    await client.click('.terminal-toolbar .layout-menu-trigger')
     await delay(300)
     await client.click('.layout-workspace-dropdown .ant-tabs-tab:has-text("Workspaces")')
     await delay(300)
@@ -101,7 +101,7 @@ describe('workspace', function () {
     await delay(500)
 
     // Reopen dropdown and switch back to Workspaces tab
-    await client.click('.tabs .layout-dd-icon')
+    await client.click('.terminal-toolbar .layout-menu-trigger')
     await delay(300)
     await client.click('.layout-workspace-dropdown .ant-tabs-tab:has-text("Workspaces")')
     await delay(300)
@@ -114,7 +114,7 @@ describe('workspace', function () {
     // Test 15: Delete workspace
     log('Test 15: Testing workspace delete')
     // Reopen dropdown
-    await client.click('.tabs .layout-dd-icon')
+    await client.click('.terminal-toolbar .layout-menu-trigger')
     await delay(300)
     await client.click('.layout-workspace-dropdown .ant-tabs-tab:has-text("Workspaces")')
     await delay(300)

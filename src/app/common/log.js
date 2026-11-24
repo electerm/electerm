@@ -1,5 +1,10 @@
 const log = require('electron-log')
 const { isDev } = require('./runtime-constants')
+const { resolve } = require('path')
+
+if (process.env.DATA_PATH) {
+  log.transports.file.resolvePath = ({ fileName }) => resolve(process.env.DATA_PATH, 'logs', fileName)
+}
 
 log.transports.console.format = '{h}:{i}:{s} {level} › {text}'
 

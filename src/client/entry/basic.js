@@ -53,7 +53,10 @@ async function load () {
   // its imports have arrived -- ~90ms of the startup critical path for two
   // lookups. Keep this module dependency-free so it runs as soon as it lands.
   window.getLang = (lang = window.store?.config.language || window.initLanguage || 'en_us') => {
-    return (window.langMap || {})[lang]?.lang
+    if (!Object.hasOwn(window.langMap, lang)) {
+      window.langMap[lang] = window.pre.runSync('getLocaleDictionary', lang)
+    }
+    return window.langMap[lang]?.lang
   }
   window.translate = txt => {
     const lang = window.getLang()

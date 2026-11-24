@@ -1,0 +1,10 @@
+{
+  "pins": [
+    {"identity":"h","kind":"remoteSourceControl","location":"https://github.com/rarestype/h","state":{"revision":"aa3626829160917d4378330617971977cbd78f5b","version":"1.0.1"}},
+    {"identity":"swift-argument-parser","kind":"remoteSourceControl","location":"https://github.com/apple/swift-argument-parser","state":{"revision":"c5d11a805e765f52ba34ec7284bd4fcd6ba68615","version":"1.7.0"}},
+    {"identity":"swift-docc-plugin","kind":"remoteSourceControl","location":"https://github.com/apple/swift-docc-plugin","state":{"revision":"e977f65879f82b375a044c8837597f690c067da6","version":"1.4.6"}},
+    {"identity":"swift-docc-symbolkit","kind":"remoteSourceControl","location":"https://github.com/swiftlang/swift-docc-symbolkit","state":{"revision":"b45d1f2ed151d057b54504d653e0da5552844e34","version":"1.0.0"}},
+    {"identity":"swift-png","kind":"remoteSourceControl","location":"https://github.com/tayloraswift/swift-png","state":{"revision":"8a0bcd4df5e4b307c804937776a56dd6ecdf6396","version":"4.5.1"}}
+  ],
+  "version": 2
+}

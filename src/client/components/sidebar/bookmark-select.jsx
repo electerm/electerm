@@ -24,10 +24,10 @@ export default auto(function BookmarkSelect (props) {
   const openBookmark = (item) => {
     // A pinned (docked) panel stays open; anything else — including mobile,
     // where pinning is not a reachable mode — dismisses on selection.
-    if (!(store.pinned && !store.isMobile)) {
+    if (from !== 'session' && !(store.pinned && !store.isMobile)) {
       store.setOpenedSideBar('')
     }
-    store.onSelectBookmark(item.id)
+    store.onSelectBookmark(item.id, props.batch)
     // used by the system menu submenu, which has to dismiss its popover
     if (props.onClose) {
       props.onClose()
@@ -37,7 +37,7 @@ export default auto(function BookmarkSelect (props) {
   // opens on a double click. Touch devices have no double click, so the setting
   // is ignored there. This is the sidebar list only — the settings bookmarks tab
   // keeps selecting for editing on a single click.
-  const openOnDoubleClick = !!store.config.doubleClickToOpenBookmark &&
+  const openOnDoubleClick = (from === 'session' || store.config.doubleClickToOpenBookmark) &&
     !store.isTouchDevice
   const base = {
     bookmarks: bookmarks || [],

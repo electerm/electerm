@@ -34,7 +34,6 @@ import HelpIcon from '../common/help-icon'
 import KeywordsTransport from './keywords-transport'
 import uid from '../../common/uid'
 import createDefaultSessionLogPath from '../../common/default-log-path'
-import TerminalBackgroundConfig from './terminal-bg-config'
 import NumberConfig from './number-config'
 import Upload from '../common/upload'
 import {
@@ -479,12 +478,6 @@ export default class SettingTerminal extends Component {
       submit: this.handleSubmitKeywords,
       themeConfig: getThemeConfig()
     }
-    const bgProps = {
-      onChangeValue: this.onChangeValue,
-      name: 'terminalBackgroundImagePath',
-      config: this.props.config,
-      isGlobal: true
-    }
     const tip = (
       <div>
         <span className='mg1r'>{e('supportRegexp')}</span>
@@ -555,8 +548,6 @@ export default class SettingTerminal extends Component {
             this.renderDefaultTerminalType()
           }
         </div>
-        <div className='pd1b'>{e('terminalBackgroundImage')}</div>
-        <TerminalBackgroundConfig {...bgProps} />
         <div className='pd1b'>{startDirectoryLocalTxt}</div>
         {
           this.renderText('startDirectoryLocal', startDirectoryLocalTxt)
@@ -584,19 +575,13 @@ export default class SettingTerminal extends Component {
             'cursorBlink',
             'rightClickSelectsWord',
             'mouseEventsRequireAlt',
-            'copyWhenSelect',
             'disableConfirmForLargeClipboardContent',
             'ctrlOrMetaOpenTerminalLink',
             'sftpPathFollowSsh',
             'sshSftpSplitView',
-            'showCmdSuggestions',
             'autoReconnectTerminal',
             'restoreTerminalSessionOnReload'
           ].map(d => this.renderToggle(d))
-        }
-        {
-          // label differs from the config key
-          this.renderToggle('remoteMonitorBarEnabled', 'pd2b', e('monitorBar'))
         }
         <div className='pd1b'>{e('rightClickBehavior')}</div>
         <Select

@@ -102,13 +102,19 @@ export default class Sftp extends Component {
     }
     if (
       this.props.sftpPathFollowSsh &&
-      prevProps.cwd !== this.props.cwd
+      (prevProps.cwd !== this.props.cwd ||
+        !prevProps.sftpPathFollowSsh ||
+        (!prevState.inited && this.state.inited) ||
+        (!prevProps.sshSftpSplitView && this.props.sshSftpSplitView) ||
+        prevProps.currentBatchTabId !== this.props.currentBatchTabId)
     ) {
       this.updateCwd(this.props.cwd)
     }
   }
 
   componentWillUnmount () {
+    this.unmounted = true
+    this.remoteListGeneration++
     refs.remove(this.id)
     this.sftp && this.sftp.destroy()
     this.sftp = null
@@ -121,6 +127,8 @@ export default class Sftp extends Component {
     // Clear sort cache to prevent memory leaks
     this._sortCache?.clear()
     this._lastSortArgs = null
+    this.remoteListDebounce.cancel()
+    this.localListDebounce.cancel()
   }
 
   initFtpData = async () => {
@@ -383,19 +391,15 @@ export default class Sftp extends Component {
   }
 
   updateCwd = (cwd = this.props.cwd) => {
-    if (!this.state.inited) {
+    if (!this.state.inited || !cwd || !this.isActive()) {
       return
     }
     const type = this.shouldRenderRemote()
       ? typeMap.remote
       : typeMap.local
-    // this.setState({
-    //   [`${type}PathTemp`]: cwd
-    // }, () => {
-    //   this.onGoto(
-    //     type
-    //   )
-    // })
+    if (this.state[`${type}Path`] === cwd) {
+      return
+    }
     const n = `${type}Path`
     const nt = n + 'Temp'
     this.setState({
@@ -623,7 +627,11 @@ export default class Sftp extends Component {
     if (this.shouldRenderRemote()) {
       this.initRemoteAll()
     }
-    this.initLocalAll()
+    if (!this.props.remoteOnly) {
+      this.initLocalAll()
+    } else {
+      this.setState({ localPath: this.getLocalHome() })
+    }
   }
 
   shouldRenderRemote = () => {
@@ -767,11 +775,15 @@ export default class Sftp extends Component {
       })
   }
 
+  remoteListGeneration = 0
+
   remoteList = async (
     returnList = false,
     remotePathReal,
     oldPath
   ) => {
+    const generation = returnList ? this.remoteListGeneration : ++this.remoteListGeneration
+    const isStale = () => this.unmounted || (!returnList && generation !== this.remoteListGeneration)
     const { tab, sessionOptions } = this.props
     const { username, startDirectory } = tab
     let remotePath
@@ -849,6 +861,9 @@ export default class Sftp extends Component {
       }
 
       const remote = await this.sftpList(sftp, remotePath)
+      if (isStale()) {
+        return
+      }
       this.sftp = sftp
       const update = {
         remote,
@@ -873,13 +888,16 @@ export default class Sftp extends Component {
       }
       this.setState(update, () => {
         if (this.type !== 'ftp') {
-          this.updateRemoteList(remote, remotePath, sftp)
+          this.updateRemoteList(remote, remotePath, sftp, generation)
         }
         this.props.editTab(tab.id, {
           sftpCreated: true
         })
       })
     } catch (e) {
+      if (isStale()) {
+        return
+      }
       const update = {
         remoteLoading: false,
         remote: oldRemote,
@@ -897,7 +915,8 @@ export default class Sftp extends Component {
   updateRemoteList = async (
     remotes,
     remotePath,
-    sftp
+    sftp,
+    generation
   ) => {
     // Resolve all symlinks in parallel for faster updates.
     // Use sftp.stat (which follows symlinks) directly on the link path
@@ -927,6 +946,9 @@ export default class Sftp extends Component {
       })
     )
     const remote = results.filter(Boolean)
+    if (this.unmounted || generation !== this.remoteListGeneration) {
+      return
+    }
     const update = {
       remote,
       remoteFileTree: this.buildTree(remote, typeMap.remote)
@@ -1296,7 +1318,7 @@ export default class Sftp extends Component {
   renderSftpPanelTitle (type, username, host) {
     if (type === typeMap.remote) {
       return (
-        <div className='sftp-panel-title pd1t pd1b pd1x alignright elli'>
+        <div className='sftp-panel-title pd1x alignright elli'>
           <ReloadOutlined
             className='mg1r pointer'
             onClick={this.handleReloadRemoteSftp}
@@ -1416,6 +1438,14 @@ export default class Sftp extends Component {
     const {
       height, width
     } = this.props
+    if (this.props.remoteOnly) {
+      return this.renderSection(typeMap.remote, {
+        width,
+        left: 0,
+        top: 0,
+        height
+      }, width)
+    }
     const shouldRenderRemote = this.shouldRenderRemote()
     if (!shouldRenderRemote) {
       return (

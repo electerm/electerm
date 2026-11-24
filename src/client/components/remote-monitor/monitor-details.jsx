@@ -16,6 +16,7 @@ import {
   formatDuration,
   formatRate,
   groupOf,
+  REMOTE_MONITOR_INTERVALS,
   selectPrimaryNetwork,
   sortDisks
 } from './monitor-model'
@@ -44,21 +45,10 @@ export function Sparkline ({ history, level = 'normal', large = false }) {
   }
   const width = large ? 360 : 72
   const height = large ? 88 : 20
-  const start = history[0].timestamp
-  const end = history[history.length - 1].timestamp
-  const span = Math.max(1, end - start)
-  const segments = []
-  let current = []
-  history.forEach((sample, index) => {
-    if (index && sample.timestamp - history[index - 1].timestamp > 12000) {
-      if (current.length) segments.push(current)
-      current = []
-    }
-    const x = (sample.timestamp - start) * width / span
-    const y = height - Math.max(0, Math.min(100, sample.value)) * height / 100
-    current.push(`${x.toFixed(1)},${y.toFixed(1)}`)
-  })
-  if (current.length) segments.push(current)
+  const samples = large ? history : history.slice(-24)
+  const step = large ? 6 : 3
+  const latest = samples[samples.length - 1]
+  const span = Math.max(REMOTE_MONITOR_INTERVALS.cpu * (width / step - 1), latest.timestamp - samples[0].timestamp)
   return (
     <svg
       aria-label={`${e('cpuHistory')}: ${Math.round(history[history.length - 1].value)}%`}
@@ -69,17 +59,11 @@ export function Sparkline ({ history, level = 'normal', large = false }) {
       width={width}
     >
       {
-        segments.map((points, index) => (
-          <polyline
-            fill='none'
-            key={`${points[0]}-${index}`}
-            points={points.join(' ')}
-            stroke='currentColor'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            strokeWidth={large ? 2 : 1.5}
-          />
-        ))
+        samples.map(({ timestamp, value }) => {
+          const h = Math.max(1, Math.min(100, value) * height / 100)
+          const x = (width - step) * (1 - (latest.timestamp - timestamp) / span)
+          return <rect key={timestamp} x={x} y={height - h} width={step - 1} height={h} fill='currentColor' />
+        })
       }
     </svg>
   )

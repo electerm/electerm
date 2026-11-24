@@ -271,7 +271,7 @@ export default (Store) => {
   Store.prototype.initApp = async function () {
     const { store } = window
     const globs = window.et.globs || await window.pre.runGlobalAsync('init')
-    window.langMap = globs.langMap
+    if (globs.langMap) window.langMap = globs.langMap
     store.installSrc = globs.installSrc
     store.appPath = globs.appPath
     store.exePath = globs.exePath
@@ -325,24 +325,10 @@ export default (Store) => {
         },
         2000
       )
-      if (store.config.checkUpdateOnStart) {
-        store.onCheckUpdate(false)
-      }
       // What the main process is already running, then autorun: a reloaded
       // window has to adopt the live instances before deciding what to start,
       // or it would start duplicates of them (refreshWidgetInstances).
-      store.refreshWidgetInstances()
-        .catch(err => {
-          console.error('Failed to list widget instances:', err)
-        })
-        .then(() => store.startAutoRunWidgets())
-        .catch(err => {
-          console.error('Failed to start autorun widgets:', err)
-        })
       // is a password manager widget installed (bookmark form)
-      store.listWidgets().catch(err => {
-        console.error('Failed to list widgets:', err)
-      })
     } catch (err) {
       store.initLoadingData = false
       store.onError(err)

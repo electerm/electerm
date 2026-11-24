@@ -425,6 +425,7 @@ class Term extends Component {
     const prps1 = {
       className: cls,
       style: {
+        '--terminal-bg': this.props.themeConfig?.background || '#1e1e1e',
         height,
         width,
         left,
@@ -474,6 +475,14 @@ class Term extends Component {
       <Dropdown {...dropdownProps}>
         <div
           {...prps1}
+          onKeyDownCapture={event => {
+            if (!this.state.sessionStopped || !/^[rR]$/.test(event.key) ||
+              event.ctrlKey || event.altKey || event.metaKey || event.nativeEvent.isComposing ||
+              !event.target.closest('.xterm, .terminal-session-stopped')) return
+            event.preventDefault()
+            event.stopPropagation()
+            if (!event.repeat) this.handleReloadStoppedSession()
+          }}
         >
           <div
             {...prps3}
@@ -498,7 +507,7 @@ class Term extends Component {
             // this one is centred, so the message stays readable.
             stopped={this.state.sessionStopped}
             countdown={this.state.reconnectCountdown}
-            reloadShortcut={this.getShortcut('app_reloadCurrentTab')}
+            reloadShortcut='R'
             closeShortcut={this.getShortcut('app_closeCurrentTab')}
             onReload={this.handleReloadStoppedSession}
             onClose={this.handleCloseStoppedSession}

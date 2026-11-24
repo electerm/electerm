@@ -15,6 +15,7 @@ import {
 import SideIcon from './side-icon'
 import SidePanel from './side-panel'
 import LeftSidebarIcons from './left-sidebar-icons'
+import { toolbarHeight } from '../layout/terminal-toolbar'
 import TransferList from './transfer-list'
 import hasActiveInput from '../../common/has-active-input'
 import './sidebar.styl'
@@ -141,7 +142,8 @@ export default function Sidebar (props) {
     className: `sidebar type-${openedSideBar}${leftSideBarWidth === 0 ? ' collapsed' : ''}`,
     style: {
       width: leftSideBarWidth,
-      height
+      top: isMobile ? 0 : toolbarHeight,
+      height: isMobile ? height : height - toolbarHeight
     }
   }
   const transferProps = {
@@ -151,45 +153,46 @@ export default function Sidebar (props) {
   }
   return (
     <div {...sidebarProps}>
-      <div className='sidebar-bar btns'>
-        <div className='control-icon-wrap'>
-          <MenuBtn store={store} config={store.config} />
-        </div>
-        <LeftSidebarIcons
-          iconIds={leftSideBarIcons}
-          handleClickBookmark={handleClickBookmark}
-          onNewSsh={onNewSsh}
-          openSetting={openSetting}
-          openSettingSync={openSettingSync}
-          openTerminalThemes={openTerminalThemes}
-          openWidgetsModal={openWidgetsModal}
-          bookmarksActive={bookmarksActive}
-          themeActive={themeActive}
-          settingActive={settingActive}
-          syncActive={syncActive}
-          widgetsActive={widgetsActive}
-          isSyncingSetting={isSyncingSetting}
-          widgetInstancesLength={widgetInstancesLength}
-        />
-        <TransferList {...transferProps} />
-        <SideIcon
-          title={e('about')}
-          active={showInfoModal}
-        >
-          <InfoCircleOutlined
-            className='iblock font16 control-icon open-about-icon'
-            onClick={openAbout}
+      {isMobile && (
+        <div className='sidebar-bar btns'>
+          <div className='control-icon-wrap'>
+            <MenuBtn store={store} config={store.config} />
+          </div>
+          <LeftSidebarIcons
+            iconIds={leftSideBarIcons}
+            handleClickBookmark={handleClickBookmark}
+            onNewSsh={onNewSsh}
+            openSetting={openSetting}
+            openSettingSync={openSettingSync}
+            openTerminalThemes={openTerminalThemes}
+            openWidgetsModal={openWidgetsModal}
+            bookmarksActive={bookmarksActive}
+            themeActive={themeActive}
+            settingActive={settingActive}
+            syncActive={syncActive}
+            widgetsActive={widgetsActive}
+            isSyncingSetting={isSyncingSetting}
+            widgetInstancesLength={widgetInstancesLength}
           />
-        </SideIcon>
-        <SideIcon
-          title={e('hide')}
-        >
-          <MenuFoldOutlined
-            className='iblock font16 control-icon hide-sidebar-icon'
-            onClick={handleToggleSidebar}
-          />
-        </SideIcon>
-        {
+          <TransferList {...transferProps} />
+          <SideIcon
+            title={e('about')}
+            active={showInfoModal}
+          >
+            <InfoCircleOutlined
+              className='iblock font16 control-icon open-about-icon'
+              onClick={openAbout}
+            />
+          </SideIcon>
+          <SideIcon
+            title={e('hide')}
+          >
+            <MenuFoldOutlined
+              className='iblock font16 control-icon hide-sidebar-icon'
+              onClick={handleToggleSidebar}
+            />
+          </SideIcon>
+          {
           Math.round((zoom ?? 1) * 100) !== 100
             ? (
               <SideIcon
@@ -203,7 +206,7 @@ export default function Sidebar (props) {
               )
             : null
         }
-        {
+          {
           !checkingRemoteVersion && !showUpgradeModal && shouldUpgrade
             ? (
               <Tooltip
@@ -222,7 +225,8 @@ export default function Sidebar (props) {
               )
             : null
         }
-      </div>
+        </div>
+      )}
       <SidePanel
         sideProps={sideProps}
         setLeftSidePanelWidth={setLeftSidePanelWidth}
