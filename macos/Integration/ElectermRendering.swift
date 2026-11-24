@@ -11,9 +11,11 @@ private let keywordGroups = [
 private let keywords = try! NSRegularExpression(
     pattern: #"\b(?:"# + keywordGroups.map { "(\($0))" }.joined(separator: "|") + #")\b"#,
     options: .caseInsensitive)
-private let inks = [0xff6060, 0x0eb16c, 0xbebe12, 0xff4dff, 0x54ccef].map {
-    NSColor(srgbRed: CGFloat($0 >> 16) / 255, green: CGFloat(($0 >> 8) & 255) / 255,
-            blue: CGFloat($0 & 255) / 255, alpha: 1)
+private let inks: [NSColor] = [0xff6060, 0x0eb16c, 0xbebe12, 0xff4dff, 0x54ccef].map { (rgb: Int) -> NSColor in
+    let red = CGFloat(rgb >> 16) / 255
+    let green = CGFloat((rgb >> 8) & 255) / 255
+    let blue = CGFloat(rgb & 255) / 255
+    return NSColor(srgbRed: red, green: green, blue: blue, alpha: 1)
 }
 
 extension TerminalView.ViewLineSegmentBuilder {
