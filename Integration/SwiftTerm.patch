@@ -1,0 +1,128 @@
+diff --git a/Sources/SwiftTerm/Apple/AppleTerminalView.swift b/Sources/SwiftTerm/Apple/AppleTerminalView.swift
+index 9f8e44b..371d7f9 100644
+--- a/Sources/SwiftTerm/Apple/AppleTerminalView.swift
++++ b/Sources/SwiftTerm/Apple/AppleTerminalView.swift
+@@ -2825,7 +2825,7 @@ extension TerminalView {
+     struct ViewLineSegmentBuilder {
+         let column: Int
+         let columnWidth: Int
+-        private var attributedString = NSMutableAttributedString()
++        var attributedString = NSMutableAttributedString()
+         private var characterCount: Int = 0
+         private var utf16ToCellOrdinal: [Int] = []
+         private var cellCount: Int = 0
+@@ -3542,7 +3542,7 @@ extension TerminalView {
+             } 
+             #endif
+             let lineInfo = textBuilder.buildAttributedString(row: snapshotRow, absoluteRow: row,
+-                                                             context: renderContext)
++                                                             context: renderContext, highlight: !snapshot.isAltBuffer)
+             let rowBase = lineOrigin.y + cellDimension.height
+             var otherImages: [SnapshotImage] = []
+             if let images = lineInfo.images {
+diff --git a/Sources/SwiftTerm/Apple/SnapshotTextBuilder.swift b/Sources/SwiftTerm/Apple/SnapshotTextBuilder.swift
+index 682e0d2..6dca66e 100644
+--- a/Sources/SwiftTerm/Apple/SnapshotTextBuilder.swift
++++ b/Sources/SwiftTerm/Apple/SnapshotTextBuilder.swift
+@@ -447,7 +447,7 @@ final class SnapshotTextBuilder {
+ 
+ 
+     func buildAttributedString (row snapshotRow: TerminalSnapshot.Row, absoluteRow: Int,
+-                                context: SnapshotRenderContext) -> ViewLineInfo
++                                context: SnapshotRenderContext, highlight: Bool = false) -> ViewLineInfo
+     {
+         var segments: [ViewLineSegment] = []
+         let line = snapshotRow.line
+@@ -482,11 +482,16 @@ final class SnapshotTextBuilder {
+         var baseAttributesStyleKey: PackedAttributeKey?
+         var baseAttributesHasUrl = false
+         var baseAttributes: SnapshotTextAttributes?
++        var plainRun = false
+ 
+         func flushPending() {
+             if !pendingText.isEmpty, let attrs = pendingAttrs {
++                let start = builder?.attributedString.length ?? 0
+                 builder?.append(text: pendingText, attributes: attrs,
+                                 cellUTF16Lengths: pendingCellLengths)
++                if highlight && plainRun {
++                    builder?.tintKeywords(in: pendingText, at: start)
++                }
+                 pendingText = ""
+                 pendingCellLengths = []
+             }
+@@ -593,6 +598,7 @@ final class SnapshotTextBuilder {
+                 || pendingAttrs == nil {
+                 flushPending()
+                 lastStyleKey = styleKey
++                plainRun = attr == CharData.defaultAttr && !isSelected && !hasUrl
+                 lastHasUrl = hasUrl
+                 lastIsSelected = isSelected
+                 lastTextHidden = textHidden
+diff --git a/Sources/SwiftTerm/EscapeSequenceParser.swift b/Sources/SwiftTerm/EscapeSequenceParser.swift
+index 379b9d3..16ac371 100644
+--- a/Sources/SwiftTerm/EscapeSequenceParser.swift
++++ b/Sources/SwiftTerm/EscapeSequenceParser.swift
+@@ -532,7 +532,7 @@ final class EscapeSequenceParser {
+     /// lifetime after the sequence ends.
+     static let maximumRetainedOscBytes = 1024 * 1024
+     /// Kitty-compatible upper bound for one APC sequence.
+-    static let maximumApcBytes = 65 * 1024 * 1024
++    static let maximumApcBytes = 8192
+     /// An APC accumulator up to this size keeps its capacity between sequences,
+     /// which avoids a reallocation for every graphics command. A larger one
+     /// releases its storage instead: a single oversized sequence would
+@@ -834,7 +834,7 @@ final class EscapeSequenceParser {
+             return Terminal.XTGETTCAP(terminal: terminal)
+         }
+ #if !SWIFTTERM_EMBEDDED
+-        if collect.isEmpty && code == 0x71 {  // "q"
++        if terminal.options.enableSixelReported && collect.isEmpty && code == 0x71 {  // "q"
+             return SixelDcsHandler(terminal: terminal)
+         }
+ #endif
+diff --git a/Sources/SwiftTerm/Mac/MacTerminalView.swift b/Sources/SwiftTerm/Mac/MacTerminalView.swift
+index 4eab8f4..0c0b1c4 100644
+--- a/Sources/SwiftTerm/Mac/MacTerminalView.swift
++++ b/Sources/SwiftTerm/Mac/MacTerminalView.swift
+@@ -2326,7 +2326,7 @@ open class TerminalView: NSView, NSUserInterfaceValidations, TerminalDelegate {
+         return true
+     }
+ 
+-    public override func keyDown(with event: NSEvent) {
++    open override func keyDown(with event: NSEvent) {
+         kittyComposingKeyCode = nil
+         if !event.isARepeat {
+             kittyKeysWithReportedPress.remove(event.keyCode)
+diff --git a/Sources/SwiftTerm/Terminal.swift b/Sources/SwiftTerm/Terminal.swift
+index 2b79d3f..3139a13 100644
+--- a/Sources/SwiftTerm/Terminal.swift
++++ b/Sources/SwiftTerm/Terminal.swift
+@@ -817,6 +817,10 @@ open class Terminal {
+         parser.reset(self)
+     }
+ 
++    func cancelIncompleteShellInput() {
++        parser.reset(self)
++    }
++
+     /// Owns copied OSC observations independently of parser storage.
+     private let oscEventDispatcher = TerminalOscEventDispatcher()
+ 
+@@ -1393,7 +1397,7 @@ open class Terminal {
+         }
+         altBuffer.resize (newCols: newColumns, newRows: newRows)
+     }
+-    public func setup (isReset: Bool = false)
++    public func setup (isReset: Bool = false, keepingNormalBuffer: Bool = false)
+     {
+         // Sadly a duplicate of much of what lives in init() due to Swift not allowing me to
+         // call this
+@@ -1402,7 +1406,7 @@ open class Terminal {
+         
+         if isReset {
+             clearProgramStatus()
+-            resetNormalBuffer()
++            if !keepingNormalBuffer { resetNormalBuffer() }
+             activateNormalBuffer(clearAlt: false)
+             // A full reset also clears the alternate screen, even when it is not
+             // active, so that a later switch to it shows a blank page.

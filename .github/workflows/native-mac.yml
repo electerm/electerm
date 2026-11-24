@@ -1,0 +1,34 @@
+name: Native Mac (Apple Silicon)
+
+on:
+  push:
+    branches: [classic-r7-native-mac]
+    paths:
+      - macos/**
+      - .github/workflows/native-mac.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Test and package arm64 app
+        working-directory: macos
+        run: |
+          for developer in /Applications/Xcode_26*.app/Contents/Developer; do
+            if [ -d "$developer" ]; then export DEVELOPER_DIR="$developer"; break; fi
+          done
+          swift --version
+          sh build-mac.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Electerm-Terminal-mac-arm64
+          path: macos/dist/Electerm-Terminal-mac-arm64.zip
+          if-no-files-found: error

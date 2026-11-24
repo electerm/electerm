@@ -1,242 +1,51 @@
-<h1 align="center" style="padding-top: 60px;padding-bottom: 40px;">
-    <a href="https://electerm.org">
-        <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm.png", alt="" />
-    </a>
-</h1>
+# Electerm Terminal · Mac 原生版
 
-[![GitHub version](https://badgers.space/github/release/electerm/electerm?corner_radius=m)](https://github.com/electerm/electerm/releases)
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/electerm/electerm/blob/master/LICENSE)
-[![GitHub Sponsors](https://img.shields.io/github/sponsors/electerm?label=Sponsors)](https://github.com/sponsors/electerm)
-[![star](https://atomgit.com/electerm/electerm/star/badge.svg)](https://atomgit.com/electerm/electerm)
-[![X](https://img.shields.io/badge/X-@zxdong-black?logo=x)](https://x.com/zxdong)
+这是独立源码工程，面向 macOS 14 及以上的 Apple Silicon（含 M5）。相邻的 `electerm/` 保留 Windows R7；
+本工程不读取、构建或修改它，也不使用原 Electron 版的 `.runtime`、书签数据库或界面设置。
 
-[English](README.md) | [中文](src/docs/README_cn.md) | [日本語](src/docs/README_jp.md)
+## 在 Mac 构建
 
-Open-sourced terminal/ssh/sftp/telnet/serialport/RDP/VNC/Spice/ftp client(Linux, Mac, Windows, Android, HarmonyOS, iOS).
+把整个 `electerm-mac` 文件夹放到 Mac 上。需要 Swift 6.2 或更新的 Apple 工具链和 Git。
+在该文件夹的终端中执行：
 
-Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS, iOS, and older systems — Ubuntu 18, Windows 7, macOS 10+, and special Chinese Linux distributions such as UOS, Kylin, and LoongArch (both old-world and new-world), as well as RISC-V (riscv64) and PowerPC 64-bit little-endian (ppc64le) Linux.
-
-<p>
-  <a href="https://electerm.org">Homepage / Downloads</a> ·
-  <a href="https://theme.electerm.org">Theme</a> ·
-  <a href="https://github.com/electerm/electerm-web-docker">Docker</a> ·
-  <a href="https://demo.electerm.org">Online demo</a> ·
-  <a href="https://github.com/electerm/electerm-android">Android</a> ·
-  <a href="https://play.google.com/store/apps/details?id=org.electerm.electerm">Google Play</a> ·
-  <a href="https://github.com/electerm/electerm-harmony">HarmonyOS</a> ·
-  <a href="https://apps.apple.com/us/app/electerm/id6792971552">Apple App Store</a> ·
-  <a href="https://appgallery.huawei.com/app/detail?id=org.electerm.electerm">Huawei AppGallery</a> ·
-  <a href="https://www.microsoft.com/store/apps/9NCN7272GTFF">Microsoft Store</a> ·
-  <a href="https://snapcraft.io/electerm">Snap Store</a> ·
-  <a href="https://repos.electerm.org/deb">deb repo</a> ·
-  <a href="https://repos.electerm.org/rpm">rpm repo</a>
-</p>
-
-<div>🌐 <strong><a href="https://cloud.electerm.org">electerm online</a></strong> — Public free online electerm app</div>
-<div>🤖 <strong><a href="https://ai.electerm.org">electerm AI</a></strong> — Free AI for electerm users</div>
-<div>💻 <strong><a href="https://github.com/electerm/electerm-web">electerm-web</a></strong> — Web app version running in browser (including mobile device)</div>
-
-## Sponsors
-
-<div align="center">
-  <a href="https://www.packyapi.ai/register?aff=DOZI">
-    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/packy-api.png?raw=true" alt="PackyCode" width="210" />
-  </a>
-</div>
-
-[PackyCode](https://www.packyapi.ai/register?aff=DOZI) — Access leading AI models through PackyCode with one API endpoint and one API key. Enjoy fast, reliable access with automatic failover and dedicated high-speed routes for Codex and Claude Code. Get started with $1 in free credits, a discount on your first top-up, and savings of up to 80% on eligible routes. Pay in RMB with no currency conversion markups or extra top-up fees.
-
-----
-
-<div align="center">
-
-<a href="https://www.infistar.cc/register?aff=4R4JT29X&ref_source=link"><img align="middle" src="https://github.com/electerm/electerm-resource/blob/master/static/images/infistar-wordmark.png?raw=true" alt="Infistar" height="40" /></a>&nbsp;&nbsp;&nbsp;<a href="https://www.digitalocean.com/?refcode=c10bcb28b846&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img align="middle" src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg" alt="DigitalOcean Referral Badge" /></a>
-
-</div>
-
-<div align="center">
-    <img src="https://github.com/electerm/electerm-resource/raw/master/static/images/electerm-banner-1.jpg", alt="" />
-</div>
-
-## Features
-
-- Works as a terminal/file manager, ssh/sftp/ftp/telnet/serialport/RDP/VNC/Spice client
-- Support Window 7+(X64/ARM64), HarmonyOS，Android, iOS, Mac OS 10.15+(x64/arm64), Linux(x64/arm64/riscv64/ppc64le/Loong64 new world & old world), even old Linux with glibc 2.17+ like UOS/Kylin/Ubuntu 18.04 etc
-- Global hotkey to toggle window visibility (similar to guake, default is `ctrl + 2`)
-- 🇺🇸 🇨🇳 🇧🇷 🇷🇺 🇪🇸 🇫🇷 🇹🇷 🇭🇰 🇯🇵 🇸🇦 🇩🇪 🇰🇷 🇮🇩 🇵🇱 Multi-language support([electerm-locales](https://github.com/electerm/electerm-locales), contributions/fixes welcome)
-- Double click to directly edit (small) remote files.
-- All kind of auth methods: publicKey, password, ssh agent, certificates, otp, netbird etc.
-- Support Zmodem(rz, sz), and [Trzsz](https://github.com/trzsz/trzsz)(trz/tsz).
-- Support ssh related features: tunnel, connection hopping.
-- Customizable UI: themes, background image, transparent window(Mac, win).
-- Global/session proxy.
-- Quick commands/triggers to do predefined tasks and automattic operations
-- Sync data including bookmarks to github/gitee secret gist/webdav/custom server/electerm cloud
-- Quick input/mirror input to one or all terminals.
-- AI assistant integration (supporting multiple LLM API formats — OpenAI Chat Completions, OpenAI Responses, and Anthropic Messages) to help with command suggestions, script writing, and explaining selected terminal content, create bookmarks/themes, and agent mode to directly do terminal operations
-- MCP (Model Context Protocol) widget for AI assistants and external tools integration - see [MCP Widget Usage Guide](https://github.com/electerm/electerm/wiki/MCP-Widget-Usage-Guide)
-- Deep link support: Open connections with URLs like `telnet://192.168.2.31:34554` or `ssh://user@host:22` - see [Deep link support wiki](https://github.com/electerm/electerm/wiki/Deep-link-support)
-- Command line usage: check [wiki](https://github.com/electerm/electerm/wiki/Command-line-usage)
-
-## Install
-
-- For Mac user: `brew install --cask electerm`
-- With snap: `sudo snap install electerm --classic`
-- For some Linux distribution, you can find it from OS default App store(Ubuntu, Deepin, Mint...).
-- For some linux OS, the `rpm`, `deb`, or `snap` release may not work, you can try the `tar.gz` or `.appImage` release.
-- For Windows users, you can install it from [windows store](https://www.microsoft.com/store/apps/9NCN7272GTFF), command-line installer [winget](https://github.com/microsoft/winget-cli) and [scoop](https://github.com/lukesampson/scoop) is also recommended:
-
-```powershell
-# winget https://github.com/microsoft/winget-cli
-winget install electerm.electerm
-
-# scoop https://github.com/lukesampson/scoop
-scoop bucket add dorado https://github.com/chawyehsu/dorado
-scoop install dorado/electerm
+```sh
+sh build-mac.sh
 ```
 
-- Install from Debian repository (for Debian/Ubuntu-based systems) with `apt` command
+脚本先运行 XCTest，再生成 ARM64 release、检查架构、对 `.app` 做本地 ad-hoc 签名，
+从成品启动内置终端引擎自检，最后输出 `dist/Electerm-Terminal-mac-arm64.zip`。
+解压后打开 `Electerm Terminal.app`。本机调试先执行 `sh prepare-swiftterm.sh`，再用 `swift run` 或 Xcode 打开 `Package.swift`。
+首次构建需要联网。依赖源码和脚本指定的 SwiftPM 缓存位于项目的 `.build/`；系统工具链及其系统缓存不在其中。
+不使用 CocoaPods、Homebrew、npm 或 Windows 工程。ad-hoc 签名不是 Apple 公证。
 
-Check [https://repos.electerm.org/deb](https://repos.electerm.org/deb)
+## 页面与终端
 
-- Install from npm
+- 顶部 36 pt 工具栏；左栏顶部快速连接，右侧终端顶部 28 pt 标签行；28 pt 图标栏，24 pt 状态栏。
+- 本地默认显示书签，单击选中、双击连接；SSH 默认显示 SFTP，支持收起、拖宽、路径输入、上传和下载。
+  侧栏宽度跨标签记忆。支持单个普通文件的 Finder 拖入/拖出；上传同名文件会拒绝覆盖。
+- 13 pt 等宽字、R7 的 16 色、普通文本关键词着色与深浅色窗口。终端色不随窗口主题切换。
+  终端保留 3000 行滚动缓冲；会话结束后在终端按 `r` / `R` 在原标签重连，不恢复旧进程。
+- SSH 使用系统 OpenSSH；快速连接支持 `user@host:port`、`ssh://user@host:port` 和 SSH 配置别名。
+  私钥、跳板和认证代理使用系统 SSH 配置；不在书签中存密码。
+- SFTP 与 shell 复用同一个认证通道。目录跟随识别 OSC 7/633；对于没有提示符集成的普通 Linux shell，
+  启动时记录登录 shell PID，在输入命令后通过 SFTP 解析 `/proc/<pid>/cwd`。不猜提示符，不改远程配置文件。
+  不支持 `/proc` 且没有 OSC 的主机可手动浏览。受限 SSH 设备或配置了 `RemoteCommand` 的主机，
+  可以在设置里关闭“探测远程 shell 目录”再连接，保留其原始登录方式。
+- 远程监控默认关闭，开启时对当前 Linux 会话采样 CPU 和内存；其他服务器可能显示 `n/a`。
 
-```bash
-npm i -g electerm
+## 实现与验收
 
-```
+SwiftUI 绘制窗口和工具栏；每个标签拥有一个 SwiftTerm AppKit 视图，使用 Core Graphics 绘制。
+终端输入、解析、搜索和滚动缓冲不经过 JavaScriptCore、WebView 或 Electron。PTY 和 SSH 仍用原系统实现。
+`prepare-swiftterm.sh` 检出官方 SwiftTerm `v1.99.3` 并校验提交，`Integration/` 的小补丁只用于 Mac：
+给普通文字绘制关键词颜色、识别目录、处理断线并限制非文本协议。补丁不改磁盘上的全局 SwiftPM 包。
+OSC 剪贴板读写、链接、通知及内联图片不启用；Cmd+C / Cmd+V 仍是用户操作。
+第三方许可证随 `.app` 分发，构建工具的间接包固定于 `Package.resolved`。
 
-## Upgrade
+`swift test` 覆盖原生终端、分包目录通知、断线历史、关闭释放、真实 PTY、SSH 地址和本机 OpenSSH SFTP 文件往返。
+独立仓库内附 macOS CI 工作流，但仅在配置了托管运行器并实际运行时才有结果。
 
-- Auto upgrade: When a new version is released, you will get an upgrade notification after you start electerm again. You can then click the upgrade button to upgrade.
-- Download: Just download the latest edition, reinstall.
-- Npm: If you install from npm, just run `npm i -g electerm` again.
-- If use Snap or some other distribution system, these systems may provide upgrades.
-
-## Known issues
-
-[https://github.com/electerm/electerm/wiki/Know-issues](https://github.com/electerm/electerm/wiki/Know-issues)
-
-## Troubleshoot
-
-[https://github.com/electerm/electerm/wiki/Troubleshoot](https://github.com/electerm/electerm/wiki/Troubleshoot)
-
-## Discussion
-
-[![Discord](https://img.shields.io/badge/Discord-Join-blue?logo=discord)](https://discord.gg/855W7g8EVd)
-
-[Discussion board](https://github.com/electerm/electerm/discussions)
-
-<img src="https://electerm.org/electerm-wechat-group-qr.jpg" width="300" alt="electerm WeChat group QR code">
-
-<img src="https://electerm.org/telegram-qr.png" width="300" alt="electerm Telegram group QR code">
-
-## Support
-
-Would love to hear from you, please tell me what you think, [submit an issue](https://github.com/electerm/electerm/issues), [Start a new discussion](https://github.com/electerm/electerm/discussions/new), [create/fix language files](https://github.com/electerm/electerm-locales) or create pull requests, all welcome.
-
-## Sponsor this project
-
-github sponsor
-
-[https://github.com/sponsors/electerm](https://github.com/sponsors/electerm)
-
-kofi
-
-[https://ko-fi.com/zhaoxudong](https://ko-fi.com/zhaoxudong)
-
-wechat donate
-
-[![wechat donate](https://electerm.org/electerm-wechat-donate.png)](https://github.com/electerm)
-
-TRON TRN20
-
-[![TRN20 donate](https://github.com/electerm/electerm-resource/blob/master/static/images/trn20.png?raw=true)]
-
-Address: TXk3pQNmQu1vihH76RaEFnK9wg13x4LLCZ
-
-## Dev
-
-```bash
-# May only works in Linux
-# needs nodejs/npm, suggest using nvm to install nodejs/npm
-# with nodejs 24.x
-
-git clone git@github.com:electerm/electerm.git
-cd electerm
-npm config set legacy-peer-deps true
-npm i
-
-# start vite dev server, requires port 5570
-npm start
-
-# in a separate terminal session run app
-npm run app
-
-# code format check
-npm run lint
-
-# code format fix
-npm run fix
-```
-
-## Test
-
-```bash
-npm run b
-npm run prepare-test
-cp ./src/build/.sample.env ./.env
-
-# edit .env, fill your test host/username/password, may only works in mac OS
-npm run test
-```
-
-## Test build
-
-```bash
-# May only works in Linux
-# Install yarn first(to do yarn autoclean)
-# See https://yarnpkg.com/en/docs/install
-
-# Build linux only with -l
-npm i
-npm run b
-npm run pb
-./node_modules/.bin/electron-builder --linux tar.gz
-# or replace tar.gz to rpm/deb/AppImage
-# check dist/ folder
-
-# build for linux arm/
-./node_modules/.bin/electron-builder --linux --arm64
-```
-
-## Video guide
-
-- [https://electerm.org/videos](https://electerm.org/videos)
-
-## Change log
-
-Visit [Releases](https://github.com/electerm/electerm/releases).
-
-## Contact author
-
-[zxdong@gmail.com](mailto:zxdong@gmail.com)
-
-
-## License
-
-MIT
-
-## Star History
-
-<p>
- <a href="https://www.star-history.com/electerm/electerm"><img src="https://api.star-history.com/badge?repo=electerm/electerm" alt="Star History Rank" /></a>
-</p>
-
-<a href="https://www.star-history.com/?repos=electerm%2Felecterm&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=electerm/electerm&type=date&legend=top-left&sealed_token=DvPlttPaLtq6RPIWRANYX08-8ZJyrJalhombrkDcg1IwWOMPMIplgi85q0FiwrbhE3lRIi_yxvOWdell731CGQvzlfJMt2Sa6VfCvQ80BwEtQ6RpPchEiw" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=electerm/electerm&type=date&legend=top-left&sealed_token=DvPlttPaLtq6RPIWRANYX08-8ZJyrJalhombrkDcg1IwWOMPMIplgi85q0FiwrbhE3lRIi_yxvOWdell731CGQvzlfJMt2Sa6VfCvQ80BwEtQ6RpPchEiw" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=electerm/electerm&type=date&legend=top-left&sealed_token=DvPlttPaLtq6RPIWRANYX08-8ZJyrJalhombrkDcg1IwWOMPMIplgi85q0FiwrbhE3lRIi_yxvOWdell731CGQvzlfJMt2Sa6VfCvQ80BwEtQ6RpPchEiw" />
- </picture>
-</a>
+**验收边界：** 这是原生第一版，不是旧 Mac ZIP 的换壳或已验收的完整替代品。
+尚无 M5 实机截图、输入法/VoiceOver、Finder 拖放、高吞吐滚屏、长连接、睡眠恢复、启动或内存测试结果。
+原生控件与 R7 不保证逐像素相同。当前不迁移旧书签库，不包含完整 R7 设置、ZMODEM/trzsz 或高级多窗格布局。
+切换日常使用前应在 Mac 逐项对照本地 shell、真实 SSH 服务器、文件往返和断线重连后的历史记录。
