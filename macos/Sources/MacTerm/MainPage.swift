@@ -10,7 +10,10 @@ struct MainPage: View {
     @AppStorage("fontSize") private var fontSize = 13.0
     @AppStorage("keepalive") private var keepalive = true
     @AppStorage("shellTracking") private var shellTracking = true
-    @State private var quick = "", name = "", address = "", validation = ""
+    @State private var quick = ""
+    @State private var name = ""
+    @State private var address = ""
+    @State private var validation = ""
     @State private var panel: Panel?
     @State private var search = false
     @State private var searchText = ""
