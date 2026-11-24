@@ -25,7 +25,8 @@ exports.startSession = async function (initOptions, ws, func = 'session') {
     'local',
     'rdp',
     'vnc',
-    'spice'
+    'spice',
+    'ftp'
   ].includes(type)
     ? type
     : 'ssh'

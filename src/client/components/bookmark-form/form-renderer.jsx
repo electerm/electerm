@@ -18,6 +18,7 @@ import generate from '../../common/uid'
 import runIdle from '../../common/run-idle'
 import getInitItem from '../../common/init-setting-item'
 import testCon from '../../common/test-connection'
+import getProxy from '../../common/get-proxy'
 import newTerm from '../../common/new-terminal'
 import { isValidIP } from '../../common/is-ip'
 import { action as manateAction } from 'manate'
@@ -135,6 +136,10 @@ export default function FormRenderer ({ config, props, onForm }) {
     let msg = ''
     setTesting(true)
     options = window.store.applyProfileToTabs(options)
+    if (config.key === 'ftp') {
+      options.proxy = getProxy(options, window.store.config)
+      options.readyTimeout = window.store.config.sshReadyTimeout
+    }
     const res = await testCon(options)
       .then(r => r)
       .catch((e) => {

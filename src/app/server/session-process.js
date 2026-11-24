@@ -298,14 +298,16 @@ exports.testConnection = async function (initOptions, ws, uid) {
     child.on('message', forwardInteractive(child, ws))
   }
 
-  const res = await sendMsgToChildProcess(child, {
-    id: uid,
-    action: 'test-terminal',
-    body: initOptions
-  }, 60000)
-
-  child.kill()
-  return res
+  child.once('exit', () => onChildExit(child))
+  try {
+    return await sendMsgToChildProcess(child, {
+      id: uid,
+      action: 'test-terminal',
+      body: initOptions
+    }, 60000)
+  } finally {
+    child.kill()
+  }
 }
 
 /**
