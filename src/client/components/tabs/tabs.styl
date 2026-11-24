@@ -48,6 +48,13 @@
 
 .tabs-wrapper
   z-index 3
+  width max-content
+.tabs-row
+  width max-content
+  white-space nowrap
+  // Reserve the inline add button's width when it moves to the toolbar.
+  &.overflow
+    padding-right 22px
 .tab
   display inline-block
   vertical-align middle

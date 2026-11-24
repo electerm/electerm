@@ -36,6 +36,20 @@ test('tab bar keeps up with a tab title that gets longer after render', async ()
     }).toBe(1)
     await expect(page.locator('.v1 .tabs .tab-scroll-icon')).toHaveCount(0)
 
+    // A pane can get narrower without a change to the window or its tabs.
+    const pane = page.locator('.layout-item.v1')
+    const originalWidth = await pane.evaluate(el => el.style.width)
+    await pane.evaluate(el => { el.style.width = '500px' })
+    const arrows = pane.locator('.tab-scroll-icon')
+    await expect(arrows.first()).toBeVisible()
+    await expect(arrows.last()).toBeVisible()
+    const list = pane.locator('.session-list-trigger')
+    await list.click()
+    await expect(page.locator('.session-list-row')).toHaveCount(3)
+    await list.click()
+    await pane.evaluate((el, width) => { el.style.width = width }, originalWidth)
+    await expect(arrows).toHaveCount(0)
+
     // More tabs than fit, so the scroll buttons must show
     await page.evaluate(() => {
       for (let i = 0; i < 4; i++) {
@@ -43,6 +57,10 @@ test('tab bar keeps up with a tab title that gets longer after render', async ()
       }
     })
     await expect(page.locator('.v1 .tabs .tab')).toHaveCount(7)
+    await expect(arrows).toHaveCount(2)
+    await list.click()
+    await expect(page.locator('.session-list-row')).toHaveCount(7)
+    await list.click()
     await setTitles('short')
     await setTitles('a long tab title '.repeat(8))
     await expect(page.locator('.v1 .tabs .tab-scroll-icon')).toHaveCount(2)
