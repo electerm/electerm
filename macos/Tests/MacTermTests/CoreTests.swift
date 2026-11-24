@@ -75,13 +75,13 @@ final class CoreTests: XCTestCase {
     @MainActor func testProtocolReplyReturnsToOriginatingPTY() throws {
         let screen = Screen(), closed = expectation(description: "status reply")
         var bytes = Data()
-        let command = #"stty raw -echo; printf '\033[5n'; dd bs=1 count=4 2>/dev/null | od -An -tx1"#
+        let command = #"stty raw -echo; printf '\033[5n'; dd bs=1 count=4 2>/dev/null"#
         let pty = try PseudoTerminal(path: "/bin/sh", arguments: ["-c", command], cols: 80, rows: 24,
                                      output: { bytes.append($0); screen.receive($0) }, ended: { closed.fulfill() })
         screen.view.replies.bind(pty)
         defer { screen.view.replies.bind(nil); pty.stop(); screen.close() }
         wait(for: [closed], timeout: 5)
-        XCTAssertTrue(String(decoding: bytes, as: UTF8.self).contains("1b 5b 30 6e"))
+        XCTAssertNotNil(bytes.range(of: Data("\u{1b}[0n".utf8)), "PTY output: \(Array(bytes))")
     }
     func testClosedRemoteRejectsNewChildren() throws {
         let remote = try Remote(XCTUnwrap(Endpoint("localhost")))
