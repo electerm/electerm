@@ -69,3 +69,37 @@ test('tab bar keeps up with a tab title that gets longer after render', async ()
     await app.close()
   }
 })
+
+test('double-clicking the default local tab reveals the overflow controls', async () => {
+  const app = await electron.launch(appOptions)
+  try {
+    const page = await app.firstWindow()
+    await page.waitForFunction(() => window.store?.configLoaded && window.store.tabs.length)
+    await app.evaluate(({ BrowserWindow }) => {
+      BrowserWindow.getAllWindows()[0].setBounds({ x: 100, y: 100, width: 1200, height: 800 })
+    })
+
+    const bar = page.locator('.v1 .tabs')
+    const tabs = bar.locator('.tab')
+    const originalTitle = tabs.first().locator('div.tab-title')
+    await expect(tabs).toHaveCount(1)
+    await expect(bar.locator('.session-list-trigger')).toHaveCount(0)
+    for (let count = 2; count <= 17; count++) {
+      await originalTitle.dblclick()
+      await expect(tabs).toHaveCount(count)
+    }
+
+    const arrows = bar.locator('.tab-scroll-icon')
+    await expect(arrows.first()).toBeVisible()
+    await expect(arrows.last()).toBeVisible()
+    await arrows.last().click()
+    const scrollLeft = () => bar.locator('.tabs-inner').evaluate(el => el.scrollLeft)
+    await expect.poll(scrollLeft).toBeGreaterThan(0)
+    await arrows.first().click()
+    await expect.poll(scrollLeft).toBe(0)
+    await bar.locator('.session-list-trigger').click()
+    await expect(page.locator('.session-list-row')).toHaveCount(17)
+  } finally {
+    await app.close()
+  }
+})
