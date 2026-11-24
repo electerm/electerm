@@ -97,6 +97,17 @@ test('double-clicking the default local tab reveals the overflow controls', asyn
     await expect.poll(scrollLeft).toBeGreaterThan(0)
     await arrows.first().click()
     await expect.poll(scrollLeft).toBe(0)
+    if (process.platform === 'win32') {
+      // Electron keeps reporting the full window's titlebar after DevTools
+      // narrows the renderer. The toolbar must stay inside the visible pane.
+      const viewportBeforeDock = await page.evaluate(() => window.innerWidth)
+      await app.evaluate(({ BrowserWindow }) => {
+        BrowserWindow.getAllWindows()[0].webContents.openDevTools({ mode: 'right' })
+      })
+      await expect.poll(() => page.evaluate(() => window.innerWidth)).toBeLessThan(viewportBeforeDock)
+      await expect(arrows.first()).toBeInViewport()
+      await expect(arrows.last()).toBeInViewport()
+    }
     await bar.locator('.session-list-trigger').click()
     await expect(page.locator('.session-list-row')).toHaveCount(17)
   } finally {

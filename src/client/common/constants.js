@@ -210,10 +210,7 @@ export const commonLineEndings = commonTxLineEndings
 export const maxBatchInput = 30
 export const windowControlWidth = 94
 // Fallback room for Windows' native min/max/close drawn over the tab bar.
-// The real width is measured at runtime (getWindowControlsOverlayWidth) or, in
-// CSS, read from env(titlebar-area-*); this is only for when neither is
-// available. Keep the number in step with the env() fallback in
-// components/tabs/tabs.styl and css/mobile.styl.
+// Used when Electron cannot report the caption inset for the renderer viewport.
 export const windowControlsOverlayWidthFallback = 140
 
 // Width the native caption buttons take from the right edge of the tab bar.
@@ -225,7 +222,8 @@ export const getWindowControlsOverlayWidth = () => {
   if (overlay && typeof overlay.getTitlebarAreaRect === 'function') {
     const rect = overlay.getTitlebarAreaRect()
     const width = window.innerWidth - rect.x - rect.width
-    // 0 when the overlay is hidden (empty rect) — fall back then
+    // Side-docked DevTools can leave the reported titlebar wider than the
+    // renderer. Use the fallback for that case and for an empty rect.
     if (width > 0 && width < window.innerWidth) {
       return width
     }

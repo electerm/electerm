@@ -360,11 +360,15 @@ export default class Tabs extends Component {
       : 0
   }
 
-  // The class is inert unless the root also has .wco.
-  tabsClassName = (extra) => {
-    return classNames('tabs', extra, {
-      'wco-bar': this.wcoBarNeedsClearance()
-    })
+  tabBarProps (extra) {
+    const clearsOverlay = this.wcoBarNeedsClearance()
+    return {
+      className: classNames('tabs', extra, { 'wco-bar': clearsOverlay }),
+      ref: this.tabsRef,
+      style: clearsOverlay
+        ? { '--wco-controls-width': `${getWindowControlsOverlayWidth()}px` }
+        : undefined
+    }
   }
 
   renderWindowControl = () => {
@@ -421,7 +425,7 @@ export default class Tabs extends Component {
       ? <Tab {...tabProps} key={currentTab.id} />
       : null
     return (
-      <div className={this.tabsClassName('mobile-tabs')} ref={this.tabsRef}>
+      <div {...this.tabBarProps('mobile-tabs')}>
         {this.renderMobileTabsInner(currentTabEl)}
         {this.renderMobileTabsExtra(tabs)}
         {this.renderWindowControl()}
@@ -435,7 +439,7 @@ export default class Tabs extends Component {
       return this.renderMobileTabs()
     }
     return (
-      <div className={this.tabsClassName()} ref={this.tabsRef}>
+      <div {...this.tabBarProps()}>
         {this.renderContent()}
         {
           this.renderWindowControl()
