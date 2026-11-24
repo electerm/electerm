@@ -5,7 +5,7 @@ import createTitle from '../../common/create-title'
 
 const e = window.translate
 
-export default function SessionList ({ tabs, config, batch }) {
+export default function SessionList ({ tabs, config, batch, isMobile }) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const search = query.trim().toLowerCase()
@@ -39,7 +39,8 @@ export default function SessionList ({ tabs, config, batch }) {
   return (
     <Popover
       trigger='click'
-      placement='bottomRight'
+      placement={isMobile ? 'bottom' : 'bottomRight'}
+      classNames={{ root: 'session-list-popup' }}
       open={open}
       onOpenChange={changeOpen}
       destroyOnHidden

@@ -65,6 +65,19 @@ test('tab bar keeps up with a tab title that gets longer after render', async ()
     await setTitles('a long tab title '.repeat(8))
     await expect(page.locator('.v1 .tabs .tab-scroll-icon')).toHaveCount(2)
     expect(await rows()).toBe(1)
+
+    // The native window buttons leave the list trigger near the middle of a
+    // narrow screen. Check the entire popup, including its close buttons.
+    await app.evaluate(({ BrowserWindow }) => {
+      BrowserWindow.getAllWindows()[0].setBounds({ width: 320, height: 480 })
+    })
+    await page.locator('.mobile-tabs .session-list-trigger').click()
+    const popup = page.locator('.session-list-popup')
+    await expect(popup).toBeInViewport({ ratio: 1 })
+    const lastRow = popup.locator('.session-list-row').last()
+    await lastRow.hover()
+    await lastRow.locator('.session-list-close').click()
+    await expect(popup.locator('.session-list-row')).toHaveCount(6)
   } finally {
     await app.close()
   }

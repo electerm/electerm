@@ -187,6 +187,7 @@ export default class Tabs extends Component {
     return (
       <SessionList
         tabs={tabs}
+        isMobile={this.props.isMobile}
         config={this.props.config}
         batch={this.props.batch}
       />
