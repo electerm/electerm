@@ -19,13 +19,7 @@
 .not-system-ui.not-mac.not-webapp
   .tabs-extra
     right 96px
-// Windows system title bar: native min/max/close are drawn over the tab bar's
-// top-right (window controls overlay). The strip they occupy is whatever the
-// titlebar area does not cover; 140px is the fallback for when the env() vars
-// are unavailable — it has to match windowControlsOverlayWidthFallback in
-// common/constants.js (the JS side of the same measurement).
 .wco
-  --wco-controls-width calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, calc(100vw - 140px)))
   // Only the pane whose tab bar sits under those buttons has to clear them —
   // the same pane that owns the window controls (shouldRenderWindowControl in
   // index.jsx), and only while the bar really reaches the window's right edge.
@@ -48,6 +42,13 @@
 
 .tabs-wrapper
   z-index 3
+  width max-content
+.tabs-row
+  width max-content
+  white-space nowrap
+  // Reserve the inline add button's width when it moves to the toolbar.
+  &.overflow
+    padding-right 22px
 .tab
   display inline-block
   vertical-align middle
@@ -356,3 +357,60 @@
   .tab-reload
   .tabs-extra
     -webkit-app-region no-drag
+
+.session-list-trigger
+.session-list-row button
+  border 0
+  background transparent
+  color inherit
+  font inherit
+  cursor pointer
+  &:hover
+    background var(--main-dark)
+
+.session-list-trigger
+.tabs-extra .layout-dd-icon
+  display inline-flex
+  align-items center
+  justify-content center
+  width 32px
+  height 32px
+  vertical-align middle
+  cursor pointer
+
+.tabs-extra .session-list-trigger
+  font-size 16px
+  + .layout-dd-icon
+    margin-left 8px
+
+.session-list-popup
+  width 344px
+  max-width calc(100vw - 16px)
+
+.session-list-results
+  margin-top 6px
+  max-height unquote('min(320px, 50vh)')
+  overflow-y auto
+
+.session-list-row
+  display flex
+  button
+    padding 6px 8px
+    border-radius 4px
+  .session-list-title
+    flex 1
+    min-width 0
+    text-align left
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+
+.session-list-close
+  visibility hidden
+
+.session-list-row:hover
+.session-list-row:focus-within
+// The popover is portaled to body, outside the app's input-modality class.
+body:has(.is-touch-device) .session-list-row
+  .session-list-close
+    visibility visible

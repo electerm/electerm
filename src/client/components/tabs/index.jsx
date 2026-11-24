@@ -6,13 +6,11 @@ import { Component } from 'manate/react/class-components'
 import React from 'react'
 import runIdle from '../../common/run-idle'
 import { throttle } from 'lodash-es'
-import TabTitle from './tab-title'
+import SessionList from './session-list'
 import {
-  DownOutlined,
   LeftOutlined,
   RightOutlined
 } from '@ant-design/icons'
-import { Dropdown } from 'antd'
 import Tab from './tab'
 import LayoutMenu from './layout-menu'
 import './tabs.styl'
@@ -35,6 +33,7 @@ export default class Tabs extends Component {
     super(props)
     this.tabsRef = React.createRef()
     this.domRef = React.createRef()
+    this.rowRef = React.createRef()
     this.state = {
       overflow: false
     }
@@ -47,14 +46,12 @@ export default class Tabs extends Component {
     tabsRef.current.addEventListener('wheel', this.handleWheelEvent, {
       passive: false
     })
-    // Tab widths follow their titles, so they can change without a tab being
-    // added or removed, such as on rename. Watch them to keep the wrapper width
-    // and the overflow state in step with the tabs.
-    this.resizeObserver = new ResizeObserver(this.handleTabsResize)
-    this.observeTabs()
+    this.resizeObserver = new ResizeObserver(this.updateOverflow)
+    this.observeTabBar()
   }
 
   componentDidUpdate (prevProps) {
+    this.observeTabBar()
     if (
       prevProps.currentBatchTabId !== this.props.currentBatchTabId ||
       prevProps.width !== this.props.width ||
@@ -62,31 +59,29 @@ export default class Tabs extends Component {
     ) {
       this.adjustScroll()
     }
-    this.observeTabs()
   }
 
   componentWillUnmount () {
     this.resizeObserver.disconnect()
   }
 
-  observeTabs = () => {
-    const { resizeObserver, domRef } = this
-    resizeObserver.disconnect()
-    if (!domRef.current) {
-      return
+  observeTabBar () {
+    const row = this.rowRef.current
+    if (row === this.observedRow) return
+    this.resizeObserver.disconnect()
+    this.observedRow = row
+    if (row) {
+      this.resizeObserver.observe(row)
+      this.resizeObserver.observe(this.domRef.current)
     }
-    domRef.current.querySelectorAll('.tab').forEach(el => {
-      resizeObserver.observe(el)
-    })
+    this.updateOverflow()
   }
 
-  // render reads the tab widths from the DOM before React commits the new
-  // titles, so render again once the measured widths differ
-  handleTabsResize = () => {
-    if (this.tabsWidth() !== this.renderedTabsWidth) {
-      this.setState({
-        overflow: this.isOverflow()
-      })
+  updateOverflow = () => {
+    const row = this.rowRef.current
+    const overflow = !!(row && this.props.tabs?.length && row.offsetWidth > this.domRef.current.clientWidth)
+    if (overflow !== this.state.overflow) {
+      this.setState({ overflow })
     }
   }
 
@@ -102,36 +97,8 @@ export default class Tabs extends Component {
     window.store.onNewSsh()
   }
 
-  tabsWidth = () => {
-    const { batch } = this.props
-    return Array.from(
-      document.querySelectorAll(`.v${batch + 1} .tab`)
-    ).reduce((prev, c) => {
-      return prev + c.clientWidth
-    }, 0)
-  }
-
-  isOverflow = () => {
-    if (this.props.isMobile || !this.domRef.current) {
-      return false
-    }
-    const { tabs = [] } = this.props
-    const len = tabs.length
-    const addBtnWidth = 22
-    const tabsWidth = this.tabsWidth() + tabMargin * len + addBtnWidth
-    const tabsInnerWidth = this.getInnerWidth()
-    return tabsWidth > tabsInnerWidth
-  }
-
-  getInnerWidth = () => {
-    const { batch } = this.props
-    const cls = `.v${batch + 1} .tabs-inner`
-    const inner = document.querySelector(cls)
-    return inner ? inner.clientWidth : 0
-  }
-
   handleAdd = e => {
-    if (!e.target.className.includes('tabs-wrapper')) {
+    if (e.target !== e.currentTarget) {
       return
     }
     window.store.addTab(
@@ -166,23 +133,20 @@ export default class Tabs extends Component {
     if (this.props.isMobile || !this.domRef.current) {
       return
     }
-    const { currentBatchTabId, batch } = this.props
+    const { currentBatchTabId } = this.props
     const tabs = this.getSortedTabs()
     const index = tabs.findIndex(t => t.id === currentBatchTabId)
     const tabsDomWith = Array.from(
-      document.querySelectorAll(`.v${batch + 1} .tab`)
+      this.domRef.current.querySelectorAll('.tab')
     ).slice(0, index + 2).reduce((prev, c) => {
       return prev + c.clientWidth
     }, 0)
     const w = (index + 1) * tabMargin + tabsDomWith
-    const tabsInnerWidth = this.getInnerWidth()
+    const tabsInnerWidth = this.domRef.current.clientWidth
     const scrollLeft = w > tabsInnerWidth
       ? w - tabsInnerWidth
       : 0
     this.domRef.current.scrollTo({ left: scrollLeft, behavior: 'smooth' })
-    this.setState({
-      overflow: this.isOverflow()
-    })
   }
 
   handleScrollLeft = () => {
@@ -210,7 +174,7 @@ export default class Tabs extends Component {
   }
 
   handleWheelEvent = throttle((e) => {
-    if (this.isOverflow()) {
+    if (this.state.overflow) {
       if (e.deltaY < 0) {
         this.handleScrollLeft()
       } else {
@@ -219,9 +183,15 @@ export default class Tabs extends Component {
     }
   }, 100, { leading: true, trailing: true })
 
-  handleClickMenu = ({ key }) => {
-    const id = key.split('##')[1]
-    window.store['activeTabId' + this.props.batch] = id
+  renderSessionList (tabs) {
+    return (
+      <SessionList
+        tabs={tabs}
+        isMobile={this.props.isMobile}
+        config={this.props.config}
+        batch={this.props.batch}
+      />
+    )
   }
 
   renderAddBtn = () => {
@@ -250,22 +220,6 @@ export default class Tabs extends Component {
   }
 
   renderExtra () {
-    const items = this.getSortedTabs().map((t, i) => {
-      return {
-        key: i + '##' + t.id,
-        label: (
-          <span><TabTitle tab={t} config={this.props.config} /></span>
-        ),
-        onClick: () => this.handleClickMenu({ key: i + '##' + t.id })
-      }
-    })
-    const dropProps = {
-      className: 'tabs-add-btn font16',
-      menu: {
-        items
-      },
-      placement: 'bottomRight'
-    }
     return (
       <div className='tabs-extra pd1x'>
         {this.renderAddBtn()}
@@ -277,11 +231,7 @@ export default class Tabs extends Component {
           className='mg1x iblock pointer font12 tab-scroll-icon'
           onClick={this.handleScrollRight}
         />
-        <Dropdown
-          {...dropProps}
-        >
-          <DownOutlined className='tabs-dd-icon' />
-        </Dropdown>
+        {this.renderSessionList(this.getSortedTabs())}
         {
           this.renderLayoutMenu()
         }
@@ -301,20 +251,14 @@ export default class Tabs extends Component {
   }
 
   renderContentInner () {
-    const { width } = this.props
     const tabs = this.getSortedTabs()
     const len = tabs.length
-    this.renderedTabsWidth = this.tabsWidth()
-    const tabsWidthAll = tabMargin * len + 10 + this.renderedTabsWidth
     const { overflow } = this.state
-    const left = overflow
-      ? '100%'
-      : tabsWidthAll
     const w1 = isMacJs && (window.store.isSystemTitleBar || window.et.isWebApp)
       ? 30
       : this.getExtraTabWidth()
     const style = {
-      width: width - w1 - 166
+      width: `max(0px, calc(100% - ${w1 + 166}px))`
     }
     return (
       <div
@@ -323,40 +267,35 @@ export default class Tabs extends Component {
         style={style}
       >
         <div
-          style={{
-            left
-          }}
-        />
-        <div
           className='tabs-wrapper relative'
-          style={{
-            width: tabsWidthAll + extraTabWidth + 10
-          }}
+          style={{ paddingRight: extraTabWidth }}
           onDoubleClick={this.handleAdd}
         >
-          {
-            tabs.map((tab, i) => {
-              const isLast = i === len - 1
-              const tabProps = {
-                ...this.props,
-                tab,
-                isLast,
-                addTab: this.handleTabAdd,
-                tabIndex: i
-              }
-              return (
-                <Tab
-                  {...tabProps}
-                  key={tab.id}
-                />
-              )
-            })
-          }
-          {
-            overflow
-              ? null
-              : this.renderAddBtn()
-          }
+          <div ref={this.rowRef} className={classNames('tabs-row', { overflow })}>
+            {
+              tabs.map((tab, i) => {
+                const isLast = i === len - 1
+                const tabProps = {
+                  ...this.props,
+                  tab,
+                  isLast,
+                  addTab: this.handleTabAdd,
+                  tabIndex: i
+                }
+                return (
+                  <Tab
+                    {...tabProps}
+                    key={tab.id}
+                  />
+                )
+              })
+            }
+            {
+              overflow
+                ? null
+                : this.renderAddBtn()
+            }
+          </div>
         </div>
       </div>
     )
@@ -422,11 +361,15 @@ export default class Tabs extends Component {
       : 0
   }
 
-  // The class is inert unless the root also has .wco.
-  tabsClassName = (extra) => {
-    return classNames('tabs', extra, {
-      'wco-bar': this.wcoBarNeedsClearance()
-    })
+  tabBarProps (extra) {
+    const clearsOverlay = this.wcoBarNeedsClearance()
+    return {
+      className: classNames('tabs', extra, { 'wco-bar': clearsOverlay }),
+      ref: this.tabsRef,
+      style: clearsOverlay
+        ? { '--wco-controls-width': `${getWindowControlsOverlayWidth()}px` }
+        : undefined
+    }
   }
 
   renderWindowControl = () => {
@@ -440,25 +383,13 @@ export default class Tabs extends Component {
     return null
   }
 
-  renderMobileTabsDropdown (items) {
-    return (
-      <Dropdown
-        menu={{ items }}
-        placement='bottomRight'
-        trigger={['click']}
-      >
-        <DownOutlined className='tabs-dd-icon' />
-      </Dropdown>
-    )
-  }
-
-  renderMobileTabsExtra (items) {
+  renderMobileTabsExtra (tabs) {
     return (
       <div className='mobile-tabs-extra'>
         {this.renderAddBtn()}
         {
-          items && items.length
-            ? this.renderMobileTabsDropdown(items)
+          tabs.length
+            ? this.renderSessionList(tabs)
             : null
         }
       </div>
@@ -484,15 +415,6 @@ export default class Tabs extends Component {
   renderMobileTabs () {
     const { tabs = [], currentBatchTabId } = this.props
     const currentTab = tabs.find(t => t.id === currentBatchTabId)
-    const items = tabs.map((t, i) => {
-      return {
-        key: i + '##' + t.id,
-        label: (
-          <span><TabTitle tab={t} config={this.props.config} /></span>
-        ),
-        onClick: () => this.handleClickMenu({ key: i + '##' + t.id })
-      }
-    })
     const tabProps = {
       ...this.props,
       tab: currentTab,
@@ -504,9 +426,9 @@ export default class Tabs extends Component {
       ? <Tab {...tabProps} key={currentTab.id} />
       : null
     return (
-      <div className={this.tabsClassName('mobile-tabs')} ref={this.tabsRef}>
+      <div {...this.tabBarProps('mobile-tabs')}>
         {this.renderMobileTabsInner(currentTabEl)}
-        {this.renderMobileTabsExtra(items)}
+        {this.renderMobileTabsExtra(tabs)}
         {this.renderWindowControl()}
       </div>
     )
@@ -518,7 +440,7 @@ export default class Tabs extends Component {
       return this.renderMobileTabs()
     }
     return (
-      <div className={this.tabsClassName()} ref={this.tabsRef}>
+      <div {...this.tabBarProps()}>
         {this.renderContent()}
         {
           this.renderWindowControl()
