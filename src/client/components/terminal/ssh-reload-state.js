@@ -53,20 +53,28 @@ export function isPowerShellExecutable (shell = '') {
   return /(?:^|[/\\])(?:powershell|pwsh)(?:\.exe)?$/i.test(shellPath)
 }
 
+// Keep path characters out of PowerShell source, including typographic quotes.
+function powerShellCdCommand (dir) {
+  const bytes = new TextEncoder().encode(dir)
+  const encoded = btoa(String.fromCharCode(...bytes))
+  return `Set-Location -LiteralPath ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${encoded}')))`
+}
+
+function cmdCdCommand (dir) {
+  return `cd /d "${dir.replace(/"/g, '""')}"`
+}
+
 export function createWindowsRestoreCwdCommand (cwd, shell = '') {
   const safeCwd = sanitizeSshCwd(cwd)
   if (!safeCwd) {
     return ''
   }
   if (isPowerShellExecutable(shell)) {
-    // -LiteralPath keeps `[`, `]` and `*` in a directory name from being read
-    // as a wildcard; '' is PowerShell's escape for a literal single quote.
-    return `Set-Location -LiteralPath '${safeCwd.replace(/'/g, "''")}'`
+    return powerShellCdCommand(safeCwd)
   }
   // Strip control chars already handled by sanitize; escape embedded double
   // quotes for CMD.
-  const escaped = safeCwd.replace(/"/g, '""')
-  return `cd /d "${escaped}"`
+  return cmdCdCommand(safeCwd)
 }
 
 /**
@@ -88,12 +96,13 @@ export function createCdCommand (dir, { remote = false, shell = '' } = {}) {
   if (!safeDir) {
     return ''
   }
+  if (!remote && isPowerShellExecutable(shell)) {
+    return powerShellCdCommand(safeDir)
+  }
   if (!/^[a-zA-Z]:\\/.test(safeDir)) {
     return `cd ${quotePosixShellArg(safeDir)}`
   }
-  return remote
-    ? `cd /d "${safeDir.replace(/"/g, '""')}"`
-    : createWindowsRestoreCwdCommand(safeDir, shell)
+  return cmdCdCommand(safeDir)
 }
 
 export function shouldCaptureTerminalReloadState (tab, config = {}) {

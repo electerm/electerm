@@ -1,5 +1,6 @@
 const { describe, test } = require('node:test')
 const assert = require('node:assert/strict')
+const expectedPowerShellCd = require('./powershell-cd-expected')
 
 global.window = global.window || {}
 global.window.store = { triggerResize: () => {} }
@@ -73,6 +74,19 @@ const makeQueue = async (options) => {
 }
 
 describe('startup queue', () => {
+  test('restores a saved directory in local pwsh on a non-Windows host', async () => {
+    const { queue, addon, host } = await makeQueue({
+      config: { restoreTerminalSessionOnReload: true }
+    })
+    const cwd = '/tmp/O’Brien [資料]'
+    host.localShell = '/usr/bin/pwsh'
+    host.props.tab._reloadState = { cwd }
+    queue.runInitScript()
+    await tick()
+    assert.equal(addon.sent.at(-1), expectedPowerShellCd(cwd) + '\r')
+    queue.dispose()
+  })
+
   test('runs every script once, in order', async () => {
     const { queue, addon } = await makeQueue({
       runScripts: [
