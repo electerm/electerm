@@ -72,7 +72,7 @@ export const attachMixin = {
     // first, then the global setting. `localShell` is what actually spawned.
     const cmd = createCdCommand(p, {
       remote: !!this.isRemote(),
-      shell: this.localShell || this.props.tab.execWindows || this.props.config.execWindows
+      shell: this.localShell || (isWin ? this.props.tab.execWindows || this.props.config.execWindows : '')
     })
     if (cmd) {
       this.runQuickCommand(cmd)

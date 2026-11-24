@@ -1,5 +1,6 @@
 const { describe, test } = require('node:test')
 const assert = require('node:assert/strict')
+const expectedPowerShellCd = require('./powershell-cd-expected')
 
 const load = () => import('../../client/components/terminal/ssh-reload-state.js')
 
@@ -11,13 +12,20 @@ describe('terminal cd command', () => {
     const { createCdCommand } = await load()
     assert.equal(
       createCdCommand('C:\\work folder', { shell: 'System32/WindowsPowerShell/v1.0/powershell.exe' }),
-      "Set-Location -LiteralPath 'C:\\work folder'"
+      expectedPowerShellCd('C:\\work folder')
     )
     // -LiteralPath keeps brackets from being read as a wildcard.
     assert.equal(
       createCdCommand('D:\\[work]', { shell: 'pwsh.exe' }),
-      "Set-Location -LiteralPath 'D:\\[work]'"
+      expectedPowerShellCd('D:\\[work]')
     )
+  })
+
+  test('encodes Unicode drive and UNC paths as UTF-8 data for local PowerShell', async () => {
+    const { createCdCommand } = await load()
+    for (const path of ['C:\\资料\\O’Brien', '\\\\server\\share\\‘notes‚‛📁']) {
+      assert.equal(createCdCommand(path, { shell: 'pwsh.exe' }), expectedPowerShellCd(path))
+    }
   })
 
   test('keeps CMD syntax for a local Windows session running cmd', async () => {

@@ -1,5 +1,6 @@
 const { describe, test } = require('node:test')
 const assert = require('node:assert/strict')
+const expectedPowerShellCd = require('./powershell-cd-expected')
 
 global.window = {
   et: { isWin: true, isMac: false },
@@ -107,7 +108,7 @@ describe('local PowerShell startup', () => {
     // ... the prompt, and then silence.
     addon.feed()
     await tick(queue.promptReadyQuietMs + 250)
-    assert.deepEqual(addon.sent, ["Set-Location -LiteralPath 'D:\\work'\r"])
+    assert.deepEqual(addon.sent, [expectedPowerShellCd('D:\\work') + '\r'])
     queue.dispose()
   })
 

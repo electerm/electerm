@@ -1,5 +1,6 @@
 const { describe, test } = require('node:test')
 const assert = require('node:assert/strict')
+const expectedPowerShellCd = require('./powershell-cd-expected')
 
 global.window = {
   et: { isWin: true, isMac: false },
@@ -90,25 +91,22 @@ describe('Windows startup directory', () => {
   test('uses PowerShell literal paths for the default Windows shell', async () => {
     assert.equal(
       await startupCommand({ shell: 'System32/WindowsPowerShell/v1.0/powershell.exe', cwd: 'C:\\work folder' }),
-      "Set-Location -LiteralPath 'C:\\work folder'\r"
+      expectedPowerShellCd('C:\\work folder') + '\r'
     )
   })
 
-  // Reachability note: on a Windows *local* tab this precedence cannot occur in
-  // production - `_reloadState.cwd` is only ever populated from OSC 633, and
-  // canInjectShellIntegration() excludes `isLocal() && isWin`. What is under
-  // test here is the queue's argument handling, not a live scenario.
-  test('quotes a captured reload directory for pwsh', async () => {
+  test('encodes a captured reload directory for pwsh', async () => {
+    const reloadCwd = "D:\\[work]\\it's O’Brien $data`"
     assert.equal(
-      await startupCommand({ shell: 'C:\\Program Files\\PowerShell\\7\\pwsh.exe', cwd: 'C:\\start', reloadCwd: "D:\\[work]\\it's $data`" }),
-      "Set-Location -LiteralPath 'D:\\[work]\\it''s $data`'\r"
+      await startupCommand({ shell: 'C:\\Program Files\\PowerShell\\7\\pwsh.exe', cwd: 'C:\\start', reloadCwd }),
+      expectedPowerShellCd(reloadCwd) + '\r'
     )
   })
 
   test('recognizes PowerShell executable names without changing CMD commands', async () => {
     const { createWindowsRestoreCwdCommand } = await loadCommands()
     for (const shell of ['powershell', 'POWERSHELL.EXE', 'pwsh', 'pwsh.exe']) {
-      assert.equal(createWindowsRestoreCwdCommand('D:\\work', shell), "Set-Location -LiteralPath 'D:\\work'")
+      assert.equal(createWindowsRestoreCwdCommand('D:\\work', shell), expectedPowerShellCd('D:\\work'))
     }
     for (const shell of ['', 'cmd.exe', 'C:\\Windows\\System32\\cmd.exe']) {
       assert.equal(createWindowsRestoreCwdCommand('D:\\work', shell), 'cd /d "D:\\work"')
@@ -124,7 +122,7 @@ describe('Windows startup directory', () => {
     ]) {
       assert.equal(
         createWindowsRestoreCwdCommand('D:\\work', shell),
-        "Set-Location -LiteralPath 'D:\\work'",
+        expectedPowerShellCd('D:\\work'),
         `for ${JSON.stringify(shell)}`
       )
     }
@@ -144,7 +142,7 @@ describe('Windows startup directory', () => {
     )
     assert.equal(
       await startupCommand({ shell: 'cmd.exe', resolvedShell: 'pwsh.exe', cwd: 'D:\\work' }),
-      "Set-Location -LiteralPath 'D:\\work'\r"
+      expectedPowerShellCd('D:\\work') + '\r'
     )
   })
 
@@ -153,7 +151,7 @@ describe('Windows startup directory', () => {
     try {
       assert.equal(
         await startupCommand({ shell: 'powershell.exe' }),
-        "Set-Location -LiteralPath 'C:\\initial directory'\r"
+        expectedPowerShellCd('C:\\initial directory') + '\r'
       )
     } finally {
       window.initFolder = ''
@@ -197,7 +195,7 @@ describe('Windows startup directory', () => {
   // typed form is what used to end up on screen.
   test('does not type the shell integration into local PowerShell', async () => {
     const sent = await runQueue({ shell: 'pwsh.exe', cwd: 'D:\\work' })
-    assert.deepEqual(sent, ["Set-Location -LiteralPath 'D:\\work'\r"])
+    assert.deepEqual(sent, [expectedPowerShellCd('D:\\work') + '\r'])
   })
 
   // ... unless the spawn was left alone. When the user's own arguments own
@@ -212,7 +210,7 @@ describe('Windows startup directory', () => {
     })
     assert.equal(sent.length, 2)
     assert.match(sent[0], /ELECTERM_SHELL_INTEGRATION/)
-    assert.equal(sent[1], "Set-Location -LiteralPath 'D:\\work'\r")
+    assert.equal(sent[1], expectedPowerShellCd('D:\\work') + '\r')
   })
 
   // cmd cannot report a cwd from its prompt: injecting the PowerShell script
