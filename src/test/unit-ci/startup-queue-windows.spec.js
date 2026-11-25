@@ -108,7 +108,7 @@ describe('Windows startup directory', () => {
     for (const shell of ['powershell', 'POWERSHELL.EXE', 'pwsh', 'pwsh.exe']) {
       assert.equal(createWindowsRestoreCwdCommand('D:\\work', shell), expectedPowerShellCd('D:\\work'))
     }
-    for (const shell of ['', 'cmd.exe', 'C:\\Windows\\System32\\cmd.exe']) {
+    for (const shell of ['cmd.exe', 'C:\\Windows\\System32\\cmd.exe']) {
       assert.equal(createWindowsRestoreCwdCommand('D:\\work', shell), 'cd /d "D:\\work"')
     }
   })
@@ -126,6 +126,13 @@ describe('Windows startup directory', () => {
         `for ${JSON.stringify(shell)}`
       )
     }
+  })
+
+  test('uses the active Git Bash shell for a saved working directory', async () => {
+    assert.equal(
+      await startupCommand({ shell: 'cmd.exe', resolvedShell: 'bash.exe', reloadCwd: 'D:\\work folder' }),
+      "cd -- 'D:/work folder'\r"
+    )
   })
 
   test('keeps CMD drive switching in the startup queue', async () => {
