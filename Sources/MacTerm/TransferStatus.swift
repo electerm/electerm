@@ -31,30 +31,42 @@ struct TransferCard: View {
                     if case .active = t.phase { icon("xmark.circle", "取消传输", cancel) }
                     else { icon("xmark", "关闭传输结果") { status.snapshot = nil } }
                 }
-                switch t.phase {
-                case .active:
-                    if let file = t.currentFile {
-                        Text(verbatim: file).font(.caption).lineLimit(1).truncationMode(.middle).help(file)
-                    }
-                    if let fraction = t.fileFraction {
-                        ProgressView(value: fraction).progressViewStyle(.linear).accessibilityLabel("当前文件进度")
-                    } else if let total = t.total, total > 0 {
-                        ProgressView(value: min(1, Double(t.bytes) / Double(total))).progressViewStyle(.linear)
-                    } else { ProgressView().progressViewStyle(.linear) }
-                    Text([size(t.bytes) + (t.total.map { " / " + size($0) } ?? ""),
-                          t.rate.map { size(UInt64($0)) + "/s" } ?? "测速中…"].joined(separator: " · "))
-                        .font(.caption).monospacedDigit().foregroundStyle(.secondary)
-                case .finished:
-                    Text("已完成 · " + size(t.bytes) + (t.rate.map { " · " + size(UInt64($0)) + "/s" } ?? ""))
-                        .font(.caption).foregroundStyle(.secondary)
-                    if t.skipped > 0 { Text("已跳过 \(t.skipped) 个符号链接或特殊文件").font(.caption) }
-                case let .failed(reason):
-                    Label("失败：" + reason, systemImage: "exclamationmark.triangle").foregroundStyle(.red)
-                        .textSelection(.enabled)
-                case let .cancelled(detail):
-                    Text("已取消" + detail).foregroundStyle(.secondary)
-                }
+                details(t)
             }.padding(.vertical, 5).frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func rateLabel(_ t: TransferSnapshot) -> String? {
+        t.rate.map { size(UInt64($0)) + "/s" }
+    }
+    private func progressLabel(_ t: TransferSnapshot) -> String {
+        let amount = size(t.bytes) + (t.total.map { " / " + size($0) } ?? "")
+        return amount + " · " + (rateLabel(t) ?? "测速中…")
+    }
+    @ViewBuilder private func activeProgress(_ t: TransferSnapshot) -> some View {
+        if let file = t.currentFile {
+            Text(verbatim: file).font(.caption).lineLimit(1).truncationMode(.middle).help(file)
+        }
+        if let fraction = t.fileFraction {
+            ProgressView(value: fraction).progressViewStyle(.linear).accessibilityLabel("当前文件进度")
+        } else if let total = t.total, total > 0 {
+            ProgressView(value: min(1, Double(t.bytes) / Double(total))).progressViewStyle(.linear)
+        } else { ProgressView().progressViewStyle(.linear) }
+        Text(verbatim: progressLabel(t)).font(.caption).monospacedDigit().foregroundStyle(.secondary)
+    }
+    @ViewBuilder private func details(_ t: TransferSnapshot) -> some View {
+        switch t.phase {
+        case .active:
+            activeProgress(t)
+        case .finished:
+            Text(verbatim: "已完成 · " + size(t.bytes) + (rateLabel(t).map { " · " + $0 } ?? ""))
+                .font(.caption).foregroundStyle(.secondary)
+            if t.skipped > 0 { Text("已跳过 \(t.skipped) 个符号链接或特殊文件").font(.caption) }
+        case let .failed(reason):
+            Label("失败：" + reason, systemImage: "exclamationmark.triangle").foregroundStyle(.red)
+                .textSelection(.enabled)
+        case let .cancelled(detail):
+            Text("已取消" + detail).foregroundStyle(.secondary)
         }
     }
 }
