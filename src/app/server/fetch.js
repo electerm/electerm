@@ -2,6 +2,7 @@
  * node fetch in server side
  */
 
+const loadWindowsIntermediates = require('../lib/windows-intermediates')
 const { createProxyAgent } = require('../lib/proxy-agent')
 
 function fetch (options) {
@@ -19,6 +20,7 @@ function fetch (options) {
 }
 
 async function wsFetchHandler (ws, msg) {
+  await loadWindowsIntermediates()
   const { id, options, proxy } = msg
   const agent = createProxyAgent(proxy)
   if (agent) {

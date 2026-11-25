@@ -53,6 +53,24 @@ const resolveStartDirectory = (dir) => {
   }
 }
 
+function localShellEnv (serverEnv) {
+  const env = Object.assign({}, serverEnv)
+  delete env.ELECTRON_RUN_AS_NODE
+  if (env.ELECTERM_SHELL_USE_SYSTEM_CA === undefined) {
+    delete env.NODE_USE_SYSTEM_CA
+  } else {
+    env.NODE_USE_SYSTEM_CA = env.ELECTERM_SHELL_USE_SYSTEM_CA
+  }
+  delete env.ELECTERM_SHELL_USE_SYSTEM_CA
+  delete env.NODE_OPTIONS
+  delete env.ELECTRON_NO_ATTACH_CONSOLE
+  // temp PEM of system CAs for the server process (WebDAV sync, #4347) —
+  // not meant for user shells, and a bad keychain cert makes any Node/bun
+  // tool in the terminal print "ignoring extra certs ... load failed"
+  delete env.NODE_EXTRA_CA_CERTS
+  return env
+}
+
 class TerminalLocal extends TerminalBase {
   init () {
     const {
@@ -102,22 +120,13 @@ class TerminalLocal extends TerminalBase {
     const argv = getPowerShellSpawnArgs(shellPath, userArgs) ||
       (platform.startsWith('darwin') ? ['--login', ...userArgs] : userArgs)
     const pty = require('node-pty')
-    const env = Object.assign({}, process.env)
-    delete env.ELECTRON_RUN_AS_NODE
-    delete env.NODE_USE_SYSTEM_CA
-    delete env.NODE_OPTIONS
-    delete env.ELECTRON_NO_ATTACH_CONSOLE
-    // temp PEM of system CAs for the server process (WebDAV sync, #4347) —
-    // not meant for user shells, and a bad keychain cert makes any Node/bun
-    // tool in the terminal print "ignoring extra certs ... load failed"
-    delete env.NODE_EXTRA_CA_CERTS
     this.term = pty.spawn(exec, argv, {
       name: term,
       encoding: null,
       cols: cols || 80,
       rows: rows || 24,
       cwd,
-      env,
+      env: localShellEnv(process.env),
       // Use the OpenConsole conpty.dll shipped with node-pty instead of the
       // legacy Windows Console Host (kernel32 CreatePseudoConsole) conpty.
       // The legacy console-host conpty can stall output and deliver Ctrl+C to
@@ -182,3 +191,5 @@ exports.session = function (initOptions, ws) {
 exports.test = (initOptions) => {
   return Promise.resolve(true)
 }
+
+exports.localShellEnv = localShellEnv

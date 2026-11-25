@@ -2,6 +2,7 @@
  * handle sync with github/gitee
  */
 
+const loadWindowsIntermediates = require('../lib/windows-intermediates')
 const log = require('../common/log')
 const rp = require('axios')
 const { createProxyAgent } = require('../lib/proxy-agent')
@@ -13,6 +14,7 @@ const doWebdavSync = require('./webdav-sync')
 rp.defaults.proxy = false
 
 async function doSync (type, func, args, token, proxy) {
+  await loadWindowsIntermediates()
   // Handle WebDAV sync separately
   if (type === 'webdav') {
     return doWebdavSync(func, args, token, proxy)

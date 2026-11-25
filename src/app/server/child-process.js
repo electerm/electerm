@@ -19,6 +19,25 @@ function needsExport ({ platform, nodeVersion }) {
   return platform !== 'win32' || !supportsNativeCA
 }
 
+function serverEnv (config, env, sysLocale, extraCaFile) {
+  // Clean Electron-specific env vars from child process environment
+  const cleanEnv = Object.assign({}, env)
+  delete cleanEnv.ELECTRON_RUN_AS_NODE
+
+  return {
+    ...cleanEnv,
+    LANG: env.LANG ?? `${sysLocale.replace(/-/, '_')}.UTF-8`,
+    electermPort: config.port,
+    electermHost: config.host,
+    requireAuth: config.requireAuth || '',
+    tokenElecterm: config.tokenElecterm,
+    ELECTERM_DEBUG: config.debug ? '1' : '',
+    ELECTERM_SHELL_USE_SYSTEM_CA: env.NODE_USE_SYSTEM_CA,
+    NODE_USE_SYSTEM_CA: '1',
+    NODE_EXTRA_CA_CERTS: env.NODE_EXTRA_CA_CERTS || extraCaFile
+  }
+}
+
 module.exports = (config, env, sysLocale) => {
   let extraCaFile
   const systemCAs = !env.NODE_EXTRA_CA_CERTS &&
@@ -29,23 +48,8 @@ module.exports = (config, env, sysLocale) => {
     writeFileSync(extraCaFile, systemCAs)
   }
 
-  // Clean Electron-specific env vars from child process environment
-  const cleanEnv = Object.assign({}, env)
-  delete cleanEnv.ELECTRON_RUN_AS_NODE
-
-  // start server
   const child = fork(resolve(__dirname, './server.js'), {
-    env: {
-      ...cleanEnv,
-      LANG: `${sysLocale.replace(/-/, '_')}.UTF-8`,
-      electermPort: config.port,
-      electermHost: config.host,
-      requireAuth: config.requireAuth || '',
-      tokenElecterm: config.tokenElecterm,
-      ELECTERM_DEBUG: config.debug ? '1' : '',
-      NODE_USE_SYSTEM_CA: '1',
-      NODE_EXTRA_CA_CERTS: env.NODE_EXTRA_CA_CERTS || extraCaFile
-    },
+    env: serverEnv(config, env, sysLocale, extraCaFile),
     cwd: process.cwd()
   }, (error, stdout, stderr) => {
     if (error || stderr) {
@@ -64,3 +68,4 @@ module.exports = (config, env, sysLocale) => {
 }
 
 module.exports.needsExport = needsExport
+module.exports.serverEnv = serverEnv
