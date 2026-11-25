@@ -1,3 +1,4 @@
+const tls = require('tls')
 const express = require('express')
 const globalState = require('./global-state')
 const app = express()
@@ -42,6 +43,9 @@ const runServer = function () {
   const server = app.listen(electermPort, electermHost, () => {
     log.info('server', 'runs on', electermHost, electermPort)
     process.send({ serverInited: true })
+    if (log.isDebugMode() && tls.getCACertificates) {
+      log.info('server', 'native system CA count', tls.getCACertificates('system').length)
+    }
   })
   // Without this a port failure only surfaced as an uncaughtException: the
   // main process kept waiting for serverInited and no window ever appeared.

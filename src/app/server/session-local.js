@@ -104,6 +104,7 @@ class TerminalLocal extends TerminalBase {
     const pty = require('node-pty')
     const env = Object.assign({}, process.env)
     delete env.ELECTRON_RUN_AS_NODE
+    delete env.NODE_USE_SYSTEM_CA
     delete env.NODE_OPTIONS
     delete env.ELECTRON_NO_ATTACH_CONSOLE
     // temp PEM of system CAs for the server process (WebDAV sync, #4347) —

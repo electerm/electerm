@@ -106,3 +106,23 @@ describe('buildWinArgs', () => {
     assert.ok(WIN_CA_SCRIPT.includes('-----BEGIN CERTIFICATE-----'))
   })
 })
+
+describe('needsExport', () => {
+  const { needsExport } = require('../../app/server/child-process')
+  for (const [platform, nodeVersion, expected] of [
+    ['win32', '16.17.1', true],
+    ['win32', '22.18.0', true],
+    ['win32', '22.19.0', false],
+    ['win32', '23.11.1', true],
+    ['win32', '24.5.0', true],
+    ['win32', '24.6.0', false],
+    ['win32', '24.22.3', false],
+    ['win32', '25.0.0', false],
+    ['darwin', '24.22.3', true],
+    ['linux', '24.22.3', true]
+  ]) {
+    test(`${platform} on Node ${nodeVersion}`, () => {
+      assert.equal(needsExport({ platform, nodeVersion }), expected)
+    })
+  }
+})

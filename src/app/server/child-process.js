@@ -11,20 +11,19 @@ const { join } = require('path')
 const log = require('../common/log')
 const getSystemCAs = require('../lib/system-ca')
 
-// --use-system-ca is supported since Node.js 24.3.0
-function supportsSystemCa () {
-  const [major, minor] = process.versions.node.split('.').map(Number)
-  return major > 24 || (major === 24 && minor >= 3)
+// NODE_USE_SYSTEM_CA was introduced in Node 24.6 and backported to 22.19.
+function needsExport ({ platform, nodeVersion }) {
+  const [major, minor] = nodeVersion.split('.').map(Number)
+  const supportsNativeCA = major > 24 || (major === 24 && minor >= 6) ||
+    (major === 22 && minor >= 19)
+  return platform !== 'win32' || !supportsNativeCA
 }
 
 module.exports = (config, env, sysLocale) => {
-  const nodeOpts = [env.NODE_OPTIONS, supportsSystemCa() ? '--use-system-ca' : '']
-    .filter(Boolean).join(' ').trim()
-
-  // Load system-trusted CA certificates and pass to child process
-  // via NODE_EXTRA_CA_CERTS so Node.js extends its trust store natively.
   let extraCaFile
-  const systemCAs = getSystemCAs()
+  const systemCAs = !env.NODE_EXTRA_CA_CERTS &&
+    needsExport({ platform: process.platform, nodeVersion: process.versions.node }) &&
+    getSystemCAs()
   if (systemCAs) {
     extraCaFile = join(tmpdir(), `electerm-system-ca-${Date.now()}.pem`)
     writeFileSync(extraCaFile, systemCAs)
@@ -33,27 +32,20 @@ module.exports = (config, env, sysLocale) => {
   // Clean Electron-specific env vars from child process environment
   const cleanEnv = Object.assign({}, env)
   delete cleanEnv.ELECTRON_RUN_AS_NODE
-  // set below from config, so an inherited value cannot contradict it
-  delete cleanEnv.ELECTERM_DEBUG
 
   // start server
   const child = fork(resolve(__dirname, './server.js'), {
-    env: Object.assign(
-      {
-        LANG: `${sysLocale.replace(/-/, '_')}.UTF-8`,
-        electermPort: config.port,
-        electermHost: config.host,
-        requireAuth: config.requireAuth || '',
-        tokenElecterm: config.tokenElecterm,
-        sshKeysPath: env.sshKeysPath,
-        // the child opens its log level from this at load time (../common/log.js),
-        // so the ssh2 protocol trace is captured from the first session on
-        ELECTERM_DEBUG: config.debug ? '1' : '',
-        NODE_OPTIONS: nodeOpts || undefined,
-        NODE_EXTRA_CA_CERTS: extraCaFile || undefined
-      },
-      cleanEnv
-    ),
+    env: {
+      ...cleanEnv,
+      LANG: `${sysLocale.replace(/-/, '_')}.UTF-8`,
+      electermPort: config.port,
+      electermHost: config.host,
+      requireAuth: config.requireAuth || '',
+      tokenElecterm: config.tokenElecterm,
+      ELECTERM_DEBUG: config.debug ? '1' : '',
+      NODE_USE_SYSTEM_CA: '1',
+      NODE_EXTRA_CA_CERTS: env.NODE_EXTRA_CA_CERTS || extraCaFile
+    },
     cwd: process.cwd()
   }, (error, stdout, stderr) => {
     if (error || stderr) {
@@ -70,3 +62,5 @@ module.exports = (config, env, sysLocale) => {
 
   return child
 }
+
+module.exports.needsExport = needsExport
