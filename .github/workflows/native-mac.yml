@@ -22,7 +22,17 @@ jobs:
             if [ -d "$developer" ]; then export DEVELOPER_DIR="$developer"; break; fi
           done
           swift --version
-          sh build-mac.sh
+          set -o pipefail
+          sh build-mac.sh 2>&1 | tee "$RUNNER_TEMP/native-build.log"
+      - name: Annotate build or test failures
+        if: failure()
+        run: |
+          if [[ -f "$RUNNER_TEMP/native-build.log" ]]; then
+            awk '/error:|fatal:|Expectation failed|recorded an issue|Test .* failed|Fatal error|Signal [0-9]/ {
+              gsub(/%/, "%25"); print "::error::" $0
+              if (++count == 20) exit
+            }' "$RUNNER_TEMP/native-build.log"
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: Electerm-Terminal-mac-arm64
