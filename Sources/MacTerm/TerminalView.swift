@@ -12,6 +12,11 @@ final class NativeTerminal: SwiftTerm.TerminalView {
     weak var session: Session?
     var typing = false
 
+    override func mouseDown(with event: NSEvent) {
+        if session?.isSelected == false { session?.activatePane?() }
+        super.mouseDown(with: event)
+    }
+
     override func keyDown(with event: NSEvent) {
         if let session, !session.live {
             let modifiers = event.modifierFlags.intersection([.command, .control, .option])
@@ -53,12 +58,10 @@ final class TerminalHost: NSView {
 
 struct TerminalView: NSViewRepresentable {
     let session: Session
-    let pointSize: Double
 
     func makeNSView(context: Context) -> TerminalHost { TerminalHost() }
     func updateNSView(_ host: TerminalHost, context: Context) {
         let view = session.screen.view
-        if view.font.pointSize != pointSize { view.font = Screen.font(pointSize) }
         guard view.superview !== host else { return }
         view.removeFromSuperview()
         host.addSubview(view)

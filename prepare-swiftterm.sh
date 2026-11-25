@@ -13,4 +13,5 @@ for patch in "$PWD"/Integration/*.patch; do
     git -C "$dep" apply "$patch"
   fi
 done
-cp Integration/ElectermRendering.swift "$dep/Sources/SwiftTerm/Apple/"
+cmp -s Integration/ElectermRendering.swift "$dep/Sources/SwiftTerm/Apple/ElectermRendering.swift" ||
+  cp Integration/ElectermRendering.swift "$dep/Sources/SwiftTerm/Apple/"

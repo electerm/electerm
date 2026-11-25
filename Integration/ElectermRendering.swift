@@ -11,11 +11,14 @@ private let keywordGroups = [
 private let keywords = try! NSRegularExpression(
     pattern: #"\b(?:"# + keywordGroups.map { "(\($0))" }.joined(separator: "|") + #")\b"#,
     options: .caseInsensitive)
-private let inks: [NSColor] = [0xff6060, 0x0eb16c, 0xbebe12, 0xff4dff, 0x54ccef].map { (rgb: Int) -> NSColor in
-    let red = CGFloat(rgb >> 16) / 255
-    let green = CGFloat((rgb >> 8) & 255) / 255
-    let blue = CGFloat(rgb & 255) / 255
-    return NSColor(srgbRed: red, green: green, blue: blue, alpha: 1)
+private func ink(_ rgb: Int) -> NSColor {
+    NSColor(srgbRed: CGFloat(rgb >> 16) / 255, green: CGFloat((rgb >> 8) & 255) / 255,
+            blue: CGFloat(rgb & 255) / 255, alpha: 1)
+}
+private let inks = zip([0xff6060, 0x0eb16c, 0xbebe12, 0xff4dff, 0x54ccef],
+                       [0xa52432, 0x146238, 0x806000, 0x872782, 0x076777]).map { dark, light in
+    let a = ink(dark), b = ink(light)
+    return NSColor(name: nil) { $0.bestMatch(from: [.aqua, .darkAqua]) == .aqua ? b : a }
 }
 
 extension TerminalView.ViewLineSegmentBuilder {
@@ -30,6 +33,8 @@ extension TerminalView.ViewLineSegmentBuilder {
 }
 
 extension TerminalView {
+    public func setShellWrap(_ enabled: Bool) { withTerminal { $0.setWraparound(enabled) } }
+
     public func finishShell() {
         let alternate = withTerminal { terminal in
             terminal.cancelIncompleteShellInput()

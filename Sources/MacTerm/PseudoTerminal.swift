@@ -4,13 +4,14 @@ import TerminalPTY
 
 final class PseudoTerminal {
     private let io: DispatchIO
+    let pid: pid_t
     private let fd: Int32
     private let queue = DispatchQueue(label: "terminal.pty")
     private var open = true
 
-    init(path: String, arguments: [String], cols: Int, rows: Int,
+    init(path: String, arguments: [String], directory: String = NSHomeDirectory(), environment: [String: String] = [:], cols: Int, rows: Int,
          output: @escaping (Data) -> Void, ended: @escaping () -> Void) throws {
-        var env = ProcessInfo.processInfo.environment
+        var env = ProcessInfo.processInfo.environment.merging(environment) { _, v in v }
         env["TERM"] = "xterm-256color"
         env["COLORTERM"] = "truecolor"
         if env["LANG"] == nil { env["LANG"] = "en_US.UTF-8" }
@@ -18,9 +19,10 @@ final class PseudoTerminal {
         var envp = env.map { strdup("\($0.key)=\($0.value)") } + [nil]
         defer { argv.forEach { free($0) }; envp.forEach { free($0) } }
         var master: Int32 = -1
-        let pid = term_start(path, &argv, &envp, NSHomeDirectory(),
+        let pid = term_start(path, &argv, &envp, directory,
                              UInt16(clamping: max(1, cols)), UInt16(clamping: max(1, rows)), &master)
         guard pid > 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        self.pid = pid
         fd = master
         let ownedFD = master
         io = DispatchIO(type: .stream, fileDescriptor: master, queue: queue) { _ in Darwin.close(ownedFD) }

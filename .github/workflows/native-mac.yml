@@ -2,7 +2,7 @@ name: Native Mac (Apple Silicon)
 
 on:
   push:
-    branches: [master]
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:

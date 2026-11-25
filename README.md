@@ -1,55 +1,70 @@
-# Electerm Terminal · Mac 原生版
+# Electerm Terminal
 
-本 fork 只维护 SwiftUI、AppKit 和 SwiftTerm 的 Mac 原生版，面向 macOS 14 及以上的 Apple Silicon（含 M5）。
-不依赖 Electron，也不读取旧版 `.runtime`、书签数据库或界面设置。
+面向 Apple Silicon Mac 的便携 SSH 终端。在同一个窗口中使用本地 shell、连接远程服务器、浏览 SFTP 文件和查看 Linux 主机状态。界面使用 SwiftUI 和 AppKit，终端使用 SwiftTerm，SSH 使用系统 OpenSSH；不依赖 Electron。
 
-## 在 Mac 构建
+**运行要求：**macOS 14 或更高版本，Apple Silicon（M 系列芯片）。使用成品无需安装 Xcode 或其他开发工具。
 
-下载 GitHub Actions 的 `Electerm-Terminal-mac-arm64` 成品无需安装开发工具。
-自行构建需要 Swift 6.2 或更新的 Apple 工具链和 Git，在仓库根目录执行：
+## 安装
+
+1. 登录 GitHub，打开 [main 分支的 macOS 构建](https://github.com/Jeeeshy/electerm/actions/workflows/native-mac.yml?query=branch%3Amain)，选择一次成功的运行。在 **Artifacts** 下下载 `Electerm-Terminal-mac-arm64`。
+2. 解压下载的文件。如果里面还有 `Electerm-Terminal-mac-arm64.zip`，再解压一次，即可看到 **Electerm Terminal** 文件夹。
+3. 把**整个文件夹**移到个人应用程序目录 `~/Applications/`，或保留在其他自己可写的位置。双击其中的 `Electerm Terminal.app` 即可启动。
+
+直接双击与放进「应用程序」运行的是同一个程序。此版本使用本地 ad-hoc 签名，未经 Apple 公证。如果 macOS 阻止首次打开，请先核对下载来源；确认后可在「系统设置 → 隐私与安全性」中允许这一次打开。
+
+### 更新、迁移与备份
+
+**更新时只替换应用，搬家时移动整个文件夹。** 先退出程序，再把新版 `Electerm Terminal.app` 放入原文件夹，保留旁边的 `Electerm Data/`。只移动 `.app` 会让程序在新位置查找数据，原书签不会自动跟过去。首次使用不会导入旧版 Electron 或旧原生版的数据。
+
+```text
+Electerm Terminal/
+├── Electerm Terminal.app
+├── 使用与清理.md
+└── Electerm Data/           # 运行时创建，不随下载包分发
+    ├── settings.plist       # 书签与界面设置
+    ├── known_hosts          # 接受过的 SSH 主机密钥
+    ├── passwords.v1         # 选择保存密码时使用的加密库
+    └── Temp/                # SSH 套接字与 Finder 拖出暂存
+```
+
+备份前退出程序，复制 `Electerm Data/` 即可保留应用数据；`Temp/` 无须备份。自选 SSH 私钥仍在原路径，需要单独保管。密码库使用 PBKDF2-SHA256 和 AES-GCM，主密码不落盘，忘记后无法恢复。
+
+### 卸载与清理
+
+- **卸载程序和数据：**退出应用，删除整个 `Electerm Terminal/` 文件夹。只删除 `.app` 会保留书签和密码库。无需卸载服务。
+- **只清临时文件：**退出后清空 `Electerm Data/Temp/`。SFTP 下载会在所选目标旁暂存，取消或失败时清理；如果传输中退出或断电，只删除确认属于该次下载的隐藏项 `.electerm-<UUID>`。
+- **可选的 macOS 清理：**系统可能单独记住窗口或文件面板偏好。退出后可运行 `defaults delete local.electerm.terminal.portable`；提示域不存在即无须清理。如存在，还可移除 `~/Library/Caches/local.electerm.terminal.portable` 和 `~/Library/Saved Application State/local.electerm.terminal.portable.savedState`。
+- 下载的文件、自己的 SSH 配置、私钥和 shell 历史不会随卸载删除。不要为卸载本程序删除 `~/.ssh`。如果曾使用旧原生版，其偏好域 `local.electerm.terminal.native` 和钥匙串服务 `local.electerm.terminal.native.ssh` 独立于本版，仅在确认不再需要时自行清理。
+
+## 功能
+
+| 功能 | 使用方式 |
+| --- | --- |
+| 本地终端与 SSH | 支持系统 shell、SSH 配置别名、`user@host:port` 和 `ssh://user@host:port`。书签可指定私钥、跳板机并选择保存登录密码。断开后按 `R` 在原标签重连。 |
+| 标签与分屏 | 左右拖动标签调整顺序。点「分屏」选择 1–4 个已打开的标签，每个窗格有独立标签栏；点「取消分屏」回到单窗格，已有连接保留。可向多个终端广播输入。 |
+| 外观与终端设置 | 深色、浅色、跟随系统三种主题同步作用于标题栏、侧栏和终端。字体、字号、光标、换行和历史缓冲可即时调整。SSH 保活、连接超时和远程 shell 探测从下次连接起生效。 |
+| SFTP 文件管理 | 侧栏可拖宽。单击选中，双击文件夹进入；支持路径输入、显示隐藏文件、新建文件或目录、重命名、删除文件或空目录，以及按需显示大小和修改日期。 |
+| 服务器状态 | 监控默认关闭。开启后显示活动 SSH 主机的 CPU 占用和内存；展开详情可查看磁盘用量、当前登录用户及各自会话数、运行时间。容量自动按 KiB、MiB、GiB 换算。详细指标面向 Linux，受服务器工具和权限限制。 |
+
+### SFTP 上传、下载与目录跟随
+
+- **上传与下载：**用侧栏的托盘向上箭头上传文件，用托盘向下箭头下载选中的文件或文件夹，也可右键下载。Finder 拖入、拖出支持单个普通文件。传输卡显示当前文件、进度、速度，以及完成或失败原因；支持取消。
+- **下载文件夹：**选中远程目录后点下载，再选择本地父目录。按目录顺序传输，保留隐藏文件和空目录，显示当前文件进度和累计字节数，不预扫整棵目录树。符号链接和特殊文件会跳过并报告数量；不会合并或覆盖本地同名目录。
+- **同名与中断：**上传拒绝覆盖远程同名文件；上传中断时远端可能留有不完整文件。单文件下载成功后才替换已确认的目标。
+- **跟随终端目录：**启用「SFTP 跟随终端目录」后，可通过 shell 的 OSC 7/633 通知或 Linux 的 `/proc` 探测同步目录。SFTP 浏览和传输复用现有 SSH 认证；也可关闭跟随，独立浏览目录。
+
+## 从源码构建
+
+需要 Apple Silicon Mac、Git 和带 Swift 6.2 或更高版本的 Apple 工具链。首次构建需要联网获取依赖。
 
 ```sh
+git clone --branch main https://github.com/Jeeeshy/electerm.git
+cd electerm
 sh build-mac.sh
 ```
 
-脚本先运行 XCTest，再生成 ARM64 release、检查架构、对 `.app` 做本地 ad-hoc 签名，
-从成品启动内置终端引擎自检，最后输出 `dist/Electerm-Terminal-mac-arm64.zip`。
-解压后打开 `Electerm Terminal.app`。本机调试先执行 `sh prepare-swiftterm.sh`，再用 `swift run` 或 Xcode 打开 `Package.swift`。
-首次构建需要联网。依赖源码和脚本指定的 SwiftPM 缓存位于项目的 `.build/`；系统工具链及其系统缓存不在其中。
-不使用 CocoaPods、Homebrew、npm 或 Windows 工程。ad-hoc 签名不是 Apple 公证。
+脚本校验 SwiftTerm 的固定提交并应用仓库内的补丁，运行测试，生成 ARM64 Release 应用，检查架构与签名，再从成品运行终端引擎自检。输出文件为 `dist/Electerm-Terminal-mac-arm64.zip`。本地调试可先执行 `sh prepare-swiftterm.sh`，再执行 `swift run`。项目内的依赖副本、模块缓存和编译中间产物集中在 `.build/`，构建结束后可删除。
 
-## 页面与终端
+## 许可证
 
-- 顶部 36 pt 工具栏；左栏顶部快速连接，右侧终端顶部 28 pt 标签行；28 pt 图标栏，24 pt 状态栏。
-- 本地默认显示书签，单击选中、双击连接；SSH 默认显示 SFTP，支持收起、拖宽、路径输入、上传和下载。
-  侧栏宽度跨标签记忆。支持单个普通文件的 Finder 拖入/拖出；上传同名文件会拒绝覆盖。
-- 13 pt 等宽字、R7 的 16 色、普通文本关键词着色与深浅色窗口。终端色不随窗口主题切换。
-  终端保留 3000 行滚动缓冲；会话结束后在终端按 `r` / `R` 在原标签重连，不恢复旧进程。
-- SSH 使用系统 OpenSSH；快速连接支持 `user@host:port`、`ssh://user@host:port` 和 SSH 配置别名。
-  私钥、跳板和认证代理使用系统 SSH 配置；不在书签中存密码。
-- SFTP 与 shell 复用同一个认证通道。目录跟随识别 OSC 7/633；对于没有提示符集成的普通 Linux shell，
-  启动时记录登录 shell PID，在输入命令后通过 SFTP 解析 `/proc/<pid>/cwd`。不猜提示符，不改远程配置文件。
-  不支持 `/proc` 且没有 OSC 的主机可手动浏览。受限 SSH 设备或配置了 `RemoteCommand` 的主机，
-  可以在设置里关闭“探测远程 shell 目录”再连接，保留其原始登录方式。
-- 左栏书签与文件图标可切换或收起，单击目录进入，双击普通文件下载。开启跟随会切回远程文件栏。
-  目录浏览和 `/proc` 探测复用一个 SFTP 子系统，传输不占用浏览通道。
-- 设置按终端、SSH 与文件、远程监控分组，支持历史行数、默认换行、默认跟随、隐藏文件和采样间隔。
-- 监控默认关闭，开启后采样 CPU 和内存，详情按钮按需读取系统、负载、交换区、根盘、接口流量累计、登录用户与进程。
-  详细指标针对 Linux，缺少相应工具或权限时并非每项都有数据。
-
-## 实现与验收
-
-SwiftUI 绘制窗口和工具栏；每个标签拥有一个 SwiftTerm AppKit 视图，使用 Core Graphics 绘制。
-终端输入、解析、搜索和滚动缓冲不经过 JavaScriptCore、WebView 或 Electron。PTY 和 SSH 仍用原系统实现。
-`prepare-swiftterm.sh` 检出官方 SwiftTerm `v1.99.3` 并校验提交，`Integration/` 的小补丁只用于 Mac：
-给普通文字绘制关键词颜色、识别目录、处理断线并限制非文本协议。补丁不改磁盘上的全局 SwiftPM 包。
-OSC 剪贴板读写、链接、通知及内联图片不启用；Cmd+C / Cmd+V 仍是用户操作。
-第三方许可证随 `.app` 分发，构建工具的间接包固定于 `Package.resolved`。
-
-`swift test` 覆盖原生终端、分包目录通知、断线历史、关闭释放、真实 PTY、SSH 地址和本机 OpenSSH SFTP 文件往返。
-独立仓库内附 macOS CI 工作流，但仅在配置了托管运行器并实际运行时才有结果。
-
-**验收边界：** 这是原生第一版，不是旧 Mac ZIP 的换壳或已验收的完整替代品。
-尚无 M5 实机截图、输入法/VoiceOver、Finder 拖放、高吞吐滚屏、长连接、睡眠恢复、启动或内存测试结果。
-原生控件与 R7 不保证逐像素相同。当前不迁移旧书签库，不包含完整 R7 设置、ZMODEM/trzsz 或高级多窗格布局。
-切换日常使用前应在 Mac 逐项对照本地 shell、真实 SSH 服务器、文件往返和断线重连后的历史记录。
+本项目采用 [MIT 许可证](LICENSE)。终端组件 [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm) 的[许可证](Integration/LICENSE-SwiftTerm)随应用一并分发。

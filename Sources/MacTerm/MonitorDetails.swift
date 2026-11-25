@@ -1,95 +1,82 @@
 import SwiftUI
 
-struct MonitorSection: Identifiable {
-    let title: String
-    let text: String
-    var id: String { title }
+struct ServerSummary {
+    var disk = "—", users = "—", uptime = "—"
 
-    static func parse(_ output: String) -> [Self] {
-        output.components(separatedBy: ":::").compactMap { block in
-            let parts = block.split(separator: "\n", maxSplits: 1)
-            guard parts.count == 2 else { return nil }
-            let text = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
-            return text.isEmpty ? nil : Self(title: String(parts[0]), text: text)
+    init(_ output: String = "") {
+        for line in output.split(separator: "\n") {
+            let fields = line.split(separator: " ")
+            switch fields.first {
+            case "disk" where fields.count == 3:
+                if let used = UInt64(fields[1]), let total = UInt64(fields[2]), total > 0, used <= total {
+                    disk = "\(humanKiB(used)) / \(humanKiB(total))"
+                }
+            case "users":
+                users = fields.count == 1 ? "无登录记录" : fields.dropFirst().joined(separator: "、")
+            case "uptime" where fields.count == 2:
+                if let seconds = UInt64(fields[1]) {
+                    let days = seconds / 86400, hours = seconds / 3600 % 24, minutes = seconds / 60 % 60
+                    uptime = (days > 0 ? "\(days) 天 " : "") + (days > 0 || hours > 0 ? "\(hours) 小时 " : "") + "\(minutes) 分钟"
+                }
+            default: break
+            }
         }
     }
 }
 
 extension Remote {
-    func monitorDetails() throws -> [MonitorSection] {
-        let proc = Process(), out = Pipe()
-        proc.executableURL = URL(fileURLWithPath: "/usr/bin/ssh")
-        // One read-only request, and only when the user opens or refreshes details.
+    func monitorDetails() throws -> ServerSummary {
+        // Local mounted storage only. Keep a container's root overlay, skip nested overlays and duplicate devices.
         let command = """
-        echo ':::系统'; uname -snrm
-        echo ':::运行时间与负载'; uptime
-        echo ':::内存与交换区 (KiB)'; awk '/^(MemTotal|MemAvailable|SwapTotal|SwapFree):/{print}' /proc/meminfo
-        echo ':::根文件系统'; df -Ph /
-        echo ':::网络接口 (RX / TX bytes)'; awk '/:/{gsub(":", " "); print $1, $2, $10}' /proc/net/dev
-        echo ':::登录用户'; who | head -20
-        echo ':::进程 (PID / CPU% / MEM% / 名称)'; ps -eo pid,pcpu,pmem,comm --sort=-pcpu | head -9
+        df -klPT | awk 'NR>1 && $2!="tmpfs" && $2!="devtmpfs" && $2!="squashfs" && (($1 ~ /^\\/dev\\//) || $2=="zfs" || $NF=="/") && !seen[$1]++ {used+=$4; total+=$3} END {if(total>0) printf "disk %.0f %.0f\\n",used,total}'
+        if logins=$(who); then printf '%s\\n' "$logins" | awk 'BEGIN{printf "users"} NF {if(!n[$1]++) names[++i]=$1} END{for(j=1;j<=i;j++) printf " %s×%d",names[j],n[names[j]]; print ""}'; fi
+        awk '{printf "uptime %.0f\\n",int($1)}' /proc/uptime
+        :
         """
-        proc.arguments = channel + ["--", endpoint.target, command]
-        proc.standardInput = FileHandle.nullDevice
-        proc.standardError = FileHandle.nullDevice
-        proc.standardOutput = out
-        try run(proc)
-        defer { finished(proc) }
-        let timeout = DispatchWorkItem { if proc.isRunning { proc.terminate() } }
-        DispatchQueue.global().asyncAfter(deadline: .now() + 10, execute: timeout)
-        defer { timeout.cancel() }
-        var data = Data()
-        while let chunk = try out.fileHandleForReading.read(upToCount: 4096), !chunk.isEmpty {
-            guard data.count + chunk.count <= 32768 else {
-                if proc.isRunning { proc.terminate() }
-                throw TerminalError("监控数据过长")
-            }
-            data.append(chunk)
-        }
-        proc.waitUntilExit()
-        guard proc.terminationStatus == 0 else { throw TerminalError("无法读取服务器信息") }
-        return MonitorSection.parse(String(decoding: data, as: UTF8.self))
+        return ServerSummary(try output(command, limit: 8192))
     }
 }
 
 struct MonitorDetails: View {
-    let session: Session
-    @State private var sections: [MonitorSection] = []
-    @State private var error = ""
-    @State private var loading = true
-    @State private var revision = 0
+    @ObservedObject var session: Session
+    @ViewState private var summary = ServerSummary()
+    @ViewState private var error = ""
+    @ViewState private var loading = true
+    @ViewState private var revision = 0
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("服务器详情").font(.headline)
                 Spacer()
+                if loading { ProgressView().controlSize(.small) }
                 icon("arrow.clockwise", "刷新") { revision += 1 }.disabled(loading)
             }
-            if loading { ProgressView().controlSize(.small) }
-            if !error.isEmpty { Text(error) }
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    ForEach(sections) { section in
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(section.title).bold()
-                            Text(verbatim: section.text).font(.system(size: 11, design: .monospaced)).textSelection(.enabled)
-                        }
-                    }
-                }.frame(maxWidth: .infinity, alignment: .leading)
+            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 5) {
+                row("CPU", session.cpuLabel)
+                row("内存 · 已用 / 总量", session.memory)
+                row("硬盘 · 已用 / 总量", summary.disk)
+                row("登录用户", summary.users)
+                row("运行时间", summary.uptime)
             }
-        }.padding(12).frame(width: 380, height: 360).task(id: revision) {
+            if !error.isEmpty { Text(error).foregroundStyle(.secondary) }
+        }.padding(12).frame(width: 330, alignment: .leading).task(id: revision) {
             loading = true; error = ""
             do {
                 let result = try await session.monitorDetails()
                 guard !Task.isCancelled else { return }
-                sections = result
-                if result.isEmpty { error = "服务器未返回可用数据" }
+                summary = result
             } catch {
                 guard !Task.isCancelled else { return }
                 self.error = error.localizedDescription
             }
             loading = false
+        }
+    }
+    private func row(_ title: String, _ value: String) -> some View {
+        GridRow {
+            Text(title).foregroundStyle(.secondary)
+            Text(verbatim: value).monospacedDigit().textSelection(.enabled)
         }
     }
 }

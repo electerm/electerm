@@ -13,27 +13,30 @@ import SwiftTerm
         0x808080, 0xff8080, 0x18ed93, 0xdedc12, 0x1bbae9, 0xff7dff, 0x8eddf4, 0xcccccc
     ]
 
-    static func font(_ size: CGFloat) -> NSFont {
-        NSFont(name: "Maple Mono", size: size) ?? .monospacedSystemFont(ofSize: size, weight: .regular)
+    private static let lightANSI = [
+        0x25282d, 0xa52432, 0x146238, 0x806000, 0x175ca4, 0x872782, 0x076777, 0xd5d8dc,
+        0x56616c, 0xbf3040, 0x197744, 0x846400, 0x206baf, 0x933596, 0x00778c, 0xffffff
+    ]
+    static func font(_ size: CGFloat, family: String = "自动") -> NSFont {
+        if family == "系统等宽" { return .monospacedSystemFont(ofSize: size, weight: .regular) }
+        if family != "自动", let font = NSFont(name: family, size: size) { return font }
+        return NSFont(name: "Maple Mono", size: size) ?? .monospacedSystemFont(ofSize: size, weight: .regular)
     }
     init() {
         var options = TerminalOptions.default
-        options.scrollback = min(20000, max(500, UserDefaults.standard.object(forKey: "scrollback") as? Int ?? 3000))
+        options.cursorStyle = CursorStyle(tagName: Preferences.shared.string(forKey: "cursorStyle") ?? "") ?? options.cursorStyle
+        options.scrollback = min(20000, max(500, Preferences.shared.object(forKey: "scrollback") as? Int ?? 3000))
         options.maximumOscBytes = 8192
         options.kittyGraphics.storageLimitBytesPerScreen = 0
         options.enableSixelReported = false
         options.enableOsc8Hyperlinks = false
         options.ansi256PaletteStrategy = .xterm
         view = NativeTerminal(frame: NSRect(x: 0, y: 0, width: 640, height: 400),
-                              font: Self.font(13), options: options)
-        view.nativeForegroundColor = NSColor(rgb: 0xececec)
-        view.nativeBackgroundColor = NSColor(rgb: 0x1e1e1e)
-        view.caretColor = NSColor(rgb: 0xb4b4c0)
+                              font: Self.font(Preferences.shared.object(forKey: "fontSize") as? Double ?? 13,
+                                              family: Preferences.shared.string(forKey: "fontFamily") ?? "自动"), options: options)
         view.collapseBrightColorsToBase = false
         view.linkReporting = .none
-        view.installColors(Self.ansi.map {
-            SwiftTerm.Color(red8: UInt16($0 >> 16), green8: UInt16(($0 >> 8) & 255), blue8: UInt16($0 & 255))
-        })
+        setTheme(light: InterfaceTheme.initiallyLight)
         view.terminalDelegate = self
         view.configureShellEvents { [weak self] code, bytes in
             guard let self, let text = String(bytes: bytes, encoding: .utf8) else { return }
@@ -61,6 +64,22 @@ import SwiftTerm
             }
         }
     }
+    private var lightPalette: Bool?
+    func setTheme(light: Bool) {
+        guard lightPalette != light else { return }; lightPalette = light
+        view.appearance = NSAppearance(named: light ? .aqua : .darkAqua)
+        view.nativeForegroundColor = NSColor(rgb: light ? 0x22262b : 0xececec)
+        view.nativeBackgroundColor = NSColor(rgb: light ? 0xf8f9fa : 0x1e1e1e)
+        view.caretColor = NSColor(rgb: light ? 0x344859 : 0xb4b4c0)
+        view.installColors((light ? Self.lightANSI : Self.ansi).map {
+            SwiftTerm.Color(red8: UInt16($0 >> 16), green8: UInt16(($0 >> 8) & 255), blue8: UInt16($0 & 255))
+        })
+        view.updateColorScheme(light ? .light : .dark)
+        view.needsDisplay = true
+    }
+    func setCursor(_ name: String) {
+        if let style = CursorStyle(tagName: name) { view.setCursorStyle(style) }
+    }
     private func record(_ path: String) {
         if path.hasPrefix("/"), path.rangeOfCharacter(from: .controlCharacters) == nil { nextDirectory = path }
     }
@@ -73,7 +92,7 @@ import SwiftTerm
         view.finishShell()
         view.feed(text: "\r\n[Session ended: \(reason). Press R to reconnect.]\r\n")
     }
-    func setWrap(_ enabled: Bool) { view.feed(text: enabled ? "\u{1b}[?7h" : "\u{1b}[?7l") }
+    func setWrap(_ enabled: Bool) { view.setShellWrap(enabled) }
     func find(_ text: String) -> Bool {
         !text.isEmpty && view.findPrevious(text, options: SearchOptions(caseSensitive: true))
     }
