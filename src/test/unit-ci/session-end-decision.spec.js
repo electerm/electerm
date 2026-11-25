@@ -15,6 +15,25 @@ describe('session end decision', () => {
     )
   })
 
+  test('SSH auto-close requires a recent exit input even when the server returns zero', async () => {
+    const { decideSessionEnd } = await loadDecide()
+    // A zero from an SSH server is its idea of a normal end: Comware closes an
+    // idle-timed-out session the same way as a deliberate `quit`.
+    assert.deepEqual(
+      decideSessionEnd({ isSsh: true, exitStatus: exit(0) }),
+      { close: false, reason: 'clean-exit-hold' }
+    )
+    for (const status of [exit(0), null]) {
+      for (const userTypeExit of [false, true]) {
+        const result = decideSessionEnd({ isSsh: true, exitStatus: status, userTypeExit })
+        assert.equal(result.close, userTypeExit)
+      }
+    }
+    for (const status of [exit(1), { known: false, code: null, signal: 'SIGHUP' }]) {
+      assert.equal(decideSessionEnd({ isSsh: true, exitStatus: status, userTypeExit: true }).close, false)
+    }
+  })
+
   test('a non-zero exit keeps the tab so the output stays readable', async () => {
     const { decideSessionEnd } = await loadDecide()
     // `false; exit` in a unix shell, or cmd.exe reusing the last return code.
@@ -45,7 +64,7 @@ describe('session end decision', () => {
     )
   })
 
-  test('the typed line only decides when the backend reported nothing', async () => {
+  test('the typed line is a fallback for backends without a status', async () => {
     const { decideSessionEnd } = await loadDecide()
     // telnet / serial / exit-status-less device: old rule, still time-boxed by
     // the caller.

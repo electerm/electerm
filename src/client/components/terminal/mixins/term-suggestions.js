@@ -1,12 +1,10 @@
 import { debounce } from 'lodash-es'
 import { refsStatic } from '../../common/ref.js'
-
-/**
- * Lines that end the shell on purpose. `userTypeExit` decides whether a closed
- * socket closes the tab straight away or shows the "session stopped" notice,
- * so anything a user would type to leave has to be listed here.
- */
-const exitCommandReg = /^(?:exit|logout)(?:\s|$)/
+import {
+  emptyTypedLine,
+  applyTypedInput,
+  isExitCommandLine
+} from '../typed-line.js'
 
 /**
  * How long a submitted exit/logout line still explains the connection going
@@ -138,14 +136,24 @@ export const suggestionsMixin = {
   },
 
   /**
-   * Handle special input events for command history tracking
-   * The actual input reading is done via getCurrentInput from buffer
+   * Drop the composed line: a new session starts empty.
+   */
+  resetTypedLine () {
+    this.typedLine = emptyTypedLine()
+  },
+
+  /**
+   * Track the composed line from the keystrokes and remember whether the
+   * submitted one ends the session. History still reads the rendered buffer
+   * (`getCurrentInput`), which needs a prompt it can recognise.
    */
   handleInputEvent (d) {
+    const line = this.typedLine || emptyTypedLine()
     // Ctrl+D on an empty line is EOF, which ends the shell like `exit`. Typed
     // anywhere else it is delete-char, so only an empty line counts.
     if (d === '\x04') {
-      this.setUserTypeExit(!this.getCurrentInput().trim())
+      this.setUserTypeExit(line.trusted === true && !line.text.trim())
+      return
     }
     // Handle Enter - add command to history
     if (d === '\r' || d === '\n') {
@@ -153,14 +161,17 @@ export const suggestionsMixin = {
       if (currentCmd && currentCmd.trim() && this.shouldUseManualHistory()) {
         window.store.addCmdHistory(currentCmd.trim())
       }
-      // Recomputed on every submitted line rather than only ever set: an
-      // `exit` that did not actually end the shell must not silence the next
-      // real disconnect.
-      this.setUserTypeExit(
-        !!currentCmd && exitCommandReg.test(currentCmd.trim())
-      )
+      // The submitted line, taken from the keystrokes themselves: the rendered
+      // row can not be parsed on network gear (see `typed-line.js`), and the
+      // device's own wording is not evidence either. Recomputed on every
+      // submitted line rather than only ever set: an `exit` that did not
+      // actually end the session must not silence the next real disconnect.
+      this.setUserTypeExit(isExitCommandLine(line))
+      this.resetTypedLine()
       this.closeSuggestions()
+      return
     }
+    this.typedLine = applyTypedInput(line, d)
   },
 
   onData (d) {

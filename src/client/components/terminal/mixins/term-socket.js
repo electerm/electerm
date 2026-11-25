@@ -232,7 +232,9 @@ export const socketMixin = {
     this.pid = id
     const wsUrl = this.buildWsUrl(r.port)
     // A reused component (reload / auto reconnect) must not decide on the
-    // previous session's exit status.
+    // previous session's exit status or the previous session's input line.
+    this.clearUserTypeExit()
+    this.resetTypedLine()
     this.sessionExit = null
     const socket = new WebSocket(wsUrl)
     socket.onclose = this.oncloseSocket
@@ -318,10 +320,7 @@ export const socketMixin = {
   },
 
   /**
-   * The session server reports how the pty / ssh channel ended on this same
-   * socket, right before closing it, so a clean `exit` and a dropped
-   * connection do not look alike. Stored for `oncloseSocket`; see
-   * `session-end.js` for why the typed line is not the trigger.
+   * Capture the backend exit status before the socket closes.
    */
   trackSessionExit (socket) {
     socket.addEventListener('message', (ev) => {
@@ -347,17 +346,17 @@ export const socketMixin = {
 
   /**
    * Should this pane close now that its socket is gone?
+   * Exit status is the authority for local ptys, where it describes the
+   * process. An SSH server returns 0 for its own idle timeout too, so there
+   * the submitted line has to explain the close as well - see
+   * `session-end.js`.
    * @returns {{ close: boolean, reason: string }}
    */
   sessionEndDecision () {
     return decideSessionEnd({
       exitStatus: this.sessionExit,
-      // Fallback only: backends that can not report a status (telnet, serial,
-      // a device that omits SSH exit-status) keep the old typed-line rule,
-      // time-boxed so a nested `exit` can not poison it.
+      isSsh: this.isSsh(),
       userTypeExit: this.isUserTypeExit()
-      // closeOnCleanExit stays at its default (close, i.e. today's `exit`
-      // behaviour) until the keep-the-tab decision in #4629 is made.
     })
   },
 
@@ -395,9 +394,6 @@ export const socketMixin = {
     this.setStatus(
       statusMap.error
     )
-    // Close the tab only when the session server said the pty ended cleanly.
-    // A dropped connection, a failed session or a backend that reports no
-    // status keeps the tab and its scrollback (#4629).
     if (this.sessionEndDecision().close) {
       return this.props.delTab(this.props.tab.id)
     }

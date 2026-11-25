@@ -400,6 +400,8 @@ if (type === 'rdp') {
       // connection dropped" from this, not from the keystrokes it saw.
       if (typeof ws.s === 'function' && ws.readyState === 1) {
         try {
+          clearTimeout(sendTimeout)
+          flushBufferedData()
           ws.s(Object.assign({ action: 'session-exit' },
             exitStatus || normalizeExitStatus(null, null)))
         } catch (_) {}
