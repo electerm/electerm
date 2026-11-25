@@ -7,21 +7,27 @@ globalThis.window = globalThis.window || { store: {} }
 
 const loadMixin = () => import('../../client/components/terminal/mixins/term-suggestions.js')
 
+const type = (term, text) => {
+  for (const ch of text) {
+    term.handleInputEvent(ch)
+  }
+}
+
 /**
- * The exit latch only reads `this`, `Date.now()` and the current input line,
- * so a bare object standing in for the terminal component is enough.
+ * The exit latch only reads `this`, `Date.now()` and the line rebuilt from
+ * the input stream, so a bare object standing in for the terminal component
+ * is enough.
  */
-async function fakeTerm (line = '') {
+async function fakeTerm (typed = '') {
   const { suggestionsMixin } = await loadMixin()
   const ctx = Object.assign({}, suggestionsMixin, {
-    line,
-    getCurrentInput () {
-      return this.line
-    },
+    getCurrentInput: () => '',
     shouldUseManualHistory: () => false,
     closeSuggestions: () => {}
   })
+  ctx.resetTypedLine()
   ctx.setUserTypeExit(false)
+  type(ctx, typed)
   return ctx
 }
 
@@ -41,7 +47,7 @@ describe('terminal exit latch', () => {
     const { exitCloseWindow } = await loadMixin()
     const term = await fakeTerm('exit')
     await withClock(async ({ advance }) => {
-      assert.equal(term.isUserTypeExit(), false, 'not armed before typing')
+      assert.equal(term.isUserTypeExit(), false, 'not armed before submitting')
 
       term.handleInputEvent('\r')
       assert.equal(term.isUserTypeExit(), true, 'exit arms the latch')
@@ -79,20 +85,25 @@ describe('terminal exit latch', () => {
     term.handleInputEvent('\r')
     assert.equal(term.userTypeExit, true)
 
-    term.line = 'echo exit'
+    type(term, 'echo exit')
     term.handleInputEvent('\r')
     assert.equal(term.userTypeExit, false, 'a line mentioning exit is not exit')
   })
 
-  test('only exit/logout as the command counts', async () => {
+  test('only a session-ending command counts', async () => {
     const cases = [
       ['exit', true],
       ['exit 3', true],
       ['logout', true],
+      ['quit', true],
+      // what a Comware / IOS prompt renders: `<NMYC-WH-FH-MSR3600>exit`.
+      // The prompt is drawn output, not input, so it never reaches the latch.
+      ['exit', true],
       ['  exit  ', true],
       ['sudo -i', false],
       ['exitcode', false],
       ['exit()', false],
+      ['quitter', false],
       ['', false]
     ]
     for (const [line, armed] of cases) {
@@ -100,6 +111,37 @@ describe('terminal exit latch', () => {
       term.handleInputEvent('\r')
       assert.equal(term.userTypeExit, armed, `line: ${JSON.stringify(line)}`)
     }
+  })
+
+  test('backspace edits the composed line', async () => {
+    const term = await fakeTerm('exiX')
+    term.handleInputEvent('\x7f')
+    type(term, 't')
+    term.handleInputEvent('\r')
+    assert.equal(term.userTypeExit, true)
+
+    // Ctrl+U wipes the line, so the next Enter submits nothing
+    const cleared = await fakeTerm('exit')
+    cleared.handleInputEvent('\x15')
+    cleared.handleInputEvent('\r')
+    assert.equal(cleared.userTypeExit, false)
+  })
+
+  test('text that did not come from the keyboard proves nothing', async () => {
+    // Up-arrow recalls `exit` from history: the line is right, the evidence
+    // is not, and holding the tab is the safe direction.
+    const term = await fakeTerm('')
+    term.handleInputEvent('\x1b[A')
+    type(term, 'exit')
+    term.handleInputEvent('\r')
+    assert.equal(term.userTypeExit, false, 'escape sequence makes the line unusable')
+
+    // an IME commit is a multi-byte chunk, not a keystroke we can read
+    const ime = await fakeTerm('')
+    ime.handleInputEvent('退出')
+    type(ime, 'exit')
+    ime.handleInputEvent('\r')
+    assert.equal(ime.userTypeExit, false)
   })
 
   test('Ctrl+D arms the latch only on an empty line', async () => {

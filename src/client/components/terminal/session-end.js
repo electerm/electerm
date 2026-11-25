@@ -1,44 +1,40 @@
 /**
  * Decide what a terminal pane does when its connection ends.
  *
- * The signal is how the pty / ssh channel ended, reported by the session
- * server right before the socket closes - never the text the user typed.
+ * The exit status stays the authority, with one asymmetry: a local pty's
+ * status describes the process the user ran, while an SSH server's status
+ * describes *its* idea of a normal end. Network gear (Comware, IOS) closes
+ * an idle-timed-out session through the same "normal" path as a deliberate
+ * `quit` and reports 0 for both - SSH has no field for "why", so a zero can
+ * not prove the user asked to leave. An SSH tab therefore also needs the
+ * submitted line to explain the close.
  *
- * Why not the typed line: `exit` also leaves a shell nested *inside* the
- * session (su, bash, tmux, a second ssh, a psql / python REPL) while the
- * connection stays up. A tab that remembered "the user typed exit" therefore
- * closed itself on the next unrelated disconnect - idle timeout, a network
- * blip - losing the scrollback and skipping the "session stopped" notice
- * (#4629). An exit at the outermost shell is the only one that ends the pty,
- * so the pty ending is the only honest trigger.
- *
- * This mirrors what mature terminals do: Windows Terminal's `closeOnExit`
- * (graceful = close only on a normal exit, failed = keep the tab) and
- * WezTerm's `exit_behavior` ("CloseOnCleanExit" / "Hold"). Both read the
- * process exit status, and neither has a notion of "the user typed exit".
+ * That evidence comes from the keystrokes (`typed-line.js`), not from the
+ * device's output: matching vendor wording would be a growing table of
+ * per-model strings, and the rendered row can not even be parsed on a
+ * `<HOST>exit` prompt. Reading nothing at all is what SecureCRT does - its
+ * `Close on disconnect` is off by default and never looks at a status - and
+ * what a `never` close policy does in PuTTY / Windows Terminal.
  *
  * @param {object} options
  * @param {{known: boolean, code: number|null, signal: string|null}|null} options.exitStatus
- *   as sent by the session server; null means the server never reported one
- * @param {boolean} [options.userTypeExit] - fallback for backends that cannot
- *   report a status (telnet, serial, a device that omits SSH exit-status):
- *   the user submitted exit/logout just now
- * @param {boolean} [options.closeOnCleanExit] - product decision, see #4629
+ * @param {boolean} [options.isSsh]
+ * @param {boolean} [options.userTypeExit] - the user just submitted exit/logout/quit, or an empty-line EOF
+ * @param {boolean} [options.closeOnCleanExit]
  * @returns {{ close: boolean, reason: string }}
  */
 export function decideSessionEnd ({
   exitStatus,
+  isSsh = false,
   userTypeExit = false,
   closeOnCleanExit = true
 }) {
-  if (exitStatus && exitStatus.known) {
-    // Killed by a signal (SIGKILL, SIGHUP from a dropped link) is not a clean
-    // exit even when a status number came along with it.
-    if (exitStatus.signal) {
-      return { close: false, reason: 'signalled' }
-    }
+  if (exitStatus?.signal) {
+    return { close: false, reason: 'signalled' }
+  }
+  if (exitStatus?.known) {
     if (exitStatus.code === 0) {
-      return closeOnCleanExit
+      return closeOnCleanExit && (!isSsh || userTypeExit)
         ? { close: true, reason: 'clean-exit' }
         : { close: false, reason: 'clean-exit-hold' }
     }
