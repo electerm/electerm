@@ -126,6 +126,7 @@ export default Store => {
     // reloaded session starts with a fresh terminal that is not sending
     // keepalives, so the flag must not be carried over.
     delete newTab.keepaliveEnabled
+    delete newTab.sshTunnelResults
     if (reloadState) {
       newTab._reloadState = reloadState
     }
@@ -191,6 +192,7 @@ export default Store => {
     delete duplicatedTab._reloadState
     // see reloadTab: keepalive is per-session runtime state, never inherited
     delete duplicatedTab.keepaliveEnabled
+    delete duplicatedTab.sshTunnelResults
     if (sessionState) {
       duplicatedTab._reloadState = sessionState
     }
@@ -430,6 +432,7 @@ export default Store => {
     // a brand-new tab must not render as keepalive-on while its terminal
     // is not actually sending keepalives.
     delete newTab.keepaliveEnabled
+    delete newTab.sshTunnelResults
     if (!newTab.id) {
       newTab.id = generate()
     }

@@ -244,7 +244,8 @@ exports.terminal = async function (initOptions, ws, uid) {
   }
   child.on('exit', () => {
     onChildExit(child)
-    activeTerminals.delete(pid)
+    // A reconnect can already have registered the new connection for this tab.
+    if (activeTerminals.get(pid)?.child === child) activeTerminals.delete(pid)
   })
   if (type !== 'ftp') {
     try {
@@ -339,6 +340,11 @@ exports.terminals = function (pid) {
         body: { cmd, pid, timeoutMs }
       }, parentTimeout)
     },
+    manageTunnel: (request, id) => sendMsgToChildProcess(pid, {
+      id,
+      action: 'manage-ssh-tunnel',
+      body: { pid, request }
+    }, 30000),
     resize: (cols, rows, id) => {
       // Fire-and-forget, but bound the pending IPC listener with a timeout
       // so a slow/dead child can not accumulate 'message' handlers on resize

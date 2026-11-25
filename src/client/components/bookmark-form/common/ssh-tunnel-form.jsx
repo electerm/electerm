@@ -16,6 +16,14 @@ import {
 import { formItemLayout, tailFormItemLayout } from '../../../common/form-layout'
 import { useState } from 'react'
 
+export const defaultInitialValues = {
+  sshTunnel: 'forwardLocalToRemote',
+  sshTunnelLocalPort: 12200,
+  sshTunnelLocalHost: '127.0.0.1',
+  sshTunnelRemotePort: 12300,
+  sshTunnelRemoteHost: '127.0.0.1'
+}
+
 const FormItem = Form.Item
 const {
   Button: RadioButton,
@@ -29,13 +37,23 @@ const e = window.translate
 // remoteDynamicForward on the server.
 const needsRemoteRow = (sshTunnel) => sshTunnel !== 'dynamicForward'
 const needsLocalRow = (sshTunnel) => sshTunnel !== 'remoteDynamicForward'
+const portRules = [{
+  required: true,
+  type: 'integer',
+  min: 1,
+  max: 65535,
+  // Older bookmarks can supply a string until the user edits the port.
+  transform: value => typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : value
+}]
 
 export default function SshTunnelForm (props) {
   const {
     formChild,
     initialValues,
     onFinish,
-    isEdit
+    isEdit,
+    submitLabel,
+    disabled
   } = props
 
   const [dirty, setDirty] = useState(false)
@@ -130,7 +148,7 @@ export default function SshTunnelForm (props) {
           <FormItem
             label=''
             name='sshTunnelRemotePort'
-            required
+            rules={portRules}
           >
             <InputNumber
               min={1}
@@ -167,7 +185,7 @@ export default function SshTunnelForm (props) {
           <FormItem
             label=''
             name='sshTunnelLocalPort'
-            required
+            rules={portRules}
           >
             <InputNumber
               min={1}
@@ -187,6 +205,7 @@ export default function SshTunnelForm (props) {
       onValuesChange={handleValuesChange}
       initialValues={initialValues}
       component='div'
+      disabled={disabled}
     >
       <FormItem
         label={e('sshTunnel')}
@@ -236,7 +255,7 @@ export default function SshTunnelForm (props) {
           onClick={onSubmit}
           className={dirty ? 'btn-flash' : ''}
         >
-          {isEdit ? e('save') : e('sshTunnel')}
+          {submitLabel || (isEdit ? e('save') : e('sshTunnel'))}
         </Button>
       </FormItem>
     </Form>

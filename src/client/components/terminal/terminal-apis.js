@@ -28,6 +28,10 @@ export function execCmd (pid, cmd, timeoutMs, options) {
   }, options)
 }
 
+export function manageSshTunnel (pid, request) {
+  return fetch({ action: 'manage-ssh-tunnel', pid, request })
+}
+
 export function resizeTerm (pid, cols, rows) {
   return fetch({
     pid,

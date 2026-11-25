@@ -188,4 +188,42 @@ describe('remoteDynamicForward', () => {
     assert.equal(conn.listenerCount('tcp connection'), 0)
     assert.equal(conn.listenerCount('close'), 0)
   })
+
+  it('keeps a refused cancellation retryable and closes only the selected listener', async () => {
+    const { SshTunnelManager } = require('../../app/server/ssh-tunnel-manager')
+    const conn = new EventEmitter()
+    conn.forwardIn = (host, port, cb) => cb()
+    const manager = new SshTunnelManager(conn)
+    const tunnel = { sshTunnel: 'remoteDynamicForward', sshTunnelRemotePort: 1080 }
+    await manager.add({ ...tunnel, sshTunnelRemoteHost: '127.0.0.1' }, false)
+    await manager.add({ ...tunnel, sshTunnelRemoteHost: '::1' }, true)
+    const [first, second] = manager.list()
+    const channels = [new PassThrough(), new PassThrough()]
+    for (const [i, entry] of [first, second].entries()) {
+      conn.emit('tcp connection', { destIP: entry.sshTunnel.sshTunnelRemoteHost, destPort: 1080 },
+        () => channels[i])
+    }
+
+    conn.unforwardIn = (host, port, cb) => cb(new Error('Cancellation refused'))
+    await manager.change('stop', second.id)
+    assert.equal(manager.list()[1].status, 'running')
+    assert.equal(manager.list()[1].error, 'Cancellation refused')
+    assert.equal(channels[1].destroyed, false)
+
+    conn.unforwardIn = (host, port, cb) => {
+      assert.equal(host, '::1')
+      assert.equal(port, 1080)
+      cb()
+    }
+    await manager.change('stop', second.id)
+    assert.equal(manager.list()[1].status, 'stopped')
+    assert.equal(manager.list()[1].error, undefined)
+    assert.equal(channels[1].destroyed, true)
+    assert.equal(channels[0].destroyed, false)
+    assert.equal(conn.listenerCount('tcp connection'), 1)
+    conn.emit('close')
+    assert.equal(channels[0].destroyed, true)
+    assert.equal(conn.listenerCount('tcp connection'), 0)
+    assert.deepEqual(manager.list(), [])
+  })
 })

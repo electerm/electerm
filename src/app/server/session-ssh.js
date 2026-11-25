@@ -12,7 +12,7 @@ const log = require('../common/log')
 const { algDefault, algAlt } = require('./ssh2-alg')
 const { createHostVerifier } = require('./ssh-known-hosts')
 const { maybeProxyCommand } = require('./ssh-proxy-command')
-const sshTunnelFuncs = require('./ssh-tunnel')
+const { SshTunnelManager } = require('./ssh-tunnel-manager')
 const deepCopy = require('json-deep-copy')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
@@ -712,32 +712,17 @@ class TerminalSshBase extends TerminalBase {
     }
   }
 
-  async runTunnel (sshTunnel) {
-    const func = sshTunnelFuncs[sshTunnel.sshTunnel]
-    if (typeof func !== 'function') {
-      // an unknown type from a deeplink or an older bookmark would otherwise
-      // throw synchronously and take the whole session down
-      return {
-        error: `unknown ssh tunnel type: ${sshTunnel.sshTunnel}`,
-        sshTunnel
-      }
+  async manageTunnel ({ command, tunnelId, tunnel }) {
+    if (!this.tunnelManager || !this.conn) throw new Error('SSH session disconnected')
+    if (command === 'add') {
+      if (!tunnel || typeof tunnel.sshTunnel !== 'string') throw new Error('Invalid SSH tunnel')
+      await this.tunnelManager.add(tunnel, true)
+    } else if (command === 'start' || command === 'stop') {
+      await this.tunnelManager.change(command, tunnelId)
+    } else if (command !== 'list') {
+      throw new Error('Unknown tunnel command')
     }
-    return func({
-      ...sshTunnel,
-      conn: this.conn
-    })
-      .then(r => {
-        return {
-          sshTunnel
-        }
-      })
-      .catch(err => {
-        log.error('error when do sshTunnel', err)
-        return {
-          error: err.message,
-          sshTunnel
-        }
-      })
+    return this.tunnelManager.list()
   }
 
   async onInitSshReady () {
@@ -760,22 +745,11 @@ class TerminalSshBase extends TerminalBase {
       return this
     }
     const { sshTunnels = [] } = initOptions
-    const sshTunnelResults = []
-    for (const sshTunnel of sshTunnels) {
-      if (!sshTunnel || !sshTunnel.sshTunnel) {
-        continue
-      }
-      // a remote dynamic forward only listens on the remote side, so it is the
-      // remote port that has to be there
-      const listenPort = sshTunnel.sshTunnel === 'remoteDynamicForward'
-        ? sshTunnel.sshTunnelRemotePort
-        : sshTunnel.sshTunnelLocalPort
-      if (!listenPort) {
-        continue
-      }
-      const result = await this.runTunnel(sshTunnel)
-      sshTunnelResults.push(result)
+    this.tunnelManager = new SshTunnelManager(this.conn)
+    for (const tunnel of sshTunnels) {
+      if (tunnel?.sshTunnel) await this.tunnelManager.add(tunnel, false)
     }
+    const sshTunnelResults = this.tunnelManager.list()
     if (!this.ws) {
       this.sshTunnelResults = sshTunnelResults
     } else {

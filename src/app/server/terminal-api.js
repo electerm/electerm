@@ -46,6 +46,17 @@ async function execCmd (ws, msg) {
   }
 }
 
+async function manageTunnel (ws, { id, pid, request }) {
+  try {
+    const term = terminals(pid)
+    if (!term) throw new Error('SSH session disconnected')
+    const data = await term.manageTunnel(request, id)
+    ws.s({ id, data })
+  } catch (err) {
+    ws.s({ id, error: { message: err.message } })
+  }
+}
+
 function resize (ws, msg) {
   const { id, pid, cols, rows } = msg
   const term = terminals(pid)
@@ -158,6 +169,7 @@ function startTerminalLogFile (ws, msg) {
 
 exports.createTerm = createTerm
 exports.testTerm = testTerm
+exports.manageTunnel = manageTunnel
 exports.resize = resize
 exports.runCmd = runCmd
 exports.execCmd = execCmd
