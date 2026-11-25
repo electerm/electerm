@@ -1,3 +1,4 @@
+const loadWindowsIntermediates = require('../lib/windows-intermediates')
 const ftp = require('basic-ftp')
 const iconv = require('iconv-lite')
 
@@ -64,6 +65,9 @@ class FtpClientWrapper {
 
   async access (options) {
     return this.enqueue(async () => {
+      if (options.secure) {
+        await loadWindowsIntermediates()
+      }
       if (options.proxy) {
         return this._accessViaProxy(options)
       }

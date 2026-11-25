@@ -5,7 +5,8 @@
  * can be passed to https.Agent as additional trusted CAs.
  */
 
-const { execFileSync } = require('child_process')
+const { promisify } = require('util')
+const { execFile, execFileSync } = require('child_process')
 const { existsSync, readdirSync, readFileSync } = require('fs')
 const { join } = require('path')
 const os = require('os')
@@ -55,13 +56,13 @@ const WIN_CA_SCRIPT =
 /**
  * @returns {string[]}
  */
-function buildWinArgs () {
+function buildWinArgs (script = WIN_CA_SCRIPT) {
   return [
     '-NoLogo',
     '-NonInteractive',
     '-NoProfile',
     '-EncodedCommand',
-    Buffer.from(WIN_CA_SCRIPT, 'utf16le').toString('base64')
+    Buffer.from(script, 'utf16le').toString('base64')
   ]
 }
 
@@ -116,6 +117,35 @@ function loadLinux () {
   }).join('\n')
 }
 
+const run = promisify(execFile)
+// The native Windows trust store supplies roots. An incomplete server chain
+// may also need an issuer from one of the Intermediate Certification Authorities stores.
+const script = `
+$ErrorActionPreference = 'Stop'
+foreach ($location in 'LocalMachine', 'CurrentUser') {
+  $store = [System.Security.Cryptography.X509Certificates.X509Store]::new('CA', $location)
+  try {
+    $store.Open('ReadOnly')
+    foreach ($cert in $store.Certificates) {
+      if ($cert.NotAfter -gt (Get-Date)) {
+        [Convert]::ToBase64String($cert.RawData)
+      }
+    }
+  } finally {
+    $store.Close()
+  }
+}`
+
+async function readWindowsIntermediates () {
+  const { stdout } = await run('powershell.exe', buildWinArgs(script), {
+    encoding: 'utf8',
+    windowsHide: true,
+    timeout: 10000,
+    maxBuffer: MAX_BUFFER
+  })
+  return new Set(stdout.trim().split(/\s+/).filter(Boolean))
+}
+
 function loadWindows () {
   try {
     return execFileSync('powershell.exe', buildWinArgs(), {
@@ -153,4 +183,5 @@ module.exports = getSystemCAs
 // for unit tests: the arg builders are pure, the loaders shell out
 module.exports.buildMacArgs = buildMacArgs
 module.exports.buildWinArgs = buildWinArgs
+module.exports.readWindowsIntermediates = readWindowsIntermediates
 module.exports.WIN_CA_SCRIPT = WIN_CA_SCRIPT

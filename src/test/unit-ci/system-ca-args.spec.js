@@ -46,10 +46,10 @@ describe('buildMacArgs', () => {
     const args = buildMacArgs('/Users/john doe')
     assert.equal(
       args[args.length - 1],
-      '/Users/john doe/Library/Keychains/login.keychain-db'
+      join('/Users/john doe', 'Library/Keychains/login.keychain-db')
     )
     assert.ok(
-      args.filter(a => a.includes('/Users/john doe')).length === 1,
+      args.filter(a => a.includes('john doe')).length === 1,
       'the path must not be split across argv entries'
     )
   })
@@ -105,4 +105,47 @@ describe('buildWinArgs', () => {
     }
     assert.ok(WIN_CA_SCRIPT.includes('-----BEGIN CERTIFICATE-----'))
   })
+})
+
+describe('needsExport', () => {
+  const { needsExport } = require('../../app/server/child-process')
+  for (const [platform, nodeVersion, expected] of [
+    ['win32', '16.17.1', true],
+    ['win32', '22.18.0', true],
+    ['win32', '22.19.0', false],
+    ['win32', '23.11.1', true],
+    ['win32', '24.5.0', true],
+    ['win32', '24.6.0', false],
+    ['win32', '24.22.3', false],
+    ['win32', '25.0.0', false],
+    ['darwin', '24.22.3', true],
+    ['linux', '24.22.3', true]
+  ]) {
+    test(`${platform} on Node ${nodeVersion}`, () => {
+      assert.equal(needsExport({ platform, nodeVersion }), expected)
+    })
+  }
+})
+
+describe('backend and local shell environments', () => {
+  const { serverEnv } = require('../../app/server/child-process')
+  const { localShellEnv } = require('../../app/server/session-local')
+
+  for (const value of [undefined, '', '0', '1']) {
+    test(`restores NODE_USE_SYSTEM_CA=${value} in the shell`, () => {
+      const incoming = value === undefined ? {} : { NODE_USE_SYSTEM_CA: value }
+      const backend = serverEnv({}, incoming, 'en-US')
+      const shell = localShellEnv(backend)
+      assert.equal(backend.NODE_USE_SYSTEM_CA, '1')
+      assert.equal(shell.NODE_USE_SYSTEM_CA, value)
+      assert.equal(Object.hasOwn(shell, 'NODE_USE_SYSTEM_CA'), value !== undefined)
+      assert.ok(!Object.hasOwn(shell, 'ELECTERM_SHELL_USE_SYSTEM_CA'))
+    })
+  }
+
+  for (const [incoming, expected] of [[{}, 'en_US.UTF-8'], [{ LANG: 'C' }, 'C'], [{ LANG: '' }, '']]) {
+    test(`preserves LANG=${incoming.LANG} through the fork`, () => {
+      assert.equal(localShellEnv(serverEnv({}, incoming, 'en-US')).LANG, expected)
+    })
+  }
 })

@@ -2,6 +2,7 @@
  * download upgrade class
  */
 
+const loadWindowsIntermediates = require('../lib/windows-intermediates')
 const fs = require('fs')
 const { resolve } = require('path')
 const _ = require('../lib/lodash.js')
@@ -70,6 +71,7 @@ class Upgrade {
   }
 
   async init () {
+    await loadWindowsIntermediates()
     const {
       id,
       ws,
