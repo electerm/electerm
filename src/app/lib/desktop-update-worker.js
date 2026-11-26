@@ -17,7 +17,7 @@ process.once('message', async ({ options, dir }) => {
       process.send({ mirror: options.mirror })
     }
     let plan
-    if (options.testing) {
+    if (options.downloadOnly) {
       format(options.src, process.platform)
       await download(options, dir, progress)
       plan = {}

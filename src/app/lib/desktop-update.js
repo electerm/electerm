@@ -12,7 +12,7 @@ let active
 async function startDesktopUpdate ({ tag, mirror, proxy }) {
   if (active) throw new Error('An update is already running')
   const testing = !!process.env.NODE_TEST
-  if (!app.isPackaged && !testing) throw new Error('Update is available in desktop releases')
+  const downloadOnly = !app.isPackaged || testing
   if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error('Invalid release version')
   const current = app.getVersion().split('.').map(Number)
   const delta = tag.slice(1).split('.').map((v, i) => Number(v) - current[i]).find(n => n !== 0)
@@ -91,11 +91,21 @@ async function startDesktopUpdate ({ tag, mirror, proxy }) {
       })
       worker.send({
         dir,
-        options: { src: installSrc, tag, mirror, proxy, exe: app.getPath('exe'), appImage: process.env.APPIMAGE, testing }
+        options: { src: installSrc, tag, mirror, proxy, exe: app.getPath('exe'), appImage: process.env.APPIMAGE, downloadOnly }
       })
     })
     if (!plan || job.cancelled) return false
-    if (testing) return true
+    if (downloadOnly) {
+      if (!testing) {
+        display('Download verified', 100)
+        await dialog.showMessageBox(win, {
+          type: 'info',
+          message: 'Electerm ' + tag + ' downloaded and verified.',
+          detail: 'Development runs discard the temporary download. Packaged releases can install it.'
+        })
+      }
+      return true
+    }
     display('Ready to install', 100)
     const { response } = await dialog.showMessageBox(win, {
       type: 'question',
