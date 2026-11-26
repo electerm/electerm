@@ -5,8 +5,6 @@
 
 const fs = require('./fs')
 const log = require('../common/log')
-const { Upgrade } = require('./download-upgrade')
-const { transferKeys } = require('./transfer')
 const fetch = require('./fetch')
 const sync = require('./sync')
 const {
@@ -37,44 +35,6 @@ function verify (req) {
 }
 
 const initWs = function (app) {
-  // upgrade
-  app.ws('/upgrade/:id', (ws, req) => {
-    verify(req)
-    wsDec(ws)
-    const { id } = req.params
-    ws.on('close', () => {
-      const inst = globalState.getUpgradeInst(id)
-      if (inst) {
-        inst.destroy()
-      }
-    })
-    ws.on('message', async (message) => {
-      const msg = JSON.parse(message)
-      const { action } = msg
-
-      if (action === 'upgrade-new') {
-        const { id } = msg
-        const opts = Object.assign({}, msg, {
-          ws
-        })
-        const inst = new Upgrade(opts)
-        globalState.setUpgradeInst(id, inst)
-        await inst.init()
-      } else if (action === 'upgrade-func') {
-        const { id, func, args } = msg
-        const inst = globalState.getUpgradeInst(id)
-        if (!inst) {
-          return
-        }
-        if (!transferKeys.includes(func) || typeof inst[func] !== 'function') {
-          log.error('invalid upgrade function:', func)
-          return
-        }
-        inst[func](...args)
-      }
-    })
-  })
-
   // common functions
   app.ws('/common/s', (ws, req) => {
     verify(req)

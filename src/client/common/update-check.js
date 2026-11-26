@@ -112,7 +112,7 @@ export async function getLatestReleaseInfo () {
   if (!res || !res.release) {
     return undefined
   }
-  const asset = (res.release.assets || []).find(r => r.name.includes(installSrc))
+  const asset = (res.release.assets || []).find(r => installSrc && r.name.endsWith('-' + installSrc))
   return {
     body: res.release.body,
     date: dayjs(res.release.published_at).format('YYYY-MM-DD'),

@@ -8,7 +8,6 @@ const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const log = require('./common/log')
-const { expect } = require('./common/expect')
 
 describe('auto upgrade check', function () {
   it('auto upgrade check should work', async function () {
@@ -39,30 +38,15 @@ describe('auto upgrade check', function () {
     }
     log('should show upgrade info')
     log('start download upgrade')
-    await client.click('.upgrade-panel .ant-btn-primary')
-    const fr = {}
-    const len = 200
-    for (let i = 0; i < len; i++) {
-      await delay(500)
-      const txt = await client.getText('.upgrade-panel .ant-btn-primary')
-      console.log('txt', txt)
-      if (txt.includes('Upgrading... 0% Cancel')) {
-        fr.zero = 1
-      } else if (
-        txt.includes('% Cancel')
-      ) {
-        fr.progress = 1
-      }
-      if (fr.zero && fr.progress) {
-        break
-      }
-    }
-    expect(fr.progress).equal(1)
-    expect(fr.zero).equal(1)
-    // the primary button turns into "Cancel" while upgrading — stop the
-    // download before closing so no installer is ever fully fetched
-    await client.click('.upgrade-panel .ant-btn-primary').catch(() => {})
-    await delay(500)
+    const [progress] = await Promise.all([
+      electronApp.waitForEvent('window'),
+      client.click('.upgrade-panel .ant-btn-primary')
+    ])
+    await progress.waitForFunction(() => document.querySelector('progress')?.value > 0)
+    await Promise.all([
+      progress.waitForEvent('close'),
+      progress.getByRole('button', { name: 'Cancel' }).click()
+    ])
     await electronApp.close().catch(console.log)
   })
 })

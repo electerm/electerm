@@ -292,6 +292,8 @@ function initIpc () {
     }
   })
   const asyncGlobals = {
+    startDesktopUpdate: options => require('./desktop-update').startDesktopUpdate(options),
+    cancelDesktopUpdate: () => require('./desktop-update').cancelDesktopUpdate(),
     confirmExit: () => {
       globalState.set('confirmExit', true)
     },

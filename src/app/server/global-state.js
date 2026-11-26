@@ -1,7 +1,6 @@
 // global-state.js
 class GlobalState {
   #sessions = {}
-  #upgradeInsts = {}
   #authed = false
 
   // Sessions management
@@ -17,19 +16,6 @@ class GlobalState {
     delete this.#sessions[id]
   }
 
-  // Upgrade instances management
-  getUpgradeInst (id) {
-    return this.#upgradeInsts[id]
-  }
-
-  setUpgradeInst (id, inst) {
-    this.#upgradeInsts[id] = inst
-  }
-
-  removeUpgradeInst (id) {
-    delete this.#upgradeInsts[id]
-  }
-
   get authed () {
     return this.#authed
   }
@@ -41,7 +27,6 @@ class GlobalState {
   get data () {
     return {
       sessions: this.#sessions,
-      upgradeInsts: this.#upgradeInsts,
       authed: this.#authed
     }
   }
