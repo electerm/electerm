@@ -25,7 +25,7 @@ import {
 } from './shell.js'
 import {
   createRestoreCwdCommand,
-  createWindowsRestoreCwdCommand,
+  createWindowsCdCommand,
   isPowerShellExecutable,
   isRestorableTerminalTab
 } from './ssh-reload-state.js'
@@ -284,7 +284,7 @@ export class StartupQueue {
       const usePosix = this.isRemoteShell() || (this.isLocal() && !isWin && !isPowerShellExecutable(shell))
       cwdCommand = usePosix
         ? createRestoreCwdCommand(startFolder)
-        : createWindowsRestoreCwdCommand(startFolder, shell)
+        : createWindowsCdCommand(startFolder, shell)
     }
     if (cwdCommand) {
       scripts.unshift({ script: cwdCommand, delay: 0 })

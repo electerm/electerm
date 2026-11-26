@@ -36,6 +36,41 @@ describe('terminal cd command', () => {
     )
   })
 
+  test('handles Windows shell paths for file navigation and restore', async () => {
+    const { createCdCommand, createWindowsCdCommand } = await load()
+    const dir = "D:\\team's work\\$notes"
+    for (const build of [
+      (dir, shell) => createCdCommand(dir, { shell, windows: true }),
+      createWindowsCdCommand
+    ]) {
+      assert.equal(build(dir, '"C:\\Program Files\\Git\\bin\\bash.exe"'), "cd -- 'D:/team'\"'\"'s work/$notes'")
+      assert.equal(build(dir, 'wsl.exe'), '')
+      assert.equal(build('D:\\work folder', 'wsl.exe'), "cd -- '/mnt/d/work folder'")
+      assert.equal(build("D:\\it's work;~", 'wsl.exe'), "cd -- '/mnt/d/it'\"'\"'s work;~'")
+      assert.equal(build('/home/user/work', 'wsl.exe'), "cd -- '/home/user/work'")
+      for (const shell of ['', 'custom.exe']) {
+        assert.equal(build('D:\\work', shell), '')
+        assert.equal(build('/home/user/work', shell), '')
+      }
+      assert.equal(build('D:\\work%name%', 'cmd.exe'), '')
+      assert.equal(build('D:\\work\tfolder', 'bash.exe'), '')
+    }
+    assert.equal(createCdCommand('C:\\$notes', { remote: true }), '')
+  })
+
+  test('accepts quoted CMD punctuation and single percent signs', async () => {
+    const { createCdCommand } = await load()
+    for (const remote of [false, true]) {
+      const options = { shell: 'cmd.exe', remote }
+      for (const path of ['C:\\Program Files (x86)', 'D:\\100% done', 'D:\\R&D']) {
+        assert.equal(createCdCommand(path, options), `cd /d "${path}"`)
+      }
+      for (const path of ['D:\\%USERNAME%\\work', 'D:\\work!', 'D:\\work"']) {
+        assert.equal(createCdCommand(path, options), '')
+      }
+    }
+  })
+
   test('keeps CMD syntax for a remote tab, whose shell is unknown', async () => {
     const { createCdCommand } = await load()
     assert.equal(
