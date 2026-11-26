@@ -69,10 +69,16 @@ async function startDesktopUpdate ({ tag, mirror, proxy }) {
     })
     job.worker = worker
     const plan = await new Promise((resolve, reject) => {
+      let downloadStatus = 'Downloading…'
       let result
       let error
       worker.on('message', m => {
-        if (m.percent !== undefined) display('Downloading…', m.percent)
+        if (m.probing) display('Testing download mirrors…')
+        if (m.mirror) {
+          downloadStatus = 'Downloading from ' + m.mirror + '…'
+          display(downloadStatus)
+        }
+        if (m.percent !== undefined) display(downloadStatus, m.percent)
         if (m.preparing) display('Preparing verified update…')
         if (m.error) error = new Error(m.error)
         if (m.plan) result = m.plan

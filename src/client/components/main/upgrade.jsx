@@ -15,6 +15,7 @@ import newTerm from '../../common/new-terminal'
 import Markdown from '../common/markdown'
 import downloadMirrors from '../../common/download-mirrors'
 import { refsStatic } from '../common/ref'
+import updateMirrors from '../../../app/common/update-mirrors.json'
 import './upgrade.styl'
 
 const e = window.translate
@@ -22,17 +23,11 @@ const {
   homepage
 } = packInfo
 
-const downloadMirrorList = [
-  'github',
-  'gh-proxy',
-  'atomgit',
-  'sourceforge',
-  'r2'
-]
+const downloadMirrorList = Object.keys(updateMirrors)
 
 export default class Upgrade extends PureComponent {
   state = {
-    mirror: downloadMirrorList[1]
+    mirror: window.et.downloadUpgradeFromBrowser ? 'gh-proxy' : 'auto'
   }
 
   componentDidMount () {
@@ -262,6 +257,7 @@ export default class Upgrade extends PureComponent {
         style={{ height: 32 }}
         popupMatchSelectWidth={false}
       >
+        {!window.et.downloadUpgradeFromBrowser && <Select.Option value='auto'>Auto (speed test)</Select.Option>}
         {downloadMirrorList.map((opt) => (
           <Select.Option key={opt} value={opt}>{opt}</Select.Option>
         ))}

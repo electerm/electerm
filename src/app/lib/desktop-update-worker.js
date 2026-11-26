@@ -10,6 +10,12 @@ process.once('message', async ({ options, dir }) => {
   const progress = percent => process.send({ percent })
   try {
     await require('./windows-intermediates')()
+    if (options.mirror === 'auto') {
+      format(options.src, process.platform)
+      process.send({ probing: true })
+      options.mirror = await require('./select-update-mirror').selectMirror(options)
+      process.send({ mirror: options.mirror })
+    }
     let plan
     if (options.testing) {
       format(options.src, process.platform)
