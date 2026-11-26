@@ -207,7 +207,9 @@ if (type === 'rdp') {
       ws.send(JSON.stringify(data))
     }
 
-    term.builtinDisplay?.onTerminalReady(ws)
+    term.builtinDisplay?.onClient(id => {
+      if (ws.readyState === 1) ws.s({ action: 'x11-client', id })
+    })
 
     // Auto-trigger XMODEM when the serial device sends a marker message.
     // The serial-shell.js sends these markers when the user types tx/rx.

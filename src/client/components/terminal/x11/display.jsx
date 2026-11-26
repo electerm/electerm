@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import frameDocument from 'virtual:electerm-x11-frame'
+import { connectViewer } from 'electerm-x11/connect.mjs'
+import viewerUrl from 'electerm-x11/viewer.html?url'
 
 export default function X11Display ({ clients, socket, onDisconnect }) {
   const frame = useRef(null)
@@ -21,21 +22,11 @@ export default function X11Display ({ clients, socket, onDisconnect }) {
       if (connections.current.has(id)) continue
       const url = new URL(socket.url)
       url.searchParams.set('x11Client', id)
-      const ws = new WebSocket(url)
+      const ws = connectViewer(frame.current, url)
       connections.current.set(id, ws)
-      ws.binaryType = 'arraybuffer'
-      const { port1, port2 } = new MessageChannel()
-      frame.current.contentWindow.postMessage(null, '*', [port2])
-      port1.onmessage = ({ data }) => {
-        if (data.type === 'x11-end') ws.close()
-        else if (ws.readyState === WebSocket.OPEN) ws.send(data.data)
-      }
-      ws.onmessage = ({ data }) => port1.postMessage({ type: 'x11-data', data }, [data])
-      ws.onclose = () => {
-        port1.postMessage({ type: 'x11-end' })
-        port1.close()
+      ws.addEventListener('close', () => {
         if (connections.current.delete(id)) onDisconnect(id)
-      }
+      })
       setVisible(true)
     }
   }, [clients, ready, socket, onDisconnect])
@@ -50,7 +41,7 @@ export default function X11Display ({ clients, socket, onDisconnect }) {
         ref={frame}
         sandbox='allow-scripts'
         title='X11 display'
-        srcDoc={frameDocument}
+        src={viewerUrl}
         onLoad={() => setReady(true)}
       />
     </div>

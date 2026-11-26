@@ -120,6 +120,10 @@ class TerminalSshBase extends TerminalBase {
     this.passwordReprompted = false
   }
 
+  get x11Enabled () {
+    return this.initOptions.x11 === true && this.initOptions.enableSsh !== false && !this.isTest
+  }
+
   async remoteInitProcess () {
     this.adjustConnectionOrder()
     // one re-prompt per init: sshConnect() re-enters on every retry, so this
@@ -128,12 +132,11 @@ class TerminalSshBase extends TerminalBase {
     const {
       initOptions
     } = this
-    const hasX11 = initOptions.x11 === true
-    if (hasX11 && initOptions.x11Display === 'builtin') {
-      const { BuiltinDisplay } = require('./x11-builtin')
-      this.builtinDisplay = new BuiltinDisplay()
+    if (this.x11Enabled && initOptions.x11Display === 'builtin') {
+      const { X11Display } = require('electerm-x11')
+      this.builtinDisplay = new X11Display()
       this.x11Cookie = this.builtinDisplay.cookie
-    } else if (hasX11) {
+    } else if (this.x11Enabled) {
       this.display = await this.getDisplay()
       this.x11Cookie = await this.getX11Cookie()
       // runs in the background: never delay the connection for a probe
@@ -928,7 +931,7 @@ class TerminalSshBase extends TerminalBase {
           .then(finish)
           .catch(reject)
       })
-      if (!skipX11 && initOptions.x11 === true) {
+      if (!skipX11 && this.shellOpts?.x11) {
         const display = this.builtinDisplay
         conn.on('x11', (inf, accept, reject) => {
           if (display) {
@@ -1108,7 +1111,7 @@ class TerminalSshBase extends TerminalBase {
   buildShellOpts () {
     const { initOptions } = this
     let x11
-    if (initOptions.x11 === true) {
+    if (this.x11Enabled) {
       x11 = {
         cookie: this.x11Cookie
       }

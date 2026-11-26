@@ -4,7 +4,6 @@ import react from '@vitejs/plugin-react'
 import { cwd, version } from './common.js'
 import { resolve } from 'path'
 import def from './def.js'
-import x11Frame from './x11-frame.js'
 
 function buildInput () {
   return {
@@ -36,7 +35,6 @@ function replaceWebAppPlugin () {
 export default defineConfig({
   plugins: [
     react({ include: /\.(mdx|js|jsx|ts|tsx|mjs)$/ }),
-    x11Frame(),
     replaceWebAppPlugin()
   ],
   resolve: {
