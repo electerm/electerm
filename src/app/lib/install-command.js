@@ -79,6 +79,9 @@ function getCommandTarget ({ platform, execPath, env = {} }) {
   if (platform === 'linux' && env.APPIMAGE) {
     return env.APPIMAGE
   }
+  if (platform === 'linux' && path.posix.basename(execPath) === 'electerm-bin') {
+    return path.posix.join(path.posix.dirname(execPath), 'electerm')
+  }
   return execPath
 }
 

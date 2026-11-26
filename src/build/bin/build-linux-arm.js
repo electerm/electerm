@@ -26,7 +26,7 @@ async function main () {
     }
   )
   // await run(`${reBuild} --arch arm64 -f work/app`)
-  await run(`${pb} --linux --arm64`).catch(error => {
+  await run(`${pb} --config.afterPack=./src/build/bin/prepare-linux-tar.js --linux --arm64`).catch(error => {
     echo('❌ Fatal error in build linux.arm64.tar.gz:')
     console.error(error)
   })
@@ -95,7 +95,7 @@ async function main () {
     }
   )
   await run(`${reBuild} --arch armv7l -f work/app`)
-  await run(`${pb} --linux --armv7l`).catch(error => {
+  await run(`${pb} --config.afterPack=./src/build/bin/prepare-linux-tar.js --linux --armv7l`).catch(error => {
     echo('❌ Fatal error in build linux.armv7l:')
     console.error(error)
   })

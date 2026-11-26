@@ -19,7 +19,7 @@ async function main () {
   let src = 'linux-x64.tar.gz'
   writeSrc(src)
   setChannel(src)
-  await run(`${pb} --linux tar.gz`)
+  await run(`${pb} --config.afterPack=./src/build/bin/prepare-linux-tar.js --linux tar.gz`)
   await uploadToR2(src)
   renameDist()
 
