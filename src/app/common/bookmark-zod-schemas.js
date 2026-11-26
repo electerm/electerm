@@ -77,7 +77,6 @@ const sshBookmarkSchema = {
   compress: z.array(z.string()).optional().describe('Compression algorithms'),
   quickCommands: z.array(quickCommandSchema).optional().describe('Quick commands'),
   watchers: z.array(watcherSchema).optional().describe('Custom monitor watchers shown in the monitor bar and info panel while this session is open'),
-  x11Display: z.enum(['external', 'builtin']).optional(),
   x11: z.boolean().optional().describe('Enable x11 forwarding, default is false'),
   term: z.string().optional().describe('Terminal type, default is xterm-256color'),
   displayRaw: z.boolean().optional().describe('Display raw output, default is false'),

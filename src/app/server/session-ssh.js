@@ -6,8 +6,6 @@ const proxySock = require('./socks')
 const _ = require('../lib/lodash.js')
 const generate = require('../common/uid')
 const { resolve: pathResolve } = require('path')
-const net = require('net')
-const { exec } = require('child_process')
 const log = require('../common/log')
 const { algDefault, algAlt } = require('./ssh2-alg')
 const { createHostVerifier } = require('./ssh-known-hosts')
@@ -120,10 +118,6 @@ class TerminalSshBase extends TerminalBase {
     this.passwordReprompted = false
   }
 
-  get x11Enabled () {
-    return this.initOptions.x11 === true && this.initOptions.enableSsh !== false && !this.isTest
-  }
-
   async remoteInitProcess () {
     this.adjustConnectionOrder()
     // one re-prompt per init: sshConnect() re-enters on every retry, so this
@@ -132,50 +126,11 @@ class TerminalSshBase extends TerminalBase {
     const {
       initOptions
     } = this
-    if (this.x11Enabled && initOptions.x11Display === 'builtin') {
+    if (initOptions.x11 === true && initOptions.enableSsh !== false && !this.isTest) {
       const { X11Display } = require('electerm-x11')
       this.builtinDisplay = new X11Display()
-      this.x11Cookie = this.builtinDisplay.cookie
-    } else if (this.x11Enabled) {
-      this.display = await this.getDisplay()
-      this.x11Cookie = await this.getX11Cookie()
-      // runs in the background: never delay the connection for a probe
-      this.checkX11().catch(e => log.error('x11 check error', e))
     }
     return this.sshConnect()
-  }
-
-  /**
-   * x11 forwarding fails silently when the local side cannot serve it,
-   * so probe the display once per session and tell the user what to do
-   */
-  async checkX11 () {
-    const { probeXServer, getX11Candidates, x11Hint, x11CookieHint } = require('./x11')
-    const ok = await probeXServer(getX11Candidates(this.display))
-    if (!ok) {
-      return this.notifyX11(x11Hint())
-    }
-    // windows has no xauth at all, an empty cookie is expected there
-    if (!this.x11Cookie && process.platform !== 'win32') {
-      return this.notifyX11(x11CookieHint())
-    }
-  }
-
-  /**
-   * warn the user about x11 problems, at most once per session
-   * @param {string} text
-   */
-  notifyX11 (text) {
-    if (!text || this.x11Notified || !this.ws) {
-      return
-    }
-    this.x11Notified = true
-    this.ws.s({
-      action: 'x11-warning',
-      message: text,
-      url: require('./x11').X11_HELP_URL,
-      tabId: this.initOptions?.srcTabId
-    })
   }
 
   reTryAltAlg () {
@@ -931,51 +886,9 @@ class TerminalSshBase extends TerminalBase {
           .then(finish)
           .catch(reject)
       })
-      if (!skipX11 && this.shellOpts?.x11) {
-        const display = this.builtinDisplay
-        conn.on('x11', (inf, accept, reject) => {
-          if (display) {
-            return display.accept(accept, reject)
-          }
-          const { x11Hint } = require('./x11')
-          let start = 0
-          const maxRetry = 100
-          const portStart = 6000
-          const maxPort = portStart + maxRetry
-          const retry = () => {
-            if (start >= maxPort) {
-              // every local x endpoint refused us, the remote app is stuck
-              this.notifyX11(`A remote app asked for X11 forwarding, but electerm could not reach any local X server (display: ${this.display || 'not set'}). ${x11Hint()}`)
-              return
-            }
-            const xserversock = new net.Socket()
-            let xclientsock
-            xserversock
-              .on('connect', function () {
-                xclientsock = accept()
-                xclientsock.pipe(xserversock).pipe(xclientsock)
-              })
-              .on('error', (e) => {
-                log.error(e)
-                xserversock.destroy()
-                start = start === maxRetry ? portStart : start + 1
-                retry()
-              })
-              .on('close', () => {
-                xserversock.destroy()
-                xclientsock && xclientsock.destroy()
-              })
-            if (start < portStart) {
-              const addr = (this.display || '').includes('/tmp')
-                ? this.display
-                : `/tmp/.X11-unix/X${start}`
-              xserversock.connect(addr)
-            } else {
-              xserversock.connect(start, '127.0.0.1')
-            }
-          }
-          retry()
-        })
+      const display = this.builtinDisplay
+      if (!skipX11 && display) {
+        conn.on('x11', (_info, accept, reject) => display.accept(accept, reject))
       }
       conn
         .on('ready', () => resolve(true))
@@ -1110,14 +1023,8 @@ class TerminalSshBase extends TerminalBase {
 
   buildShellOpts () {
     const { initOptions } = this
-    let x11
-    if (this.x11Enabled) {
-      x11 = {
-        cookie: this.x11Cookie
-      }
-    }
     const shellOpts = {
-      x11
+      x11: this.builtinDisplay ? { cookie: this.builtinDisplay.cookie } : undefined
     }
     shellOpts.env = this.getEnv(initOptions)
     return shellOpts
@@ -1360,11 +1267,8 @@ class TerminalSshBase extends TerminalBase {
     this.shellOpts = null
     this.sshKeys = null
     this.privateKeyPath = null
-    this.display = null
     this.builtinDisplay?.close()
     this.builtinDisplay = null
-    this.x11Cookie = null
-    this.x11Notified = false
     this.jumpSshKeys = null
     this.jumpPrivateKeyPathFrom = null
     this.hoppingOptions = null
@@ -1389,41 +1293,6 @@ class TerminalSshBase extends TerminalBase {
     this.conn = null
     this.conns = null
     this.nextConn = null
-  }
-
-  getLocalEnv () {
-    return {
-      env: process.env
-    }
-  }
-
-  getDisplay () {
-    return new Promise((resolve) => {
-      exec('echo $DISPLAY', this.getLocalEnv(), (err, out, e) => {
-        if (err || e) {
-          resolve('')
-        } else {
-          resolve((out || '').trim())
-        }
-      })
-    })
-  }
-
-  getX11Cookie () {
-    return new Promise((resolve) => {
-      exec('xauth list :0', this.getLocalEnv(), (err, out, e) => {
-        if (err || e) {
-          resolve('')
-        } else {
-          const s = out || ''
-          const reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
-          const arr = s.match(reg)
-          resolve(
-            arr ? arr[1] || '' : ''
-          )
-        }
-      })
-    })
   }
 
   init () {

@@ -13,9 +13,6 @@ import {
 } from './interactive-prompt-state.js'
 import { rememberTyped } from '../../common/credential-provider.jsx'
 
-// x11 warnings already shown, keyed by message text
-const shownX11Warnings = new Set()
-
 // A prompt is only answerable while the tab it was asked for still exists:
 // reloadTab mints a new tab id, so a prompt left over from a previous attempt
 // names a tab that is already gone.
@@ -59,28 +56,6 @@ export default function TermInteractive () {
       description: body
         ? renderBody(body)
         : undefined,
-      duration: 30
-    })
-  }
-
-  function notifyX11Warning (data) {
-    // one notification per distinct message, several tabs may report it
-    if (shownX11Warnings.has(data.message)) {
-      return
-    }
-    shownX11Warnings.add(data.message)
-    notification.warning({
-      message: 'X11 forwarding',
-      description: (
-        <div className='pd0 mg0'>
-          <div>{data.message}</div>
-          {
-            data.url
-              ? <ExternalLink to={data.url}>{data.url}</ExternalLink>
-              : null
-          }
-        </div>
-      ),
       duration: 30
     })
   }
@@ -163,13 +138,6 @@ export default function TermInteractive () {
       e.data.includes('ssh-proxy-command-message')
     ) {
       notifyProxyCommandMessage(JSON.parse(e.data))
-    } else if (
-      e &&
-      e.data &&
-      typeof e.data === 'string' &&
-      e.data.includes('x11-warning')
-    ) {
-      notifyX11Warning(JSON.parse(e.data))
     }
   }
 

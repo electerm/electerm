@@ -32,7 +32,6 @@ const bookmarkSchema = {
     triggers: 'array - declarative auto triggers ({id,name,enabled,match:{type:text|regex,value,caseSensitive},action:{type:send|notify,value},sendEnter,mode:repeat|once|cooldown,cooldownMs})',
     proxy: 'string - proxy address (socks5://...)',
     proxyCommand: 'string - ssh proxy command, supports %h (host) %p (port) %r (username) placeholders, e.g. `netbird ssh proxy %h %p` or `cloudflared access ssh --hostname %h`',
-    x11Display: 'external (default) or builtin - X11 display when forwarding is enabled',
     x11: 'boolean - enable x11 forwarding, default is false',
     term: 'string - terminal type, default is xterm-256color, required',
     displayRaw: 'boolean - display raw output, default is false',

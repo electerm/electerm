@@ -11,24 +11,30 @@ const {
 } = require('../integration/lib/ssh-test-server')
 const { createTrustingWs } = require('../integration/lib/ssh-session-harness')
 
-test('SSH loads no display for disabled X11, shell-less sessions or connection tests', async t => {
+test('only an X11-enabled shell requests the built-in display', async t => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-x11-'))
   t.mock.method(os, 'homedir', () => home)
   t.after(() => fs.rmSync(home, { recursive: true, force: true }))
 
-  const server = await startTestSshServer({ port: 0 })
+  const cookies = []
+  const server = await startTestSshServer({
+    port: 0,
+    onX11 (accept, reject, request) {
+      cookies.push(request.cookie.toString())
+      accept()
+    }
+  })
   t.after(() => stopTestSshServer(server))
   const options = {
     host: '127.0.0.1',
     port: server.address().port,
     username: TEST_USERNAME,
     password: TEST_PASSWORD,
-    useSshAgent: false,
-    x11Display: 'builtin'
+    useSshAgent: false
   }
-  const paths = [require.resolve('../../app/server/x11'), require.resolve('electerm-x11')]
+  const displayModule = require.resolve('electerm-x11')
   function assertUnloaded () {
-    for (const filename of paths) assert.equal(require.cache[filename], undefined, filename)
+    assert.equal(require.cache[displayModule], undefined)
   }
 
   assertUnloaded()
@@ -43,4 +49,12 @@ test('SSH loads no display for disabled X11, shell-less sessions or connection t
   }
   assert.ok(await checkConnection({ ...options, x11: true }, createTrustingWs()))
   assertUnloaded()
+  assert.deepEqual(cookies, [])
+  const term = await session({ ...options, x11: true }, createTrustingWs())
+  try {
+    assert.match(term.builtinDisplay.cookie, /^[a-f0-9]{32}$/)
+    assert.deepEqual(cookies, [term.builtinDisplay.cookie])
+  } finally {
+    term.kill()
+  }
 })

@@ -362,7 +362,7 @@ function attachSftp (sftp, rootDir) {
   })
 }
 
-function startTestSshServer ({ port = TEST_PORT, rootDir, algorithms } = {}) {
+function startTestSshServer ({ port = TEST_PORT, rootDir, algorithms, onX11 } = {}) {
   const clients = new Set()
   const server = new Server({ hostKeys: [HOST_KEY_PRIVATE], algorithms }, (client) => {
     clients.add(client)
@@ -379,6 +379,7 @@ function startTestSshServer ({ port = TEST_PORT, rootDir, algorithms } = {}) {
     client.on('ready', () => {
       client.on('session', (accept) => {
         const session = accept()
+        if (onX11) session.on('x11', onX11)
         session.on('pty', (acceptPty) => {
           if (acceptPty) acceptPty()
         })
