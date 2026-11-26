@@ -2,14 +2,12 @@ import { PureComponent } from 'react'
 import { CloseOutlined, MinusSquareOutlined, UpCircleOutlined } from '@ant-design/icons'
 import { Button, Select, Space } from 'antd'
 import { getLatestReleaseInfo, getLatestReleaseVersion, getDownloadUrl } from '../../common/update-check'
-import upgrade from '../../common/upgrade'
 import compare from '../../common/version-compare'
 import Link from '../common/external-link'
 import {
   isMac,
   isWin,
-  packInfo,
-  downloadUpgradeTimeout
+  packInfo
 } from '../../common/constants'
 import { checkSkipSrc } from '../../common/check-skip-src'
 import { debounce } from 'lodash-es'
@@ -17,7 +15,7 @@ import newTerm from '../../common/new-terminal'
 import Markdown from '../common/markdown'
 import downloadMirrors from '../../common/download-mirrors'
 import { refsStatic } from '../common/ref'
-import message from '../common/message'
+import updateMirrors from '../../../app/common/update-mirrors.json'
 import './upgrade.styl'
 
 const e = window.translate
@@ -25,20 +23,12 @@ const {
   homepage
 } = packInfo
 
-const downloadMirrorList = [
-  'github',
-  'gh-proxy',
-  'atomgit',
-  'sourceforge',
-  'r2'
-]
+const downloadMirrorList = Object.keys(updateMirrors)
 
 export default class Upgrade extends PureComponent {
   state = {
-    mirror: downloadMirrorList[1]
+    mirror: window.et.downloadUpgradeFromBrowser ? 'gh-proxy' : 'auto'
   }
-
-  downloadTimer = null
 
   componentDidMount () {
     if (window.et.disableUpgradeCheck) {
@@ -88,39 +78,7 @@ export default class Upgrade extends PureComponent {
     })
   }
 
-  onData = (upgradePercent) => {
-    clearTimeout(this.downloadTimer)
-    if (upgradePercent >= 100) {
-      this.update && this.update.destroy()
-      return this.handleClose()
-    }
-    this.changeProps({
-      upgradePercent
-    })
-  }
-
-  onError = (e) => {
-    this.changeProps({
-      error: e.message
-    })
-  }
-
-  cancel = () => {
-    this.update && this.update.destroy()
-    this.changeProps({
-      upgrading: false,
-      upgradePercent: 0
-    })
-  }
-
-  timeout = () => {
-    this.cancel()
-    message.error('Download timeout, please try again')
-  }
-
-  onEnd = () => {
-    this.handleClose()
-  }
+  cancel = () => window.pre.runGlobalAsync('cancelDesktopUpdate')
 
   doUpgrade = debounce(async () => {
     const { installSrc } = this.props
@@ -148,15 +106,19 @@ export default class Upgrade extends PureComponent {
     this.changeProps({
       upgrading: true
     })
-    const proxy = window.store.getProxySetting()
-    this.update = await upgrade({
-      mirror: this.state.mirror,
-      proxy,
-      onData: this.onData,
-      onEnd: this.onEnd,
-      onError: this.onError
-    })
-    this.downloadTimer = setTimeout(this.timeout, downloadUpgradeTimeout)
+    try {
+      const installed = await window.pre.runGlobalAsync('startDesktopUpdate', {
+        language: window.store.config.language || window.initLanguage,
+        tag: this.props.upgradeInfo.remoteVersion,
+        mirror: this.state.mirror,
+        proxy: window.store.getProxySetting()
+      })
+      if (installed) this.handleClose()
+    } catch (err) {
+      this.changeProps({ error: err.message })
+    } finally {
+      this.changeProps({ upgrading: false })
+    }
   }, 100)
 
   handleSkipVersion = () => {
@@ -296,6 +258,7 @@ export default class Upgrade extends PureComponent {
         style={{ height: 32 }}
         popupMatchSelectWidth={false}
       >
+        {!window.et.downloadUpgradeFromBrowser && <Select.Option value='auto'>Auto (speed test)</Select.Option>}
         {downloadMirrorList.map((opt) => (
           <Select.Option key={opt} value={opt}>{opt}</Select.Option>
         ))}
@@ -304,9 +267,8 @@ export default class Upgrade extends PureComponent {
   }
 
   renderUpgradeButton = () => {
-    const { upgrading, upgradePercent, checkingRemoteVersion } = this.props.upgradeInfo
+    const { upgrading, checkingRemoteVersion } = this.props.upgradeInfo
     if (upgrading) {
-      const percent = upgradePercent || 0
       return (
         <Button
           type='primary'
@@ -316,7 +278,7 @@ export default class Upgrade extends PureComponent {
           onClick={() => this.cancel()}
           className='mg1b'
         >
-          <span>{`${e('upgrading')}... ${percent}% ${e('cancel')}`}</span>
+          <span>{`${e('upgrading')}... ${e('cancel')}`}</span>
         </Button>
       )
     }

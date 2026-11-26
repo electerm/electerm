@@ -7,6 +7,8 @@ import {
   baseUpdateCheckUrls, packInfo
 } from './constants'
 import dayjs from 'dayjs'
+import updateMirrors from '../../app/common/update-mirrors.json'
+import normalizeReleaseTag from '../../app/common/normalize-release-tag.cjs'
 
 async function fetchData (url, options) {
   const data = {
@@ -56,48 +58,16 @@ export async function getLatestReleaseVersion (n) {
     }, '')
   }
   const versionFile = window.et.versionFile || 'version.html'
-  let url = `${baseUpdateCheckUrls[0]}/${versionFile}${q}`
-  let tagName = await getInfo(url)
-  if (!tagName) {
-    url = `${baseUpdateCheckUrls[1]}/${versionFile}${q}`
-    tagName = await getInfo(url)
+  for (const base of baseUpdateCheckUrls) {
+    const tag = normalizeReleaseTag(await getInfo(`${base}/${versionFile}${q}`))
+    if (tag) return { tag_name: tag }
   }
-  if (tagName) {
-    return {
-      tag_name: tagName
-    }
-  }
-}
-
-// GitHub and atomgit serve release assets from the same path shape:
-//   https://github.com/electerm/electerm/releases/download/<tag>/<file>
-//   https://atomgit.com/electerm/electerm/releases/download/<tag>/<file>
-// so only the two trailing segments (tag, file name) need carrying over.
-// The asset itself only exists on atomgit for the newest release: the sync
-// workflow empties every older release to stay under the attachment quota.
-export function getAtomgitUrl (url) {
-  const arr = url.split('/')
-  const len = arr.length
-  return `https://atomgit.com/electerm/electerm/releases/download/${arr[len - 2]}/${arr[len - 1]}`
 }
 
 export function getDownloadUrl (browserDownloadUrl, mirror) {
-  if (!browserDownloadUrl) {
-    return ''
-  }
-  if (mirror === 'gh-proxy') {
-    return `https://mirror.electerm.org/${browserDownloadUrl}`
-  } if (mirror === 'sourceforge') {
-    const arr = browserDownloadUrl.split('/')
-    const len = arr.length
-    return `https://master.dl.sourceforge.net/project/electerm.mirror/${arr[len - 2]}/${arr[len - 1]}?viasf=1`
-  } else if (mirror === 'r2') {
-    return `https://electerm-store.html5beta.com/r/${browserDownloadUrl.split('/').pop()}`
-  } else if (mirror === 'atomgit') {
-    return getAtomgitUrl(browserDownloadUrl)
-  } else {
-    return browserDownloadUrl
-  }
+  if (!browserDownloadUrl || mirror === 'github' || !Object.prototype.hasOwnProperty.call(updateMirrors, mirror)) return browserDownloadUrl || ''
+  const [tag, file] = browserDownloadUrl.split('/').slice(-2)
+  return updateMirrors[mirror].replace('{tag}', tag).replace('{file}', file)
 }
 
 export async function getLatestReleaseInfo () {
@@ -112,7 +82,7 @@ export async function getLatestReleaseInfo () {
   if (!res || !res.release) {
     return undefined
   }
-  const asset = (res.release.assets || []).find(r => r.name.includes(installSrc))
+  const asset = (res.release.assets || []).find(r => installSrc && r.name.endsWith('-' + installSrc))
   return {
     body: res.release.body,
     date: dayjs(res.release.published_at).format('YYYY-MM-DD'),

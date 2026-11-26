@@ -2,7 +2,7 @@
  * post install script
  */
 const { cp, exec, rm } = require('shelljs')
-const { existsSync } = require('fs')
+const { existsSync, mkdirSync, readdirSync, readFileSync, copyFileSync } = require('fs')
 const { resolve } = require('path')
 const prePushPath = resolve(__dirname, '../../../.git/hooks/pre-push')
 const prePushPathFrom = resolve(__dirname, 'pre-push')
@@ -39,6 +39,29 @@ try {
 // An unquoted path containing a space is split into separate arguments, so the
 // rebuild never runs on a checkout under e.g. C:\Users\me\Project Code\electerm.
 exec(`"${resolve(__dirname, '../../../node_modules/.bin/electron-rebuild')}"`)
+
+// electron-rebuild can recreate build/Release after node-pty's own
+// postinstall has already copied the Windows ConPTY runtime into it.
+if (isWin && ['x64', 'arm64'].includes(process.arch)) {
+  const pty = resolve(__dirname, '../../../node_modules/node-pty')
+  const release = resolve(pty, 'build/Release')
+  const vendor = resolve(pty, 'third_party/conpty')
+  // Windows CI temporarily uninstalls node-pty, then pins a legacy build
+  // that uses the system ConPTY and has no vendored runtime to restore.
+  if (existsSync(resolve(release, 'conpty.node')) && existsSync(vendor)) {
+    const [version] = readdirSync(vendor)
+    const dest = resolve(release, 'conpty')
+    mkdirSync(dest, { recursive: true })
+    for (const name of ['conpty.dll', 'OpenConsole.exe']) {
+      const from = resolve(vendor, version, 'win10-' + process.arch, name)
+      const to = resolve(dest, name)
+      // A running terminal may hold these files open across npm installs.
+      if (!existsSync(to) || !readFileSync(from).equals(readFileSync(to))) {
+        copyFileSync(from, to)
+      }
+    }
+  }
+}
 
 if (!existsSync(prePushPath)) {
   cp(prePushPathFrom, prePushPath)

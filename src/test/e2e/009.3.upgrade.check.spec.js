@@ -8,7 +8,6 @@ const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const log = require('./common/log')
-const { expect } = require('./common/expect')
 
 describe('auto upgrade check', function () {
   it('auto upgrade check should work', async function () {
@@ -39,30 +38,32 @@ describe('auto upgrade check', function () {
     }
     log('should show upgrade info')
     log('start download upgrade')
-    await client.click('.upgrade-panel .ant-btn-primary')
-    const fr = {}
-    const len = 200
-    for (let i = 0; i < len; i++) {
-      await delay(500)
-      const txt = await client.getText('.upgrade-panel .ant-btn-primary')
-      console.log('txt', txt)
-      if (txt.includes('Upgrading... 0% Cancel')) {
-        fr.zero = 1
-      } else if (
-        txt.includes('% Cancel')
-      ) {
-        fr.progress = 1
-      }
-      if (fr.zero && fr.progress) {
-        break
-      }
-    }
-    expect(fr.progress).equal(1)
-    expect(fr.zero).equal(1)
-    // the primary button turns into "Cancel" while upgrading — stop the
-    // download before closing so no installer is ever fully fetched
-    await client.click('.upgrade-panel .ant-btn-primary').catch(() => {})
-    await delay(500)
+    // Exercise the unpackaged download path with a main-process version newer
+    // than the offered release. The test-mode shortcut would mask this case.
+    await electronApp.evaluate(({ app }) => {
+      if (app.isPackaged) throw new Error('Expected an unpackaged test app')
+      delete process.env.NODE_TEST
+      app.getVersion = () => '999.0.0'
+    })
+    const previousLanguage = await client.evaluate(() => {
+      const previous = window.store.config.language
+      window.store.setConfig({ language: 'fr_fr' })
+      // Reproduce a version read from the newline-terminated fallback feed.
+      window.store.upgradeInfo.remoteVersion += '\n'
+      return previous
+    })
+    const [progress] = await Promise.all([
+      electronApp.waitForEvent('window'),
+      client.click('.upgrade-panel .ant-btn-primary')
+    ])
+    await progress.getByRole('button', { name: 'Annuler' }).waitFor()
+    await progress.waitForFunction(() => document.documentElement.lang === 'fr-fr')
+    await progress.waitForFunction(() => document.querySelector('progress')?.value > 0)
+    await Promise.all([
+      progress.waitForEvent('close'),
+      progress.getByRole('button', { name: 'Annuler' }).evaluate(button => { setTimeout(() => button.click(), 0) })
+    ])
+    await client.evaluate(language => window.store.setConfig({ language }), previousLanguage)
     await electronApp.close().catch(console.log)
   })
 })

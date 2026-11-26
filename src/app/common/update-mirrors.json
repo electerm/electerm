@@ -1,0 +1,7 @@
+{
+  "github": "https://github.com/electerm/electerm/releases/download/{tag}/{file}",
+  "gh-proxy": "https://mirror.electerm.org/https://github.com/electerm/electerm/releases/download/{tag}/{file}",
+  "atomgit": "https://atomgit.com/electerm/electerm/releases/download/{tag}/{file}",
+  "sourceforge": "https://master.dl.sourceforge.net/project/electerm.mirror/{tag}/{file}?viasf=1",
+  "r2": "https://r2.electerm.org/r/{file}"
+}

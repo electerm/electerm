@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+  <title>Electerm</title>
+  <style>
+    :root { color-scheme: light dark; font: 14px system-ui, sans-serif; }
+    body { padding: 12px 20px; }
+    h1 { font-size: 18px; font-weight: 600; margin: 0 0 16px; }
+    .status { display: flex; justify-content: space-between; }
+    progress { width: 100%; height: 12px; margin: 6px 0 14px; }
+    button { float: inline-end; font: inherit; padding: 4px 16px; }
+  </style>
+</head>
+<body>
+  <h1>Electerm</h1>
+  <div class="status"><label for="progress" id="status"></label><span id="percent"></span></div>
+  <progress id="progress" max="100"></progress>
+  <button type="button"></button>
+</body>
+</html>
