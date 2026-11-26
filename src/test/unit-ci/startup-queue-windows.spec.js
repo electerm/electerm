@@ -104,24 +104,24 @@ describe('Windows startup directory', () => {
   })
 
   test('recognizes PowerShell executable names without changing CMD commands', async () => {
-    const { createWindowsRestoreCwdCommand } = await loadCommands()
+    const { createWindowsCdCommand } = await loadCommands()
     for (const shell of ['powershell', 'POWERSHELL.EXE', 'pwsh', 'pwsh.exe']) {
-      assert.equal(createWindowsRestoreCwdCommand('D:\\work', shell), expectedPowerShellCd('D:\\work'))
+      assert.equal(createWindowsCdCommand('D:\\work', shell), expectedPowerShellCd('D:\\work'))
     }
     for (const shell of ['cmd.exe', 'C:\\Windows\\System32\\cmd.exe']) {
-      assert.equal(createWindowsRestoreCwdCommand('D:\\work', shell), 'cd /d "D:\\work"')
+      assert.equal(createWindowsCdCommand('D:\\work', shell), 'cd /d "D:\\work"')
     }
   })
 
   test('tolerates a quoted or padded PowerShell executable path', async () => {
-    const { createWindowsRestoreCwdCommand } = await loadCommands()
+    const { createWindowsCdCommand } = await loadCommands()
     for (const shell of [
       '  pwsh.exe  ',
       '"C:\\Program Files\\PowerShell\\7\\pwsh.exe"',
       'C:\\Program Files\\PowerShell\\7\\pwsh.exe'
     ]) {
       assert.equal(
-        createWindowsRestoreCwdCommand('D:\\work', shell),
+        createWindowsCdCommand('D:\\work', shell),
         expectedPowerShellCd('D:\\work'),
         `for ${JSON.stringify(shell)}`
       )
@@ -133,6 +133,17 @@ describe('Windows startup directory', () => {
       await startupCommand({ shell: 'cmd.exe', resolvedShell: 'bash.exe', reloadCwd: 'D:\\work folder' }),
       "cd -- 'D:/work folder'\r"
     )
+  })
+
+  test('restores WSL paths with punctuation through either Windows launcher', async () => {
+    for (const shell of ['wsl.exe', 'C:\\Windows\\System32\\bash.exe']) {
+      for (const name of ['R&D', 'C#', 'foo (1)', '[a]+b=c,@']) {
+        assert.equal(
+          await startupCommand({ shell, reloadCwd: `D:\\${name}` }),
+          `cd '/mnt/d/${name}'\r`
+        )
+      }
+    }
   })
 
   test('keeps CMD drive switching in the startup queue', async () => {
@@ -173,10 +184,10 @@ describe('Windows startup directory', () => {
   })
 
   test('rejects empty and control-character paths for both Windows shells', async () => {
-    const { createWindowsRestoreCwdCommand } = await loadCommands()
+    const { createWindowsCdCommand } = await loadCommands()
     for (const shell of ['powershell.exe', 'cmd.exe']) {
       for (const cwd of ['', 'C:\\bad\npath', 'C:\\bad\rpath', 'C:\\bad\0path']) {
-        assert.equal(createWindowsRestoreCwdCommand(cwd, shell), '')
+        assert.equal(createWindowsCdCommand(cwd, shell), '')
       }
     }
   })

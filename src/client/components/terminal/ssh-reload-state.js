@@ -49,8 +49,11 @@ export function createRestoreCwdCommand (cwd) {
 // The shell setting is hand-entered config, so tolerate a quoted or padded
 // executable path before deciding which shell we are looking at.
 function shellName (shell) {
-  return String(shell || '').trim().replace(/^"|"$/g, '')
-    .split(/[/\\]/).pop().toLowerCase().replace(/\.exe$/, '')
+  const path = String(shell || '').trim().replace(/^"|"$/g, '')
+  if (/(?:^|[/\\])(?:system32|sysnative|syswow64|wsl)[/\\]bash(?:\.exe)?$/i.test(path)) {
+    return 'wsl'
+  }
+  return path.split(/[/\\]/).pop().toLowerCase().replace(/\.exe$/, '')
 }
 
 export function isPowerShellExecutable (shell = '') {
@@ -66,10 +69,18 @@ function powerShellCdCommand (dir) {
 }
 
 function cmdCdCommand (dir) {
-  return `cd /d "${dir.replace(/"/g, '""')}"`
+  // Quotes delimit the argument. Paired percent signs and delayed expansion
+  // can interpolate environment variables even inside double quotes.
+  return /["!]|%[^%]*%/.test(dir) ? '' : `cd /d "${dir}"`
 }
 
-export function createWindowsRestoreCwdCommand (cwd, shell = '') {
+/**
+ * Build a directory change for the local Windows shell used by the file panel
+ * or startup queue. Directory names may come from an untrusted source.
+ * An empty result means callers must skip the command. Never interpolate
+ * the raw directory as a fallback.
+ */
+export function createWindowsCdCommand (cwd, shell = '') {
   const safeCwd = sanitizeSshCwd(cwd)
   if (!safeCwd) {
     return ''
@@ -79,8 +90,7 @@ export function createWindowsRestoreCwdCommand (cwd, shell = '') {
   }
   const name = shellName(shell)
   if (name === 'cmd') {
-    // CMD expands environment variables even inside double quotes.
-    return /["%!]/.test(safeCwd) ? '' : cmdCdCommand(safeCwd)
+    return cmdCdCommand(safeCwd)
   }
 
   const drive = /^([a-z]):[\\/]/i.exec(safeCwd)
@@ -90,7 +100,7 @@ export function createWindowsRestoreCwdCommand (cwd, shell = '') {
     const path = drive
       ? '/mnt/' + drive[1].toLowerCase() + '/' + safeCwd.slice(3).replace(/\\/g, '/')
       : safeCwd
-    return /^\/[\p{L}\p{N} /._-]*$/u.test(path) ? `cd '${path}'` : ''
+    return /^\/[\p{L}\p{N} /._()[\]+=#,@&-]*$/u.test(path) ? `cd '${path}'` : ''
   }
   if (['bash', 'sh', 'zsh'].includes(name)) {
     const path = drive || safeCwd.startsWith('\\\\') ? safeCwd.replace(/\\/g, '/') : safeCwd
@@ -107,11 +117,11 @@ export function createCdCommand (dir, { remote = false, shell = '', windows = fa
   }
   const drivePath = /^[a-z]:[\\/]/i.test(safeDir)
   if (!remote && (windows || drivePath || isPowerShellExecutable(shell))) {
-    return createWindowsRestoreCwdCommand(safeDir, shell)
+    return createWindowsCdCommand(safeDir, shell)
   }
   if (remote && drivePath) {
-    // The remote shell is unknown. Preserve ordinary Windows paths only.
-    return /^[a-z]:[\\/\p{L}\p{N} ._-]*$/iu.test(safeDir) ? cmdCdCommand(safeDir) : ''
+    // The remote shell may interpret substitutions or smart double quotes.
+    return /[$`\u201c-\u201f]/.test(safeDir) ? '' : cmdCdCommand(safeDir)
   }
   return `cd ${quotePosixShellArg(safeDir)}`
 }
