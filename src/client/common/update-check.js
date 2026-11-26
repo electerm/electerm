@@ -8,6 +8,7 @@ import {
 } from './constants'
 import dayjs from 'dayjs'
 import updateMirrors from '../../app/common/update-mirrors.json'
+import normalizeReleaseTag from '../../app/common/normalize-release-tag.cjs'
 
 async function fetchData (url, options) {
   const data = {
@@ -57,16 +58,9 @@ export async function getLatestReleaseVersion (n) {
     }, '')
   }
   const versionFile = window.et.versionFile || 'version.html'
-  let url = `${baseUpdateCheckUrls[0]}/${versionFile}${q}`
-  let tagName = await getInfo(url)
-  if (!tagName) {
-    url = `${baseUpdateCheckUrls[1]}/${versionFile}${q}`
-    tagName = await getInfo(url)
-  }
-  if (tagName) {
-    return {
-      tag_name: tagName
-    }
+  for (const base of baseUpdateCheckUrls) {
+    const tag = normalizeReleaseTag(await getInfo(`${base}/${versionFile}${q}`))
+    if (tag) return { tag_name: tag }
   }
 }
 

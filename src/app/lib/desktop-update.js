@@ -5,17 +5,19 @@ const os = require('os')
 const path = require('path')
 const installSrc = require('./install-src')
 const compareVersions = require('../common/version-compare')
+const normalizeReleaseTag = require('../common/normalize-release-tag.cjs')
 const globalState = require('./glob-state')
 const { launch, locale } = require('@electerm/updater')
 
 let active
 
-async function startDesktopUpdate ({ tag, mirror, proxy, language }) {
+async function startDesktopUpdate ({ tag: requestedTag, mirror, proxy, language }) {
   const messages = locale(language)
   if (active) throw new Error(messages.busy)
   const testing = !!process.env.NODE_TEST
   const downloadOnly = !app.isPackaged || testing
-  if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error(messages.invalid)
+  const tag = normalizeReleaseTag(requestedTag)
+  if (!tag) throw new Error(messages.invalid)
   if (!downloadOnly && compareVersions(tag, app.getVersion()) <= 0) {
     throw new Error(messages.newer)
   }

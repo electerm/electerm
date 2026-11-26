@@ -8,6 +8,16 @@ const { createHash } = require('crypto')
 const { execFileSync } = require('child_process')
 const { format, assetFor, download } = require('@electerm/updater/release')
 const { archiveRoot } = require('@electerm/updater')
+const normalizeReleaseTag = require('../../app/common/normalize-release-tag.cjs')
+
+test('normalizes plain-text update feeds to an exact desktop release tag', () => {
+  for (const raw of ['v5.15.0', 'v5.15.0\n', '\uFEFF5.15.0\r\n']) {
+    assert.equal(normalizeReleaseTag(raw), 'v5.15.0')
+  }
+  for (const raw of [null, {}, '', '<html>v5.15.0</html>', 'v5.15.0\nv5.16.0', 'v5.15.0/extra']) {
+    assert.equal(normalizeReleaseTag(raw), '')
+  }
+})
 
 function temporary (t) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-updater-test-'))

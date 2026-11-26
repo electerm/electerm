@@ -48,6 +48,8 @@ describe('auto upgrade check', function () {
     const previousLanguage = await client.evaluate(() => {
       const previous = window.store.config.language
       window.store.setConfig({ language: 'fr_fr' })
+      // Reproduce a version read from the newline-terminated fallback feed.
+      window.store.upgradeInfo.remoteVersion += '\n'
       return previous
     })
     const [progress] = await Promise.all([
