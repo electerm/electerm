@@ -15,21 +15,24 @@ import {
   MinusOutlined
 } from '@ant-design/icons'
 import { Tooltip, Popover } from 'antd'
+import { auto } from 'manate/react'
 import classnames from 'classnames'
 import {
   paneMap,
   connectionMap,
+  statusMap,
   terminalSerialType
 } from '../../common/constants'
 import { SplitViewIcon } from '../icons/split-view'
 import { HeartbeatIcon } from '../icons/heartbeat'
 import { rightClickBehaviors } from '../../common/right-click-behavior'
+import SshTunnelControl from './ssh-tunnel-control'
 import SerialControl from './serial-control'
 import './session-control.styl'
 
 const e = window.translate
 
-export default function SessionControl (props) {
+export default auto(function SessionControl (props) {
   const {
     tab,
     isMobile,
@@ -238,6 +241,12 @@ export default function SessionControl (props) {
     )
   }
 
+  function renderSshTunnelControl () {
+    const isSshTab = tab.host && (!tab.type || tab.type === connectionMap.ssh)
+    if (!isSshTab || isSshDisabled || tab.status !== statusMap.success) return null
+    return <SshTunnelControl key={tab.id} tabId={tab.id} results={tab.sshTunnelResults} compact={isMobile} />
+  }
+
   // control lines, received data view and raw send, see serial-control.jsx.
   // mobile has one icon that opens a panel: the toolbar is too narrow for
   // the row of controls
@@ -348,6 +357,7 @@ export default function SessionControl (props) {
         {renderWrapIcon()}
         {renderExitGracefullyIcon()}
         {renderSerialControl()}
+        {renderSshTunnelControl()}
         {renderTermControls(true)}
       </div>
     )
@@ -377,7 +387,8 @@ export default function SessionControl (props) {
       {renderWrapIcon()}
       {renderExitGracefullyIcon()}
       {renderSerialControl()}
+      {renderSshTunnelControl()}
       {renderTermControls()}
     </div>
   )
-}
+})

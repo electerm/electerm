@@ -6,20 +6,13 @@ import {
 import { useState } from 'react'
 import { MinusCircleFilled, EditOutlined } from '@ant-design/icons'
 import { tailFormItemLayout } from '../../../common/form-layout'
+import formatSshTunnel from '../../../common/format-ssh-tunnel'
 import uid from '../../../common/uid'
 import Modal from '../../common/modal'
-import SshTunnelForm from './ssh-tunnel-form'
+import SshTunnelForm, { defaultInitialValues } from './ssh-tunnel-form'
 
 const FormItem = Form.Item
 const e = window.translate
-
-const defaultInitialValues = {
-  sshTunnel: 'forwardLocalToRemote',
-  sshTunnelLocalPort: 12200,
-  sshTunnelLocalHost: '127.0.0.1',
-  sshTunnelRemotePort: 12300,
-  sshTunnelRemoteHost: '127.0.0.1'
-}
 
 export default function renderSshTunnels (props) {
   const {
@@ -104,36 +97,9 @@ export default function renderSshTunnels (props) {
     }, {
       title: e('sshTunnel'),
       key: 'sshTunnel',
-      render: (k, item) => {
-        // sshTunnel is forwardRemoteToLocal, forwardLocalToRemote,
-        // dynamicForward or remoteDynamicForward
-        const {
-          sshTunnel,
-          sshTunnelRemoteHost = '127.0.0.1',
-          sshTunnelRemotePort = '',
-          sshTunnelLocalHost = '127.0.0.1',
-          sshTunnelLocalPort = '',
-          name
-        } = item
-        const n = name ? `[${name}] ` : ''
-        if (sshTunnel === 'dynamicForward') {
-          return `${n}socks5://${sshTunnelLocalHost}:${sshTunnelLocalPort}`
-        }
-        if (sshTunnel === 'remoteDynamicForward') {
-          return `${n}socks5://${sshTunnelRemoteHost}:${sshTunnelRemotePort} (${e('remote')})`
-        }
-        const to = sshTunnel === 'forwardRemoteToLocal'
-          ? `${e('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
-          : `${e('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
-        const from = sshTunnel === 'forwardRemoteToLocal'
-          ? `${e('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
-          : `${e('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort}`
-        return (
-          <span>
-            {n}→ {from} → {to}
-          </span>
-        )
-      }
+      render: (k, item) => (
+        <span>{item.name && `[${item.name}] `}{formatSshTunnel(item)}</span>
+      )
     }, {
       title: e('op'),
       key: 'op',

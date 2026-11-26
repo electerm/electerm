@@ -12,6 +12,7 @@ const sync = require('./sync')
 const {
   createTerm,
   testTerm,
+  manageTunnel,
   resize,
   runCmd,
   execCmd,
@@ -92,6 +93,8 @@ const initWs = function (app) {
           createTerm(ws, msg)
         } else if (action === 'test-terminal') {
           testTerm(ws, msg)
+        } else if (action === 'manage-ssh-tunnel') {
+          manageTunnel(ws, msg)
         } else if (action === 'resize-terminal') {
           resize(ws, msg)
         } else if (action === 'toggle-terminal-log') {

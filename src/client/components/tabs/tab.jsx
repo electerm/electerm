@@ -22,6 +22,8 @@ import message from '../common/message'
 import classnames from 'classnames'
 import { pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'
+import formatSshTunnel, { sshTunnelStatusText } from '../../common/format-ssh-tunnel'
+import { statusMap } from '../../common/constants'
 import createName, { createTitleTag } from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
 import isDark from '../../common/is-color-dark'
@@ -458,32 +460,14 @@ class Tab extends Component {
   }
 
   renderTitle = (sshTunnelResults, title) => {
-    const list = sshTunnelResults.map(({ sshTunnel: obj, error }, i) => {
-      const {
-        sshTunnelLocalPort,
-        sshTunnelRemoteHost = '127.0.0.1',
-        sshTunnelRemotePort,
-        sshTunnel,
-        sshTunnelLocalHost = '127.0.0.1',
-        name
-      } = obj
-      let tunnel
-      if (sshTunnel === 'dynamicForward') {
-        tunnel = `socks5://${sshTunnelLocalHost}:${sshTunnelLocalPort}`
-      } else if (sshTunnel === 'remoteDynamicForward') {
-        tunnel = `socks5://${sshTunnelRemoteHost}:${sshTunnelRemotePort} (${e('remote')})`
-      } else {
-        tunnel = sshTunnel === 'forwardRemoteToLocal'
-          ? `-> ${e('remote')}:${sshTunnelRemoteHost}:${sshTunnelRemotePort} -> ${sshTunnelLocalHost}:${sshTunnelLocalPort}`
-          : `-> ${e('local')}:${sshTunnelLocalHost}:${sshTunnelLocalPort} -> ${sshTunnelRemoteHost}:${sshTunnelRemotePort}`
-      }
-      if (error) {
-        tunnel = `error: ${tunnel}`
-      }
-      if (name) {
-        tunnel = `[${name}] ${tunnel}`
-      }
-      return <div key={tunnel + '-' + i} className='ssh-tunnel-item'>{tunnel}</div>
+    const list = sshTunnelResults.map(({ id, sshTunnel, status, error }, i) => {
+      const statusText = sshTunnelStatusText(status)
+      return (
+        <div key={id || i} className='ssh-tunnel-item'>
+          {sshTunnel.name && `[${sshTunnel.name}] `}{formatSshTunnel(sshTunnel)}
+          {statusText && ` · ${statusText}`}{error && ` · ${error}`}
+        </div>
+      )
     })
     return (
       <>
@@ -534,7 +518,7 @@ class Tab extends Component {
     )
     const title = createName(tab)
     let tooltipTitle = title
-    if (sshTunnelResults) {
+    if (status === statusMap.success && sshTunnelResults?.length) {
       tooltipTitle = this.renderTitle(sshTunnelResults, title)
     }
     if (isEditting) {

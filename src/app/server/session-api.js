@@ -26,6 +26,12 @@ async function execCmd (body) {
   return term.execCommand(cmd, { timeoutMs })
 }
 
+async function manageTunnel ({ pid, request }) {
+  const term = terminals(pid)
+  if (!term?.manageTunnel) throw new Error('SSH tunnels unavailable for this session')
+  return term.manageTunnel(request)
+}
+
 async function resize (body) {
   const { pid, cols, rows } = body
   const term = terminals(pid)
@@ -87,6 +93,7 @@ async function startTerminalLogFile (body) {
 
 exports.createTerm = createTerm
 exports.testTerm = testTerm
+exports.manageTunnel = manageTunnel
 exports.resize = resize
 exports.runCmd = runCmd
 exports.execCmd = execCmd

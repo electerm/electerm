@@ -18,6 +18,7 @@ const appDec = require('./app-wrap')
 const {
   createTerm,
   testTerm,
+  manageTunnel,
   resize,
   runCmd,
   execCmd,
@@ -673,6 +674,8 @@ process.on('message', async (message) => {
       promise = createTerm(body, ws)
     } else if (action === 'test-terminal') {
       promise = testTerm(body, ws)
+    } else if (action === 'manage-ssh-tunnel') {
+      promise = manageTunnel(body)
     } else if (action === 'resize-terminal') {
       promise = resize(body)
     } else if (action === 'toggle-terminal-log') {
