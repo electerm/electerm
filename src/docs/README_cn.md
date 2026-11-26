@@ -94,6 +94,7 @@
 
 - Mac OS用户: `brew install --cask electerm`
 - Snap: `sudo snap install electerm --classic`
+- 使用 Linux 的 `tar.gz` 版本时，解压后进入解压目录，运行 `./electerm`。如果系统限制使用用户命名空间，启动器会请求管理员授权，以下载发布包、校验其 SHA-256 校验和并安装 Chromium 沙箱辅助程序。后续启动会复用该程序，只有更新时辅助程序发生变化才需要再次授权。
 - 一些Linux发行版的内置软件商店(Ubuntu, Deepin, Mint...).
 - 不支持`rpm`, `deb`, or `snap` 的Linux发行版可以尝试 `tar.gz`版本.
 - Windows用户可以从[windows store](https://www.microsoft.com/store/apps/9NCN7272GTFF), 命令行安装工具 [winget](https://github.com/microsoft/winget-cli)，以及[scoop](https://github.com/lukesampson/scoop) :

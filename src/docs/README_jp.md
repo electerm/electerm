@@ -92,6 +92,7 @@ Electerm をご支援くださっている胜算云に感謝します。胜算�
 
 - Mac ユーザーの場合: `brew install --cask electerm`
 - snap の場合: `sudo snap install electerm --classic`
+- Linux の `tar.gz` 版は、アーカイブを展開し、展開先のディレクトリで `./electerm` を実行します。ユーザー名前空間の利用が制限されているシステムでは、ランチャーが管理者の承認を求めます。承認後、リリースアーカイブをダウンロードし、SHA-256 チェックサムを検証して Chromium のサンドボックスヘルパーをインストールします。次回以降は同じヘルパーを使用し、更新でヘルパーが変わった場合にだけ再承認が必要です。
 - 一部の Linux ディストリビューションでは、OS 標準のアプリストアから入手できます(Ubuntu, Deepin, Mint...)。
 - 一部の Linux OS では `rpm`、`deb`、`snap` 版が動作しない場合があります。その場合は `tar.gz` または `.appImage` 版をお試しください。
 - Windows ユーザーは [Windows ストア](https://www.microsoft.com/store/apps/9NCN7272GTFF)からインストールできます。コマンドラインインストーラーの [winget](https://github.com/microsoft/winget-cli) や [scoop](https://github.com/lukesampson/scoop) もおすすめです:
