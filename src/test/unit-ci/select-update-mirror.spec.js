@@ -23,6 +23,7 @@ test('selects the first mirror delivering a complete binary sample and stops com
   })
   assert.equal(await selectMirror({ ...options, signal: new AbortController().signal }), 'atomgit')
   assert.equal(calls.length, 5)
+  assert.ok(calls.includes('https://r2.electerm.org/r/electerm-5.15.0-win-x64-portable.tar.gz'))
   assert.ok(calls.every(url => url.includes('electerm-5.15.0-win-x64-portable.tar.gz')))
   assert.ok(probeSignal.aborted)
 })
