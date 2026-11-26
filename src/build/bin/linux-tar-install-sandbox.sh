@@ -25,7 +25,7 @@ read -r hash filename < checksum
 printf '%s\n' "$hash" | grep -Eq '^[a-f0-9]{64}$'
 version=${asset#electerm-}
 tag=v${version%%-linux-*}
-fetch "https://electerm-store.html5beta.com/r/$asset" archive || fetch "https://github.com/electerm/electerm/releases/download/$tag/$asset" archive
+fetch "https://r2.electerm.org/r/$asset" archive || fetch "https://github.com/electerm/electerm/releases/download/$tag/$asset" archive
 printf '%s  archive\n' "$hash" | sha256sum -c -
 tar -xOzf archive --no-anchored chrome-sandbox > helper
 printf '%s  helper\n' "$digest" | sha256sum -c -
