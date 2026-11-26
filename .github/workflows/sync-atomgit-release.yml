@@ -189,6 +189,28 @@ jobs:
             | awk '{printf "%12s  %s\n", $5, $9; t += $5}
                    END {printf "total: %.2f GB\n", t / 1073741824}'
 
+      - name: Generate SHA-256 checksums for assets larger than 1 MiB
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        shell: python
+        run: |
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          assets = Path("release-assets")
+          manifest = assets / "checksum.json"
+          tag = os.environ["TAG"]
+          skip = {manifest.name, f"{tag}.tar.gz", f"{tag}.zip"}
+          checksums = {}
+          for asset in sorted(assets.iterdir()):
+              if asset.name in skip or not asset.is_file() or asset.stat().st_size <= 1024**2:
+                  continue
+              with asset.open("rb") as stream:
+                  checksums[asset.name] = hashlib.file_digest(stream, "sha256").hexdigest()
+          manifest.write_text(json.dumps(checksums, indent=2) + "\n", encoding="utf-8")
+
       # Re-run safety: drop whatever a previous attempt left on this tag, so
       # asset names stay unique and the asset count check below stays exact.
       - name: Reset attachments on the sync tag
@@ -392,7 +414,7 @@ jobs:
           w="$(printf '%s\n' "$want" | grep -c . || true)"
           missing="$(comm -23 <(printf '%s\n' "$want") <(printf '%s\n' "$have"))"
 
-          echo "atomgit attach assets: $n / github assets: $w"
+          echo "atomgit attachments: $n / expected: $w"
           echo "+4 mirror generated source archives: $(echo "$res" | jq '[.assets // [] | .[] | select(.type == "source")] | length')"
           echo "https://atomgit.com/${OWNER}/${REPO}/releases"
           if [ -n "$missing" ]; then
