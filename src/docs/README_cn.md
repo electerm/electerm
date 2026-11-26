@@ -40,6 +40,16 @@
 ## 赞助商
 
 <div align="center">
+  <a href="https://www.shengsuanyun.com/zh/?from=Electerm">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/shengsuanyun.png?raw=true" alt="胜算云" width="210" />
+  </a>
+</div>
+
+感谢胜算云对本项目的赞助！胜算云是面向 AI 原生团队的模型 API 聚合平台，汇集 Claude、ChatGPT、Gemini 等海内外大语言模型及多媒体模型，支持统一接入与按量调用。平台坚持合规 API 服务，杜绝逆向工程和资源稀释。此外，平台提供企业级定制网关，包括团队成本与权限管理、智能路由、安全防护及 BYOK 密钥托管，并提供发票服务。新用户通过[此链接](https://www.shengsuanyun.com/zh/?from=Electerm)注册，即可领取 5 元体验额度。
+
+----
+
+<div align="center">
   <a href="https://www.packyapi.ai/register?aff=DOZI">
     <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/packy-api.png?raw=true" alt="PackyCode" width="210" />
   </a>

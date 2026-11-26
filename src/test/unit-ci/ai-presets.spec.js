@@ -5,11 +5,32 @@ const presetsModule = import('../../client/components/ai/ai-presets.js')
 const clientDefaultsModule = import('../../client/common/default-setting.js')
 const appDefaults = require('../../app/common/default-setting.js')
 
-describe('Infistar default AI provider', () => {
+describe('Shengsuanyun default AI provider', () => {
   it('is the first preset and matches the shipped default settings', async () => {
     const { defaultAIPresets } = await presetsModule
-    const infistar = defaultAIPresets[0]
-    assert.equal(infistar.id, 'infistar')
+    const preset = defaultAIPresets[0]
+    assert.equal(preset.id, 'shengsuanyun')
+    assert.equal(preset.pinned, true)
+    assert.equal(preset.baseURLAI, 'https://router.shengsuanyun.com/api/v1')
+    assert.equal(preset.modelAI, 'deepseek/deepseek-v4-flash')
+    assert.equal(preset.apiPathAI, '/chat/completions')
+    assert.equal(preset.authHeaderNameAI, 'Authorization: Bearer')
+    assert.equal(preset.siteUrl, 'https://www.shengsuanyun.com/zh/?from=Electerm')
+
+    const clientDefaults = (await clientDefaultsModule).default
+    for (const defaults of [clientDefaults, appDefaults]) {
+      assert.equal(defaults.nameAI, preset.nameAI)
+      assert.equal(defaults.baseURLAI, preset.baseURLAI)
+      assert.equal(defaults.modelAI, preset.modelAI)
+      assert.equal(defaults.apiPathAI, preset.apiPathAI)
+    }
+  })
+})
+
+describe('Infistar preset', () => {
+  it('resolves every provider host, trailing slashes and the build-injected preset', async () => {
+    const { defaultAIPresets, findAIPreset, getAIModelOptions, getPresetBaseURLs } = await presetsModule
+    const infistar = defaultAIPresets.find(p => p.id === 'infistar')
     assert.equal(infistar.pinned, true)
     assert.equal(infistar.baseURLAI, 'https://infistar.cc/v1')
     assert.deepEqual(infistar.baseURLAIs, [
@@ -20,19 +41,6 @@ describe('Infistar default AI provider', () => {
     assert.equal(infistar.apiPathAI, '/chat/completions')
     assert.equal(infistar.authHeaderNameAI, 'Authorization: Bearer')
     assert.match(infistar.siteUrl, /^https:\/\/www\.infistar\.cc\/register\?aff=/)
-
-    const clientDefaults = (await clientDefaultsModule).default
-    for (const defaults of [clientDefaults, appDefaults]) {
-      assert.equal(defaults.nameAI, infistar.nameAI)
-      assert.equal(defaults.baseURLAI, infistar.baseURLAI)
-      assert.equal(defaults.modelAI, infistar.modelAI)
-      assert.equal(defaults.apiPathAI, infistar.apiPathAI)
-    }
-  })
-
-  it('resolves every provider host, trailing slashes and the build-injected preset', async () => {
-    const { defaultAIPresets, findAIPreset, getAIModelOptions, getPresetBaseURLs } = await presetsModule
-    const infistar = defaultAIPresets[0]
     assert.deepEqual(getPresetBaseURLs(infistar), infistar.baseURLAIs)
     for (const url of ['https://infistar.cc/v1', 'https://infistar.cc/v1/', 'https://infistar.ai/v1', 'https://infistar.ai/v1/']) {
       assert.equal(findAIPreset(url), infistar)
