@@ -108,6 +108,7 @@ export default class Upgrade extends PureComponent {
     })
     try {
       const installed = await window.pre.runGlobalAsync('startDesktopUpdate', {
+        language: window.store.config.language || window.initLanguage,
         tag: this.props.upgradeInfo.remoteVersion,
         mirror: this.state.mirror,
         proxy: window.store.getProxySetting()

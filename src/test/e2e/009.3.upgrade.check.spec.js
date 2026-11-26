@@ -45,15 +45,23 @@ describe('auto upgrade check', function () {
       delete process.env.NODE_TEST
       app.getVersion = () => '999.0.0'
     })
+    const previousLanguage = await client.evaluate(() => {
+      const previous = window.store.config.language
+      window.store.setConfig({ language: 'fr_fr' })
+      return previous
+    })
     const [progress] = await Promise.all([
       electronApp.waitForEvent('window'),
       client.click('.upgrade-panel .ant-btn-primary')
     ])
+    await progress.getByRole('button', { name: 'Annuler' }).waitFor()
+    await progress.waitForFunction(() => document.documentElement.lang === 'fr-fr')
     await progress.waitForFunction(() => document.querySelector('progress')?.value > 0)
     await Promise.all([
       progress.waitForEvent('close'),
-      progress.getByRole('button', { name: 'Cancel' }).click()
+      progress.getByRole('button', { name: 'Annuler' }).evaluate(button => { setTimeout(() => button.click(), 0) })
     ])
+    await client.evaluate(language => window.store.setConfig({ language }), previousLanguage)
     await electronApp.close().catch(console.log)
   })
 })

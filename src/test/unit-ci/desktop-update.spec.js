@@ -33,24 +33,27 @@ test('matches the exact release variant and excludes store packages and metadata
   }
 })
 
-test('rejects truncated and same-length corrupt mirror downloads', async t => {
-  const tag = 'v1.2.3'
+test('updater supports every Electerm language', () => {
+  const { locale } = require('@electerm/updater')
+  const ids = Object.keys(require('@electerm/electerm-locales'))
+  for (const id of ids) assert.equal(locale(id).language, id)
+})
+
+test('verifies mirrored downloads with the per-asset Electerm checksum', async t => {
   const src = 'win-x64.tar.gz'
-  const digest = 'sha256:' + createHash('sha256').update('good').digest('hex')
-  const asset = { name: 'electerm-1.2.3-' + src, size: 4, digest }
-  let body
+  const name = 'electerm-1.2.3-' + src
+  const digest = createHash('sha256').update('good').digest('hex')
+  let body = 'good'
   t.mock.method(require('axios'), 'create', () => ({
-    get: async url => url.startsWith('https://api.github.com/')
-      ? { data: { tag_name: tag, assets: [asset] } }
-      : { data: Readable.from([Buffer.from(body)]) }
+    get: async url => {
+      if (url === 'https://electerm.org/sha256/' + name + '.checksum') return { data: digest + '  ' + name }
+      assert.equal(url, 'https://electerm-store.html5beta.com/r/' + name)
+      return { data: Readable.from([Buffer.from(body)]) }
+    }
   }))
-  const run = () => download({ tag, src, mirror: 'r2' }, temporary(t), () => {})
-  body = 'go'
-  await assert.rejects(run, /verification/)
-  body = 'evil'
-  await assert.rejects(run, /verification/)
-  body = 'good'
+  const run = () => download({ tag: 'v1.2.3', src, mirror: 'r2' }, temporary(t), () => {})
   assert.equal(fs.readFileSync(await run(), 'utf8'), 'good')
+  for (body of ['go', 'evil']) await assert.rejects(run, /verification/)
 })
 
 test('finds flat, wrapped and loose archives and rejects ambiguous layouts', t => {

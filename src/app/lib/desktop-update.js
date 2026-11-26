@@ -6,17 +6,18 @@ const path = require('path')
 const installSrc = require('./install-src')
 const compareVersions = require('../common/version-compare')
 const globalState = require('./glob-state')
-const { launch } = require('@electerm/updater')
+const { launch, locale } = require('@electerm/updater')
 
 let active
 
-async function startDesktopUpdate ({ tag, mirror, proxy }) {
-  if (active) throw new Error('An update is already running')
+async function startDesktopUpdate ({ tag, mirror, proxy, language }) {
+  const messages = locale(language)
+  if (active) throw new Error(messages.busy)
   const testing = !!process.env.NODE_TEST
   const downloadOnly = !app.isPackaged || testing
-  if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error('Invalid release version')
+  if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error(messages.invalid)
   if (!downloadOnly && compareVersions(tag, app.getVersion()) <= 0) {
-    throw new Error('Select a newer Electerm release')
+    throw new Error(messages.newer)
   }
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-update-'))
   const job = {}
@@ -31,7 +32,7 @@ async function startDesktopUpdate ({ tag, mirror, proxy }) {
       maximizable: false,
       autoHideMenuBar: true,
       show: false,
-      title: 'Electerm update',
+      title: messages.title,
       webPreferences: {
         sandbox: true,
         contextIsolation: true,
@@ -47,11 +48,13 @@ async function startDesktopUpdate ({ tag, mirror, proxy }) {
     function display (status, percent) {
       if (win.isDestroyed()) return
       win.setProgressBar(percent === undefined ? 2 : percent / 100)
-      win.webContents.send('desktop-update-progress', { tag, status, percent })
+      win.webContents.send('desktop-update-progress', {
+        tag, status, percent, title: messages.title, cancel: messages.cancel, language: messages.language
+      })
     }
     await win.loadFile(path.join(__dirname, 'desktop-update.html'))
     if (job.cancelled) return false
-    display('Checking release…')
+    display(messages.check)
     win.show()
     const env = { ...process.env, ELECTRON_RUN_AS_NODE: '1', NODE_USE_SYSTEM_CA: '1' }
     const { needsExport } = require('../server/child-process')
@@ -70,51 +73,51 @@ async function startDesktopUpdate ({ tag, mirror, proxy }) {
     })
     job.worker = worker
     const plan = await new Promise((resolve, reject) => {
-      let downloadStatus = 'Downloading…'
+      let downloadStatus = messages.download
       let result
       let error
       worker.on('message', m => {
-        if (m.probing) display('Testing download mirrors…')
+        if (m.probing) display(messages.mirrors)
         if (m.mirror) {
-          downloadStatus = 'Downloading from ' + m.mirror + '…'
+          downloadStatus = messages.download + ' (' + m.mirror + ')'
           display(downloadStatus)
         }
         if (m.percent !== undefined) display(downloadStatus, m.percent)
-        if (m.preparing) display('Preparing verified update…')
-        if (m.error) error = new Error(m.error)
+        if (m.preparing) display(messages.prepare)
+        if (m.error) error = new Error(messages.failed + ' — ' + m.error)
         if (m.plan) result = m.plan
       })
       worker.once('error', reject)
       worker.once('exit', () => {
         if (job.cancelled) resolve(null)
         else if (result) resolve(result)
-        else reject(error || new Error('Updater exited before preparing the update'))
+        else reject(error || new Error(messages.failed))
       })
       worker.send({
         dir,
-        options: { src: installSrc, tag, mirror, proxy, exe: app.getPath('exe'), appImage: process.env.APPIMAGE, downloadOnly }
+        options: { src: installSrc, tag, mirror, proxy, language: messages.language, exe: app.getPath('exe'), appImage: process.env.APPIMAGE, downloadOnly }
       })
     })
     if (!plan || job.cancelled) return false
     if (downloadOnly) {
       if (!testing) {
-        display('Download verified', 100)
+        display(messages.verified, 100)
         await dialog.showMessageBox(win, {
           type: 'info',
-          message: 'Electerm ' + tag + ' downloaded and verified.',
-          detail: 'Development runs discard the temporary download. Packaged releases can install it.'
+          message: messages.verified + ' — Electerm ' + tag,
+          detail: messages.dev
         })
       }
       return true
     }
-    display('Ready to install', 100)
+    display(messages.ready, 100)
     const { response } = await dialog.showMessageBox(win, {
       type: 'question',
-      buttons: ['Close Electerm and install', 'Cancel'],
+      buttons: [messages.install, messages.cancel],
       cancelId: 1,
       defaultId: 1,
-      message: 'Install Electerm ' + tag + '?',
-      detail: 'The download is verified. Installing will close all Electerm sessions.'
+      message: messages.ready + ' — Electerm ' + tag,
+      detail: messages.confirm.replace('{tag}', tag)
     })
     if (response !== 0 || job.cancelled) return false
     await launch(plan, process.pid)
