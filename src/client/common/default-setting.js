@@ -80,7 +80,7 @@ export default {
   dataSyncSelected: 'all',
   nameAI: 'Shengsuanyun',
   baseURLAI: 'https://router.shengsuanyun.com/api/v1',
-  modelAI: 'deepseek/deepseek-v4-flash',
+  modelAI: 'deepseek/deepseek-v4.1-flash',
   roleAI: '终端专家,提供不同系统下命令,简要解释用法,用markdown格式',
   apiPathAI: '/chat/completions',
   proxyAI: '',

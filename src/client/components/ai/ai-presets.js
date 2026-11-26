@@ -4,12 +4,12 @@ export const defaultAIPresets = [
     nameAI: 'Shengsuanyun',
     baseURLAI: 'https://router.shengsuanyun.com/api/v1',
     apiPathAI: '/chat/completions',
-    modelAI: 'deepseek/deepseek-v4-flash',
+    modelAI: 'deepseek/deepseek-v4.1-flash',
     pinned: true,
     authHeaderNameAI: 'Authorization: Bearer',
     siteUrl: 'https://www.shengsuanyun.com/zh/?from=Electerm',
     modelAIs: [
-      { value: 'deepseek/deepseek-v4-flash' },
+      { value: 'deepseek/deepseek-v4.1-flash' },
       { value: 'deepseek/deepseek-v4-pro' }
     ]
   },

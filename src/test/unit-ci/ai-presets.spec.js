@@ -12,7 +12,7 @@ describe('Shengsuanyun default AI provider', () => {
     assert.equal(preset.id, 'shengsuanyun')
     assert.equal(preset.pinned, true)
     assert.equal(preset.baseURLAI, 'https://router.shengsuanyun.com/api/v1')
-    assert.equal(preset.modelAI, 'deepseek/deepseek-v4-flash')
+    assert.equal(preset.modelAI, 'deepseek/deepseek-v4.1-flash')
     assert.equal(preset.apiPathAI, '/chat/completions')
     assert.equal(preset.authHeaderNameAI, 'Authorization: Bearer')
     assert.equal(preset.siteUrl, 'https://www.shengsuanyun.com/zh/?from=Electerm')
