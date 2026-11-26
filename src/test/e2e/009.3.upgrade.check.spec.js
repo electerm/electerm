@@ -38,6 +38,13 @@ describe('auto upgrade check', function () {
     }
     log('should show upgrade info')
     log('start download upgrade')
+    // Exercise the unpackaged download path with a main-process version newer
+    // than the offered release. The test-mode shortcut would mask this case.
+    await electronApp.evaluate(({ app }) => {
+      if (app.isPackaged) throw new Error('Expected an unpackaged test app')
+      delete process.env.NODE_TEST
+      app.getVersion = () => '999.0.0'
+    })
     const [progress] = await Promise.all([
       electronApp.waitForEvent('window'),
       client.click('.upgrade-panel .ant-btn-primary')

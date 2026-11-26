@@ -4,6 +4,7 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const installSrc = require('./install-src')
+const compareVersions = require('../common/version-compare')
 const globalState = require('./glob-state')
 const { launch } = require('@electerm/updater')
 
@@ -14,9 +15,9 @@ async function startDesktopUpdate ({ tag, mirror, proxy }) {
   const testing = !!process.env.NODE_TEST
   const downloadOnly = !app.isPackaged || testing
   if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error('Invalid release version')
-  const current = app.getVersion().split('.').map(Number)
-  const delta = tag.slice(1).split('.').map((v, i) => Number(v) - current[i]).find(n => n !== 0)
-  if (!testing && !(delta > 0)) throw new Error('Select a newer Electerm release')
+  if (!downloadOnly && compareVersions(tag, app.getVersion()) <= 0) {
+    throw new Error('Select a newer Electerm release')
+  }
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-update-'))
   const job = {}
   active = job
