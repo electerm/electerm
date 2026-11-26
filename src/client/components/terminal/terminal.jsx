@@ -1,4 +1,4 @@
-import { Component, createRef } from 'react'
+import { Component, createRef, lazy, Suspense } from 'react'
 import { isEqual, pick } from 'lodash-es'
 import {
   Spin,
@@ -15,6 +15,7 @@ import {
   AimOutlined
 } from '@ant-design/icons'
 import { refs } from '../common/ref.js'
+import LazyBoundary from '../common/lazy-boundary.jsx'
 import NormalBuffer from './normal-buffer.jsx'
 import createDefaultLogPath from '../../common/default-log-path.js'
 import SearchResultBar from './terminal-search-bar'
@@ -46,6 +47,8 @@ import {
   getWebglCircuitSnapshot,
   subscribeWebglCircuit
 } from './terminal-webgl-circuit-breaker.mjs'
+
+const X11Display = lazy(() => import('./x11/display.jsx'))
 
 const e = window.translate
 
@@ -415,6 +418,10 @@ class Term extends Component {
     )
   }
 
+  handleX11Disconnect = id => {
+    this.setState(({ x11Clients }) => ({ x11Clients: x11Clients?.filter(client => client !== id) }))
+  }
+
   render () {
     const { loading } = this.state
     const { height, width, left, top, fullscreen } = this.props
@@ -483,6 +490,17 @@ class Term extends Component {
           <div
             {...prps3}
           />
+          {this.state.x11Clients?.length > 0 && (
+            <LazyBoundary>
+              <Suspense fallback={null}>
+                <X11Display
+                  clients={this.state.x11Clients}
+                  socket={this.socket}
+                  onDisconnect={this.handleX11Disconnect}
+                />
+              </Suspense>
+            </LazyBoundary>
+          )}
           <NormalBuffer
             lines={this.state.lines}
             close={this.closeNormalBuffer}

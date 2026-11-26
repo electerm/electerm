@@ -1,11 +1,5 @@
 /**
- * x11 helpers
- *
- * electerm does not render x11 itself, it only forwards the protocol through
- * the ssh channel, so a local x server (XQuartz / VcXsrv / X.org) must be
- * running and reachable. When it is not, remote GUI apps hang or die without
- * any visible reason, so we probe the display up front and hand the user a
- * hint (see session-ssh.js `checkX11`).
+ * External X11 display discovery and connection diagnostics.
  */
 
 const net = require('net')

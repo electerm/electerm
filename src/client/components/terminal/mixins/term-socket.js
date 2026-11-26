@@ -87,7 +87,8 @@ export const socketMixin = {
     this.setState({
       loading: true,
       terminalError: null,
-      sessionStopped: false
+      sessionStopped: false,
+      x11Clients: []
     })
     const { cols, rows } = term
     const { config } = this.props
@@ -331,6 +332,12 @@ export const socketMixin = {
       try {
         msg = JSON.parse(ev.data)
       } catch (_e) {
+        return
+      }
+      if (msg?.action === 'x11-client' && socket === this.socket) {
+        this.setState(({ x11Clients = [] }) => ({
+          x11Clients: x11Clients.includes(msg.id) ? x11Clients : [...x11Clients, msg.id]
+        }))
         return
       }
       if (!msg || msg.action !== 'session-exit') {

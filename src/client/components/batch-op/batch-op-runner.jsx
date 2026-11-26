@@ -181,6 +181,7 @@ export default class BatchOpRunner extends Component {
       startDirectoryLocal: p.startDirectoryLocal || '',
       proxy: p.proxy || '',
       x11: p.x11 || false,
+      x11Display: p.x11Display,
       displayRaw: p.displayRaw || false,
       sshTunnels: p.sshTunnels || [],
       connectionHoppings: p.connectionHoppings || [],

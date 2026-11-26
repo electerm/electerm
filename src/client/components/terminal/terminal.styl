@@ -247,3 +247,20 @@
   position absolute
   left 8px
   bottom 4px
+
+.x11-display
+  position absolute
+  inset 0
+  z-index 12
+  pointer-events none
+  text-align right
+  button, iframe
+    pointer-events auto
+  iframe
+    width 100%
+    height calc(100% - 28px)
+    border 0
+  button
+    display block
+    margin-left auto
+    height 28px

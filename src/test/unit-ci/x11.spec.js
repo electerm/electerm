@@ -69,17 +69,18 @@ describe('x11 helpers', () => {
   })
 
   test('probeXServer: true when an endpoint accepts', async () => {
-    const sockPath = path.join(
-      fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-x11-')),
-      'X0'
-    )
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-x11-'))
+    const sockPath = process.platform === 'win32'
+      ? path.join('\\\\.\\pipe', path.basename(dir))
+      : path.join(dir, 'X0')
     const server = net.createServer()
     await new Promise((resolve) => server.listen(sockPath, resolve))
     try {
       const r = await probeXServer([{ path: sockPath }], 500)
       assert.equal(r, true)
     } finally {
-      server.close()
+      await new Promise(resolve => server.close(resolve))
+      fs.rmdirSync(dir)
     }
   })
 

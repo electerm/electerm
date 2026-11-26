@@ -155,6 +155,18 @@ export default function renderX11 ({ form }) {
       >
         <SwitchLabel />
       </FormItem>
+      <FormItem noStyle shouldUpdate={(prev, next) => prev.x11 !== next.x11}>
+        {() => form.getFieldValue('x11') && (
+          <FormItem {...formItemLayout} name='x11Display' label='X11 display' initialValue='external'>
+            <Select
+              options={[
+                { value: 'external', label: 'External X server' },
+                { value: 'builtin', label: 'Built-in display (experimental)' }
+              ]}
+            />
+          </FormItem>
+        )}
+      </FormItem>
     </>
   )
 }

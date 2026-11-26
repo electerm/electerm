@@ -371,6 +371,7 @@ export default class AttachAddonCustom {
           // serial line status, see session/serial-control.jsx
           'serial-event',
           // how the pty ended, consumed by the terminal component
+          'x11-client',
           'session-exit'
         ]
         if (controlActions.includes(msg.action)) {

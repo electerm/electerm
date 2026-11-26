@@ -10,7 +10,7 @@ const publicFields = [
   'host', 'port', 'username', 'user', 'domain', 'authType', 'profile',
   'startDirectory', 'startDirectoryLocal', 'autoReConnect', 'keepaliveEnabled',
   'keepaliveInterval', 'enableSsh', 'enableSftp', 'sshSftpSplitView',
-  'useSshAgent', 'agentForward', 'x11', 'isMFA', 'ignoreKeyboardInteractive',
+  'useSshAgent', 'agentForward', 'x11', 'x11Display', 'isMFA', 'ignoreKeyboardInteractive',
   'usePasswordManager', 'notifyOnData',
   'enableTerminalImage', 'term', 'encode', 'envLang', 'displayRaw',
   'secure', 'tls', 'hostSubject', 'nla', 'viewOnly', 'clipViewport', 'scaleViewport',

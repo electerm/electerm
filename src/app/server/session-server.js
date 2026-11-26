@@ -144,6 +144,10 @@ if (type === 'rdp') {
     verify(req)
     markConnected()
     const term = terminals(req.params.pid)
+    if (req.query.x11Client !== undefined) {
+      if (!term?.builtinDisplay?.attach(req.query.x11Client, ws)) ws.close()
+      return
+    }
     const { pid } = term
     log.debug('ws: connected to terminal ->', pid)
 
@@ -202,6 +206,8 @@ if (type === 'rdp') {
     ws.s = (data) => {
       ws.send(JSON.stringify(data))
     }
+
+    term.builtinDisplay?.onTerminalReady(ws)
 
     // Auto-trigger XMODEM when the serial device sends a marker message.
     // The serial-shell.js sends these markers when the user types tx/rx.

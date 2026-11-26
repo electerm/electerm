@@ -71,6 +71,7 @@ export const sshBookmarkSchema = {
   cipher: z.array(z.string()).optional().describe('Cipher list'),
   compress: z.array(z.string()).optional().describe('Compression algorithms'),
   quickCommands: z.array(quickCommandSchema).optional().describe('Quick commands'),
+  x11Display: z.enum(['external', 'builtin']).optional(),
   x11: z.boolean().optional().describe('Enable x11 forwarding, default is false'),
   term: z.string().optional().describe('Terminal type, default is xterm-256color'),
   displayRaw: z.boolean().optional().describe('Display raw output, default is false'),

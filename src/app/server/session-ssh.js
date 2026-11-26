@@ -18,13 +18,6 @@ const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
 const globalState = require('./global-state')
 const iconv = require('iconv-lite')
-const {
-  X11_HELP_URL,
-  getX11Candidates,
-  probeXServer,
-  x11Hint,
-  x11CookieHint
-} = require('./x11')
 
 // Encodings that are equivalent to UTF-8 (no conversion needed)
 const utf8Aliases = new Set(['utf-8', 'utf8', 'utf-8-strict'])
@@ -136,9 +129,13 @@ class TerminalSshBase extends TerminalBase {
       initOptions
     } = this
     const hasX11 = initOptions.x11 === true
-    this.display = hasX11 ? await this.getDisplay() : undefined
-    this.x11Cookie = hasX11 ? await this.getX11Cookie() : undefined
-    if (hasX11) {
+    if (hasX11 && initOptions.x11Display === 'builtin') {
+      const { BuiltinDisplay } = require('./x11-builtin')
+      this.builtinDisplay = new BuiltinDisplay()
+      this.x11Cookie = this.builtinDisplay.cookie
+    } else if (hasX11) {
+      this.display = await this.getDisplay()
+      this.x11Cookie = await this.getX11Cookie()
       // runs in the background: never delay the connection for a probe
       this.checkX11().catch(e => log.error('x11 check error', e))
     }
@@ -150,6 +147,7 @@ class TerminalSshBase extends TerminalBase {
    * so probe the display once per session and tell the user what to do
    */
   async checkX11 () {
+    const { probeXServer, getX11Candidates, x11Hint, x11CookieHint } = require('./x11')
     const ok = await probeXServer(getX11Candidates(this.display))
     if (!ok) {
       return this.notifyX11(x11Hint())
@@ -172,7 +170,7 @@ class TerminalSshBase extends TerminalBase {
     this.ws.s({
       action: 'x11-warning',
       message: text,
-      url: X11_HELP_URL,
+      url: require('./x11').X11_HELP_URL,
       tabId: this.initOptions?.srcTabId
     })
   }
@@ -930,8 +928,13 @@ class TerminalSshBase extends TerminalBase {
           .then(finish)
           .catch(reject)
       })
-      if (!skipX11) {
-        conn.on('x11', (inf, accept) => {
+      if (!skipX11 && initOptions.x11 === true) {
+        const display = this.builtinDisplay
+        conn.on('x11', (inf, accept, reject) => {
+          if (display) {
+            return display.accept(accept, reject)
+          }
+          const { x11Hint } = require('./x11')
           let start = 0
           const maxRetry = 100
           const portStart = 6000
@@ -1355,6 +1358,8 @@ class TerminalSshBase extends TerminalBase {
     this.sshKeys = null
     this.privateKeyPath = null
     this.display = null
+    this.builtinDisplay?.close()
+    this.builtinDisplay = null
     this.x11Cookie = null
     this.x11Notified = false
     this.jumpSshKeys = null
