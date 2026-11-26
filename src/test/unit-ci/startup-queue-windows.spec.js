@@ -137,10 +137,10 @@ describe('Windows startup directory', () => {
 
   test('restores WSL paths with punctuation through either Windows launcher', async () => {
     for (const shell of ['wsl.exe', 'C:\\Windows\\System32\\bash.exe']) {
-      for (const name of ['R&D', 'C#', 'foo (1)', '[a]+b=c,@']) {
+      for (const name of ['R&D', 'C#', 'foo (1)', '[a]+b=c,@', 'work;~']) {
         assert.equal(
           await startupCommand({ shell, reloadCwd: `D:\\${name}` }),
-          `cd '/mnt/d/${name}'\r`
+          `cd -- '/mnt/d/${name}'\r`
         )
       }
     }

@@ -96,11 +96,11 @@ export function createWindowsCdCommand (cwd, shell = '') {
   const drive = /^([a-z]):[\\/]/i.exec(safeCwd)
   if (name === 'wsl') {
     // The launcher does not identify the distribution's interactive shell.
-    // Only send absolute paths with characters that are literal across shells.
+    // Limit accepted paths before quoting them for a POSIX shell.
     const path = drive
       ? '/mnt/' + drive[1].toLowerCase() + '/' + safeCwd.slice(3).replace(/\\/g, '/')
       : safeCwd
-    return /^\/[\p{L}\p{N} /._()[\]+=#,@&-]*$/u.test(path) ? `cd '${path}'` : ''
+    return /^\/[\p{L}\p{N} /._()[\]+=#,@&';~-]*$/u.test(path) ? createRestoreCwdCommand(path) : ''
   }
   if (['bash', 'sh', 'zsh'].includes(name)) {
     const path = drive || safeCwd.startsWith('\\\\') ? safeCwd.replace(/\\/g, '/') : safeCwd
