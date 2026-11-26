@@ -39,6 +39,16 @@
 ## スポンサー
 
 <div align="center">
+  <a href="https://www.shengsuanyun.com/zh/?from=Electerm">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/shengsuanyun.png?raw=true" alt="胜算云" width="210" />
+  </a>
+</div>
+
+Electerm をご支援くださっている胜算云に感謝します。胜算云は AI ネイティブなチーム向けに、Claude、ChatGPT、Gemini をはじめとする中国国内外の大規模言語モデルやマルチメディアモデルを、単一の API から従量課金で利用できるサービスを提供しています。規約に準拠した API を使用し、リバースエンジニアリングやリソースの過剰な分配を排除しています。企業向けには、チームのコスト・権限管理、インテリジェントルーティング、セキュリティ対策、持ち込み API キー（BYOK）の管理に対応したゲートウェイを個別に構築できます。請求書の発行にも対応しています。[こちらから新規登録](https://www.shengsuanyun.com/zh/?from=Electerm)すると、5 人民元分のトライアルクレジットを受け取れます。
+
+----
+
+<div align="center">
   <a href="https://www.packyapi.ai/register?aff=DOZI">
     <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/packy-api.png?raw=true" alt="PackyCode" width="210" />
   </a>

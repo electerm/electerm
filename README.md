@@ -39,6 +39,16 @@ Besides mainstream Windows/macOS/Linux/Android, electerm also supports HarmonyOS
 ## Sponsors
 
 <div align="center">
+  <a href="https://www.shengsuanyun.com/zh/?from=Electerm">
+    <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/shengsuanyun.png?raw=true" alt="Shengsuanyun" width="210" />
+  </a>
+</div>
+
+Thank you to Shengsuanyun for sponsoring Electerm! Shengsuanyun gives AI-native teams access to Chinese and international language and multimedia models, including Claude, ChatGPT, and Gemini, through a single pay-as-you-go API. The platform uses compliant APIs and rules out reverse engineering and resource dilution. Its customizable enterprise gateway supports team cost tracking, access controls, intelligent routing, security protections, and bring-your-own-key (BYOK) management. Invoicing is available. New users who [sign up through this link](https://www.shengsuanyun.com/zh/?from=Electerm) receive ¥5 in trial credit.
+
+----
+
+<div align="center">
   <a href="https://www.packyapi.ai/register?aff=DOZI">
     <img src="https://github.com/electerm/electerm-resource/blob/master/static/images/packy-api.png?raw=true" alt="PackyCode" width="210" />
   </a>
