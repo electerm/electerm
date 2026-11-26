@@ -48,6 +48,8 @@
   max-height 65vh
   overflow auto
   overflow-wrap anywhere
+  // the shared tunnel form ends with a 60px gap that belongs to the bookmark
+  // modal; the popover/panel does not have room for it
   .mg60b
     margin-bottom 8px
 .ant-popover .ssh-tunnel-panel
@@ -58,3 +60,11 @@
   justify-content space-between
   gap 12px
   padding-bottom 10px
+.ssh-tunnel-desc
+  flex 1
+  min-width 0
+.ssh-tunnel-ops
+  display flex
+  align-items center
+  gap 4px
+  flex-shrink 0

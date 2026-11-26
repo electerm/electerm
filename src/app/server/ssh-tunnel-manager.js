@@ -49,11 +49,7 @@ class SshTunnelManager {
   }
 
   async change (command, id) {
-    const entry = this.entries.get(id)
-    if (!entry) throw new Error('Tunnel no longer exists')
-    if (entry.status === 'starting' || entry.status === 'stopping') {
-      throw new Error('Tunnel operation in progress')
-    }
+    const entry = this.assertIdle(id)
     if (command === 'start' && !entry.stop) {
       delete entry.error
       entry.status = 'starting'
@@ -67,17 +63,43 @@ class SshTunnelManager {
       }
     } else if (command === 'stop' && entry.stop) {
       delete entry.error
-      entry.status = 'stopping'
-      try {
-        await entry.stop()
-        delete entry.stop
-        entry.status = 'stopped'
-      } catch (err) {
-        // The SSH server can refuse to cancel a remote listener. Keep its handle for retry.
-        entry.status = 'running'
-        entry.error = err.message
-      }
+      await this.stopEntry(entry)
     }
+  }
+
+  async remove (id) {
+    const entry = this.assertIdle(id)
+    if (entry.stop) {
+      delete entry.error
+      // A running tunnel has to go down first. When the server refuses, keep the
+      // row instead of forgetting a listener that is still alive.
+      if (!await this.stopEntry(entry)) return
+    }
+    this.entries.delete(id)
+  }
+
+  assertIdle (id) {
+    const entry = this.entries.get(id)
+    if (!entry) throw new Error('Tunnel no longer exists')
+    if (entry.status === 'starting' || entry.status === 'stopping') {
+      throw new Error('Tunnel operation in progress')
+    }
+    return entry
+  }
+
+  async stopEntry (entry) {
+    entry.status = 'stopping'
+    try {
+      await entry.stop()
+    } catch (err) {
+      // The SSH server can refuse to cancel a remote listener. Keep its handle for retry.
+      entry.status = 'running'
+      entry.error = err.message
+      return false
+    }
+    delete entry.stop
+    entry.status = 'stopped'
+    return true
   }
 }
 

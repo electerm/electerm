@@ -15,9 +15,10 @@ require.cache[logPath] = {
 }
 
 let remoteDynamicForward
+let forwardRemoteToLocal
 
 before(() => {
-  ({ remoteDynamicForward } = require('../../app/server/ssh-tunnel'))
+  ({ remoteDynamicForward, forwardRemoteToLocal } = require('../../app/server/ssh-tunnel'))
 })
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -224,6 +225,439 @@ describe('remoteDynamicForward', () => {
     conn.emit('close')
     assert.equal(channels[0].destroyed, true)
     assert.equal(conn.listenerCount('tcp connection'), 0)
+    assert.deepEqual(manager.list(), [])
+  })
+})
+
+describe('remote tunnel channel dispatch', () => {
+  // sshd puts either the requested bind address (Linux OpenSSH echoes it) or the
+  // concrete address it accepted on into `info.destIP`, so a hostname or wildcard
+  // bind can only match by port (see channelRank).
+  const loose = ['', '*', '0.0.0.0', '::', 'localhost']
+
+  // Mirrors what the client does before it emits anything (lib/client.js
+  // onCHANNEL_OPEN): `_forwarding` is keyed by the bind address we registered.
+  function fakeConn () {
+    const conn = new EventEmitter()
+    conn._forwarding = {}
+    conn.forwardIn = (host, port, cb) => {
+      conn._forwarding[`${host}:${port}`] = port
+      cb()
+    }
+    conn.unforwardIn = (host, port, cb) => {
+      delete conn._forwarding[`${host}:${port}`]
+      cb()
+    }
+    conn.deliver = (info, accept, reject) => {
+      const key = `${info.destIP}:${info.destPort}`
+      if (conn._forwarding[key] === undefined) return false
+      conn.emit('tcp connection', info, accept, reject)
+      return true
+    }
+    return conn
+  }
+
+  function startTunnel (conn, host, port = 8080) {
+    return forwardRemoteToLocal({
+      conn,
+      sshTunnelRemotePort: port,
+      sshTunnelRemoteHost: host,
+      sshTunnelLocalPort: 1
+    })
+  }
+
+  function banner (prefix) {
+    return new Promise((resolve) => {
+      const server = net.createServer((socket) => {
+        socket.on('data', (data) => socket.write(prefix + ':' + data))
+      })
+      server.listen(0, '127.0.0.1', () => resolve(server))
+    })
+  }
+
+  // Which local target actually received the channel, read back through it.
+  async function routeOf (conn, info) {
+    const { client, server } = channelPair()
+    assert.equal(conn.deliver(info, () => server), true)
+    client.write('hi')
+    const answer = (await readBytes(client, 4)).toString()
+    client.destroy()
+    server.destroy()
+    return answer
+  }
+
+  for (const host of loose) {
+    it(`accepts a channel reported as 127.0.0.1 when the remote host is ${JSON.stringify(host)}`, async () => {
+      const conn = fakeConn()
+      let accepted = 0
+      const stop = await startTunnel(conn, host)
+      assert.equal(conn.deliver({ destIP: '127.0.0.1', destPort: 8080 }, () => {
+        accepted++
+        return new PassThrough()
+      }), true)
+      assert.equal(accepted, 1)
+      await stop()
+    })
+  }
+
+  it('stops letting channels through once the tunnel is stopped', async () => {
+    const conn = fakeConn()
+    const stop = await startTunnel(conn, '0.0.0.0')
+    assert.equal(conn.deliver({ destIP: '127.0.0.1', destPort: 8080 }, () => new PassThrough()), true)
+    await stop()
+    assert.equal(conn.deliver({ destIP: '127.0.0.1', destPort: 8080 }, () => new PassThrough()), false)
+    assert.deepEqual(Object.keys(conn._forwarding), [])
+  })
+
+  it('confirms a shared-port channel once when a catch-all and a specific bind coexist', async () => {
+    const conn = fakeConn()
+    const hits = []
+    const stops = [
+      await startTunnel(conn, 'localhost'),
+      await startTunnel(conn, '127.0.0.2')
+    ]
+    // Both subscribe to the same port and both hear the channel; confirming it
+    // twice would corrupt the transport (see ssh2 onCHANNEL_OPEN).
+    conn.deliver({ destIP: '127.0.0.2', destPort: 8080 }, () => {
+      hits.push('accept')
+      return new PassThrough()
+    })
+    assert.deepEqual(hits, ['accept'])
+    for (const stop of stops) await stop()
+  })
+
+  // A port can carry a specific address of one family next to a wildcard of the
+  // other. A channel reported as 127.0.0.1 belongs to the IPv4 wildcard whichever
+  // order the two were registered in, never to the IPv6 loopback.
+  for (const order of [['::1', '0.0.0.0'], ['0.0.0.0', '::1']]) {
+    it(`routes a shared port by address family when ${order.join(' is registered before ')}`, async () => {
+      const v4 = await banner('v4')
+      const v6 = await banner('v6')
+      const local = { '::1': v6, '0.0.0.0': v4 }
+      const conn = fakeConn()
+      const stops = []
+      for (const host of order) {
+        stops.push(await forwardRemoteToLocal({
+          conn,
+          sshTunnelRemotePort: 8080,
+          sshTunnelRemoteHost: host,
+          sshTunnelLocalPort: local[host].address().port
+        }))
+      }
+      try {
+        assert.equal(await routeOf(conn, { destIP: '127.0.0.1', destPort: 8080 }), 'v4:hi')
+        assert.equal(await routeOf(conn, { destIP: '::1', destPort: 8080 }), 'v6:hi')
+      } finally {
+        for (const stop of stops) await stop()
+        v4.close()
+        v6.close()
+      }
+    })
+  }
+
+  it('keeps the exact-address check when the port only has a specific bind', async () => {
+    const conn = fakeConn()
+    const stop = await startTunnel(conn, '::1')
+    // The gate must not open for an address no listener can own, even though it
+    // shares the port.
+    assert.equal(conn.deliver({ destIP: '127.0.0.1', destPort: 8080 }, () => new PassThrough()), false)
+    await stop()
+  })
+
+  // `0.0.0.0` cannot accept IPv6, so an IPv6 channel belongs to the hostname
+  // bind (sshd resolved localhost to ::1) even when the wildcard registered
+  // first and both would otherwise score the same.
+  it('gives an IPv6 channel to a hostname bind instead of an IPv4 wildcard', async () => {
+    const v4 = await banner('v4')
+    const v6 = await banner('v6')
+    const conn = fakeConn()
+    const stops = [
+      await forwardRemoteToLocal({
+        conn,
+        sshTunnelRemotePort: 8080,
+        sshTunnelRemoteHost: '0.0.0.0',
+        sshTunnelLocalPort: v4.address().port
+      }),
+      await forwardRemoteToLocal({
+        conn,
+        sshTunnelRemotePort: 8080,
+        sshTunnelRemoteHost: 'localhost',
+        sshTunnelLocalPort: v6.address().port
+      })
+    ]
+    try {
+      assert.equal(await routeOf(conn, { destIP: '::1', destPort: 8080 }), 'v6:hi')
+      assert.equal(await routeOf(conn, { destIP: '127.0.0.1', destPort: 8080 }), 'v4:hi')
+    } finally {
+      for (const stop of stops) await stop()
+      v4.close()
+      v6.close()
+    }
+  })
+
+  // The same address may be written differently: a server reports ::1 for a bind
+  // that asked for 0:0:0:0:0:0:0:1, and the other way round.
+  for (const [bind, reported] of [
+    ['0:0:0:0:0:0:0:1', '::1'],
+    ['::1', '0:0:0:0:0:0:0:1']
+  ]) {
+    it(`matches bind ${bind} with a server reporting ${reported}`, async () => {
+      const echo = await banner('one')
+      const conn = fakeConn()
+      const stop = await forwardRemoteToLocal({
+        conn,
+        sshTunnelRemotePort: 8080,
+        sshTunnelRemoteHost: bind,
+        sshTunnelLocalPort: echo.address().port
+      })
+      try {
+        assert.equal(await routeOf(conn, { destIP: reported, destPort: 8080 }), 'one:hi')
+      } finally {
+        await stop()
+        echo.close()
+      }
+    })
+  }
+
+  it('treats the expanded form of the IPv6 wildcard as a wildcard', async () => {
+    const echo = await banner('any6')
+    const conn = fakeConn()
+    const stop = await forwardRemoteToLocal({
+      conn,
+      sshTunnelRemotePort: 8080,
+      sshTunnelRemoteHost: '0:0:0:0:0:0:0:0',
+      sshTunnelLocalPort: echo.address().port
+    })
+    try {
+      assert.equal(await routeOf(conn, { destIP: '::1', destPort: 8080 }), 'any6:hi')
+    } finally {
+      await stop()
+      echo.close()
+    }
+  })
+
+  // Two link-local listeners differ only by interface scope.
+  it('keeps link-local listeners apart by their interface scope', async () => {
+    const en0 = await banner('en0')
+    const en1 = await banner('en1')
+    const conn = fakeConn()
+    const stops = [
+      await forwardRemoteToLocal({
+        conn,
+        sshTunnelRemotePort: 8080,
+        sshTunnelRemoteHost: 'fe80::1%en0',
+        sshTunnelLocalPort: en0.address().port
+      }),
+      await forwardRemoteToLocal({
+        conn,
+        sshTunnelRemotePort: 8080,
+        sshTunnelRemoteHost: 'fe80::1%en1',
+        sshTunnelLocalPort: en1.address().port
+      })
+    ]
+    try {
+      assert.equal(await routeOf(conn, { destIP: 'fe80::1%en0', destPort: 8080 }), 'en0:hi')
+      assert.equal(await routeOf(conn, { destIP: 'fe80::1%en1', destPort: 8080 }), 'en1:hi')
+    } finally {
+      for (const stop of stops) await stop()
+      en0.close()
+      en1.close()
+    }
+  })
+
+  it('still matches a link-local bind when the server drops the scope', async () => {
+    const echo = await banner('scoped')
+    const conn = fakeConn()
+    const stop = await forwardRemoteToLocal({
+      conn,
+      sshTunnelRemotePort: 8080,
+      sshTunnelRemoteHost: 'fe80::1%en0',
+      sshTunnelLocalPort: echo.address().port
+    })
+    try {
+      assert.equal(await routeOf(conn, { destIP: 'fe80::1', destPort: 8080 }), 'scoped:hi')
+    } finally {
+      await stop()
+      echo.close()
+    }
+  })
+
+  // IPv4 carried over an IPv6 socket is the same address as the bare IPv4 one,
+  // whatever spelling the server uses for it.
+  for (const [bind, reported] of [
+    ['0:0:0:0:0:ffff:7f00:1', '127.0.0.1'],
+    ['::ffff:127.0.0.1', '0:0:0:0:0:ffff:7f00:1'],
+    ['::ffff:7f00:1', '127.0.0.1'],
+    ['::ffff:127.0.0.1', '::ffff:7f00:1']
+  ]) {
+    it(`matches mapped bind ${bind} with a server reporting ${reported}`, async () => {
+      const echo = await banner('mapped')
+      const conn = fakeConn()
+      const stop = await forwardRemoteToLocal({
+        conn,
+        sshTunnelRemotePort: 8080,
+        sshTunnelRemoteHost: bind,
+        sshTunnelLocalPort: echo.address().port
+      })
+      try {
+        assert.equal(await routeOf(conn, { destIP: reported, destPort: 8080 }), 'mapped:hi')
+      } finally {
+        await stop()
+        echo.close()
+      }
+    })
+  }
+
+  // Interface names are case-sensitive for the OS, so two scopes that differ only
+  // by case are two listeners, not one address claimed twice.
+  it('keeps interface scopes case-sensitive', async () => {
+    const upper = await banner('VLAN')
+    const lower = await banner('vlan')
+    const conn = fakeConn()
+    const stops = []
+    for (const [host, server] of [['fe80::1%VLAN', upper], ['fe80::1%vlan', lower]]) {
+      stops.push(await forwardRemoteToLocal({
+        conn,
+        sshTunnelRemotePort: 8080,
+        sshTunnelRemoteHost: host,
+        sshTunnelLocalPort: server.address().port
+      }))
+    }
+    try {
+      assert.equal(await routeOf(conn, { destIP: 'fe80::1%VLAN', destPort: 8080 }), 'VLAN:hi')
+      assert.equal(await routeOf(conn, { destIP: 'fe80::1%vlan', destPort: 8080 }), 'vlan:hi')
+    } finally {
+      for (const stop of stops) await stop()
+      upper.close()
+      lower.close()
+    }
+  })
+
+  it('does not let a hostname report satisfy a specific-address listener', async () => {
+    const conn = fakeConn()
+    const stop = await startTunnel(conn, '127.0.0.1')
+    // `net.isIP` says 0 for a hostname just like for a missing address, but only
+    // a missing address may fall back to the port.
+    assert.equal(conn.deliver({ destIP: 'elsewhere', destPort: 8080 }, () => new PassThrough()), false)
+    let rejected = 0
+    conn.emit('tcp connection', { destIP: 'elsewhere', destPort: 8080 }, () => new PassThrough(), () => {
+      rejected++
+    })
+    assert.equal(rejected, 1)
+    await stop()
+  })
+
+  it('refuses a channel two listeners claim equally', async () => {
+    const conn = fakeConn()
+    const stops = [
+      await startTunnel(conn, 'localhost'),
+      await startTunnel(conn, '')
+    ]
+    let accepted = 0
+    let rejected = 0
+    // No address separates the two hostname/empty binds, so guessing would send
+    // the traffic to an arbitrary local service.
+    assert.equal(conn.deliver({ destIP: '127.0.0.1', destPort: 8080 }, () => {
+      accepted++
+      return new PassThrough()
+    }, () => {
+      rejected++
+    }), false)
+    conn.emit('tcp connection', { destIP: '127.0.0.1', destPort: 8080 }, () => {
+      accepted++
+      return new PassThrough()
+    }, () => {
+      rejected++
+    })
+    assert.equal(accepted, 0)
+    assert.equal(rejected, 1)
+    for (const stop of stops) await stop()
+  })
+
+  it('confirms a shared-port channel only once when every bind is a catch-all', async () => {
+    const conn = fakeConn()
+    let confirmed = 0
+    const stops = [
+      await startTunnel(conn, '0.0.0.0'),
+      await startTunnel(conn, 'localhost')
+    ]
+    conn.deliver({ destIP: '127.0.0.1', destPort: 8080 }, () => {
+      confirmed++
+      return new PassThrough()
+    })
+    assert.equal(confirmed, 1)
+    for (const stop of stops) await stop()
+  })
+
+  it('rejects a channel on a port no tunnel listens on instead of leaking it', async () => {
+    const conn = fakeConn()
+    let accepted = 0
+    let rejected = 0
+    const stop = await startTunnel(conn, '0.0.0.0')
+    // emitted directly: the dispatcher must still answer when the client gate
+    // hands over a channel nobody owns
+    conn.emit('tcp connection', { destIP: '127.0.0.1', destPort: 2222 }, () => {
+      accepted++
+      return new PassThrough()
+    }, () => {
+      rejected++
+    })
+    assert.equal(accepted, 0)
+    assert.equal(rejected, 1)
+    await stop()
+  })
+
+  it('keeps one connection-level listener for every remote tunnel', async () => {
+    const conn = fakeConn()
+    const stops = [
+      await startTunnel(conn, '127.0.0.1'),
+      await startTunnel(conn, '::1'),
+      await startTunnel(conn, 'localhost')
+    ]
+    assert.equal(conn.listenerCount('tcp connection'), 1)
+    await stops[0]()
+    assert.equal(conn.listenerCount('tcp connection'), 1)
+    await stops[1]()
+    await stops[2]()
+    assert.equal(conn.listenerCount('tcp connection'), 0)
+    assert.equal(conn.deliver({ destIP: '127.0.0.1', destPort: 8080 }, () => new PassThrough()), false)
+  })
+})
+
+describe('SshTunnelManager row removal', () => {
+  const { SshTunnelManager } = require('../../app/server/ssh-tunnel-manager')
+
+  it('stops a running tunnel before dropping the row, and keeps it when the server refuses', async () => {
+    const conn = new EventEmitter()
+    conn.forwardIn = (host, port, cb) => cb()
+    conn.unforwardIn = (host, port, cb) => cb(new Error('Cancellation refused'))
+    const manager = new SshTunnelManager(conn)
+    await manager.add({ sshTunnel: 'remoteDynamicForward', sshTunnelRemotePort: 1080 }, false)
+    const [entry] = manager.list()
+    assert.equal(entry.status, 'running')
+
+    await manager.remove(entry.id)
+    assert.equal(manager.list().length, 1)
+    assert.equal(manager.list()[0].status, 'running')
+    assert.equal(manager.list()[0].error, 'Cancellation refused')
+
+    conn.unforwardIn = (host, port, cb) => cb()
+    await manager.remove(entry.id)
+    assert.deepEqual(manager.list(), [])
+    assert.equal(conn.listenerCount('tcp connection'), 0)
+    await assert.rejects(manager.remove(entry.id), /no longer exists/)
+  })
+
+  it('drops a row that never started', async () => {
+    const conn = new EventEmitter()
+    const manager = new SshTunnelManager(conn)
+    await manager.add({
+      sshTunnel: 'forwardLocalToRemote',
+      sshTunnelLocalPort: 0,
+      sshTunnelRemotePort: 80
+    }, true)
+    assert.equal(manager.list()[0].status, 'error')
+    await manager.remove(manager.list()[0].id)
     assert.deepEqual(manager.list(), [])
   })
 })

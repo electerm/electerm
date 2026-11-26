@@ -38,7 +38,7 @@ test('manages an individual forward on a connected SSH tab', async () => {
     await fs.mkdir(path.join(profile, '.ssh'))
     await fs.writeFile(path.join(profile, '.ssh', 'known_hosts'), `[127.0.0.1]:${sshPort} ${HOST_KEY_PUBLIC}\n`)
     const savedPort = await getFreePort({ from: 32000 })
-    const temporaryPort = await getFreePort({ from: savedPort + 1 })
+    const extraPort = await getFreePort({ from: savedPort + 1 })
     const saved = {
       name: 'Saved forward',
       sshTunnel: 'forwardLocalToRemote',
@@ -66,17 +66,19 @@ test('manages an individual forward on a connected SSH tab', async () => {
     await page.getByRole('button', { name: title, exact: true }).click()
     const panel = page.locator('.ssh-tunnel-panel:visible')
     await expect(panel).toContainText('Saved forward')
-    await panel.getByRole('button', { name: 'Add temporary tunnel' }).click()
-    await panel.locator('#sshTunnelLocalPort').fill(String(temporaryPort))
-    await panel.locator('#name').fill('Temporary forward')
-    await panel.getByRole('button', { name: 'Start temporary tunnel' }).click()
-    const temporaryRow = panel.locator('.ssh-tunnel-row').filter({ hasText: 'Temporary forward' })
-    await expect(temporaryRow).toContainText('Running')
-    expect(await echo(temporaryPort, 'temporary')).toBe('temporary')
 
-    await temporaryRow.getByRole('button', { name: 'Stop' }).click()
-    await expect(temporaryRow).toContainText('Stopped')
-    await expect(echo(temporaryPort, 'stopped')).rejects.toThrow(/ECONNREFUSED/)
+    await panel.locator('.ssh-tunnel-add').click()
+    const form = panel.locator('.ant-form')
+    await form.locator('#sshTunnelLocalPort').fill(String(extraPort))
+    await form.locator('#name').fill('Ad hoc forward')
+    await form.getByRole('button', { name: 'Start' }).click()
+    const extraRow = panel.locator('.ssh-tunnel-row').filter({ hasText: 'Ad hoc forward' })
+    await expect(extraRow).toContainText('Running')
+    expect(await echo(extraPort, 'added')).toBe('added')
+
+    await extraRow.getByRole('button', { name: 'Stop' }).click()
+    await expect(extraRow).toContainText('Stopped')
+    await expect(echo(extraPort, 'stopped')).rejects.toThrow(/ECONNREFUSED/)
     expect(await echo(savedPort, 'still connected')).toBe('still connected')
     expect(await page.evaluate(() => window.store.currentTab.sshTunnels)).toEqual([saved])
     const result = await page.evaluate(() => window.wsFetch({
@@ -88,15 +90,28 @@ test('manages an individual forward on a connected SSH tab', async () => {
     await page.locator('.session-current .mobile-control-toggle').click()
     await page.getByRole('button', { name: title, exact: true }).click()
     const dialog = page.getByRole('dialog', { name: title })
-    await dialog.locator('.ssh-tunnel-row').filter({ hasText: 'Temporary forward' })
-      .getByRole('button', { name: 'Start' }).click()
-    await expect(dialog.locator('.ssh-tunnel-row').filter({ hasText: 'Temporary forward' })).toContainText('Running')
-    expect(await echo(temporaryPort, 'restarted')).toBe('restarted')
+    const extraRowInDialog = dialog.locator('.ssh-tunnel-row').filter({ hasText: 'Ad hoc forward' })
+    await extraRowInDialog.getByRole('button', { name: 'Start' }).click()
+    await expect(extraRowInDialog).toContainText('Running')
+    expect(await echo(extraPort, 'restarted')).toBe('restarted')
     await page.evaluate(() => window.store.reloadTab())
     await page.waitForFunction(() => window.store.currentTab.status === 'success')
     const results = await page.evaluate(() => window.store.currentTab.sshTunnelResults)
     expect(results.map(row => row.sshTunnel.name)).toEqual(['Saved forward'])
-    await expect(echo(temporaryPort, 'previous connection')).rejects.toThrow(/ECONNREFUSED/)
+    await expect(echo(extraPort, 'previous connection')).rejects.toThrow(/ECONNREFUSED/)
+
+    // prove the listener is alive again before deleting, so the rejection below
+    // can only come from the removal
+    expect(await echo(savedPort, 'before remove')).toBe('before remove')
+
+    // removing a row takes its tunnel down with it, and never touches the bookmark
+    await page.locator('.session-current .mobile-control-toggle').click()
+    await page.getByRole('button', { name: title, exact: true }).click()
+    const savedRow = dialog.locator('.ssh-tunnel-row').filter({ hasText: 'Saved forward' })
+    await savedRow.locator('.ssh-tunnel-remove').click()
+    await expect(savedRow).toHaveCount(0)
+    await expect(echo(savedPort, 'removed')).rejects.toThrow(/ECONNREFUSED/)
+    expect(await page.evaluate(() => window.store.currentTab.sshTunnels)).toEqual([saved])
   } finally {
     await app?.close()
     await stopTestSshServer(server)

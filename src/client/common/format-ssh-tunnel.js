@@ -15,3 +15,12 @@ export default function formatSshTunnel (tunnel) {
     default: return tunnel.sshTunnel
   }
 }
+
+// Only these two states have a translation in electerm-locales. The transient
+// ones get an icon in the panel and are left out of text-only places such as the
+// tab tooltip, and a failed tunnel already shows the server message itself.
+export function sshTunnelStatusText (status) {
+  return status === 'running' || status === 'stopped'
+    ? window.translate(status)
+    : ''
+}

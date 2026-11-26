@@ -719,6 +719,8 @@ class TerminalSshBase extends TerminalBase {
       await this.tunnelManager.add(tunnel, true)
     } else if (command === 'start' || command === 'stop') {
       await this.tunnelManager.change(command, tunnelId)
+    } else if (command === 'remove') {
+      await this.tunnelManager.remove(tunnelId)
     } else if (command !== 'list') {
       throw new Error('Unknown tunnel command')
     }

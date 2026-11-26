@@ -22,7 +22,7 @@ import message from '../common/message'
 import classnames from 'classnames'
 import { pick } from 'lodash-es'
 import Input from '../common/input-auto-focus'
-import formatSshTunnel from '../../common/format-ssh-tunnel'
+import formatSshTunnel, { sshTunnelStatusText } from '../../common/format-ssh-tunnel'
 import { statusMap } from '../../common/constants'
 import createName, { createTitleTag } from '../../common/create-title'
 import { addClass, removeClass } from '../../common/class'
@@ -460,12 +460,15 @@ class Tab extends Component {
   }
 
   renderTitle = (sshTunnelResults, title) => {
-    const list = sshTunnelResults.map(({ id, sshTunnel, status, error }, i) => (
-      <div key={id || i} className='ssh-tunnel-item'>
-        {sshTunnel.name && `[${sshTunnel.name}] `}{formatSshTunnel(sshTunnel)}
-        {status && ` · ${e(status)}`}{error && ` · ${error}`}
-      </div>
-    ))
+    const list = sshTunnelResults.map(({ id, sshTunnel, status, error }, i) => {
+      const statusText = sshTunnelStatusText(status)
+      return (
+        <div key={id || i} className='ssh-tunnel-item'>
+          {sshTunnel.name && `[${sshTunnel.name}] `}{formatSshTunnel(sshTunnel)}
+          {statusText && ` · ${statusText}`}{error && ` · ${error}`}
+        </div>
+      )
+    })
     return (
       <>
         <div>{title}</div>
