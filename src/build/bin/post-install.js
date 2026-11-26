@@ -43,10 +43,12 @@ exec(`"${resolve(__dirname, '../../../node_modules/.bin/electron-rebuild')}"`)
 // electron-rebuild can recreate build/Release after node-pty's own
 // postinstall has already copied the Windows ConPTY runtime into it.
 if (isWin && ['x64', 'arm64'].includes(process.arch)) {
-  const pty = resolve(require.resolve('node-pty/package.json'), '..')
+  const pty = resolve(__dirname, '../../../node_modules/node-pty')
   const release = resolve(pty, 'build/Release')
-  if (existsSync(resolve(release, 'conpty.node'))) {
-    const vendor = resolve(pty, 'third_party/conpty')
+  const vendor = resolve(pty, 'third_party/conpty')
+  // Windows CI temporarily uninstalls node-pty, then pins a legacy build
+  // that uses the system ConPTY and has no vendored runtime to restore.
+  if (existsSync(resolve(release, 'conpty.node')) && existsSync(vendor)) {
     const [version] = readdirSync(vendor)
     const dest = resolve(release, 'conpty')
     mkdirSync(dest, { recursive: true })
