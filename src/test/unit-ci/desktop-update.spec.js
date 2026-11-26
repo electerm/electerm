@@ -57,7 +57,7 @@ test('verifies mirrored downloads with the per-asset Electerm checksum', async t
   t.mock.method(require('axios'), 'create', () => ({
     get: async url => {
       if (url === 'https://electerm.org/sha256/' + name + '.checksum') return { data: digest + '  ' + name }
-      assert.equal(url, 'https://electerm-store.html5beta.com/r/' + name)
+      assert.equal(url, 'https://r2.electerm.org/r/' + name)
       return { data: Readable.from([Buffer.from(body)]) }
     }
   }))
