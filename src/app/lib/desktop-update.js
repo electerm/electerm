@@ -5,6 +5,7 @@ const os = require('os')
 const path = require('path')
 const installSrc = require('./install-src')
 const { getCommandTarget } = require('./install-command')
+const normalizeReleaseTag = require('../common/normalize-release-tag')
 const compareVersions = require('../common/version-compare')
 const globalState = require('./glob-state')
 const { launch, locale } = require('@electerm/updater')
@@ -12,7 +13,6 @@ const { launch, locale } = require('@electerm/updater')
 let active
 
 async function startDesktopUpdate ({ tag: requestedTag, mirror, proxy, language }) {
-  const { default: normalizeReleaseTag } = await import('../common/normalize-release-tag.mjs')
   const messages = locale(language)
   if (active) throw new Error(messages.busy)
   const testing = !!process.env.NODE_TEST

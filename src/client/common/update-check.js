@@ -7,8 +7,8 @@ import {
   baseUpdateCheckUrls, packInfo
 } from './constants'
 import dayjs from 'dayjs'
-import updateMirrors from '../../app/common/update-mirrors.json'
-import normalizeReleaseTag from '../../app/common/normalize-release-tag.mjs'
+import updateMirrors from './update-mirrors.json'
+import normalizeReleaseTag from './normalize-release-tag'
 
 async function fetchData (url, options) {
   const data = {

@@ -4,6 +4,10 @@ const { Readable } = require('stream')
 const axios = require('axios')
 const { selectMirror } = require('../../app/lib/select-update-mirror')
 
+test('browser downloads and desktop updates use the same mirrors', () => {
+  assert.deepEqual(require('../../client/common/update-mirrors.json'), require('../../app/common/update-mirrors.json'))
+})
+
 const options = { tag: 'v5.15.0', src: 'win-x64-portable.tar.gz' }
 
 test('selects the first mirror delivering a complete binary sample and stops competing requests', async t => {

@@ -9,13 +9,17 @@ const { execFileSync } = require('child_process')
 const { format, assetFor, download } = require('@electerm/updater/release')
 const { archiveRoot } = require('@electerm/updater')
 
+const normalizeServerTag = require('../../app/common/normalize-release-tag')
+
 test('normalizes plain-text update feeds to an exact desktop release tag', async () => {
-  const { default: normalizeReleaseTag } = await import('../../app/common/normalize-release-tag.mjs')
+  const { default: normalizeClientTag } = await import('../../client/common/normalize-release-tag.js')
   for (const raw of ['v5.15.0', 'v5.15.0\n', '\uFEFF5.15.0\r\n']) {
-    assert.equal(normalizeReleaseTag(raw), 'v5.15.0')
+    assert.equal(normalizeClientTag(raw), 'v5.15.0')
+    assert.equal(normalizeServerTag(raw), 'v5.15.0')
   }
   for (const raw of [null, {}, '', '<html>v5.15.0</html>', 'v5.15.0\nv5.16.0', 'v5.15.0/extra']) {
-    assert.equal(normalizeReleaseTag(raw), '')
+    assert.equal(normalizeClientTag(raw), '')
+    assert.equal(normalizeServerTag(raw), '')
   }
 })
 
