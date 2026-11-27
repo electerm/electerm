@@ -74,7 +74,8 @@ const negotiationFailures = [
   'no matching S->C MAC', 'no matching host key format'
 ]
 
-exports.canRetryWithAltAlgorithms = err => negotiationFailures.some(message => err.message.includes(message))
+exports.canRetryWithAltAlgorithms = err =>
+  typeof err?.message === 'string' && negotiationFailures.some(message => err.message.includes(message))
 
 // A failed negotiation can be retried with the legacy CBC ciphers and
 // ssh-rsa/ssh-dss host keys that older devices still require.

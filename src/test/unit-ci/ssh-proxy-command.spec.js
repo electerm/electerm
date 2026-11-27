@@ -3,7 +3,6 @@ process.env.NODE_ENV = 'development'
 const { describe, test, beforeEach, afterEach } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
-const os = require('node:os')
 const path = require('node:path')
 const { once } = require('node:events')
 const { Server, utils } = require('@electerm/ssh2')
@@ -12,8 +11,11 @@ const {
 } = require('../../../src/app/server/session-ssh')
 const {
   expandProxyCommand,
-  isNetbirdLikeHost
+  isNetbirdLikeHost,
+  maybeProxyCommand,
+  clearDetectCache
 } = require('../../../src/app/server/ssh-proxy-command')
+const { createProxyFixture } = require('../integration/lib/ssh-proxy-fixture')
 
 const USERNAME = 'tester'
 const PASSWORD = 'electerm-test'
@@ -21,10 +23,6 @@ const PASSWORD = 'electerm-test'
 const HOST_KEY = utils.generateKeyPairSync('ed25519', {
   comment: 'electerm-test-host'
 })
-
-function makeTmpDir () {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-proxy-cmd-test-'))
-}
 
 // in-process ssh server the fake netbird proxy forwards to
 async function startServer () {
@@ -73,19 +71,19 @@ async function startServer () {
   }
 }
 
-/**
- * write a fake `netbird` executable:
- * - `netbird ssh detect host port` exits 0/2 per FAKE_DETECT_EXIT
- * - `netbird ssh proxy host port` bridges its stdio to the local test server
- */
-function writeFakeNetbird (dir, targetPort, detectExit = 0) {
-  const script = `#!/usr/bin/env node
+// Production spawns BIN with "ssh detect host port" or "ssh proxy host port".
+// With Node as BIN, its first operand is a script named "ssh" in the test's
+// private working directory. No shell or platform-specific launcher is needed.
+function writeFakeNetbird (targetPort, detectExit = 0) {
+  fs.writeFileSync('ssh', `
 const net = require('net')
+const fs = require('fs')
 const args = process.argv.slice(2)
-if (args[0] === 'ssh' && args[1] === 'detect') {
+fs.appendFileSync('calls.jsonl', JSON.stringify(args) + '\\n')
+if (args[0] === 'detect') {
   process.exit(${detectExit})
 }
-if (args[0] === 'ssh' && args[1] === 'proxy') {
+if (args[0] === 'proxy') {
   process.stderr.write('SSH authentication required.\\n')
   process.stderr.write('Please do the SSO login in your browser.\\n')
   process.stderr.write('https://example.netbird.io/device-auth/abc123\\n')
@@ -102,10 +100,12 @@ if (args[0] === 'ssh' && args[1] === 'proxy') {
   return
 }
 process.exit(2)
-`
-  const p = path.join(dir, 'netbird')
-  fs.writeFileSync(p, script, { mode: 0o755 })
-  return p
+`)
+}
+
+function netbirdCalls () {
+  if (!fs.existsSync('calls.jsonl')) return []
+  return fs.readFileSync('calls.jsonl', 'utf8').trim().split('\n').map(line => JSON.parse(line))
 }
 
 function createPromptWs () {
@@ -155,20 +155,22 @@ describe('isNetbirdLikeHost', () => {
 })
 
 describe('ssh proxy command', () => {
-  let tmpDir
+  let previousCwd
+  let fixture
   let server
-  let netbirdPath
+  let node
   let origBin
 
   beforeEach(async () => {
-    tmpDir = makeTmpDir()
-    server = await startServer()
-    netbirdPath = writeFakeNetbird(tmpDir, server.port, 0)
+    previousCwd = process.cwd()
     origBin = process.env.ELECTERM_NETBIRD_BIN
-    process.env.ELECTERM_NETBIRD_BIN = netbirdPath
-    // reset module level detect cache between tests
-    const mod = require('../../../src/app/server/ssh-proxy-command')
-    mod.clearDetectCache()
+    fixture = createProxyFixture()
+    node = path.relative(fixture.dir, fixture.node)
+    process.chdir(fixture.dir)
+    process.env.ELECTERM_NETBIRD_BIN = process.execPath
+    clearDetectCache()
+    server = await startServer()
+    writeFakeNetbird(server.port)
   })
 
   afterEach(async () => {
@@ -177,8 +179,12 @@ describe('ssh proxy command', () => {
     } else {
       process.env.ELECTERM_NETBIRD_BIN = origBin
     }
-    await server.close()
-    fs.rmSync(tmpDir, { recursive: true, force: true })
+    process.chdir(previousCwd)
+    try {
+      await server?.close()
+    } finally {
+      fixture.dispose()
+    }
   })
 
   test('connects through netbird ssh proxy for netbird-like host', async () => {
@@ -202,47 +208,34 @@ describe('ssh proxy command', () => {
       const notes = ws.messages.filter(m => m.action === 'ssh-proxy-command-message')
       assert.equal(notes.length, 1)
       assert.ok(notes[0].url.includes('example.netbird.io'))
+      assert.deepEqual(netbirdCalls(), [
+        ['detect', '100.99.0.1', '22'],
+        ['proxy', '100.99.0.1', '22']
+      ])
     } finally {
       term && term.kill()
     }
   })
 
   test('returns null when detect exits non-zero (non-netbird server)', async () => {
-    // point at a detect-only stub: detect exits 2 ("regular ssh server"),
-    // any proxy invocation exits 1 - so a non-null result would fail loudly
-    const stub = path.join(tmpDir, 'netbird-detect-only')
-    fs.writeFileSync(
-      stub,
-      '#!/usr/bin/env node\n' +
-      'const args = process.argv.slice(2)\n' +
-      "if (args[0] === 'ssh' && args[1] === 'detect') { process.exit(2) }\n" +
-      'process.exit(1)\n',
-      { mode: 0o755 }
-    )
-    process.env.ELECTERM_NETBIRD_BIN = stub
-    const mod = require('../../../src/app/server/ssh-proxy-command')
-    mod.clearDetectCache()
-    const r = await mod.maybeProxyCommand(
+    writeFakeNetbird(server.port, 2)
+    const r = await maybeProxyCommand(
       { host: '100.99.0.2', port: 22 },
       { host: '100.99.0.2', port: 22 },
       {}
     )
     assert.equal(r, null)
+    assert.deepEqual(netbirdCalls(), [['detect', '100.99.0.2', '22']])
   })
 
   test('non-netbird host skips detection entirely', async () => {
-    // stub fails on every invocation; a null result proves it was never called
-    const stub = path.join(tmpDir, 'netbird-fail-all')
-    fs.writeFileSync(stub, '#!/usr/bin/env node\nprocess.exit(1)\n', { mode: 0o755 })
-    process.env.ELECTERM_NETBIRD_BIN = stub
-    const mod = require('../../../src/app/server/ssh-proxy-command')
-    mod.clearDetectCache()
-    const r = await mod.maybeProxyCommand(
+    const r = await maybeProxyCommand(
       { host: '192.168.1.10', port: 22 },
       { host: '192.168.1.10', port: 22 },
       {}
     )
     assert.equal(r, null)
+    assert.deepEqual(netbirdCalls(), [])
   })
 
   test('explicit proxyCommand option connects through it', async () => {
@@ -256,12 +249,13 @@ describe('ssh proxy command', () => {
         password: PASSWORD,
         useSshAgent: false,
         enableSsh: false,
-        proxyCommand: `${netbirdPath} ssh proxy 127.0.0.1 ${server.port}`,
+        proxyCommand: `${node} ssh proxy %h %p`,
         readyTimeout: 10000
       }, ws)
       assert.ok(term)
       const notes = ws.messages.filter(m => m.action === 'ssh-proxy-command-message')
       assert.equal(notes.length, 1)
+      assert.deepEqual(netbirdCalls(), [['proxy', '127.0.0.1', String(server.port)]])
     } finally {
       term && term.kill()
     }

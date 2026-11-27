@@ -9,7 +9,7 @@ const path = require('node:path')
 const { once } = require('node:events')
 const { spawnSync } = require('node:child_process')
 const { setTimeout: delay } = require('node:timers/promises')
-const { Server, utils } = require('@electerm/ssh2')
+const { Client, Server, utils } = require('@electerm/ssh2')
 const { session } = require('../../../src/app/server/session-ssh')
 const log = require('../../../src/app/common/log')
 const { waitFor } = require('../integration/lib/ssh-session-harness')
@@ -467,6 +467,29 @@ describe('session-ssh auth flows', () => {
     setEnvVar('SSH_AGENT_PID', oldEnv.SSH_AGENT_PID)
     setEnvVar('sshKeysPath', oldEnv.sshKeysPath)
     fs.rmSync(tmpDir, { recursive: true, force: true })
+  })
+
+  test('a non-Error transport rejection reaches the caller unchanged', async t => {
+    const failure = { code: 'TRANSPORT_UNAVAILABLE' }
+    t.mock.method(Client.prototype, 'connect', () => { throw failure })
+    await assert.rejects(session(passwordSessionOptions(22)), reason => reason === failure)
+  })
+
+  test('local key discovery skips an OpenSSH certificate alongside its identity', async t => {
+    const key = utils.generateKeyPairSync('ed25519')
+    const keyPath = path.join(process.env.sshKeysPath, 'id_ed25519')
+    fs.writeFileSync(keyPath, key.private)
+    fs.writeFileSync(keyPath + '.pub', key.public)
+    fs.writeFileSync(keyPath + '-cert.pub', 'certificate fixture')
+    const server = await startServer(passwordOnlyAuth())
+    try {
+      const warn = t.mock.method(log, 'warn', () => {})
+      const options = { ...passwordSessionOptions(server.port), password: undefined }
+      await assert.rejects(session(options, createPromptWs(() => [''])), /authentication methods failed/i)
+      assert.ok(!warn.mock.calls.some(call => call.arguments.includes(keyPath + '-cert')))
+    } finally {
+      await server.close()
+    }
   })
 
   test('connects with an rsa key protected by a passphrase', async () => {
@@ -988,7 +1011,51 @@ describe('session-ssh auth flows', () => {
     }
   })
 
-  async function checkSftpKeyFallback (exitStatus) {
+  test('a rejected jump-host identity keeps its auth error beside a certificate and an orphan', async () => {
+    const identity = utils.generateKeyPairSync('ed25519')
+    const offered = []
+    const target = await startServer(ctx => {
+      if (ctx.method === 'publickey') offered.push(ctx.key.data)
+      ctx.reject(['publickey'])
+    })
+    const reads = []
+    let sftpRequests = 0
+    const readIdentity = 'cat "$HOME"/.ssh/\'id_ed25519\''
+    const readOrphan = 'cat "$HOME"/.ssh/\'orphan\''
+    const hop = await startServer(passwordOnlyAuth(), target.port, channel => {
+      channel.on('exec', (accept, reject, { command }) => {
+        const stream = accept()
+        if (!command.startsWith('cat ')) {
+          stream.end('id_ed25519-cert.pub\0orphan.pub\0id_ed25519.pub\0')
+          return
+        }
+        reads.push(command)
+        if (command === readIdentity) {
+          stream.end(identity.private)
+        } else {
+          stream.exit(1)
+          stream.end()
+        }
+      })
+      channel.on('sftp', (accept, reject) => { sftpRequests++; reject() })
+    })
+    try {
+      await assert.rejects(session({
+        ...passwordSessionOptions(target.port),
+        password: undefined,
+        hasHopping: true,
+        connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+      }, createPromptWs(() => [''])), { message: 'All configured authentication methods failed' })
+      assert.deepEqual(offered, [parseKey(identity.public).getPublicSSH()])
+      assert.deepEqual(reads, [readOrphan, readIdentity])
+      assert.equal(sftpRequests, 0)
+    } finally {
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  async function checkSftpKeyFallback (handleExec) {
     const key = utils.generateKeyPairSync('ed25519')
     const directory = path.join(tmpDir, '.ssh')
     fs.mkdirSync(directory)
@@ -998,13 +1065,7 @@ describe('session-ssh auth flows', () => {
     let sftpSessions = 0
     let sftpClosed = false
     const hop = await startServer(passwordOnlyAuth(), target.port, channel => {
-      channel.on('exec', accept => {
-        const stream = accept()
-        // PowerShell can report command-not-found on stderr with status 0 or no status.
-        stream.stderr.write('sh: command not found')
-        if (exitStatus !== null) stream.exit(exitStatus)
-        stream.end()
-      })
+      channel.on('exec', (accept, reject, { command }) => handleExec(accept(), command))
       channel.on('sftp', accept => {
         sftpSessions++
         const sftp = accept()
@@ -1033,16 +1094,36 @@ describe('session-ssh auth flows', () => {
 
   for (const status of [null, 0]) {
     test(`a jump host with no sh can supply keys over SFTP (exit status ${status})`, () =>
-      checkSftpKeyFallback(status))
+      checkSftpKeyFallback(stream => {
+        // PowerShell can report command-not-found on stderr with status 0 or no status.
+        stream.stderr.write('sh: command not found')
+        if (status !== null) stream.exit(status)
+        stream.end()
+      }))
   }
+
+  test('SFTP recovers a jump-host key when the shell lists it but cannot read it', () =>
+    checkSftpKeyFallback((stream, command) => {
+      if (command.startsWith('cat ')) {
+        stream.exit(1)
+        stream.end()
+      } else {
+        stream.end("owner's key.pub\0")
+      }
+    }))
 
   test('unavailable jump-key discovery still allows passwords and explains a final auth failure', async () => {
     const target = await startServer(passwordOnlyAuth())
+    let listsKey = false
     const hop = await startServer(passwordOnlyAuth(), target.port, channel => {
-      channel.on('exec', accept => {
+      channel.on('exec', (accept, reject, { command }) => {
         const stream = accept()
-        stream.exit(127)
-        stream.end()
+        if (listsKey && !command.startsWith('cat ')) {
+          stream.end('orphan.pub\0')
+        } else {
+          stream.exit(listsKey ? 1 : 127)
+          stream.end()
+        }
       })
       channel.on('sftp', (accept, reject) => reject())
     })
@@ -1055,13 +1136,17 @@ describe('session-ssh auth flows', () => {
     let term
     try {
       term = await session(options, createPromptWs(() => [PASSWORD]))
-      await assert.rejects(session(options, createPromptWs(() => ['wrong-password'])), err => {
-        assert.match(err.message, /authentication methods failed/i)
-        assert.match(err.message, /sh: command exited with status 127/)
-        assert.match(err.message, /SFTP: .*subsystem/i)
-        assert.match(err.message, /credentials for the destination/i)
-        return true
-      })
+      for (listsKey of [false, true]) {
+        await assert.rejects(session(options, createPromptWs(() => ['wrong-password'])), err => {
+          assert.match(err.message, /authentication methods failed/i)
+          assert.match(err.message, listsKey
+            ? /sh: could not read any listed private key: command exited with status 1/
+            : /sh: command exited with status 127/)
+          assert.match(err.message, /SFTP: .*subsystem/i)
+          assert.match(err.message, /credentials for the destination/i)
+          return true
+        })
+      }
     } finally {
       term?.kill()
       await hop.close()

@@ -5,7 +5,7 @@ const { algAlt, canRetryWithAltAlgorithms } = require('../ssh2-alg')
 const { Client } = require('@electerm/ssh2')
 const proxySock = require('../socks')
 const { maybeProxyCommand } = require('../ssh-proxy-command')
-const { buildConnectOptions } = require('./options')
+const { buildConnectOptions, isIdentityPublicKey } = require('./options')
 const { credentialPrompt } = require('./prompts')
 const { handshake } = require('./handshake')
 
@@ -86,7 +86,7 @@ async function connectWithCredentials (session, credentials, {
     try {
       return await connectAttempt(session, options, settings)
     } catch (err) {
-      if (session.prompts.aborted) throw err
+      if (session.prompts.aborted || typeof err?.message !== 'string') throw err
       if (!upstream && !session.altAlg && canRetryWithAltAlgorithms(err)) {
         session.altAlg = true
         options.algorithms = algAlt()
@@ -115,7 +115,7 @@ function * localCredentials (options) {
     } catch (err) {
       log.warn('could not list local SSH keys', err.message)
     }
-    for (const file of files.filter(f => f.endsWith('.pub'))) {
+    for (const file of files.filter(isIdentityPublicKey)) {
       const keyName = path.join(dir, file.slice(0, -4))
       try {
         const privateKey = fs.readFileSync(keyName, 'utf8')
@@ -135,7 +135,7 @@ async function connectEndpoint (session, base, candidates, settings) {
     try {
       return await connectWithCredentials(session, options, { ...settings, keyName })
     } catch (err) {
-      if (session.prompts.aborted) throw err
+      if (session.prompts.aborted || typeof err?.message !== 'string') throw err
       if (options !== base && err.message.includes('passphrase')) continue
       if (!err.message.includes('All configured authentication methods failed')) throw err
       lastError = err

@@ -36,6 +36,7 @@ const {
   TEST_PASSWORD
 } = require('./lib/ssh-test-server')
 const { createTrustingWs, waitFor } = require('./lib/ssh-session-harness')
+const { createProxyFixture } = require('./lib/ssh-proxy-fixture')
 
 // keep the developer's ~/.ssh/known_hosts out of it
 process.env.HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-ssh-kill-'))
@@ -70,20 +71,15 @@ const liveClients = (server) => server._clients.size
  * reaped or left behind.
  */
 function writeStubProxy (t) {
-  // ProxyCommand splits on whitespace. Relative paths keep both arguments
-  // intact even when the checkout or Node installation path contains spaces.
-  const dir = fs.mkdtempSync('.electerm-test-proxy-')
-  const runtimeDir = path.join(dir, 'runtime')
+  const { dir, node, dispose } = createProxyFixture()
   const pidFile = path.join(dir, 'proxy.pid')
   const script = path.join(dir, 'proxy.js')
   const childPid = () => Number(fs.readFileSync(pidFile, 'utf8'))
   t.after(() => {
     const pid = fs.existsSync(pidFile) && childPid()
     if (isAlive(pid)) process.kill(pid, 'SIGKILL')
-    if (fs.existsSync(runtimeDir)) fs.unlinkSync(runtimeDir)
-    fs.rmSync(dir, { recursive: true, force: true })
+    dispose()
   })
-  fs.symlinkSync(path.dirname(process.execPath), runtimeDir, 'junction')
   fs.writeFileSync(script, `
 const fs = require('fs')
 const net = require('net')
@@ -96,7 +92,6 @@ sock.on('connect', () => {
 sock.on('error', () => process.exit(1))
 process.stdin.on('end', () => sock.end())
 `)
-  const node = path.join(runtimeDir, path.basename(process.execPath))
   return { proxyCommand: `${node} ${script}`, childPid }
 }
 

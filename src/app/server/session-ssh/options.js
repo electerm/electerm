@@ -10,6 +10,11 @@ const endpointFields = [
   'passphrase', 'certificate', 'certificatePath'
 ]
 
+function isIdentityPublicKey (name) {
+  // OpenSSH stores an identity's certificate beside its .pub file.
+  return name.endsWith('.pub') && !name.endsWith('-cert.pub')
+}
+
 function resolveKeyFiles (options) {
   for (const key of ['privateKey', 'certificate']) {
     const rawPath = options[key + 'Path']
@@ -56,4 +61,4 @@ function buildConnectOptions (initOptions) {
   return options
 }
 
-module.exports = { buildConnectOptions, endpointFields, getAgentOptions, getShareOptions, resolveKeyFiles }
+module.exports = { buildConnectOptions, endpointFields, getAgentOptions, getShareOptions, isIdentityPublicKey, resolveKeyFiles }
