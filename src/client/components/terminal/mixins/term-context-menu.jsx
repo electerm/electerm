@@ -211,13 +211,6 @@ export const contextMenuMixin = {
     }
   },
 
-  tryInsertSelected () {
-    const txt = this.term.getSelection()
-    if (txt) {
-      this.attachAddon._sendData(txt)
-    }
-  },
-
   onCopy () {
     const selected = this.term.getSelection()
     copy(selected)
@@ -276,7 +269,9 @@ export const contextMenuMixin = {
 
   onPasteSelected () {
     const selected = this.term.getSelection()
-    this.term.paste(selected || '')
+    if (selected) {
+      this.term.paste(selected)
+    }
     this.term.focus()
   },
 
@@ -340,8 +335,12 @@ export const contextMenuMixin = {
   },
 
   pasteSelectedShortcut (e) {
+    e.preventDefault()
     e.stopPropagation()
-    this.tryInsertSelected()
+    if (e.type === 'keydown') {
+      this.onPasteSelected()
+    }
+    return false
   },
 
   searchShortcut (e) {
