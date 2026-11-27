@@ -13,6 +13,7 @@ const { expect } = require('./common/expect')
 const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const e = require('./common/lang')
 
 describe('ssh', function () {
   it('should open window and basic ssh ls command works', async function () {
@@ -21,7 +22,7 @@ describe('ssh', function () {
     extendClient(client, electronApp)
     await delay(4500)
     await client.openContextMenu('.tabs .tab')
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .anticon-copy')
+    await client.click(`.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has(:text-is("${e('duplicate')}"))`)
     await delay(2500)
     const tabsCount = await client.evaluate(() => {
       return window.store.tabs.length
@@ -32,7 +33,7 @@ describe('ssh', function () {
       return window.store.layout
     })
     await client.openContextMenu('.tabs .tab')
-    await client.click('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has-text("Clone to Next Layout")') // Click clone to next layout option
+    await client.click(`.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item:has(:text-is("${e('cloneToNextLayout')}"))`)
     await delay(2000)
 
     // Verify new layout and tab count

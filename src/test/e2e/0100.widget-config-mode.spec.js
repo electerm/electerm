@@ -10,6 +10,7 @@ const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
 const appOptions = require('./common/app-options')
+const e = require('./common/lang')
 
 test.setTimeout(90000)
 
@@ -141,8 +142,8 @@ test('config mode renders the form and the action result', async () => {
     // the two facts that matter before consenting: how much of this merges into
     // what is already there, and how many bookmarks carry a secret
     const facts = await page.locator('.wbb .wac-row').allTextContents()
-    assert.ok(facts.some(text => text.includes('Merge1')), facts.join('|'))
-    assert.ok(facts.some(text => text.includes('Password / PrivateKey1')), facts.join('|'))
+    assert.ok(facts.includes(`${e('merge')}1`), facts.join('|'))
+    assert.ok(facts.includes(`${e('password')} / ${e('privateKey')}1`), facts.join('|'))
     // web bookmarks have no host: the address column falls back to the url,
     // and the type defaults (telnet port) are filled in
     const rows = await page.locator('.wbb .ant-table-row').allTextContents()

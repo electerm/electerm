@@ -1,4 +1,5 @@
 const delay = require('./wait')
+const e = require('./lang')
 const diagnose = require('./diagnose')
 const {
   TEST_HOST,
@@ -242,7 +243,7 @@ async function enterFolder (client, type, folderName) {
   await ensureItemVisible(client, type, folderName)
   await client.withContextMenu(
     `.session-current .file-list.${type} .sftp-item[title="${folderName}"]`,
-    '.ant-dropdown-menu-item:has-text("Enter")'
+    `.ant-dropdown-menu-item:has(:text-is("${e('open')}"))`
   )
   await delay(3500) // Increased delay for folder navigation
 }
