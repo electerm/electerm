@@ -218,7 +218,10 @@ export const commonFields = {
   proxyCommand: {
     type: 'input',
     name: 'proxyCommand',
-    label: () => `${e('proxy')} command`,
+    label: 'ProxyCommand',
+    get extra () {
+      return `%h (${e('host')}), %p (${e('port')}), %r (${e('username')}). ${e('A configured proxy URL takes precedence.')}`
+    },
     props: {
       placeholder: 'netbird ssh proxy %h %p',
       maxLength: 1024
@@ -289,15 +292,17 @@ export const commonFields = {
 }
 
 // Common field groups for settings tabs
-export const terminalSettings = [
-  commonFields.terminalType,
-  commonFields.proxy,
-  commonFields.displayRaw,
-  commonFields.fontFamily,
-  commonFields.fontSize,
-  commonFields.keepaliveInterval,
-  commonFields.terminalBackground
-]
+export function getTerminalSettings (...additionalProxyFields) {
+  return [
+    commonFields.terminalType,
+    commonFields.proxy,
+    ...additionalProxyFields,
+    commonFields.displayRaw,
+    commonFields.fontFamily,
+    commonFields.fontSize,
+    commonFields.keepaliveInterval
+  ]
+}
 
 // Line-ending conversion, for the transports that have no pty line discipline
 // in front of them (serial, telnet). Kept in one place so both forms offer the
@@ -338,8 +343,7 @@ export const sshSettings = [
     valuePropName: 'checked'
   },
   commonFields.enableTerminalImage,
-  ...terminalSettings.slice(0, -1), // All except terminalBackground
-  commonFields.proxyCommand,
+  ...getTerminalSettings(commonFields.proxyCommand),
   commonFields.x11,
   commonFields.terminalBackground
 ]
