@@ -107,7 +107,7 @@ export default memo(function SidebarPanel (props) {
       className='sidebar-panel bookmarks-panel animate-fast'
     >
       <div className='sidebar-pin-top'>
-        <div className='pd1y pd2t pd2x sidebar-panel-control alignright'>
+        <div className='pd1y pd2t pd2x sidebar-panel-control'>
           <Tooltip title={e('newBookmark')}>
             <PlusCircleOutlined
               {...pop1}
