@@ -56,20 +56,20 @@ const { createTrustingWs } = require('./lib/ssh-session-harness')
 
 // The app writes trusted host keys to ~/.ssh/known_hosts — point HOME at a
 // throwaway dir so a test run never touches the developer's real file
-const REAL_HOME = process.env.HOME
+const dockerEnv = { ...process.env }
 process.env.HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-legacy-alg-'))
+process.env.USERPROFILE = process.env.HOME
 
 // the docker CLI resolves its context from $HOME, so it must keep the real one
 function docker (command, options = {}) {
   return execSync(`docker ${command}`, {
     encoding: 'utf8',
     stdio: 'pipe',
-    env: { ...process.env, HOME: REAL_HOME },
+    env: dockerEnv,
     ...options
   })
 }
 
-const IN_PROCESS_PORT = 22230
 const RIG_DIR = path.resolve(__dirname, '../../../temp/dockers/legacy-ssh')
 const RIG_IMAGE = 'electerm-legacy-ssh'
 const RIG_CONTAINER = 'electerm-legacy-ssh'
@@ -163,20 +163,14 @@ function closeSession (term) {
 describe('legacy ssh algorithms — in-process server', () => {
   let server
 
-  before(async () => {
-    server = await startTestSshServer({ port: IN_PROCESS_PORT })
-  })
-
   after(async () => {
-    await stopTestSshServer(server)
+    if (server) await stopTestSshServer(server)
   })
 
   async function startPinned (algorithms) {
-    await stopTestSshServer(server)
-    server = await startTestSshServer({
-      port: IN_PROCESS_PORT,
-      algorithms
-    })
+    if (server) await stopTestSshServer(server)
+    server = await startTestSshServer({ port: 0, algorithms })
+    return server.address().port
   }
 
   test('every algorithm list only contains names this ssh2 build implements', () => {
@@ -204,7 +198,7 @@ describe('legacy ssh algorithms — in-process server', () => {
 
   test('the fixture really is pinned: a modern-only client cannot negotiate', async () => {
     // control test — proves the assertions below are not vacuous
-    await startPinned({ kex: ['diffie-hellman-group1-sha1'] })
+    const port = await startPinned({ kex: ['diffie-hellman-group1-sha1'] })
     const err = await new Promise((resolve) => {
       const conn = new Client()
       const timer = setTimeout(() => {
@@ -223,7 +217,7 @@ describe('legacy ssh algorithms — in-process server', () => {
       // ssh2's own default list: no sha1 kex at all
       conn.connect({
         host: '127.0.0.1',
-        port: IN_PROCESS_PORT,
+        port,
         username: TEST_USERNAME,
         password: TEST_PASSWORD,
         readyTimeout: 8000,
@@ -235,12 +229,12 @@ describe('legacy ssh algorithms — in-process server', () => {
   })
 
   test('connects to a server offering only diffie-hellman-group1-sha1', async () => {
-    await startPinned({
+    const port = await startPinned({
       kex: ['diffie-hellman-group1-sha1'],
       cipher: ['aes128-ctr'],
       hmac: ['hmac-sha2-256']
     })
-    const term = await connect(IN_PROCESS_PORT)
+    const term = await connect(port)
     try {
       assert.equal(negotiated(term).kex, 'diffie-hellman-group1-sha1')
     } finally {
@@ -249,12 +243,12 @@ describe('legacy ssh algorithms — in-process server', () => {
   })
 
   test('connects to a server offering only diffie-hellman-group14-sha1', async () => {
-    await startPinned({
+    const port = await startPinned({
       kex: ['diffie-hellman-group14-sha1'],
       cipher: ['aes128-ctr'],
       hmac: ['hmac-sha2-256']
     })
-    const term = await connect(IN_PROCESS_PORT)
+    const term = await connect(port)
     try {
       assert.equal(negotiated(term).kex, 'diffie-hellman-group14-sha1')
     } finally {
@@ -265,12 +259,12 @@ describe('legacy ssh algorithms — in-process server', () => {
   test('falls back to CBC/hmac-sha1 for an old device (algAlt retry)', async () => {
     // aes128-cbc/hmac-sha1 are only in algAlt(), never in algDefault(), so a
     // successful connect proves reTryAltAlg() ran and the alt list is usable
-    await startPinned({
+    const port = await startPinned({
       kex: ['diffie-hellman-group14-sha1'],
       cipher: ['aes128-cbc'],
       hmac: ['hmac-sha1']
     })
-    const term = await connect(IN_PROCESS_PORT)
+    const term = await connect(port)
     try {
       const alg = negotiated(term)
       assert.equal(alg.kex, 'diffie-hellman-group14-sha1')
@@ -283,12 +277,12 @@ describe('legacy ssh algorithms — in-process server', () => {
   })
 
   test('runs a shell over a legacy connection', async () => {
-    await startPinned({
+    const port = await startPinned({
       kex: ['diffie-hellman-group1-sha1'],
       cipher: ['3des-cbc'],
       hmac: ['hmac-md5']
     })
-    const term = await connect(IN_PROCESS_PORT, { enableSsh: true })
+    const term = await connect(port, { enableSsh: true })
     try {
       assert.equal(negotiated(term).kex, 'diffie-hellman-group1-sha1')
       // the uppercase output can not come from the echo of the typed command,

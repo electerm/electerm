@@ -5,10 +5,11 @@
  * the ssh channel, so a local x server (XQuartz / VcXsrv / X.org) must be
  * running and reachable. When it is not, remote GUI apps hang or die without
  * any visible reason, so we probe the display up front and hand the user a
- * hint (see session-ssh.js `checkX11`).
+ * hint when it cannot be reached.
  */
 
 const net = require('net')
+const { execFile } = require('child_process')
 
 const X11_HELP_URL = 'https://github.com/electerm/electerm/wiki/Use-X11'
 const unixSocketDir = '/tmp/.X11-unix'
@@ -24,30 +25,25 @@ const probeTimeout = 800
  */
 function getX11Candidates (display, platform = process.platform) {
   const d = (display || '').trim()
-  const list = []
-  const add = (c) => {
-    const exists = list.some(x => x.path === c.path && x.port === c.port)
-    if (!exists) {
-      list.push(c)
-    }
-  }
   // XQuartz: DISPLAY already is the socket path
   if (d.includes('/')) {
-    add({ path: d })
-    return list
+    return [{ path: d }]
   }
+  const list = []
   const m = d.match(/:(\d+)(?:\.(\d+))?$/)
   const n = m ? parseInt(m[1], 10) : 0
   const onWindows = platform === 'win32'
   if (!onWindows) {
-    add({ path: `${unixSocketDir}/X${n}` })
+    list.push({ path: `${unixSocketDir}/X${n}` })
   }
-  add({ port: defaultTcpPort + n, host: '127.0.0.1' })
+  if (defaultTcpPort + n <= 65535) {
+    list.push({ port: defaultTcpPort + n, host: '127.0.0.1' })
+  }
   if (n !== 0) {
     if (!onWindows) {
-      add({ path: `${unixSocketDir}/X0` })
+      list.push({ path: `${unixSocketDir}/X0` })
     }
-    add({ port: defaultTcpPort, host: '127.0.0.1' })
+    list.push({ port: defaultTcpPort, host: '127.0.0.1' })
   }
   return list
 }
@@ -124,10 +120,95 @@ function x11CookieHint (platform = process.platform) {
   return `${base} Check with "xauth list", or open access with "xhost +localhost".`
 }
 
+function notifyX11 (session, message) {
+  if (!session.ws || session.x11Notified) return
+  session.x11Notified = true
+  session.ws.s({
+    action: 'x11-warning',
+    message,
+    url: X11_HELP_URL,
+    tabId: session.initOptions.srcTabId
+  })
+}
+
+async function prepareX11 (session) {
+  session.display = process.env.DISPLAY || ''
+  session.x11Cookie = await new Promise(resolve => {
+    execFile('xauth', ['list', session.display || ':0'], (err, out, stderr) => {
+      const cookie = !err && !stderr && out.match(/MIT-MAGIC-COOKIE-1\s+([\da-f]+)/i)
+      resolve(cookie ? cookie[1] : '')
+    })
+  })
+  // A diagnostic probe must not delay the SSH login.
+  probeXServer(getX11Candidates(session.display)).then(ok => {
+    if (!ok) notifyX11(session, x11Hint())
+    else if (!session.x11Cookie && process.platform !== 'win32') notifyX11(session, x11CookieHint())
+  }).catch(err => require('../common/log').warn('X11 probe failed', err))
+}
+
+// Prefer the configured display, then try the local display range supported
+// by older bookmarks (some start their X server without exporting DISPLAY).
+function * forwardingEndpoints (display) {
+  const preferred = getX11Candidates(display)
+  yield * preferred
+  const tried = new Set(preferred.map(endpoint => endpoint.path ?? endpoint.port))
+  if (process.platform !== 'win32' && !display?.includes('/')) {
+    for (let n = 0; n <= 100; n++) {
+      const path = `${unixSocketDir}/X${n}`
+      if (!tried.has(path)) yield { path }
+    }
+  }
+  for (let n = 0; n < 100; n++) {
+    const port = defaultTcpPort + n
+    if (!tried.has(port)) yield { port, host: '127.0.0.1' }
+  }
+}
+
+function forwardX11Channel (session, conn, accept, reject) {
+  const endpoints = forwardingEndpoints(session.display)
+  let local
+  let cancelled = false
+  function cancel () {
+    cancelled = true
+    local?.destroy()
+  }
+  function connected () {
+    if (cancelled) return
+    // A later socket error ends this channel. It must not accept it twice.
+    local.removeListener('error', tryNext)
+    const remote = accept()
+    local.on('error', () => remote.destroy())
+    remote.on('error', () => local.destroy())
+    local.once('close', () => {
+      conn.removeListener('close', cancel)
+      remote.destroy()
+    })
+    remote.once('close', () => local.destroy())
+    remote.pipe(local).pipe(remote)
+  }
+  function tryNext () {
+    if (cancelled) return
+    const { done, value } = endpoints.next()
+    if (done) {
+      conn.removeListener('close', cancel)
+      reject()
+      notifyX11(session, `Could not reach a local X server (display: ${session.display || 'not set'}). ${x11Hint()}`)
+      return
+    }
+    local = net.connect(value)
+    local.once('error', tryNext)
+    local.once('connect', connected)
+  }
+  conn.once('close', cancel)
+  tryNext()
+}
+
 module.exports = {
   X11_HELP_URL,
   getX11Candidates,
   probeXServer,
   x11Hint,
-  x11CookieHint
+  x11CookieHint,
+  prepareX11,
+  forwardX11Channel
 }

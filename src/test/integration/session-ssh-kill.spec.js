@@ -26,7 +26,7 @@ const fs = require('node:fs')
 // Required FIRST: ssh2-alg patches crypto.createDiffieHellman(Group), and ssh2
 // captures those function references when its protocol modules load.
 require('../../app/server/ssh2-alg')
-const { session } = require('../../app/server/session-ssh')
+const { session, test: testConnection } = require('../../app/server/session-ssh')
 const globalState = require('../../app/server/global-state')
 
 const {
@@ -39,13 +39,14 @@ const { createTrustingWs, waitFor } = require('./lib/ssh-session-harness')
 
 // keep the developer's ~/.ssh/known_hosts out of it
 process.env.HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-ssh-kill-'))
+process.env.USERPROFILE = process.env.HOME
 
-const KILL_PORT = 22240
+let server
 
-function connect (initOptions = {}) {
-  return session({
+function connectionOptions (overrides) {
+  return {
     host: '127.0.0.1',
-    port: KILL_PORT,
+    port: server.address().port,
     username: TEST_USERNAME,
     password: TEST_PASSWORD,
     useSshAgent: false,
@@ -53,8 +54,12 @@ function connect (initOptions = {}) {
     readyTimeout: 10000,
     cols: 80,
     rows: 24,
-    ...initOptions
-  }, createTrustingWs())
+    ...overrides
+  }
+}
+
+function connect (options) {
+  return session(connectionOptions(options), createTrustingWs())
 }
 
 const liveClients = (server) => server._clients.size
@@ -64,24 +69,31 @@ const liveClients = (server) => server._clients.size
  * server and records its pid, so a test can tell whether the process was
  * reaped or left behind.
  */
-function writeStubProxy () {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-ssh-kill-proxy-'))
+function writeStubProxy (t) {
+  const dir = fs.mkdtempSync(path.join(process.env.HOME, 'proxy-'))
   const pidFile = path.join(dir, 'proxy.pid')
-  const bin = path.join(dir, 'stub-proxy')
-  fs.writeFileSync(bin, `#!/usr/bin/env node
+  const script = path.join(dir, 'proxy.js')
+  fs.writeFileSync(script, `
 const fs = require('fs')
 const net = require('net')
 fs.writeFileSync(${JSON.stringify(pidFile)}, String(process.pid))
-const sock = net.connect(${KILL_PORT}, '127.0.0.1')
+const sock = net.connect(${server.address().port}, '127.0.0.1')
 sock.on('connect', () => {
   process.stdin.pipe(sock)
   sock.pipe(process.stdout)
 })
 sock.on('error', () => process.exit(1))
 process.stdin.on('end', () => sock.end())
-process.stdin.resume()
-`, { mode: 0o755 })
-  return { bin, pidFile }
+`)
+  // Use Node directly on Windows too. Passing the temporary script path in
+  // the environment also works when the user's temp directory contains spaces.
+  process.env.ELECTERM_TEST_PROXY_SCRIPT = script
+  const childPid = () => Number(fs.readFileSync(pidFile, 'utf8'))
+  t.after(() => {
+    if (fs.existsSync(pidFile) && isAlive(childPid())) process.kill(childPid(), 'SIGKILL')
+    delete process.env.ELECTERM_TEST_PROXY_SCRIPT
+  })
+  return { proxyCommand: 'node -e require(process.env.ELECTERM_TEST_PROXY_SCRIPT)', childPid }
 }
 
 function isAlive (pid) {
@@ -94,10 +106,8 @@ function isAlive (pid) {
 }
 
 describe('session-ssh kill() releases the connection', () => {
-  let server
-
   before(async () => {
-    server = await startTestSshServer({ port: KILL_PORT })
+    server = await startTestSshServer({ port: 0 })
   })
 
   after(async () => {
@@ -159,23 +169,35 @@ describe('session-ssh kill() releases the connection', () => {
     assert.doesNotThrow(() => term.kill())
   })
 
-  test('kill() reaps the proxy command child process', async () => {
-    const { bin, pidFile } = writeStubProxy()
-    const term = await connect({ proxyCommand: bin })
-    await waitFor(() => fs.existsSync(pidFile))
-    const childPid = Number(fs.readFileSync(pidFile, 'utf8'))
-    assert.ok(isAlive(childPid), 'stub proxy should be running')
-    try {
-      term.kill()
-      // kill() used to null proxyCommandDispose before doing anything with it,
-      // so doKill() skipped the dispose and every closed tab left a stray
-      // `netbird ssh proxy` process behind
-      await waitFor(() => !isAlive(childPid), 5000)
-      assert.ok(!isAlive(childPid), 'proxy command child was left running')
-    } finally {
-      if (isAlive(childPid)) {
-        process.kill(childPid, 'SIGKILL')
-      }
-    }
+  test('kill() reaps the proxy command child process', async t => {
+    const { proxyCommand, childPid } = writeStubProxy(t)
+    const term = await connect({ proxyCommand })
+    const pid = childPid()
+    assert.ok(isAlive(pid), 'stub proxy should be running')
+    term.kill()
+    await waitFor(() => !isAlive(pid))
+    await waitFor(() => liveClients(server) === 0)
+  })
+
+  test('a successful connection test releases the proxy and the SSH transport', async t => {
+    const { proxyCommand, childPid } = writeStubProxy(t)
+    const options = connectionOptions({ uid: 'probe-only', proxyCommand })
+    assert.equal(await testConnection(options, createTrustingWs()), true)
+    assert.equal(globalState.getSession(options.uid), undefined)
+    const pid = childPid()
+    await waitFor(() => !isAlive(pid))
+    await waitFor(() => liveClients(server) === 0)
+  })
+
+  test('a failed connection test leaves the live session with the same uid usable', async t => {
+    const term = await connect({ uid: 'shared-session-id' })
+    t.after(() => term.kill())
+    const options = connectionOptions({ uid: term.pid, password: 'incorrect' })
+    assert.equal(await testConnection(options, createTrustingWs()), false)
+    assert.equal(globalState.getSession(term.pid), term)
+    await waitFor(() => liveClients(server) === 1)
+    const result = await term.execCommand('echo still-connected')
+    assert.equal(result.exitCode, 0)
+    assert.equal(result.stdout.trim(), 'still-connected')
   })
 })

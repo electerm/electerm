@@ -99,7 +99,6 @@ if (args[0] === 'ssh' && args[1] === 'proxy') {
     process.exit(1)
   })
   process.stdin.on('end', () => sock.end())
-  process.stdin.resume()
   return
 }
 process.exit(2)

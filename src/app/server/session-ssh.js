@@ -1,714 +1,61 @@
-/**
- * terminal/sftp/serial class
- */
-
-const proxySock = require('./socks')
-const _ = require('../lib/lodash.js')
-const generate = require('../common/uid')
-const { resolve: pathResolve } = require('path')
-const net = require('net')
-const { exec } = require('child_process')
+const iconv = require('iconv-lite')
 const log = require('../common/log')
-const { algDefault, algAlt } = require('./ssh2-alg')
-const { createHostVerifier } = require('./ssh-known-hosts')
-const { maybeProxyCommand } = require('./ssh-proxy-command')
-const { SshTunnelManager } = require('./ssh-tunnel-manager')
-const deepCopy = require('json-deep-copy')
+const { pick } = require('../lib/lodash')
 const { TerminalBase } = require('./session-base')
 const { commonExtends } = require('./session-common')
 const globalState = require('./global-state')
-const iconv = require('iconv-lite')
-const {
-  X11_HELP_URL,
-  getX11Candidates,
-  probeXServer,
-  x11Hint,
-  x11CookieHint
-} = require('./x11')
+const { SshTunnelManager } = require('./ssh-tunnel-manager')
+const { connectFirst } = require('./session-ssh/connect')
+const { connectHops, firstHopOptions } = require('./session-ssh/hops')
+const { InteractivePrompts } = require('./session-ssh/prompts')
+const { prepareX11 } = require('./x11')
 
-// Encodings that are equivalent to UTF-8 (no conversion needed)
 const utf8Aliases = new Set(['utf-8', 'utf8', 'utf-8-strict'])
 
-const failMsg = 'All configured authentication methods failed'
-const csFailMsg = 'no matching C->S cipher'
-// ssh2 fails the shell request when the server refuses agent forwarding
-// (AllowAgentForwarding no); OpenSSH and SecureCRT only warn, see openShell()
-const agentFwdFailMsg = 'Unable to request agent forwarding'
-// ssh2 handshake failures that mean "no algorithm in common". algAlt() is a
-// strict superset of algDefault(), so retrying with it can only add options,
-// never remove them. Old devices/routers often need it for the cipher, MAC or
-// host key (not just the C->S cipher), so any of them triggers the retry.
-const algFailMsgs = [
-  csFailMsg,
-  'no matching S->C cipher',
-  'no matching C->S MAC',
-  'no matching S->C MAC',
-  'no matching host key format'
-]
-
-// Tells the renderer that an interactive prompt (MFA code, password, host key
-// trust) is no longer answerable, so it can take its dialog down. A prompt can
-// only be answered while the connection that asked for it is alive, and the
-// dialog is a modal with a mask: one left behind by a dead attempt blocks the
-// whole window, tab switching included, and cancelling it only revealed the
-// next stale prompt in the queue (#4634).
-const interactiveCloseAction = 'session-interactive-close'
-
-// A key/certificate can be stored two ways: as content (pasted, or imported
-// from a file by the bookmark form), or as the path of the file to read it
-// from ("select file path" in the bookmark form, `-i/--private-key-path` on
-// the command line). Content wins: when both are filled in, the path is
-// ignored, which is also the order the form shows them in.
-const keyFilePairs = [
-  ['privateKeyPath', 'privateKey'],
-  ['certificatePath', 'certificate']
-]
-
-// fs does not expand `~`, and this is a path people type by hand
-function expandHome (p) {
-  if (p === '~' || p.startsWith('~/') || p.startsWith('~\\')) {
-    return pathResolve(require('os').homedir(), p.slice(2))
+class TerminalSsh extends TerminalBase {
+  constructor (options, ws, isTest) {
+    super(firstHopOptions(options), ws, isTest)
+    this.prompts = new InteractivePrompts(this)
   }
-  return p
-}
 
-/**
- * Fill `privateKey` / `certificate` from their `...Path` counterpart when only
- * a path was given. Mutates and returns `options`.
- *
- * A key file that cannot be read is only worth failing on when it is the only
- * credential this connection has. `authType` is deliberately not consulted: it
- * says which inputs the form shows, not what the connection holds, and it is
- * not even required - an imported bookmark need not carry one. A saved password
- * is another way in, and the auth handler tries it before the key anyway.
- * @param {object} options ssh2 connect options
- */
-function resolveKeyFiles (options) {
-  for (const [pathKey, contentKey] of keyFilePairs) {
-    // a blank path is no path: imports write " " for "no key" (MobaXterm), and
-    // a path that is not a string at all can not be opened either
-    const rawPath = options[pathKey]
-    const filePath = typeof rawPath === 'string' ? rawPath.trim() : ''
-    if (!filePath || options[contentKey]) {
-      continue
-    }
+  async init () {
+    const { initOptions } = this
     try {
-      options[contentKey] = require('fs')
-        .readFileSync(expandHome(filePath), 'utf8')
+      if (initOptions.x11 === true) await prepareX11(this)
+      this.conn = await connectFirst(this)
+      if (initOptions.connectionHoppings?.length) {
+        await connectHops(this, initOptions.connectionHoppings)
+      }
+      if (this.isTest) {
+        this.kill()
+        return
+      }
+      if (initOptions.enableSsh !== false) {
+        await this.startTunnels()
+        await this.openShell()
+      }
+      globalState.setSession(this.pid, this)
+      return this
     } catch (err) {
-      if (options.password) {
-        log.warn(`skip unreadable ${contentKey} file, a password is saved`, filePath, err.message)
-        continue
-      }
-      log.error(`cannot read ${contentKey} file`, filePath, err)
-      // failing the connection with the real reason beats a bare
-      // "All configured authentication methods failed"
-      throw new Error(`cannot read ${contentKey} file ${filePath}: ${err.message}`)
-    }
-  }
-  return options
-}
-
-class TerminalSshBase extends TerminalBase {
-  constructor (...args) {
-    super(...args)
-    // Prompts still waiting for an answer, keyed by the id the renderer replies
-    // with. Each value takes its prompt back (closes the dialog, settles the
-    // promise) - see abortPendingPrompts.
-    this.pendingPrompts = new Map()
-    // Set once a prompt was cancelled or taken back. Retrying from here would
-    // ask the very same question, and no retry can answer it on its own.
-    this.interactiveAborted = false
-    // Per connection: did the auth handler actually send the `password` method?
-    // The 2FA reconnect below is only worth its extra login when it did.
-    this.passwordAuthAttempted = false
-    // Per session init: the saved password was rejected and the user was asked
-    // for another one. Asking twice would be a loop.
-    this.passwordReprompted = false
-  }
-
-  async remoteInitProcess () {
-    this.adjustConnectionOrder()
-    // one re-prompt per init: sshConnect() re-enters on every retry, so this
-    // can not live there
-    this.passwordReprompted = false
-    const {
-      initOptions
-    } = this
-    const hasX11 = initOptions.x11 === true
-    this.display = hasX11 ? await this.getDisplay() : undefined
-    this.x11Cookie = hasX11 ? await this.getX11Cookie() : undefined
-    if (hasX11) {
-      // runs in the background: never delay the connection for a probe
-      this.checkX11().catch(e => log.error('x11 check error', e))
-    }
-    return this.sshConnect()
-  }
-
-  /**
-   * x11 forwarding fails silently when the local side cannot serve it,
-   * so probe the display once per session and tell the user what to do
-   */
-  async checkX11 () {
-    const ok = await probeXServer(getX11Candidates(this.display))
-    if (!ok) {
-      return this.notifyX11(x11Hint())
-    }
-    // windows has no xauth at all, an empty cookie is expected there
-    if (!this.x11Cookie && process.platform !== 'win32') {
-      return this.notifyX11(x11CookieHint())
-    }
-  }
-
-  /**
-   * warn the user about x11 problems, at most once per session
-   * @param {string} text
-   */
-  notifyX11 (text) {
-    if (!text || this.x11Notified || !this.ws) {
-      return
-    }
-    this.x11Notified = true
-    this.ws.s({
-      action: 'x11-warning',
-      message: text,
-      url: X11_HELP_URL,
-      tabId: this.initOptions?.srcTabId
-    })
-  }
-
-  reTryAltAlg () {
-    log.log('retry with default ciphers/server hosts')
-    this.doKill()
-    this.connectOptions.algorithms = algAlt()
-    this.altAlg = true
-    return this.sshConnect()
-  }
-
-  getShellWindow (initOptions = this.initOptions) {
-    return _.pick(initOptions, [
-      'rows', 'cols', 'term'
-    ])
-  }
-
-  getAgent () {
-    const { initOptions } = this
-    return initOptions.useSshAgent !== false ? (initOptions.sshAgent || process.env.SSH_AUTH_SOCK) : undefined
-  }
-
-  /**
-   * agent related ssh2 connect options.
-   * ssh2 refuses to start when agentForward is requested without a usable
-   * agent ("You must set a valid agent path to allow agent forwarding"), so
-   * the flag is only passed through when an agent is actually available.
-   */
-  getAgentOptions () {
-    const agent = this.getAgent()
-    if (agent && this.initOptions.agentForward === true) {
-      return {
-        agent,
-        agentForward: true
-      }
-    }
-    return { agent }
-  }
-
-  getAuthOrder (connectOptions) {
-    const authOrder = ['none']
-    if (connectOptions.password !== undefined) {
-      authOrder.push('password')
-    }
-    if (connectOptions.privateKey !== undefined) {
-      authOrder.push('publickey')
-    }
-    if (connectOptions.agent !== undefined) {
-      authOrder.push('agent')
-    }
-    if (connectOptions.tryKeyboard) {
-      authOrder.push('keyboard-interactive')
-    }
-    if (
-      connectOptions.privateKey !== undefined &&
-      connectOptions.localHostname !== undefined &&
-      connectOptions.localUsername !== undefined
-    ) {
-      authOrder.push('hostbased')
-    }
-    return authOrder
-  }
-
-  createAuthHandler (connectOptions) {
-    const authOrder = this.getAuthOrder(connectOptions)
-    let attemptedMethods = new Set()
-
-    const isMethodAllowed = (type, allowedSet) => {
-      if (type === 'agent') {
-        return allowedSet.has('agent') || allowedSet.has('publickey')
-      }
-      return allowedSet.has(type)
-    }
-
-    return (authsLeft, partialSuccess) => {
-      if (partialSuccess) {
-        this.authPartiallySucceeded = true
-        attemptedMethods = new Set()
-      }
-
-      const allowedMethods = Array.isArray(authsLeft) && authsLeft.length
-        ? authsLeft
-        : authOrder
-      const allowedSet = new Set(allowedMethods)
-      const nextAuth = authOrder.find(type => {
-        return isMethodAllowed(type, allowedSet) && (partialSuccess || !attemptedMethods.has(type))
-      })
-
-      if (!nextAuth) {
-        return false
-      }
-
-      if (nextAuth === 'password') {
-        this.passwordAuthAttempted = true
-      }
-      attemptedMethods.add(nextAuth)
-      return nextAuth
-    }
-  }
-
-  adjustConnectionOrder () {
-    const { initOptions } = this
-    if (!initOptions.hasHopping || !initOptions.connectionHoppings || initOptions.connectionHoppings.length === 0) {
-      return
-    }
-
-    const currentHostHopping = {
-      host: initOptions.host,
-      port: initOptions.port,
-      username: initOptions.username,
-      password: initOptions.password,
-      privateKey: initOptions.privateKey,
-      privateKeyPath: initOptions.privateKeyPath,
-      passphrase: initOptions.passphrase,
-      certificate: initOptions.certificate,
-      certificatePath: initOptions.certificatePath
-    }
-
-    const [firstHopping, ...restHoppings] = initOptions.connectionHoppings
-    const pickProps = _.pick(firstHopping, [
-      'host', 'port', 'username', 'password', 'privateKey', 'privateKeyPath',
-      'passphrase', 'certificate', 'certificatePath'
-    ])
-    Object.assign(initOptions, pickProps)
-    initOptions.connectionHoppings = [...restHoppings, currentHostHopping]
-  }
-
-  isLikely2FAPrompts (prompts) {
-    if (!prompts || !prompts.length) return false
-    const defaultKeywords = [
-      'verification code',
-      'otp',
-      'one-time',
-      'two-factor',
-      '2fa',
-      'totp',
-      'authenticator',
-      'duo',
-      'yubikey',
-      'security code',
-      'mfa',
-      'passcode'
-    ]
-    const rawKeywords = this.initOptions?.keyword2FA
-    const twofaKeywords = Array.isArray(rawKeywords)
-      ? rawKeywords
-      : typeof rawKeywords === 'string'
-        ? rawKeywords.split(/[,\n]/).map(s => s.trim()).filter(Boolean)
-        : []
-    const finalKeywords = twofaKeywords.length
-      ? twofaKeywords.map(s => s.toLowerCase())
-      : defaultKeywords
-    return prompts.some(p => {
-      const text = (p.prompt || '').toLowerCase()
-      return finalKeywords.some(kw => text.includes(kw))
-    })
-  }
-
-  /**
-   * True when this keyboard-interactive round asks for the password itself.
-   * That is the flow the 2FA retry in doSshConnect exists for: the server wants
-   * the password re-entered through keyboard-interactive ("handles both"), so it
-   * pays off to reconnect without the `password` auth method.
-   * A round that only asks for the 2FA code means the password factor is already
-   * settled on this connection, so answering it here is correct.
-   */
-  kiRoundHasPasswordPrompt (prompts) {
-    return (prompts || []).some(p => {
-      return !p.echo && (p.prompt || '').toLowerCase().includes('password')
-    })
-  }
-
-  /**
-   * Some gateways leave the prompt label empty and put the question in the
-   * keyboard-interactive name/instructions instead ("Two-Step Verification
-   * required" + "Please Input Mfa Code (SMS)"), and that question is often the
-   * SMS code. The auto-fill below must not treat such a round as a password
-   * prompt: filling the saved password in burns the only answer the server
-   * accepts, and the login dies with a confusing
-   * "All configured authentication methods failed".
-   */
-  isLikely2FAHint (options) {
-    const { name, instructions } = options || {}
-    const texts = Array.isArray(instructions)
-      ? instructions
-      : (instructions ? [instructions] : [])
-    return this.isLikely2FAPrompts(
-      [name, ...texts]
-        .filter(Boolean)
-        .map(t => ({ prompt: String(t), echo: false }))
-    )
-  }
-
-  /**
-   * The dialog renders `prompts[].prompt` as the label and `instructions[i]` as
-   * the note, so a round that only fills the name/instructions pops up a blank
-   * input box. Copy that text onto the label; `instructions` arrives as a plain
-   * string, which the per-prompt indexing in the dialog cannot use, so reset it.
-   */
-  labelBarePrompts (options) {
-    const { prompts, name, instructions } = options
-    if (!prompts || !prompts.some(p => !p.prompt)) {
-      return options
-    }
-    const hint = (Array.isArray(instructions)
-      ? instructions.join(' ')
-      : String(instructions || '')).trim() || String(name || '')
-    return {
-      ...options,
-      instructions: Array.isArray(instructions) ? instructions : [],
-      prompts: prompts.map(p => p.prompt ? p : { ...p, prompt: hint })
-    }
-  }
-
-  /**
-   * `ownerConn` is the connection whose callbacks asked this question (host key
-   * trust, keyboard-interactive). Only such a prompt dies with its connection.
-   * A prompt from the retry chain (username / password / passphrase) is created
-   * *after* the attempt that failed, for the attempt that has not started yet,
-   * so no connection owns it - see abortPendingPrompts.
-   *
-   * `forcePrompt` skips the auto-fill. That is only right when the saved
-   * password is known to be rejected: filling the same string back in asks the
-   * server the question it just said no to, and for a one-line
-   * "password + one-time code" login (#4670) it reuses a code that is already
-   * spent, so the login can never succeed again.
-   */
-  onKeyboardEvent (options, passwordOverride, ownerConn, forcePrompt = false) {
-    if (options?.mode !== 'confirm' && this.initOptions?.interactiveValues) {
-      return Promise.resolve(this.initOptions.interactiveValues.split('\n'))
-    }
-    // Auto-fill password prompt if we have a saved password
-    // passwordOverride is used during SSH connection hopping, where
-    // this.initOptions.password is the jump host's password (after
-    // adjustConnectionOrder swaps the options), not the target's.
-    // The caller passes connectOptions.password which is correct for
-    // the current connection being established.
-    const { prompts } = options
-    const savedPassword = passwordOverride !== undefined
-      ? passwordOverride
-      : this.initOptions?.password
-    if (!forcePrompt && prompts && prompts.length === 1 && savedPassword) {
-      const prompt = prompts[0]
-      const promptText = (prompt.prompt || '').toLowerCase().trim()
-      // Check if this is a password prompt (hidden input, contains "password" or is empty)
-      if (
-        !prompt.echo &&
-        (
-          promptText.includes('password') ||
-          (promptText === '' && !this.isLikely2FAHint(options))
-        )
-      ) {
-        return Promise.resolve([savedPassword])
-      }
-    }
-
-    const id = generate()
-    const tabId = this.initOptions?.tabId
-    this.ws?.s({
-      id,
-      action: 'session-interactive',
-      ..._.pick(this.initOptions, [
-        'interactiveValues',
-        'tabId'
-      ]),
-      options: this.labelBarePrompts(options)
-    })
-    return new Promise((resolve, reject) => {
-      const dispose = this.ws?.once((arg) => {
-        this.pendingPrompts.delete(id)
-        const { results } = arg
-        if (_.isEmpty(results)) {
-          // the user said no; nothing may retry this on their behalf
-          this.interactiveAborted = true
-          return reject(new Error('User cancel'))
-        }
-        resolve(results)
-      }, id)
-      this.pendingPrompts.set(id, {
-        owner: ownerConn || null,
-        abort: () => {
-          this.pendingPrompts.delete(id)
-          dispose?.()
-          this.ws?.s({
-            action: interactiveCloseAction,
-            id,
-            tabId
-          })
-          reject(new Error('User cancel'))
-        }
-      })
-    })
-  }
-
-  /**
-   * Take back every prompt still waiting for an answer that `ownerConn` asked
-   * for (all of them when called without a connection, e.g. on kill). The
-   * renderer shows the prompt as a plain modal with no session to observe, so
-   * it can not notice on its own that the attempt which asked the question is
-   * gone: without this the dialog stays up (and blocks the window) after the
-   * handshake has already timed out underneath it.
-   *
-   * Ownership matters: an auth failure ends with the socket closing, but by
-   * then the failure itself has asked the user for the next credential. That
-   * prompt belongs to the next attempt, and aborting it here made every
-   * password / OTP login die with "User cancel" a millisecond after the dialog
-   * appeared (#4646).
-   */
-  abortPendingPrompts (ownerConn) {
-    const targets = [...this.pendingPrompts.values()]
-      .filter(prompt => !ownerConn || prompt.owner === ownerConn)
-    if (!targets.length) {
-      return
-    }
-    for (const prompt of targets) {
-      // removes itself from pendingPrompts, disposes its ws listener, rejects
-      prompt.abort()
-    }
-    this.interactiveAborted = true
-  }
-
-  async getPrivateKeysInJumpServer (conn) {
-    const r = await this.runCmd('ls ~/.ssh', conn)
-      .catch(err => {
-        log.error(err)
-      })
-    return r
-      ? r.split('\n')
-        .filter(d => d.endsWith('.pub'))
-        .map(d => `~/.ssh/${d}`.replace('.pub', ''))
-      : []
-  }
-
-  catPrivateKeyInJumpServer (conn, filePath) {
-    return this.runCmd(`cat ${filePath}`, conn)
-  }
-
-  async readPrivateKeyInJumpServer (conn) {
-    const { hoppingOptions } = this
-    if (this.jumpSshKeys) {
-      if (this.jumpSshKeys.length > 0) {
-        const p = this.jumpSshKeys.shift()
-        this.jumpPrivateKeyPathFrom = p
-        hoppingOptions.privateKey = await this.catPrivateKeyInJumpServer(conn, p)
-      } else if (this.jumpSshKeys.length === 0) {
-        delete hoppingOptions.privateKey
-        delete this.jumpSshKeys
-        hoppingOptions.sshKeysDrain = true
-      }
-      return
-    }
-    if (hoppingOptions.sshKeysDrain || hoppingOptions.password || hoppingOptions.privateKey) {
-      return null
-    }
-    const list = await this.getPrivateKeysInJumpServer(conn)
-    if (list.length) {
-      const p = list.shift()
-      this.jumpPrivateKeyPathFrom = p
-      hoppingOptions.privateKey = await this.catPrivateKeyInJumpServer(conn, p)
-      this.jumpSshKeys = list
-    } else {
-      // No private keys found in jump server, mark as drained so we can prompt for password
-      hoppingOptions.sshKeysDrain = true
-    }
-  }
-
-  handleKeyboardEventForRetryJump (options) {
-    return this.onKeyboardEvent(options)
-      .then(data => {
-        if (data && data[0]) {
-          this.hoppingOptions.passphrase = data[0]
-          this.jumpSshKeys && this.jumpSshKeys.unshift(this.jumpPrivateKeyPathFrom)
-        }
-        return this.jumpConnect(true, true)
-      })
-      .catch(e => {
-        log.error('errored get passphrase for', this.jumpHostFrom, this.jumpPrivateKeyPathFrom, e)
-        return this.jumpConnect(true, false)
-      })
-  }
-
-  async retryJump () {
-    const next = await this.doSshConnect(
-      undefined,
-      this.nextConn,
-      this.hoppingOptions,
-      !this.isLast
-    )
-      .then(() => {
-        this.jumpHostFrom = this.initHoppingOptions.host
-        this.jumpPortFrom = this.initHoppingOptions.port
-        return this.nextConn
-      })
-      .catch(err => err)
-
-    const isError = next instanceof Error
-    if (!isError) {
-      return next
-    }
-    const err = next
-    log.error('error when do jump connect', this.nextHost, this.nextPort)
-    if (err.message.includes('passphrase')) {
-      const options = {
-        name: `passphase for ${this.jumpHostFrom}/${this.jumpPrivateKeyPathFrom}`,
-        instructions: [''],
-        prompts: [{
-          echo: false,
-          prompt: 'passphase'
-        }]
-      }
-      return this.handleKeyboardEventForRetryJump(options)
-    } else if (
-      !this.jumpSshKeys &&
-      !this.hoppingOptions.sshKeysDrain &&
-      !this.hoppingOptions.password &&
-      !this.hoppingOptions.privateKey &&
-      err.message.includes(failMsg)
-    ) {
-      // SSH agent failed or no agent, try reading private keys from jump server
-      // This will read ~/.ssh keys and retry
-      return this.jumpConnect(true, false)
-    } else if (
-      this.hoppingOptions.sshKeysDrain &&
-      !this.hoppingOptions.password &&
-      err.message.includes(failMsg)
-    ) {
-      // All private keys exhausted, ask for password
-      const options = {
-        name: `password for ${this.hoppingOptions.username}@${this.initHoppingOptions.host}`,
-        instructions: [''],
-        prompts: [{
-          echo: false,
-          prompt: 'password'
-        }]
-      }
-      return this.onKeyboardEvent(options)
-        .then(data => {
-          if (data && data[0]) {
-            this.hoppingOptions.password = data[0]
-            return this.jumpConnect(true, true)
-          } else if (data && data[0] === '') {
-            throw err
-          }
-        })
-        .catch(err => {
-          log.error('errored get password for', err)
-          throw err
-        })
-    } else if (
-      this.jumpSshKeys
-    ) {
-      return this.jumpConnect(true, false)
-    } else {
+      this.kill()
       throw err
     }
   }
 
-  async jumpConnect (reBuildSock = false, skipReadKeys = false) {
-    if (reBuildSock) {
-      this.hoppingOptions.sock.end()
-      this.hoppingOptions.sock = await this.forwardOut(this.conn, this.initHoppingOptions)
+  async startTunnels () {
+    this.tunnelManager = new SshTunnelManager(this.conn)
+    for (const tunnel of this.initOptions.sshTunnels || []) {
+      if (tunnel?.sshTunnel) await this.tunnelManager.add(tunnel, false)
     }
-    // Only read private keys if skipReadKeys is false
-    // On first connect, we skip reading keys to let SSH agent try first
-    // If SSH agent fails, we then read and try private keys
-    if (!skipReadKeys) {
-      await this.readPrivateKeyInJumpServer(this.conn)
-    }
-    return this.retryJump()
-  }
-
-  forwardOut (conn, hopping) {
-    return new Promise((resolve, reject) => {
-      conn.forwardOut('127.0.0.1', 0, hopping.host, hopping.port, async (err, stream) => {
-        if (err) {
-          log.error(`forwardOut to ${hopping.host}:${hopping.port} error: ` + err)
-          this.endConns()
-          return reject(err)
-        }
-        resolve(stream)
+    const sshTunnelResults = this.tunnelManager.list()
+    if (this.ws) {
+      this.ws.s({
+        update: { sshTunnelResults },
+        action: 'ssh-tunnel-result',
+        tabId: this.initOptions.srcTabId
       })
-    })
-  }
-
-  async jump () {
-    const sock = await this.forwardOut(this.conn, this.initHoppingOptions)
-    const hopping = deepCopy(this.initHoppingOptions)
-    delete hopping.host
-    delete hopping.port
-    this.nextHost = hopping.host
-    this.nextPort = hopping.port
-    this.hoppingOptions = {
-      sock,
-      ...hopping
-    }
-    // hop connections never go through buildConnectOptions(), so their key
-    // path has to be read here - and before hasExplicitAuth is worked out
-    resolveKeyFiles(this.hoppingOptions)
-    const { Client } = require('@electerm/ssh2')
-    this.nextConn = new Client()
-    // If we have an agent and no explicit privateKey/password, try agent first
-    // by skipping reading private keys from jump server
-    const hasAgent = !!this.hoppingOptions.agent
-    const hasExplicitAuth = this.hoppingOptions.password || this.hoppingOptions.privateKey
-    const skipReadKeys = hasAgent && !hasExplicitAuth
-    await this.jumpConnect(false, skipReadKeys)
-    return this.nextConn
-  }
-
-  async hopping (connectionHoppings) {
-    this.conns = []
-    this.jumpHostFrom = this.initOptions.host
-    this.jumpPortFrom = this.initOptions.port
-    const len = connectionHoppings.length
-    for (let i = 0; i < len; i++) {
-      const hopping = connectionHoppings[i]
-      this.conns.push(this.conn)
-      this.initHoppingOptions = {
-        ...hopping,
-        ...this.getAgentOptions(),
-        ...this.getShareOptions()
-      }
-      this.isLast = i === len - 1
-      const conn = await this.jump()
-      if (conn) {
-        this.conn = conn
-      }
-    }
-  }
-
-  endConns () {
-    this.conn && this.conn.end && this.conn.end()
-    while (this.conns && this.conns.length) {
-      const conn = this.conns.shift()
-      conn && conn.end()
+    } else {
+      this.sshTunnelResults = sshTunnelResults
     }
   }
 
@@ -727,567 +74,31 @@ class TerminalSshBase extends TerminalBase {
     return this.tunnelManager.list()
   }
 
-  async onInitSshReady () {
-    const {
-      initOptions,
-      isTest,
-      shellOpts,
-      shellWindow
-    } = this
-    if (
-      initOptions.connectionHoppings?.length
-    ) {
-      await this.hopping(initOptions.connectionHoppings)
-    }
-    if (isTest) {
-      this.endConns()
-      return
-    } else if (initOptions.enableSsh === false) {
-      globalState.setSession(this.pid, this)
-      return this
-    }
-    const { sshTunnels = [] } = initOptions
-    this.tunnelManager = new SshTunnelManager(this.conn)
-    for (const tunnel of sshTunnels) {
-      if (tunnel?.sshTunnel) await this.tunnelManager.add(tunnel, false)
-    }
-    const sshTunnelResults = this.tunnelManager.list()
-    if (!this.ws) {
-      this.sshTunnelResults = sshTunnelResults
-    } else {
-      this.ws?.s({
-        update: {
-          sshTunnelResults
-        },
-        action: 'ssh-tunnel-result',
-        tabId: this.initOptions.srcTabId
-      })
-    }
-    return this.openShell(shellWindow, shellOpts)
-  }
-
-  openShell (shellWindow, shellOpts) {
+  shell (conn, window, options) {
     return new Promise((resolve, reject) => {
-      this.conn.shell(
-        shellWindow,
-        shellOpts,
-        (err, channel) => {
-          if (err) {
-            if (
-              err.message === agentFwdFailMsg &&
-              this.conn.config?.allowAgentFwd
-            ) {
-              // the server refused the agent forwarding request
-              // (AllowAgentForwarding no). ssh2 fails the whole shell for it
-              // while OpenSSH/SecureCRT only warn, so drop the flag and open
-              // the shell again on the same connection instead of dying.
-              log.log('server refused agent forwarding, retrying without it')
-              this.conn.config.allowAgentFwd = false
-              return this.openShell(shellWindow, shellOpts)
-                .then(resolve)
-                .catch(reject)
-            }
-            return reject(err)
-          }
-          this.channel = channel
-          this.setNoDelay(true)
-          globalState.setSession(this.pid, this)
-          resolve(this)
-        }
-      )
+      conn.shell(window, options, (err, channel) => {
+        if (err) reject(err)
+        else resolve(channel)
+      })
     })
   }
 
-  shell (conn, shellWindow, shellOpts) {
-    return new Promise((resolve, reject) => {
-      conn.shell(
-        shellWindow,
-        shellOpts,
-        (err, channel) => {
-          if (err) {
-            return reject(err)
-          }
-          resolve(channel)
-        }
-      )
-    })
-  }
-
-  getSSHKeys () {
-    const { sshKeysPath } = process.env
-    try {
-      return require('fs')
-        .readdirSync(sshKeysPath)
-        .filter(file => file.endsWith('.pub'))
-        .map(file => pathResolve(sshKeysPath, file.replace('.pub', '')))
-    } catch (e) {
-      log.error(e)
-      return []
-    }
-  }
-
-  getPrivateKey (connectOptions) {
-    if (this.sshKeys) {
-      if (this.sshKeys.length > 0) {
-        const p = this.sshKeys.shift()
-        this.privateKeyPath = p
-        connectOptions.privateKey = require('fs').readFileSync(p, 'utf8')
-      } else if (this.sshKeys.length === 0) {
-        this.connectOptions.passphrase = this.initOptions.passphrase
-        delete this.connectOptions.privateKey
-        delete this.sshKeys
-      }
-      return
-    }
-    const list = this.getSSHKeys()
-    if (list.length) {
-      const p = list.shift()
-      this.privateKeyPath = p
-      connectOptions.privateKey = require('fs').readFileSync(p, 'utf8')
-      this.sshKeys = list
-    }
-  }
-
-  doSshConnect = (
-    info,
-    conn = this.conn,
-    connectOptions = this.connectOptions,
-    skipX11 = false
-  ) => {
-    const {
-      initOptions
-    } = this
-    if (info && info.socket) {
-      delete connectOptions.host
-      delete connectOptions.port
-      connectOptions.sock = info.socket
-    }
-    this.hostVerificationError = null
-    const verifyTarget = this.getHostVerificationTarget(connectOptions)
-    if (this.skipHostVerification && connectOptions.sock) {
-      // proxied connection (netbird ssh proxy / proxyCommand):
-      // the child serves its own endpoint with an ephemeral host key
-      delete connectOptions.hostVerifier
-    } else {
-      connectOptions.hostVerifier = createHostVerifier({
-        ...verifyTarget,
-        confirm: async (options) => {
-          const results = await this.onKeyboardEvent(options, undefined, conn)
-          return results && results[0] === (options.confirmResult || 'trust')
-        },
-        onError: (err) => {
-          this.hostVerificationError = err
-        }
-      })
-    }
-    this.authPartiallySucceeded = false
-    this.passwordAuthAttempted = false
-    connectOptions.authHandler = this.createAuthHandler(connectOptions)
-    return new Promise((resolve, reject) => {
-      conn.on('keyboard-interactive', async (
-        name,
-        instructions,
-        instructionsLang,
-        prompts,
-        finish
-      ) => {
-        if (initOptions.ignoreKeyboardInteractive) {
-          return finish(
-            (prompts || []).map((n, i) => {
-              return i ? '' : (connectOptions.password || '')
-            })
-          )
-        }
-        // Detect 2FA: if we connected with password and prompts look like 2FA,
-        // disconnect and retry without password so keyboard-interactive handles both.
-        // Only do it when the round also asks for the password: a round that only
-        // asks for the 2FA code is the connection the server issued the challenge
-        // on, and dropping it strands the answer (bastion gateways bind the code
-        // to the connection that requested it, so the login just hangs).
-        // And only when the `password` method was actually sent: a server that
-        // never offered it is already answering through keyboard-interactive
-        // alone, so the reconnect would repeat the exact same exchange (and cost
-        // a whole extra login) for nothing.
-        if (
-          !this.retry2FA &&
-          !this.authPartiallySucceeded &&
-          this.passwordAuthAttempted &&
-          connectOptions.password &&
-          this.isLikely2FAPrompts(prompts) &&
-          this.kiRoundHasPasswordPrompt(prompts)
-        ) {
-          this.retry2FA = true
-          conn.end()
-          return reject(new Error('2FA_RETRY'))
-        }
-        const options = {
-          name,
-          instructions,
-          instructionsLang,
-          prompts
-        }
-        this.onKeyboardEvent(options, connectOptions.password ?? this.initOptions?.password ?? null, conn)
-          .then(finish)
-          .catch(reject)
-      })
-      if (!skipX11) {
-        conn.on('x11', (inf, accept) => {
-          let start = 0
-          const maxRetry = 100
-          const portStart = 6000
-          const maxPort = portStart + maxRetry
-          const retry = () => {
-            if (start >= maxPort) {
-              // every local x endpoint refused us, the remote app is stuck
-              this.notifyX11(`A remote app asked for X11 forwarding, but electerm could not reach any local X server (display: ${this.display || 'not set'}). ${x11Hint()}`)
-              return
-            }
-            const xserversock = new net.Socket()
-            let xclientsock
-            xserversock
-              .on('connect', function () {
-                xclientsock = accept()
-                xclientsock.pipe(xserversock).pipe(xclientsock)
-              })
-              .on('error', (e) => {
-                log.error(e)
-                xserversock.destroy()
-                start = start === maxRetry ? portStart : start + 1
-                retry()
-              })
-              .on('close', () => {
-                xserversock.destroy()
-                xclientsock && xclientsock.destroy()
-              })
-            if (start < portStart) {
-              const addr = (this.display || '').includes('/tmp')
-                ? this.display
-                : `/tmp/.X11-unix/X${start}`
-              xserversock.connect(addr)
-            } else {
-              xserversock.connect(start, '127.0.0.1')
-            }
-          }
-          retry()
-        })
-      }
-      conn
-        .on('ready', () => resolve(true))
-        .on('error', err => {
-          // Whatever prompt asked for input on this connection can not be
-          // answered any more. Take it back before the renderer hears that the
-          // attempt failed, so the dialog is already gone when the error shows.
-          this.abortPendingPrompts(conn)
-          reject(this.hostVerificationError || err)
-        })
-        // a dropped connection does not always surface as an 'error'
-        .on('close', () => this.abortPendingPrompts(conn))
-        .connect(connectOptions)
-    })
-  }
-
-  /**
-   * when connecting through a proxy command (netbird ssh proxy or
-   * user-defined proxyCommand option), surface the command's stderr
-   * (netbird prints the SSO login URL there) to the user
-   */
-  onProxyCommandMessage (text) {
-    log.log('ssh proxy command:', text.trim())
-    const url = text.match(/https?:\/\/\S+/)
-    if (url && this.ws && !this.proxyCommandUrlShown) {
-      this.proxyCommandUrlShown = true
-      this.ws.s({
-        action: 'ssh-proxy-command-message',
-        message: text.trim(),
-        url: url[0],
-        tabId: this.initOptions.srcTabId
-      })
-    }
-  }
-
-  /**
-   * if a proxy command applies (netbird auto-detect or explicit
-   * proxyCommand option), spawn it and return the bridged socket
-   */
-  async maybeProxyCommandSock () {
-    if (this.initOptions?.connectionHoppings?.length) {
-      return undefined
-    }
-    const info = await maybeProxyCommand(
-      this.initOptions,
-      this.connectOptions,
-      { onMessage: (text) => this.onProxyCommandMessage(text) }
-    )
-    if (!info) {
-      return undefined
-    }
-    this.proxyCommandDispose = info.dispose
-    // the proxy command serves its own ssh endpoint (random host key
-    // per run for netbird), known_hosts verification can not apply
-    this.skipHostVerification = true
-    return { socket: info.socket }
-  }
-
-  getShareOptions () {
-    const { initOptions } = this
-    const all = {
-      tryKeyboard: true,
-      readyTimeout: initOptions.readyTimeout,
-      keepaliveCountMax: initOptions.keepaliveCountMax,
-      keepaliveInterval: initOptions.keepaliveInterval,
-      algorithms: algDefault()
-    }
-    if (initOptions.serverHostKey && initOptions.serverHostKey.length) {
-      all.algorithms.serverHostKey = deepCopy(initOptions.serverHostKey)
-    }
-    if (initOptions.cipher && initOptions.cipher.length) {
-      all.algorithms.cipher = deepCopy(initOptions.cipher)
-    }
-    if (initOptions.compress && initOptions.compress.length) {
-      all.algorithms.compress = deepCopy(initOptions.compress)
-    }
-    return all
-  }
-
-  getHostVerificationTarget (connectOptions = this.connectOptions) {
-    if (connectOptions === this.hoppingOptions && this.initHoppingOptions) {
-      return {
-        host: this.initHoppingOptions.host,
-        port: this.initHoppingOptions.port
-      }
-    }
-    return {
-      host: connectOptions.host || this.initOptions.host,
-      port: connectOptions.port || this.initOptions.port
-    }
-  }
-
-  buildConnectOptions () {
-    const { initOptions } = this
-    const connectOptions = Object.assign(
-      this.getShareOptions(),
-      this.getAgentOptions(),
-      _.pick(initOptions, [
-        'host',
-        'port',
-        'username',
-        'password',
-        'privateKey',
-        'privateKeyPath',
-        'passphrase',
-        'certificate',
-        'certificatePath',
-        'encode'
-      ])
-    )
-    resolveKeyFiles(connectOptions)
-    if (initOptions.isMFA) {
-      this.retry2FA = true
-      delete connectOptions.password
-    }
-    if ('debug' in initOptions) {
-      // ssh2 writes its protocol trace through log.log (level `info`), but the
-      // packaged log level is `warn` -- so the trace the `debug` setting asks
-      // for would never reach the log file. Mirror the setting for this server
-      // process. Gated on the flag being present so a session that does not
-      // carry it can never mute another session's trace.
-      log.setDebugMode(!!initOptions.debug)
-    }
-    if (initOptions.debug) {
-      connectOptions.debug = log.log
-    }
-    if (!connectOptions.passphrase) {
-      delete connectOptions.passphrase
-    }
-    return connectOptions
-  }
-
-  buildShellOpts () {
-    const { initOptions } = this
-    let x11
-    if (initOptions.x11 === true) {
-      x11 = {
-        cookie: this.x11Cookie
-      }
-    }
-    const shellOpts = {
-      x11
-    }
-    shellOpts.env = this.getEnv(initOptions)
-    return shellOpts
-  }
-
-  getUserName (connectOptions) {
+  async openShell () {
+    const { conn, initOptions } = this
+    const window = pick(initOptions, ['rows', 'cols', 'term'])
     const options = {
-      name: 'username',
-      instructions: [''],
-      prompts: [{
-        echo: false,
-        prompt: ''
-      }]
+      env: this.getEnv(),
+      x11: initOptions.x11 === true ? { cookie: this.x11Cookie } : undefined
     }
-    return this.onKeyboardEvent(options)
-      .then(data => {
-        const username = data ? data[0] : ''
-        if (username) {
-          this.connectOptions.username = data[0]
-        }
-        return this.sshConnect()
-      })
-      .catch(e => {
-        log.error('errored get username for', e)
-        return this.nextTry(e)
-      })
-  }
-
-  async sshConnect () {
-    const { initOptions } = this
-    const { Client } = require('@electerm/ssh2')
-    this.conn = new Client()
-    this.connectOptions = this.connectOptions || this.buildConnectOptions()
-    const {
-      connectOptions
-    } = this
-    if (!connectOptions.username) {
-      return this.getUserName(connectOptions)
+    try {
+      this.channel = await this.shell(conn, window, options)
+    } catch (err) {
+      // ssh2 rejects the entire shell when the server refuses agent forwarding.
+      if (err.message !== 'Unable to request agent forwarding' || !conn.config?.allowAgentFwd) throw err
+      conn.config.allowAgentFwd = false
+      this.channel = await this.shell(conn, window, options)
     }
-    if (
-      this.sshKeys ||
-      (!connectOptions.privateKey && !connectOptions.password && !initOptions.password)
-    ) {
-      this.getPrivateKey(this.connectOptions)
-    }
-    this.shellWindow = this.shellWindow || this.getShellWindow()
-    this.shellOpts = this.shellOpts || this.buildShellOpts()
-    // dispose proxy command child from a previous attempt (retries re-enter here)
-    if (this.proxyCommandDispose) {
-      this.proxyCommandDispose()
-      this.proxyCommandDispose = null
-    }
-    const info = initOptions.proxy
-      ? await proxySock({
-        readyTimeout: initOptions.readyTimeout,
-        host: initOptions.host,
-        port: initOptions.port,
-        proxy: initOptions.proxy
-      })
-      : await this.maybeProxyCommandSock()
-    const skipX11 = !!initOptions.connectionHoppings?.length
-    const result = await this.doSshConnect(
-      info,
-      undefined,
-      undefined,
-      skipX11
-    ).catch(err => err)
-    if (!(result instanceof Error)) {
-      return this.onInitSshReady()
-    }
-    const err = result
-    log.error('error when do sshConnect', err, this.privateKeyPath)
-    if (this.interactiveAborted) {
-      // The user cancelled the prompt, or it sat unanswered until the handshake
-      // timed out. Every retry below (next key, password, alt algorithms) would
-      // ask the exact same question again - that loop is what turned one stale
-      // MFA dialog into an endless reconnect with the dialog stuck on top.
-      throw err
-    }
-    if (
-      algFailMsgs.some(msg => err.message.includes(msg)) &&
-      !this.altAlg
-    ) {
-      return this.reTryAltAlg()
-    } else if (err.message === '2FA_RETRY') {
-      log.log('2FA detected, retrying without password in auth')
-      delete this.connectOptions.password
-      return this.sshConnect()
-    } else if (err.message.includes('passphrase')) {
-      const options = {
-        name: `passphase for ${this.privateKeyPath || 'privateKey'}`,
-        instructions: [''],
-        prompts: [{
-          echo: false,
-          prompt: 'passphase'
-        }]
-      }
-      return this.onKeyboardEvent(options)
-        .then(data => {
-          const pass = data ? data[0] : ''
-          if (pass) {
-            this.connectOptions.passphrase = data[0]
-            this.sshKeys && this.sshKeys.unshift(this.privateKeyPath)
-          }
-          return this.nextTry(err, !!pass)
-        })
-        .catch(e => {
-          log.error('errored get passphrase for', this.privateKeyPath, e)
-          return this.nextTry(err)
-        })
-    } else if (
-      this.sshKeys &&
-      err.message.includes(failMsg)
-    ) {
-      return this.nextTry(err)
-    } else if (
-      !this.retry2FA &&
-      !this.connectOptions.password &&
-      this.initOptions.password
-    ) {
-      this.connectOptions.password = this.initOptions.password
-      return this.sshConnect()
-    } else if (
-      err.message.includes(failMsg) &&
-      (!this.connectOptions.password || !this.passwordReprompted)
-    ) {
-      // A password the server has just rejected is not an answer: without this
-      // the login dead-ends in "All configured authentication methods failed"
-      // even though the user could simply type a working one. The case that
-      // needs it is a one-time code kept in the password field (#4670): the
-      // first attempt spends the code - the connection test spends it too - so
-      // every later attempt replays a string the server already threw away.
-      // `isMFA` deletes connectOptions.password but the retry chain still
-      // auto-fills initOptions.password, so both have to be considered.
-      const savedPassword = !!(this.connectOptions.password || this.initOptions?.password)
-      // ask at most once per init: a second wrong answer is the user's, not a loop
-      this.passwordReprompted = true
-      const options = {
-        name: `password for ${this.initOptions.username}@${this.initOptions.host}`,
-        instructions: [''],
-        prompts: [{
-          echo: false,
-          prompt: 'password'
-        }]
-      }
-      // forcePrompt: never put the rejected string back in the box, the user is
-      // here precisely because it did not work
-      return this.onKeyboardEvent(options, undefined, undefined, savedPassword)
-        .then(data => {
-          if (data && data[0]) {
-            this.connectOptions.password = data[0]
-            return this.sshConnect()
-          } else if (data && data[0] === '') {
-            throw err
-          }
-        })
-        .catch(err => {
-          log.error('errored get password for', err)
-          throw err
-        })
-    }
-    return this.nextTry(err)
-  }
-
-  nextTry (err, forceRetry = false) {
-    if (
-      this.sshKeys || forceRetry
-    ) {
-      log.log('retry with next ssh key')
-      if (this.conn) {
-        this.conn.end()
-      }
-      return this.sshConnect()
-    } else {
-      throw err
-    }
+    this.setNoDelay(true)
   }
 
   resize (cols, rows) {
@@ -1299,26 +110,18 @@ class TerminalSshBase extends TerminalBase {
   }
 
   on (event, cb) {
-    this.channel.on(event, cb)
-    this.channel.stderr.on(event, cb)
+    for (const stream of this.outputStreams) stream?.on(event, cb)
   }
 
   off (event, cb) {
-    try {
-      this.channel?.removeListener?.(event, cb)
-    } catch (_) {}
-    try {
-      this.channel?.stderr?.removeListener?.(event, cb)
-    } catch (_) {}
+    for (const stream of this.outputStreams) stream?.removeListener(event, cb)
   }
 
   write (data) {
     const encode = this.connectOptions?.encode || this.initOptions?.encode
     if (encode && !utf8Aliases.has(encode.toLowerCase()) && typeof data === 'string') {
       try {
-        const buf = iconv.encode(data, encode)
-        this.channel?.write(buf)
-        return
+        data = iconv.encode(data, encode)
       } catch (e) {
         log.warn('iconv encode failed, falling back to raw write:', e.message)
       }
@@ -1328,117 +131,46 @@ class TerminalSshBase extends TerminalBase {
 
   setNoDelay (noDelay = true) {
     try {
-      if (this.conn && typeof this.conn.setNoDelay === 'function') {
-        this.conn.setNoDelay(noDelay)
-      }
+      this.conn?.setNoDelay?.(noDelay)
     } catch (e) {
       log.warn('failed to set ssh noDelay', e)
     }
   }
 
   kill () {
-    // a dialog still up belongs to this session; take it down with the session
-    // (and release the reply listener it holds on the ws)
-    this.abortPendingPrompts()
-    // close the transports first, then drop the references: doKill() can only
-    // close what it can still see, and this used to null conn/conns before
-    // calling it, so the ssh connection (plus jump-host hops, and any ssh
-    // tunnel riding on the connection) stayed open on the remote side
-    this.doKill()
-    this.initOptions = null
-    this.connectOptions = null
-    this.skipHostVerification = null
-    this.proxyCommandUrlShown = null
-    this.alg = null
-    this.shellWindow = null
-    this.shellOpts = null
-    this.sshKeys = null
-    this.privateKeyPath = null
-    this.display = null
-    this.x11Cookie = null
-    this.x11Notified = false
-    this.jumpSshKeys = null
-    this.jumpPrivateKeyPathFrom = null
-    this.hoppingOptions = null
-    this.initHoppingOptions = null
-  }
-
-  doKill () {
-    if (this.proxyCommandDispose) {
-      this.proxyCommandDispose()
-      this.proxyCommandDispose = null
-    }
-    if (this.sessionLogger) {
-      this.sessionLogger.destroy()
-    }
-    this.channel && this.channel.end()
+    this.prompts.abort()
+    this.channel?.end()
     delete this.channel
-    this.onEndConn()
-    // clean up every ssh transport we own: the active connection, the
-    // jump-host hops, and a jump client that never finished connecting
-    this.endConns()
-    this.nextConn && this.nextConn.end && this.nextConn.end()
+    for (const conn of new Set([this.conn, ...(this.conns || []), this.nextConn])) {
+      conn?.end()
+    }
+    this.proxyCommandDispose?.()
+    this.sessionLogger?.destroy()
+    delete this.sessionLogger
+    this._vtTerm?.dispose()
+    delete this._vtTerm
+    // A failed attempt can have the same pid as a working session.
+    if (globalState.getSession(this.pid) === this) this.onEndConn()
+    delete this.ws
     this.conn = null
     this.conns = null
     this.nextConn = null
-  }
-
-  getLocalEnv () {
-    return {
-      env: process.env
-    }
-  }
-
-  getDisplay () {
-    return new Promise((resolve) => {
-      exec('echo $DISPLAY', this.getLocalEnv(), (err, out, e) => {
-        if (err || e) {
-          resolve('')
-        } else {
-          resolve((out || '').trim())
-        }
-      })
-    })
-  }
-
-  getX11Cookie () {
-    return new Promise((resolve) => {
-      exec('xauth list :0', this.getLocalEnv(), (err, out, e) => {
-        if (err || e) {
-          resolve('')
-        } else {
-          const s = out || ''
-          const reg = /MIT-MAGIC-COOKIE-1 +([\d\w]{1,38})/
-          const arr = s.match(reg)
-          resolve(
-            arr ? arr[1] || '' : ''
-          )
-        }
-      })
-    })
-  }
-
-  init () {
-    return this.remoteInitProcess()
+    this.proxyCommandDispose = null
+    this.initOptions = null
+    this.connectOptions = null
   }
 }
 
-const TerminalSsh = commonExtends(TerminalSshBase)
+commonExtends(TerminalSsh)
 
-exports.session = function (initOptions, ws) {
-  return (new TerminalSsh(initOptions, ws)).init()
-}
+exports.session = (options, ws) => new TerminalSsh(options, ws).init()
 
-/**
- * test ssh connection
- * @param {object} options
- */
-exports.test = (options, ws) => {
-  return (new TerminalSsh(options, ws, true))
-    .init()
-    .then(() => true)
-    .catch((err) => {
-      log.error('test ssh error', err)
-      return false
-    })
+exports.test = async (options, ws) => {
+  try {
+    await new TerminalSsh(options, ws, true).init()
+    return true
+  } catch (err) {
+    log.error('test ssh error', err)
+    return false
+  }
 }

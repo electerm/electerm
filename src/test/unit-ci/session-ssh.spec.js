@@ -12,6 +12,7 @@ const { setTimeout: delay } = require('node:timers/promises')
 const { Server, utils } = require('@electerm/ssh2')
 const { session } = require('../../../src/app/server/session-ssh')
 const log = require('../../../src/app/common/log')
+const { waitFor } = require('../integration/lib/ssh-session-harness')
 
 const USERNAME = 'tester'
 const PASSWORD = 'electerm-test'
@@ -98,8 +99,9 @@ function generateClientKey ({ dir, name, type, passphrase, bits }) {
  * @param {function} authHandler
  * @param {number} [forwardTo] port to forward direct-tcpip channels to, which
  *   is what makes this server usable as a jump host
+ * @param {function} [onSession] install channel handlers for this server
  */
-async function startServer (authHandler, forwardTo) {
+async function startServer (authHandler, forwardTo, onSession) {
   const clients = new Set()
   const server = new Server({
     hostKeys: [HOST_KEY.private]
@@ -115,7 +117,8 @@ async function startServer (authHandler, forwardTo) {
     client.on('ready', () => {
       client.on('session', (accept) => {
         const sshSession = accept()
-        sshSession.on('env', (accept) => accept())
+        if (onSession) return onSession(sshSession)
+        sshSession.on('env', (accept) => accept?.())
         sshSession.on('pty', (accept) => accept())
         sshSession.on('shell', (accept) => {
           const stream = accept()
@@ -139,6 +142,7 @@ async function startServer (authHandler, forwardTo) {
 
   return {
     port: server.address().port,
+    clients,
     async close () {
       for (const client of clients) {
         client.end()
@@ -357,6 +361,18 @@ function passwordOnlyAuth () {
       return ctx.accept()
     }
     return ctx.reject(['password'])
+  }
+}
+
+function passwordSessionOptions (port) {
+  return {
+    host: '127.0.0.1',
+    port,
+    username: USERNAME,
+    password: PASSWORD,
+    useSshAgent: false,
+    readyTimeout: 5000,
+    enableSsh: false
   }
 }
 
@@ -817,6 +833,229 @@ describe('session-ssh auth flows', () => {
       term && term.kill()
       await hop.close()
       await target.close()
+    }
+  })
+
+  test('asks for a missing username even when a password is saved', async () => {
+    const server = await startServer(passwordOnlyAuth())
+    const ws = createPromptWs(options => options.name === 'username' ? [USERNAME] : [])
+    let term
+    try {
+      term = await session({ ...passwordSessionOptions(server.port), username: '' }, ws)
+      assert.deepEqual(ws.prompts.map(p => p.name), ['username'])
+    } finally {
+      term?.kill()
+      await server.close()
+    }
+  })
+
+  test('a headless session fails when a rejected password requires a prompt', async () => {
+    const server = await startServer(passwordOnlyAuth())
+    try {
+      const options = passwordSessionOptions(server.port)
+      // Trust the fixture so the headless login reaches password authentication.
+      const first = await session(options, createPromptWs(() => []))
+      first.kill()
+      await assert.rejects(session({ ...options, password: 'expired' }), /requires an interactive prompt/)
+      await waitFor(() => server.clients.size === 0)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('a reusable hopping bookmark keeps its target password off the jump host', async () => {
+    const target = await startServer(passwordOnlyAuth())
+    const hopPasswords = []
+    const hop = await startServer(ctx => {
+      if (ctx.method === 'password') {
+        hopPasswords.push(ctx.password)
+        if (ctx.password === 'jump-password') return ctx.accept()
+      }
+      ctx.reject(['password'])
+    }, target.port)
+    const bookmark = {
+      ...passwordSessionOptions(target.port),
+      hasHopping: true,
+      connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME }]
+    }
+    const original = JSON.parse(JSON.stringify(bookmark))
+    try {
+      for (let i = 0; i < 2; i++) {
+        const ws = createPromptWs(() => ['jump-password'])
+        const term = await session(bookmark, ws)
+        try {
+          assert.deepEqual(hopPasswords, Array(i + 1).fill('jump-password'))
+          assert.equal(ws.prompts.length, 1)
+          assert.deepEqual(bookmark, original)
+        } finally {
+          term.kill()
+        }
+      }
+    } finally {
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  test('a target with no saved password asks for its own keyboard-interactive answer', async () => {
+    const answers = []
+    const target = await startServer(ctx => {
+      if (ctx.method !== 'keyboard-interactive') return ctx.reject(['keyboard-interactive'])
+      ctx.prompt([{ prompt: 'Password:', echo: false }], responses => {
+        answers.push(...responses)
+        if (responses[0] === 'target-password') return ctx.accept()
+        ctx.reject(['keyboard-interactive'])
+      })
+    })
+    const hop = await startServer(passwordOnlyAuth(), target.port, sshSession => {
+      // An empty key directory on the bastion leaves keyboard-interactive as
+      // the only credential source for the destination.
+      sshSession.on('exec', accept => {
+        const stream = accept()
+        stream.exit(0)
+        stream.end()
+      })
+    })
+    const ws = createPromptWs(() => ['target-password'])
+    let term
+    try {
+      term = await session({
+        ...passwordSessionOptions(target.port),
+        password: undefined,
+        hasHopping: true,
+        connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+      }, ws)
+      assert.deepEqual(answers, ['target-password'])
+      assert.equal(ws.prompts.length, 1)
+    } finally {
+      term?.kill()
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  test('tries the next jump-host key on a fresh destination transport', async () => {
+    const wrong = utils.generateKeyPairSync('ed25519')
+    const right = utils.generateKeyPairSync('ed25519')
+    const authenticate = publicKeyOnlyAuth(right.public)
+    let targetLogins = 0
+    let hopLogins = 0
+    const target = await startServer(ctx => {
+      if (ctx.method === 'none') targetLogins++
+      authenticate(ctx)
+    })
+    const hopAuth = passwordOnlyAuth()
+    const reads = []
+    const hop = await startServer(ctx => {
+      if (ctx.method === 'none') hopLogins++
+      hopAuth(ctx)
+    }, target.port, sshSession => {
+      sshSession.on('exec', (accept, reject, { command }) => {
+        const stream = accept()
+        if (command.startsWith('cat ')) {
+          reads.push(command)
+          stream.end(reads.length === 1 ? wrong.private : right.private)
+        } else {
+          stream.end("old key.pub\0owner's key.pub\0")
+        }
+      })
+    })
+    const ws = createPromptWs(() => [])
+    let term
+    try {
+      term = await session({
+        ...passwordSessionOptions(target.port),
+        password: undefined,
+        hasHopping: true,
+        connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+      }, ws)
+      assert.equal(hopLogins, 1)
+      assert.equal(targetLogins, 2)
+      assert.deepEqual(reads, [
+        'cat "$HOME"/.ssh/\'old key\'',
+        String.raw`cat "$HOME"/.ssh/'owner'\''s key'`
+      ])
+      assert.equal(ws.prompts.length, 0)
+    } finally {
+      term?.kill()
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  test('a failed destination login closes the established jump host transport', async () => {
+    const target = await startServer(passwordOnlyAuth())
+    const hop = await startServer(passwordOnlyAuth(), target.port)
+    try {
+      await assert.rejects(session({
+        ...passwordSessionOptions(target.port),
+        password: 'wrong-target-password',
+        hasHopping: true,
+        connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+      }, createPromptWs(() => [''])), /authentication methods failed/i)
+      await waitFor(() => hop.clients.size === 0 && target.clients.size === 0)
+    } finally {
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  test('a refused shell releases the authenticated transport', async () => {
+    const server = await startServer(passwordOnlyAuth(), undefined, sshSession => {
+      sshSession.on('pty', accept => accept())
+      sshSession.on('shell', (accept, reject) => reject())
+    })
+    try {
+      await assert.rejects(session({
+        ...passwordSessionOptions(server.port),
+        enableSsh: true
+      }, createPromptWs(() => [])), /shell/i)
+      await waitFor(() => server.clients.size === 0)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('the opened shell receives terminal settings, resizes and encoded input', async () => {
+    let pty
+    let resized
+    let stream
+    const env = {}
+    const server = await startServer(passwordOnlyAuth(), undefined, sshSession => {
+      sshSession.on('env', (accept, reject, { key, val }) => {
+        env[key] = val
+        accept?.()
+      })
+      sshSession.on('pty', (accept, reject, info) => {
+        pty = info
+        accept()
+      })
+      sshSession.on('window-change', (accept, reject, info) => { resized = info })
+      sshSession.on('shell', accept => { stream = accept() })
+    })
+    let term
+    try {
+      term = await session({
+        ...passwordSessionOptions(server.port),
+        enableSsh: true,
+        term: 'xterm-color',
+        rows: 31,
+        cols: 97,
+        envLang: 'fr_FR.UTF-8',
+        setEnv: 'EDITOR=vi',
+        encode: 'latin1'
+      }, createPromptWs(() => []))
+      assert.deepEqual([pty.term, pty.rows, pty.cols], ['xterm-color', 31, 97])
+      assert.deepEqual(env, { LANG: 'fr_FR.UTF-8', EDITOR: 'vi' })
+
+      const input = once(stream, 'data', { signal: AbortSignal.timeout(3000) })
+      term.resize(112, 42)
+      term.write('café')
+      assert.deepEqual((await input)[0], Buffer.from('café', 'latin1'))
+      assert.deepEqual([resized?.rows, resized?.cols], [42, 112])
+    } finally {
+      term?.kill()
+      await server.close()
     }
   })
 
