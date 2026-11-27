@@ -12,6 +12,7 @@ import {
   BookOutlined,
   CloudSyncOutlined,
   PictureOutlined,
+  PieChartFilled,
   PlusCircleOutlined,
   SettingOutlined,
   ThunderboltOutlined
@@ -115,11 +116,23 @@ export default function LeftSidebarIcons (props) {
         title={e('settingSync')}
         active={syncActive}
       >
-        <CloudSyncOutlined
-          className='iblock font20 control-icon'
+        <Badge
+          count={isSyncingSetting && <PieChartFilled spin className='font12 color-green' aria-hidden />}
+          className='control-icon'
+          role='button'
+          tabIndex={0}
+          aria-label={e('settingSync')}
+          aria-busy={isSyncingSetting}
           onClick={openSettingSync}
-          spin={isSyncingSetting}
-        />
+          onKeyDown={event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault()
+              openSettingSync()
+            }
+          }}
+        >
+          <CloudSyncOutlined className='iblock font20' />
+        </Badge>
       </SideIcon>
     ),
     widgets: (
