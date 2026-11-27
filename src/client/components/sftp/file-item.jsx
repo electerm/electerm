@@ -1130,7 +1130,7 @@ export default class FileSection extends React.Component {
       res.push({
         func: 'doEnterDirectory',
         icon: 'EnterOutlined',
-        text: e('enter')
+        text: e('open')
       })
     }
     if (shouldShowSelectedMenu && hasHost) {
