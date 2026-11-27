@@ -26,7 +26,11 @@ function readKeyCommand (name) {
   return `cat "$HOME"/.ssh/${quoted}`
 }
 
-async function * readKeys (names, read, options) {
+function unavailableKeysNotice (details) {
+  return `Could not discover or read jump-host keys (${details}). Check access to ~/.ssh on the jump host or configure credentials for the destination.`
+}
+
+async function * readKeys (names, read, options, discovery) {
   let readError
   let foundKey = false
   for (const name of names) {
@@ -37,18 +41,23 @@ async function * readKeys (names, read, options) {
     try {
       privateKey = await read(keyName)
     } catch (err) {
+      const quotedKey = JSON.stringify(keyName)
       if (err instanceof DiscoveryTimeout) {
-        if (foundKey) return
-        throw err
+        if (!foundKey) {
+          err.message += ` while reading ${quotedKey}`
+          throw err
+        }
+        discovery.notice = `Jump-host key discovery stopped early because reading ${quotedKey} timed out.`
+        return
       }
-      readError = err
+      readError = new Error(`${quotedKey}: ${err.message}`, { cause: err })
       continue
     }
     if (privateKey) {
       foundKey = true
       yield { options: { ...options, privateKey }, keyName }
     } else {
-      readError = new Error('private key file was empty')
+      readError = new Error(`${JSON.stringify(keyName)}: private key file was empty`)
     }
   }
   // An orphaned .pub does not invalidate keys already offered to the destination.
@@ -68,10 +77,10 @@ async function * hopCredentials (session, upstream, options, discovery) {
   const { exec, sftpRequest, hasTime } = createDiscoveryIO(session, upstream)
   try {
     const names = (await exec(listPublicKeys)).split('\0')
-    yield * readKeys(names, name => exec(readKeyCommand(name)), options)
+    yield * readKeys(names, name => exec(readKeyCommand(name)), options, discovery)
   } catch (shellError) {
     if (!hasTime()) {
-      discovery.push(`sh: ${shellError.message}`)
+      discovery.notice = unavailableKeysNotice(`sh: ${shellError.message}`)
     } else {
       // SFTP paths are data, including on Windows hosts using PowerShell.
       let sftp
@@ -83,9 +92,9 @@ async function * hopCredentials (session, upstream, options, discovery) {
         })
         const names = entries.map(entry => entry.filename).filter(name => !name.includes('\\'))
         yield * readKeys(names,
-          name => sftpRequest(sftp, 'readFile', '.ssh/' + name, 'utf8'), options)
+          name => sftpRequest(sftp, 'readFile', '.ssh/' + name, 'utf8'), options, discovery)
       } catch (err) {
-        discovery.push(`sh: ${shellError.message}`, `SFTP: ${err.message}`)
+        discovery.notice = unavailableKeysNotice(`sh: ${shellError.message}, SFTP: ${err.message}`)
       } finally {
         sftp?.end()
       }
@@ -104,13 +113,13 @@ async function connectHop (session, upstream, hop, forwardX11) {
     ...getAgentOptions(session.initOptions),
     ...getShareOptions(session.initOptions)
   })
-  const discovery = []
+  const discovery = {}
   try {
     return await connectEndpoint(session, options, hopCredentials(session, upstream, options, discovery), settings)
   } catch (err) {
-    if (discovery.length && !session.prompts.aborted && typeof err?.message === 'string' &&
+    if (discovery.notice && !session.prompts.aborted && typeof err?.message === 'string' &&
         /authentication methods failed|requires an interactive prompt/i.test(err.message)) {
-      err.message += `. Could not discover or read jump-host keys (${discovery.join(', ')}). Check access to ~/.ssh on the jump host or configure credentials for the destination.`
+      err.message += `. ${discovery.notice}`
     }
     throw err
   }

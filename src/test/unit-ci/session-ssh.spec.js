@@ -1114,14 +1114,22 @@ describe('session-ssh auth flows', () => {
 
   test('unavailable jump-key discovery still allows passwords and explains a final auth failure', async () => {
     const target = await startServer(passwordOnlyAuth())
-    let listsKey = false
+    const keyName = 'team\njump key'
+    const partialContents = 'private key bytes returned before the read failed'
+    let failure = 'listing'
     const hop = await startServer(passwordOnlyAuth(), target.port, channel => {
       channel.on('exec', (accept, reject, { command }) => {
         const stream = accept()
-        if (listsKey && !command.startsWith('cat ')) {
-          stream.end('orphan.pub\0')
+        if (failure === 'listing') {
+          stream.exit(127)
+          stream.end()
+        } else if (!command.startsWith('cat ')) {
+          stream.end(keyName + '.pub\0')
+        } else if (failure === 'unreadable') {
+          stream.exit(1)
+          stream.end(partialContents)
         } else {
-          stream.exit(listsKey ? 1 : 127)
+          stream.exit(0)
           stream.end()
         }
       })
@@ -1136,12 +1144,17 @@ describe('session-ssh auth flows', () => {
     let term
     try {
       term = await session(options, createPromptWs(() => [PASSWORD]))
-      for (listsKey of [false, true]) {
+      const cases = [
+        ['listing', 'sh: command exited with status 127'],
+        ['unreadable', 'sh: could not read any listed private key: "team\\njump key": command exited with status 1'],
+        ['empty', 'sh: could not read any listed private key: "team\\njump key": private key file was empty']
+      ]
+      for (const [mode, expected] of cases) {
+        failure = mode
         await assert.rejects(session(options, createPromptWs(() => ['wrong-password'])), err => {
           assert.match(err.message, /authentication methods failed/i)
-          assert.match(err.message, listsKey
-            ? /sh: could not read any listed private key: command exited with status 1/
-            : /sh: command exited with status 127/)
+          assert.ok(err.message.includes(expected), err.message)
+          assert.ok(!err.message.includes(partialContents))
           assert.match(err.message, /SFTP: .*subsystem/i)
           assert.match(err.message, /credentials for the destination/i)
           return true

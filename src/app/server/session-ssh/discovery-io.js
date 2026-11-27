@@ -1,5 +1,8 @@
 const { performance } = require('perf_hooks')
 
+// One I/O budget per jump host covers both shell and SFTP key discovery.
+const keyDiscoveryTimeoutMs = 15000
+
 class DiscoveryTimeout extends Error {
   constructor () {
     super('jump-host key discovery timed out')
@@ -7,7 +10,7 @@ class DiscoveryTimeout extends Error {
 }
 
 function createDiscoveryIO (session, upstream) {
-  let remaining = 15000
+  let remaining = keyDiscoveryTimeoutMs
 
   // Charge only remote I/O. Between calls the generator may be suspended
   // while the destination authenticates a key or the user types a passphrase.

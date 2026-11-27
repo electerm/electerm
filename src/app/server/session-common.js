@@ -58,15 +58,12 @@ exports.commonExtends = function (Cls) {
     })
   }
 
-  // Structured command execution over an SSH exec channel.
-  // Unlike runCmd (which merges stdout/stderr and drops the exit code),
-  // execCommand captures both streams separately and resolves the real
-  // exit code. Optional timeoutMs closes the channel early and resolves
-  // partial output with timedOut: true. totalTimeoutMs puts channel opening
-  // and execution under a single timeout.
-  // The open watchdog rejects if ssh2 never invokes the exec callback
-  // (channel-open queued forever on a dead connection) instead of hanging
-  // until timeoutMs, so callers get a real error promptly.
+  // Capture stdout, stderr and exit status over an SSH exec channel.
+  // A positive totalTimeoutMs takes precedence over both openTimeoutMs and
+  // timeoutMs and covers channel opening through command completion.
+  // Otherwise openTimeoutMs limits channel opening (rejects on timeout)
+  // and timeoutMs limits execution after opening. Execution and total
+  // timeouts return partial output with timedOut set to true.
   Cls.prototype.execCommand = function (cmd, options = {}, conn) {
     return new Promise((resolve, reject) => {
       const { timeoutMs = 0, openTimeoutMs = 15000, totalTimeoutMs = 0 } = options || {}
@@ -117,8 +114,6 @@ exports.commonExtends = function (Cls) {
         done(true)
         closeChannel(stream)
       }
-      // Discovery has one deadline for both phases. Other callers give
-      // channel opening and command execution separate timeouts.
       if (totalTimeoutMs > 0) {
         timer = setTimeout(onTimeout, totalTimeoutMs)
       } else {

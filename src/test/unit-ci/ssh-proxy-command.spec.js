@@ -3,7 +3,9 @@ process.env.NODE_ENV = 'development'
 const { describe, test, beforeEach, afterEach } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
+const os = require('node:os')
 const path = require('node:path')
+const { spawn } = require('node:child_process')
 const { once } = require('node:events')
 const { Server, utils } = require('@electerm/ssh2')
 const {
@@ -16,6 +18,7 @@ const {
   clearDetectCache
 } = require('../../../src/app/server/ssh-proxy-command')
 const { createProxyFixture } = require('../integration/lib/ssh-proxy-fixture')
+const { waitFor } = require('../integration/lib/ssh-session-harness')
 
 const USERNAME = 'tester'
 const PASSWORD = 'electerm-test'
@@ -154,6 +157,47 @@ describe('isNetbirdLikeHost', () => {
   })
 })
 
+describe('proxy fixture cleanup', () => {
+  test('retries a locked junction, preserves its target and tolerates repeated disposal', async t => {
+    const target = fs.mkdtempSync(path.join(os.tmpdir(), 'electerm-proxy-runtime-'))
+    const sentinel = path.join(target, 'keep')
+    fs.writeFileSync(sentinel, 'original')
+    const fixture = createProxyFixture(sentinel)
+    t.after(async () => {
+      await fixture.dispose()
+      fs.rmSync(target, { recursive: true, force: true })
+    })
+    const unlink = t.mock.method(fs.promises, 'unlink')
+    unlink.mock.mockImplementationOnce(async () => {
+      throw Object.assign(new Error('junction is in use'), { code: 'EBUSY' })
+    })
+    await Promise.all([fixture.dispose(), fixture.dispose()])
+    await fixture.dispose()
+    assert.equal(unlink.mock.callCount(), 2)
+    assert.equal(fs.existsSync(fixture.dir), false)
+    assert.equal(fs.readFileSync(sentinel, 'utf8'), 'original')
+  })
+
+  test('removes the scratch directory as a proxy child releases its working directory', async t => {
+    const fixture = createProxyFixture()
+    const child = spawn(process.execPath, ['-e', "process.on('message', () => process.exit(0)); process.send('ready')"], {
+      cwd: fixture.dir, stdio: ['ignore', 'ignore', 'ignore', 'ipc'], windowsHide: true
+    })
+    const closed = once(child, 'close')
+    t.after(async () => {
+      child.kill()
+      await closed
+      await fixture.dispose()
+    })
+    await once(child, 'message', { signal: AbortSignal.timeout(5000) })
+    await Promise.all([
+      fixture.dispose(),
+      waitFor(() => !fs.existsSync(path.dirname(fixture.node))).then(() => child.send('exit'))
+    ])
+    assert.equal(fs.existsSync(fixture.dir), false)
+  })
+})
+
 describe('ssh proxy command', () => {
   let previousCwd
   let fixture
@@ -183,7 +227,7 @@ describe('ssh proxy command', () => {
     try {
       await server?.close()
     } finally {
-      fixture.dispose()
+      await fixture.dispose()
     }
   })
 

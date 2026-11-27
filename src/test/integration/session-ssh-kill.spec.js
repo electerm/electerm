@@ -78,7 +78,7 @@ function writeStubProxy (t) {
   t.after(() => {
     const pid = fs.existsSync(pidFile) && childPid()
     if (isAlive(pid)) process.kill(pid, 'SIGKILL')
-    dispose()
+    return dispose()
   })
   fs.writeFileSync(script, `
 const fs = require('fs')

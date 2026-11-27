@@ -9,6 +9,7 @@ const { connectHops } = require('../../app/server/session-ssh/hops')
 const { commonExtends } = require('../../app/server/session-common')
 
 const authError = 'All configured authentication methods failed'
+const slowShellKey = 'a "quoted"\nkey'
 
 function fixture (t) {
   t.mock.timers.enable({ apis: ['setTimeout', 'Date'] })
@@ -46,6 +47,13 @@ function reply (method, ...args) {
   method.mock.calls.at(-1).arguments.at(-1)(...args)
 }
 
+function assertPartialTimeout (err, keyName) {
+  assert.ok(err.message.startsWith(authError + '. '))
+  assert.match(err.message, /jump-host key discovery stopped early.*timed out/i)
+  assert.ok(err.message.includes(`reading ${JSON.stringify(keyName)} timed out`))
+  assert.doesNotMatch(err.message, /could not discover or read/i)
+}
+
 test('time spent opening the listing channel counts toward its execution deadline', async t => {
   const { upstream, tick, failure } = fixture(t)
   await nextTurn()
@@ -73,13 +81,28 @@ test('a shell channel arriving after discovery gave up is closed', async t => {
   assert.equal(upstream.sftp.mock.callCount(), 0)
 })
 
-test('a later shell read timing out preserves an earlier candidate and skips SFTP', async t => {
+test('a timeout reading the first key identifies that key in the shell failure', async t => {
+  const { upstream, tick, failure } = fixture(t)
+  await nextTurn()
+  const listing = channel(t)
+  reply(upstream.exec, null, listing)
+  listing.emit('data', Buffer.from(slowShellKey + '.pub\0'))
+  listing.emit('close')
+  await nextTurn()
+  tick(15000)
+  const { message } = await failure()
+  assert.ok(message.includes(`sh: jump-host key discovery timed out while reading ${JSON.stringify(slowShellKey)}`))
+  assert.doesNotMatch(message, /stopped early|SFTP/)
+  assert.equal(upstream.sftp.mock.callCount(), 0)
+})
+
+async function startSecondShellRead (t) {
   const { upstream, tick, failure } = fixture(t)
   await nextTurn()
   tick(5000)
   const listing = channel(t)
   reply(upstream.exec, null, listing)
-  listing.emit('data', Buffer.from('a.pub\0b.pub\0c.pub\0'))
+  listing.emit('data', Buffer.from(['a.pub', slowShellKey + '.pub', 'c.pub', ''].join('\0')))
   listing.emit('close')
   await nextTurn()
   tick(4000)
@@ -88,10 +111,24 @@ test('a later shell read timing out preserves an earlier candidate and skips SFT
   firstKey.emit('data', Buffer.from('first key'))
   firstKey.emit('close')
   await nextTurn()
+  return { upstream, tick, failure }
+}
+
+test('a later shell read timing out preserves an earlier candidate and skips SFTP', async t => {
+  const { upstream, tick, failure } = await startSecondShellRead(t)
   tick(6000)
-  assert.equal((await failure()).message, authError)
+  assertPartialTimeout(await failure(), slowShellKey)
   assert.equal(upstream.exec.mock.callCount(), 3)
   assert.equal(upstream.sftp.mock.callCount(), 0)
+})
+
+test('a later connection failure is reported without the partial key discovery notice', async t => {
+  const { upstream, tick, failure } = await startSecondShellRead(t)
+  const dropped = new Error('SSH transport closed')
+  upstream.forwardOut.mock.mockImplementationOnce((src, port, host, dest, cb) => cb(dropped))
+  tick(6000)
+  assert.equal(await failure(), dropped)
+  assert.equal(dropped.message, 'SSH transport closed')
 })
 
 test('SFTP setup gets the time left by the shell, and closes a late subsystem', async t => {
@@ -142,9 +179,8 @@ test('listing and reads share the budget while destination authentication is exc
   tick(3999)
   assert.equal(sftp.end.mock.callCount(), 0)
   tick(1)
-  // One key was found and tried. A later read timeout leaves the destination's
-  // authentication error intact, and the third key is never requested.
-  assert.equal((await failure()).message, authError)
+  // A key reached the destination before discovery ran out of time on the next.
+  assertPartialTimeout(await failure(), 'b')
   assert.deepEqual(reads(), ['.ssh/a', '.ssh/b'])
   assert.equal(sftp.end.mock.callCount(), 1)
   reply(sftp.readFile, null, 'late second key')
