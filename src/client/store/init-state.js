@@ -9,6 +9,7 @@ import {
   infoTabs,
   openedSidebarKey,
   sidebarPinnedKey,
+  bookmarkBarVisibleKey,
   leftSideBarOpenKey,
   pinnedQuickCommandBarKey,
   sftpDefaultSortSettingKey,
@@ -211,6 +212,10 @@ export default () => {
 
     // sidebar
     openedSideBar: ls.getItem(openedSidebarKey) || '',
+    // chrome-style bookmark bar under the tab strip (see bookmark-bar.jsx).
+    // Stored like the sidebar pin: a durable layout preference, not a setting
+    // that travels with the synced config.
+    _bookmarkBarVisible: ls.getItem(bookmarkBarVisibleKey) === 'true',
     _leftSidePanelWidth: parseInt(ls.getItem(leftSidePanelWidthKey), 10) || 300,
     // whether the far-left icon bar is open (hide/show works on every platform)
     _leftSideBarOpen: leftSideBarOpen,

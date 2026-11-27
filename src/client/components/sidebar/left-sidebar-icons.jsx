@@ -9,6 +9,7 @@
 
 import {
   AppstoreOutlined,
+  BarsOutlined,
   BookOutlined,
   CloudSyncOutlined,
   PictureOutlined,
@@ -22,6 +23,7 @@ import SideIcon from './side-icon'
 import QuickConnect from '../tabs/quick-connect'
 import { settingMap } from '../../common/constants'
 import { defaultLeftSideBarIcons } from '../../common/left-sidebar-icon-defs'
+import tr from '../../common/tr'
 
 const e = window.translate
 
@@ -29,12 +31,14 @@ export default function LeftSidebarIcons (props) {
   const {
     iconIds,
     handleClickBookmark,
+    handleToggleBookmarkBar,
     onNewSsh,
     openSetting,
     openSettingSync,
     openTerminalThemes,
     openWidgetsModal,
     bookmarksActive,
+    bookmarkBarActive,
     themeActive,
     settingActive,
     syncActive,
@@ -83,6 +87,18 @@ export default function LeftSidebarIcons (props) {
         <BookOutlined
           onClick={handleClickBookmark}
           className='font20 iblock control-icon bookmark-sidebar-toggle'
+        />
+      </SideIcon>
+    ),
+    bookmarkBar: (
+      <SideIcon
+        key='bookmarkBar'
+        title={tr('bookmarkBar', 'bookmark bar')}
+        active={bookmarkBarActive}
+      >
+        <BarsOutlined
+          onClick={handleToggleBookmarkBar}
+          className='font20 iblock control-icon bookmark-bar-toggle'
         />
       </SideIcon>
     ),

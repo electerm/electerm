@@ -103,6 +103,7 @@ export default {
   doubleClickToOpenBookmark: false,
   leftSideBarIcons: [
     'bookmarks',
+    'bookmarkBar',
     'quickConnect',
     'terminalThemes',
     'setting',
