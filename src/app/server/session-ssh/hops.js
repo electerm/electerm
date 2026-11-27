@@ -30,8 +30,12 @@ function unavailableKeysNotice (details) {
   return `Could not discover or read jump-host keys (${details}). Check access to ~/.ssh on the jump host or configure credentials for the destination.`
 }
 
+function errorMessage (err) {
+  return String(err?.message ?? err)
+}
+
 async function * readKeys (names, read, options, discovery) {
-  let readError
+  const failures = []
   let foundKey = false
   for (const name of names) {
     if (!isIdentityPublicKey(name) || name.includes('/') || name.includes('\0')) continue
@@ -45,24 +49,25 @@ async function * readKeys (names, read, options, discovery) {
       if (err instanceof DiscoveryTimeout) {
         if (!foundKey) {
           err.message += ` while reading ${quotedKey}`
+          if (failures.length) err.message += `. Earlier key reads failed (${failures.join(', ')})`
           throw err
         }
         discovery.notice = `Jump-host key discovery stopped early because reading ${quotedKey} timed out.`
         return
       }
-      readError = new Error(`${quotedKey}: ${err.message}`, { cause: err })
+      failures.push(`${quotedKey}: ${errorMessage(err)}`)
       continue
     }
     if (privateKey) {
       foundKey = true
       yield { options: { ...options, privateKey }, keyName }
     } else {
-      readError = new Error(`${JSON.stringify(keyName)}: private key file was empty`)
+      failures.push(`${JSON.stringify(keyName)}: private key file was empty`)
     }
   }
   // An orphaned .pub does not invalidate keys already offered to the destination.
-  if (!foundKey && readError) {
-    throw new Error(`could not read any listed private key: ${readError.message}`, { cause: readError })
+  if (!foundKey && failures.length) {
+    throw new Error(`could not read any listed private key: ${failures.join(', ')}`)
   }
 }
 
@@ -80,21 +85,21 @@ async function * hopCredentials (session, upstream, options, discovery) {
     yield * readKeys(names, name => exec(readKeyCommand(name)), options, discovery)
   } catch (shellError) {
     if (!hasTime()) {
-      discovery.notice = unavailableKeysNotice(`sh: ${shellError.message}`)
+      discovery.notice = unavailableKeysNotice(`sh: ${errorMessage(shellError)}`)
     } else {
       // SFTP paths are data, including on Windows hosts using PowerShell.
       let sftp
       try {
         sftp = await sftpRequest(upstream, 'sftp')
         const entries = await sftpRequest(sftp, 'readdir', '.ssh').catch(err => {
-          if (err.code === 2) return [] // SSH_FX_NO_SUCH_FILE: no key directory.
+          if (err?.code === 2) return [] // SSH_FX_NO_SUCH_FILE: no key directory.
           throw err
         })
         const names = entries.map(entry => entry.filename).filter(name => !name.includes('\\'))
         yield * readKeys(names,
           name => sftpRequest(sftp, 'readFile', '.ssh/' + name, 'utf8'), options, discovery)
       } catch (err) {
-        discovery.notice = unavailableKeysNotice(`sh: ${shellError.message}, SFTP: ${err.message}`)
+        discovery.notice = unavailableKeysNotice(`sh: ${errorMessage(shellError)}, SFTP: ${errorMessage(err)}`)
       } finally {
         sftp?.end()
       }

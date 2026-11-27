@@ -81,17 +81,22 @@ test('a shell channel arriving after discovery gave up is closed', async t => {
   assert.equal(upstream.sftp.mock.callCount(), 0)
 })
 
-test('a timeout reading the first key identifies that key in the shell failure', async t => {
+test('a shell timeout identifies the stalled key and any earlier failed reads', async t => {
   const { upstream, tick, failure } = fixture(t)
   await nextTurn()
   const listing = channel(t)
   reply(upstream.exec, null, listing)
-  listing.emit('data', Buffer.from(slowShellKey + '.pub\0'))
+  listing.emit('data', Buffer.from(['missing.pub', slowShellKey + '.pub', ''].join('\0')))
   listing.emit('close')
+  await nextTurn()
+  const firstKey = channel(t)
+  reply(upstream.exec, null, firstKey)
+  firstKey.emit('error', null)
   await nextTurn()
   tick(15000)
   const { message } = await failure()
   assert.ok(message.includes(`sh: jump-host key discovery timed out while reading ${JSON.stringify(slowShellKey)}`))
+  assert.ok(message.includes('"missing": null'), message)
   assert.doesNotMatch(message, /stopped early|SFTP/)
   assert.equal(upstream.sftp.mock.callCount(), 0)
 })
@@ -144,6 +149,26 @@ test('SFTP setup gets the time left by the shell, and closes a late subsystem', 
   const late = { end: t.mock.fn() }
   reply(upstream.sftp, null, late)
   assert.equal(late.end.mock.callCount(), 1)
+})
+
+test('failed SFTP discovery reports each private key and its read failure', async t => {
+  const { upstream, failure } = fixture(t)
+  await nextTurn()
+  reply(upstream.exec, 'shell unavailable')
+  await nextTurn()
+  const sftp = { readdir: t.mock.fn(), readFile: t.mock.fn(), end () {} }
+  reply(upstream.sftp, null, sftp)
+  await nextTurn()
+  reply(sftp.readdir, null, [{ filename: 'locked.pub' }, { filename: 'empty.pub' }])
+  await nextTurn()
+  reply(sftp.readFile, 'permission denied')
+  await nextTurn()
+  reply(sftp.readFile, null, '')
+  const { message } = await failure()
+  assert.ok(message.startsWith(authError), message)
+  assert.ok(message.includes('sh: shell unavailable'), message)
+  assert.ok(message.includes('"locked": permission denied'), message)
+  assert.ok(message.includes('"empty": private key file was empty'), message)
 })
 
 test('listing and reads share the budget while destination authentication is excluded', async t => {
