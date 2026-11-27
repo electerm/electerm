@@ -94,6 +94,7 @@
 
 - Mac OS用户: `brew install --cask electerm`
 - Snap: `sudo snap install electerm --classic`
+- 手动下载 Linux 的 `tar.gz` 后，请先将压缩包的 SHA-256 与官方发布页上的值进行比对，再解压并在解压目录中运行 `./electerm`。如果系统限制使用用户命名空间，启动器会请求管理员授权，以离线安装包内的 Chromium 沙箱辅助程序。
 - 一些Linux发行版的内置软件商店(Ubuntu, Deepin, Mint...).
 - 不支持`rpm`, `deb`, or `snap` 的Linux发行版可以尝试 `tar.gz`版本.
 - Windows用户可以从[windows store](https://www.microsoft.com/store/apps/9NCN7272GTFF), 命令行安装工具 [winget](https://github.com/microsoft/winget-cli)，以及[scoop](https://github.com/lukesampson/scoop) :

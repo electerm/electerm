@@ -92,6 +92,7 @@ Thank you to Shengsuanyun for sponsoring Electerm! Shengsuanyun gives AI-native 
 
 - For Mac user: `brew install --cask electerm`
 - With snap: `sudo snap install electerm --classic`
+- For a manual Linux tar.gz download, compare the archive’s SHA-256 with the digest on the official release page before extracting it. Run `./electerm` from the extracted directory. If the system restricts user namespaces, the launcher asks for administrator approval to install the bundled Chromium sandbox helper offline.
 - For some Linux distribution, you can find it from OS default App store(Ubuntu, Deepin, Mint...).
 - For some linux OS, the `rpm`, `deb`, or `snap` release may not work, you can try the `tar.gz` or `.appImage` release.
 - For Windows users, you can install it from [windows store](https://www.microsoft.com/store/apps/9NCN7272GTFF), command-line installer [winget](https://github.com/microsoft/winget-cli) and [scoop](https://github.com/lukesampson/scoop) is also recommended:

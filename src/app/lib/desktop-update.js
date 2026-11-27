@@ -4,6 +4,7 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const installSrc = require('./install-src')
+const { getCommandTarget } = require('./install-command')
 const compareVersions = require('../common/version-compare')
 const normalizeReleaseTag = require('../common/normalize-release-tag.cjs')
 const globalState = require('./glob-state')
@@ -74,6 +75,7 @@ async function startDesktopUpdate ({ tag: requestedTag, mirror, proxy, language 
       stdio: ['ignore', 'ignore', 'inherit', 'ipc']
     })
     job.worker = worker
+    const exe = getCommandTarget({ platform: process.platform, execPath: app.getPath('exe') })
     const plan = await new Promise((resolve, reject) => {
       let downloadStatus = messages.download
       let result
@@ -97,7 +99,7 @@ async function startDesktopUpdate ({ tag: requestedTag, mirror, proxy, language 
       })
       worker.send({
         dir,
-        options: { src: installSrc, tag, mirror, proxy, language: messages.language, exe: app.getPath('exe'), appImage: process.env.APPIMAGE, downloadOnly }
+        options: { src: installSrc, tag, mirror, proxy, language: messages.language, exe, appImage: process.env.APPIMAGE, downloadOnly }
       })
     })
     if (!plan || job.cancelled) return false

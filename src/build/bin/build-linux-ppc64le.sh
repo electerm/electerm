@@ -495,7 +495,7 @@ merge_ppc64le() {
 
     log_info "Creating ppc64le tar.gz..."
     cd "$OUTPUT_DIR"
-    tar czf "${output_name}.tar.gz" "$output_name"
+    sh "$SCRIPT_DIR/pack-cross-linux-tar.sh" "$OUTPUT_DIR" "$output_name"
     log_info "Tar.gz complete: $OUTPUT_DIR/${output_name}.tar.gz"
 }
 

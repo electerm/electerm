@@ -284,7 +284,7 @@ merge_loong64() {
     # Create tar.gz
     log_info "Creating loong64 tar.gz..."
     cd "$OUTPUT_DIR"
-    tar czf "${output_name}.tar.gz" "$output_name"
+    sh "$SCRIPT_DIR/pack-cross-linux-tar.sh" "$OUTPUT_DIR" "$output_name"
 
     log_info "Tar.gz complete: $OUTPUT_DIR/${output_name}.tar.gz"
 }
