@@ -4,29 +4,20 @@
  */
 
 import './highlight.styl'
-
-const escapeRegExp = str => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
+import { getHighlightRanges } from '../../common/search-keywords.js'
 
 export default (text, keyword) => {
-  const keywords = (Array.isArray(keyword) ? keyword : [keyword])
-    .filter(Boolean)
-    .sort((a, b) => b.length - a.length)
-  if (!keywords.length || !text) {
-    return text
+  if (!keyword || !text) return text
+  const title = String(text)
+  const ranges = getHighlightRanges(title, Array.isArray(keyword) ? keyword : [keyword])
+  if (!ranges.length) return text
+  const parts = []
+  let offset = 0
+  for (const { start, end } of ranges) {
+    parts.push(title.slice(offset, start))
+    parts.push(<span className='highlight' key={start}>{title.slice(start, end)}</span>)
+    offset = end
   }
-  const reg = new RegExp(
-    `(${keywords.map(escapeRegExp).join('|')})`,
-    'gi'
-  )
-  const arr = String(text).split(reg)
-  if (arr.length === 1) {
-    return text
-  }
-  return arr.map((part, i) => {
-    return i % 2
-      ? <span className='highlight' key={i}>{part}</span>
-      : part
-  })
+  parts.push(title.slice(offset))
+  return parts
 }

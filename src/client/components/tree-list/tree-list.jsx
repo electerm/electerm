@@ -111,7 +111,7 @@ export default class ItemListTree extends Component {
 
   handleChange = keyword => {
     this.setState({
-      keyword,
+      keyword: keyword.trim(),
       selectedRowKey: ''
     })
   }
