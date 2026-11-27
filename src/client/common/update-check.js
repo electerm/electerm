@@ -8,7 +8,7 @@ import {
 } from './constants'
 import dayjs from 'dayjs'
 import updateMirrors from '../../app/common/update-mirrors.json'
-import normalizeReleaseTag from '../../app/common/normalize-release-tag.cjs'
+import normalizeReleaseTag from '../../app/common/normalize-release-tag.mjs'
 
 async function fetchData (url, options) {
   const data = {

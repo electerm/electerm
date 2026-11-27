@@ -8,9 +8,9 @@ const { createHash } = require('crypto')
 const { execFileSync } = require('child_process')
 const { format, assetFor, download } = require('@electerm/updater/release')
 const { archiveRoot } = require('@electerm/updater')
-const normalizeReleaseTag = require('../../app/common/normalize-release-tag.cjs')
 
-test('normalizes plain-text update feeds to an exact desktop release tag', () => {
+test('normalizes plain-text update feeds to an exact desktop release tag', async () => {
+  const { default: normalizeReleaseTag } = await import('../../app/common/normalize-release-tag.mjs')
   for (const raw of ['v5.15.0', 'v5.15.0\n', '\uFEFF5.15.0\r\n']) {
     assert.equal(normalizeReleaseTag(raw), 'v5.15.0')
   }
