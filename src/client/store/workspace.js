@@ -3,7 +3,8 @@
  */
 
 import {
-  settingMap
+  settingMap,
+  splitConfig
 } from '../common/constants'
 import getInitItem from '../common/init-setting-item'
 import generate from '../common/uid'
@@ -65,7 +66,12 @@ export default Store => {
   Store.prototype.loadWorkspace = function (workspaceId) {
     const { store } = window
     const workspace = store.workspaces.find(w => w.id === workspaceId)
-    if (!workspace) {
+    store.loadWorkspaceState(workspace)
+  }
+
+  Store.prototype.loadWorkspaceState = function (workspace) {
+    const { store } = window
+    if (!workspace || !Object.hasOwn(splitConfig, workspace.layout) || !workspace.tabsByBatch) {
       return
     }
     const { layout, tabsByBatch } = workspace
@@ -78,17 +84,10 @@ export default Store => {
     // Open tabs for each batch
     for (const [batchStr, tabInfos] of Object.entries(tabsByBatch)) {
       const batch = parseInt(batchStr, 10)
+      if (!Array.isArray(tabInfos)) continue
       for (const tabInfo of tabInfos) {
-        if (tabInfo.srcId) {
-          // Open from bookmark
-          window.openTabBatch = batch
-          store.onSelectBookmark(tabInfo.srcId)
-          // Apply saved sshSftpSplitView state to the newly created tab
-          if (tabInfo.sshSftpSplitView !== undefined) {
-            store.updateTab(store.activeTabId, {
-              sshSftpSplitView: tabInfo.sshSftpSplitView
-            })
-          }
+        if (tabInfo?.srcId) {
+          store.onSelectBookmark(tabInfo.srcId, batch, tabInfo.sshSftpSplitView)
         }
       }
     }

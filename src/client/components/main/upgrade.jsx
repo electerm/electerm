@@ -15,7 +15,7 @@ import newTerm from '../../common/new-terminal'
 import Markdown from '../common/markdown'
 import downloadMirrors from '../../common/download-mirrors'
 import { refsStatic } from '../common/ref'
-import updateMirrors from '../../../app/common/update-mirrors.json'
+import updateMirrors from '../../common/update-mirrors.json'
 import './upgrade.styl'
 
 const e = window.translate

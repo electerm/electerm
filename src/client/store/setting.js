@@ -62,7 +62,7 @@ export default Store => {
     delete window.openTabBatch
   }
 
-  Store.prototype.onSelectBookmark = function (id) {
+  Store.prototype.onSelectBookmark = function (id, batch, sshSftpSplitView) {
     const { store } = window
     const bookmarks = store.bookmarks
     const item = copy(
@@ -76,7 +76,8 @@ export default Store => {
       from: 'bookmarks',
       srcId: item.id,
       ...newTerm(true, true),
-      batch: window.openTabBatch ?? store.currentLayoutBatch
+      ...(sshSftpSplitView !== undefined && { sshSftpSplitView }),
+      batch: batch ?? window.openTabBatch ?? store.currentLayoutBatch
     })
 
     delete window.openTabBatch

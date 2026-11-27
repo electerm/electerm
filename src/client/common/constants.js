@@ -313,6 +313,7 @@ export const rendererTypes = {
   webGL: 'webGL'
 }
 export const expandedKeysLsKey = 'expanded-keys'
+export const startupWorkspaceLsKey = 'startup-workspace'
 export const resolutionsLsKey = 'custom-resolution-key'
 export const checkedKeysLsKey = 'checked-keys'
 export const quickCommandLabelsLsKey = 'quick-command-label'
