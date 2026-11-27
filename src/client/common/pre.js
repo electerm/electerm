@@ -47,3 +47,11 @@ const path = {
 window.reqs = {
   path
 }
+
+function require (name) {
+  return window.reqs[name]
+}
+
+require.resolve = name => name
+
+window.require = require

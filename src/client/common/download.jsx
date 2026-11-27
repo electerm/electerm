@@ -35,7 +35,8 @@ export default async function download (filename, text) {
   if (!savePath) {
     return false
   }
-  const filePath = window.reqs.path.join(savePath, filename)
+  const path = window.require('path')
+  const filePath = path.join(savePath, filename)
   const r = await window.fs.writeFile(filePath, text).catch(window.store.onError)
   if (!r) {
     return false
