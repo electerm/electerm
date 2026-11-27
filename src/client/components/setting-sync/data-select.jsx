@@ -2,6 +2,7 @@ import {
   syncDataMaps
 } from '../../common/constants'
 import DataSelectItem from './data-select-item'
+import { getAIConfigsLabel } from '../../common/ai-feature'
 
 const e = window.translate
 
@@ -19,7 +20,7 @@ export default function DataSelect (props) {
         Object.keys(syncDataMaps)
           .map(d => {
             const checked = dataSyncSelected.includes(d)
-            const title = e(d)
+            const title = d === 'aiConfigs' ? getAIConfigsLabel() : e(d)
             const boxProps = {
               checked,
               onChange,

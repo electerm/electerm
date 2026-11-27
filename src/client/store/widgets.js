@@ -2,6 +2,7 @@
  * widgets related functions
  */
 
+import { matchesWidgetAIConfig } from '../common/ai-feature'
 import message from '../components/common/message'
 import {
   settingMap,
@@ -191,23 +192,21 @@ export default Store => {
 
   // Apply the AI config a widget proposed with its result (see
   // app/widgets/ai-config.js, which whitelists the fields in the main process).
-  // The renderer writes it, on purpose: store.config is what the AI settings
-  // form edits and what the watcher persists, so a widget's offer goes through
-  // exactly the same path as a hand-typed one instead of around it.
+  // A widget offering a new endpoint must never inherit another provider's
+  // API key or authenticated proxy. Reuse an identical offer when possible.
   Store.prototype.applyWidgetAIConfig = (aiConfig) => {
-    if (!aiConfig || typeof aiConfig !== 'object') {
-      return
-    }
-    const patch = {}
-    for (const key of Object.keys(aiConfig)) {
-      if (typeof aiConfig[key] === 'string') {
-        patch[key] = aiConfig[key]
-      }
-    }
-    if (!Object.keys(patch).length) {
-      return
-    }
-    window.store.updateConfig(patch)
+    if (!aiConfig?.baseURLAI) return
+    const { store } = window
+    const existing = store.aiConfigs.find(conf => matchesWidgetAIConfig(conf, aiConfig))
+    const { roleAI, languageAI } = store.activeAIConfig || store.newAIConfig()
+    const record = existing || store.saveAIConfig({
+      ...store.newAIConfig(),
+      roleAI,
+      languageAI,
+      nameAI: aiConfig.baseURLAI,
+      ...aiConfig
+    })
+    store.applyAIConfig(record.id)
     message.success('AI settings updated')
   }
 

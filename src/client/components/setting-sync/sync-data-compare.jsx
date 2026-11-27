@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react'
 import { Spin } from 'antd'
+import { getAIConfigsLabel } from '../../common/ai-feature'
 
 const e = window.translate
 
@@ -54,6 +55,7 @@ export default function SyncDataCompare (props) {
     terminalThemes: e('terminalThemes') || 'Terminal Themes',
     quickCommands: e('quickCommands') || 'Quick Commands',
     profiles: e('profiles') || 'Profiles',
+    aiConfigs: getAIConfigsLabel(),
     addressBookmarks: e('addressBookmarks') || 'Address Bookmarks',
     workspaces: e('workspaces') || 'Workspaces'
   }

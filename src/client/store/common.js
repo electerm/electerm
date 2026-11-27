@@ -21,7 +21,7 @@ import {
   aiAutoCompressLsKey,
   mobileBreakpoint,
   splitMap,
-  settingAiId,
+  settingMap,
   settingSyncId
 } from '../common/constants'
 import * as ls from '../common/safe-local-storage'
@@ -30,7 +30,7 @@ import { requireTermOfUse } from '../common/term-of-use'
 import { action } from 'manate'
 import uid from '../common/uid'
 import deepCopy from 'json-deep-copy'
-import { aiConfigsArr, optionalAIConfigsArr } from '../components/ai/ai-config-props'
+import { getAIHistoryConfig } from '../components/ai/ai-config-props'
 
 const e = window.translate
 const { assign } = Object
@@ -75,9 +75,13 @@ export default Store => {
     }, 300)
   }
 
-  Store.prototype.toggleAIConfig = function () {
+  Store.prototype.toggleAIConfig = function (openEditor = true) {
     requireTermOfUse('ai', () => {
-      window.store.showAIConfigModal = true
+      const { store } = window
+      store.settingTab = settingMap.aiConfigs
+      store.setSettingItem(store.activeAIConfig || store.newAIConfig())
+      store.openSettingModal()
+      if (openEditor) store.settingMobileView = 'content'
     })
   }
 
@@ -121,15 +125,8 @@ export default Store => {
   }
 
   Store.prototype.setSettingItem = function (v) {
-    // entering the AI / sync setting page requires the term of use
-    // confirmation first (when the term is defined)
-    if (
-      v && (
-        v.id === settingAiId || v.id === settingSyncId
-      )
-    ) {
-      const type = v.id === settingAiId ? 'ai' : 'sync'
-      return requireTermOfUse(type, () => {
+    if (v && v.id === settingSyncId) {
+      return requireTermOfUse('sync', () => {
         window.store.settingItem = v
       })
     }
@@ -416,7 +413,7 @@ export default Store => {
     // This has to happen here (a plain user action) instead of from
     // AIChat's mount effect: a write issued there lands in the very commit
     // that opened the panel, and that update is dropped, so the config
-    // modal never showed up on first open.
+    // editor never showed up on first open.
     if (store.aiConfigMissing()) {
       store.toggleAIConfig()
     }
@@ -516,7 +513,7 @@ export default Store => {
   // placeholder and append a second one.
   const compressingSessions = new Set()
 
-  Store.prototype.compressChatSession = async function (sessionId) {
+  Store.prototype.compressChatSession = async function (sessionId, config = window.store.activeAIConfig) {
     const { store } = window
     if (!sessionId || compressingSessions.has(sessionId)) {
       return
@@ -542,15 +539,18 @@ export default Store => {
       return
     }
 
-    const firstEntry = sessionEntries[0]
-    const lang = firstEntry.languageAI || store.getLangName()
+    if (!config) {
+      store.toggleAIConfig()
+      return
+    }
+    const lang = config.languageAI || store.getLangName()
     // Same message list the chat turn would send (including the response of
     // every entry), so the summary describes the conversation the model
     // actually saw.
     const messages = buildSessionMessages({
       history: store.aiChatHistory,
       chatSessionId: sessionId,
-      role: appendMandatoryGuardrails(firstEntry.roleAI + `;用[${lang}]回复`)
+      role: appendMandatoryGuardrails((config.roleAI || '') + `;用[${lang}]回复`)
     })
 
     // The same closing request the agent loop's auto compression sends (see
@@ -569,17 +569,9 @@ export default Store => {
       pending: false,
       sessionId: null,
       chatSessionId: sessionId,
-      mode: firstEntry.mode,
+      mode: entriesAfterCompress[entriesAfterCompress.length - 1].mode,
       toolCalls: [],
-      nameAI: firstEntry.nameAI,
-      modelAI: firstEntry.modelAI,
-      roleAI: firstEntry.roleAI,
-      baseURLAI: firstEntry.baseURLAI,
-      apiPathAI: firstEntry.apiPathAI,
-      apiKeyAI: firstEntry.apiKeyAI,
-      proxyAI: firstEntry.proxyAI,
-      languageAI: firstEntry.languageAI,
-      authHeaderNameAI: firstEntry.authHeaderNameAI,
+      ...getAIHistoryConfig(config),
       timestamp: Date.now(),
       compressed: true
     }
@@ -602,14 +594,14 @@ export default Store => {
       const aiResponse = await window.pre.runGlobalAsync(
         'AIchat',
         COMPRESS_SUMMARY_PROMPT,
-        firstEntry.modelAI,
-        firstEntry.roleAI,
-        firstEntry.baseURLAI,
-        firstEntry.apiPathAI,
-        firstEntry.apiKeyAI,
-        firstEntry.proxyAI,
+        config.modelAI,
+        config.roleAI,
+        config.baseURLAI,
+        config.apiPathAI,
+        config.apiKeyAI,
+        config.proxyAI,
         false,
-        firstEntry.authHeaderNameAI,
+        config.authHeaderNameAI,
         messages
       )
 
@@ -712,12 +704,6 @@ export default Store => {
         delete p.isDefault
       }
     }
-  }
-
-  Store.prototype.aiConfigMissing = function () {
-    return aiConfigsArr
-      .filter(k => !optionalAIConfigsArr.includes(k))
-      .some(k => !window.store.config[k])
   }
 
   Store.prototype.clearHistory = function () {

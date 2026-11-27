@@ -189,6 +189,7 @@ async function download (serverUrl, username, password, proxy, skipVerify) {
       'terminalThemes.json',
       'quickCommands.json',
       'profiles.json',
+      'aiConfigs.json',
       'addressBookmarks.json',
       'workspaces.json',
       'userConfig.json',
@@ -199,6 +200,7 @@ async function download (serverUrl, username, password, proxy, skipVerify) {
       'terminalThemes.order.json',
       'quickCommands.order.json',
       'profiles.order.json',
+      'aiConfigs.order.json',
       'addressBookmarks.order.json',
       'workspaces.order.json'
     ]

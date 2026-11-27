@@ -11,6 +11,8 @@ const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { spawn } = require('child_process')
 const path = require('path')
+const { mkdtempSync } = require('fs')
+const { tmpdir } = require('os')
 
 describe('AI Create Bookmark', function () {
   let aiServer
@@ -28,17 +30,11 @@ describe('AI Create Bookmark', function () {
   })
 
   it('should configure AI and create bookmark using AI', async function () {
-    const electronApp = await electron.launch(appOptions)
+    const env = { ...appOptions.env, DATA_PATH: mkdtempSync(path.join(tmpdir(), 'electerm-ai-bookmark-')) }
+    const electronApp = await electron.launch({ ...appOptions, env })
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(5500)
-
-    log('clear AI config to trigger AI config page')
-    await client.evaluate(() => {
-      return window.store.setConfig({
-        modelAI: ''
-      })
-    })
 
     log('open bookmarks page')
     await client.newConnection()
@@ -55,7 +51,7 @@ describe('AI Create Bookmark', function () {
     await delay(1000)
 
     log('verify AI config form is shown')
-    await client.hasElem('.ai-config-modal .ai-config-form')
+    await client.hasElem('.setting-tabs-ai-configs .ai-config-form')
 
     log('fill AI configuration form')
     await client.setValue('#baseURLAI', 'http://localhost:43434')
@@ -69,9 +65,7 @@ describe('AI Create Bookmark', function () {
     await client.click('.ai-config-form button[type="submit"]')
     await delay(1000)
 
-    // log('close setting panel')
-    // await client.click('.custom-modal-close')
-    // await delay(1000)
+    await client.click('.setting-wrap .close-setting-wrap')
 
     log('open bookmarks page again')
     await client.newConnection()

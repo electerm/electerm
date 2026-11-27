@@ -7,8 +7,18 @@ const { userConfigId, userNoEncryptConfigId } = require('../common/constants')
 const { getDbConfig } = require('./get-config')
 const globalState = require('./glob-state')
 const log = require('../common/log')
+const legacyAIFields = Object.keys(require('../common/ai-config-defaults.json'))
 
 const configNoEncryptFields = ['allowMultiInstance']
+
+function cleanMigratedConfig (config) {
+  if ('activeAIConfigId' in config) {
+    for (const field of legacyAIFields) {
+      delete config[field]
+    }
+  }
+  return config
+}
 
 function hasNoEncryptFields (userConfig) {
   for (const f of configNoEncryptFields) {
@@ -28,7 +38,7 @@ exports.saveUserConfig = async (userConfig) => {
   delete userConfig.tokenElecterm
   delete userConfig.server
   delete userConfig.port
-  globalState.update('config', userConfig)
+  globalState.set('config', cleanMigratedConfig({ ...globalState.get('config'), ...userConfig }))
   // `debug` is the one setting that changes the log level itself, and the app
   // is already running when it is flipped -- apply it here so the trace shows
   // up without a restart (the server child picks it up per session, see
@@ -51,11 +61,11 @@ exports.saveUserConfig = async (userConfig) => {
       upsert: true
     })
   }
-  return dbAction('data', 'update', q, {
+  return dbAction('data', 'update', q, cleanMigratedConfig({
     ...q,
     ...conf,
     ...userConfig
-  }, {
+  }), {
     upsert: true
   })
 }

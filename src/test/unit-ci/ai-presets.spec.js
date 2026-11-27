@@ -2,8 +2,7 @@ const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 
 const presetsModule = import('../../client/components/ai/ai-presets.js')
-const clientDefaultsModule = import('../../client/common/default-setting.js')
-const appDefaults = require('../../app/common/default-setting.js')
+const defaults = require('../../app/common/ai-config-defaults.json')
 
 describe('Shengsuanyun default AI provider', () => {
   it('is the first preset and matches the shipped default settings', async () => {
@@ -17,13 +16,12 @@ describe('Shengsuanyun default AI provider', () => {
     assert.equal(preset.authHeaderNameAI, 'Authorization: Bearer')
     assert.equal(preset.siteUrl, 'https://www.shengsuanyun.com/zh/?from=Electerm')
 
-    const clientDefaults = (await clientDefaultsModule).default
-    for (const defaults of [clientDefaults, appDefaults]) {
-      assert.equal(defaults.nameAI, preset.nameAI)
-      assert.equal(defaults.baseURLAI, preset.baseURLAI)
-      assert.equal(defaults.modelAI, preset.modelAI)
-      assert.equal(defaults.apiPathAI, preset.apiPathAI)
-    }
+    const { aiConfigDefaults } = await import('../../client/components/ai/ai-config-props.js')
+    assert.deepEqual(aiConfigDefaults, defaults)
+    assert.equal(defaults.nameAI, preset.nameAI)
+    assert.equal(defaults.baseURLAI, preset.baseURLAI)
+    assert.equal(defaults.modelAI, preset.modelAI)
+    assert.equal(defaults.apiPathAI, preset.apiPathAI)
   })
 })
 

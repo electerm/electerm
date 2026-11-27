@@ -8,22 +8,19 @@ import {
   Select,
   Space
 } from 'antd'
-import { useEffect, useMemo, useState } from 'react'
-import { ReloadOutlined } from '@ant-design/icons'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { CheckCircleOutlined, ReloadOutlined } from '@ant-design/icons'
 import Link from '../common/external-link'
 import AiCache from './ai-cache'
 import {
   aiConfigWikiLink
 } from '../../common/constants'
 import Password from '../common/password'
-import AiHistory, { addHistoryItem } from './ai-history'
 import message from '../common/message'
 import { getAIPresets, getAIModelOptions, findAIPreset, getPresetBaseURLs, normalizeAIBaseURL } from './ai-presets'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import './ai-config.styl'
 
-const STORAGE_KEY_CONFIG = 'ai_config_history'
-const EVENT_NAME_CONFIG = 'ai-config-history-update'
 const STORAGE_KEY_MODELS = 'ai_models_cache'
 
 function readModelsCache () {
@@ -92,23 +89,19 @@ const authHeaderOptions = [
   { value: 'Authorization' }
 ]
 
-export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig }) {
+export default function AIConfigForm ({ initialValues, onSubmit, onApply, applied }) {
   const [form] = Form.useForm()
+  const applyOnSave = useRef(true)
   const [testing, setTesting] = useState(false)
   const [loadingModels, setLoadingModels] = useState(false)
   const [cachedModels, setCachedModels] = useState([])
   // True while the list came from an explicit fetch rather than from the cache
   const [modelsFetched, setModelsFetched] = useState(false)
   const baseURLAI = Form.useWatch('baseURLAI', form)
+  const apiPathAI = Form.useWatch('apiPathAI', form)
   const presets = useMemo(() => getAIPresets(), [])
   const currentPreset = findAIPreset(baseURLAI, presets)
   const baseURLOptions = getPresetBaseURLs(currentPreset).map(value => ({ value }))
-
-  useEffect(() => {
-    if (initialValues) {
-      form.setFieldsValue(initialValues)
-    }
-  }, [initialValues])
 
   // Restore the model list previously fetched for this API URL
   useEffect(() => {
@@ -120,9 +113,9 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     return true
   }
 
-  const handleSubmit = async (values) => {
-    onSubmit(values)
-    addHistoryItem(STORAGE_KEY_CONFIG, values, EVENT_NAME_CONFIG)
+  function handleSubmit (values) {
+    onSubmit(values, applyOnSave.current)
+    applyOnSave.current = true
   }
 
   const handleTest = async () => {
@@ -154,12 +147,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
       }
     } finally {
       setTesting(false)
-    }
-  }
-
-  function handleSelectHistory (item) {
-    if (item && typeof item === 'object') {
-      form.setFieldsValue(item)
     }
   }
 
@@ -204,7 +191,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
 
   function handleSelectPreset (preset) {
     const fields = ['nameAI', 'baseURLAI', 'apiPathAI', 'modelAI', 'authHeaderNameAI', 'apiKeyAI']
-    const values = {}
+    const values = currentPreset?.id === preset.id ? {} : { apiKeyAI: '' }
     fields.forEach(f => {
       if (preset[f] !== undefined) {
         values[f] = preset[f]
@@ -227,7 +214,12 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
       label: p.modelAI ? `${p.nameAI} · ${p.modelAI}` : p.nameAI
     }))
     return (
-      <div className='alignright'>
+      <div className='ai-config-toolbar'>
+        {initialValues.id && (
+          <Button onClick={onApply} disabled={applied} icon={<CheckCircleOutlined aria-hidden />}>
+            {e(applied ? 'selected' : 'apply')}
+          </Button>
+        )}
         <Space className='mg1b width-100 ai-preset-row'>
           <span>{e('presets')}</span>
           <Select
@@ -240,18 +232,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         </Space>
       </div>
     )
-  }
-
-  function renderHistoryItem (item) {
-    if (!item || typeof item !== 'object') return { label: 'Unknown', title: 'Unknown' }
-    const name = item.nameAI || ''
-    const model = item.modelAI || 'Default Model'
-    const rolePrefix = item.roleAI ? item.roleAI.substring(0, 15) + '...' : ''
-    const label = name || `[${model}] ${rolePrefix}`
-    const title = name
-      ? `${name}\nModel: ${item.modelAI}\nURL: ${item.baseURLAI}`
-      : `Model: ${item.modelAI}\nRole: ${item.roleAI}\nURL: ${item.baseURLAI}`
-    return { label, title }
   }
 
   function renderApiKeyLabel () {
@@ -307,9 +287,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
     )
   }
 
-  if (!showAIConfig) {
-    return null
-  }
   const defaultLangs = window.store.getLangNames().map(l => ({ value: l }))
   return (
     <>
@@ -328,18 +305,19 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         className='mg2b'
       />
       {renderPresetSelect()}
-      <p>
-        Full Url: {initialValues?.baseURLAI}{initialValues?.apiPathAI}
+      <p className='ai-config-url'>
+        Full URL: {baseURLAI}{apiPathAI}
       </p>
       <Form
         form={form}
         onFinish={handleSubmit}
+        onFinishFailed={() => { applyOnSave.current = true }}
         initialValues={initialValues}
         layout='vertical'
         className='ai-config-form'
       >
         <Form.Item
-          label='Name'
+          label={e('name')}
           name='nameAI'
         >
           <Input
@@ -408,6 +386,7 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         <Form.Item
           label='Auth Header'
           name='authHeaderNameAI'
+          rules={[{ required: true, message: e('required') }]}
           tooltip='Header format for API authentication. e.g. "Authorization: Bearer" sends "Authorization: Bearer <key>", "x-api-key" sends "x-api-key: <key>"'
         >
           <AutoComplete
@@ -458,8 +437,16 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
         </Form.Item>
 
         <Form.Item>
-          <Space>
+          <Space wrap>
             <Button type='primary' htmlType='submit'>
+              {e('saveAndApply')}
+            </Button>
+            <Button
+              onClick={() => {
+                applyOnSave.current = false
+                form.submit()
+              }}
+            >
               {e('save')}
             </Button>
             <Button
@@ -471,12 +458,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, showAIConfig })
           </Space>
         </Form.Item>
       </Form>
-      <AiHistory
-        storageKey={STORAGE_KEY_CONFIG}
-        eventName={EVENT_NAME_CONFIG}
-        onSelect={handleSelectHistory}
-        renderItem={renderHistoryItem}
-      />
       <AiCache />
     </>
   )

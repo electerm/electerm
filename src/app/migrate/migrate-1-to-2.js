@@ -8,7 +8,8 @@ const { appPath, defaultUserName } = require('../common/app-props')
 const log = require('../common/log')
 
 const reso = (name) => {
-  return resolve(appPath, 'electerm', 'users', defaultUserName, `electerm.${name}.nedb`)
+  const dataPath = process.env.DATA_PATH || resolve(appPath, 'electerm')
+  return resolve(dataPath, 'users', defaultUserName, `electerm.${name}.nedb`)
 }
 
 const tables = [
@@ -21,7 +22,8 @@ const tables = [
   'quickCommands',
   'log',
   'dbUpgradeLog',
-  'profiles'
+  'profiles',
+  'aiConfigs'
 ]
 
 /**
@@ -47,14 +49,14 @@ function checkMigrate () {
  */
 async function migrate () {
   log.info('Starting migration from NeDB (v1) to SQLite (v2)...')
-  // nedb-instance: raw nedb without enc/dec (legacy data was never encrypted)
+  // Read raw NeDB rows so already-encrypted payloads can be copied intact.
   const { dbAction: nedbDbAction } = require('./nedb-instance')
   // Use plain sqlite (no enc/dec) for migration writes: safeStorage encryption
   // is not reliable across restarts in the IPC/migration context. The app's
   // normal read/write path will encrypt data on the next user-triggered write.
   const { appPath, defaultUserName } = require('../common/app-props')
   const { createDb: createSqlite } = require('../lib/sqlite')
-  const { dbAction: sqliteDbAction } = createSqlite(appPath, defaultUserName)
+  const { importNedbRecord } = createSqlite(appPath, defaultUserName)
   const {
     checkDbUpgrade,
     doUpgrade
@@ -76,26 +78,19 @@ async function migrate () {
     if (existsSync(nedbPath)) {
       log.info(`Migrating table: ${table}`)
 
-      // Read all data from NeDB (unencrypted legacy data)
       const nedbData = await nedbDbAction(table, 'find', {})
 
       if (nedbData && nedbData.length > 0) {
         log.info(`Found ${nedbData.length} records in ${table}`)
 
-        // Insert/update data into SQLite via db.js so enc/dec is applied
         for (const record of nedbData) {
           // Ensure record has an _id field
           const recordId = record._id || record.id
           if (!recordId) {
-            log.warn(`Record in ${table} has no _id or id field, skipping:`, record)
+            log.warn(`Record in ${table} has no _id or id field, skipping`)
             continue
           }
-          // Use update with upsert option to handle existing records gracefully
-          await sqliteDbAction(table, 'update',
-            { _id: recordId },
-            { $set: record },
-            { upsert: true }
-          )
+          importNedbRecord(table, record)
         }
 
         log.info(`Successfully migrated ${nedbData.length} records from ${table}`)

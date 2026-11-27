@@ -4,6 +4,7 @@ const { describe } = it
 const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const configureMockAI = require('./common/configure-mock-ai')
 const { spawn } = require('child_process')
 const path = require('path')
 
@@ -38,6 +39,12 @@ describe('AI Config and Suggestions', function () {
   })
 
   it('should verify AI functionality after configuration', async function () {
+    const selectedId = await client.evaluate(configureMockAI)
+    await client.evaluate(configureMockAI, {
+      id: 'e2e-initial-provider',
+      nameAI: 'Initial provider',
+      apiPathAI: '/initial/chat/completions'
+    })
     // Open AI chat
     await client.click('.terminal-footer-ai .ai-icon')
     await delay(1000)
@@ -51,6 +58,12 @@ describe('AI Config and Suggestions', function () {
     // Enter a test prompt
     const testPrompt = 'Hello, AI assistant! Please provide a long response.'
     await client.fill('.ai-chat-textarea', testPrompt)
+    // Switch after typing, with the draft already held by the submit callback.
+    const selector = client.locator('.ai-chat-config-select')
+    await expect(selector).toContainText('Initial provider')
+    await selector.click()
+    await client.locator('.ant-select-item-option').getByText('Mock chat provider', { exact: true }).click()
+    await expect(selector).toContainText('Mock chat provider')
 
     // Submit the prompt
     await client.click('.ai-chat-terminals .anticon-send')
@@ -74,6 +87,10 @@ describe('AI Config and Suggestions', function () {
     // as literal `| a | b |` text and never becomes a <table> at all.
     const table = client.locator('.ai-stream-output table').last()
     await expect(table).toBeVisible({ timeout: 15000 })
+    const savedTurn = await client.evaluate(() => ({ ...window.store.aiChatHistory.at(-1) }))
+    expect(savedTurn.aiConfigId).toBe(selectedId)
+    expect(savedTurn).not.toHaveProperty('apiKeyAI')
+    expect(savedTurn).not.toHaveProperty('proxyAI')
     expect(await table.locator('thead th').count()).toBe(3)
     expect(await table.locator('tbody tr').count()).toBe(2)
     expect(await table.locator('thead th').first().textContent()).toBe('Name')

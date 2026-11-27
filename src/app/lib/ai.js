@@ -1,6 +1,6 @@
 const { StringDecoder } = require('string_decoder')
 const log = require('../common/log')
-const defaultSettings = require('../common/config-default')
+const defaultSettings = require('../common/ai-config-defaults.json')
 const { createProxyAgent } = require('./proxy-agent')
 const { errorMessageFromData } = require('./ai-response')
 const {

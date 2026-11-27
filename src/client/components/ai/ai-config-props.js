@@ -1,27 +1,22 @@
-export const aiConfigsArr = [
-  'nameAI',
-  'baseURLAI',
-  'modelAI',
-  'roleAI',
-  'apiKeyAI',
-  'authHeaderNameAI',
-  'apiPathAI',
-  'languageAI',
-  'proxyAI',
-  'contextLengthAI'
-]
+import { defaultAIPresets } from './ai-presets.js'
 
-// Keys that may legitimately be empty. `aiConfigMissing` only forces the
-// config modal open when one of the *other* keys is unset, so anything
-// optional has to be listed here or the modal would pop up forever.
-export const optionalAIConfigsArr = [
-  'apiKeyAI',
-  'proxyAI',
-  'nameAI',
-  'contextLengthAI'
-]
+const { nameAI, baseURLAI, modelAI, apiPathAI, authHeaderNameAI } = defaultAIPresets[0]
 
-export {
-  defaultAIPresets,
-  getAIPresets
-} from './ai-presets'
+// The renderer and the Electron backend also ship as standalone packages.
+export const aiConfigDefaults = {
+  nameAI,
+  baseURLAI,
+  modelAI,
+  apiPathAI,
+  authHeaderNameAI,
+  roleAI: '终端专家,提供不同系统下命令,简要解释用法,用markdown格式',
+  apiKeyAI: '',
+  proxyAI: '',
+  languageAI: '',
+  contextLengthAI: null
+}
+
+// Keep the original provider label even after a config is renamed or removed.
+export function getAIHistoryConfig ({ id, nameAI, modelAI, roleAI, baseURLAI }) {
+  return { aiConfigId: id, nameAI, modelAI, roleAI, baseURLAI }
+}

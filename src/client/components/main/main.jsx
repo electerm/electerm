@@ -26,7 +26,7 @@ import {
   remoteMonitorBarHeight,
   textTerminalBgValue
 } from '../../common/constants'
-import { isAIDisabled } from '../../common/ai-feature'
+import { getAIConfigName, isAIDisabled } from '../../common/ai-feature'
 import { ConfigProvider } from 'antd'
 import { NotificationContainer } from '../common/notification'
 import RightSidePanel from '../side-panel-r/side-panel-r'
@@ -58,7 +58,6 @@ import './term-fullscreen.styl'
 
 const Resolutions = lazy(() => import('../rdp/resolution-edit'))
 const InfoModal = lazy(() => import('../sidebar/info-modal.jsx'))
-const AIConfigModal = lazy(() => import('../ai/ai-config-modal'))
 // window opacity is electron-only: lazy so the web app never loads the chunk
 const Opacity = lazy(() => import('../common/opacity'))
 
@@ -292,11 +291,11 @@ export default auto(function Index (props) {
   }
   const aiChatProps = {
     aiChatHistory: store.aiChatHistory,
-    config,
+    activeAIConfig: store.activeAIConfig,
+    aiConfigOptions: store.aiConfigs.map(c => ({ value: c.id, label: getAIConfigName(c) })),
     selectedTabIds: store.batchInputSelectedTabIds,
     tabs: store.getTabs(),
     activeTabId: store.activeTabId,
-    showAIConfig: store.showAIConfig,
     rightPanelTab,
     agentRunning: store.agentRunning,
     aiContextInfo: store.aiContextInfo,
@@ -407,13 +406,6 @@ export default auto(function Index (props) {
         <BatchOpRunner />
         <ImportProgress />
         <ShortcutBarEntry store={store} />
-        {!isAIDisabled() && store.showAIConfigModal && (
-          <LazyBoundary>
-            <Suspense fallback={null}>
-              <AIConfigModal store={store} />
-            </Suspense>
-          </LazyBoundary>
-        )}
         <UnixTimestampTooltip />
       </div>
     </ConfigProvider>

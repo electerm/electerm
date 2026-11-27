@@ -178,6 +178,9 @@ export default Store => {
 
   Store.prototype.handleChangeSettingTab = function (settingTab) {
     const { store } = window
+    if (settingTab === settingMap.aiConfigs) {
+      return store.toggleAIConfig(false)
+    }
     const arr = store.getItems(settingTab)
     const item = getInitItem(arr, settingTab)
     store.storeAssign({

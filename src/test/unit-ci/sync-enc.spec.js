@@ -26,6 +26,23 @@ const {
 const pass = 'correct horse battery staple'
 const secret = JSON.stringify([{ host: '1.2.3.4', password: 'hunter2' }])
 
+test('AI config sync round-trips keys and rejects plaintext when a password is set', async t => {
+  const { encodeSyncData, decryptSyncData } = await import('../../client/common/sync-data-codec.js')
+  global.window = {
+    pre: { runGlobalAsync: (name, ...args) => ({ encryptAsync, decryptAsync })[name](...args) }
+  }
+  t.after(() => { delete global.window })
+  const configs = [{ id: 'one', apiKeyAI: 'first-key' }, { id: 'two', apiKeyAI: 'second-key' }]
+  const ciphertext = await encodeSyncData(configs, pass, 'aiConfigs')
+  assert.match(ciphertext, /^gcm:/)
+  assert.doesNotMatch(ciphertext, /first-key|second-key/)
+  assert.deepEqual(JSON.parse(await decryptSyncData(ciphertext, pass, 'aiConfigs')), configs)
+
+  const plain = await encodeSyncData(configs, '', 'aiConfigs')
+  assert.deepEqual(JSON.parse(await decryptSyncData(plain, '', 'aiConfigs')), configs)
+  await assert.rejects(decryptSyncData(plain, pass, 'aiConfigs'), /plaintext/)
+})
+
 describe('sync enc: gcm format', () => {
   test('encryptAsync produces gcm:iv:salt:authtag:ciphertext', async () => {
     const out = await encryptAsync(secret, pass)

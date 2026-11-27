@@ -48,15 +48,15 @@ export default class TerminalCmdSuggestions extends Component {
     const { cmd } = this.state
     if (window.store.aiConfigMissing()) {
       window.store.toggleAIConfig()
+      return
     }
     this.setState({
       loadingAiSuggestions: true
     })
-    const {
-      config
-    } = window.store
+    const config = window.store.activeAIConfig
     const prompt = `give me max 5 command suggestions for user input: "${cmd}", return pure json format result only, no extra words, no markdown format, follow this format: ["command1","command2"...]`
-    const cached = aiSuggestionsCache.get(cmd)
+    const cacheKey = JSON.stringify([config.id, config.modelAI, cmd])
+    const cached = aiSuggestionsCache.get(cacheKey)
     if (cached) {
       this.setState({
         loadingAiSuggestions: false,
@@ -65,7 +65,7 @@ export default class TerminalCmdSuggestions extends Component {
       return
     }
 
-    const aiResponse = aiSuggestionsCache.get(prompt) || await window.pre.runGlobalAsync(
+    const aiResponse = await window.pre.runGlobalAsync(
       'AIchat',
       prompt,
       config.modelAI,
@@ -93,9 +93,13 @@ export default class TerminalCmdSuggestions extends Component {
         new Error(aiResponse.error)
       )
     }
+    const aiSuggestions = this.parseAiSuggestions(aiResponse)
+    if (aiSuggestions.length) {
+      aiSuggestionsCache.set(cacheKey, aiSuggestions)
+    }
     this.setState({
       loadingAiSuggestions: false,
-      aiSuggestions: this.parseAiSuggestions(aiResponse, cmd)
+      aiSuggestions
     })
   }
 
@@ -186,7 +190,6 @@ export default class TerminalCmdSuggestions extends Component {
       aiSuggestions
     } = this.state
     if (aiSuggestions.length) {
-      aiSuggestionsCache.set(this.state.cmd, aiSuggestions)
       aiSuggestions.forEach(item => {
         window.store.addCmdHistory(item.command, 'aiCmdHistory')
       })

@@ -98,6 +98,7 @@ export default () => {
 
     // batch input selected tab ids
     _batchInputSelectedTabIds: new Set(),
+    aiConfigs: [],
     aiChatHistory: [],
     agentRunning: false,
     // ask turns and the agent loop compact their conversation when the window
@@ -143,7 +144,6 @@ export default () => {
     cmdHistoryInRightPanel: ls.getItem(cmdHistoryInRightPanelKey) === 'true',
     quickCommandsInRightPanel: ls.getItem(quickCommandsInRightPanelKey) === 'true',
     _rightPanelWidth: parseInt(ls.getItem(rightSidebarWidthKey), 10) || 500,
-    showAIConfigModal: false,
 
     // for settings related
     settingItem: initSettingItem([], settingMap.bookmarks),

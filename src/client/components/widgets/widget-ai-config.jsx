@@ -21,6 +21,7 @@ import {
 import { auto } from 'manate/react'
 import { copy } from '../../common/clipboard'
 import message from '../common/message'
+import { matchesWidgetAIConfig } from '../../common/ai-feature'
 
 const e = window.translate
 
@@ -33,11 +34,6 @@ const ROWS = [
   ['modelAI', 'Model'],
   ['proxyAI', 'Proxy']
 ]
-
-function inUse (config, aiConfig) {
-  const keys = Object.keys(aiConfig)
-  return keys.length > 0 && keys.every(key => (config[key] || '') === aiConfig[key])
-}
 
 function Secret ({ value }) {
   const [revealed, setRevealed] = useState(false)
@@ -69,8 +65,8 @@ export default auto(function WidgetAIConfig ({ aiConfig, store }) {
   if (!aiConfig) {
     return null
   }
-  const config = store.config
-  const applied = inUse(config, aiConfig)
+  const config = store.activeAIConfig || {}
+  const applied = matchesWidgetAIConfig(config, aiConfig)
 
   const apply = () => {
     store.applyWidgetAIConfig(aiConfig)
@@ -83,9 +79,7 @@ export default auto(function WidgetAIConfig ({ aiConfig, store }) {
         {applied ? <Tag color='green'>in use</Tag> : null}
       </div>
       <p className='wac-desc'>
-        This widget can point electerm's AI panel at itself. Nothing changes until you press the
-        button; the values below are exactly what gets written to Settings → AI. A value of
-        "none" clears that setting.
+        Use these settings to save this widget as an AI configuration and apply it to chat.
       </p>
       <div className='wac-rows'>
         {ROWS.filter(([key]) => key in aiConfig).map(([key, label, secret]) => (

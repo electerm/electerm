@@ -21,6 +21,8 @@ export default (arr, tab) => {
     return { id: settingCommonId, title: e('common') }
   } else if (tab === settingMap.terminalThemes) {
     return buildNewTheme()
+  } else if (tab === settingMap.aiConfigs) {
+    return window.store.newAIConfig()
   } else if (tab === settingMap.quickCommands) {
     return {
       id: '',

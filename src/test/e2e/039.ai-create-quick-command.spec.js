@@ -9,6 +9,7 @@ const log = require('./common/log')
 const { expect } = require('./common/expect')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const configureMockAI = require('./common/configure-mock-ai')
 const { spawn } = require('child_process')
 const fs = require('node:fs')
 const os = require('node:os')
@@ -47,17 +48,9 @@ describe('AI Create Quick Command', function () {
     await delay(5500)
 
     log('configure AI')
-    await client.evaluate(() => {
-      return window.store.setConfig({
-        nameAI: 'test',
-        modelAI: 'gpt-3.5-turbo',
-        baseURLAI: 'http://localhost:43434',
-        apiPathAI: '/chat/completions',
-        apiKeyAI: 'test-api-key',
-        roleAI: 'You are a helpful assistant',
-        authHeaderNameAI: 'Authorization: Bearer',
-        languageAI: 'English'
-      })
+    await client.evaluate(configureMockAI, {
+      roleAI: 'You are a helpful assistant',
+      languageAI: 'English'
     })
     await delay(500)
 

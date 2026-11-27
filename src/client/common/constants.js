@@ -108,12 +108,14 @@ export const settingMap = buildConst([
   'addressBookmarks',
   'profiles',
   'widgets',
+  'aiConfigs',
   'workspaces',
   'triggers'
 ])
 
 export const staticNewItemTabs = new Set([
   'terminalThemes',
+  'aiConfigs',
   'quickCommands',
   'profiles',
   'triggers'
@@ -265,7 +267,6 @@ export const syncTokenCreateUrls = {
 export const settingSyncId = 'setting-sync'
 export const settingTerminalId = 'setting-terminal'
 export const settingShortcutsId = 'setting-shortcuts'
-export const settingAiId = 'setting-ai'
 export const settingCommonId = 'setting-common'
 export const settingPasswordsId = 'setting-passwords'
 // Built in items the user is not allowed to delete: the two settings tabs,
@@ -429,6 +430,7 @@ export const syncDataMaps = {
   terminalThemes: ['terminalThemes'],
   quickCommands: ['quickCommands'],
   profiles: ['profiles'],
+  aiConfigs: ['aiConfigs'],
   addressBookmarks: ['addressBookmarks'],
   workspaces: ['workspaces'],
   triggers: ['triggers']

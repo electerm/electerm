@@ -11,6 +11,7 @@ import appUpgradeExtend from './app-upgrade'
 import bookmarkGroupExtend from './bookmark-group'
 import bookmarkExtend from './bookmark'
 import commonExtend from './common'
+import aiConfigsExtend from './ai-configs'
 import itemExtend from './item'
 import quickCommandExtend from './quick-command'
 import triggerExtend from './trigger'
@@ -97,6 +98,13 @@ class Store {
     return deepCopy(window.store._config)
   }
 
+  get activeAIConfig () {
+    const { aiConfigs, _config } = window.store
+    // A partial sync can replace the list without syncing preferences.
+    const selected = aiConfigs.find(conf => conf.id === _config.activeAIConfigId) || aiConfigs[0]
+    return selected && { ...selected }
+  }
+
   get currentQuickCommands () {
     const { currentTab } = this
     const { quickCommands } = window.store
@@ -162,14 +170,9 @@ class Store {
   }
 
   get rightPanelTitle () {
-    const {
-      rightPanelTab,
-      config: {
-        baseURLAI,
-        nameAI
-      }
-    } = window.store
+    const { rightPanelTab } = window.store
     if (rightPanelTab === 'ai') {
+      const { baseURLAI, nameAI } = window.store.activeAIConfig || {}
       // A real provider is labelled by its address, so a stale name cannot
       // relabel someone else's endpoint. `nameAI` only fills the gap the URL
       // leaves: getBrand takes the second-to-last hostname label, which a local
@@ -361,6 +364,7 @@ appUpgradeExtend(Store)
 bookmarkGroupExtend(Store)
 bookmarkExtend(Store)
 commonExtend(Store)
+aiConfigsExtend(Store)
 itemExtend(Store)
 quickCommandExtend(Store)
 triggerExtend(Store)

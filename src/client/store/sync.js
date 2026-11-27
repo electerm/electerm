@@ -19,6 +19,7 @@ import { collectUncategorizedBookmarks } from '../common/bookmark-uncategorized'
 import dayjs from 'dayjs'
 import parseJsonSafe from '../common/parse-json-safe'
 import { runImportTask } from '../common/import-task'
+import { encodeSyncData, decryptSyncData, isJSONArray } from '../common/sync-data-codec'
 
 const e = window.translate
 
@@ -57,8 +58,17 @@ function stripLocalConfigKeys (conf) {
   return safe
 }
 
-function isJSON (str = '') {
-  return str.startsWith('[')
+function applyImportedConfig (store, config) {
+  if (!config || typeof config !== 'object') return
+  const clean = store.importLegacyAIConfig(stripLocalConfigKeys(config))
+  // Settings can be synced independently of the AI configuration records.
+  if (clean.activeAIConfigId && !store.aiConfigs.some(item => item.id === clean.activeAIConfigId)) {
+    delete clean.activeAIConfigId
+  }
+  store.setConfig(clean)
+  if (config.theme) {
+    store.setTheme(config.theme)
+  }
 }
 
 /**
@@ -86,46 +96,6 @@ function checkCloudPayloadSize (type, gistData) {
     // that the user should hear about it before it starts failing.
     window.store.onError(new Error(nearLimitMessage(kb)))
   }
-}
-
-/**
- * Names of data types that are actually encrypted on upload when a
- * sync password is set.  Only these types trigger the fail-closed
- * check on download.
- */
-const encryptedDataNames = new Set([
-  settingMap.bookmarks,
-  settingMap.profiles
-])
-
-/**
- * Decrypt sync data with fail-closed semantics.
- *
- * Only bookmarks and profiles are encrypted on upload when a sync
- * password is configured.  For those two types, plaintext JSON
- * (content starting with '[') must never be silently accepted when a
- * password is set — it could be attacker-injected data from a
- * compromised sync backend.  Instead, we reject it so the user is
- * alerted rather than silently importing untrusted data.
- *
- * For all other data types, plaintext JSON is expected even when a
- * password is set, so we accept it without error.
- */
-async function decryptSyncData (str, pass, dataName) {
-  if (!str) {
-    return str
-  }
-  if (isJSON(str)) {
-    if (pass && encryptedDataNames.has(dataName)) {
-      throw new Error(
-        'Sync data is plaintext but a sync password is configured. ' +
-        'This may indicate the data was tampered with or the sync backend is compromised. ' +
-        'Aborting sync download for safety.'
-      )
-    }
-    return str
-  }
-  return window.pre.runGlobalAsync('decryptAsync', str, pass)
 }
 
 async function fetchData (type, func, args, token, proxy) {
@@ -424,7 +394,7 @@ export default (Store) => {
           // reads as "the server is empty" and invites an upload that would
           // overwrite the encrypted data — surface the ciphertext instead.
           // (Plaintext JSON rejected by the fail-closed gate stays at 0.)
-          if (!isJSON(serverStr)) {
+          if (!isJSONArray(serverStr)) {
             encrypted = true
             serverPreview = serverStr.slice(0, 80)
           }
@@ -476,34 +446,25 @@ export default (Store) => {
     const objs = {}
     const { names, syncConfig } = store.getDataSyncNames()
     for (const n of names) {
-      let str = store.getItems(n)
+      const items = [...store.getItems(n)]
       const order = await getData(`${n}:order`)
       if (order && order.length) {
-        str.sort((a, b) => {
+        items.sort((a, b) => {
           const ai = order.findIndex(r => r === a.id)
           const bi = order.findIndex(r => r === b.id)
           return ai - bi
         })
       }
-      str = JSON.stringify(str)
-      if (
-        (n === settingMap.bookmarks || n === settingMap.profiles) &&
-        pass
-      ) {
-        str = await window.pre.runGlobalAsync('encryptAsync', str, pass)
-      }
       objs[`${n}.json`] = {
-        content: str
+        content: await encodeSyncData(items, pass, n)
       }
       objs[`${n}.order.json`] = {
         content: 'empty'
       }
-      if (syncConfig) {
-        objs['userConfig.json'] = {
-          content: JSON.stringify(
-            store.getSyncConfig()
-          )
-        }
+    }
+    if (syncConfig) {
+      objs['userConfig.json'] = {
+        content: JSON.stringify(store.getSyncConfig())
       }
     }
     const now = Date.now()
@@ -616,7 +577,7 @@ export default (Store) => {
             arr = fixBookmarks(arr)
           }
           let strOrder = get(gist, `files["${n}.order.json"].content`)
-          if (isJSON(strOrder)) {
+          if (isJSONArray(strOrder)) {
             strOrder = JSON.parse(strOrder)
             arr.sort((a, b) => {
               const ai = strOrder.findIndex(r => r === a.id)
@@ -630,12 +591,7 @@ export default (Store) => {
           const userConfig = parseJsonSafe(
             get(gist, 'files["userConfig.json"].content')
           )
-          if (userConfig) {
-            store.setConfig(stripLocalConfigKeys(userConfig))
-          }
-          if (userConfig && userConfig.theme) {
-            store.setTheme(userConfig.theme)
-          }
+          applyImportedConfig(store, userConfig)
         }
 
         const up = {
@@ -681,7 +637,7 @@ export default (Store) => {
         arr = fixBookmarks(arr)
       }
       let strOrder = get(gist, `files["${n}.order.json"].content`)
-      if (isJSON(strOrder)) {
+      if (isJSONArray(strOrder)) {
         strOrder = JSON.parse(strOrder)
         arr.sort((a, b) => {
           const ai = strOrder.findIndex(r => r === a.id)
@@ -695,12 +651,7 @@ export default (Store) => {
       const userConfig = parseJsonSafe(
         get(gist, 'files["userConfig.json"].content')
       )
-      if (userConfig) {
-        store.setConfig(stripLocalConfigKeys(userConfig))
-      }
-      if (userConfig && userConfig.theme) {
-        store.setTheme(userConfig.theme)
-      }
+      applyImportedConfig(store, userConfig)
     }
 
     const up = {
@@ -759,7 +710,7 @@ export default (Store) => {
     const objs = {}
     const { names } = store.getDataSyncNames(true)
     for (const n of names) {
-      objs[n] = store.getItems(n)
+      objs[n] = [...store.getItems(n)]
       const order = await getData(`${n}:order`)
       if (order && order.length) {
         objs[n].sort((a, b) => {
@@ -781,7 +732,10 @@ export default (Store) => {
       : await window.fs.readFile(file.filePath)
     const { store } = window
     const objs = JSON.parse(txt)
-    const { names } = store.getDataSyncNames(true)
+    const { names: allNames } = store.getDataSyncNames(true)
+    // Backups made before AI configurations had their own table only carry
+    // the active configuration in settings. Keep other local configurations.
+    const names = allNames.filter(n => n !== settingMap.aiConfigs || n in objs)
     const fixed = {}
     for (const n of names) {
       let arr = objs[n] || []
@@ -799,7 +753,7 @@ export default (Store) => {
     const backup = new Map(
       names.map(n => [n, copy(store.getItems(n))])
     )
-    await runImportTask({
+    const { cancelled, error } = await runImportTask({
       title: e('import'),
       batch: 200,
       stopWatchers: names,
@@ -856,9 +810,8 @@ export default (Store) => {
         })()
       }
     })
-    store.updateConfig(stripLocalConfigKeys(objs.config))
-    if (objs.config?.theme) {
-      store.setTheme(objs.config.theme)
+    if (!cancelled && !error) {
+      applyImportedConfig(store, objs.config)
     }
   }
 
@@ -897,7 +850,7 @@ export default (Store) => {
       : dataSyncSelected.split(',')
     const names = keys
       .filter(d => d !== 'settings')
-      .map(d => syncDataMaps[d]).flat()
+      .flatMap(d => syncDataMaps[d] || [])
     const syncConfig = keys.includes('settings')
     return {
       names,
@@ -946,11 +899,7 @@ export default (Store) => {
       'copyWhenSelect',
       'customCss',
       'dataSyncSelected',
-      'baseURLAI',
-      'modelAI',
-      'roleAI',
-      'languageAI',
-      'proxyAI',
+      'activeAIConfigId',
       'disableDeveloperTool',
       'terminalBackgroundText',
       'terminalBackgroundTextSize',
