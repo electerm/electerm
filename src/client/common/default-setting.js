@@ -6,6 +6,7 @@ export default {
   hotkey: 'Control+2',
   sshReadyTimeout: 50000,
   scrollback: 3000,
+  restoreSessionOnStart: false,
   onStartSessions: [],
   fontSize: 16,
   fontFamily: 'Maple Mono, mono, courier-new, courier, monospace',

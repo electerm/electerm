@@ -10,6 +10,7 @@ import {
   checkedKeysLsKey,
   expandedKeysLsKey,
   resolutionsLsKey,
+  startupWorkspaceLsKey,
   localAddrBookmarkLsKey,
   syncServerDataKey
 } from '../common/constants'
@@ -20,6 +21,14 @@ import { refsStatic } from '../components/common/ref'
 import dataCompare from '../common/data-compare'
 
 export default store => {
+  autoRun(() => {
+    if (store._config.restoreSessionOnStart) {
+      ls.safeSetItemJSON(startupWorkspaceLsKey, store.getCurrentWorkspaceState())
+    } else {
+      window.localStorage.removeItem(startupWorkspaceLsKey)
+    }
+  }).start()
+
   for (const name of dbNamesForWatch) {
     // ai chat history changes on every streaming tick (200ms polls,
     // per-chunk agent updates); debounce to coalesce them into one

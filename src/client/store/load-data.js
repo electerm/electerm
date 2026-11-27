@@ -5,7 +5,8 @@
 import { dbNames, fetchInitDataAll } from '../common/db'
 import deepCopy from 'json-deep-copy'
 import parseInt10 from '../common/parse-int10'
-import { infoTabs, statusMap, defaultEnvLang } from '../common/constants'
+import { infoTabs, statusMap, defaultEnvLang, startupWorkspaceLsKey } from '../common/constants'
+import { safeGetItemJSON } from '../common/safe-local-storage'
 import generate from '../common/id-with-stamp'
 import { refsStatic } from '../components/common/ref'
 import defaultSettings from '../common/default-setting'
@@ -217,6 +218,7 @@ export async function addTabFromCommandLine (store, opts) {
       store.ipcOpenTab(parsedFallback)
     } else if (
       options.initFolder &&
+      !store.config.restoreSessionOnStart &&
       !(store.config.onStartSessions || []).length &&
       store.config.initDefaultTabOnStart
     ) {
@@ -231,10 +233,11 @@ export async function addTabFromCommandLine (store, opts) {
 export default (Store) => {
   Store.prototype.openInitSessions = function () {
     const { store } = window
-    const onStartSessions = store.config.onStartSessions
+    const { restoreSessionOnStart, onStartSessions, initDefaultTabOnStart } = store.config
 
-    // If onStartSessions is a string, it's a workspace ID
-    if (typeof onStartSessions === 'string' && onStartSessions) {
+    if (restoreSessionOnStart) {
+      store.loadWorkspaceState(safeGetItemJSON(startupWorkspaceLsKey))
+    } else if (typeof onStartSessions === 'string' && onStartSessions) {
       store.loadWorkspace(onStartSessions)
     } else {
       // Otherwise, it's an array of bookmark IDs
@@ -242,7 +245,7 @@ export default (Store) => {
       for (const s of arr) {
         store.onSelectBookmark(s)
       }
-      if (!arr.length && store.config.initDefaultTabOnStart) {
+      if (!arr.length && initDefaultTabOnStart) {
         store.initFirstTab()
       }
     }

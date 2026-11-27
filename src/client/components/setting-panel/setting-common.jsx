@@ -444,12 +444,16 @@ export default class SettingCommon extends Component {
               />
               )
         }
-        <div className='pd1b'>{e('onStartBookmarks')}</div>
-        <div className='pd2b'>
-          <StartSession
-            {...pops}
-          />
-        </div>
+        {this.renderToggle('restoreSessionOnStart')}
+        {!props.config.restoreSessionOnStart && (
+          <>
+            <div className='pd1b'>{e('onStartBookmarks')}</div>
+            <div className='pd2b'>
+              <StartSession {...pops} />
+            </div>
+            {this.renderToggle('initDefaultTabOnStart')}
+          </>
+        )}
         {this.renderProxy()}
         {
           this.renderNumber('sshReadyTimeout', {
@@ -566,7 +570,6 @@ export default class SettingCommon extends Component {
             'autoRefreshWhenSwitchToSftp',
             'showHiddenFilesOnSftpStart',
             'screenReaderMode',
-            'initDefaultTabOnStart',
             'disableConnectionHistory',
             'disableTransferHistory',
             'checkUpdateOnStart',
