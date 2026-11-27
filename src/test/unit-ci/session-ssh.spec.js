@@ -13,6 +13,7 @@ const { Server, utils } = require('@electerm/ssh2')
 const { session } = require('../../../src/app/server/session-ssh')
 const log = require('../../../src/app/common/log')
 const { waitFor } = require('../integration/lib/ssh-session-harness')
+const { attachSftp } = require('../integration/lib/ssh-test-server')
 
 const USERNAME = 'tester'
 const PASSWORD = 'electerm-test'
@@ -843,6 +844,7 @@ describe('session-ssh auth flows', () => {
     try {
       term = await session({ ...passwordSessionOptions(server.port), username: '' }, ws)
       assert.deepEqual(ws.prompts.map(p => p.name), ['username'])
+      assert.equal(ws.prompts[0].prompts[0].echo, true)
     } finally {
       term?.kill()
       await server.close()
@@ -899,6 +901,7 @@ describe('session-ssh auth flows', () => {
 
   test('a target with no saved password asks for its own keyboard-interactive answer', async () => {
     const answers = []
+    let sftpRequests = 0
     const target = await startServer(ctx => {
       if (ctx.method !== 'keyboard-interactive') return ctx.reject(['keyboard-interactive'])
       ctx.prompt([{ prompt: 'Password:', echo: false }], responses => {
@@ -915,6 +918,7 @@ describe('session-ssh auth flows', () => {
         stream.exit(0)
         stream.end()
       })
+      sshSession.on('sftp', (accept, reject) => { sftpRequests++; reject() })
     })
     const ws = createPromptWs(() => ['target-password'])
     let term
@@ -927,6 +931,7 @@ describe('session-ssh auth flows', () => {
       }, ws)
       assert.deepEqual(answers, ['target-password'])
       assert.equal(ws.prompts.length, 1)
+      assert.equal(sftpRequests, 0)
     } finally {
       term?.kill()
       await hop.close()
@@ -973,9 +978,90 @@ describe('session-ssh auth flows', () => {
       assert.equal(targetLogins, 2)
       assert.deepEqual(reads, [
         'cat "$HOME"/.ssh/\'old key\'',
-        String.raw`cat "$HOME"/.ssh/'owner'\''s key'`
+        String.raw`cat "$HOME"/.ssh/'owner'"'"'s key'`
       ])
       assert.equal(ws.prompts.length, 0)
+    } finally {
+      term?.kill()
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  async function checkSftpKeyFallback (exitStatus) {
+    const key = utils.generateKeyPairSync('ed25519')
+    const directory = path.join(tmpDir, '.ssh')
+    fs.mkdirSync(directory)
+    fs.writeFileSync(path.join(directory, "owner's key.pub"), key.public)
+    fs.writeFileSync(path.join(directory, "owner's key"), key.private)
+    const target = await startServer(publicKeyOnlyAuth(key.public))
+    let sftpSessions = 0
+    let sftpClosed = false
+    const hop = await startServer(passwordOnlyAuth(), target.port, channel => {
+      channel.on('exec', accept => {
+        const stream = accept()
+        // PowerShell can report command-not-found on stderr with status 0 or no status.
+        stream.stderr.write('sh: command not found')
+        if (exitStatus !== null) stream.exit(exitStatus)
+        stream.end()
+      })
+      channel.on('sftp', accept => {
+        sftpSessions++
+        const sftp = accept()
+        sftp.once('close', () => { sftpClosed = true })
+        attachSftp(sftp, tmpDir)
+      })
+    })
+    const ws = createPromptWs(() => [])
+    let term
+    try {
+      term = await session({
+        ...passwordSessionOptions(target.port),
+        password: undefined,
+        hasHopping: true,
+        connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+      }, ws)
+      assert.equal(sftpSessions, 1)
+      assert.equal(ws.prompts.length, 0)
+      await waitFor(() => sftpClosed)
+    } finally {
+      term?.kill()
+      await hop.close()
+      await target.close()
+    }
+  }
+
+  for (const status of [null, 0]) {
+    test(`a jump host with no sh can supply keys over SFTP (exit status ${status})`, () =>
+      checkSftpKeyFallback(status))
+  }
+
+  test('unavailable jump-key discovery still allows passwords and explains a final auth failure', async () => {
+    const target = await startServer(passwordOnlyAuth())
+    const hop = await startServer(passwordOnlyAuth(), target.port, channel => {
+      channel.on('exec', accept => {
+        const stream = accept()
+        stream.exit(127)
+        stream.end()
+      })
+      channel.on('sftp', (accept, reject) => reject())
+    })
+    const options = {
+      ...passwordSessionOptions(target.port),
+      password: undefined,
+      hasHopping: true,
+      connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+    }
+    let term
+    try {
+      term = await session(options, createPromptWs(() => [PASSWORD]))
+      await assert.rejects(session(options, createPromptWs(() => ['wrong-password'])), err => {
+        assert.match(err.message, /authentication methods failed/i)
+        assert.match(err.message, /sh: command exited with status 127/)
+        assert.match(err.message, /SFTP: .*subsystem/i)
+        assert.match(err.message, /credentials for the destination/i)
+        return true
+      })
     } finally {
       term?.kill()
       await hop.close()
@@ -1012,6 +1098,23 @@ describe('session-ssh auth flows', () => {
       }, createPromptWs(() => [])), /shell/i)
       await waitFor(() => server.clients.size === 0)
     } finally {
+      await server.close()
+    }
+  })
+
+  test('registering a listener without a shell warns once and still allows cleanup', async t => {
+    const server = await startServer(passwordOnlyAuth())
+    let term
+    try {
+      term = await session(passwordSessionOptions(server.port), createPromptWs(() => []))
+      const warn = t.mock.method(log, 'warn', () => {})
+      const listener = () => {}
+      term.on('data', listener)
+      term.off('data', listener)
+      assert.equal(warn.mock.callCount(), 1)
+      assert.deepEqual(warn.mock.calls[0].arguments.slice(1), [term.pid, 'data'])
+    } finally {
+      term?.kill()
       await server.close()
     }
   })

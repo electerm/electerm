@@ -1,18 +1,13 @@
 const fs = require('fs')
 const path = require('path')
 const log = require('../../common/log')
-const { algAlt } = require('../ssh2-alg')
+const { algAlt, canRetryWithAltAlgorithms } = require('../ssh2-alg')
 const { Client } = require('@electerm/ssh2')
 const proxySock = require('../socks')
 const { maybeProxyCommand } = require('../ssh-proxy-command')
 const { buildConnectOptions } = require('./options')
 const { credentialPrompt } = require('./prompts')
 const { handshake } = require('./handshake')
-
-const negotiationFailures = [
-  'no matching C->S cipher', 'no matching S->C cipher', 'no matching C->S MAC',
-  'no matching S->C MAC', 'no matching host key format'
-]
 
 function proxyMessage (session, text) {
   log.log('ssh proxy command:', text.trim())
@@ -92,7 +87,7 @@ async function connectWithCredentials (session, credentials, {
       return await connectAttempt(session, options, settings)
     } catch (err) {
       if (session.prompts.aborted) throw err
-      if (!upstream && !session.altAlg && negotiationFailures.some(msg => err.message.includes(msg))) {
+      if (!upstream && !session.altAlg && canRetryWithAltAlgorithms(err)) {
         session.altAlg = true
         options.algorithms = algAlt()
       } else if (settings.allowMfaRetry && err.message === '2FA_RETRY') {

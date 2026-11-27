@@ -1,6 +1,6 @@
 const { createHostVerifier } = require('../ssh-known-hosts')
 const { isLikely2FAPrompts } = require('./prompts')
-const { forwardX11Channel } = require('../x11')
+const { enableX11Forwarding } = require('../x11')
 
 function authOrder (options) {
   const methods = ['none']
@@ -87,18 +87,23 @@ function handshake (session, conn, connectOptions, target, {
   }
 
   return new Promise((resolve, reject) => {
+    let ready = false
     function fail (err) {
       disconnected = true
-      session.prompts.abort(conn)
-      reject(verificationError || err)
+      const reason = verificationError || err
+      session.prompts.abort(conn, reason)
+      reject(reason)
     }
     conn.on('keyboard-interactive', (...args) => answerKeyboard(...args).catch(fail))
     if (forwardX11 && x11 === true) {
-      conn.on('x11', (info, accept, reject) => forwardX11Channel(session, conn, accept, reject))
+      enableX11Forwarding(session, conn)
     }
-    conn.once('ready', () => resolve(true))
+    conn.once('ready', () => {
+      ready = true
+      resolve(true)
+    })
     conn.on('error', fail)
-    conn.once('close', () => fail(new Error('SSH connection closed before it was ready')))
+    conn.once('close', () => fail(new Error(ready ? 'SSH connection closed' : 'SSH connection closed before it was ready')))
     conn.connect(options)
   })
 }

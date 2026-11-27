@@ -164,43 +164,58 @@ function * forwardingEndpoints (display) {
   }
 }
 
-function forwardX11Channel (session, conn, accept, reject) {
+function forwardX11Channel (session, sockets, accept, reject) {
   const endpoints = forwardingEndpoints(session.display)
-  let local
-  let cancelled = false
-  function cancel () {
-    cancelled = true
-    local?.destroy()
-  }
-  function connected () {
-    if (cancelled) return
-    // A later socket error ends this channel. It must not accept it twice.
-    local.removeListener('error', tryNext)
-    const remote = accept()
-    local.on('error', () => remote.destroy())
-    remote.on('error', () => local.destroy())
-    local.once('close', () => {
-      conn.removeListener('close', cancel)
-      remote.destroy()
-    })
-    remote.once('close', () => local.destroy())
-    remote.pipe(local).pipe(remote)
-  }
   function tryNext () {
-    if (cancelled) return
     const { done, value } = endpoints.next()
     if (done) {
-      conn.removeListener('close', cancel)
       reject()
       notifyX11(session, `Could not reach a local X server (display: ${session.display || 'not set'}). ${x11Hint()}`)
       return
     }
-    local = net.connect(value)
-    local.once('error', tryNext)
+    const local = net.connect(value)
+    sockets.add(local)
+    function failed () {
+      local.removeListener('connect', connected)
+      if (sockets.delete(local)) tryNext()
+    }
+    function connected () {
+      if (!sockets.has(local)) return
+      local.removeListener('error', failed)
+      local.removeListener('close', failed)
+      const remote = accept()
+      const closeLocal = () => {
+        if (sockets.delete(local)) local.destroy()
+      }
+      local.on('error', closeLocal)
+      remote.on('error', closeLocal)
+      remote.once('close', closeLocal)
+      local.once('close', () => {
+        sockets.delete(local)
+        remote.removeListener('close', closeLocal)
+        remote.destroy()
+      })
+      remote.pipe(local).pipe(remote)
+    }
+    local.once('error', failed)
+    local.once('close', failed)
     local.once('connect', connected)
   }
-  conn.once('close', cancel)
   tryNext()
+}
+
+function enableX11Forwarding (session, conn) {
+  // One SSH transport may carry many GUI windows at the same time.
+  const sockets = new Set()
+  const forward = (info, accept, reject) => forwardX11Channel(session, sockets, accept, reject)
+  conn.on('x11', forward)
+  conn.once('close', () => {
+    conn.removeListener('x11', forward)
+    for (const socket of sockets) {
+      sockets.delete(socket)
+      socket.destroy()
+    }
+  })
 }
 
 module.exports = {
@@ -210,5 +225,5 @@ module.exports = {
   x11Hint,
   x11CookieHint,
   prepareX11,
-  forwardX11Channel
+  enableX11Forwarding
 }

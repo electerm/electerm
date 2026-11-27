@@ -5,6 +5,7 @@ const assert = require('node:assert/strict')
 const { EventEmitter } = require('node:events')
 const fs = require('node:fs')
 const { handshake } = require('../../app/server/session-ssh/handshake')
+const { InteractivePrompts, credentialPrompt } = require('../../app/server/session-ssh/prompts')
 const { utils } = require('@electerm/ssh2')
 
 // Drive ssh2's event order directly: a real TCP connection cannot guarantee
@@ -50,4 +51,25 @@ test('a late keyboard-interactive reply cannot answer on a closed transport', as
   answer(['123456'])
   await assert.rejects(ready, /closed before it was ready/)
   assert.equal(finish.mock.callCount(), 0)
+})
+
+test('only closing the connection that owns an open prompt stops further retries', async t => {
+  const ws = { s: t.mock.fn(), once: () => {} }
+  const session = { initOptions: {}, ws }
+  session.prompts = new InteractivePrompts(session)
+  const upstream = new EventEmitter()
+  upstream.connect = () => {}
+  const ready = handshake(session, upstream, {}, { host: 'jump.invalid' }, {})
+  upstream.emit('ready')
+  await ready
+
+  const answer = session.prompts.ask(credentialPrompt('destination password', 'password'), null, upstream)
+  session.prompts.abort(new EventEmitter(), new Error('previous attempt closed'))
+  assert.equal(session.prompts.aborted, false)
+  assert.equal(ws.s.mock.callCount(), 1)
+
+  upstream.emit('close')
+  await assert.rejects(answer, { message: 'SSH connection closed' })
+  assert.equal(session.prompts.aborted, true)
+  assert.equal(ws.s.mock.calls[1].arguments[0].action, 'session-interactive-close')
 })

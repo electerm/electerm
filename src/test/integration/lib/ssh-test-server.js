@@ -439,6 +439,7 @@ function stopTestSshServer (server) {
 }
 
 module.exports = {
+  attachSftp,
   startTestSshServer,
   stopTestSshServer,
   ensureKnownHostsEntry,

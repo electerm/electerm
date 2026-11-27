@@ -258,7 +258,7 @@ describe('legacy ssh algorithms — in-process server', () => {
 
   test('falls back to CBC/hmac-sha1 for an old device (algAlt retry)', async () => {
     // aes128-cbc/hmac-sha1 are only in algAlt(), never in algDefault(), so a
-    // successful connect proves reTryAltAlg() ran and the alt list is usable
+    // successful connect proves the legacy retry negotiated a usable cipher
     const port = await startPinned({
       kex: ['diffie-hellman-group14-sha1'],
       cipher: ['aes128-cbc'],

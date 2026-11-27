@@ -110,6 +110,10 @@ class TerminalSsh extends TerminalBase {
   }
 
   on (event, cb) {
+    if (!this.channel) {
+      log.warn('Cannot attach SSH terminal listener without an open shell', this.pid, event)
+      return
+    }
     for (const stream of this.outputStreams) stream?.on(event, cb)
   }
 

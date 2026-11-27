@@ -16,9 +16,8 @@ const { getFreePort } = require('../lib/free-port')
  * A hop entry is spread into its sub-session's initOptions and used to be
  * passed through wholesale with `...hop`, which let a crafted
  * `connectionHoppings` entry smuggle `proxyCommand` into the hop session and
- * spawn it: the guard in session-ssh.js `maybeProxyCommandSock()` only skips
- * the proxy command while `connectionHoppings` is non-empty, and the pop below
- * leaves the innermost hop with an empty list.
+ * spawn it. After the pop below, the innermost hop has an empty
+ * `connectionHoppings` list and qualifies for direct proxy command setup.
  *
  * Strip the shared dangerous fields here as well as at the parse boundary -
  * this path is also reached from CLI `--opts` and MCP tool calls, which never

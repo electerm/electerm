@@ -70,9 +70,20 @@ const liveClients = (server) => server._clients.size
  * reaped or left behind.
  */
 function writeStubProxy (t) {
-  const dir = fs.mkdtempSync(path.join(process.env.HOME, 'proxy-'))
+  // ProxyCommand splits on whitespace. Relative paths keep both arguments
+  // intact even when the checkout or Node installation path contains spaces.
+  const dir = fs.mkdtempSync('.electerm-test-proxy-')
+  const runtimeDir = path.join(dir, 'runtime')
   const pidFile = path.join(dir, 'proxy.pid')
   const script = path.join(dir, 'proxy.js')
+  const childPid = () => Number(fs.readFileSync(pidFile, 'utf8'))
+  t.after(() => {
+    const pid = fs.existsSync(pidFile) && childPid()
+    if (isAlive(pid)) process.kill(pid, 'SIGKILL')
+    if (fs.existsSync(runtimeDir)) fs.unlinkSync(runtimeDir)
+    fs.rmSync(dir, { recursive: true, force: true })
+  })
+  fs.symlinkSync(path.dirname(process.execPath), runtimeDir, 'junction')
   fs.writeFileSync(script, `
 const fs = require('fs')
 const net = require('net')
@@ -85,18 +96,12 @@ sock.on('connect', () => {
 sock.on('error', () => process.exit(1))
 process.stdin.on('end', () => sock.end())
 `)
-  // Use Node directly on Windows too. Passing the temporary script path in
-  // the environment also works when the user's temp directory contains spaces.
-  process.env.ELECTERM_TEST_PROXY_SCRIPT = script
-  const childPid = () => Number(fs.readFileSync(pidFile, 'utf8'))
-  t.after(() => {
-    if (fs.existsSync(pidFile) && isAlive(childPid())) process.kill(childPid(), 'SIGKILL')
-    delete process.env.ELECTERM_TEST_PROXY_SCRIPT
-  })
-  return { proxyCommand: 'node -e require(process.env.ELECTERM_TEST_PROXY_SCRIPT)', childPid }
+  const node = path.join(runtimeDir, path.basename(process.execPath))
+  return { proxyCommand: `${node} ${script}`, childPid }
 }
 
 function isAlive (pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false
   try {
     process.kill(pid, 0)
     return true
@@ -169,13 +174,19 @@ describe('session-ssh kill() releases the connection', () => {
     assert.doesNotThrow(() => term.kill())
   })
 
-  test('kill() reaps the proxy command child process', async t => {
-    const { proxyCommand, childPid } = writeStubProxy(t)
-    const term = await connect({ proxyCommand })
-    const pid = childPid()
-    assert.ok(isAlive(pid), 'stub proxy should be running')
-    term.kill()
-    await waitFor(() => !isAlive(pid))
+  test('kill() reaps only the proxy child for the session being closed', async t => {
+    const fixtures = [writeStubProxy(t), writeStubProxy(t)]
+    const [first, second] = await Promise.all(fixtures.map(async ({ proxyCommand, childPid }) => {
+      const term = await connect({ proxyCommand })
+      t.after(() => term.kill())
+      return { term, pid: childPid() }
+    }))
+    assert.notEqual(first.pid, second.pid)
+    first.term.kill()
+    await waitFor(() => !isAlive(first.pid) && liveClients(server) === 1)
+    assert.ok(isAlive(second.pid), 'the other session should keep its proxy')
+    second.term.kill()
+    await waitFor(() => !isAlive(second.pid))
     await waitFor(() => liveClients(server) === 0)
   })
 

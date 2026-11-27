@@ -45,6 +45,9 @@ class InteractivePrompts {
     this.session = session
     this.pending = new Map()
     this.closedConnections = new WeakSet()
+    // Both retry loops stop for the rest of the session if a user cancels or
+    // a connection dies with an unanswered prompt. Losing a connection with
+    // no pending prompt of its own leaves credential and algorithm retries available.
     this.aborted = false
   }
 
@@ -70,11 +73,11 @@ class InteractivePrompts {
     return new Promise((resolve, reject) => {
       const pending = {
         owner,
-        abort: () => {
+        abort: (reason) => {
           this.pending.delete(id)
           pending.dispose?.()
           ws.s({ action: 'session-interactive-close', id, tabId })
-          reject(new Error('User cancel'))
+          reject(reason)
         }
       }
       this.pending.set(id, pending)
@@ -92,12 +95,12 @@ class InteractivePrompts {
 
   // A handshake owns its host-key and MFA prompts. A retry's password prompt
   // must survive the previous client's delayed close (#4646).
-  abort (owner) {
+  abort (owner, reason) {
     if (owner) this.closedConnections.add(owner)
     for (const prompt of this.pending.values()) {
       if (!owner || prompt.owner === owner) {
         this.aborted = true
-        prompt.abort()
+        prompt.abort(reason || new Error('SSH session closed'))
       }
     }
   }

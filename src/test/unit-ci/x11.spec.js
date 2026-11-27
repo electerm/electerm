@@ -9,7 +9,7 @@ const path = require('node:path')
 const fs = require('node:fs')
 const {
   getX11Candidates,
-  forwardX11Channel,
+  enableX11Forwarding,
   probeXServer,
   x11Hint,
   x11CookieHint
@@ -125,7 +125,7 @@ describe('x11 helpers', () => {
 })
 
 describe('X11 channel forwarding', () => {
-  function openChannel (t, display = '/configured/x11/socket') {
+  function setupForwarding (t, display = '/configured/x11/socket') {
     const attempts = []
     t.mock.method(net, 'connect', endpoint => {
       const socket = new net.Socket()
@@ -133,12 +133,22 @@ describe('X11 channel forwarding', () => {
       return socket
     })
     const conn = new EventEmitter()
-    const remote = new PassThrough()
-    const accept = t.mock.fn(() => remote)
-    const reject = t.mock.fn()
     const send = t.mock.fn()
-    forwardX11Channel({ display, initOptions: { srcTabId: 'tab' }, ws: { s: send } }, conn, accept, reject)
-    return { display, conn, attempts, remote, accept, reject, send }
+    const session = { display, initOptions: { srcTabId: 'tab' }, ws: { s: send } }
+    enableX11Forwarding(session, conn)
+    function open () {
+      const remote = new PassThrough()
+      const accept = t.mock.fn(() => remote)
+      const reject = t.mock.fn()
+      conn.emit('x11', {}, accept, reject)
+      return { remote, accept, reject, socket: attempts.at(-1).socket }
+    }
+    return { display, conn, attempts, send, open }
+  }
+
+  function openChannel (t, display) {
+    const forwarding = setupForwarding(t, display)
+    return { ...forwarding, ...forwarding.open() }
   }
 
   test('connects to the configured display first and accepts the channel only once', async t => {
@@ -195,5 +205,37 @@ describe('X11 channel forwarding', () => {
     assert.equal(remote.destroyed, true)
     assert.equal(accept.mock.callCount(), 1)
     assert.equal(attempts.length, 1)
+  })
+
+  test('concurrent open and pending channels share one SSH close listener', async t => {
+    const { open, conn, attempts } = setupForwarding(t)
+    const channels = Array.from({ length: 20 }, () => open())
+    assert.equal(conn.listenerCount('close'), 1)
+    for (const { socket } of channels.slice(0, 10)) socket.emit('connect')
+
+    // One finished independently, and another is between display candidates.
+    channels[0].remote.destroy()
+    channels[10].socket.destroy(new Error('Connection refused'))
+    await nextTurn()
+    const finished = t.mock.method(channels[0].socket, 'destroy')
+    assert.equal(attempts.length, 21)
+    assert.equal(conn.listenerCount('close'), 1)
+
+    conn.emit('close')
+    conn.emit('close')
+    await nextTurn()
+    assert.equal(finished.mock.callCount(), 0)
+    assert.equal(conn.listenerCount('close'), 0)
+    assert.equal(conn.listenerCount('x11'), 0)
+    for (const { socket } of attempts) {
+      assert.equal(socket.destroyed, true)
+      socket.emit('connect')
+    }
+    for (const [i, { remote, accept, reject }] of channels.entries()) {
+      assert.equal(remote.destroyed, i < 10)
+      assert.equal(accept.mock.callCount(), i < 10 ? 1 : 0)
+      assert.equal(reject.mock.callCount(), 0)
+    }
+    assert.equal(attempts.length, 21)
   })
 })
