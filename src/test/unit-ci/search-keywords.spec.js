@@ -4,11 +4,13 @@ const assert = require('node:assert/strict')
 let parseSearchKeywords
 let hasSearchKeywords
 let matchesSearchKeywords
+let getHighlightRanges
 
 before(async () => {
   const mod = await import('../../client/common/search-keywords.js')
   parseSearchKeywords = mod.parseSearchKeywords
   hasSearchKeywords = mod.hasSearchKeywords
+  getHighlightRanges = mod.getHighlightRanges
   matchesSearchKeywords = mod.matchesSearchKeywords
 })
 
@@ -83,5 +85,30 @@ describe('bookmark search keywords', () => {
     })
     assert.equal(hasSearchKeywords(parsed), false)
     assert.equal(matchesSearchKeywords('anything', parsed), true)
+  })
+})
+
+describe('bookmark search highlighting', () => {
+  test('merges partial overlaps in either term order and repeated occurrences', () => {
+    for (const terms of [['prod', 'oduction'], ['oduction', 'prod']]) {
+      assert.deepEqual(getHighlightRanges('production', terms), [{ start: 0, end: 10 }])
+    }
+    assert.deepEqual(getHighlightRanges('ababa', ['aba']), [{ start: 0, end: 5 }])
+  })
+
+  test('returns original offsets when lowercasing expands a character', () => {
+    const title = '🌍İstanbul'
+    for (const term of ['i', '\u0307']) {
+      const parsed = parseSearchKeywords(term + ' BUL')
+      assert.equal(matchesSearchKeywords(title, parsed), true)
+      assert.deepEqual(getHighlightRanges(title, parsed.include), [
+        { start: 2, end: 3 },
+        { start: 7, end: 10 }
+      ])
+    }
+  })
+
+  test('uses whole-string lowercasing for context-sensitive characters', () => {
+    assert.deepEqual(getHighlightRanges('ΟΣ', ['ς']), [{ start: 1, end: 2 }])
   })
 })
