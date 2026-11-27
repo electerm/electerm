@@ -1,6 +1,11 @@
 import createName from '../../common/create-title'
 import { defaultBookmarkGroupId } from '../../common/constants'
 import { getRootBookmarkGroups } from '../../common/bookmark-group-tree.js'
+import {
+  parseSearchKeywords,
+  hasSearchKeywords,
+  matchesSearchKeywords
+} from '../../common/search-keywords.js'
 
 // the row identity the list navigates by, kept here so the keyboard cursor and
 // the click handler below agree on it
@@ -51,7 +56,8 @@ export function buildVisibleTreeRows ({
   const visitedGroupIds = new Set()
   const visitedBookmarkIds = new Set()
   const expandedKeySet = new Set(expandedKeys || [])
-  const lowerKeyword = (keyword || '').toLowerCase()
+  const parsedKeyword = parseSearchKeywords(keyword)
+  const hasFilter = hasSearchKeywords(parsedKeyword)
   const bookmarkMatchCache = new Map()
   const groupMatchCache = new Map()
   const groupMatchInProgress = new Set()
@@ -67,16 +73,18 @@ export function buildVisibleTreeRows ({
     const item = bookmarksMap.get(bookmarkId)
     const matched = Boolean(
       item &&
-      (!lowerKeyword ||
-        createName(item).toLowerCase().includes(lowerKeyword) ||
-        (item.description || '').toLowerCase().includes(lowerKeyword))
+      (!hasFilter ||
+        matchesSearchKeywords(
+          `${createName(item)} ${item.description || ''}`,
+          parsedKeyword
+        ))
     )
     bookmarkMatchCache.set(bookmarkId, matched)
     return matched
   }
 
   const groupHasMatchedBookmarks = (group) => {
-    if (!lowerKeyword) {
+    if (!hasFilter) {
       return true
     }
     if (!group) {
@@ -106,7 +114,7 @@ export function buildVisibleTreeRows ({
     if (
       !group ||
       visitedGroupIds.has(group.id) ||
-      (lowerKeyword && !groupHasMatchedBookmarks(group))
+      (hasFilter && !groupHasMatchedBookmarks(group))
     ) {
       return
     }
@@ -122,7 +130,7 @@ export function buildVisibleTreeRows ({
       path
     })
 
-    if (!lowerKeyword && !expandedKeySet.has(group.id)) {
+    if (!hasFilter && !expandedKeySet.has(group.id)) {
       return
     }
 
@@ -144,7 +152,7 @@ export function buildVisibleTreeRows ({
         continue
       }
       const item = bookmarksMap.get(bookmarkId)
-      if (!item || (lowerKeyword && !bookmarkMatches(bookmarkId))) {
+      if (!item || (hasFilter && !bookmarkMatches(bookmarkId))) {
         continue
       }
       visitedBookmarkIds.add(bookmarkId)
@@ -157,7 +165,7 @@ export function buildVisibleTreeRows ({
         depth,
         path: groupPath
       })
-      if (lowerKeyword) {
+      if (hasFilter) {
         matchedRowKeys.push(key)
       }
     }
