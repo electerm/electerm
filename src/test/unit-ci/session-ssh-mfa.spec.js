@@ -703,6 +703,25 @@ describe('session-ssh MFA shapes', () => {
     }
   })
 
+  test('a replacement MFA passcode is also sent only through keyboard-interactive', async () => {
+    const server = await startServer({
+      advertise: ['password', 'keyboard-interactive'],
+      rounds: [{
+        prompts: [{ prompt: 'Password:', echo: false }],
+        check: answers => answers[0] === PASSCODE ? 'accept' : 'reject'
+      }]
+    })
+    const r = await runSession(server, { password: 'expired', isMFA: true }, { answer: [PASSCODE] })
+    try {
+      assert.ifError(r.err)
+      assert.deepEqual(server.state.methods, ['keyboard-interactive', 'keyboard-interactive'])
+      assert.deepEqual(server.state.rounds.map(r => r.answers), [['expired'], [PASSCODE]])
+      assert.equal(r.ws.prompts.length, 1)
+    } finally {
+      await r.done()
+    }
+  })
+
   test('an echo prompt is shown next to the hidden code and keeps its echo flag', async () => {
     // SSH key + a visible account selector + a hidden code: echo is not a
     // synonym for "not a secret", and an echo prompt must never be auto-filled

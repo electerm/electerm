@@ -9,9 +9,11 @@ const path = require('node:path')
 const { once } = require('node:events')
 const { spawnSync } = require('node:child_process')
 const { setTimeout: delay } = require('node:timers/promises')
-const { Server, utils } = require('@electerm/ssh2')
+const { Client, Server, utils } = require('@electerm/ssh2')
 const { session } = require('../../../src/app/server/session-ssh')
 const log = require('../../../src/app/common/log')
+const { waitFor } = require('../integration/lib/ssh-session-harness')
+const { attachSftp } = require('../integration/lib/ssh-test-server')
 
 const USERNAME = 'tester'
 const PASSWORD = 'electerm-test'
@@ -98,8 +100,9 @@ function generateClientKey ({ dir, name, type, passphrase, bits }) {
  * @param {function} authHandler
  * @param {number} [forwardTo] port to forward direct-tcpip channels to, which
  *   is what makes this server usable as a jump host
+ * @param {function} [onSession] install channel handlers for this server
  */
-async function startServer (authHandler, forwardTo) {
+async function startServer (authHandler, forwardTo, onSession) {
   const clients = new Set()
   const server = new Server({
     hostKeys: [HOST_KEY.private]
@@ -115,7 +118,8 @@ async function startServer (authHandler, forwardTo) {
     client.on('ready', () => {
       client.on('session', (accept) => {
         const sshSession = accept()
-        sshSession.on('env', (accept) => accept())
+        if (onSession) return onSession(sshSession)
+        sshSession.on('env', (accept) => accept?.())
         sshSession.on('pty', (accept) => accept())
         sshSession.on('shell', (accept) => {
           const stream = accept()
@@ -139,6 +143,7 @@ async function startServer (authHandler, forwardTo) {
 
   return {
     port: server.address().port,
+    clients,
     async close () {
       for (const client of clients) {
         client.end()
@@ -360,6 +365,18 @@ function passwordOnlyAuth () {
   }
 }
 
+function passwordSessionOptions (port) {
+  return {
+    host: '127.0.0.1',
+    port,
+    username: USERNAME,
+    password: PASSWORD,
+    useSshAgent: false,
+    readyTimeout: 5000,
+    enableSsh: false
+  }
+}
+
 /**
  * HPC shape behind #4670: one hidden prompt that asks for the password and the
  * second factor together, answered as `"<password> <code>"`, and the code is
@@ -450,6 +467,29 @@ describe('session-ssh auth flows', () => {
     setEnvVar('SSH_AGENT_PID', oldEnv.SSH_AGENT_PID)
     setEnvVar('sshKeysPath', oldEnv.sshKeysPath)
     fs.rmSync(tmpDir, { recursive: true, force: true })
+  })
+
+  test('a non-Error transport rejection reaches the caller unchanged', async t => {
+    const failure = { code: 'TRANSPORT_UNAVAILABLE' }
+    t.mock.method(Client.prototype, 'connect', () => { throw failure })
+    await assert.rejects(session(passwordSessionOptions(22)), reason => reason === failure)
+  })
+
+  test('local key discovery skips an OpenSSH certificate alongside its identity', async t => {
+    const key = utils.generateKeyPairSync('ed25519')
+    const keyPath = path.join(process.env.sshKeysPath, 'id_ed25519')
+    fs.writeFileSync(keyPath, key.private)
+    fs.writeFileSync(keyPath + '.pub', key.public)
+    fs.writeFileSync(keyPath + '-cert.pub', 'certificate fixture')
+    const server = await startServer(passwordOnlyAuth())
+    try {
+      const warn = t.mock.method(log, 'warn', () => {})
+      const options = { ...passwordSessionOptions(server.port), password: undefined }
+      await assert.rejects(session(options, createPromptWs(() => [''])), /authentication methods failed/i)
+      assert.ok(!warn.mock.calls.some(call => call.arguments.includes(keyPath + '-cert')))
+    } finally {
+      await server.close()
+    }
   })
 
   test('connects with an rsa key protected by a passphrase', async () => {
@@ -817,6 +857,406 @@ describe('session-ssh auth flows', () => {
       term && term.kill()
       await hop.close()
       await target.close()
+    }
+  })
+
+  test('asks for a missing username even when a password is saved', async () => {
+    const server = await startServer(passwordOnlyAuth())
+    const ws = createPromptWs(options => options.name === 'username' ? [USERNAME] : [])
+    let term
+    try {
+      term = await session({ ...passwordSessionOptions(server.port), username: '' }, ws)
+      assert.deepEqual(ws.prompts.map(p => p.name), ['username'])
+      assert.equal(ws.prompts[0].prompts[0].echo, true)
+    } finally {
+      term?.kill()
+      await server.close()
+    }
+  })
+
+  test('a headless session fails when a rejected password requires a prompt', async () => {
+    const server = await startServer(passwordOnlyAuth())
+    try {
+      const options = passwordSessionOptions(server.port)
+      // Trust the fixture so the headless login reaches password authentication.
+      const first = await session(options, createPromptWs(() => []))
+      first.kill()
+      await assert.rejects(session({ ...options, password: 'expired' }), /requires an interactive prompt/)
+      await waitFor(() => server.clients.size === 0)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('a reusable hopping bookmark keeps its target password off the jump host', async () => {
+    const target = await startServer(passwordOnlyAuth())
+    const hopPasswords = []
+    const hop = await startServer(ctx => {
+      if (ctx.method === 'password') {
+        hopPasswords.push(ctx.password)
+        if (ctx.password === 'jump-password') return ctx.accept()
+      }
+      ctx.reject(['password'])
+    }, target.port)
+    const bookmark = {
+      ...passwordSessionOptions(target.port),
+      hasHopping: true,
+      connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME }]
+    }
+    const original = JSON.parse(JSON.stringify(bookmark))
+    try {
+      for (let i = 0; i < 2; i++) {
+        const ws = createPromptWs(() => ['jump-password'])
+        const term = await session(bookmark, ws)
+        try {
+          assert.deepEqual(hopPasswords, Array(i + 1).fill('jump-password'))
+          assert.equal(ws.prompts.length, 1)
+          assert.deepEqual(bookmark, original)
+        } finally {
+          term.kill()
+        }
+      }
+    } finally {
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  test('a target with no saved password asks for its own keyboard-interactive answer', async () => {
+    const answers = []
+    let sftpRequests = 0
+    const target = await startServer(ctx => {
+      if (ctx.method !== 'keyboard-interactive') return ctx.reject(['keyboard-interactive'])
+      ctx.prompt([{ prompt: 'Password:', echo: false }], responses => {
+        answers.push(...responses)
+        if (responses[0] === 'target-password') return ctx.accept()
+        ctx.reject(['keyboard-interactive'])
+      })
+    })
+    const hop = await startServer(passwordOnlyAuth(), target.port, sshSession => {
+      // An empty key directory on the bastion leaves keyboard-interactive as
+      // the only credential source for the destination.
+      sshSession.on('exec', accept => {
+        const stream = accept()
+        stream.exit(0)
+        stream.end()
+      })
+      sshSession.on('sftp', (accept, reject) => { sftpRequests++; reject() })
+    })
+    const ws = createPromptWs(() => ['target-password'])
+    let term
+    try {
+      term = await session({
+        ...passwordSessionOptions(target.port),
+        password: undefined,
+        hasHopping: true,
+        connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+      }, ws)
+      assert.deepEqual(answers, ['target-password'])
+      assert.equal(ws.prompts.length, 1)
+      assert.equal(sftpRequests, 0)
+    } finally {
+      term?.kill()
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  test('tries the next jump-host key on a fresh destination transport', async () => {
+    const wrong = utils.generateKeyPairSync('ed25519')
+    const right = utils.generateKeyPairSync('ed25519')
+    const authenticate = publicKeyOnlyAuth(right.public)
+    let targetLogins = 0
+    let hopLogins = 0
+    const target = await startServer(ctx => {
+      if (ctx.method === 'none') targetLogins++
+      authenticate(ctx)
+    })
+    const hopAuth = passwordOnlyAuth()
+    const reads = []
+    const hop = await startServer(ctx => {
+      if (ctx.method === 'none') hopLogins++
+      hopAuth(ctx)
+    }, target.port, sshSession => {
+      sshSession.on('exec', (accept, reject, { command }) => {
+        const stream = accept()
+        if (command.startsWith('cat ')) {
+          reads.push(command)
+          stream.end(reads.length === 1 ? wrong.private : right.private)
+        } else {
+          stream.end("old key.pub\0owner's key.pub\0")
+        }
+      })
+    })
+    const ws = createPromptWs(() => [])
+    let term
+    try {
+      term = await session({
+        ...passwordSessionOptions(target.port),
+        password: undefined,
+        hasHopping: true,
+        connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+      }, ws)
+      assert.equal(hopLogins, 1)
+      assert.equal(targetLogins, 2)
+      assert.deepEqual(reads, [
+        'cat "$HOME"/.ssh/\'old key\'',
+        String.raw`cat "$HOME"/.ssh/'owner'"'"'s key'`
+      ])
+      assert.equal(ws.prompts.length, 0)
+    } finally {
+      term?.kill()
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  test('a rejected jump-host identity keeps its auth error beside a certificate and an orphan', async () => {
+    const identity = utils.generateKeyPairSync('ed25519')
+    const offered = []
+    const target = await startServer(ctx => {
+      if (ctx.method === 'publickey') offered.push(ctx.key.data)
+      ctx.reject(['publickey'])
+    })
+    const reads = []
+    let sftpRequests = 0
+    const readIdentity = 'cat "$HOME"/.ssh/\'id_ed25519\''
+    const readOrphan = 'cat "$HOME"/.ssh/\'orphan\''
+    const hop = await startServer(passwordOnlyAuth(), target.port, channel => {
+      channel.on('exec', (accept, reject, { command }) => {
+        const stream = accept()
+        if (!command.startsWith('cat ')) {
+          stream.end('id_ed25519-cert.pub\0orphan.pub\0id_ed25519.pub\0')
+          return
+        }
+        reads.push(command)
+        if (command === readIdentity) {
+          stream.end(identity.private)
+        } else {
+          stream.exit(1)
+          stream.end()
+        }
+      })
+      channel.on('sftp', (accept, reject) => { sftpRequests++; reject() })
+    })
+    try {
+      await assert.rejects(session({
+        ...passwordSessionOptions(target.port),
+        password: undefined,
+        hasHopping: true,
+        connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+      }, createPromptWs(() => [''])), { message: 'All configured authentication methods failed' })
+      assert.deepEqual(offered, [parseKey(identity.public).getPublicSSH()])
+      assert.deepEqual(reads, [readOrphan, readIdentity])
+      assert.equal(sftpRequests, 0)
+    } finally {
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  async function checkSftpKeyFallback (handleExec) {
+    const key = utils.generateKeyPairSync('ed25519')
+    const directory = path.join(tmpDir, '.ssh')
+    fs.mkdirSync(directory)
+    fs.writeFileSync(path.join(directory, "owner's key.pub"), key.public)
+    fs.writeFileSync(path.join(directory, "owner's key"), key.private)
+    const target = await startServer(publicKeyOnlyAuth(key.public))
+    let sftpSessions = 0
+    let sftpClosed = false
+    const hop = await startServer(passwordOnlyAuth(), target.port, channel => {
+      channel.on('exec', (accept, reject, { command }) => handleExec(accept(), command))
+      channel.on('sftp', accept => {
+        sftpSessions++
+        const sftp = accept()
+        sftp.once('close', () => { sftpClosed = true })
+        attachSftp(sftp, tmpDir)
+      })
+    })
+    const ws = createPromptWs(() => [])
+    let term
+    try {
+      term = await session({
+        ...passwordSessionOptions(target.port),
+        password: undefined,
+        hasHopping: true,
+        connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+      }, ws)
+      assert.equal(sftpSessions, 1)
+      assert.equal(ws.prompts.length, 0)
+      await waitFor(() => sftpClosed)
+    } finally {
+      term?.kill()
+      await hop.close()
+      await target.close()
+    }
+  }
+
+  for (const status of [null, 0]) {
+    test(`a jump host with no sh can supply keys over SFTP (exit status ${status})`, () =>
+      checkSftpKeyFallback(stream => {
+        // PowerShell can report command-not-found on stderr with status 0 or no status.
+        stream.stderr.write('sh: command not found')
+        if (status !== null) stream.exit(status)
+        stream.end()
+      }))
+  }
+
+  test('SFTP recovers a jump-host key when the shell lists it but cannot read it', () =>
+    checkSftpKeyFallback((stream, command) => {
+      if (command.startsWith('cat ')) {
+        stream.exit(1)
+        stream.end()
+      } else {
+        stream.end("owner's key.pub\0")
+      }
+    }))
+
+  test('unavailable jump-key discovery still allows passwords and explains a final auth failure', async () => {
+    const target = await startServer(passwordOnlyAuth())
+    const keyName = 'team\njump key'
+    const partialContents = 'private key bytes returned before the read failed'
+    let failure = 'listing'
+    const hop = await startServer(passwordOnlyAuth(), target.port, channel => {
+      channel.on('exec', (accept, reject, { command }) => {
+        const stream = accept()
+        if (failure === 'listing') {
+          stream.exit(127)
+          stream.end()
+        } else if (!command.startsWith('cat ')) {
+          stream.end(keyName + '.pub\0')
+        } else if (failure === 'unreadable') {
+          stream.exit(1)
+          stream.end(partialContents)
+        } else {
+          stream.exit(0)
+          stream.end()
+        }
+      })
+      channel.on('sftp', (accept, reject) => reject())
+    })
+    const options = {
+      ...passwordSessionOptions(target.port),
+      password: undefined,
+      hasHopping: true,
+      connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+    }
+    let term
+    try {
+      term = await session(options, createPromptWs(() => [PASSWORD]))
+      const cases = [
+        ['listing', 'sh: command exited with status 127'],
+        ['unreadable', 'sh: could not read any listed private key: "team\\njump key": command exited with status 1'],
+        ['empty', 'sh: could not read any listed private key: "team\\njump key": private key file was empty']
+      ]
+      for (const [mode, expected] of cases) {
+        failure = mode
+        await assert.rejects(session(options, createPromptWs(() => ['wrong-password'])), err => {
+          assert.match(err.message, /authentication methods failed/i)
+          assert.ok(err.message.includes(expected), err.message)
+          assert.ok(!err.message.includes(partialContents))
+          assert.match(err.message, /SFTP: .*subsystem/i)
+          assert.match(err.message, /credentials for the destination/i)
+          return true
+        })
+      }
+    } finally {
+      term?.kill()
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  test('a failed destination login closes the established jump host transport', async () => {
+    const target = await startServer(passwordOnlyAuth())
+    const hop = await startServer(passwordOnlyAuth(), target.port)
+    try {
+      await assert.rejects(session({
+        ...passwordSessionOptions(target.port),
+        password: 'wrong-target-password',
+        hasHopping: true,
+        connectionHoppings: [{ host: '127.0.0.1', port: hop.port, username: USERNAME, password: PASSWORD }]
+      }, createPromptWs(() => [''])), /authentication methods failed/i)
+      await waitFor(() => hop.clients.size === 0 && target.clients.size === 0)
+    } finally {
+      await hop.close()
+      await target.close()
+    }
+  })
+
+  test('a refused shell releases the authenticated transport', async () => {
+    const server = await startServer(passwordOnlyAuth(), undefined, sshSession => {
+      sshSession.on('pty', accept => accept())
+      sshSession.on('shell', (accept, reject) => reject())
+    })
+    try {
+      await assert.rejects(session({
+        ...passwordSessionOptions(server.port),
+        enableSsh: true
+      }, createPromptWs(() => [])), /shell/i)
+      await waitFor(() => server.clients.size === 0)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('registering a listener without a shell warns once and still allows cleanup', async t => {
+    const server = await startServer(passwordOnlyAuth())
+    let term
+    try {
+      term = await session(passwordSessionOptions(server.port), createPromptWs(() => []))
+      const warn = t.mock.method(log, 'warn', () => {})
+      const listener = () => {}
+      term.on('data', listener)
+      term.off('data', listener)
+      assert.equal(warn.mock.callCount(), 1)
+      assert.deepEqual(warn.mock.calls[0].arguments.slice(1), [term.pid, 'data'])
+    } finally {
+      term?.kill()
+      await server.close()
+    }
+  })
+
+  test('the opened shell receives terminal settings, resizes and encoded input', async () => {
+    let pty
+    let resized
+    let stream
+    const env = {}
+    const server = await startServer(passwordOnlyAuth(), undefined, sshSession => {
+      sshSession.on('env', (accept, reject, { key, val }) => {
+        env[key] = val
+        accept?.()
+      })
+      sshSession.on('pty', (accept, reject, info) => {
+        pty = info
+        accept()
+      })
+      sshSession.on('window-change', (accept, reject, info) => { resized = info })
+      sshSession.on('shell', accept => { stream = accept() })
+    })
+    let term
+    try {
+      term = await session({
+        ...passwordSessionOptions(server.port),
+        enableSsh: true,
+        term: 'xterm-color',
+        rows: 31,
+        cols: 97,
+        envLang: 'fr_FR.UTF-8',
+        setEnv: 'EDITOR=vi',
+        encode: 'latin1'
+      }, createPromptWs(() => []))
+      assert.deepEqual([pty.term, pty.rows, pty.cols], ['xterm-color', 31, 97])
+      assert.deepEqual(env, { LANG: 'fr_FR.UTF-8', EDITOR: 'vi' })
+
+      const input = once(stream, 'data', { signal: AbortSignal.timeout(3000) })
+      term.resize(112, 42)
+      term.write('café')
+      assert.deepEqual((await input)[0], Buffer.from('café', 'latin1'))
+      assert.deepEqual([resized?.rows, resized?.cols], [42, 112])
+    } finally {
+      term?.kill()
+      await server.close()
     }
   })
 

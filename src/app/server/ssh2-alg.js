@@ -69,12 +69,16 @@ exports.algDefault = () => ({
   ], SUPPORTED_COMPRESSION)
 })
 
-/**
- * the fallback list used by reTryAltAlg() when no algorithm could be
- * negotiated with algDefault(): a strict superset of algDefault() with the
- * pre-RFC 8332 stuff old servers/devices still use (CBC ciphers, ssh-rsa and
- * ssh-dss host keys)
- */
+const negotiationFailures = [
+  'no matching C->S cipher', 'no matching S->C cipher', 'no matching C->S MAC',
+  'no matching S->C MAC', 'no matching host key format'
+]
+
+exports.canRetryWithAltAlgorithms = err =>
+  typeof err?.message === 'string' && negotiationFailures.some(message => err.message.includes(message))
+
+// A failed negotiation can be retried with the legacy CBC ciphers and
+// ssh-rsa/ssh-dss host keys that older devices still require.
 exports.algAlt = () => ({
   ...exports.algDefault(),
   cipher: onlySupported([

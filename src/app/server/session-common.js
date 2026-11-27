@@ -58,17 +58,15 @@ exports.commonExtends = function (Cls) {
     })
   }
 
-  // Structured command execution over an SSH exec channel.
-  // Unlike runCmd (which merges stdout/stderr and drops the exit code),
-  // execCommand captures both streams separately and resolves the real
-  // exit code. Optional timeoutMs closes the channel early and resolves
-  // partial output with timedOut: true.
-  // The open watchdog rejects if ssh2 never invokes the exec callback
-  // (channel-open queued forever on a dead connection) instead of hanging
-  // until timeoutMs, so callers get a real error promptly.
+  // Capture stdout, stderr and exit status over an SSH exec channel.
+  // A positive totalTimeoutMs takes precedence over both openTimeoutMs and
+  // timeoutMs and covers channel opening through command completion.
+  // Otherwise openTimeoutMs limits channel opening (rejects on timeout)
+  // and timeoutMs limits execution after opening. Execution and total
+  // timeouts return partial output with timedOut set to true.
   Cls.prototype.execCommand = function (cmd, options = {}, conn) {
     return new Promise((resolve, reject) => {
-      const { timeoutMs = 0, openTimeoutMs = 15000 } = options || {}
+      const { timeoutMs = 0, openTimeoutMs = 15000, totalTimeoutMs = 0 } = options || {}
       const client = conn || this.conn || this.client
       if (!client || typeof client.exec !== 'function') {
         reject(new Error('Exec channel not supported for this session type'))
@@ -77,6 +75,10 @@ exports.commonExtends = function (Cls) {
       let timer = null
       let openTimer = null
       let settled = false
+      let stream
+      let stdout = ''
+      let stderr = ''
+      let exitCode = null
       const clearTimers = () => {
         if (timer) {
           clearTimeout(timer)
@@ -95,7 +97,7 @@ exports.commonExtends = function (Cls) {
         clearTimers()
         reject(e)
       }
-      const done = (stdout, stderr, exitCode, timedOut) => {
+      const done = timedOut => {
         if (settled) {
           return
         }
@@ -103,41 +105,41 @@ exports.commonExtends = function (Cls) {
         clearTimers()
         resolve({ stdout, stderr, exitCode, timedOut })
       }
-      openTimer = setTimeout(() => {
-        openTimer = null
-        fail(new Error('SSH exec channel did not open: connection lost or server not responding'))
-      }, openTimeoutMs)
-      client.exec(cmd, this.getExecOpts(), (err, stream) => {
+      const closeChannel = channel => {
+        try {
+          channel?.close?.()
+        } catch (_) {}
+      }
+      const onTimeout = () => {
+        done(true)
+        closeChannel(stream)
+      }
+      if (totalTimeoutMs > 0) {
+        timer = setTimeout(onTimeout, totalTimeoutMs)
+      } else {
+        openTimer = setTimeout(() => {
+          fail(new Error('SSH exec channel did not open: connection lost or server not responding'))
+        }, openTimeoutMs)
+      }
+      const onOpen = (err, channel) => {
         if (openTimer) {
           clearTimeout(openTimer)
           openTimer = null
         }
         if (settled) {
-          // Open watchdog already fired — ignore the late callback
+          closeChannel(channel)
           return
         }
         if (err) {
           fail(err)
           return
         }
+        stream = channel
         if (!stream) {
-          done('', '', null, false)
+          done(false)
           return
         }
-        let stdout = ''
-        let stderr = ''
-        let exitCode = null
-        const finish = (timedOut) => done(stdout, stderr, exitCode, timedOut)
-        if (timeoutMs > 0) {
-          timer = setTimeout(() => {
-            try {
-              stream.close()
-            } catch (_) {
-              // ignore — best effort channel close
-            }
-            finish(true)
-          }, timeoutMs)
-        }
+        if (timeoutMs > 0 && totalTimeoutMs <= 0) timer = setTimeout(onTimeout, timeoutMs)
         stream.on('data', (data) => {
           stdout += data.toString()
         })
@@ -149,9 +151,14 @@ exports.commonExtends = function (Cls) {
         stream.on('exit', (code) => {
           exitCode = typeof code === 'number' ? code : null
         })
-        stream.on('close', () => finish(false))
+        stream.on('close', () => done(false))
         stream.on('error', (e) => fail(e))
-      })
+      }
+      try {
+        client.exec(cmd, this.getExecOpts(), onOpen)
+      } catch (err) {
+        fail(err)
+      }
     })
   }
   return Cls

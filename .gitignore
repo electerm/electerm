@@ -117,6 +117,7 @@ dist
 /*.gz
 .vscode
 /test-results
+.electerm-test-proxy-*/
 
 ftp-root
 *.asc

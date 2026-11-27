@@ -21,7 +21,7 @@ process.env.NODE_ENV = 'development'
 
 const { describe, test } = require('node:test')
 const assert = require('node:assert/strict')
-const { algDefault, algAlt } = require('../../app/server/ssh2-alg')
+const { algDefault, algAlt, canRetryWithAltAlgorithms } = require('../../app/server/ssh2-alg')
 const {
   SUPPORTED_KEX,
   SUPPORTED_SERVER_HOST_KEY,
@@ -40,6 +40,13 @@ const listSpec = [
 ]
 
 describe('ssh2 algorithm lists', () => {
+  test('only recognized negotiation messages qualify for a retry', () => {
+    assert.equal(canRetryWithAltAlgorithms(new Error('Handshake failed: no matching host key format')), true)
+    for (const failure of [null, undefined, 'connection lost', { message: 42 }, new Error('connection lost')]) {
+      assert.equal(canRetryWithAltAlgorithms(failure), false)
+    }
+  })
+
   test('only contain algorithms this ssh2 build implements', () => {
     for (const [name, supported] of listSpec) {
       for (const list of [algDefault(), algAlt()]) {
