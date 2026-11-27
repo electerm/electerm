@@ -104,6 +104,7 @@ export function renderFormItem (item, formItemLayout, form, ctxProps, index) {
       ...formItemLayout,
       className: cls,
       label: typeof label === 'string' ? label : label(),
+      extra: item.extra,
       name,
       rules,
       valuePropName,

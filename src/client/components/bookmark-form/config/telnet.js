@@ -7,7 +7,7 @@ import {
   getTerminalBackgroundDefaults,
   getAuthTypeDefault
 } from '../common/init-values.js'
-import { telnetAuthFields, terminalSettings, lineEndingFields, commonFields, quickCommandsTab, triggersTab } from './common-fields.js'
+import { telnetAuthFields, getTerminalSettings, lineEndingFields, commonFields, quickCommandsTab, triggersTab } from './common-fields.js'
 
 const e = window.translate
 
@@ -43,7 +43,7 @@ const telnetConfig = {
       // background picker stays last - it is the one field that renders a
       // whole sub-form
       fields: [
-        ...terminalSettings.slice(0, -1),
+        ...getTerminalSettings(),
         ...lineEndingFields,
         commonFields.terminalBackground
       ]
