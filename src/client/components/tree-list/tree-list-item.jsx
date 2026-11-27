@@ -8,6 +8,7 @@ import classnames from 'classnames'
 import highlight from '../common/highlight'
 import ItemIcon from '../common/item-icon'
 import uid from '../../common/uid'
+import { parseSearchKeywords } from '../../common/search-keywords.js'
 
 function areEqual (prevProps, nextProps) {
   const prevSelected = prevProps.selectedItemId === prevProps.item.id
@@ -113,7 +114,7 @@ function TreeListItem (props) {
     ? item.title || 'no title'
     : highlight(
       title,
-      props.keyword
+      parseSearchKeywords(props.keyword).include
     )
   const propsAll = {
     className: cls,
