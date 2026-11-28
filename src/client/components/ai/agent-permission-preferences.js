@@ -1,6 +1,8 @@
 import { getItem, safeGetItemJSON, safeSetItemOnce } from '../../common/safe-local-storage.js'
 import { normalizeAgentApprovalMode, normalizeAgentCommandAllowlist } from './agent-permissions.js'
 
+export const permissionSaveError = 'Couldn’t save this permission setting.'
+
 const modeKey = 'agentApprovalMode'
 const listKey = 'agentCommandAllowlist'
 const changed = 'agent-permissions-changed'

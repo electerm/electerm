@@ -584,7 +584,7 @@ async function approveAgentTool (name, args, properties, signal) {
   const decision = await requestAgentApproval({ name, args, allowRemember, signal })
   if (signal.aborted) return false
   if (decision === 'remember' && allowRemember && !rememberAgentCommand(args.command)) {
-    message.warning(window.translate('agentCommandApprovedOnceNotSaved'))
+    message.warning('Approved for this run. The command couldn’t be saved to the allowed commands list.')
   }
   return decision === 'once' || (decision === 'remember' && allowRemember)
 }

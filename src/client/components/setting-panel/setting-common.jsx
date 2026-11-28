@@ -22,6 +22,7 @@ import TextareaConfirm from '../common/textarea-confirm'
 import AgentApprovalModeSelect from '../ai/agent-approval-mode-select'
 import { agentCommandLimit, parseAgentCommandLines } from '../ai/agent-permissions'
 import {
+  permissionSaveError,
   readAgentCommandAllowlist,
   resetAgentPermissions,
   setAgentCommandAllowlist,
@@ -78,7 +79,7 @@ function AgentPermissionSettings () {
           value={commands}
           onChange={value => {
             if (!setAgentCommandAllowlist(parseAgentCommandLines(value))) {
-              message.error(e('agentPermissionSaveFailed'))
+              message.error(permissionSaveError)
             }
           }}
         />

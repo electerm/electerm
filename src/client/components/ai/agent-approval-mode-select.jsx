@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { Select } from 'antd'
 import message from '../common/message'
-import { readAgentApprovalMode, setAgentApprovalMode, subscribeAgentPermissions } from './agent-permission-preferences'
+import { permissionSaveError, readAgentApprovalMode, setAgentApprovalMode, subscribeAgentPermissions } from './agent-permission-preferences'
 
 const e = window.translate
 
@@ -13,7 +13,7 @@ export default function AgentApprovalModeSelect (props) {
       aria-label={e('permission')}
       value={value}
       onChange={next => {
-        if (!setAgentApprovalMode(next)) message.error(e('agentPermissionSaveFailed'))
+        if (!setAgentApprovalMode(next)) message.error(permissionSaveError)
       }}
       popupMatchSelectWidth={false}
       options={[

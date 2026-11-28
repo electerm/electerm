@@ -93,7 +93,10 @@ test.describe('Agent tool approvals', () => {
   }
 
   async function confirm (remember = false) {
-    if (remember) await dialog.getByRole('checkbox', { name: e('agentAlwaysAllowCommand') }).check()
+    if (remember) {
+      const name = await client.evaluate(() => window.translate('agentAlwaysAllowCommand'))
+      await dialog.getByRole('checkbox', { name }).check()
+    }
     await dialog.locator('button.ant-btn-primary').click()
   }
 
@@ -240,9 +243,13 @@ test.describe('Agent tool approvals', () => {
 
   test('approves once and restores the saved settings list when storage is full', async () => {
     const savedCommand = 'projectctl refresh'
-    const allowlist = client.getByLabel(e('agentCommandAllowlist'), { exact: true })
+    const label = require('@electerm/electerm-locales').zh_cn.lang.agentCommandAllowlist
+    const allowlist = client.getByLabel(label, { exact: true })
     const count = client.locator('#agentCommandCount')
-    await client.evaluate(() => window.store.openSetting())
+    await client.evaluate(() => {
+      window.store.setConfig({ language: 'zh_cn' })
+      window.store.openSetting()
+    })
     await allowlist.fill(savedCommand)
     await allowlist.blur()
     await expect(count).toHaveText('1 / 200')
@@ -261,7 +268,7 @@ test.describe('Agent tool approvals', () => {
     const command = 'mkdir reports'
     await requestTool('send_terminal_command', { command })
     await confirm(true)
-    await expect(client.locator('.message-item.warning')).toContainText(e('agentCommandApprovedOnceNotSaved'))
+    await expect(client.locator('.message-item.warning')).toContainText('Approved for this run. The command couldn’t be saved to the allowed commands list.')
     await expectDispatched([command])
     await expect(client.locator('.agent-tool-completed')).toHaveCount(1)
     expect(await client.evaluate(() => window.allowlistWriteAttempts)).toBeGreaterThan(0)
@@ -275,7 +282,7 @@ test.describe('Agent tool approvals', () => {
     await expect(allowlist).toHaveValue(savedCommand)
     await allowlist.fill([savedCommand, command].join('\n'))
     await allowlist.blur()
-    await expect(client.locator('.message-item.error')).toContainText(e('agentPermissionSaveFailed'))
+    await expect(client.locator('.message-item.error')).toContainText('Couldn’t save this permission setting.')
     await expect(allowlist).toHaveValue(savedCommand)
     await expect(count).toHaveText('1 / 200')
   })
@@ -293,7 +300,7 @@ test.describe('Agent tool approvals', () => {
     const toolbar = client.locator('.ai-chat-toolbar')
     await toolbar.getByRole('combobox', { name: e('permission'), exact: true }).click()
     await client.locator('.ant-select-dropdown:visible').getByText(e('agentAutoApproval'), { exact: true }).click()
-    await expect(client.locator('.message-item.error')).toContainText(e('agentPermissionSaveFailed'))
+    await expect(client.locator('.message-item.error')).toContainText('Couldn’t save this permission setting.')
     await expect(toolbar.locator('.ant-select')).toContainText(e('agentManualApproval'))
     await requestTool('sftp_del', { remotePath: '/example.txt' })
     await expect(dialog).toContainText('/example.txt')
