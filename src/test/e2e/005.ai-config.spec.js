@@ -28,6 +28,13 @@ async function answerTransfer (client, action, button, beforeAnswer) {
   await expect(dialog).toBeHidden()
 }
 
+async function expectUploadWarning (dialog, description) {
+  await expect(dialog).toContainText(/Electerm (?:will )?sends? your selected data to WebDAV .* as plaintext/i)
+  await expect(dialog).toContainText(description)
+  await expect(dialog).toContainText('The sync service can read')
+  await expect(dialog).not.toContainText(/backup file|stor(?:e|ed).*plaintext/i)
+}
+
 describe('AI Config and Suggestions', function () {
   let aiServer
   let electronApp
@@ -230,7 +237,10 @@ describe('AI Config and Suggestions', function () {
     }, dataDir)
     await answerTransfer(client, startExport, 'Cancel')
     expect(backupFiles()).toEqual([])
-    await answerTransfer(client, startExport, 'Export backup')
+    await answerTransfer(client, startExport, 'Export backup', async dialog => {
+      await expect(dialog).toContainText(/JSON backup file .*store your data in plaintext/i)
+      await expect(dialog).not.toContainText('The sync service can read')
+    })
     expect(backupFiles()).toHaveLength(1)
     const filePath = path.join(dataDir, backupFiles()[0])
     expect(JSON.parse(readFileSync(filePath, 'utf8'))).toMatchObject(expected)
@@ -271,7 +281,9 @@ describe('AI Config and Suggestions', function () {
 
       await answerTransfer(client, manual, 'Cancel')
       expect(webdav.requests).toHaveLength(0)
-      await answerTransfer(client, manual, 'Upload once')
+      await answerTransfer(client, manual, 'Upload once', dialog =>
+        expectUploadWarning(dialog, /without a sync password/i)
+      )
       expect(JSON.parse(webdav.files.get('/electerm/aiConfigs.json'))).toEqual([account])
       expect(webdav.files.has('/electerm/bookmarks.json')).toBe(false)
       const requestsAfterUpload = webdav.requests.length
@@ -291,7 +303,9 @@ describe('AI Config and Suggestions', function () {
       await client.evaluate(automatic)
       expect(webdav.requests).toHaveLength(requestsAfterUpload)
       await client.evaluate(() => window.store.setConfig({ dataSyncSelected: 'aiConfigs,bookmarks' }))
-      await answerTransfer(client, automatic, 'Allow automatic uploads')
+      await answerTransfer(client, automatic, 'Allow automatic uploads', dialog =>
+        expectUploadWarning(dialog, /for this session.*each automatic upload/i)
+      )
       expect(JSON.parse(webdav.files.get('/electerm/bookmarks.json'))[0].password).toBe('fixture-password')
       expect(countUploads()).toBe(2)
       await client.evaluate(automatic)

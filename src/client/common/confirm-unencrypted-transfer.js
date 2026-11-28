@@ -40,11 +40,12 @@ function destinationName (type) {
 }
 
 export function confirmUnencryptedTransfer ({ type, automatic = false, exporting = false }) {
-  let title, action, details
+  let title, action, details, risk
   if (exporting) {
     title = t('unencryptedBackupTitle', 'Export an unencrypted backup?')
     action = t('exportBackup', 'Export backup')
     details = t('unencryptedBackupDetails', 'The JSON backup file will store your data in plaintext.')
+    risk = t('unencryptedTransferRisk', 'Anyone with access to that copy can read any secrets it contains, including bookmark passwords, SSH private keys, and AI API keys.')
   } else {
     title = automatic
       ? t('unencryptedAutoSyncTitle', 'Allow unencrypted automatic uploads?')
@@ -53,11 +54,11 @@ export function confirmUnencryptedTransfer ({ type, automatic = false, exporting
       ? t('allowAutomaticUploads', 'Allow automatic uploads')
       : t('uploadOnce', 'Upload once')
     details = automatic
-      ? t('unencryptedAutoSyncDetails', 'Allow Electerm to upload your selected data to {destination} automatically throughout this app session. The destination will store it in plaintext.')
-      : t('unencryptedSyncDetails', 'Your selected data will be stored in plaintext at {destination}.')
+      ? t('unencryptedAutoSyncDetails', 'For this session, Electerm will send your selected data to {destination} as plaintext in each automatic upload.')
+      : t('unencryptedSyncDetails', 'Without a sync password, Electerm sends your selected data to {destination} as plaintext.')
     details = details.replace('{destination}', () => destinationName(type))
+    risk = t('unencryptedUploadRisk', 'The sync service can read any bookmark passwords, SSH private keys, and AI API keys included in the upload.')
   }
-  const risk = t('unencryptedTransferRisk', 'Anyone with access to that copy can read any secrets it contains, including bookmark passwords, SSH private keys, and AI API keys.')
   return new Promise(resolve => {
     Modal.confirm({
       className: 'unencrypted-transfer-confirm',
