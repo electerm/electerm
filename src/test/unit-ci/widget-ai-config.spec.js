@@ -60,7 +60,7 @@ describe('sanitizeAIConfig', () => {
     })
   })
 
-  it('lets a widget clear the AI proxy but still drops invalid values', () => {
+  it('preserves an explicitly empty proxy on a widget configuration and drops invalid values', () => {
     const out = sanitizeAIConfig({
       baseURLAI: 'http://localhost:8788/v1',
       proxyAI: '   ',

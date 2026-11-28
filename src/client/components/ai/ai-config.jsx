@@ -10,6 +10,7 @@ import {
 } from 'antd'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CheckCircleOutlined, ReloadOutlined } from '@ant-design/icons'
+import equal from 'fast-deep-equal'
 import Link from '../common/external-link'
 import AiCache from './ai-cache'
 import {
@@ -17,7 +18,7 @@ import {
 } from '../../common/constants'
 import Password from '../common/password'
 import message from '../common/message'
-import { getAIPresets, getAIModelOptions, findAIPreset, getPresetBaseURLs, normalizeAIBaseURL } from './ai-presets'
+import { getAIPresets, getAIModelOptions, findAIPreset, getPresetBaseURLs, normalizeAIBaseURL, requiresAIKey } from './ai-presets'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import './ai-config.styl'
 
@@ -91,6 +92,7 @@ const authHeaderOptions = [
 
 export default function AIConfigForm ({ initialValues, onSubmit, onApply, applied }) {
   const [form] = Form.useForm()
+  const previousValues = useRef(initialValues)
   const applyOnSave = useRef(true)
   const [testing, setTesting] = useState(false)
   const [loadingModels, setLoadingModels] = useState(false)
@@ -102,6 +104,17 @@ export default function AIConfigForm ({ initialValues, onSubmit, onApply, applie
   const presets = useMemo(() => getAIPresets(), [])
   const currentPreset = findAIPreset(baseURLAI, presets)
   const baseURLOptions = getPresetBaseURLs(currentPreset).map(value => ({ value }))
+  const needsKey = requiresAIKey(baseURLAI)
+  const keyHint = needsKey ? `Enter an API key for ${currentPreset?.nameAI || baseURLAI}.` : undefined
+
+  // The settings list copies every row on rerender. Only a change to this
+  // saved profile should replace a draft (including a rotated or removed key).
+  useEffect(() => {
+    if (!equal(previousValues.current, initialValues)) {
+      previousValues.current = initialValues
+      form.resetFields()
+    }
+  }, [form, initialValues])
 
   // Restore the model list previously fetched for this API URL
   useEffect(() => {
@@ -151,12 +164,13 @@ export default function AIConfigForm ({ initialValues, onSubmit, onApply, applie
   }
 
   async function handleLoadModels () {
-    const values = form.getFieldsValue()
-    const baseURL = normalizeAIBaseURL(values.baseURLAI)
-    if (!baseURL) {
-      message.error('Please input API URL first')
+    try {
+      await form.validateFields(['baseURLAI', 'apiKeyAI'])
+    } catch {
       return
     }
+    const values = form.getFieldsValue()
+    const baseURL = normalizeAIBaseURL(values.baseURLAI)
     setLoadingModels(true)
     try {
       const res = await window.pre.runGlobalAsync(
@@ -379,8 +393,10 @@ export default function AIConfigForm ({ initialValues, onSubmit, onApply, applie
         <Form.Item
           label={renderApiKeyLabel()}
           name='apiKeyAI'
+          rules={needsKey ? [{ required: true, whitespace: true, message: keyHint }] : []}
+          dependencies={['baseURLAI']}
         >
-          <Password placeholder='Enter your API key' />
+          <Password placeholder={keyHint || 'Enter your API key'} />
         </Form.Item>
 
         <Form.Item

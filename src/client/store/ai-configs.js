@@ -1,4 +1,4 @@
-import { aiConfigDefaults as defaults } from '../components/ai/ai-config-props'
+import { aiConfigDefaults as defaults, isAIConfigMissing } from '../components/ai/ai-config-props'
 import uid from '../common/uid'
 import { safeGetItemJSON } from '../common/safe-local-storage'
 
@@ -42,9 +42,7 @@ export default Store => {
   }
 
   Store.prototype.aiConfigMissing = function () {
-    const config = window.store.activeAIConfig
-    return !config || ['baseURLAI', 'apiPathAI', 'modelAI', 'roleAI', 'authHeaderNameAI', 'languageAI']
-      .some(key => !config[key])
+    return isAIConfigMissing(window.store.activeAIConfig)
   }
 
   Store.prototype.applyAIConfig = function (id) {
@@ -86,9 +84,9 @@ export default Store => {
     const matches = store.aiConfigs.filter(conf =>
       fields.every(key => !(key in settings) || settings[key] === conf[key])
     )
-    const existing = matches.length === 1
-      ? matches[0]
-      : matches.find(conf => conf.id === store._config.activeAIConfigId)
+    // Several local accounts can match a legacy sync file that omitted its
+    // key. Prefer the active one, then the first match in the saved list.
+    const existing = matches.find(conf => conf.id === store._config.activeAIConfigId) || matches[0]
     return migrateSettings(settings, store.aiConfigs, store.getLangName(), existing)
   }
 
@@ -115,8 +113,10 @@ export default Store => {
     ext.aiConfigs = configs
     if (fields.some(key => key in settings) || Array.isArray(history)) {
       clean.activeAIConfigId ||= configs[0]?.id || ''
-      await window.pre.runGlobalAsync('saveUserConfig', clean)
+      // Replace the snapshot: setConfig merges fields and would keep the legacy key.
+      // Startup installs the normal config watcher after this save completes.
       store._config = clean
+      await window.pre.runGlobalAsync('saveUserConfig', store.config)
       if (Array.isArray(history)) window.localStorage.removeItem(historyKey)
     }
 

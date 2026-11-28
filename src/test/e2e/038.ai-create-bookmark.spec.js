@@ -11,11 +11,13 @@ const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const { spawn } = require('child_process')
 const path = require('path')
-const { mkdtempSync } = require('fs')
+const { mkdtempSync, rmSync } = require('fs')
 const { tmpdir } = require('os')
 
 describe('AI Create Bookmark', function () {
   let aiServer
+  let electronApp
+  let dataDir
 
   it.beforeAll(async () => {
     const serverPath = path.join(__dirname, 'common', 'ai-api.js')
@@ -29,9 +31,18 @@ describe('AI Create Bookmark', function () {
     }
   })
 
+  it.afterEach(async () => {
+    try {
+      await electronApp?.close()
+    } finally {
+      if (dataDir) rmSync(dataDir, { recursive: true, force: true })
+    }
+  })
+
   it('should configure AI and create bookmark using AI', async function () {
-    const env = { ...appOptions.env, DATA_PATH: mkdtempSync(path.join(tmpdir(), 'electerm-ai-bookmark-')) }
-    const electronApp = await electron.launch({ ...appOptions, env })
+    dataDir = mkdtempSync(path.join(tmpdir(), 'electerm-ai-bookmark-'))
+    const env = { ...appOptions.env, DATA_PATH: dataDir }
+    electronApp = await electron.launch({ ...appOptions, env })
     const client = await electronApp.firstWindow()
     extendClient(client, electronApp)
     await delay(5500)
@@ -175,7 +186,5 @@ describe('AI Create Bookmark', function () {
 
     log('verify returned to normal bookmark edit form')
     await client.hasElem('.form-wrap #ssh-form_host')
-
-    await electronApp.close().catch(console.log)
   })
 })

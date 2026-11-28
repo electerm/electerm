@@ -29,7 +29,7 @@ function hasNoEncryptFields (userConfig) {
   return false
 }
 
-exports.saveUserConfig = async (userConfig) => {
+async function saveUserConfig (userConfig) {
   const q = {
     _id: userConfigId
   }
@@ -68,4 +68,14 @@ exports.saveUserConfig = async (userConfig) => {
   }), {
     upsert: true
   })
+}
+
+// Each save reads and merges the last persisted settings. Serialize that
+// read/write pair across windows so a stale save cannot undo an AI migration.
+let pendingSave = Promise.resolve()
+
+exports.saveUserConfig = userConfig => {
+  const save = pendingSave.then(() => saveUserConfig(userConfig))
+  pendingSave = save.catch(() => {})
+  return save
 }

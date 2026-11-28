@@ -8,13 +8,14 @@ const configureMockAI = require('./common/configure-mock-ai')
 const e = require('./common/lang')
 const { spawn } = require('child_process')
 const path = require('path')
-const { mkdtempSync } = require('fs')
+const { mkdtempSync, readdirSync, readFileSync, rmSync } = require('fs')
 const { tmpdir } = require('os')
 
 describe('AI Config and Suggestions', function () {
   let aiServer
   let electronApp
   let client
+  let dataDir
 
   // Start AI API server before all tests
   it.beforeAll(async () => {
@@ -31,7 +32,8 @@ describe('AI Config and Suggestions', function () {
   })
 
   it.beforeEach(async () => {
-    const env = { ...appOptions.env, DATA_PATH: mkdtempSync(path.join(tmpdir(), 'electerm-ai-configs-')) }
+    dataDir = mkdtempSync(path.join(tmpdir(), 'electerm-ai-configs-'))
+    const env = { ...appOptions.env, DATA_PATH: dataDir }
     electronApp = await electron.launch({ ...appOptions, env })
     client = await electronApp.firstWindow()
     extendClient(client, electronApp)
@@ -39,7 +41,12 @@ describe('AI Config and Suggestions', function () {
   })
 
   it.afterEach(async () => {
-    await electronApp.close()
+    try {
+      await electronApp?.close()
+    } finally {
+      electronApp = undefined
+      if (dataDir) rmSync(dataDir, { recursive: true, force: true })
+    }
   })
 
   it('opens the AI settings tab and creates, selects, edits and deletes saved configurations', async function () {
@@ -57,6 +64,10 @@ describe('AI Config and Suggestions', function () {
     const form = panel.locator('.ai-config-form')
     const list = panel.locator('.item-type-aiConfigs')
     await expect(form).toBeVisible()
+    await client.fill('#baseURLAI', 'https://api.openai.com/v1')
+    await client.fill('#apiKeyAI', '   ')
+    await form.getByRole('button', { name: e('save'), exact: true }).click()
+    await expect(form.getByText('Enter an API key for OpenAI.')).toBeVisible()
 
     // Fill in the AI configuration form
     await client.fill('#nameAI', 'Local provider')
@@ -81,15 +92,32 @@ describe('AI Config and Suggestions', function () {
     await second.getByTitle(e('apply')).click()
     await expect(second).toHaveClass(/current/)
     await client.fill('#nameAI', 'Renamed provider')
+    // The settings list copies every profile when any one changes.
+    // An update to the other profile must leave this draft intact.
+    await client.evaluate(() => {
+      const { store } = window
+      const other = store.aiConfigs.find(item => item.nameAI === 'Local provider')
+      store.saveAIConfig({ ...other, nameAI: 'Updated local provider' })
+    })
+    await expect(list.getByRole('button', { name: 'Updated local provider' })).toBeVisible()
+    await expect(form.locator('#nameAI')).toHaveValue('Renamed provider')
     await form.getByRole('button', { name: e('save'), exact: true }).click()
     await expect(list.locator('.current')).toHaveText('Renamed provider')
-    await list.getByRole('button', { name: 'Local provider' }).click()
+    // Sync can replace a table row while that same ID is open for editing.
+    await client.evaluate(() => {
+      const { store } = window
+      store.setItems('aiConfigs', store.aiConfigs.map(item =>
+        item.id === store.settingItem.id ? { ...item, apiKeyAI: 'rotated-key' } : { ...item }
+      ))
+    })
+    await expect(form.locator('#apiKeyAI')).toHaveValue('rotated-key')
+    await list.getByRole('button', { name: 'Updated local provider' }).click()
     await expect(form.locator('#apiKeyAI')).toHaveValue('test-api-key')
     const renamed = list.locator('.current')
     await renamed.hover()
     await renamed.getByTitle(e('del')).click()
     await client.getByRole('button', { name: e('del'), exact: true }).click()
-    await expect(list.locator('.current')).toHaveText('Local provider')
+    await expect(list.locator('.current')).toHaveText('Updated local provider')
     expect(await client.evaluate(() => window.localStorage.getItem('ai_config_history'))).toBeNull()
   })
 
@@ -148,6 +176,79 @@ describe('AI Config and Suggestions', function () {
     for (const suggestion of suggestions) {
       expect(suggestion.startsWith(testCommand)).toBeTruthy()
     }
+  })
+
+  it('exports AI profiles without credentials and reuses matching local credentials on import', async function () {
+    // Select the test directory in Electron's native export dialog.
+    await electronApp.evaluate(({ dialog }, directory) => {
+      const open = dialog.showOpenDialogSync
+      dialog.showOpenDialogSync = () => {
+        dialog.showOpenDialogSync = open
+        return [directory]
+      }
+    }, dataDir)
+    await client.evaluate(async () => {
+      const { store } = window
+      store.saveAIConfig({
+        ...store.newAIConfig(),
+        nameAI: 'Work',
+        baseURLAI: 'https://work.example.test/v1',
+        apiKeyAI: 'export-api-secret',
+        proxyAI: 'http://me:export-proxy-secret@proxy.example.test:8080'
+      })
+      await store.handleExportAllData()
+    })
+    const filename = readdirSync(dataDir).find(name => name.endsWith('-electerm-all-data.json'))
+    expect(filename).toBeTruthy()
+    const filePath = path.join(dataDir, filename)
+    const content = readFileSync(filePath, 'utf8')
+    expect(content).not.toMatch(/export-(?:api|proxy)-secret/)
+    expect(JSON.parse(content).aiConfigs[0].nameAI).toBe('Work')
+
+    const result = await client.evaluate(async filePath => {
+      const { store } = window
+      await store.importAll({ filePath })
+      const { id, apiKeyAI, proxyAI } = store.activeAIConfig
+      store.deleteAIConfig(id)
+      await store.importAll({ filePath })
+      const fresh = store.activeAIConfig
+      return {
+        localKey: apiKeyAI,
+        localProxy: proxyAI,
+        freshName: fresh.nameAI,
+        freshKey: fresh.apiKeyAI,
+        freshProxy: fresh.proxyAI
+      }
+    }, filePath)
+    expect(result).toEqual({
+      localKey: 'export-api-secret',
+      localProxy: 'http://me:export-proxy-secret@proxy.example.test:8080',
+      freshName: 'Work',
+      freshKey: '',
+      freshProxy: 'http://proxy.example.test:8080/'
+    })
+  })
+
+  it('imports a credential-free legacy backup without duplicating local accounts', async function () {
+    const result = await client.evaluate(async () => {
+      const { store } = window
+      const legacy = { baseURLAI: 'https://provider.example.test/v1', modelAI: 'shared-model' }
+      const first = store.saveAIConfig({ ...legacy, nameAI: 'First', apiKeyAI: 'first-key' })
+      const second = store.saveAIConfig({ ...legacy, nameAI: 'Second', apiKeyAI: 'second-key' })
+      const other = store.saveAIConfig({ ...store.newAIConfig(), nameAI: 'Other' })
+      const backup = { fileContent: JSON.stringify({ config: legacy }) }
+      store.applyAIConfig(other.id)
+      await store.importAll(backup)
+      const fromList = store.activeAIConfig.id
+      store.applyAIConfig(second.id)
+      await store.importAll(backup)
+      return {
+        pickedFirst: fromList === first.id,
+        keptActive: store.activeAIConfig.id === second.id,
+        keys: store.aiConfigs.map(conf => conf.apiKeyAI)
+      }
+    })
+    expect(result).toEqual({ pickedFirst: true, keptActive: true, keys: ['first-key', 'second-key', ''] })
   })
 
   it('migrates the current provider and its saved history once across reloads', async function () {

@@ -20,6 +20,7 @@ import dayjs from 'dayjs'
 import parseJsonSafe from '../common/parse-json-safe'
 import { runImportTask } from '../common/import-task'
 import { encodeSyncData, decryptSyncData, isJSONArray } from '../common/sync-data-codec'
+import { publicAIConfig, restoreAIConfigs, withoutLegacyAISettings } from '../common/ai-config-transfer'
 
 const e = window.translate
 
@@ -69,6 +70,13 @@ function applyImportedConfig (store, config) {
   if (config.theme) {
     store.setTheme(config.theme)
   }
+}
+
+function prepareImportedItems (store, name, rows, passwordlessSync = false) {
+  if (name === settingMap.aiConfigs) return restoreAIConfigs(rows, store.aiConfigs, passwordlessSync)
+  if (name === settingMap.terminalThemes) return store.fixThemes(rows)
+  if (name === settingMap.bookmarks) return fixBookmarks(rows)
+  return rows
 }
 
 /**
@@ -570,12 +578,7 @@ export default (Store) => {
             }
           }
           str = await decryptSyncData(str, pass, n)
-          let arr = JSON.parse(str)
-          if (n === settingMap.terminalThemes) {
-            arr = store.fixThemes(arr)
-          } else if (n === settingMap.bookmarks) {
-            arr = fixBookmarks(arr)
-          }
+          const arr = prepareImportedItems(store, n, JSON.parse(str), !pass)
           let strOrder = get(gist, `files["${n}.order.json"].content`)
           if (isJSONArray(strOrder)) {
             strOrder = JSON.parse(strOrder)
@@ -628,14 +631,7 @@ export default (Store) => {
         }
       }
       str = await decryptSyncData(str, pass, n)
-      let arr = JSON.parse(
-        str
-      )
-      if (n === settingMap.terminalThemes) {
-        arr = store.fixThemes(arr)
-      } else if (n === settingMap.bookmarks) {
-        arr = fixBookmarks(arr)
-      }
+      const arr = prepareImportedItems(store, n, JSON.parse(str), !pass)
       let strOrder = get(gist, `files["${n}.order.json"].content`)
       if (isJSONArray(strOrder)) {
         strOrder = JSON.parse(strOrder)
@@ -710,7 +706,8 @@ export default (Store) => {
     const objs = {}
     const { names } = store.getDataSyncNames(true)
     for (const n of names) {
-      objs[n] = [...store.getItems(n)]
+      const items = store.getItems(n)
+      objs[n] = n === settingMap.aiConfigs ? items.map(publicAIConfig) : [...items]
       const order = await getData(`${n}:order`)
       if (order && order.length) {
         objs[n].sort((a, b) => {
@@ -720,10 +717,10 @@ export default (Store) => {
         })
       }
     }
-    objs.config = store.config
+    objs.config = withoutLegacyAISettings(store.config)
     const text = JSON.stringify(objs)
     const name = dayjs().format('YYYY-MM-DD-HH-mm-ss') + '-electerm-all-data.json'
-    download(name, text)
+    return download(name, text)
   }
 
   Store.prototype.importAll = async function (file) {
@@ -738,13 +735,7 @@ export default (Store) => {
     const names = allNames.filter(n => n !== settingMap.aiConfigs || n in objs)
     const fixed = {}
     for (const n of names) {
-      let arr = objs[n] || []
-      if (n === settingMap.terminalThemes) {
-        arr = store.fixThemes(arr)
-      } else if (n === settingMap.bookmarks) {
-        arr = fixBookmarks(arr)
-      }
-      fixed[n] = arr
+      fixed[n] = prepareImportedItems(store, n, objs[n] || [])
     }
     // Import replaces data sets, so the store has to end up holding exactly
     // `fixed`. Keep a copy of what it holds now: if the import is cancelled or

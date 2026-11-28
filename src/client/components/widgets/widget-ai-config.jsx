@@ -40,7 +40,7 @@ function Secret ({ value }) {
   return (
     <span className='wac-secret'>
       <span className='wac-secret-text elli' title={revealed ? value : ''}>
-        {revealed ? value : '•'.repeat(Math.min(value.length || 8, 12))}
+        {revealed ? value : '•'.repeat(Math.min(value.length, 12))}
       </span>
       <Button
         size='small'
@@ -58,6 +58,25 @@ function Secret ({ value }) {
         }}
       />
     </span>
+  )
+}
+
+function WidgetConfigValue ({ value, secret }) {
+  if (!value) return e('notSet')
+  if (secret) return <Secret value={value} />
+  return (
+    <>
+      <span className='elli' title={value}>{value}</span>
+      <Button
+        size='small'
+        type='text'
+        icon={<CopyOutlined />}
+        onClick={() => {
+          copy(value)
+          message.success(e('copied'))
+        }}
+      />
+    </>
   )
 }
 
@@ -79,29 +98,14 @@ export default auto(function WidgetAIConfig ({ aiConfig, store }) {
         {applied ? <Tag color='green'>in use</Tag> : null}
       </div>
       <p className='wac-desc'>
-        Use these settings to save this widget as an AI configuration and apply it to chat.
+        Apply a matching saved AI configuration or create one from these settings.
       </p>
       <div className='wac-rows'>
-        {ROWS.filter(([key]) => key in aiConfig).map(([key, label, secret]) => (
+        {ROWS.filter(([key]) => key in aiConfig || key === 'apiKeyAI' || key === 'proxyAI').map(([key, label, secret]) => (
           <div className='wac-row' key={key}>
             <span className='wac-label'>{label}</span>
             <span className='wac-value'>
-              {secret
-                ? <Secret value={aiConfig[key]} />
-                : (
-                  <>
-                    <span className='elli' title={aiConfig[key]}>{aiConfig[key] || 'none'}</span>
-                    <Button
-                      size='small'
-                      type='text'
-                      icon={<CopyOutlined />}
-                      onClick={() => {
-                        copy(aiConfig[key])
-                        message.success(e('copied'))
-                      }}
-                    />
-                  </>
-                  )}
+              <WidgetConfigValue value={aiConfig[key]} secret={secret} />
             </span>
           </div>
         ))}

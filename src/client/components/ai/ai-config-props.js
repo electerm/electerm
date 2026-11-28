@@ -1,4 +1,4 @@
-import { defaultAIPresets } from './ai-presets.js'
+import { defaultAIPresets, requiresAIKey } from './ai-presets.js'
 
 const { nameAI, baseURLAI, modelAI, apiPathAI, authHeaderNameAI } = defaultAIPresets[0]
 
@@ -16,7 +16,16 @@ export const aiConfigDefaults = {
   contextLengthAI: null
 }
 
+export function isAIConfigMissing (config) {
+  if (!config) return true
+  const required = ['baseURLAI', 'apiPathAI', 'modelAI', 'roleAI', 'authHeaderNameAI', 'languageAI']
+  if (requiresAIKey(config.baseURLAI)) required.push('apiKeyAI')
+  return required.some(key => typeof config[key] !== 'string' || !config[key].trim())
+}
+
 // Keep the original provider label even after a config is renamed or removed.
-export function getAIHistoryConfig ({ id, nameAI, modelAI, roleAI, baseURLAI }) {
+export function getAIHistoryConfig (config) {
+  if (!config) return {}
+  const { id, nameAI, modelAI, roleAI, baseURLAI } = config
   return { aiConfigId: id, nameAI, modelAI, roleAI, baseURLAI }
 }

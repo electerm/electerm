@@ -10,8 +10,13 @@ const e = window.translate
 
 export default auto(function TabAIConfigs ({ store, settingItem, listProps }) {
   const appliedId = store.activeAIConfig?.id
+  // The selected item is a snapshot. Sync can replace or delete its table row
+  // while this editor is open.
+  const config = settingItem.id
+    ? listProps.list.find(item => item.id === settingItem.id) || store.newAIConfig()
+    : settingItem
   function save (values, apply) {
-    const saved = store.saveAIConfig({ ...values, id: settingItem.id })
+    const saved = store.saveAIConfig({ ...values, id: config.id })
     if (apply) store.applyAIConfig(saved.id)
     store.setSettingItem(deepCopy(saved))
     message.success(e('saved'))
@@ -21,15 +26,15 @@ export default auto(function TabAIConfigs ({ store, settingItem, listProps }) {
     <div className='setting-tabs-ai-configs'>
       <SettingCol
         parentLabel={getAIConfigsLabel()}
-        currentLabel={settingItem.id ? getAIConfigName(settingItem) : e('new')}
+        currentLabel={config.id ? getAIConfigName(config) : e('new')}
       >
-        <AIConfigList {...listProps} appliedId={appliedId} />
+        <AIConfigList {...listProps} activeItemId={config.id} appliedId={appliedId} />
         <AIConfigForm
-          key={settingItem.id || 'new'}
-          initialValues={settingItem}
+          key={config.id || 'new'}
+          initialValues={config}
           onSubmit={save}
-          applied={!!settingItem.id && settingItem.id === appliedId}
-          onApply={() => store.applyAIConfig(settingItem.id)}
+          applied={!!config.id && config.id === appliedId}
+          onApply={() => store.applyAIConfig(config.id)}
         />
       </SettingCol>
     </div>

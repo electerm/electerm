@@ -78,8 +78,10 @@ export default Store => {
   Store.prototype.toggleAIConfig = function (openEditor = true) {
     requireTermOfUse('ai', () => {
       const { store } = window
-      store.settingTab = settingMap.aiConfigs
-      store.setSettingItem(store.activeAIConfig || store.newAIConfig())
+      store.storeAssign({
+        settingTab: settingMap.aiConfigs,
+        settingItem: store.activeAIConfig || store.newAIConfig()
+      })
       store.openSettingModal()
       if (openEditor) store.settingMobileView = 'content'
     })

@@ -245,7 +245,7 @@ export const defaultAIPresets = [
 ]
 
 export function normalizeAIBaseURL (url) {
-  return (url || '').trim().replace(/\/+$/, '')
+  return typeof url === 'string' ? url.trim().replace(/\/+$/, '') : ''
 }
 
 // A provider can be reachable at several hosts (Infistar's two domains,
@@ -266,6 +266,13 @@ export function findAIPreset (url, presets = defaultAIPresets) {
   const target = normalizeAIBaseURL(url)
   return presets.find(p =>
     getPresetBaseURLs(p).some(u => normalizeAIBaseURL(u) === target))
+}
+
+// Built-in provider endpoints require credentials. An injected preset can
+// opt in when its endpoint also needs a key (for example, electerm desktop).
+export function requiresAIKey (url, customPreset = globalThis.window?.et?.defaultAIPreset) {
+  return !!findAIPreset(url) ||
+    (customPreset?.requiresApiKey === true && !!findAIPreset(url, [customPreset]))
 }
 
 // Suggestions do not constrain the editable model value or saved configurations.

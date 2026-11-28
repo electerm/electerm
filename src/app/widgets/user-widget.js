@@ -39,10 +39,10 @@
  * (app/widgets/api.js) — the only module a widget's server script is allowed to
  * use to reach the host.
  *
- * `aiConfig` in a result (a run result, or an action result) is an offer, not a
- * write: the widget panel lists the values and the user presses "Use these
- * settings" to put them into Settings -> AI. Only the fields in
- * ./ai-config.js are accepted, and the system prompt is not one of them.
+ * A run or action result can offer an `aiConfig`. "Use these settings" in
+ * the widget panel selects a matching saved AI configuration or creates one
+ * from the fields allowed in ./ai-config.js. A new configuration uses the
+ * current role and language. An omitted or empty API key or proxy stays empty.
  *
  * `bookmarks` in an action result is the same kind of offer: `{ bookmarks,
  * bookmarkGroups }`, the shape of electerm's own bookmark export, listed with
