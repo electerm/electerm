@@ -1,29 +1,18 @@
-import { useState, useEffect, memo } from 'react'
-import { Tag } from 'antd'
+import { useState, memo } from 'react'
 import {
-  CaretDownOutlined,
-  CaretRightOutlined,
+  RightOutlined,
   LoadingOutlined,
   StopOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  CodeOutlined,
-  DatabaseOutlined,
-  ExportOutlined
+  CheckOutlined,
+  CloseCircleOutlined
 } from '@ant-design/icons'
 import CopyIcon from './copy-icon'
 
-const toolIcons = {
-  send_terminal_command: CodeOutlined,
-  get_terminal_output: CodeOutlined,
-  open_local_terminal: CodeOutlined,
-  list_tabs: CodeOutlined,
-  get_active_tab: CodeOutlined,
-  switch_tab: CodeOutlined,
-  list_bookmarks: DatabaseOutlined,
-  open_bookmark: DatabaseOutlined,
-  add_bookmark: DatabaseOutlined,
-  export_bookmarks: ExportOutlined
+const statusIcons = {
+  running: LoadingOutlined,
+  stopped: StopOutlined,
+  completed: CheckOutlined,
+  error: CloseCircleOutlined
 }
 
 function formatResult (result) {
@@ -37,83 +26,42 @@ function formatResult (result) {
   }
 }
 
-// memo()'d on the entry object: `formatResult` JSON.parses the whole tool
-// result on every render, and an agent turn can hold dozens of these. The
-// agent loop swaps in a new entry object when a call finishes
-// (runAgentLoop), so an unchanged card keeps its identity and is skipped.
-export default memo(function AgentToolCallCard ({ toolCall, autoCollapse }) {
-  const [expanded, setExpanded] = useState(toolCall.status === 'running')
-  const { name, args, status, result } = toolCall
-  const Icon = toolIcons[name] || CodeOutlined
-
-  // Collapse every tool call once the agent session is done,
-  // user can still expand them again by clicking the header
-  useEffect(() => {
-    if (autoCollapse) {
-      setExpanded(false)
-    }
-  }, [autoCollapse])
-
-  function renderStatus () {
-    if (status === 'running') {
-      return <LoadingOutlined className='agent-tool-status-running' />
-    }
-    if (status === 'completed') {
-      return <CheckCircleOutlined className='agent-tool-status-completed' />
-    }
-    if (status === 'stopped') return <StopOutlined className='agent-tool-status-stopped' />
-    return <CloseCircleOutlined className='agent-tool-status-error' />
-  }
-
-  function renderTag () {
-    const colors = { running: 'processing', completed: 'success', stopped: 'default', error: 'error' }
-    return (
-      <Tag color={colors[status]} className='agent-tool-tag'>
-        {status === 'stopped' ? window.translate('stopped') : status}
-      </Tag>
-    )
-  }
-
-  function renderPre (text) {
-    return (
+function renderPre (label, text) {
+  if (!text) return null
+  return (
+    <div>
+      <div className='agent-tool-label'>{label}</div>
       <div className='agent-tool-pre-wrap'>
         <CopyIcon text={text} className='agent-tool-copy' />
         <pre className='agent-tool-pre'>{text}</pre>
       </div>
-    )
-  }
+    </div>
+  )
+}
 
-  const argsText = args && Object.keys(args).length > 0
-    ? JSON.stringify(args, null, 2)
-    : ''
-  const resultText = formatResult(result)
+export default memo(function AgentToolCallCard ({ toolCall }) {
+  const [expanded, setExpanded] = useState(false)
+  const { name, args, status, result } = toolCall
+  const StatusIcon = statusIcons[status] || CloseCircleOutlined
+  const label = status === 'stopped' ? window.translate('stopped') : status
 
   return (
     <div className={`agent-tool-call-card agent-tool-${status}`}>
-      <div
-        className='agent-tool-header pointer'
+      <button
+        type='button'
+        className='agent-tool-header ai-transcript-button'
+        aria-expanded={expanded}
         onClick={() => setExpanded(!expanded)}
       >
-        {expanded ? <CaretDownOutlined /> : <CaretRightOutlined />}
-        <Icon className='mg1l' />
-        <span className='mg1l agent-tool-name'>{name}</span>
-        {renderTag()}
-        {renderStatus()}
-      </div>
+        <StatusIcon className={`agent-tool-status-${status}`} />
+        <span className='agent-tool-name'>{name}</span>
+        <span className='agent-tool-status'>{label}</span>
+        <RightOutlined className='ai-disclosure-arrow' />
+      </button>
       {expanded && (
         <div className='agent-tool-detail'>
-          {argsText && (
-            <div className='agent-tool-args'>
-              <div className='agent-tool-label'>Arguments:</div>
-              {renderPre(argsText)}
-            </div>
-          )}
-          {resultText && (
-            <div className='agent-tool-result'>
-              <div className='agent-tool-label'>Result:</div>
-              {renderPre(resultText)}
-            </div>
-          )}
+          {args && Object.keys(args).length > 0 && renderPre('Arguments', JSON.stringify(args, null, 2))}
+          {renderPre('Result', formatResult(result))}
         </div>
       )}
     </div>

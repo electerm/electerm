@@ -1,180 +1,102 @@
 import { useState, memo } from 'react'
+import { Button, Popover, Tag } from 'antd'
+import {
+  CopyOutlined,
+  DeleteOutlined,
+  EllipsisOutlined,
+  RightOutlined,
+  CompressOutlined,
+  PaperClipOutlined
+} from '@ant-design/icons'
 import AIOutput from './ai-output'
 import AIStopIcon from './ai-stop-icon'
 import AgentToolCallCard from './agent-tool-call-card'
 import { isChatRequestStreaming, stopChatRequest } from './ai-chat-request'
-import {
-  Alert,
-  Tooltip,
-  Tag
-} from 'antd'
-import {
-  CopyOutlined,
-  CloseOutlined,
-  CaretDownOutlined,
-  CaretRightOutlined,
-  CompressOutlined,
-  PaperClipOutlined
-} from '@ant-design/icons'
 import { copy } from '../../common/clipboard'
 import { formatSize } from './ai-attachments'
 
-// memo()'d: the panel holds the draft prompt in its own state, so every
-// keystroke re-renders the whole transcript. Without this the keystroke also
-// re-rendered (and re-parsed the markdown of) every message in it -- 50ms+ per
-// character in a long agent session. Entries are updated immutably
-// (store.updateAiHistoryEntry), so the reference comparison is meaningful.
+const e = window.translate
+
+// Draft changes re-render the panel. Entries are updated immutably, so memo
+// keeps typing from re-parsing the markdown of every answer in the transcript.
 export default memo(function AIChatHistoryItem ({ item }) {
   const [showOutput, setShowOutput] = useState(true)
   const isStreaming = isChatRequestStreaming(item)
-  const {
-    prompt,
-    nameAI,
-    modelAI,
-    roleAI,
-    baseURLAI,
-    mode,
-    toolCalls,
-    autoCompressCount
-  } = item
+  const { prompt, attachments, autoCompressCount, finalResponseStart = 0 } = item
+  const toolCalls = item.toolCalls || []
+  const response = item.response || ''
+  const flagged = item.flagged && window.et?.enableAIFlag
+  const narration = flagged ? '' : response.slice(0, finalResponseStart).trimEnd()
+  const failed = toolCalls.filter(tc => tc.status === 'error').length
+  const lastCall = toolCalls.at(-1)
 
-  function toggleOutput () {
-    setShowOutput(!showOutput)
-  }
-
-  function handleStop (event) {
-    event.stopPropagation()
-    stopChatRequest(item)
-  }
-
-  function renderStopButton () {
-    if (!isStreaming) {
-      return null
-    }
+  function renderPromptMenu () {
     return (
-      <AIStopIcon
-        onClick={handleStop}
-        title='Stop this AI request'
-      />
-    )
-  }
-
-  const alertProps = {
-    title: (
-      <div className='ai-history-item-title'>
-        <span className='pointer mg1r' onClick={toggleOutput}>
-          {showOutput ? <CaretDownOutlined /> : <CaretRightOutlined />}
-        </span>
-        <span>{prompt}</span>
-      </div>
-    ),
-    type: 'info'
-  }
-
-  function handleDel (e) {
-    e.stopPropagation()
-    window.store.removeAiHistory(item.id)
-  }
-
-  function handleCopy () {
-    copy(prompt)
-  }
-
-  function renderTitle () {
-    return (
-      <div>
-        {nameAI && (
-          <p>
-            <b>Name:</b> {nameAI}
-          </p>
-        )}
-        <p>
-          <b>Model:</b> {modelAI}
-        </p>
-        <p>
-          <b>Role:</b> {roleAI}
-        </p>
-        <p>
-          <b>Base URL:</b> {baseURLAI}
-        </p>
-        <p>
-          <b>Time:</b> {new Date(item.timestamp).toLocaleString()}
-        </p>
-        <p>
-          <CopyOutlined
-            className='pointer'
-            onClick={handleCopy}
-          />
-          <CloseOutlined
-            className='pointer mg1l'
-            onClick={handleDel}
-          />
-        </p>
+      <div className='ai-prompt-menu'>
+        {item.nameAI && <div>{item.nameAI}</div>}
+        <div><b>Model:</b> {item.modelAI}</div>
+        <div><b>Role:</b> {item.roleAI}</div>
+        <div><b>Base URL:</b> {item.baseURLAI}</div>
+        <time>{new Date(item.timestamp).toLocaleString()}</time>
+        <div className='ai-prompt-menu-actions'>
+          <Button size='small' onClick={() => setShowOutput(!showOutput)}>
+            {showOutput ? 'Hide reply' : 'Show reply'}
+          </Button>
+          <Button size='small' icon={<CopyOutlined />} aria-label={e('copy')} onClick={() => copy(prompt)} />
+          <Button size='small' icon={<DeleteOutlined />} aria-label={e('del')} onClick={() => window.store.removeAiHistory(item.id)} />
+        </div>
       </div>
     )
   }
 
-  function renderAttachments () {
-    if (!item.attachments || !item.attachments.length) {
-      return null
-    }
+  function renderActivity () {
+    if (!toolCalls.length && !narration) return null
     return (
-      <div className='ai-chat-item-attachments mg1b'>
-        {item.attachments.map(a => (
-          <Tag key={a.name + a.size} title={`${a.name} (${formatSize(a.size)})`}>
-            <PaperClipOutlined /> {a.name}
-          </Tag>
-        ))}
-      </div>
-    )
-  }
-
-  // Auto compress happens on its own, with no visible step of its own, so the
-  // turn says so: the conversation was summarized and the request continued
-  // from the summary instead of the full history. Ask mode summarizes before
-  // sending, agent mode in the middle of the run (possibly more than once).
-  function renderAutoCompressBadge () {
-    if (!autoCompressCount) {
-      return null
-    }
-    return (
-      <div className='ai-auto-compress-badge mg1b'>
-        <Tag
-          color='blue'
-          title='The context filled up and was summarized automatically, this turn continued from the summary'
-        >
-          <CompressOutlined /> {window.translate('autoCompress')}
-          {autoCompressCount > 1 ? ` x${autoCompressCount}` : ''}
-        </Tag>
-      </div>
-    )
-  }
-
-  function renderToolCalls () {
-    if (mode !== 'agent' || !toolCalls || !toolCalls.length) {
-      return null
-    }
-    return (
-      <div className='agent-tool-calls'>
-        {toolCalls.map((tc) => (
-          <AgentToolCallCard key={tc.id} toolCall={tc} autoCollapse={!isStreaming} />
-        ))}
-      </div>
+      <details className='ai-activity'>
+        <summary>
+          <RightOutlined className='ai-disclosure-arrow' />
+          <span>{toolCalls.length ? `${toolCalls.length} tool call${toolCalls.length === 1 ? '' : 's'}` : 'Activity'}</span>
+          {isStreaming && lastCall?.status === 'running' && <span className='ai-current-tool'>{lastCall.name}</span>}
+          {failed > 0 && <span className='agent-tool-status-error'>· {failed} failed</span>}
+          {lastCall?.status === 'stopped' && <span>· {e('stopped')}</span>}
+        </summary>
+        <div className='ai-activity-log'>
+          {narration && <div className='ai-activity-note'>{narration}</div>}
+          {toolCalls.map(tc => <AgentToolCallCard key={tc.id} toolCall={tc} />)}
+        </div>
+      </details>
     )
   }
 
   return (
-    <div className='chat-history-item'>
-      <div className='mg1y'>
-        <Tooltip title={renderTitle()}>
-          <Alert {...alertProps} />
-        </Tooltip>
+    <article className='chat-history-item'>
+      <div className='ai-user-message'>
+        <Popover content={renderPromptMenu} trigger='click' placement='bottomRight'>
+          <Button type='text' size='small' icon={<EllipsisOutlined />} aria-label='Message options' />
+        </Popover>
+        <div className='ai-prompt-bubble'>
+          {prompt && <div className='ai-prompt-text'>{prompt}</div>}
+          {attachments?.length > 0 && (
+            <div className='ai-chat-item-attachments'>
+              {attachments.map(a => (
+                <Tag key={a.name + a.size} title={`${a.name} (${formatSize(a.size)})`}>
+                  <PaperClipOutlined /> {a.name}
+                </Tag>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-      {renderAttachments()}
-      {renderAutoCompressBadge()}
-      {renderToolCalls()}
-      {showOutput && <AIOutput item={item} />}
-      {renderStopButton()}
-    </div>
+      {!!autoCompressCount && (
+        <div className='ai-auto-compress-badge' title='The context was summarized automatically'>
+          <CompressOutlined /> {e('autoCompress')}{autoCompressCount > 1 ? ` ×${autoCompressCount}` : ''}
+        </div>
+      )}
+      {renderActivity()}
+      {showOutput
+        ? <AIOutput item={item} response={response.slice(finalResponseStart)} />
+        : <button className='ai-transcript-button' onClick={() => setShowOutput(true)}>Show reply</button>}
+      {isStreaming && <AIStopIcon onClick={() => stopChatRequest(item)} title='Stop this AI request' />}
+    </article>
   )
 })

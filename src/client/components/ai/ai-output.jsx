@@ -1,10 +1,9 @@
-import { useRef, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { copy } from '../../common/clipboard'
 import Link from '../common/external-link'
 import MarkdownLink from '../common/markdown-link'
-import { Tag, Popconfirm, Button, Alert } from 'antd'
+import { Popconfirm, Button, Alert } from 'antd'
 import {
   CopyOutlined,
   PlayCircleOutlined,
@@ -18,20 +17,12 @@ const e = window.translate
 
 const enableAIFlag = !!(window.et && window.et.enableAIFlag)
 
-export default function AIOutput ({ item }) {
-  const outputRef = useRef(null)
+export default function AIOutput ({ item, response }) {
   const {
-    response,
     baseURLAI,
     nameAI,
     modelAI
   } = item
-
-  useEffect(() => {
-    if (outputRef.current) {
-      outputRef.current.scrollTop = outputRef.current.scrollHeight
-    }
-  }, [response])
 
   if (!response && !(item.flagged && enableAIFlag)) {
     return null
@@ -131,13 +122,9 @@ export default function AIOutput ({ item }) {
       return null
     }
     const nameLabel = nameAI || modelAI
-    const label = nameLabel ? `${brand}:${nameLabel}` : brand
+    const label = nameLabel ? `${brand} · ${nameLabel}` : brand
     return (
-      <div className='pd1y'>
-        <Link to={brandUrl}>
-          <Tag>{label}</Tag>
-        </Link>
-      </div>
+      <Link className='ai-answer-provider' to={brandUrl}>{label}</Link>
     )
   }
 
@@ -158,20 +145,18 @@ export default function AIOutput ({ item }) {
   }
 
   return (
-    <div className='ai-stream-output' ref={outputRef}>
-      {renderFlag()}
-      <div className='pd1'>
-        {item.flagged && enableAIFlag
-          ? <Alert type='warning' title='user flagged as harmful info' />
-          : (
-            <>
-              {renderBrand()}
-              <ReactMarkdown {...mdProps} />
-              <div className='ai-output-actions'>
-                <CopyIcon text={response} />
-              </div>
-            </>
-            )}
+    <div className='ai-stream-output'>
+      {item.flagged && enableAIFlag
+        ? <Alert type='warning' title='user flagged as harmful info' />
+        : <div className='ai-answer-text'><ReactMarkdown {...mdProps} /></div>}
+      <div className='ai-output-actions'>
+        {!(item.flagged && enableAIFlag) && (
+          <>
+            <CopyIcon text={response} />
+            {renderBrand()}
+          </>
+        )}
+        {renderFlag()}
       </div>
     </div>
   )

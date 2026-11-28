@@ -1,13 +1,9 @@
 import { LoadingOutlined } from '@ant-design/icons'
 
-export default function AIStopIcon (props) {
+export default function AIStopIcon ({ onClick, title }) {
   return (
-    <div
-      className='ai-stop-icon-square mg1l pointer'
-      onClick={props.onClick}
-      title={props.title || 'Stop AI request'}
-    >
-      <LoadingOutlined spin />
-    </div>
+    <button type='button' className='ai-stop-icon-square ai-transcript-button' onClick={onClick} title={title}>
+      <LoadingOutlined /> {window.translate('stop')}
+    </button>
   )
 }

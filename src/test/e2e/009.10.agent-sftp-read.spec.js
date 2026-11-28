@@ -56,7 +56,7 @@ function startStubAI () {
         ? { role: 'assistant', content: 'read failed as expected' }
         : {
             role: 'assistant',
-            content: null,
+            content: 'I will check the requested file.',
             tool_calls: [{
               id: 'call_read_1',
               type: 'function',
@@ -183,6 +183,14 @@ describe('AI agent sftp_read_file', function () {
     // by the connection notification that sits over it.
     await ta.press('Enter')
 
+    const turn = client.locator('.chat-history-item').last()
+    const answer = turn.locator('.ai-answer-text')
+    await expect(answer).toHaveText('read failed as expected', { timeout: 45000 })
+    const activity = turn.locator('.ai-activity')
+    await expect(activity).toHaveJSProperty('open', false)
+    await activity.locator('summary').press('Enter')
+    await expect(activity.locator('.ai-activity-note')).toHaveText('I will check the requested file.')
+
     // The card must leave "running" -- that is the whole point. Before the fix
     // it stayed in .agent-tool-running and the panel was locked for good.
     await client.waitForSelector(
@@ -193,6 +201,11 @@ describe('AI agent sftp_read_file', function () {
     expect(await client.locator('.agent-tool-call-card.agent-tool-running').count()).toBe(0)
     expect(await client.locator('.agent-tool-call-card').count()).toBe(1)
     expect(await client.locator('.agent-tool-name').first().textContent()).toBe('sftp_read_file')
+
+    const logEntry = activity.getByRole('button', { name: /sftp_read_file/ })
+    await expect(logEntry).toHaveAttribute('aria-expanded', 'false')
+    await logEntry.click()
+    await expect(activity.locator('.agent-tool-detail')).toContainText(MISSING_PATH)
 
     // The tool reported the real reason, not a generic "connection closed".
     const result = await client.evaluate(() => {

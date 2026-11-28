@@ -14,20 +14,70 @@
   overflow-x hidden
 
 .chat-history-item
-  position relative
-  > .ai-stop-icon-square
-    position absolute
-    bottom 8px
-    right 8px
-    z-index 10
-  .code-block
-    border 1px dashed var(--main-darker)
-    padding 5px
-    border-radius 3px
-    pre
-      margin-bottom 0
+  max-width 48rem
+  margin 0 auto
+  padding 16px 12px 8px
+  overflow-wrap anywhere
 
-// copy icons stay visible all the time, never hover only
+.ai-user-message
+  display flex
+  align-items center
+  justify-content flex-end
+  gap 4px
+  margin-bottom 14px
+  > button
+    color var(--text-dark)
+    flex-shrink 0
+
+.ai-prompt-bubble
+  max-width 86%
+  min-width 0
+  padding 8px 13px
+  border-radius 16px 16px 4px 16px
+  background unquote('color-mix(in srgb, var(--text) 9%, transparent)')
+  color var(--text)
+  font-size 13px
+  line-height 1.5
+
+.ai-prompt-text
+  white-space pre-wrap
+
+.ai-prompt-menu
+  max-width unquote('min(320px, 80vw)')
+  overflow-wrap anywhere
+  font-size 12px
+  time
+    color var(--text-dark)
+
+.ai-prompt-menu-actions
+  display flex
+  gap 6px
+  margin-top 8px
+
+.ai-stream-output
+  margin-top 8px
+  color var(--text)
+  font-size 14px
+  line-height 1.65
+
+.ai-answer-text
+  > :first-child
+    margin-top 0
+  > :last-child
+    margin-bottom 0
+  p
+    margin 0 0 0.75em
+  ul, ol
+    padding-inline-start 1.6em
+  pre
+    white-space pre-wrap
+  .code-block
+    background unquote('color-mix(in srgb, var(--text) 5%, transparent)')
+    border-radius 8px
+    padding 8px 10px
+    pre
+      margin 0
+
 .copy-icon,
 .code-action-icon
   color var(--text-dark)
@@ -39,25 +89,16 @@
   display flex
   justify-content flex-end
 
-// left aligned on purpose: the streaming stop/loading icon is pinned to the
-// bottom right of .chat-history-item, so a right aligned copy icon would sit
-// on top of it while a response is streaming
 .ai-output-actions
   display flex
-  justify-content flex-start
-  margin-top 6px
+  align-items center
+  gap 9px
+  margin-top 8px
+  min-height 20px
 
-.ai-stream-output
-  position relative
-  max-height 400px
-  overflow-y auto
-  &::-webkit-scrollbar-thumb
-    background var(--main-dark)
-.ai-stream-output-flag
-  position absolute
-  top 13px
-  right 10px
-  z-index 10
+.ai-answer-provider
+  color var(--text-dark)
+  font-size 11px
 
 // markdown (react-markdown, GFM) tables in the AI answer. Just enough to be a
 // usable table, using the theme's own colours.
@@ -134,9 +175,17 @@
     white-space nowrap
 
 .ai-chat-item-attachments
+  display flex
+  flex-wrap wrap
+  gap 4px
   .ant-tag
-    margin-right 4px
-    margin-bottom 4px
+    margin 0
+    max-width 100%
+    overflow hidden
+    text-overflow ellipsis
+
+.ai-prompt-text + .ai-chat-item-attachments
+  margin-top 6px
 
 .ai-attachment-dragover
   outline 2px dashed #1890ff
@@ -206,70 +255,75 @@
   height 100%
   min-height 200px
 
-.ai-stop-icon-square
-  width 20px
-  height 20px
-  border-radius 2px
-  display flex
+.ai-transcript-button,
+.ai-activity > summary
+  display inline-flex
   align-items center
-  justify-content center
-  font-size 10px
+  gap 6px
+  padding 4px 0
+  border 0
+  background transparent
+  color var(--text-dark)
+  font inherit
+  font-size 12px
+  text-align start
+  cursor pointer
+  &:hover, &:focus-visible
+    color var(--text)
 
-.ai-history-item-title
-  display flex
-  align-items center
-  .ai-stop-icon-square
-    margin-left auto
+.ai-activity > summary
+  max-width 100%
+  &::-webkit-details-marker
+    display none
 
-.agent-tool-calls
-  margin 8px 0
+.ai-disclosure-arrow
+  font-size 9px
+  flex none
 
-.agent-tool-call-card
-  border 1px solid var(--main-darker)
-  border-radius 4px
+.ai-activity[open] > summary .ai-disclosure-arrow,
+.agent-tool-header[aria-expanded='true'] .ai-disclosure-arrow
+  transform rotate(90deg)
+
+.ai-current-tool
+  overflow hidden
+  white-space nowrap
+  text-overflow ellipsis
+
+.ai-activity-log
+  margin 4px 0 10px 4px
+  padding-left 12px
+  border-left 1px solid var(--main-darker)
+  color var(--text-dark)
+  font-size 12px
+
+.ai-activity-note
+  white-space pre-wrap
   margin-bottom 6px
-  font-size 13px
 
 .agent-tool-header
-  display flex
-  align-items center
-  padding 6px 8px
-  gap 6px
+  width 100%
+  padding 5px 0
 
 .agent-tool-name
-  font-weight 500
+  flex 1
+  min-width 0
 
-.agent-tool-tag
-  margin-left auto
-
-.agent-tool-status-running
-  color #1890ff
-  animation spin 1s linear infinite
-
-.agent-tool-status-completed
-  color #52c41a
-
-.agent-tool-status-stopped
-  color var(--text-color-2)
+.agent-tool-status
+  font-size 11px
 
 .agent-tool-status-error
-  color #ff4d4f
+  color var(--error)
+
+.ai-auto-compress-badge
+  color var(--text-dark)
+  font-size 12px
 
 .agent-tool-detail
-  padding 0 8px 8px
-  border-top 1px solid var(--main-darker)
-
-.agent-tool-args
-  margin-top 6px
-
-.agent-tool-result
-  margin-top 6px
+  padding 0 0 6px 18px
 
 .agent-tool-label
-  font-weight 500
-  margin-bottom 4px
+  margin 6px 0 3px
   font-size 12px
-  color var(--text-color-2)
 
 .agent-tool-pre-wrap
   position relative
@@ -290,24 +344,6 @@
   white-space pre-wrap
   word-break break-all
   margin-bottom 0
-
-.agent-tool-running
-  border-color #1890ff
-
-.agent-tool-completed
-  border-color #52c41a
-
-.agent-tool-stopped
-  border-color var(--text-color-2)
-
-.agent-tool-error
-  border-color #ff4d4f
-
-@keyframes spin
-  from
-    transform rotate(0deg)
-  to
-    transform rotate(360deg)
 
 .ai-chat-empty
   position relative
