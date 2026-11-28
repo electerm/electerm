@@ -59,8 +59,12 @@ describe('AI Config and Suggestions', function () {
     const testPrompt = 'Hello, AI assistant! Please provide a long response.'
     await client.fill('.ai-chat-textarea', testPrompt)
     // Switch after typing, with the draft already held by the submit callback.
-    const selector = client.locator('.ai-chat-config-select')
+    const configControls = client.locator('.ai-chat-config-controls')
+    const selector = configControls.locator('.ai-chat-config-select')
     await expect(selector).toContainText('Initial provider')
+    const inputBox = await client.locator('.ai-chat-textarea').boundingBox()
+    const configBox = await selector.boundingBox()
+    expect(configBox.y).toBeGreaterThanOrEqual(inputBox.y + inputBox.height - 1)
     await selector.click()
     await client.locator('.ant-select-item-option').getByText('Mock chat provider', { exact: true }).click()
     await expect(selector).toContainText('Mock chat provider')
@@ -107,5 +111,11 @@ describe('AI Config and Suggestions', function () {
     // Verify that the chat history is now empty
     const finalHistoryCount = await client.locator('.chat-history-item').count()
     expect(finalHistoryCount).toBe(0)
+
+    await configControls.locator('.anticon-question-circle').hover()
+    await expect(client.getByRole('link', { name: /AI-model-config-guide/ })).toBeVisible()
+    await configControls.locator('.toggle-ai-setting-icon').click()
+    await expect(client.getByRole('tab', { name: 'AI Settings', exact: true, selected: true })).toBeVisible()
+    await expect(client.getByRole('textbox', { name: 'Enter API provider URL', exact: true })).toHaveValue(savedTurn.baseURLAI)
   })
 })

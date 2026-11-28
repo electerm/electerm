@@ -80,11 +80,13 @@
 
 
 .ai-chat-input
-  position relative
   margin-top 10px
 
-  .ant-input
-    padding-bottom 40px
+  .ai-chat-composer
+    position relative
+
+  .ai-chat-textarea
+    padding-bottom 36px
 
   .ai-chat-terminals
     position absolute
@@ -98,12 +100,18 @@
   .ai-chat-controls
     min-width 0
     flex 1
+    .ant-select
+      min-width 0
+
+  .ai-chat-config-controls
+    font-size 16px
 
   .ai-chat-config-select
     min-width 0
-    flex 1
-    max-width 144px
-    margin-right 4px
+    max-width 240px
+
+.ai-chat-config-popup
+  max-width calc(100vw - 16px)
 
 .ai-disclamer
   font-size 12px

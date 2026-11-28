@@ -381,12 +381,12 @@ export default function AIChat (props) {
             <Button
               size='small'
               icon={<HistoryOutlined />}
+              aria-label={e('history')}
+              aria-pressed={props.showChatSessions}
+              title={e('history')}
               onClick={handleShowHistory}
               type={props.showChatSessions ? 'primary' : 'default'}
-            >
-              {e('history')}
-            </Button>
-            {isAgent && <AgentApprovalModeSelect size='small' />}
+            />
           </Flex>
           <AiContextIndicator info={contextInfo} />
         </Flex>
@@ -404,14 +404,33 @@ export default function AIChat (props) {
             ))}
           </Flex>
         )}
-        <TextArea
-          value={prompt}
-          onChange={handlePromptChange}
-          onPressEnter={handleKeyPress}
-          placeholder={isAgent ? promptPlaceholder.agent : promptPlaceholder.ask}
-          autoSize={{ minRows: 3, maxRows: 10 }}
-          className='ai-chat-textarea'
-        />
+        <div className='ai-chat-composer'>
+          <TextArea
+            value={prompt}
+            onChange={handlePromptChange}
+            onPressEnter={handleKeyPress}
+            placeholder={isAgent ? promptPlaceholder.agent : promptPlaceholder.ask}
+            autoSize={{ minRows: 3, maxRows: 10 }}
+            className='ai-chat-textarea'
+          />
+          <Flex className='ai-chat-terminals' align='center'>
+            <Flex align='center' gap={4} className='ai-chat-controls'>
+              <Segmented
+                options={['Ask', 'Agent']}
+                value={mode === 'ask' ? 'Ask' : 'Agent'}
+                onChange={handleModeChange}
+                size='small'
+              />
+              {isAgent && <AgentApprovalModeSelect size='small' />}
+              {renderTabSelect()}
+              <PaperClipOutlined
+                onClick={() => fileInputRef.current?.click()}
+                className='pointer icon-hover toggle-ai-attach-icon'
+              />
+            </Flex>
+            {renderSendIcon()}
+          </Flex>
+        </div>
         <input
           type='file'
           multiple
@@ -422,40 +441,30 @@ export default function AIChat (props) {
             evt.target.value = ''
           }}
         />
-        <Flex className='ai-chat-terminals' justify='space-between' align='center'>
-          <Flex align='center' className='ai-chat-controls'>
-            <Select
-              aria-label={getAIConfigsLabel()}
-              className='ai-chat-config-select'
-              size='small'
-              value={config.id}
-              placeholder={getAIConfigsLabel()}
-              disabled={!props.aiConfigOptions.length}
-              options={props.aiConfigOptions}
-              onChange={id => window.store.applyAIConfig(id)}
-              popupMatchSelectWidth={false}
-              placement='topLeft'
-            />
-            <Segmented
-              options={['Ask', 'Agent']}
-              value={mode === 'ask' ? 'Ask' : 'Agent'}
-              onChange={handleModeChange}
-              size='small'
-            />
-            {renderTabSelect()}
-            <PaperClipOutlined
-              onClick={() => fileInputRef.current?.click()}
-              className='mg1l pointer icon-hover toggle-ai-attach-icon'
-            />
-            <SettingOutlined
-              onClick={toggleConfig}
-              className='mg1l pointer icon-hover toggle-ai-setting-icon'
-            />
-            <HelpIcon
-              link={aiConfigWikiLink}
-            />
-          </Flex>
-          {renderSendIcon()}
+        <Flex className='ai-chat-config-controls mg1t' align='center' gap={4}>
+          <Select
+            aria-label={getAIConfigsLabel()}
+            className='ai-chat-config-select'
+            classNames={{ popup: { root: 'ai-chat-config-popup' } }}
+            size='small'
+            value={config.id}
+            placeholder={getAIConfigsLabel()}
+            disabled={!props.aiConfigOptions.length}
+            options={props.aiConfigOptions}
+            onChange={id => window.store.applyAIConfig(id)}
+            popupMatchSelectWidth={false}
+            placement='topLeft'
+          />
+          <Button
+            type='text'
+            size='small'
+            aria-label={e('settings')}
+            title={e('settings')}
+            icon={<SettingOutlined />}
+            onClick={toggleConfig}
+            className='toggle-ai-setting-icon'
+          />
+          <HelpIcon link={aiConfigWikiLink} />
         </Flex>
       </Flex>
       {window.et.AIDisclamer && (

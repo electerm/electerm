@@ -102,7 +102,9 @@ test.describe('Agent tool approvals', () => {
 
   for (const mode of ['Ask', 'Agent']) {
     test(`sends on Enter from chat history in ${mode} mode without opening a card`, async () => {
-      await client.locator('.ai-chat-controls .ant-segmented-item').getByText(mode, { exact: true }).click()
+      const controls = client.locator('.ai-chat-controls')
+      await controls.locator('.ant-segmented-item').getByText(mode, { exact: true }).click()
+      await expect(controls.getByRole('combobox', { name: e('permission'), exact: true })).toHaveCount(mode === 'Agent' ? 1 : 0)
       const sessionId = await client.evaluate(() => window.store.currentChatSessionId)
       await client.evaluate(() => {
         const run = window.pre.runGlobalAsync
@@ -119,7 +121,8 @@ test.describe('Agent tool approvals', () => {
         }
       })
       const requests = () => client.evaluate(() => window.chatRequests)
-      const history = client.locator('.ai-chat-toolbar').getByText(e('history'), { exact: true })
+      const history = client.locator('.ai-chat-toolbar').getByRole('button', { name: e('history'), exact: true })
+      await expect(history).toHaveText('')
       await history.click()
       await expect(client.locator('.ai-chat-sessions-empty')).toBeVisible()
       const composer = client.locator('.ai-chat-textarea')
@@ -180,7 +183,7 @@ test.describe('Agent tool approvals', () => {
     await expect.poll(requests).toEqual([prompt])
     const stop = client.locator('.chat-history-item .ai-stop-icon-square')
     await expect(stop).toBeVisible()
-    await client.locator('.ai-chat-toolbar').getByText(e('history'), { exact: true }).click()
+    await client.locator('.ai-chat-toolbar').getByRole('button', { name: e('history'), exact: true }).click()
     await client.locator('.ai-chat-session-item').filter({ hasText: prompt }).click()
     await expect(stop).toBeVisible()
     expect(await requests()).toEqual([prompt])
@@ -393,11 +396,11 @@ test.describe('Agent tool approvals', () => {
         return original.call(this, key, value)
       }
     })
-    const toolbar = client.locator('.ai-chat-toolbar')
-    await toolbar.getByRole('combobox', { name: e('permission'), exact: true }).click()
+    const controls = client.locator('.ai-chat-controls')
+    await controls.getByRole('combobox', { name: e('permission'), exact: true }).click()
     await client.locator('.ant-select-dropdown:visible').getByText(e('agentAutoApproval'), { exact: true }).click()
     await expect(client.locator('.message-item.error')).toContainText('Couldn’t save this permission setting.')
-    await expect(toolbar.locator('.ant-select')).toContainText(e('agentManualApproval'))
+    await expect(controls.locator('.ant-select')).toContainText(e('agentManualApproval'))
     await requestTool('sftp_del', { remotePath: '/example.txt' })
     await expect(dialog).toContainText('/example.txt')
     await dialog.press('Escape')
@@ -421,9 +424,9 @@ test.describe('Agent tool approvals', () => {
     await client.locator('.alt-close-setting-wrap').click()
     await requestTool('sftp_del', args)
     await expectDispatched([args.remotePath])
-    const toolbar = client.locator('.ai-chat-toolbar')
-    await expect(toolbar.locator('.ant-select')).toContainText(e('agentAutoApproval'))
-    await toolbar.getByRole('combobox', { name: e('permission'), exact: true }).click()
+    const controls = client.locator('.ai-chat-controls')
+    await expect(controls.locator('.ant-select')).toContainText(e('agentAutoApproval'))
+    await controls.getByRole('combobox', { name: e('permission'), exact: true }).click()
     await client.locator('.ant-select-dropdown:visible').getByText(e('agentManualApproval'), { exact: true }).click()
 
     await requestTool('sftp_del', args)
