@@ -39,7 +39,7 @@
  * (app/widgets/api.js) — the only module a widget's server script is allowed to
  * use to reach the host.
  *
- * A run or action result can offer an `aiConfig`. "Use these settings" in
+ * A run or action result can offer an `aiConfig`. Applying the offer in
  * the widget panel selects a matching saved AI configuration or creates one
  * from the fields allowed in ./ai-config.js. A new configuration uses the
  * current role and language. An omitted or empty API key or proxy stays empty.

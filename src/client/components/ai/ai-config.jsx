@@ -105,7 +105,6 @@ export default function AIConfigForm ({ initialValues, onSubmit, onApply, applie
   const currentPreset = findAIPreset(baseURLAI, presets)
   const baseURLOptions = getPresetBaseURLs(currentPreset).map(value => ({ value }))
   const needsKey = requiresAIKey(baseURLAI)
-  const keyHint = needsKey ? `Enter an API key for ${currentPreset?.nameAI || baseURLAI}.` : undefined
 
   // The settings list copies every row on rerender. Only a change to this
   // saved profile should replace a draft (including a rotated or removed key).
@@ -393,10 +392,10 @@ export default function AIConfigForm ({ initialValues, onSubmit, onApply, applie
         <Form.Item
           label={renderApiKeyLabel()}
           name='apiKeyAI'
-          rules={needsKey ? [{ required: true, whitespace: true, message: keyHint }] : []}
+          rules={needsKey ? [{ required: true, whitespace: true, message: e('required') }] : []}
           dependencies={['baseURLAI']}
         >
-          <Password placeholder={keyHint || 'Enter your API key'} />
+          <Password placeholder={needsKey ? e('required') : undefined} />
         </Form.Item>
 
         <Form.Item

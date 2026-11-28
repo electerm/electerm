@@ -207,7 +207,7 @@ export default Store => {
       ...aiConfig
     })
     store.applyAIConfig(record.id)
-    message.success('AI settings updated')
+    message.success(window.translate('saved'))
   }
 
   Store.prototype.openWidgetsModal = () => {

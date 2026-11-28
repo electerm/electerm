@@ -7,32 +7,30 @@ const extendClient = require('./common/client-extend')
 const configureMockAI = require('./common/configure-mock-ai')
 const startWebdav = require('./common/test-webdav')
 const e = require('./common/lang')
+const { en_us: english } = require('@electerm/electerm-locales')
 const { spawn } = require('child_process')
 const path = require('path')
 const { mkdtempSync, readdirSync, readFileSync, rmSync } = require('fs')
 const { tmpdir } = require('os')
 
-async function answerTransfer (client, action, button, beforeAnswer) {
+async function answerTransfer (client, action, buttonKey, beforeAnswer) {
   const dialog = client.locator('.unencrypted-transfer-confirm')
   await Promise.all([
     client.evaluate(action),
     (async () => {
-      await expect(dialog).toContainText(/plaintext/i)
-      await expect(dialog).toContainText(/bookmark passwords/i)
-      await expect(dialog).toContainText(/SSH private keys/i)
-      await expect(dialog).toContainText(/AI API keys/i)
+      await expect(dialog).toBeVisible()
       if (beforeAnswer) await beforeAnswer(dialog)
-      await dialog.getByRole('button', { name: button, exact: true }).click()
+      await dialog.getByRole('button', { name: e(buttonKey), exact: true }).click()
     })()
   ])
   await expect(dialog).toBeHidden()
 }
 
-async function expectUploadWarning (dialog, description) {
-  await expect(dialog).toContainText(/Electerm (?:will )?sends? your selected data to WebDAV .* as plaintext/i)
-  await expect(dialog).toContainText(description)
-  await expect(dialog).toContainText('The sync service can read')
-  await expect(dialog).not.toContainText(/backup file|stor(?:e|ed).*plaintext/i)
+async function expectUploadWarning (dialog, title, destination) {
+  await expect(dialog.locator('.ant-modal-confirm-title')).toHaveText(title)
+  await expect(dialog).toContainText(english.lang.unencryptedSyncDetails, { ignoreCase: true })
+  await expect(dialog).toContainText(destination)
+  await expect(dialog).not.toContainText(e('exportDataWarn'))
 }
 
 describe('AI Config and Suggestions', function () {
@@ -91,7 +89,7 @@ describe('AI Config and Suggestions', function () {
     await client.fill('#baseURLAI', 'https://api.openai.com/v1')
     await client.fill('#apiKeyAI', '   ')
     await form.getByRole('button', { name: e('save'), exact: true }).click()
-    await expect(form.getByText('Enter an API key for OpenAI.')).toBeVisible()
+    await expect(form.locator('#apiKeyAI_help')).toContainText(e('required'))
 
     // Fill in the AI configuration form
     await client.fill('#nameAI', 'Local provider')
@@ -235,11 +233,12 @@ describe('AI Config and Suggestions', function () {
     await electronApp.evaluate(({ dialog }, directory) => {
       dialog.showOpenDialogSync = () => [directory]
     }, dataDir)
-    await answerTransfer(client, startExport, 'Cancel')
+    await answerTransfer(client, startExport, 'cancel')
     expect(backupFiles()).toEqual([])
-    await answerTransfer(client, startExport, 'Export backup', async dialog => {
-      await expect(dialog).toContainText(/JSON backup file .*store your data in plaintext/i)
-      await expect(dialog).not.toContainText('The sync service can read')
+    await answerTransfer(client, startExport, 'export', async dialog => {
+      await expect(dialog.locator('.ant-modal-confirm-title')).toHaveText(e('export'))
+      await expect(dialog).toContainText(e('exportDataWarn'))
+      await expect(dialog).not.toContainText(e('unencryptedSyncDetails'))
     })
     expect(backupFiles()).toHaveLength(1)
     const filePath = path.join(dataDir, backupFiles()[0])
@@ -279,17 +278,17 @@ describe('AI Config and Suggestions', function () {
         })
       }, webdav.url)
 
-      await answerTransfer(client, manual, 'Cancel')
+      await answerTransfer(client, manual, 'cancel')
       expect(webdav.requests).toHaveLength(0)
-      await answerTransfer(client, manual, 'Upload once', dialog =>
-        expectUploadWarning(dialog, /without a sync password/i)
+      await answerTransfer(client, manual, 'upload', dialog =>
+        expectUploadWarning(dialog, e('uploadSettings'), webdav.url)
       )
       expect(JSON.parse(webdav.files.get('/electerm/aiConfigs.json'))).toEqual([account])
       expect(webdav.files.has('/electerm/bookmarks.json')).toBe(false)
       const requestsAfterUpload = webdav.requests.length
-      await answerTransfer(client, manual, 'Cancel')
+      await answerTransfer(client, manual, 'cancel')
       expect(webdav.requests).toHaveLength(requestsAfterUpload)
-      await answerTransfer(client, manual, 'Upload once', () =>
+      await answerTransfer(client, manual, 'upload', () =>
         client.evaluate(() => window.store.setConfig({ dataSyncSelected: 'aiConfigs,bookmarks' }))
       )
       expect(webdav.requests).toHaveLength(requestsAfterUpload)
@@ -299,12 +298,12 @@ describe('AI Config and Suggestions', function () {
       // any watched collection while automatic uploads are enabled.
       await client.waitForFunction(() => window.store.autoSyncReady)
       await client.evaluate(() => window.store.updateSyncSetting({ autoSync: true, autoSyncInterval: 0 }))
-      await answerTransfer(client, automatic, 'Cancel')
+      await answerTransfer(client, automatic, 'cancel')
       await client.evaluate(automatic)
       expect(webdav.requests).toHaveLength(requestsAfterUpload)
       await client.evaluate(() => window.store.setConfig({ dataSyncSelected: 'aiConfigs,bookmarks' }))
-      await answerTransfer(client, automatic, 'Allow automatic uploads', dialog =>
-        expectUploadWarning(dialog, /for this session.*each automatic upload/i)
+      await answerTransfer(client, automatic, 'ok', dialog =>
+        expectUploadWarning(dialog, `${e('autoSync')} · ${e('upload')}`, webdav.url)
       )
       expect(JSON.parse(webdav.files.get('/electerm/bookmarks.json'))[0].password).toBe('fixture-password')
       expect(countUploads()).toBe(2)
@@ -314,7 +313,7 @@ describe('AI Config and Suggestions', function () {
       // The remembered grant for the first folder cannot authorize writes
       // to a second folder, even on the same WebDAV server.
       await client.evaluate(url => window.store.updateSyncSetting({ webdavServerUrl: url }), webdav.url + '/other')
-      await answerTransfer(client, automatic, 'Cancel', dialog => expect(dialog).toContainText('/other'))
+      await answerTransfer(client, automatic, 'cancel', dialog => expect(dialog).toContainText(webdav.url + '/other'))
       expect(countUploads()).toBe(3)
       await client.evaluate(url => {
         window.store.updateSyncSetting({ autoSync: false, webdavServerUrl: url, webdavSyncPassword: 'fixture-sync-password' })

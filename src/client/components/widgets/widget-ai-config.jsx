@@ -12,7 +12,7 @@
  * (app/widgets/ai-config.js), so this file only has to show them.
  */
 import React, { useState } from 'react'
-import { Button, Tag, Tooltip } from 'antd'
+import { Button, Tag } from 'antd'
 import {
   CopyOutlined,
   EyeInvisibleOutlined,
@@ -21,18 +21,18 @@ import {
 import { auto } from 'manate/react'
 import { copy } from '../../common/clipboard'
 import message from '../common/message'
-import { matchesWidgetAIConfig } from '../../common/ai-feature'
+import { getAIConfigsLabel, matchesWidgetAIConfig } from '../../common/ai-feature'
 
 const e = window.translate
 
 const ROWS = [
-  ['nameAI', 'Name'],
+  ['nameAI', e('name')],
   ['baseURLAI', 'API URL'],
   ['apiPathAI', 'API PATH'],
   ['apiKeyAI', 'API key', true],
   ['authHeaderNameAI', 'Auth header'],
-  ['modelAI', 'Model'],
-  ['proxyAI', 'Proxy']
+  ['modelAI', e('modelAi')],
+  ['proxyAI', e('proxy')]
 ]
 
 function Secret ({ value }) {
@@ -45,12 +45,14 @@ function Secret ({ value }) {
       <Button
         size='small'
         type='text'
+        aria-label={e(revealed ? 'hide' : 'show')}
         icon={revealed ? <EyeInvisibleOutlined /> : <EyeOutlined />}
         onClick={() => setRevealed(v => !v)}
       />
       <Button
         size='small'
         type='text'
+        aria-label={e('copy')}
         icon={<CopyOutlined />}
         onClick={() => {
           copy(value)
@@ -70,6 +72,7 @@ function WidgetConfigValue ({ value, secret }) {
       <Button
         size='small'
         type='text'
+        aria-label={e('copy')}
         icon={<CopyOutlined />}
         onClick={() => {
           copy(value)
@@ -94,12 +97,9 @@ export default auto(function WidgetAIConfig ({ aiConfig, store }) {
   return (
     <div className='wac'>
       <div className='wac-head'>
-        <span className='wac-title'>Electerm AI settings</span>
-        {applied ? <Tag color='green'>in use</Tag> : null}
+        <span className='wac-title'>{getAIConfigsLabel()}</span>
+        {applied ? <Tag color='green'>{e('selected')}</Tag> : null}
       </div>
-      <p className='wac-desc'>
-        Apply a matching saved AI configuration or create one from these settings.
-      </p>
       <div className='wac-rows'>
         {ROWS.filter(([key]) => key in aiConfig || key === 'apiKeyAI' || key === 'proxyAI').map(([key, label, secret]) => (
           <div className='wac-row' key={key}>
@@ -110,16 +110,14 @@ export default auto(function WidgetAIConfig ({ aiConfig, store }) {
           </div>
         ))}
       </div>
-      <Tooltip title={applied ? 'Already applied' : ''}>
-        <Button
-          type='primary'
-          size='small'
-          disabled={applied}
-          onClick={apply}
-        >
-          {applied ? 'Applied' : 'Use these settings'}
-        </Button>
-      </Tooltip>
+      <Button
+        type='primary'
+        size='small'
+        disabled={applied}
+        onClick={apply}
+      >
+        {e('saveAndApply')}
+      </Button>
     </div>
   )
 })

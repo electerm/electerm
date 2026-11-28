@@ -10,7 +10,7 @@ export const isAIDisabled = () => {
 }
 
 export function getAIConfigsLabel () {
-  return window.getLang?.()?.aiConfigs || `AI ${window.translate('settings')}`
+  return `AI ${window.translate('settings')}`
 }
 
 export function getAIConfigName (config) {
