@@ -20,7 +20,6 @@ import InputConfirm from '../common/input-confirm'
 import InputNumberConfirm from '../common/input-number-confirm'
 import TextareaConfirm from '../common/textarea-confirm'
 import AgentApprovalModeSelect from '../ai/agent-approval-mode-select'
-import { agentPermissionLabel } from '../ai/agent-permissions'
 import {
   readAgentCommandAllowlist,
   resetAgentPermissions,
@@ -60,11 +59,11 @@ function AgentPermissionSettings () {
   return (
     <>
       <div className='pd2b'>
-        <AgentApprovalModeSelect id='agentApprovalMode' showLabel />
+        <AgentApprovalModeSelect id='agentApprovalMode' />
       </div>
       <div className='pd2b'>
         <label htmlFor='agentCommandAllowlist' className='inline-title'>
-          {agentPermissionLabel('agentCommandAllowlist', 'Allowed commands (one per line)')}
+          {e('agentCommandAllowlist')}
         </label>
         <TextareaConfirm
           id='agentCommandAllowlist'

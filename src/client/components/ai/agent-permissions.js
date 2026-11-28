@@ -14,9 +14,3 @@ export function normalizeAgentCommandAllowlist (entries) {
     ? [...new Set(entries.filter(canRememberAgentCommand))]
     : []
 }
-
-// The language package is released separately. Unknown keys otherwise appear
-// as camelCase identifiers in the dialog and settings.
-export function agentPermissionLabel (key, fallback) {
-  return window.getLang?.()?.[key] ? window.translate(key) : fallback
-}

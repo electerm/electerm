@@ -1,7 +1,6 @@
 import { useLayoutEffect } from 'react'
 import { Checkbox, Modal } from 'antd'
 import { refsStatic } from '../common/ref'
-import { agentPermissionLabel } from './agent-permissions'
 
 const refKey = 'agentApproval'
 const e = window.translate
@@ -48,7 +47,7 @@ function ApprovalDetails ({ name, args, allowRemember, onRemember }) {
       )}
       {allowRemember && (
         <Checkbox className='mg1t' onChange={evt => onRemember(evt.target.checked)}>
-          {agentPermissionLabel('agentAlwaysAllowCommand', 'Always allow this exact command in all terminals')}
+          {e('agentAlwaysAllowCommand')}
         </Checkbox>
       )}
     </>

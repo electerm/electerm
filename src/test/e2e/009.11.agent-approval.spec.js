@@ -4,6 +4,7 @@ const { tmpdir } = require('os')
 const { join } = require('path')
 const appOptions = require('./common/app-options')
 const configureMockAI = require('./common/configure-mock-ai')
+const e = require('./common/lang')
 
 test.describe('Agent tool approvals', () => {
   let app, client, dialog, dataDir
@@ -76,7 +77,7 @@ test.describe('Agent tool approvals', () => {
   }
 
   async function confirm (remember = false) {
-    if (remember) await dialog.getByRole('checkbox').check()
+    if (remember) await dialog.getByRole('checkbox', { name: e('agentAlwaysAllowCommand') }).check()
     await dialog.locator('button.ant-btn-primary').click()
   }
 
@@ -109,7 +110,7 @@ test.describe('Agent tool approvals', () => {
     await expectDispatched([command, command, command])
 
     await client.evaluate(() => window.store.openSetting())
-    const allowlist = client.locator('#agentCommandAllowlist')
+    const allowlist = client.getByLabel(e('agentCommandAllowlist'), { exact: true })
     await expect(allowlist).toHaveValue(command)
     await allowlist.fill(variant)
     await allowlist.blur()
@@ -136,15 +137,17 @@ test.describe('Agent tool approvals', () => {
     await expectDispatched([])
 
     await client.evaluate(() => window.store.openSetting())
-    await client.locator('#agentApprovalMode').click()
-    await client.locator('.ant-select-item-option').filter({ hasText: /auto/i }).click()
+    const settings = client.locator('.setting-wrap')
+    await settings.getByRole('combobox', { name: e('permission'), exact: true }).click()
+    await expect(settings.locator('label[for="agentApprovalMode"]')).toHaveCount(0)
+    await client.locator('.ant-select-dropdown:visible').getByText(e('agentAutoApproval'), { exact: true }).click()
     await client.locator('.alt-close-setting-wrap').click()
     await requestTool('sftp_del', args)
     await expectDispatched([args.remotePath])
     const toolbar = client.locator('.ai-chat-toolbar')
-    await expect(toolbar.locator('.ant-select')).toContainText(/auto/i)
-    await toolbar.getByRole('combobox').click()
-    await client.locator('.ant-select-item-option').filter({ hasText: /manual/i }).click()
+    await expect(toolbar.locator('.ant-select')).toContainText(e('agentAutoApproval'))
+    await toolbar.getByRole('combobox', { name: e('permission'), exact: true }).click()
+    await client.locator('.ant-select-dropdown:visible').getByText(e('agentManualApproval'), { exact: true }).click()
 
     await requestTool('sftp_del', args)
     await expect(dialog).toContainText(args.remotePath)
