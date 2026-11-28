@@ -203,6 +203,7 @@ describe('AI Config and Suggestions', function () {
   it('cancels a plaintext backup or exports and restores complete credentials after confirmation', async function () {
     const expected = await client.evaluate(() => {
       const { store } = window
+      store.setConfig({ syncSetting: { autoSync: true, autoSyncInterval: 15, autoSyncDirection: 'download' } })
       const bookmarks = [{
         id: 'backup-bookmark',
         type: 'ssh',
@@ -244,27 +245,32 @@ describe('AI Config and Suggestions', function () {
     const filePath = path.join(dataDir, backupFiles()[0])
     expect(JSON.parse(readFileSync(filePath, 'utf8'))).toMatchObject(expected)
 
-    const restored = await client.evaluate(async filePath => {
+    const restore = async filePath => {
       const { store } = window
       for (const name of ['bookmarks', 'profiles', 'aiConfigs']) store.setItems(name, [])
-      store.setConfig({ activeAIConfigId: '' })
+      store.setConfig({ activeAIConfigId: '', syncSetting: { autoSync: false, autoSyncInterval: 0, autoSyncDirection: 'upload' } })
       await store.importAll({ filePath })
       return {
         bookmarks: store.bookmarks,
         profiles: store.profiles,
         aiConfigs: store.aiConfigs,
-        config: { activeAIConfigId: store.activeAIConfig.id }
+        config: { activeAIConfigId: store.activeAIConfig.id, syncSetting: store.config.syncSetting }
       }
-    }, filePath)
+    }
+    const enableWarning = client.locator('.unencrypted-transfer-confirm').filter({ hasText: english.lang.unencryptedSyncDetails })
+    const [restored] = await Promise.all([
+      client.evaluate(restore, filePath),
+      enableWarning.getByRole('button', { name: e('cancel'), exact: true }).click()
+    ])
+    await expect(enableWarning).toBeHidden()
     expect(restored).toMatchObject(expected)
+    expect(restored.config.syncSetting).toMatchObject({ autoSync: false, autoSyncInterval: 15, autoSyncDirection: 'download' })
   })
 
-  it('confirms plaintext WebDAV writes by destination and scope and restores encrypted uploads', async function () {
+  it('confirms manual plaintext WebDAV writes and restores encrypted uploads', async function () {
     it.setTimeout(60000)
     const webdav = await startWebdav()
     const manual = () => window.store.uploadSetting('webdav')
-    const automatic = () => window.store.uploadSettingAll()
-    const countUploads = () => webdav.requests.filter(req => req.method === 'MKCOL').length
     try {
       const account = await client.evaluate(webdavServerUrl => {
         const { store } = window
@@ -302,34 +308,11 @@ describe('AI Config and Suggestions', function () {
         client.evaluate(() => window.store.setConfig({ dataSyncSelected: 'aiConfigs,bookmarks' }))
       )
       expect(webdav.requests).toHaveLength(requestsAfterUpload)
-      await client.evaluate(() => window.store.setConfig({ dataSyncSelected: 'aiConfigs' }))
-
-      // Drive the same entry point as the change watcher, without editing
-      // any watched collection while automatic uploads are enabled.
-      await client.waitForFunction(() => window.store.autoSyncReady)
-      await client.evaluate(() => window.store.updateSyncSetting({ autoSync: true, autoSyncInterval: 0 }))
-      await answerTransfer(client, automatic, 'cancel')
-      await client.evaluate(automatic)
-      expect(webdav.requests).toHaveLength(requestsAfterUpload)
-      await client.evaluate(() => window.store.setConfig({ dataSyncSelected: 'aiConfigs,bookmarks' }))
-      await answerTransfer(client, automatic, 'ok', dialog =>
-        expectUploadWarning(dialog, `${e('autoSync')} · ${e('upload')}`, webdav.url)
-      )
-      expect(JSON.parse(webdav.files.get('/electerm/bookmarks.json'))[0].password).toBe('fixture-password')
-      expect(countUploads()).toBe(2)
-      await client.evaluate(automatic)
-      expect(countUploads()).toBe(3)
-
-      // The remembered grant for the first folder cannot authorize writes
-      // to a second folder, even on the same WebDAV server.
-      await client.evaluate(url => window.store.updateSyncSetting({ webdavServerUrl: url }), webdav.url + '/other')
-      await answerTransfer(client, automatic, 'cancel', dialog => expect(dialog).toContainText(webdav.url + '/other'))
-      expect(countUploads()).toBe(3)
-      await client.evaluate(url => {
-        window.store.updateSyncSetting({ autoSync: false, webdavServerUrl: url, webdavSyncPassword: 'fixture-sync-password' })
-      }, webdav.url)
+      await client.evaluate(() => {
+        window.store.setConfig({ dataSyncSelected: 'aiConfigs' })
+        window.store.updateSyncSetting({ webdavSyncPassword: 'fixture-sync-password' })
+      })
       await client.evaluate(manual)
-      expect(countUploads()).toBe(4)
       const wire = webdav.files.get('/electerm/aiConfigs.json')
       expect(wire).toMatch(/^"?gcm:/)
       expect(wire).not.toContain(account.apiKeyAI)
@@ -340,6 +323,74 @@ describe('AI Config and Suggestions', function () {
         return window.store.aiConfigs
       })
       expect(downloaded).toEqual([account])
+    } finally {
+      await webdav.close()
+    }
+  })
+
+  it('warns once when enabling automatic sync and uploads in the background across reloads', async function () {
+    it.setTimeout(60000)
+    const webdav = await startWebdav()
+    const autoSync = client.locator('.sync-data-transport').getByRole('switch')
+    const dialog = client.locator('.unencrypted-transfer-confirm')
+    const automatic = () => window.store.uploadSettingAll()
+    const countUploads = () => webdav.requests.filter(req => req.method === 'MKCOL').length
+    try {
+      await client.waitForFunction(() => window.store.autoSyncReady)
+      await client.evaluate(() => {
+        window.store.setConfig({ dataSyncSelected: 'bookmarks' })
+        window.store.openSettingSync()
+      })
+      await autoSync.click()
+      await expect(dialog.locator('.ant-modal-confirm-title')).toHaveText(e('autoSync'))
+      await expect(dialog).toContainText(english.lang.unencryptedSyncDetails, { ignoreCase: true })
+      await expect(autoSync).not.toBeChecked()
+      await dialog.getByRole('button', { name: e('cancel'), exact: true }).click()
+      await expect(dialog).toBeHidden()
+      await expect(autoSync).not.toBeChecked()
+
+      await autoSync.click()
+      await dialog.getByRole('button', { name: e('ok'), exact: true }).click()
+      await expect(autoSync).toBeChecked()
+      await expect(dialog).toBeHidden()
+      await client.evaluate(webdavServerUrl => {
+        window.store.updateSyncSetting({ webdavServerUrl })
+        window.store.setItems('bookmarks', [{ id: 'sync-bookmark', type: 'ssh', title: 'CI', password: 'fixture-password' }])
+      }, webdav.url)
+      // Editing a bookmark triggers the change watcher without a dialog.
+      await expect.poll(() => webdav.files.has('/electerm/bookmarks.json')).toBe(true)
+      expect(JSON.parse(webdav.files.get('/electerm/bookmarks.json'))[0].password).toBe('fixture-password')
+      await client.waitForFunction(() => !window.onSyncAll)
+      await answerTransfer(client, () => window.store.uploadSetting('webdav'), 'cancel')
+      expect(countUploads()).toBe(1)
+
+      await client.evaluate(url => {
+        window.store.updateSyncSetting({ webdavServerUrl: url, autoSyncInterval: 5 })
+        window.store.setConfig({ dataSyncSelected: 'aiConfigs,bookmarks' })
+      }, webdav.url + '/other')
+      await client.evaluate(automatic)
+      expect(webdav.files.has('/other/electerm/aiConfigs.json')).toBe(true)
+      await expect.poll(() => client.evaluate(async () => {
+        const saved = await window.pre.runGlobalAsync('dbAction', 'data', 'findOne', { _id: 'userConfig' })
+        return saved?.syncSetting?.autoSync && saved.syncSetting.autoSyncInterval === 5 &&
+          saved.syncSetting.webdavServerUrl.endsWith('/other')
+      })).toBe(true)
+      const uploadsBeforeReload = countUploads()
+      await client.reload()
+      // The interval scheduler checks for its first upload on a ten-second tick.
+      await expect.poll(countUploads, { timeout: 25000 }).toBeGreaterThan(uploadsBeforeReload)
+      await client.waitForFunction(() => window.store?.autoSyncReady && !window.onSyncAll)
+      await expect(dialog).toBeHidden()
+
+      await client.evaluate(() => window.store.openSettingSync())
+      await expect(autoSync).toBeChecked()
+      await autoSync.click()
+      await expect(autoSync).not.toBeChecked()
+      await client.evaluate(() => window.store.updateSyncSetting({ autoSyncDirection: 'download', webdavSyncPassword: 'fixture-sync-password' }))
+      await autoSync.click()
+      await expect(dialog).toContainText(english.lang.unencryptedSyncDetails, { ignoreCase: true })
+      await dialog.getByRole('button', { name: e('cancel'), exact: true }).click()
+      await expect(autoSync).not.toBeChecked()
     } finally {
       await webdav.close()
     }

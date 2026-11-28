@@ -61,17 +61,23 @@ function stripLocalConfigKeys (conf) {
   return safe
 }
 
-function applyImportedConfig (store, config) {
+function applyImportedConfig (store, config, { fromBackup = false } = {}) {
   if (!config || typeof config !== 'object') return
   const clean = store.importLegacyAIConfig(stripLocalConfigKeys(config))
   // Settings can be synced independently of the AI configuration records.
   if (clean.activeAIConfigId && !store.aiConfigs.some(item => item.id === clean.activeAIConfigId)) {
     delete clean.activeAIConfigId
   }
+  // Only a full backup carries provider settings. Enabling auto sync from
+  // a backup needs the same confirmation as turning on the switch.
+  if (!fromBackup) delete clean.syncSetting
+  const enableAutoSync = clean.syncSetting?.autoSync && !store.config.syncSetting?.autoSync
+  if (enableAutoSync) clean.syncSetting = { ...clean.syncSetting, autoSync: false }
   store.setConfig(clean)
   if (config.theme) {
     store.setTheme(config.theme)
   }
+  if (enableAutoSync) return store.updateSyncSetting({ autoSync: true })
 }
 
 function prepareImportedItems (store, name, rows) {
@@ -142,35 +148,23 @@ function autoUploadEnabled (store) {
 }
 
 export default (Store) => {
-  // Automatic transfers reuse the user's answer within this renderer session.
-  // Each provider has its own decision, tied to its destination and selected data.
-  const autoUploadDecisions = new Map()
+  let pendingAutoSyncEnable
 
-  async function allowUnencryptedUpload (store, type, options, automatic) {
-    const previous = autoUploadDecisions.get(type)
-    if (automatic && previous && equal(options, previous.options)) {
-      return previous.allowed
-    }
-    const allowed = await confirmUnencryptedTransfer({ type, automatic })
-    // Only remember a decision if the user answered the dialog.
-    if (allowed === undefined) return false
-    if (!equal(options, getUploadOptions(store, type))) return false
-    if (automatic) {
-      if (!autoUploadEnabled(store)) return false
-      autoUploadDecisions.set(type, { options, allowed })
-    }
-    return allowed
-  }
-
-  Store.prototype.updateSyncSetting = function (data) {
+  Store.prototype.updateSyncSetting = async function (data) {
     const { store } = window
+    if (data.autoSync === false) pendingAutoSyncEnable = undefined
+    if (data.autoSync && !store.config.syncSetting?.autoSync) {
+      if (pendingAutoSyncEnable) return
+      const confirmation = confirmUnencryptedTransfer({ enableAutoSync: true })
+      pendingAutoSyncEnable = confirmation
+      try {
+        if (!await confirmation || pendingAutoSyncEnable !== confirmation) return
+      } finally {
+        if (pendingAutoSyncEnable === confirmation) pendingAutoSyncEnable = undefined
+      }
+    }
     const current = store.config.syncSetting || {}
     const nd = Object.assign({}, copy(current), data)
-    // Turning automatic uploads off and on lets the user reconsider a decision.
-    if (('autoSync' in data && data.autoSync !== current.autoSync) ||
-        ('autoSyncDirection' in data && data.autoSyncDirection !== current.autoSyncDirection)) {
-      autoUploadDecisions.clear()
-    }
     if (data.giteeGistId && !data.giteeSyncPassword) {
       delete nd.giteeSyncPassword
     }
@@ -266,7 +260,6 @@ export default (Store) => {
   Store.prototype.handleClearSyncSetting = async function () {
     const { store } = window
     const currentSyncType = store.syncType
-    autoUploadDecisions.delete(currentSyncType)
     const currentSettings = store.config.syncSetting || {}
     // Create a new object without the current sync type's settings
     const updatedSettings = Object.keys(currentSettings).reduce((acc, key) => {
@@ -493,10 +486,9 @@ export default (Store) => {
     if (!gistId && type !== syncTypes.custom && type !== syncTypes.cloud && type !== syncTypes.webdav) {
       return false
     }
-    if (pass) {
-      autoUploadDecisions.delete(type)
-    } else if (!await allowUnencryptedUpload(store, type, options, automatic)) {
-      return false
+    if (!automatic && !pass) {
+      const confirmed = await confirmUnencryptedTransfer({ type })
+      if (!confirmed || !equal(options, getUploadOptions(store, type))) return false
     }
     const objs = {}
     for (const n of names) {
@@ -855,7 +847,7 @@ export default (Store) => {
       }
     })
     if (!cancelled && !error) {
-      applyImportedConfig(store, objs.config)
+      await applyImportedConfig(store, objs.config, { fromBackup: true })
     }
   }
 

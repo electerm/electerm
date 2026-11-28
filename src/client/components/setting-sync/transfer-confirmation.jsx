@@ -38,16 +38,14 @@ function destinationName (type) {
   return name
 }
 
-export function confirmUnencryptedTransfer ({ type, automatic = false, exporting = false }) {
-  const title = exporting
-    ? e('export')
-    : automatic ? `${e('autoSync')} · ${e('upload')}` : e('uploadSettings')
+export function confirmUnencryptedTransfer ({ type, enableAutoSync = false, exporting = false }) {
+  const title = e(exporting ? 'export' : enableAutoSync ? 'autoSync' : 'uploadSettings')
   const content = exporting
     ? e('exportDataWarn')
     : (
       <>
         {e('unencryptedSyncDetails')}
-        <div className='mg1t'>{destinationName(type)}</div>
+        {type && <div className='mg1t'>{destinationName(type)}</div>}
       </>
       )
   const confirm = refsStatic.get(refKey)
@@ -55,7 +53,7 @@ export function confirmUnencryptedTransfer ({ type, automatic = false, exporting
     className: 'unencrypted-transfer-confirm',
     title,
     content,
-    okText: e(exporting ? 'export' : automatic ? 'ok' : 'upload'),
+    okText: e(exporting ? 'export' : enableAutoSync ? 'ok' : 'upload'),
     cancelText: e('cancel'),
     okButtonProps: { danger: true },
     focusable: { autoFocusButton: 'cancel' }
