@@ -48,7 +48,7 @@ export function createRestoreCwdCommand (cwd) {
 
 // The shell setting is hand-entered config, so tolerate a quoted or padded
 // executable path before deciding which shell we are looking at.
-function shellName (shell) {
+export function shellName (shell) {
   const path = String(shell || '').trim().replace(/^"|"$/g, '')
   if (/(?:^|[/\\])(?:system32|sysnative|syswow64|wsl)[/\\]bash(?:\.exe)?$/i.test(path)) {
     return 'wsl'

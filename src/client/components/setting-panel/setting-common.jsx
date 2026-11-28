@@ -20,6 +20,7 @@ import InputConfirm from '../common/input-confirm'
 import InputNumberConfirm from '../common/input-number-confirm'
 import TextareaConfirm from '../common/textarea-confirm'
 import AgentApprovalModeSelect from '../ai/agent-approval-mode-select'
+import { parseAgentCommandLines } from '../ai/agent-permissions'
 import {
   readAgentCommandAllowlist,
   resetAgentPermissions,
@@ -70,7 +71,9 @@ function AgentPermissionSettings () {
           rows={3}
           spellCheck={false}
           value={commands}
-          onChange={value => setAgentCommandAllowlist(value.split('\n'))}
+          onChange={value => {
+            if (!setAgentCommandAllowlist(parseAgentCommandLines(value))) message.error(e('error'))
+          }}
         />
       </div>
     </>

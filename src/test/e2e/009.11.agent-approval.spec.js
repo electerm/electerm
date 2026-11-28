@@ -1,5 +1,5 @@
 const { test, expect, _electron: electron } = require('@playwright/test')
-const { mkdtempSync, rmSync } = require('fs')
+const { existsSync, mkdtempSync, rmSync } = require('fs')
 const { tmpdir } = require('os')
 const { join } = require('path')
 const appOptions = require('./common/app-options')
@@ -37,7 +37,16 @@ test.describe('Agent tool approvals', () => {
           }
         }
       }
+      window.realTerminalTools = {
+        mcpSendTerminalCommand: store.mcpSendTerminalCommand,
+        mcpWaitForTerminalIdle: store.mcpWaitForTerminalIdle,
+        mcpRunBackgroundCommand: store.mcpRunBackgroundCommand
+      }
       window.dispatchedTools = []
+      store.mcpListTabs = () => {
+        window.dispatchedTools.push('list_tabs')
+        return []
+      }
       store.mcpSendTerminalCommand = ({ command, tabId }) => {
         window.lastTarget = tabId
         window.dispatchedTools.push(command)
@@ -76,14 +85,51 @@ test.describe('Agent tool approvals', () => {
     await expect(dialog).toBeHidden()
   }
 
+  async function waitForShellPrompt () {
+    await client.waitForFunction(() => {
+      const { isIdle, output } = window.store.mcpGetTerminalStatus({})
+      return isIdle && /[#$%>]\s*$/.test(output)
+    })
+  }
+
   async function confirm (remember = false) {
     if (remember) await dialog.getByRole('checkbox', { name: e('agentAlwaysAllowCommand') }).check()
     await dialog.locator('button.ant-btn-primary').click()
   }
 
+  test('runs reads without persisting an approval and reviews other uses of the same command', async () => {
+    const command = 'whoami'
+    await requestTool('list_tabs', {})
+    await expectDispatched(['list_tabs'])
+    await waitForShellPrompt()
+    await requestTool('send_terminal_command', { command })
+    await expectDispatched(['list_tabs', command])
+    expect(await client.evaluate(() => window.localStorage.getItem('agentCommandAllowlist'))).toBeNull()
+
+    await requestTool('run_background_command', { command })
+    await expect(dialog).toContainText('run_background_command')
+    await dialog.press('Escape')
+    await expectDispatched(['list_tabs', command])
+
+    await requestTool('send_terminal_command', { command, inputOnly: true })
+    await expect(dialog).toContainText('inputOnly')
+    await expect(dialog.getByRole('checkbox')).toHaveCount(0)
+    await dialog.press('Escape')
+    await expectDispatched(['list_tabs', command])
+
+    // The same foreground read would append to an unfinished terminal command.
+    await client.evaluate(() => window.refs.get('term-' + window.store.activeTabId).attachAddon.sendToServer('echo pending'))
+    await expect.poll(() => client.evaluate(() => window.store.mcpGetTerminalOutput({ lines: 2 }).output)).toContain('echo pending')
+    await requestTool('send_terminal_command', { command })
+    await expect(dialog).toContainText(command)
+    await dialog.press('Escape')
+    await expectDispatched(['list_tabs', command])
+    await client.evaluate(() => window.refs.get('term-' + window.store.activeTabId).attachAddon.sendToServer('\x03'))
+  })
+
   test('approves once, remembers exact commands and honors edits in Common Settings', async () => {
-    const command = 'echo hello'
-    const variant = command + ' again'
+    const command = 'mkdir reports'
+    const variant = 'mkdir reports/archive'
     await requestTool('send_terminal_command', { command })
     await expect(dialog).toContainText(command)
     expect(await client.evaluate(() => window.dispatchedTools)).toEqual([])
@@ -112,7 +158,7 @@ test.describe('Agent tool approvals', () => {
     await client.evaluate(() => window.store.openSetting())
     const allowlist = client.getByLabel(e('agentCommandAllowlist'), { exact: true })
     await expect(allowlist).toHaveValue(command)
-    await allowlist.fill(variant)
+    await allowlist.fill([variant, variant, ''].join('\r\n'))
     await allowlist.blur()
     await client.locator('.alt-close-setting-wrap').click()
     await requestTool('send_terminal_command', { command: variant })
@@ -125,6 +171,31 @@ test.describe('Agent tool approvals', () => {
     await client.waitForFunction(() => window.store?.activeTabId && !window.store.initLoadingData)
     await client.evaluate(() => window.store.openSetting())
     await expect(allowlist).toHaveValue(variant)
+  })
+
+  test('approves once when there is no space to remember the command', async () => {
+    await client.evaluate(() => {
+      const original = window.Storage.prototype.setItem
+      window.allowlistWriteAttempts = 0
+      window.Storage.prototype.setItem = function (key, value) {
+        if (this === window.localStorage && key === 'agentCommandAllowlist') {
+          window.allowlistWriteAttempts++
+          throw new window.DOMException('Storage quota reached', 'QuotaExceededError')
+        }
+        return original.call(this, key, value)
+      }
+    })
+    const command = 'mkdir reports'
+    await requestTool('send_terminal_command', { command })
+    await confirm(true)
+    await expectDispatched([command])
+    await expect(client.locator('.agent-tool-completed')).toHaveCount(1)
+    expect(await client.evaluate(() => window.allowlistWriteAttempts)).toBeGreaterThan(0)
+
+    await requestTool('send_terminal_command', { command })
+    await expect(dialog).toContainText(command)
+    await dialog.press('Escape')
+    await expectDispatched([command])
   })
 
   test('can stop a pending non-shell tool and switch to auto approval', async () => {
@@ -158,8 +229,43 @@ test.describe('Agent tool approvals', () => {
     await expectDispatched([args.remotePath])
   })
 
+  test('starts a real background task with approval and reads its log and status without prompting', async () => {
+    test.skip(process.platform === 'win32', 'The background runner uses nohup and a POSIX shell')
+    await client.evaluate(() => { Object.assign(window.store, window.realTerminalTools) })
+    await waitForShellPrompt()
+    const lastToolCall = async () => {
+      await client.waitForFunction(() => !window.nextAgentTool && !window.store.agentRunning)
+      return client.evaluate(() => window.store.aiChatHistory.at(-1).toolCalls.at(-1))
+    }
+    const finishedResult = async () => {
+      const call = await lastToolCall()
+      expect(call.status, call.result).toBe('completed')
+      return JSON.parse(call.result)
+    }
+
+    const command = 'echo agent-monitor-ready'
+    await requestTool('run_background_command', { command })
+    await expect(dialog).toContainText(command)
+    await confirm()
+    const task = await finishedResult()
+    const { taskId } = task
+    try {
+      await expect.poll(() => existsSync(task.exitFile)).toBe(true)
+      await waitForShellPrompt()
+      await requestTool('get_background_task_log', { taskId, lines: 1 })
+      expect((await finishedResult()).output).toBe('agent-monitor-ready')
+      await requestTool('get_background_task_status', { taskId })
+      expect(await finishedResult()).toMatchObject({ id: taskId, status: 'completed', exitCode: 0 })
+      await requestTool('get_background_task_log', { taskId, lines: 'one' })
+      expect(await lastToolCall()).toMatchObject({ status: 'error', result: 'Expected a non-negative integer for lines' })
+      await expect(dialog).toBeHidden()
+    } finally {
+      for (const file of [task.logFile, task.pidFile, task.exitFile]) rmSync(file, { force: true })
+    }
+  })
+
   test('keeps the reviewed terminal target and honors a revocation in another window', async () => {
-    const command = 'pwd'
+    const command = 'projectctl refresh'
     const target = await client.evaluate(() => window.store.activeTabId)
     await requestTool('send_terminal_command', { command })
     await expect(dialog).toContainText(target)

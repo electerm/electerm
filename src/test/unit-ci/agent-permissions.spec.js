@@ -16,3 +16,17 @@ test('remembered commands preserve literal spacing and round-trip as visible, in
   const entries = ['pwd', ' pwd', 'pwd ', 'pwd', 'ls *', ' ', 42, 'a\nb', 'a\rb', 'a\tb', 'a\u202eb', 'a\u2028b']
   assert.deepEqual(normalizeAgentCommandAllowlist(entries), ['pwd', ' pwd', 'pwd ', 'ls *'])
 })
+
+test('the settings editor accepts mixed CRLF and LF without trimming commands', async () => {
+  const { parseAgentCommandLines } = await permissions
+  assert.deepEqual(parseAgentCommandLines(' pwd \r\nls  \n\r\nbad\rcommand\r\ngit status\r'), [
+    ' pwd ', 'ls  ', 'git status'
+  ])
+})
+
+test('the allowlist keeps the last 200 distinct valid entries', async () => {
+  const { normalizeAgentCommandAllowlist } = await permissions
+  const commands = Array.from({ length: 205 }, (_, i) => 'echo ' + i)
+  const stored = [...commands, '', commands[204], 42]
+  assert.deepEqual(normalizeAgentCommandAllowlist(stored), commands.slice(5))
+})

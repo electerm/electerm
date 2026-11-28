@@ -11,6 +11,10 @@ export function canRememberAgentCommand (command) {
 
 export function normalizeAgentCommandAllowlist (entries) {
   return Array.isArray(entries)
-    ? [...new Set(entries.filter(canRememberAgentCommand))]
+    ? [...new Set(entries.filter(canRememberAgentCommand))].slice(-200)
     : []
+}
+
+export function parseAgentCommandLines (text) {
+  return normalizeAgentCommandAllowlist(text.split('\n').map(line => line.replace(/\r$/, '')))
 }

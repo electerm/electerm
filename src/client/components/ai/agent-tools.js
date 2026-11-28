@@ -2,6 +2,8 @@ import { z } from '../../common/zod'
 import { bookmarkSchemas } from '../../common/bookmark-schemas'
 import { requestAgentApproval } from './agent-approval'
 import { canRememberAgentCommand } from './agent-permissions'
+import { isReadOnlyAgentCommand } from './agent-read-only-commands'
+import { getIdleShellType } from '../terminal/idle-shell'
 import {
   readAgentApprovalMode,
   readAgentCommandAllowlist,
@@ -541,6 +543,35 @@ export const agentTools = [
   }
 ]
 
+// New tools require review until their implementation has been classified.
+const readOnlyTools = new Set([
+  'list_tabs', 'get_active_tab', 'list_bookmarks',
+  'get_terminal_output', 'get_terminal_status',
+  'sftp_list', 'sftp_stat', 'sftp_read_file',
+  'sftp_transfer_list', 'sftp_transfer_history',
+  'get_background_task_status', 'get_background_task_log'
+])
+
+async function approveAgentTool (name, args, properties, signal) {
+  const declaredArgs = Object.keys(args).every(key => Object.hasOwn(properties, key))
+  if (declaredArgs && readOnlyTools.has(name)) return true
+  if (readAgentApprovalMode() === 'auto') return true
+
+  const foreground = name === 'send_terminal_command'
+  const allowRemember = declaredArgs && (foreground || name === 'run_background_command') &&
+    canRememberAgentCommand(args.command)
+  if (allowRemember) {
+    if (readAgentCommandAllowlist().includes(args.command)) return true
+    if (foreground && isReadOnlyAgentCommand(args.command, await getIdleShellType(args.tabId))) return true
+  }
+
+  if (signal.aborted) return false
+  const decision = await requestAgentApproval({ name, args, allowRemember, signal })
+  if (signal.aborted) return false
+  if (decision === 'remember' && allowRemember) rememberAgentCommand(args.command)
+  return decision === 'once' || (decision === 'remember' && allowRemember)
+}
+
 // Return null when review stops the turn. Only publish the running state when
 // the reviewed arguments are about to reach the tool.
 export async function executeToolCall (toolName, args, { signal, onStart }) {
@@ -559,19 +590,8 @@ export async function executeToolCall (toolName, args, { signal, onStart }) {
     args = { ...args, tabId: store.activeTabId }
   }
 
-  if (readAgentApprovalMode() === 'manual') {
-    const shellTool = toolName === 'send_terminal_command' || toolName === 'run_background_command'
-    const allowRemember = shellTool && canRememberAgentCommand(args.command) &&
-      Object.keys(args).every(key => Object.hasOwn(properties, key))
-    if (!allowRemember || !readAgentCommandAllowlist().includes(args.command)) {
-      const decision = await requestAgentApproval({ name: toolName, args, allowRemember, signal })
-      if (signal.aborted || (decision !== 'once' && decision !== 'remember')) return null
-      if (decision === 'remember' && allowRemember) {
-        rememberAgentCommand(args.command)
-      }
-    }
-  }
-  if (signal.aborted) return null
+  const approved = await approveAgentTool(toolName, args, properties, signal)
+  if (!approved || signal.aborted) return null
   onStart(args)
   return dispatchToolCall(toolName, args)
 }

@@ -307,7 +307,7 @@ export const srcsSkipUpgradeCheck = [
   '.snap',
   'skip-upgrade-check'
 ]
-export const termLSPrefix = 'term:sess:'
+export { termLSPrefix } from './safe-local-storage.js'
 export const batchInputLsKey = 'batch-inputs'
 export const rendererTypes = {
   dom: 'dom',

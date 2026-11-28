@@ -84,7 +84,43 @@ export class CommandTrackerAddon {
     }
   }
 
+  // An OSC A marks the start of a prompt, so capture its text after xterm
+  // has parsed the rest of the write. OSC B gives an exact end immediately.
+  // A marker follows the row when scrollback is trimmed.
+  trackPrompt (atEnd) {
+    this.clearPrompt()
+    const term = this.terminal
+    const marker = term?.registerMarker?.()
+    if (!marker) return
+    this.promptMarker = marker
+    const capture = () => {
+      this.promptParsed?.dispose()
+      this.promptParsed = null
+      const buf = term.buffer.active
+      if (buf.baseY + buf.cursorY !== marker.line) return
+      this.promptColumn = buf.cursorX
+      this.promptText = buf.getLine(marker.line)?.translateToString(true, 0, buf.cursorX).trimEnd()
+    }
+    if (atEnd) capture()
+    else this.promptParsed = term.onWriteParsed?.(capture)
+  }
+
+  clearPrompt () {
+    this.promptParsed?.dispose()
+    this.promptMarker?.dispose()
+    this.promptParsed = null
+    this.promptMarker = null
+    this.promptText = ''
+  }
+
+  isAtTrackedPrompt (text) {
+    const buf = this.terminal?.buffer.active
+    return !!text && this.promptText === text && this.promptColumn === buf?.cursorX &&
+      this.promptMarker?.line === buf.baseY + buf.cursorY
+  }
+
   dispose () {
+    this.clearPrompt()
     this.terminal = null
     this._promptListeners.clear()
     this._onCommandExecuted = null
@@ -109,6 +145,7 @@ export class CommandTrackerAddon {
 
     switch (command) {
       case 'A': { // Prompt started — the previous command is done
+        this.trackPrompt(false)
         this.shellIntegrationActive = true
         // Reset current command when new prompt appears
         this.currentCommand = ''
@@ -123,9 +160,11 @@ export class CommandTrackerAddon {
       }
 
       case 'B': // Command input started (after prompt)
+        this.trackPrompt(true)
         return true
 
       case 'C': // Command execution started
+        this.clearPrompt()
         return true
 
       case 'D': // Command finished
@@ -138,6 +177,7 @@ export class CommandTrackerAddon {
         return true
 
       case 'E': // Command line
+        this.clearPrompt()
         // The actual command being executed
         this.executedCommand = this._deserializeOscValue(args)
         this.currentCommand = this.executedCommand
