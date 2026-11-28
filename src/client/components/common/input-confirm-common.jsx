@@ -6,6 +6,7 @@ import './input-confirm-common.styl'
 export default function InputConfirmCommon ({
   value,
   onChange,
+  getConfirmedValue,
   inputComponent: InputComponent,
   addonBefore,
   addonAfter,
@@ -26,6 +27,9 @@ export default function InputConfirmCommon ({
 
   function handleConfirm () {
     onChange(localValue)
+    // A synchronous editor can normalize or decline the draft without
+    // changing the value prop. Show what it actually committed.
+    if (getConfirmedValue) setLocalValue(getConfirmedValue())
     setIsEditing(false)
   }
 

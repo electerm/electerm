@@ -8,7 +8,10 @@ global.window = {}
 const hook = registerHooks({
   resolve (specifier, context, nextResolve) {
     if (specifier === './terminal-apis.js') {
-      return { url: 'data:text/javascript,export const execCmd = (...args) => window.probe(...args)', shortCircuit: true }
+      return {
+        url: 'data:text/javascript,export const execCmd = (...args) => window.probe(...args); export const runCmd = (...args) => window.startupProbe(...args)',
+        shortCircuit: true
+      }
     }
     return nextResolve(specifier, context)
   }
@@ -96,7 +99,7 @@ test('requires a clean connected terminal and no text beyond the cursor', async 
   }
 })
 
-test('uses a bounded SSH exec once per connection and checks the target again when it returns', async () => {
+test('shares a successful SSH probe and checks the target again when it returns', async () => {
   const { getIdleShellType } = await moduleReady
   let calls = 0
   window.probe = (pid, command, timeout, options) => {
@@ -133,6 +136,42 @@ test('uses a bounded SSH exec once per connection and checks the target again wh
     finish({ exitCode: 0, stdout: '/bin/bash\n' })
     assert.equal(await pending, '')
   }
+})
+
+test('a rejected SSH channel defaults to sh only for startup and never exempts approvals', async t => {
+  const { getIdleShellType } = await moduleReady
+  const { detectRemoteShell } = await import('../../client/components/terminal/shell-detect.js')
+  t.mock.method(console, 'warn', () => {})
+  attach('', '$ ', true)
+  let attempts = 0
+  const refused = () => { throw new Error('SSH channel rejected') }
+  window.startupProbe = refused
+  window.probe = () => { attempts++; return refused() }
+  assert.equal(await detectRemoteShell('test'), 'sh')
+  assert.equal(await getIdleShellType('test'), '')
+  assert.deepEqual(await Promise.all([getIdleShellType('test'), getIdleShellType('test')]), ['', ''])
+  assert.equal(await getIdleShellType('test'), '')
+  assert.equal(attempts, 2)
+  attach('', '$ ', true)
+  assert.equal(await getIdleShellType('test'), '')
+  assert.equal(attempts, 3)
+})
+
+test('a timed-out approval probe can recover on the next command in the same connection', async t => {
+  const { getIdleShellType } = await moduleReady
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  attach('', '$ ', true)
+  let attempts = 0
+  window.probe = () => {
+    attempts++
+    return attempts === 1 ? new Promise(() => {}) : { exitCode: 0, stdout: '/bin/bash\n' }
+  }
+  const pending = Promise.all([getIdleShellType('test'), getIdleShellType('test')])
+  t.mock.timers.tick(2000)
+  assert.deepEqual(await pending, ['', ''])
+  assert.deepEqual(await Promise.all([getIdleShellType('test'), getIdleShellType('test')]), ['bash', 'bash'])
+  assert.equal(await getIdleShellType('test'), 'bash')
+  assert.equal(attempts, 2)
 })
 
 test('tracks a custom OSC prompt through xterm and invalidates it when input or the foreground program changes', async () => {

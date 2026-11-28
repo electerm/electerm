@@ -21,8 +21,8 @@ test('an inaccessible localStorage defaults to manual and lets settings reset fi
   Object.defineProperty(win, 'localStorage', { get () { throw new Error('Storage disabled') } })
   assert.equal(prefs.readAgentApprovalMode(), 'manual')
   assert.deepEqual(prefs.readAgentCommandAllowlist(), [])
-  prefs.setAgentApprovalMode('auto')
-  prefs.rememberAgentCommand('pwd')
+  assert.equal(prefs.setAgentApprovalMode('auto'), false)
+  assert.equal(prefs.rememberAgentCommand('pwd'), false)
   prefs.resetAgentPermissions()
   assert.equal(prefs.readAgentApprovalMode(), 'manual')
   assert.deepEqual(prefs.readAgentCommandAllowlist(), [])
@@ -42,18 +42,53 @@ test('reset clears the allowlist even if removing the mode fails', async t => {
   assert.equal(prefs.readAgentApprovalMode(), 'manual')
 })
 
-test('quota recovery preserves recent commands and unrelated sessions', async t => {
+test('a rejected auto grant and a failed manual revocation both report failure and stay manual', async t => {
+  const { prefs, storage } = await setup(t)
+  assert.equal(prefs.setAgentApprovalMode('auto'), true)
+  storage.removeItem = () => { throw new Error('Removal denied') }
+  assert.equal(prefs.setAgentApprovalMode('manual'), false)
+  assert.equal(prefs.readAgentApprovalMode(), 'manual')
+  storage.setItem = () => { throw new Error('Write denied') }
+  assert.equal(prefs.setAgentApprovalMode('auto'), false)
+  assert.equal(prefs.readAgentApprovalMode(), 'manual')
+})
+
+test('quota failure preserves all existing grants and unrelated sessions for additions', async t => {
   const { prefs, storage } = await setup(t)
   storage['term:sess:keep'] = 'session'
+  const previous = ['pwd', 'ls']
+  assert.equal(prefs.setAgentCommandAllowlist(previous), true)
   storage.setItem = function (key, value) {
-    if (value.length > 17) throw new DOMException('Full', 'QuotaExceededError')
+    if (value.length > JSON.stringify(previous).length) throw new DOMException('Full', 'QuotaExceededError')
     this[key] = value
   }
-  prefs.setAgentCommandAllowlist(['pwd', 'ls', 'whoami', 'date'])
-  assert.deepEqual(prefs.readAgentCommandAllowlist(), ['whoami', 'date'])
-  prefs.rememberAgentCommand('too large to remember')
-  assert.deepEqual(prefs.readAgentCommandAllowlist(), ['whoami', 'date'])
+  assert.equal(prefs.setAgentCommandAllowlist([...previous, 'whoami', 'date']), false)
+  assert.deepEqual(prefs.readAgentCommandAllowlist(), previous)
+  assert.equal(prefs.rememberAgentCommand('date'), false)
+  assert.deepEqual(prefs.readAgentCommandAllowlist(), previous)
   assert.equal(storage['term:sess:keep'], 'session')
+})
+
+test('a failed replacement persists just the old grants the user kept', async t => {
+  const { prefs, storage } = await setup(t)
+  assert.equal(prefs.setAgentCommandAllowlist(['keep', 'revoke']), true)
+  storage.setItem = function (key, value) {
+    if (value.length > 15) throw new DOMException('Full', 'QuotaExceededError')
+    this[key] = value
+  }
+  assert.equal(prefs.setAgentCommandAllowlist(['keep', 'a new command that does not fit']), false)
+  assert.deepEqual(prefs.readAgentCommandAllowlist(), ['keep'])
+  assert.equal(prefs.setAgentCommandAllowlist([]), true)
+  assert.deepEqual(prefs.readAgentCommandAllowlist(), [])
+})
+
+test('remembering never overwrites a list that cannot be read', async t => {
+  const { prefs, storage } = await setup(t)
+  assert.equal(prefs.rememberAgentCommand('previous'), true)
+  const serialized = storage.agentCommandAllowlist
+  storage.getItem = () => { throw new Error('Read denied') }
+  assert.equal(prefs.rememberAgentCommand('new'), false)
+  assert.equal(storage.agentCommandAllowlist, serialized)
 })
 
 test('a failed explicit edit revokes stale grants even in read-only storage', async t => {
@@ -68,7 +103,7 @@ test('desktop writes keep the existing encrypted storage format', async t => {
   const { prefs, storage, win } = await setup(t)
   win.et.isWebApp = false
   win.pre = { runSync: () => 'test-storage-key' }
-  prefs.rememberAgentCommand('git status')
+  assert.equal(prefs.rememberAgentCommand('git status'), true)
   assert.match(storage.agentCommandAllowlist, /^enc1:/)
   assert.deepEqual(prefs.readAgentCommandAllowlist(), ['git status'])
 })

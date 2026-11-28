@@ -11,8 +11,10 @@ function removeGrant (key) {
   try {
     window.localStorage.removeItem(key)
     failedRemovals.delete(key)
+    return true
   } catch {
     failedRemovals.add(key)
+    return false
   }
 }
 
@@ -27,54 +29,73 @@ export function readAgentApprovalMode () {
 
 export function readAgentCommandAllowlist () {
   try {
-    if (!failedRemovals.has(listKey)) return normalizeAgentCommandAllowlist(safeGetItemJSON(listKey, []))
+    return storedCommands()
   } catch {}
   return []
 }
 
+function storedCommands () {
+  if (failedRemovals.has(listKey)) return []
+  return normalizeAgentCommandAllowlist(safeGetItemJSON(listKey, []))
+}
+
 export function setAgentApprovalMode (value) {
+  let saved
   if (normalizeAgentApprovalMode(value) === 'auto') {
     try {
       window.localStorage.setItem(modeKey, 'auto')
       failedRemovals.delete(modeKey)
+      saved = true
     } catch {
+      // Grant auto approval only after it has actually been persisted.
       removeGrant(modeKey)
+      saved = false
     }
   } else {
-    removeGrant(modeKey)
+    saved = removeGrant(modeKey)
   }
   window.dispatchEvent(new Event(changed))
+  return saved
 }
 
 function persistCommands (commands) {
-  while (commands.length) {
-    try {
-      safeSetItemOnce(listKey, JSON.stringify(commands))
-      failedRemovals.delete(listKey)
-      return true
-    } catch (err) {
-      if (err?.name !== 'QuotaExceededError') return false
-      // Retry with progressively fewer of the oldest entries. A single
-      // oversized command still runs once if the user just approved it.
-      commands = commands.slice(Math.ceil(commands.length / 2))
-    }
+  try {
+    safeSetItemOnce(listKey, JSON.stringify(commands))
+    failedRemovals.delete(listKey)
+    return true
+  } catch {
+    return false
   }
-  return false
 }
 
 export function setAgentCommandAllowlist (entries) {
   const commands = normalizeAgentCommandAllowlist(entries)
-  const saved = commands.length > 0 && persistCommands(commands)
-  if (!saved) removeGrant(listKey)
+  const saved = commands.length ? persistCommands(commands) : removeGrant(listKey)
+  if (!saved && commands.length) {
+    // A failed addition must preserve existing grants. A failed replacement
+    // must still revoke entries the user has explicitly removed.
+    try {
+      const previous = storedCommands()
+      const retained = previous.filter(command => commands.includes(command))
+      if (retained.length < previous.length && (!retained.length || !persistCommands(retained))) {
+        removeGrant(listKey)
+      }
+    } catch {
+      removeGrant(listKey)
+    }
+  }
   window.dispatchEvent(new Event(changed))
-  return saved || (commands.length === 0 && !failedRemovals.has(listKey))
+  return saved
 }
 
 export function rememberAgentCommand (command) {
-  const commands = normalizeAgentCommandAllowlist([...readAgentCommandAllowlist(), command])
-  if (persistCommands(commands)) {
-    window.dispatchEvent(new Event(changed))
-  }
+  // Do not overwrite a list we could not read, or discard older grants on quota failure.
+  try {
+    const commands = normalizeAgentCommandAllowlist([...storedCommands(), command])
+    if (!persistCommands(commands)) return false
+  } catch { return false }
+  window.dispatchEvent(new Event(changed))
+  return true
 }
 
 export function resetAgentPermissions () {

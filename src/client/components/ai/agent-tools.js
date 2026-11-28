@@ -1,8 +1,11 @@
 import { z } from '../../common/zod'
+import message from '../common/message'
+import { refs } from '../common/ref'
 import { bookmarkSchemas } from '../../common/bookmark-schemas'
+import { sensitiveReadPath } from '../../common/mcp-transfer-guard'
 import { requestAgentApproval } from './agent-approval'
 import { canRememberAgentCommand } from './agent-permissions'
-import { isReadOnlyAgentCommand } from './agent-read-only-commands'
+import { isReadOnlyAgentCommand, mentionsSensitivePath } from './agent-read-only-commands'
 import { getIdleShellType } from '../terminal/idle-shell'
 import {
   readAgentApprovalMode,
@@ -547,7 +550,7 @@ export const agentTools = [
 const readOnlyTools = new Set([
   'list_tabs', 'get_active_tab', 'list_bookmarks',
   'get_terminal_output', 'get_terminal_status',
-  'sftp_list', 'sftp_stat', 'sftp_read_file',
+  'sftp_list', 'sftp_stat',
   'sftp_transfer_list', 'sftp_transfer_history',
   'get_background_task_status', 'get_background_task_log'
 ])
@@ -555,20 +558,34 @@ const readOnlyTools = new Set([
 async function approveAgentTool (name, args, properties, signal) {
   const declaredArgs = Object.keys(args).every(key => Object.hasOwn(properties, key))
   if (declaredArgs && readOnlyTools.has(name)) return true
+  if (declaredArgs && name === 'sftp_read_file' && typeof args.remotePath === 'string' &&
+      args.remotePath.trim() && !sensitiveReadPath(args.remotePath)) return true
   if (readAgentApprovalMode() === 'auto') return true
 
   const foreground = name === 'send_terminal_command'
-  const allowRemember = declaredArgs && (foreground || name === 'run_background_command') &&
+  let allowRemember = declaredArgs && (foreground || name === 'run_background_command') &&
     canRememberAgentCommand(args.command)
   if (allowRemember) {
-    if (readAgentCommandAllowlist().includes(args.command)) return true
-    if (foreground && isReadOnlyAgentCommand(args.command, await getIdleShellType(args.tabId))) return true
+    const saved = readAgentCommandAllowlist().includes(args.command)
+    // A missing shell classification falls through to the approval dialog.
+    const shell = foreground && !saved ? await getIdleShellType(args.tabId).catch(() => '') : ''
+    try {
+      // Read the target's live OSC cwd after any asynchronous SSH probe.
+      const tracker = refs.get('term-' + args.tabId)?.cmdAddon
+      const cwd = tracker?.hasShellIntegration() ? tracker.getCwd() : ''
+      allowRemember = !mentionsSensitivePath(args.command, cwd)
+    } catch {
+      allowRemember = false
+    }
+    if (allowRemember && (saved || (shell && isReadOnlyAgentCommand(args.command, shell)))) return true
   }
 
   if (signal.aborted) return false
   const decision = await requestAgentApproval({ name, args, allowRemember, signal })
   if (signal.aborted) return false
-  if (decision === 'remember' && allowRemember) rememberAgentCommand(args.command)
+  if (decision === 'remember' && allowRemember && !rememberAgentCommand(args.command)) {
+    message.warning(window.translate('agentCommandApprovedOnceNotSaved'))
+  }
   return decision === 'once' || (decision === 'remember' && allowRemember)
 }
 

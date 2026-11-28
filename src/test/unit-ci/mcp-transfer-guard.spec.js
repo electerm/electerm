@@ -106,7 +106,14 @@ describe('sensitiveReadPath', () => {
       '~/.npmrc',
       '~/.git-credentials',
       '~/.config/gcloud/application_default_credentials.json',
-      '~/projects/app/.env'
+      '~/projects/app/.env',
+      '~/projects/app/.env.production.local',
+      '/etc/shadow',
+      '/etc/gshadow-',
+      'etc/../private/credentials.json',
+      'C:\\Users\\tester\\.SSH.\\config',
+      'C:credentials',
+      'C:\\Users\\tester\\.npmrc::$DATA'
     ]
     for (const p of paths) {
       assert.ok(guard.sensitiveReadPath(p, HOME), `expected sensitive: ${p}`)

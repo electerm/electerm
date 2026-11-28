@@ -127,6 +127,67 @@ test.describe('Agent tool approvals', () => {
     await client.evaluate(() => window.refs.get('term-' + window.store.activeTabId).attachAddon.sendToServer('\x03'))
   })
 
+  test('asks before dispatch when inspection of the terminal throws', async () => {
+    await waitForShellPrompt()
+    await client.evaluate(() => {
+      const session = window.refs.get('term-' + window.store.activeTabId)
+      window.shellInspections = 0
+      session.startupQueue.getLocalExec = () => {
+        window.shellInspections++
+        throw new Error('Terminal state unavailable')
+      }
+    })
+    const command = 'whoami'
+    await requestTool('send_terminal_command', { command })
+    await expect(dialog).toContainText(command)
+    expect(await client.evaluate(() => window.shellInspections)).toBeGreaterThan(0)
+    expect(await client.evaluate(() => window.dispatchedTools)).toEqual([])
+    await confirm()
+    await expectDispatched([command])
+  })
+
+  test('asks every time before reading sensitive SFTP or shell paths, including saved commands', async () => {
+    const command = 'cat /example/.ssh/id_rsa'
+    const remotePath = '/example/.aws/credentials'
+    await client.evaluate(() => {
+      window.store.mcpSftpReadFile = ({ remotePath }) => {
+        window.dispatchedTools.push(remotePath)
+        return { content: 'synthetic test content' }
+      }
+      window.store.openSetting()
+    })
+    const allowlist = client.getByLabel(e('agentCommandAllowlist'), { exact: true })
+    await allowlist.fill(command)
+    await allowlist.blur()
+    await client.locator('.alt-close-setting-wrap').click()
+    await client.evaluate(() => window.store.openSetting())
+    await expect(allowlist).toHaveValue(command)
+    await client.locator('.alt-close-setting-wrap').click()
+    await waitForShellPrompt()
+
+    await requestTool('send_terminal_command', { command })
+    await expect(dialog).toContainText(command)
+    await expect(dialog.getByRole('checkbox')).toHaveCount(0)
+    expect(await client.evaluate(() => window.dispatchedTools)).toEqual([])
+    await confirm()
+    await expectDispatched([command])
+    await requestTool('send_terminal_command', { command })
+    await expect(dialog).toContainText(command)
+    await dialog.press('Escape')
+    await expectDispatched([command])
+
+    await requestTool('sftp_read_file', { remotePath })
+    await expect(dialog).toContainText(remotePath)
+    await expect(dialog.getByRole('checkbox')).toHaveCount(0)
+    expect(await client.evaluate(() => window.dispatchedTools)).toEqual([command])
+    await confirm()
+    await expectDispatched([command, remotePath])
+    await requestTool('sftp_read_file', { remotePath })
+    await expect(dialog).toContainText(remotePath)
+    await dialog.press('Escape')
+    await expectDispatched([command, remotePath])
+  })
+
   test('approves once, remembers exact commands and honors edits in Common Settings', async () => {
     const command = 'mkdir reports'
     const variant = 'mkdir reports/archive'
@@ -147,7 +208,11 @@ test.describe('Agent tool approvals', () => {
     await expect(dialog).toContainText(variant)
     await dialog.getByRole('button', { name: /cancel/i }).click()
     await expectDispatched([command, command, command])
-    await expect(client.locator('.agent-tool-stopped')).toHaveCount(1)
+    const stoppedCard = client.locator('.agent-tool-stopped')
+    const stoppedIcon = stoppedCard.locator('.agent-tool-status-stopped')
+    await expect(stoppedIcon).toBeVisible()
+    const stoppedColor = await stoppedIcon.evaluate(icon => window.getComputedStyle(icon).color)
+    await expect(stoppedCard).toHaveCSS('border-left-color', stoppedColor)
 
     await requestTool('send_terminal_command', { command, inputOnly: true })
     await expect(dialog).toContainText('inputOnly')
@@ -173,7 +238,15 @@ test.describe('Agent tool approvals', () => {
     await expect(allowlist).toHaveValue(variant)
   })
 
-  test('approves once when there is no space to remember the command', async () => {
+  test('approves once and restores the saved settings list when storage is full', async () => {
+    const savedCommand = 'projectctl refresh'
+    const allowlist = client.getByLabel(e('agentCommandAllowlist'), { exact: true })
+    const count = client.locator('#agentCommandCount')
+    await client.evaluate(() => window.store.openSetting())
+    await allowlist.fill(savedCommand)
+    await allowlist.blur()
+    await expect(count).toHaveText('1 / 200')
+    await client.locator('.alt-close-setting-wrap').click()
     await client.evaluate(() => {
       const original = window.Storage.prototype.setItem
       window.allowlistWriteAttempts = 0
@@ -188,6 +261,7 @@ test.describe('Agent tool approvals', () => {
     const command = 'mkdir reports'
     await requestTool('send_terminal_command', { command })
     await confirm(true)
+    await expect(client.locator('.message-item.warning')).toContainText(e('agentCommandApprovedOnceNotSaved'))
     await expectDispatched([command])
     await expect(client.locator('.agent-tool-completed')).toHaveCount(1)
     expect(await client.evaluate(() => window.allowlistWriteAttempts)).toBeGreaterThan(0)
@@ -196,6 +270,35 @@ test.describe('Agent tool approvals', () => {
     await expect(dialog).toContainText(command)
     await dialog.press('Escape')
     await expectDispatched([command])
+
+    await client.evaluate(() => window.store.openSetting())
+    await expect(allowlist).toHaveValue(savedCommand)
+    await allowlist.fill([savedCommand, command].join('\n'))
+    await allowlist.blur()
+    await expect(client.locator('.message-item.error')).toContainText(e('agentPermissionSaveFailed'))
+    await expect(allowlist).toHaveValue(savedCommand)
+    await expect(count).toHaveText('1 / 200')
+  })
+
+  test('reports a failed change to automatic approval and keeps asking', async () => {
+    await client.evaluate(() => {
+      const original = window.Storage.prototype.setItem
+      window.Storage.prototype.setItem = function (key, value) {
+        if (this === window.localStorage && key === 'agentApprovalMode') {
+          throw new window.DOMException('Storage quota reached', 'QuotaExceededError')
+        }
+        return original.call(this, key, value)
+      }
+    })
+    const toolbar = client.locator('.ai-chat-toolbar')
+    await toolbar.getByRole('combobox', { name: e('permission'), exact: true }).click()
+    await client.locator('.ant-select-dropdown:visible').getByText(e('agentAutoApproval'), { exact: true }).click()
+    await expect(client.locator('.message-item.error')).toContainText(e('agentPermissionSaveFailed'))
+    await expect(toolbar.locator('.ant-select')).toContainText(e('agentManualApproval'))
+    await requestTool('sftp_del', { remotePath: '/example.txt' })
+    await expect(dialog).toContainText('/example.txt')
+    await dialog.press('Escape')
+    await expectDispatched([])
   })
 
   test('can stop a pending non-shell tool and switch to auto approval', async () => {
@@ -258,6 +361,15 @@ test.describe('Agent tool approvals', () => {
       expect(await finishedResult()).toMatchObject({ id: taskId, status: 'completed', exitCode: 0 })
       await requestTool('get_background_task_log', { taskId, lines: 'one' })
       expect(await lastToolCall()).toMatchObject({ status: 'error', result: 'Expected a non-negative integer for lines' })
+
+      const pending = 'echo agent-input-pending'
+      const terminalLine = () => client.evaluate(() => window.store.mcpGetTerminalOutput({ lines: 1 }).output)
+      await client.evaluate(input => window.refs.get('term-' + window.store.activeTabId).attachAddon.sendToServer(input), pending)
+      await expect.poll(terminalLine).toContain(pending)
+      const originalLine = await terminalLine()
+      await requestTool('get_background_task_log', { taskId, lines: 1 })
+      expect(await lastToolCall()).toMatchObject({ status: 'error', result: expect.stringContaining('empty POSIX shell prompt') })
+      expect(await terminalLine()).toBe(originalLine)
       await expect(dialog).toBeHidden()
     } finally {
       for (const file of [task.logFile, task.pidFile, task.exitFile]) rmSync(file, { force: true })

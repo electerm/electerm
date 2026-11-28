@@ -1178,7 +1178,7 @@ export default Store => {
     // only at an empty shell prompt so output excludes the prompt and history.
     const shell = await getIdleShellType(tabId)
     if (!['sh', 'bash', 'zsh', 'dash', 'ash'].includes(shell)) {
-      throw new Error('Background monitoring requires an idle POSIX shell')
+      throw new Error('Wait for the terminal to return to an empty POSIX shell prompt, then retry background monitoring.')
     }
     const result = await window.store.mcpExecuteCommandPty({ command: cmd, tabId, timeoutMs: 10000 })
     if (result.timedOut) throw new Error('Background monitor command timed out')

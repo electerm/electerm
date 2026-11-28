@@ -1,10 +1,9 @@
 import { refs } from '../common/ref.js'
-import { execCmd } from './terminal-apis.js'
+import { probeAccountShell } from './shell-detect.js'
 import { shellName } from './ssh-reload-state.js'
 
 const posixShells = new Set(['bash', 'zsh', 'sh', 'ash', 'dash', 'fish'])
 const accountShells = new WeakMap()
-const probeTimeout = 2000
 
 const userHost = /^(?:\[[\p{L}\p{M}\p{N}_.-]+@[\p{L}\p{M}\p{N}_.-]+ [\p{L}\p{M}\p{N}_.~ /-]+\]|[\p{L}\p{M}\p{N}_.-]+@[\p{L}\p{M}\p{N}_.-]+(?:[ :][\p{L}\p{M}\p{N}_.~ /-]*)?)$/u
 
@@ -46,23 +45,16 @@ function promptLine (session) {
   return row.translateToString(true, 0, buffer.cursorX).trimEnd()
 }
 
-async function probeAccountShell (pid) {
-  let timer
-  try {
-    // The SSH channel-open timeout can exceed the command timeout. Bound how
-    // long an approval decision waits, even when the channel never opens.
-    const result = await Promise.race([
-      execCmd(pid, 'printf "%s\\n" "$SHELL"', probeTimeout, { silent: true }),
-      new Promise(resolve => { timer = setTimeout(resolve, probeTimeout) })
-    ])
-    if (result?.exitCode !== 0 || result.timedOut || result.stderr) return ''
-    const path = result.stdout.trim()
-    return /^\/(?:[\w.+-]+\/)*[\w.+-]+$/.test(path) ? shellName(path) : ''
-  } catch {
-    return ''
-  } finally {
-    clearTimeout(timer)
-  }
+async function getAccountShell (connection, pid) {
+  const cached = accountShells.get(connection)
+  if (cached) return cached
+  const probe = probeAccountShell(pid)
+  accountShells.set(connection, probe)
+  const shell = await probe
+  // A null entry allows one later retry after a transient failure. Concurrent
+  // callers share each probe; a second failure lasts until reconnection.
+  if (!shell && cached === undefined) accountShells.set(connection, null)
+  return shell
 }
 
 function isInteractiveArgument (shell, arg) {
@@ -84,8 +76,7 @@ export async function getIdleShellType (tabId) {
     if (!Array.isArray(exec.args) || !exec.args.every(arg => isInteractiveArgument(shell, arg))) return ''
   } else if (session.isSsh() && session.pid) {
     const { attachAddon, pid } = session
-    if (!accountShells.has(attachAddon)) accountShells.set(attachAddon, probeAccountShell(pid))
-    shell = await accountShells.get(attachAddon)
+    shell = await getAccountShell(attachAddon, pid)
     if (refs.get('term-' + tabId) !== session || session.attachAddon !== attachAddon || session.pid !== pid) return ''
     line = promptLine(session)
   }

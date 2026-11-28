@@ -28,6 +28,19 @@ test('file inspection requires named inputs and recognized options', async () =>
   assert.equal(allowed('Get-Content -Wait readme.md', 'pwsh'), false)
 })
 
+test('Git exemptions are limited to fixed metadata queries', async () => {
+  const { isReadOnlyAgentCommand: allowed } = await classifier
+  for (const command of [
+    'git --version', 'git --no-pager rev-parse --is-inside-work-tree',
+    'git --no-pager rev-parse --show-toplevel', 'git --no-pager symbolic-ref --short HEAD'
+  ]) assert.equal(allowed(command, 'zsh'), true, command)
+  for (const command of [
+    'git status', 'git diff', 'git log', 'git --no-pager log',
+    'git --no-pager symbolic-ref --short HEAD refs/heads/main',
+    'git --no-pager rev-parse --show-toplevel HEAD'
+  ]) assert.equal(allowed(command, 'zsh'), false, command)
+})
+
 test('distinguishes cmd and PowerShell directory, location and date commands', async () => {
   const { isReadOnlyAgentCommand } = await classifier
   const forms = [
@@ -45,6 +58,46 @@ test('distinguishes cmd and PowerShell directory, location and date commands', a
   assert.equal(isReadOnlyAgentCommand('ls -la', 'powershell'), false)
   for (const shell of ['', undefined, 'unknown', 'telnet']) {
     assert.equal(isReadOnlyAgentCommand('pwd', shell), false)
+  }
+})
+
+test('sensitive path names require approval even for otherwise read-only commands', async () => {
+  const { isReadOnlyAgentCommand, mentionsSensitivePath } = await classifier
+  const cases = [
+    ['bash', 'cat /etc/shadow'],
+    ['sh', 'cat README /home/user/.ssh/id_rsa'],
+    ['zsh', 'head -n 1 -- .aws/config'],
+    ['fish', 'tail -- .kube/config'],
+    ['bash', 'cat .env.production.local'],
+    ['bash', 'cat /tmp/credentials.json'],
+    ['cmd', 'type C:\\Users\\tester\\.SSH\\config'],
+    ['cmd', 'type C:\\etc\\gshadow.'],
+    ['powershell', 'Get-Content C:/Users/Tester/.NPMRC'],
+    ['pwsh', 'Get-Content path/.netrc']
+  ]
+  for (const [shell, command] of cases) {
+    assert.equal(mentionsSensitivePath(command), true, command)
+    assert.equal(isReadOnlyAgentCommand(command, shell), false, command)
+  }
+  // Users may have saved these literal commands before the path guard existed.
+  for (const command of ['cat "/a directory/.env"', 'cat ~/.ssh/id_rsa', 'cat notes/.config/../.aws/config']) {
+    assert.equal(mentionsSensitivePath(command), true, command)
+  }
+  for (const command of ['cat README', 'head -n 2 shadow.css', 'git status', 'type credentials-guide.txt']) {
+    assert.equal(mentionsSensitivePath(command), false, command)
+  }
+})
+
+test('resolves file-reader operands against the tracked shell directory', async () => {
+  const { mentionsSensitivePath: sensitive } = await classifier
+  assert.equal(sensitive('cat config', '/home/user/.kube'), true)
+  assert.equal(sensitive('cat config', '/home/user/project'), false)
+  assert.equal(sensitive('cat gh/hosts.yml', '/home/user/.config'), true)
+  assert.equal(sensitive('Get-Content .\\config', 'C:\\Users\\tester\\.ssh'), true)
+  assert.equal(sensitive('head -n 10 /tmp/report', '/home/user/.ssh'), false)
+  assert.equal(sensitive('cat ../docs/report', '/home/user/.ssh'), false)
+  for (const command of ['whoami', 'ls -la', 'pwd', 'git --no-pager rev-parse HEAD']) {
+    assert.equal(sensitive(command, '/home/user/.ssh'), false, command)
   }
 })
 

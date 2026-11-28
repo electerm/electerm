@@ -61,12 +61,12 @@ export default memo(function AgentToolCallCard ({ toolCall, autoCollapse }) {
     if (status === 'completed') {
       return <CheckCircleOutlined className='agent-tool-status-completed' />
     }
-    if (status === 'stopped') return <StopOutlined />
+    if (status === 'stopped') return <StopOutlined className='agent-tool-status-stopped' />
     return <CloseCircleOutlined className='agent-tool-status-error' />
   }
 
   function renderTag () {
-    const colors = { running: 'processing', completed: 'success', error: 'error' }
+    const colors = { running: 'processing', completed: 'success', stopped: 'default', error: 'error' }
     return (
       <Tag color={colors[status]} className='agent-tool-tag'>
         {status === 'stopped' ? window.translate('stopped') : status}
