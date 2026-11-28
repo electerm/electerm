@@ -1,5 +1,7 @@
-import { Flex, Button, Popconfirm } from 'antd'
+import { Button, Popconfirm } from 'antd'
 import { DeleteOutlined, MessageOutlined } from '@ant-design/icons'
+
+const e = window.translate
 
 export default function AiChatSession ({
   session,
@@ -7,42 +9,37 @@ export default function AiChatSession ({
   onLoadSession,
   onDeleteSession
 }) {
-  const time = new Date(session.timestamp).toLocaleString()
-  const preview = session.firstPrompt.length > 80
-    ? session.firstPrompt.substring(0, 80) + '...'
-    : session.firstPrompt
+  const { sessionId, firstPrompt, timestamp, messageCount } = session
+  const preview = firstPrompt || session.entries?.[0]?.attachments?.[0]?.name || 'Untitled chat'
   return (
-    <div
-      key={session.sessionId}
-      className={`ai-chat-session-item${isActive ? ' active' : ''}`}
-      onClick={() => onLoadSession(session.sessionId)}
-    >
-      <Flex vertical className='ai-chat-session-content'>
-        <Flex align='center' className='ai-chat-session-header'>
-          <MessageOutlined className='mg1r' />
+    <div className={'ai-chat-session-row' + (isActive ? ' active' : '')}>
+      <button
+        type='button'
+        className='ai-chat-session-item'
+        aria-current={isActive || undefined}
+        onClick={() => onLoadSession(sessionId)}
+      >
+        <MessageOutlined aria-hidden='true' />
+        <span className='ai-chat-session-content'>
           <span className='ai-chat-session-preview'>{preview}</span>
-        </Flex>
-        <Flex justify='space-between' align='center' className='ai-chat-session-meta'>
-          <span className='ai-chat-session-time'>{time}</span>
-          <span className='ai-chat-session-count'>{session.messageCount} messages</span>
-        </Flex>
-      </Flex>
+          <span className='ai-chat-session-meta'>
+            <time>{new Date(timestamp).toLocaleString()}</time>
+            <span>{messageCount} {messageCount === 1 ? 'message' : 'messages'}</span>
+          </span>
+        </span>
+      </button>
       <Popconfirm
         title='Delete this chat session?'
-        okText='Delete'
-        cancelText='Cancel'
-        onConfirm={(e) => {
-          e?.stopPropagation()
-          onDeleteSession(session.sessionId)
-        }}
-        onCancel={(e) => e?.stopPropagation()}
+        okText={e('del')}
+        okButtonProps={{ danger: true }}
+        cancelText={e('cancel')}
+        onConfirm={() => onDeleteSession(sessionId)}
       >
         <Button
           size='small'
           type='text'
-          danger
+          aria-label={e('del') + ' · ' + preview}
           icon={<DeleteOutlined />}
-          onClick={(e) => e.stopPropagation()}
           className='ai-chat-session-delete'
         />
       </Popconfirm>

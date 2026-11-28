@@ -1,5 +1,5 @@
-import { Flex, Button, Popconfirm, Empty } from 'antd'
-import { ClearOutlined } from '@ant-design/icons'
+import { Button, Popconfirm } from 'antd'
+import { HistoryOutlined } from '@ant-design/icons'
 import AiChatSession from './ai-chat-session'
 
 const e = window.translate
@@ -11,49 +11,40 @@ export default function AiChatSessions ({
   onDeleteSession,
   onClearAll
 }) {
-  if (!sessions || sessions.length === 0) {
+  if (!sessions?.length) {
     return (
-      <Flex
-        vertical
-        align='center'
-        justify='center'
-        className='ai-chat-sessions-empty'
-      >
-        <Empty
-          description='No chat history yet'
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
-      </Flex>
+      <div className='ai-chat-sessions-empty'>
+        <HistoryOutlined aria-hidden='true' />
+        <span>No chat history yet</span>
+      </div>
     )
   }
 
   return (
-    <div className='ai-chat-sessions-wrap'>
-      <Flex justify='end' className='ai-chat-sessions-toolbar'>
-        <Popconfirm
-          title='?'
-          okText={e('clear')}
-          cancelText={e('cancel')}
-          onConfirm={onClearAll}
-        >
-          <Button
-            size='small'
-            danger
-            icon={<ClearOutlined />}
+    <div className='ai-history-wrap'>
+      <section className='ai-chat-sessions-wrap'>
+        <header className='ai-chat-sessions-toolbar'>
+          <h2>{e('history')}</h2>
+          <Popconfirm
+            title='Clear all chat history?'
+            okText={e('clear')}
+            okButtonProps={{ danger: true }}
+            cancelText={e('cancel')}
+            onConfirm={onClearAll}
           >
-            {e('clear')}
-          </Button>
-        </Popconfirm>
-      </Flex>
-      {sessions.map(session => (
-        <AiChatSession
-          key={session.sessionId}
-          session={session}
-          isActive={session.sessionId === currentChatSessionId}
-          onLoadSession={onLoadSession}
-          onDeleteSession={onDeleteSession}
-        />
-      ))}
+            <Button type='text' size='small'>{e('clear')}</Button>
+          </Popconfirm>
+        </header>
+        {sessions.map(session => (
+          <AiChatSession
+            key={session.sessionId}
+            session={session}
+            isActive={session.sessionId === currentChatSessionId}
+            onLoadSession={onLoadSession}
+            onDeleteSession={onDeleteSession}
+          />
+        ))}
+      </section>
     </div>
   )
 }
