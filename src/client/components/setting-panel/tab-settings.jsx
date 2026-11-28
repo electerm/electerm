@@ -1,6 +1,7 @@
 import { auto } from 'manate/react'
 import SettingCommon from './setting-common'
 import SettingTerminal from './setting-terminal'
+import SettingAI from './setting-ai'
 import SettingCol from './col'
 import SyncSetting from '../setting-sync/setting-sync'
 import Shortcuts from '../shortcuts/shortcuts'
@@ -10,10 +11,12 @@ import {
   settingMap,
   settingSyncId,
   settingTerminalId,
+  settingAIId,
   settingShortcutsId,
   settingPasswordsId
 } from '../../common/constants'
 import { pick } from 'lodash-es'
+import { isAIDisabled } from '../../common/ai-feature'
 
 export default auto(function TabSettings (props) {
   const {
@@ -42,6 +45,8 @@ export default auto(function TabSettings (props) {
     elem = <SyncSetting {...syncProps} />
   } else if (sid === settingTerminalId) {
     elem = <SettingTerminal {...listProps} config={store.config} />
+  } else if (sid === settingAIId && !isAIDisabled()) {
+    elem = <SettingAI autoCompress={store.aiAutoCompress} />
   } else if (sid === settingShortcutsId) {
     const shortcutsProps = {
       quickCommands: store.quickCommands,

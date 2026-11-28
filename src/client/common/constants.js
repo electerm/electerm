@@ -266,6 +266,7 @@ export const syncTokenCreateUrls = {
 }
 export const settingSyncId = 'setting-sync'
 export const settingTerminalId = 'setting-terminal'
+export const settingAIId = 'setting-ai'
 export const settingShortcutsId = 'setting-shortcuts'
 export const settingCommonId = 'setting-common'
 export const settingPasswordsId = 'setting-passwords'

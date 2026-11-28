@@ -69,6 +69,11 @@ test.describe('Agent tool approvals', () => {
     }
   })
 
+  async function openAISettings () {
+    await client.evaluate(() => window.store.openSetting())
+    await client.locator('.item-type-setting').getByText('AI', { exact: true }).click()
+  }
+
   async function requestTool (name, args) {
     await client.evaluate(tool => {
       window.store.handleOpenAIPanel()
@@ -99,6 +104,36 @@ test.describe('Agent tool approvals', () => {
     }
     await dialog.locator('button.ant-btn-primary').click()
   }
+
+  test('groups AI preferences after Terminal and opens the active provider from that page', async () => {
+    await client.evaluate(() => window.store.openSetting())
+    const menu = client.locator('.item-type-setting')
+    await expect(menu.locator('.item-list-unit:nth-child(-n + 3) .list-item-title')).toHaveText([
+      e('common'), e('terminal'), 'AI'
+    ])
+    const allowlist = client.getByLabel(e('agentCommandAllowlist'), { exact: true })
+    await expect(allowlist).toHaveCount(0)
+    await menu.getByText(e('terminal'), { exact: true }).click()
+    await expect(allowlist).toHaveCount(0)
+    await menu.getByText('AI', { exact: true }).click()
+    await expect(allowlist).toBeVisible()
+
+    const autoCompress = client.locator('.setting-wrap').getByRole('switch', { name: e('autoCompress'), exact: true })
+    await expect(autoCompress).not.toBeChecked()
+    await autoCompress.click()
+    await client.locator('.alt-close-setting-wrap').click()
+    await client.locator('.ai-chat-toolbar').getByRole('button', { name: e('autoCompress'), exact: true }).click()
+    await expect(client.locator('.ai-auto-compress-popover').getByRole('switch')).toBeChecked()
+    await client.reload()
+    await client.waitForFunction(() => window.store?.activeTabId && !window.store.initLoadingData)
+    await openAISettings()
+    await expect(autoCompress).toBeChecked()
+
+    const providerSettings = 'AI ' + e('settings')
+    await client.getByRole('button', { name: providerSettings, exact: true }).click()
+    await expect(client.getByRole('tab', { name: providerSettings, exact: true, selected: true })).toBeVisible()
+    await expect(client.locator('#nameAI')).toHaveValue('Mock chat provider')
+  })
 
   for (const mode of ['Ask', 'Agent']) {
     test(`sends on Enter from chat history in ${mode} mode without opening a card`, async () => {
@@ -256,13 +291,13 @@ test.describe('Agent tool approvals', () => {
         window.dispatchedTools.push(remotePath)
         return { content: 'synthetic test content' }
       }
-      window.store.openSetting()
     })
+    await openAISettings()
     const allowlist = client.getByLabel(e('agentCommandAllowlist'), { exact: true })
     await allowlist.fill(command)
     await allowlist.blur()
     await client.locator('.alt-close-setting-wrap').click()
-    await client.evaluate(() => window.store.openSetting())
+    await openAISettings()
     await expect(allowlist).toHaveValue(command)
     await client.locator('.alt-close-setting-wrap').click()
     await waitForShellPrompt()
@@ -290,7 +325,7 @@ test.describe('Agent tool approvals', () => {
     await expectDispatched([command, remotePath])
   })
 
-  test('approves once, remembers exact commands and honors edits in Common Settings', async () => {
+  test('approves once, remembers exact commands and honors edits in AI settings', async () => {
     const command = 'mkdir reports'
     const variant = 'mkdir reports/archive'
     await requestTool('send_terminal_command', { command })
@@ -322,7 +357,7 @@ test.describe('Agent tool approvals', () => {
     await dialog.press('Escape')
     await expectDispatched([command, command, command])
 
-    await client.evaluate(() => window.store.openSetting())
+    await openAISettings()
     const allowlist = client.getByLabel(e('agentCommandAllowlist'), { exact: true })
     await expect(allowlist).toHaveValue(command)
     await allowlist.fill([variant, variant, ''].join('\r\n'))
@@ -336,7 +371,7 @@ test.describe('Agent tool approvals', () => {
     await expectDispatched([command, command, command, variant])
     await client.reload()
     await client.waitForFunction(() => window.store?.activeTabId && !window.store.initLoadingData)
-    await client.evaluate(() => window.store.openSetting())
+    await openAISettings()
     await expect(allowlist).toHaveValue(variant)
   })
 
@@ -347,8 +382,8 @@ test.describe('Agent tool approvals', () => {
     const count = client.locator('#agentCommandCount')
     await client.evaluate(() => {
       window.store.setConfig({ language: 'zh_cn' })
-      window.store.openSetting()
     })
+    await openAISettings()
     await allowlist.fill(savedCommand)
     await allowlist.blur()
     await expect(count).toHaveText('1 / 200')
@@ -377,7 +412,7 @@ test.describe('Agent tool approvals', () => {
     await dialog.press('Escape')
     await expectDispatched([command])
 
-    await client.evaluate(() => window.store.openSetting())
+    await openAISettings()
     await expect(allowlist).toHaveValue(savedCommand)
     await allowlist.fill([savedCommand, command].join('\n'))
     await allowlist.blur()
@@ -416,7 +451,7 @@ test.describe('Agent tool approvals', () => {
     await client.locator('.ai-stop-icon-square').dispatchEvent('click')
     await expectDispatched([])
 
-    await client.evaluate(() => window.store.openSetting())
+    await openAISettings()
     const settings = client.locator('.setting-wrap')
     await settings.getByRole('combobox', { name: e('permission'), exact: true }).click()
     await expect(settings.locator('label[for="agentApprovalMode"]')).toHaveCount(0)

@@ -2,8 +2,10 @@ import {
   settingSyncId,
   settingShortcutsId,
   settingTerminalId,
+  settingAIId,
   settingPasswordsId
 } from '../common/constants'
+import { isAIDisabled } from './ai-feature'
 
 const e = window.translate
 
@@ -13,6 +15,7 @@ export default () => {
       id: settingTerminalId,
       title: e('terminal')
     },
+    ...(isAIDisabled() ? [] : [{ id: settingAIId, title: 'AI' }]),
     {
       id: settingShortcutsId,
       title: e('settingShortcuts')
