@@ -4,6 +4,10 @@
  * plain text export of the current buffer.
  */
 export const contentMixin = {
+  getVisibleTerminal () {
+    return this.pausedTerm || this.term
+  },
+
   toggleSearch () {
     window.store.toggleTerminalSearch()
   },
@@ -98,7 +102,7 @@ export const contentMixin = {
    * dropped so the panel opens on real output.
    */
   getSelectableBufferText () {
-    const buffer = this.term.buffer.active
+    const buffer = this.getVisibleTerminal().buffer.active
     const len = buffer.length
     const lines = []
     for (let i = 0; i < len; i++) {

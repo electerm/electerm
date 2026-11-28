@@ -79,3 +79,16 @@
     overflow hidden
     text-overflow ellipsis
     white-space nowrap
+
+.terminal-view-button
+  align-self center
+  .terminal-view-resume
+    animation terminal-view-pulse 1.5s ease-in-out infinite alternate
+
+@keyframes terminal-view-pulse
+  to
+    opacity .5
+
+@media (prefers-reduced-motion: reduce)
+  .terminal-view-button .anticon
+    animation none

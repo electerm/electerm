@@ -204,7 +204,8 @@ export const touchMixin = {
    * double → select the word, triple → select the line.
    */
   handleTap (touch) {
-    if (!touch || !this.term) {
+    const term = this.getVisibleTerminal()
+    if (!touch || !term) {
       return
     }
     const { clientX, clientY } = touch
@@ -219,7 +220,7 @@ export const touchMixin = {
     this.lastTapPos = { clientX, clientY }
 
     if (this.tapCount === 2 && this.selectWordAt(clientX, clientY)) {
-      this.term.focus()
+      term.focus()
       return
     }
     if (this.tapCount >= 3) {
@@ -227,20 +228,20 @@ export const touchMixin = {
       const coords = this.toBufferCoords(clientX, clientY)
       if (coords) {
         // selectLines() takes buffer-absolute line indices, same as select()
-        this.term.selectLines(coords.absRow, coords.absRow)
-        this.term.focus()
+        term.selectLines(coords.absRow, coords.absRow)
+        term.focus()
         return
       }
     }
-    if (this.term.hasSelection()) {
-      this.term.clearSelection()
+    if (term.hasSelection()) {
+      term.clearSelection()
     }
     // xterm's own touch handler calls preventDefault()/stopPropagation() on
     // touchstart/touchend, which suppresses the synthesised mousedown xterm
     // relies on to focus its hidden helper textarea — so a tap never focuses
     // the terminal by itself and the soft keyboard would never open. Focusing
     // here runs synchronously inside the user gesture, so iOS/Android show it.
-    this.term.focus()
+    term.focus()
   },
 
   handleLongPress () {
@@ -337,7 +338,8 @@ export const touchMixin = {
    * whole word. Returns null when there is no usable coordinate mapping.
    */
   selectWordAt (clientX, clientY) {
-    if (!this.term) {
+    const term = this.getVisibleTerminal()
+    if (!term) {
       return null
     }
     const coords = this.toBufferCoords(clientX, clientY)
@@ -346,7 +348,7 @@ export const touchMixin = {
     }
     const { col, absRow } = coords
     const anchor = { col, absRow }
-    const line = this.term.buffer.active.getLine(absRow)
+    const line = term.buffer.active.getLine(absRow)
     if (!line) {
       return anchor
     }
@@ -370,7 +372,7 @@ export const touchMixin = {
       end++
     }
     if (end > start) {
-      this.term.select(start, absRow, end - start)
+      term.select(start, absRow, end - start)
     }
     return { col: start, absRow }
   },
@@ -380,7 +382,7 @@ export const touchMixin = {
    * below the screen area, which is what drives edge auto-scrolling.
    */
   toBufferCoords (clientX, clientY) {
-    const term = this.term
+    const term = this.getVisibleTerminal()
     if (!term || !term.element || !term.cols || !term.rows) {
       return null
     }
@@ -421,16 +423,17 @@ export const touchMixin = {
    * private API.
    */
   applySelection (a, b) {
-    if (!this.term || !a || !b) {
+    const term = this.getVisibleTerminal()
+    if (!term || !a || !b) {
       return
     }
     const forward = a.absRow < b.absRow ||
       (a.absRow === b.absRow && a.col <= b.col)
     const start = forward ? a : b
     const end = forward ? b : a
-    const length = this.term.cols * (end.absRow - start.absRow) +
+    const length = term.cols * (end.absRow - start.absRow) +
       (end.col - start.col + 1)
-    this.term.select(start.col, start.absRow, Math.max(1, length))
+    term.select(start.col, start.absRow, Math.max(1, length))
   },
 
   /**
@@ -477,7 +480,7 @@ export const touchMixin = {
       if (!this.autoScrollDir || !this.dragSelect) {
         return
       }
-      this.term.scrollLines(this.autoScrollDir)
+      this.getVisibleTerminal().scrollLines(this.autoScrollDir)
       const touch = this.lastDragTouch
       if (touch) {
         const coords = this.toBufferCoords(touch.clientX, touch.clientY)

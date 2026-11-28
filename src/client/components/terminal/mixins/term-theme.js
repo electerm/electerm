@@ -320,6 +320,10 @@ export const themeMixin = {
     }
     term.options.theme = this.getRendererThemeConfig(this.props.themeConfig, rendererType)
     this.fixSelectionColors(term)
+    if (this.pausedTerm) {
+      this.pausedTerm.options.theme = this.getRendererThemeConfig(this.props.themeConfig, rendererTypes.dom)
+      this.fixSelectionColors(this.pausedTerm)
+    }
     term.refresh(0, term.rows - 1)
     if (deferred && rendererType === rendererTypes.webGL) {
       window.cancelAnimationFrame(this.timers.themeRaf)
