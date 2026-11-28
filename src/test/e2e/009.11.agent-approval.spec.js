@@ -100,6 +100,102 @@ test.describe('Agent tool approvals', () => {
     await dialog.locator('button.ant-btn-primary').click()
   }
 
+  for (const mode of ['Ask', 'Agent']) {
+    test(`sends on Enter from chat history in ${mode} mode without opening a card`, async () => {
+      await client.locator('.ai-chat-controls .ant-segmented-item').getByText(mode, { exact: true }).click()
+      const sessionId = await client.evaluate(() => window.store.currentChatSessionId)
+      await client.evaluate(() => {
+        const run = window.pre.runGlobalAsync
+        window.chatRequests = []
+        window.pre.runGlobalAsync = async (name, ...args) => {
+          if (name === 'AIchat' || name === 'AIchatWithTools') {
+            const prompt = name === 'AIchat' ? args[0] : args[0].at(-1).content
+            window.chatRequests.push({ name, prompt })
+            return name === 'AIchat'
+              ? { response: 'Reply received' }
+              : { message: { role: 'assistant', content: 'Reply received' } }
+          }
+          return run(name, ...args)
+        }
+      })
+      const requests = () => client.evaluate(() => window.chatRequests)
+      const history = client.locator('.ai-chat-toolbar').getByText(e('history'), { exact: true })
+      await history.click()
+      await expect(client.locator('.ai-chat-sessions-empty')).toBeVisible()
+      const composer = client.locator('.ai-chat-textarea')
+      await composer.fill('First line')
+      await composer.press('Shift+Enter')
+      await client.keyboard.insertText('Second line')
+      const prompt = 'First line\nSecond line'
+      await expect(composer).toHaveValue(prompt)
+      expect(await requests()).toEqual([])
+      await composer.press('Enter')
+
+      const expected = [{ name: mode === 'Ask' ? 'AIchat' : 'AIchatWithTools', prompt }]
+      await expect.poll(requests).toEqual(expected)
+      await expect(client.locator('.ai-stream-output')).toContainText('Reply received')
+      expect(await client.evaluate(() => window.store.aiChatHistory.at(-1).chatSessionId)).toBe(sessionId)
+      await history.click()
+      await client.locator('.ai-chat-session-item').click()
+      await expect(client.locator('.ai-stream-output')).toContainText('Reply received')
+      expect(await requests()).toEqual(expected)
+
+      if (mode === 'Ask') {
+        const followUp = 'Second question'
+        await composer.fill(followUp)
+        await composer.dispatchEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, isComposing: true })
+        await expect(composer).toHaveValue(followUp)
+        expect(await requests()).toEqual(expected)
+        await composer.press('Control+Enter')
+        await expect(client.locator('.ai-stream-output')).toHaveCount(2)
+        expect(await requests()).toEqual([...expected, { name: 'AIchat', prompt: followUp }])
+      }
+    })
+  }
+
+  test('keeps a submitted turn at the history limit and across navigation during the reply', async () => {
+    await client.evaluate(() => {
+      window.store.aiChatHistory = Array.from({ length: 500 }, (_, i) => ({
+        id: 'old-' + i,
+        chatSessionId: 'earlier-session',
+        timestamp: i + 1,
+        prompt: 'Previous question',
+        response: 'Previous answer',
+        pending: false
+      }))
+      const run = window.pre.runGlobalAsync
+      window.submittedPrompts = []
+      window.pre.runGlobalAsync = async (name, ...args) => {
+        if (name !== 'AIchatWithTools') return run(name, ...args)
+        window.submittedPrompts.push(args[0].at(-1).content)
+        await new Promise(resolve => { window.finishReply = resolve })
+        return { message: { role: 'assistant', content: 'Newest answer' } }
+      }
+    })
+    const prompt = 'Newest question'
+    const composer = client.locator('.ai-chat-textarea')
+    await composer.fill(prompt)
+    await composer.press('Enter')
+    const requests = () => client.evaluate(() => window.submittedPrompts)
+    await expect.poll(requests).toEqual([prompt])
+    const stop = client.locator('.chat-history-item .ai-stop-icon-square')
+    await expect(stop).toBeVisible()
+    await client.locator('.ai-chat-toolbar').getByText(e('history'), { exact: true }).click()
+    await client.locator('.ai-chat-session-item').filter({ hasText: prompt }).click()
+    await expect(stop).toBeVisible()
+    expect(await requests()).toEqual([prompt])
+
+    await client.evaluate(() => window.finishReply())
+    await expect(client.locator('.ai-stream-output')).toContainText('Newest answer')
+    await expect(stop).toBeHidden()
+    const retained = await client.evaluate(() => {
+      const entries = window.store.aiChatHistory
+      return { count: entries.length, first: entries[0].id, last: entries.at(-1).prompt }
+    })
+    expect(retained).toEqual({ count: 500, first: 'old-1', last: prompt })
+    expect(await requests()).toEqual([prompt])
+  })
+
   test('runs reads without persisting an approval and reviews other uses of the same command', async () => {
     const command = 'whoami'
     await requestTool('list_tabs', {})

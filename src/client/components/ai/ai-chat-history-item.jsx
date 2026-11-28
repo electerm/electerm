@@ -1,17 +1,8 @@
-import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react'
+import { useState, memo } from 'react'
 import AIOutput from './ai-output'
 import AIStopIcon from './ai-stop-icon'
 import AgentToolCallCard from './agent-tool-call-card'
-import { runAgentLoop, stopAgentRun } from './agent'
-import { appendMandatoryGuardrails } from './ai-guardrails'
-import { buildSessionMessages, summarizeContext } from './ai-context'
-import {
-  shouldAutoCompress,
-  canCompact,
-  splitPendingTurn,
-  compactAskMessages
-} from './ai-auto-compress'
-import { summarizeMessages, autoCompressSession, autoCompressEnabled } from './ai-compress'
+import { isChatRequestStreaming, stopChatRequest } from './ai-chat-request'
 import {
   Alert,
   Tooltip,
@@ -35,15 +26,9 @@ import { formatSize } from './ai-attachments'
 // (store.updateAiHistoryEntry), so the reference comparison is meaningful.
 export default memo(function AIChatHistoryItem ({ item }) {
   const [showOutput, setShowOutput] = useState(true)
-  const [isStreaming, setIsStreaming] = useState(false)
-  // `current` is the stop flag; `requestId` is the HTTP request currently in
-  // flight (agent mode), so that stopping can cancel it rather than wait for it
-  // to come back.
-  const abortRef = useRef(false)
+  const isStreaming = isChatRequestStreaming(item)
   const {
     prompt,
-    sessionId,
-    chatSessionId,
     nameAI,
     modelAI,
     roleAI,
@@ -53,175 +38,13 @@ export default memo(function AIChatHistoryItem ({ item }) {
     autoCompressCount
   } = item
 
-  // Resolve credentials once for a pending turn. A switch in the composer
-  // affects later turns, including when an agent is between tool calls.
-  const [requestConfig] = useState(() => {
-    if (!item.pending) return null
-    const config = window.store.aiConfigs.find(c => c.id === item.aiConfigId)
-    return config && { ...config }
-  })
-
   function toggleOutput () {
     setShowOutput(!showOutput)
   }
 
-  function buildRole () {
-    const lang = requestConfig?.languageAI || window.store.getLangName()
-    return appendMandatoryGuardrails((requestConfig?.roleAI || '') + `;用[${lang}]回复`)
-  }
-
-  // The context this turn sends: the session history up to and including the
-  // previous turns, but not this turn's own (still streaming) response.
-  // Shared with the context size indicator in ai-chat.jsx so the number shown
-  // is built from the same message list that goes out.
-  const conversationMessages = useMemo(() => buildSessionMessages({
-    history: window.store.aiChatHistory,
-    chatSessionId,
-    upto: item.timestamp,
-    role: buildRole(),
-    excludeId: item.id
-  }), [chatSessionId, item.id, item.timestamp])
-
-  // The message list this turn actually sends. Normally the memoized session
-  // messages above, but when auto compress is on and the request would not fit
-  // the window, the earlier turns are replaced by a summary first. The live
-  // prompt survives untouched -- it is the question being answered, not
-  // history. The stored session is compacted separately once the answer is in
-  // (autoCompressSession below), so this is only about the request leaving now.
-  const buildOutgoingMessages = useCallback(async () => {
-    if (!autoCompressEnabled() || !conversationMessages) {
-      return conversationMessages
-    }
-    const info = summarizeContext(conversationMessages, {
-      model: requestConfig.modelAI,
-      contextLength: requestConfig.contextLengthAI
-    })
-    if (!shouldAutoCompress(info)) {
-      return conversationMessages
-    }
-    const { context } = splitPendingTurn(conversationMessages)
-    if (!canCompact(context)) {
-      return conversationMessages
-    }
-    // Marked before the request: summarizing a nearly full window takes a
-    // while, and the badge is the only sign that this turn is waiting on it.
-    // Cleared again if the summary comes back unusable.
-    window.store.updateAiHistoryEntry(item.id, { autoCompressCount: 1 })
-    const summary = await summarizeMessages(context, requestConfig)
-    if (!summary) {
-      window.store.updateAiHistoryEntry(item.id, { autoCompressCount: 0 })
-      return conversationMessages
-    }
-    return compactAskMessages(conversationMessages, summary)
-  }, [conversationMessages, requestConfig, item.id])
-
-  const pollStreamContent = useCallback(async (sid) => {
-    try {
-      const streamResponse = await window.pre.runGlobalAsync('getStreamContent', sid)
-
-      if (streamResponse && streamResponse.error) {
-        if (streamResponse.error === 'Session not found') {
-          return
-        }
-        window.store.removeAiHistory(item.id)
-        return window.store.onError(new Error(streamResponse.error))
-      }
-
-      window.store.updateAiHistoryEntry(item.id, {
-        response: streamResponse.content || ''
-      })
-      setIsStreaming(streamResponse.hasMore)
-      if (streamResponse.hasMore) {
-        setTimeout(() => pollStreamContent(sid), 200)
-      } else {
-        // The answer is in the store now, so the session can be summarized for
-        // the turns that follow this one.
-        autoCompressSession(chatSessionId, requestConfig)
-      }
-    } catch (error) {
-      window.store.removeAiHistory(item.id)
-      window.store.onError(error)
-    }
-  }, [item.id, chatSessionId, requestConfig])
-
-  const startRequest = useCallback(async () => {
-    try {
-      const aiResponse = await window.pre.runGlobalAsync(
-        'AIchat',
-        prompt,
-        requestConfig.modelAI,
-        buildRole(),
-        requestConfig.baseURLAI,
-        requestConfig.apiPathAI,
-        requestConfig.apiKeyAI,
-        requestConfig.proxyAI,
-        true,
-        requestConfig.authHeaderNameAI,
-        await buildOutgoingMessages()
-      )
-
-      if (aiResponse && aiResponse.error) {
-        window.store.removeAiHistory(item.id)
-        return window.store.onError(new Error(aiResponse.error))
-      }
-
-      if (aiResponse && aiResponse.isStream && aiResponse.sessionId) {
-        setIsStreaming(true)
-        window.store.updateAiHistoryEntry(item.id, {
-          sessionId: aiResponse.sessionId,
-          response: aiResponse.content || ''
-        })
-        pollStreamContent(aiResponse.sessionId)
-      } else if (aiResponse && aiResponse.response) {
-        window.store.updateAiHistoryEntry(item.id, {
-          response: aiResponse.response
-        })
-        // No stream to poll: the answer is in the store, so the session can be
-        // summarized for the turns that follow this one.
-        autoCompressSession(chatSessionId, requestConfig)
-      }
-    } catch (error) {
-      window.store.removeAiHistory(item.id)
-      window.store.onError(error)
-    }
-  }, [prompt, item.id, chatSessionId, requestConfig, pollStreamContent, buildOutgoingMessages])
-
-  const startAgentRequest = useCallback(async () => {
-    abortRef.current = false
-    abortRef.requestId = null
-    await runAgentLoop(item, requestConfig, abortRef, setIsStreaming, conversationMessages)
-  }, [item, requestConfig, conversationMessages])
-
-  useEffect(() => {
-    if (item.pending) {
-      window.store.updateAiHistoryEntry(item.id, { pending: false })
-      if (!requestConfig) {
-        window.store.onError(new Error('The AI configuration for this message is unavailable.'))
-        return
-      }
-      if (mode === 'agent') {
-        startAgentRequest()
-      } else {
-        startRequest()
-      }
-    }
-  }, [])
-
-  async function handleStop (e) {
-    e.stopPropagation()
-    if (mode === 'agent') {
-      setIsStreaming(false)
-      await stopAgentRun(abortRef)
-      return
-    }
-    if (!sessionId) return
-
-    try {
-      await window.pre.runGlobalAsync('stopStream', sessionId)
-      setIsStreaming(false)
-    } catch (error) {
-      console.error('Error stopping stream:', error)
-    }
+  function handleStop (event) {
+    event.stopPropagation()
+    stopChatRequest(item)
   }
 
   function renderStopButton () {

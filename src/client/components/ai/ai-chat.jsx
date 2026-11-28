@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { Flex, Input, Segmented, Select, Button, Tag, message, Popover } from 'antd'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
+import { startChatRequest } from './ai-chat-request'
 import AiChatSessions from './ai-chat-sessions'
 import AiContextIndicator from './ai-context-indicator'
 import AgentApprovalModeSelect from './agent-approval-mode-select'
@@ -59,7 +60,7 @@ export default function AIChat (props) {
   const currentChatSessionId = props.currentChatSessionId || ''
 
   useEffect(() => {
-    if (!currentChatSessionId && props.rightPanelTab === 'ai') {
+    if (!window.store.currentChatSessionId && props.rightPanelTab === 'ai') {
       window.store.startNewChat()
     }
   }, [currentChatSessionId, props.rightPanelTab])
@@ -162,18 +163,17 @@ export default function AIChat (props) {
   }
 
   const handleSubmit = useCallback(function () {
-    if (window.store.aiConfigMissing()) {
-      window.store.toggleAIConfig()
+    const { store } = window
+    if (store.aiConfigMissing()) {
+      store.toggleAIConfig()
       return
     }
-    // Read the live flag rather than the rendered one. `submitDisabled` can be
-    // stale: the loop sets `agentRunning` from the new turn's mount effect, and
-    // manate's `auto` re-subscribes its listener on every render, so a write
-    // landing in that window never reaches the panel -- leaving the icon looking
-    // enabled while a run is in flight, which let a second agent turn through.
-    if (isAgent && window.store.agentRunning) return
+    if (isAgent && store.agentRunning) return
     if (!prompt.trim() && !attachments.length) return
 
+    if (!store.currentChatSessionId) store.startNewChat()
+    store.showChatSessions = false
+    const requestConfig = { ...store.activeAIConfig }
     const chatId = uid()
     const block = buildAttachmentsBlock(attachments)
     const promptWithAttachments = block
@@ -187,26 +187,22 @@ export default function AIChat (props) {
       })),
       response: '',
       isStreaming: false,
-      pending: true,
       sessionId: null,
-      chatSessionId: currentChatSessionId,
+      chatSessionId: store.currentChatSessionId,
       mode,
       toolCalls: [],
-      ...getAIHistoryConfig(window.store.activeAIConfig),
+      ...getAIHistoryConfig(requestConfig),
       timestamp: Date.now(),
       id: chatId
     }
 
     // Reassign rather than push: the store only notifies on a property write,
     // and the transcript is keyed off the array identity.
-    window.store.aiChatHistory = [...window.store.aiChatHistory, chatEntry]
+    store.aiChatHistory = [...store.aiChatHistory, chatEntry].slice(-MAX_HISTORY)
     setPrompt('')
     setAttachments([])
-
-    if (window.store.aiChatHistory.length > MAX_HISTORY) {
-      window.store.aiChatHistory = window.store.aiChatHistory.slice(0, MAX_HISTORY)
-    }
-  }, [prompt, attachments, mode, currentChatSessionId])
+    startChatRequest(chatEntry, requestConfig)
+  }, [prompt, attachments, mode])
 
   function renderHistory () {
     if (props.showChatSessions) {
@@ -332,9 +328,7 @@ export default function AIChat (props) {
   const handleKeyPress = (evt) => {
     if (!evt.shiftKey) {
       evt.preventDefault()
-      if (!submitDisabled) {
-        handleSubmit()
-      }
+      handleSubmit()
     }
   }
   return (
