@@ -1,15 +1,16 @@
-import { aiConfigDefaults } from '../components/ai/ai-config-props.js'
-
 const routeFields = ['baseURLAI', 'apiPathAI', 'proxyAI', 'authHeaderNameAI']
 
-function publicURL (value, relative = false) {
+// Older plaintext transfers omitted credentials and kept a sanitized route.
+// Match that representation only while restoring records carrying its marker.
+function legacyRoute (key, value) {
+  if (key === 'authHeaderNameAI') {
+    return /^[\w-]+(?:: (?:Bearer|Basic|Api-Key))?$/i.test(value || '') ? value : null
+  }
   if (value === null) return null
   if (!value) return ''
   if (typeof value !== 'string') return null
   try {
-    const url = new URL(value, relative ? 'https://example.invalid/' : undefined)
-    // A custom query or fragment can carry a token or select a different
-    // endpoint. Leave the route incomplete instead of guessing its meaning.
+    const url = new URL(value, key === 'apiPathAI' ? 'https://example.invalid/' : undefined)
     if (!url.host || url.hash || [...url.searchParams.keys()].some(key => key !== 'api-version')) {
       return null
     }
@@ -22,50 +23,21 @@ function publicURL (value, relative = false) {
   }
 }
 
-export function publicAIConfig (config) {
-  const { id, nameAI, modelAI, roleAI, languageAI, contextLengthAI, authHeaderNameAI } = config
-  return {
-    id,
-    // A widget can use the provider URL as its account name.
-    nameAI: typeof nameAI === 'string' && nameAI.includes('://') ? publicURL(nameAI) || '' : nameAI,
-    modelAI,
-    roleAI,
-    languageAI,
-    contextLengthAI,
-    baseURLAI: publicURL(config.baseURLAI),
-    apiPathAI: publicURL(config.apiPathAI, true),
-    proxyAI: publicURL(config.proxyAI),
-    // A custom literal header prefix can itself contain a credential.
-    authHeaderNameAI: /^[\w-]+(?:: (?:Bearer|Basic|Api-Key))?$/i.test(authHeaderNameAI || '') ? authHeaderNameAI : null,
-    credentialsOmitted: true
-  }
-}
-
-export function restoreAIConfigs (records, localRecords, passwordlessSync = false) {
+export function restoreAIConfigs (records, localRecords) {
+  if (!records.some(record => record.credentialsOmitted === true)) return records
   const byId = new Map(localRecords.map(record => [record.id, record]))
   return records.map(record => {
-    if (!record.credentialsOmitted && !passwordlessSync) return record
-    const { credentialsOmitted, ...config } = publicAIConfig(record)
+    if (record.credentialsOmitted !== true) return record
+    const { credentialsOmitted, ...config } = record
     const local = byId.get(config.id)
-    if (local && config.id) {
-      const previous = publicAIConfig(local)
-      if (routeFields.every(key => config[key] === previous[key])) {
-        // When both routes were omitted their contents cannot be compared.
-        // Keep the entire trusted local route together with its credentials.
-        for (const key of routeFields) config[key] = local[key]
-        config.apiKeyAI = local.apiKeyAI
-        return config
-      }
+    if (local && config.id && routeFields.every(key => config[key] === legacyRoute(key, local[key]))) {
+      for (const key of routeFields) config[key] = local[key]
+      config.apiKeyAI = local.apiKeyAI
+      return config
     }
     // A missing authenticated proxy must not silently become a direct route.
     if (routeFields.some(key => config[key] === null)) config.baseURLAI = ''
     for (const key of routeFields) config[key] ||= ''
     return { ...config, apiKeyAI: '' }
   })
-}
-
-export function withoutLegacyAISettings (settings) {
-  const clean = { ...settings }
-  for (const field of Object.keys(aiConfigDefaults)) delete clean[field]
-  return clean
 }

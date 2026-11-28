@@ -115,9 +115,6 @@ export default function DataTransport (props) {
           link='https://github.com/electerm/electerm/wiki/Auto-data-Sync'
         />
       </div>
-      <div className='pd1t' style={{ clear: 'both' }}>
-        Passwordless sync and JSON exports omit AI API keys and proxy passwords. Set a sync password to transfer complete AI configurations.
-      </div>
     </div>
   )
 }

@@ -5,11 +5,28 @@ const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
 const configureMockAI = require('./common/configure-mock-ai')
+const startWebdav = require('./common/test-webdav')
 const e = require('./common/lang')
 const { spawn } = require('child_process')
 const path = require('path')
 const { mkdtempSync, readdirSync, readFileSync, rmSync } = require('fs')
 const { tmpdir } = require('os')
+
+async function answerTransfer (client, action, button, beforeAnswer) {
+  const dialog = client.locator('.unencrypted-transfer-confirm')
+  await Promise.all([
+    client.evaluate(action),
+    (async () => {
+      await expect(dialog).toContainText(/plaintext/i)
+      await expect(dialog).toContainText(/bookmark passwords/i)
+      await expect(dialog).toContainText(/SSH private keys/i)
+      await expect(dialog).toContainText(/AI API keys/i)
+      if (beforeAnswer) await beforeAnswer(dialog)
+      await dialog.getByRole('button', { name: button, exact: true }).click()
+    })()
+  ])
+  await expect(dialog).toBeHidden()
+}
 
 describe('AI Config and Suggestions', function () {
   let aiServer
@@ -178,55 +195,131 @@ describe('AI Config and Suggestions', function () {
     }
   })
 
-  it('exports AI profiles without credentials and reuses matching local credentials on import', async function () {
-    // Select the test directory in Electron's native export dialog.
-    await electronApp.evaluate(({ dialog }, directory) => {
-      const open = dialog.showOpenDialogSync
-      dialog.showOpenDialogSync = () => {
-        dialog.showOpenDialogSync = open
-        return [directory]
-      }
-    }, dataDir)
-    await client.evaluate(async () => {
+  it('cancels a plaintext backup or exports and restores complete credentials after confirmation', async function () {
+    const expected = await client.evaluate(() => {
       const { store } = window
-      store.saveAIConfig({
+      const bookmarks = [{
+        id: 'backup-bookmark',
+        type: 'ssh',
+        title: 'Build',
+        host: 'build.example.test',
+        password: 'backup-password',
+        privateKey: 'fixture-private-key',
+        proxy: ''
+      }]
+      const profiles = [{ id: 'backup-profile', name: 'Deploy', ssh: { username: 'deploy', password: 'profile-password' } }]
+      store.setItems('bookmarks', bookmarks)
+      store.setItems('profiles', profiles)
+      const work = store.saveAIConfig({
         ...store.newAIConfig(),
         nameAI: 'Work',
-        baseURLAI: 'https://work.example.test/v1',
         apiKeyAI: 'export-api-secret',
         proxyAI: 'http://me:export-proxy-secret@proxy.example.test:8080'
       })
-      await store.handleExportAllData()
+      const home = store.saveAIConfig({ ...store.newAIConfig(), nameAI: 'Home', apiKeyAI: 'second-key' })
+      store.applyAIConfig(home.id)
+      return { bookmarks, profiles, aiConfigs: [work, home], config: { activeAIConfigId: home.id } }
     })
-    const filename = readdirSync(dataDir).find(name => name.endsWith('-electerm-all-data.json'))
-    expect(filename).toBeTruthy()
-    const filePath = path.join(dataDir, filename)
-    const content = readFileSync(filePath, 'utf8')
-    expect(content).not.toMatch(/export-(?:api|proxy)-secret/)
-    expect(JSON.parse(content).aiConfigs[0].nameAI).toBe('Work')
+    const startExport = () => window.store.handleExportAllData()
+    const backupFiles = () => readdirSync(dataDir).filter(name => name.endsWith('-electerm-all-data.json'))
 
-    const result = await client.evaluate(async filePath => {
+    // Redirect the native directory picker for both attempts. Cancelling
+    // before the picker must leave the directory untouched.
+    await electronApp.evaluate(({ dialog }, directory) => {
+      dialog.showOpenDialogSync = () => [directory]
+    }, dataDir)
+    await answerTransfer(client, startExport, 'Cancel')
+    expect(backupFiles()).toEqual([])
+    await answerTransfer(client, startExport, 'Export backup')
+    expect(backupFiles()).toHaveLength(1)
+    const filePath = path.join(dataDir, backupFiles()[0])
+    expect(JSON.parse(readFileSync(filePath, 'utf8'))).toMatchObject(expected)
+
+    const restored = await client.evaluate(async filePath => {
       const { store } = window
+      for (const name of ['bookmarks', 'profiles', 'aiConfigs']) store.setItems(name, [])
+      store.setConfig({ activeAIConfigId: '' })
       await store.importAll({ filePath })
-      const { id, apiKeyAI, proxyAI } = store.activeAIConfig
-      store.deleteAIConfig(id)
-      await store.importAll({ filePath })
-      const fresh = store.activeAIConfig
       return {
-        localKey: apiKeyAI,
-        localProxy: proxyAI,
-        freshName: fresh.nameAI,
-        freshKey: fresh.apiKeyAI,
-        freshProxy: fresh.proxyAI
+        bookmarks: store.bookmarks,
+        profiles: store.profiles,
+        aiConfigs: store.aiConfigs,
+        config: { activeAIConfigId: store.activeAIConfig.id }
       }
     }, filePath)
-    expect(result).toEqual({
-      localKey: 'export-api-secret',
-      localProxy: 'http://me:export-proxy-secret@proxy.example.test:8080',
-      freshName: 'Work',
-      freshKey: '',
-      freshProxy: 'http://proxy.example.test:8080/'
-    })
+    expect(restored).toMatchObject(expected)
+  })
+
+  it('confirms plaintext WebDAV writes by destination and scope and restores encrypted uploads', async function () {
+    it.setTimeout(60000)
+    const webdav = await startWebdav()
+    const manual = () => window.store.uploadSetting('webdav')
+    const automatic = () => window.store.uploadSettingAll()
+    const countUploads = () => webdav.requests.filter(req => req.method === 'MKCOL').length
+    try {
+      const account = await client.evaluate(webdavServerUrl => {
+        const { store } = window
+        store.setConfig({ dataSyncSelected: 'aiConfigs', syncSetting: { webdavServerUrl } })
+        store.setItems('bookmarks', [{ id: 'sync-bookmark', type: 'ssh', title: 'CI', password: 'fixture-password' }])
+        return store.saveAIConfig({
+          ...store.newAIConfig(),
+          nameAI: 'Work',
+          apiKeyAI: 'fixture-api-key',
+          proxyAI: 'socks5://me:fixture-proxy-password@proxy.example.test'
+        })
+      }, webdav.url)
+
+      await answerTransfer(client, manual, 'Cancel')
+      expect(webdav.requests).toHaveLength(0)
+      await answerTransfer(client, manual, 'Upload once')
+      expect(JSON.parse(webdav.files.get('/electerm/aiConfigs.json'))).toEqual([account])
+      expect(webdav.files.has('/electerm/bookmarks.json')).toBe(false)
+      const requestsAfterUpload = webdav.requests.length
+      await answerTransfer(client, manual, 'Cancel')
+      expect(webdav.requests).toHaveLength(requestsAfterUpload)
+      await answerTransfer(client, manual, 'Upload once', () =>
+        client.evaluate(() => window.store.setConfig({ dataSyncSelected: 'aiConfigs,bookmarks' }))
+      )
+      expect(webdav.requests).toHaveLength(requestsAfterUpload)
+      await client.evaluate(() => window.store.setConfig({ dataSyncSelected: 'aiConfigs' }))
+
+      // Drive the same entry point as the change watcher, without editing
+      // any watched collection while automatic uploads are enabled.
+      await client.waitForFunction(() => window.store.autoSyncReady)
+      await client.evaluate(() => window.store.updateSyncSetting({ autoSync: true, autoSyncInterval: 0 }))
+      await answerTransfer(client, automatic, 'Cancel')
+      await client.evaluate(automatic)
+      expect(webdav.requests).toHaveLength(requestsAfterUpload)
+      await client.evaluate(() => window.store.setConfig({ dataSyncSelected: 'aiConfigs,bookmarks' }))
+      await answerTransfer(client, automatic, 'Allow automatic uploads')
+      expect(JSON.parse(webdav.files.get('/electerm/bookmarks.json'))[0].password).toBe('fixture-password')
+      expect(countUploads()).toBe(2)
+      await client.evaluate(automatic)
+      expect(countUploads()).toBe(3)
+
+      // The remembered grant for the first folder cannot authorize writes
+      // to a second folder, even on the same WebDAV server.
+      await client.evaluate(url => window.store.updateSyncSetting({ webdavServerUrl: url }), webdav.url + '/other')
+      await answerTransfer(client, automatic, 'Cancel', dialog => expect(dialog).toContainText('/other'))
+      expect(countUploads()).toBe(3)
+      await client.evaluate(url => {
+        window.store.updateSyncSetting({ autoSync: false, webdavServerUrl: url, webdavSyncPassword: 'fixture-sync-password' })
+      }, webdav.url)
+      await client.evaluate(manual)
+      expect(countUploads()).toBe(4)
+      const wire = webdav.files.get('/electerm/aiConfigs.json')
+      expect(wire).toMatch(/^"?gcm:/)
+      expect(wire).not.toContain(account.apiKeyAI)
+      expect(wire).not.toContain('fixture-proxy-password')
+      const downloaded = await client.evaluate(async () => {
+        window.store.setItems('aiConfigs', [])
+        await window.store.downloadSetting('webdav')
+        return window.store.aiConfigs
+      })
+      expect(downloaded).toEqual([account])
+    } finally {
+      await webdav.close()
+    }
   })
 
   it('imports a credential-free legacy backup without duplicating local accounts', async function () {

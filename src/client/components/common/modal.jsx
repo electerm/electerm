@@ -72,6 +72,9 @@ export default function Modal (props) {
     if (!open) return
 
     const handleKeyDown = (e) => {
+      // A focused Ant Design dialog handles its own Cancel/OK shortcuts.
+      // Do not also act on a custom modal behind it (e.g. during auto-sync).
+      if (e.target.closest?.('.ant-modal')) return
       if (e.key === 'Escape') {
         if (onCancel) {
           onCancel()

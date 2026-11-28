@@ -1,5 +1,3 @@
-import { publicAIConfig } from './ai-config-transfer.js'
-
 // These collections carry credentials and share the sync password on upload,
 // download, and preview. Other collections are always stored as JSON arrays.
 const encryptedDataNames = new Set(['bookmarks', 'profiles', 'aiConfigs'])
@@ -9,7 +7,7 @@ export function isJSONArray (str = '') {
 }
 
 export async function encodeSyncData (items, pass, dataName) {
-  const str = JSON.stringify(!pass && dataName === 'aiConfigs' ? items.map(publicAIConfig) : items)
+  const str = JSON.stringify(items)
   if (pass && encryptedDataNames.has(dataName)) {
     return window.pre.runGlobalAsync('encryptAsync', str, pass)
   }
