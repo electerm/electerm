@@ -1,4 +1,5 @@
 import { memo, useEffect, useState, useSyncExternalStore } from 'react'
+import { Button } from 'antd'
 import { LoadingOutlined, CaretRightOutlined } from '@ant-design/icons'
 import { observeOutputActivity } from './terminal-view-activity.mjs'
 
@@ -21,15 +22,15 @@ export default memo(function TerminalViewButton ({ pane }) {
   if (!paused && !busy) return null
   const label = e(paused ? 'resume' : 'pause')
   return (
-    <button
-      type='button'
+    <Button
+      type='text'
+      size='small'
+      icon={paused ? <CaretRightOutlined className='terminal-view-resume' /> : <LoadingOutlined />}
       className='terminal-footer-unit terminal-view-button'
       title={label}
       aria-label={label}
       aria-pressed={paused}
       onClick={() => pane.setViewPaused(!paused)}
-    >
-      {paused ? <CaretRightOutlined className='terminal-view-resume' /> : <LoadingOutlined />}
-    </button>
+    />
   )
 })
