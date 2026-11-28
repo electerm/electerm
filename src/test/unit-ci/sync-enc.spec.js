@@ -26,6 +26,35 @@ const {
 const pass = 'correct horse battery staple'
 const secret = JSON.stringify([{ host: '1.2.3.4', password: 'hunter2' }])
 
+test('AI config sync transfers complete records with or without a sync password', async t => {
+  const { encodeSyncData, decryptSyncData } = await import('../../client/common/sync-data-codec.js')
+  global.window = {
+    pre: { runGlobalAsync: (name, ...args) => ({ encryptAsync, decryptAsync })[name](...args) }
+  }
+  t.after(() => { delete global.window })
+  const route = {
+    nameAI: 'Work',
+    baseURLAI: 'https://alice:provider-password@api.example/v1',
+    apiPathAI: '/chat?token=custom-token',
+    proxyAI: 'socks5://user:proxy-password@proxy.example:1080',
+    authHeaderNameAI: 'Authorization: Custom header',
+    modelAI: 'model'
+  }
+  const configs = [{ ...route, id: 'one', apiKeyAI: 'first-key' }, { ...route, id: 'two', apiKeyAI: '' }]
+  for (const password of ['', pass]) {
+    const data = await encodeSyncData(configs, password, 'aiConfigs')
+    if (password) {
+      assert.match(data, /^gcm:/)
+      assert.doesNotMatch(data, /first-key|provider-password|custom-token|proxy-password/)
+    } else {
+      assert.deepEqual(JSON.parse(data), configs)
+    }
+    const imported = JSON.parse(await decryptSyncData(data, password, 'aiConfigs'))
+    assert.deepEqual(imported, configs)
+  }
+  await assert.rejects(decryptSyncData(JSON.stringify(configs), pass, 'aiConfigs'), /plaintext/)
+})
+
 describe('sync enc: gcm format', () => {
   test('encryptAsync produces gcm:iv:salt:authtag:ciphertext', async () => {
     const out = await encryptAsync(secret, pass)

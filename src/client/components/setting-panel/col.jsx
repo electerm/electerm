@@ -30,8 +30,8 @@ function SettingCol (props) {
     <div className={`setting-col ${viewCls}`}>
       <SettingMobileBreadcrumb
         onBack={() => store.backToSettingMenu()}
-        parentLabel={e(store.settingTab)}
-        currentLabel={label}
+        parentLabel={props.parentLabel || e(store.settingTab)}
+        currentLabel={props.currentLabel || label}
       />
       <div className='setting-row setting-row-left'>
         {props.children[0]}

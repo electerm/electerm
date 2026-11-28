@@ -62,7 +62,7 @@ export default function AIBookmarkForm (props) {
     setLoading(true)
 
     try {
-      const config = window.store.config
+      const config = window.store.activeAIConfig
       const prompt = buildPrompt(description)
 
       const aiResponse = await window.pre.runGlobalAsync(

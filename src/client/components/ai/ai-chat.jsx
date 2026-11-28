@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
-import { Flex, Input, Segmented, Button, Tag, message, Popover } from 'antd'
+import { Flex, Input, Segmented, Select, Button, Tag, message, Popover } from 'antd'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
 import AiChatSessions from './ai-chat-sessions'
@@ -8,7 +8,8 @@ import SwitchLabel from '../common/switch'
 import { buildSessionMessages, summarizeContext, getUsageLevel } from './ai-context'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import uid from '../../common/uid'
-import { pick } from 'lodash-es'
+import { getAIHistoryConfig } from './ai-config-props'
+import { getAIConfigsLabel } from '../../common/ai-feature'
 import {
   SettingOutlined,
   SendOutlined,
@@ -75,7 +76,7 @@ export default function AIChat (props) {
     [props.aiChatHistory, currentChatSessionId]
   )
 
-  const config = props.config || {}
+  const config = props.activeAIConfig || {}
 
   // Size of the context the *next* message will carry: every entry of this
   // session, from the last compression onwards, built by the same helper the
@@ -162,6 +163,7 @@ export default function AIChat (props) {
   const handleSubmit = useCallback(function () {
     if (window.store.aiConfigMissing()) {
       window.store.toggleAIConfig()
+      return
     }
     // Read the live flag rather than the rendered one. `submitDisabled` can be
     // stale: the loop sets `agentRunning` from the new turn's mount effect, and
@@ -189,17 +191,7 @@ export default function AIChat (props) {
       chatSessionId: currentChatSessionId,
       mode,
       toolCalls: [],
-      ...pick(props.config, [
-        'nameAI',
-        'modelAI',
-        'roleAI',
-        'baseURLAI',
-        'apiPathAI',
-        'apiKeyAI',
-        'proxyAI',
-        'languageAI',
-        'authHeaderNameAI'
-      ]),
+      ...getAIHistoryConfig(window.store.activeAIConfig),
       timestamp: Date.now(),
       id: chatId
     }
@@ -435,7 +427,19 @@ export default function AIChat (props) {
           }}
         />
         <Flex className='ai-chat-terminals' justify='space-between' align='center'>
-          <Flex align='center'>
+          <Flex align='center' className='ai-chat-controls'>
+            <Select
+              aria-label={getAIConfigsLabel()}
+              className='ai-chat-config-select'
+              size='small'
+              value={config.id}
+              placeholder={getAIConfigsLabel()}
+              disabled={!props.aiConfigOptions.length}
+              options={props.aiConfigOptions}
+              onChange={id => window.store.applyAIConfig(id)}
+              popupMatchSelectWidth={false}
+              placement='topLeft'
+            />
             <Segmented
               options={['Ask', 'Agent']}
               value={mode === 'ask' ? 'Ask' : 'Agent'}

@@ -38,7 +38,7 @@ const wiki = 'https://github.com/electerm/electerm/wiki/Create-quick-command-by-
  * @return {string}
  */
 export function buildPrompt (description) {
-  const lang = window.store.config.languageAI || window.store.getLangName()
+  const lang = window.store.activeAIConfig?.languageAI || window.store.getLangName()
   const templateList = templates.map(t => `{{${t}}}`).join(', ')
   return `You are an electerm quick command generator. Based on the user's natural language description, generate ONE quick command definition in JSON format.
 
@@ -170,7 +170,7 @@ export default function QuickCommandAiEditor (props) {
     }
     setLoading(true)
     try {
-      const config = window.store.config
+      const config = window.store.activeAIConfig
       const aiResponse = await window.pre.runGlobalAsync(
         'AIchat',
         buildPrompt(description),

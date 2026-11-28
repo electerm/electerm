@@ -3,6 +3,7 @@
  */
 
 import { get, pick, debounce } from 'lodash-es'
+import equal from 'fast-deep-equal'
 import copy from 'json-deep-copy'
 import { action } from 'manate'
 import {
@@ -14,11 +15,13 @@ import {
 import { update, getData } from '../common/db'
 import fetch from '../common/fetch-from-server'
 import download from '../common/download'
+import { confirmUnencryptedTransfer } from '../components/setting-sync/transfer-confirmation'
 import { fixBookmarks } from '../common/db-fix'
 import { collectUncategorizedBookmarks } from '../common/bookmark-uncategorized'
 import dayjs from 'dayjs'
 import parseJsonSafe from '../common/parse-json-safe'
 import { runImportTask } from '../common/import-task'
+import { encodeSyncData, decryptSyncData, isJSONArray } from '../common/sync-data-codec'
 
 const e = window.translate
 
@@ -57,8 +60,29 @@ function stripLocalConfigKeys (conf) {
   return safe
 }
 
-function isJSON (str = '') {
-  return str.startsWith('[')
+function applyImportedConfig (store, config, { fromBackup = false } = {}) {
+  if (!config || typeof config !== 'object') return
+  const clean = store.importLegacyAIConfig(stripLocalConfigKeys(config))
+  // Settings can be synced independently of the AI configuration records.
+  if (clean.activeAIConfigId && !store.aiConfigs.some(item => item.id === clean.activeAIConfigId)) {
+    delete clean.activeAIConfigId
+  }
+  // Only a full backup carries provider settings. Enabling auto sync from
+  // a backup needs the same confirmation as turning on the switch.
+  if (!fromBackup) delete clean.syncSetting
+  const enableAutoSync = clean.syncSetting?.autoSync && !store.config.syncSetting?.autoSync
+  if (enableAutoSync) clean.syncSetting = { ...clean.syncSetting, autoSync: false }
+  store.setConfig(clean)
+  if (config.theme) {
+    store.setTheme(config.theme)
+  }
+  if (enableAutoSync) return store.updateSyncSetting({ autoSync: true })
+}
+
+function prepareImportedItems (store, name, rows) {
+  if (name === settingMap.terminalThemes) return store.fixThemes(rows)
+  if (name === settingMap.bookmarks) return fixBookmarks(rows)
+  return rows
 }
 
 /**
@@ -88,46 +112,6 @@ function checkCloudPayloadSize (type, gistData) {
   }
 }
 
-/**
- * Names of data types that are actually encrypted on upload when a
- * sync password is set.  Only these types trigger the fail-closed
- * check on download.
- */
-const encryptedDataNames = new Set([
-  settingMap.bookmarks,
-  settingMap.profiles
-])
-
-/**
- * Decrypt sync data with fail-closed semantics.
- *
- * Only bookmarks and profiles are encrypted on upload when a sync
- * password is configured.  For those two types, plaintext JSON
- * (content starting with '[') must never be silently accepted when a
- * password is set — it could be attacker-injected data from a
- * compromised sync backend.  Instead, we reject it so the user is
- * alerted rather than silently importing untrusted data.
- *
- * For all other data types, plaintext JSON is expected even when a
- * password is set, so we accept it without error.
- */
-async function decryptSyncData (str, pass, dataName) {
-  if (!str) {
-    return str
-  }
-  if (isJSON(str)) {
-    if (pass && encryptedDataNames.has(dataName)) {
-      throw new Error(
-        'Sync data is plaintext but a sync password is configured. ' +
-        'This may indicate the data was tampered with or the sync backend is compromised. ' +
-        'Aborting sync download for safety.'
-      )
-    }
-    return str
-  }
-  return window.pre.runGlobalAsync('decryptAsync', str, pass)
-}
-
 async function fetchData (type, func, args, token, proxy) {
   const data = {
     type,
@@ -146,10 +130,39 @@ function updateSyncServerStatusFromGist (store, gist, type) {
   store.syncServerStatus[type] = status
 }
 
+function getUploadOptions (store, type) {
+  return {
+    token: store.getSyncToken(type),
+    gistId: store.getSyncGistId(type),
+    proxy: store.getSyncProxy(type),
+    pass: store.getSyncPassword(type),
+    ...store.getDataSyncNames()
+  }
+}
+
+function autoUploadEnabled (store) {
+  const settings = store.config.syncSetting
+  return settings?.autoSync && settings.autoSyncDirection !== 'download'
+}
+
 export default (Store) => {
-  Store.prototype.updateSyncSetting = function (data) {
+  let pendingAutoSyncEnable
+
+  Store.prototype.updateSyncSetting = async function (data) {
     const { store } = window
-    const nd = Object.assign({}, copy(store.config.syncSetting), data)
+    if (data.autoSync === false) pendingAutoSyncEnable = undefined
+    if (data.autoSync && !store.config.syncSetting?.autoSync) {
+      if (pendingAutoSyncEnable) return
+      const confirmation = confirmUnencryptedTransfer({ enableAutoSync: true })
+      pendingAutoSyncEnable = confirmation
+      try {
+        if (!await confirmation || pendingAutoSyncEnable !== confirmation) return
+      } finally {
+        if (pendingAutoSyncEnable === confirmation) pendingAutoSyncEnable = undefined
+      }
+    }
+    const current = store.config.syncSetting || {}
+    const nd = Object.assign({}, copy(current), data)
     if (data.giteeGistId && !data.giteeSyncPassword) {
       delete nd.giteeSyncPassword
     }
@@ -267,20 +280,17 @@ export default (Store) => {
       return
     }
     window.onSyncAll = true
-    const types = Object.keys(syncTypes)
-    for (const type of types) {
-      const gistId = store.getSyncGistId(type)
-      // For WebDAV, check if server URL is configured
-      if (type === syncTypes.webdav) {
-        const serverUrl = get(window.store.config, 'syncSetting.webdavServerUrl')
-        if (serverUrl) {
-          await store.uploadSetting(type)
-        }
-      } else if (gistId) {
-        await store.uploadSetting(type)
+    try {
+      for (const type of Object.keys(syncTypes)) {
+        if (!autoUploadEnabled(store)) break
+        const destination = type === syncTypes.webdav
+          ? store.config.syncSetting.webdavServerUrl
+          : store.getSyncGistId(type)
+        if (destination) await store.uploadSetting(type, true)
       }
+    } finally {
+      window.onSyncAll = false
     }
-    window.onSyncAll = false
   }
 
   Store.prototype.downloadSettingAll = async function () {
@@ -307,7 +317,7 @@ export default (Store) => {
     window.onSyncAll = false
   }
 
-  Store.prototype.uploadSetting = async function (type) {
+  Store.prototype.uploadSetting = async function (type, automatic = false) {
     if (window[type + 'IsSyncing']) {
       return false
     }
@@ -315,10 +325,16 @@ export default (Store) => {
     const { store } = window
     store.isSyncingSetting = true
     store.isSyncUpload = true
-    await store.uploadSettingAction(type).catch(store.onError)
-    store.isSyncingSetting = false
-    store.isSyncUpload = false
-    window[type + 'IsSyncing'] = false
+    try {
+      return await store.uploadSettingAction(type, automatic)
+    } catch (err) {
+      store.onError(err)
+      return false
+    } finally {
+      window[type + 'IsSyncing'] = false
+      store.isSyncUpload = false
+      store.isSyncingSetting = false
+    }
   }
 
   Store.prototype.previewServerData = async function (type) {
@@ -424,7 +440,7 @@ export default (Store) => {
           // reads as "the server is empty" and invites an upload that would
           // overwrite the encrypted data — surface the ciphertext instead.
           // (Plaintext JSON rejected by the fail-closed gate stays at 0.)
-          if (!isJSON(serverStr)) {
+          if (!isJSONArray(serverStr)) {
             encrypted = true
             serverPreview = serverStr.slice(0, 80)
           }
@@ -461,50 +477,44 @@ export default (Store) => {
     }
   }
 
-  Store.prototype.uploadSettingAction = async function (type) {
+  Store.prototype.uploadSettingAction = async function (type, automatic = false) {
     const { store } = window
-    const token = store.getSyncToken(type)
-    const gistId = store.getSyncGistId(type)
-    // if (!gistId && type !== syncTypes.cloud && type !== syncTypes.custom) {
-    //   await store.createGist(type)
-    //   gistId = store.getSyncGistId(type)
-    // }
+    const options = getUploadOptions(store, type)
+    const { token, gistId, proxy, pass, names, syncConfig } = options
     if (!gistId && type !== syncTypes.custom && type !== syncTypes.cloud && type !== syncTypes.webdav) {
-      return
+      return false
     }
-    const pass = store.getSyncPassword(type)
+    if (!automatic && !pass) {
+      const confirmed = await confirmUnencryptedTransfer({ type })
+      if (!confirmed || !equal(options, getUploadOptions(store, type))) return false
+    }
     const objs = {}
-    const { names, syncConfig } = store.getDataSyncNames()
     for (const n of names) {
-      let str = store.getItems(n)
+      const items = [...store.getItems(n)]
       const order = await getData(`${n}:order`)
       if (order && order.length) {
-        str.sort((a, b) => {
+        items.sort((a, b) => {
           const ai = order.findIndex(r => r === a.id)
           const bi = order.findIndex(r => r === b.id)
           return ai - bi
         })
       }
-      str = JSON.stringify(str)
-      if (
-        (n === settingMap.bookmarks || n === settingMap.profiles) &&
-        pass
-      ) {
-        str = await window.pre.runGlobalAsync('encryptAsync', str, pass)
-      }
       objs[`${n}.json`] = {
-        content: str
+        content: await encodeSyncData(items, pass, n)
       }
       objs[`${n}.order.json`] = {
         content: 'empty'
       }
-      if (syncConfig) {
-        objs['userConfig.json'] = {
-          content: JSON.stringify(
-            store.getSyncConfig()
-          )
-        }
+    }
+    if (syncConfig) {
+      objs['userConfig.json'] = {
+        content: JSON.stringify(store.getSyncConfig())
       }
+    }
+    // Reading and encrypting the selected tables is asynchronous. A change to
+    // the destination, encryption password, or selection cancels this snapshot.
+    if (!equal(options, getUploadOptions(store, type)) || (automatic && !autoUploadEnabled(store))) {
+      return false
     }
     const now = Date.now()
     const status = {
@@ -526,15 +536,16 @@ export default (Store) => {
         'upload',
         [uploadData],
         token,
-        store.getSyncProxy(type)
+        proxy
       )
       if (res && !res.error) {
         store.updateSyncSetting({
           [type + 'LastSyncTime']: now
         })
         store.syncServerStatus[type] = status
+        return true
       }
-      return
+      return false
     }
 
     const gistData = {
@@ -552,7 +563,7 @@ export default (Store) => {
       'update',
       [gistId, gistData],
       token,
-      store.getSyncProxy(type)
+      proxy
     )
     if (res) {
       store.updateSyncSetting({
@@ -560,6 +571,7 @@ export default (Store) => {
       })
       updateSyncServerStatusFromGist(store, gistData, type)
     }
+    return !!res
   }
 
   Store.prototype.downloadSetting = async function (type) {
@@ -609,14 +621,9 @@ export default (Store) => {
             }
           }
           str = await decryptSyncData(str, pass, n)
-          let arr = JSON.parse(str)
-          if (n === settingMap.terminalThemes) {
-            arr = store.fixThemes(arr)
-          } else if (n === settingMap.bookmarks) {
-            arr = fixBookmarks(arr)
-          }
+          const arr = prepareImportedItems(store, n, JSON.parse(str))
           let strOrder = get(gist, `files["${n}.order.json"].content`)
-          if (isJSON(strOrder)) {
+          if (isJSONArray(strOrder)) {
             strOrder = JSON.parse(strOrder)
             arr.sort((a, b) => {
               const ai = strOrder.findIndex(r => r === a.id)
@@ -630,12 +637,7 @@ export default (Store) => {
           const userConfig = parseJsonSafe(
             get(gist, 'files["userConfig.json"].content')
           )
-          if (userConfig) {
-            store.setConfig(stripLocalConfigKeys(userConfig))
-          }
-          if (userConfig && userConfig.theme) {
-            store.setTheme(userConfig.theme)
-          }
+          applyImportedConfig(store, userConfig)
         }
 
         const up = {
@@ -672,16 +674,9 @@ export default (Store) => {
         }
       }
       str = await decryptSyncData(str, pass, n)
-      let arr = JSON.parse(
-        str
-      )
-      if (n === settingMap.terminalThemes) {
-        arr = store.fixThemes(arr)
-      } else if (n === settingMap.bookmarks) {
-        arr = fixBookmarks(arr)
-      }
+      const arr = prepareImportedItems(store, n, JSON.parse(str))
       let strOrder = get(gist, `files["${n}.order.json"].content`)
-      if (isJSON(strOrder)) {
+      if (isJSONArray(strOrder)) {
         strOrder = JSON.parse(strOrder)
         arr.sort((a, b) => {
           const ai = strOrder.findIndex(r => r === a.id)
@@ -695,12 +690,7 @@ export default (Store) => {
       const userConfig = parseJsonSafe(
         get(gist, 'files["userConfig.json"].content')
       )
-      if (userConfig) {
-        store.setConfig(stripLocalConfigKeys(userConfig))
-      }
-      if (userConfig && userConfig.theme) {
-        store.setTheme(userConfig.theme)
-      }
+      applyImportedConfig(store, userConfig)
     }
 
     const up = {
@@ -755,11 +745,12 @@ export default (Store) => {
   }, 1000)
 
   Store.prototype.handleExportAllData = async function () {
+    if (!await confirmUnencryptedTransfer({ exporting: true })) return false
     const { store } = window
     const objs = {}
     const { names } = store.getDataSyncNames(true)
     for (const n of names) {
-      objs[n] = store.getItems(n)
+      objs[n] = [...store.getItems(n)]
       const order = await getData(`${n}:order`)
       if (order && order.length) {
         objs[n].sort((a, b) => {
@@ -772,7 +763,7 @@ export default (Store) => {
     objs.config = store.config
     const text = JSON.stringify(objs)
     const name = dayjs().format('YYYY-MM-DD-HH-mm-ss') + '-electerm-all-data.json'
-    download(name, text)
+    return download(name, text)
   }
 
   Store.prototype.importAll = async function (file) {
@@ -781,16 +772,13 @@ export default (Store) => {
       : await window.fs.readFile(file.filePath)
     const { store } = window
     const objs = JSON.parse(txt)
-    const { names } = store.getDataSyncNames(true)
+    const { names: allNames } = store.getDataSyncNames(true)
+    // Backups made before AI configurations had their own table only carry
+    // the active configuration in settings. Keep other local configurations.
+    const names = allNames.filter(n => n !== settingMap.aiConfigs || n in objs)
     const fixed = {}
     for (const n of names) {
-      let arr = objs[n] || []
-      if (n === settingMap.terminalThemes) {
-        arr = store.fixThemes(arr)
-      } else if (n === settingMap.bookmarks) {
-        arr = fixBookmarks(arr)
-      }
-      fixed[n] = arr
+      fixed[n] = prepareImportedItems(store, n, objs[n] || [])
     }
     // Import replaces data sets, so the store has to end up holding exactly
     // `fixed`. Keep a copy of what it holds now: if the import is cancelled or
@@ -799,7 +787,7 @@ export default (Store) => {
     const backup = new Map(
       names.map(n => [n, copy(store.getItems(n))])
     )
-    await runImportTask({
+    const { cancelled, error } = await runImportTask({
       title: e('import'),
       batch: 200,
       stopWatchers: names,
@@ -856,9 +844,8 @@ export default (Store) => {
         })()
       }
     })
-    store.updateConfig(stripLocalConfigKeys(objs.config))
-    if (objs.config?.theme) {
-      store.setTheme(objs.config.theme)
+    if (!cancelled && !error) {
+      await applyImportedConfig(store, objs.config, { fromBackup: true })
     }
   }
 
@@ -897,7 +884,7 @@ export default (Store) => {
       : dataSyncSelected.split(',')
     const names = keys
       .filter(d => d !== 'settings')
-      .map(d => syncDataMaps[d]).flat()
+      .flatMap(d => syncDataMaps[d] || [])
     const syncConfig = keys.includes('settings')
     return {
       names,
@@ -946,11 +933,7 @@ export default (Store) => {
       'copyWhenSelect',
       'customCss',
       'dataSyncSelected',
-      'baseURLAI',
-      'modelAI',
-      'roleAI',
-      'languageAI',
-      'proxyAI',
+      'activeAIConfigId',
       'disableDeveloperTool',
       'terminalBackgroundText',
       'terminalBackgroundTextSize',

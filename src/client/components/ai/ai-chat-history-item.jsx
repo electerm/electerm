@@ -48,23 +48,26 @@ export default memo(function AIChatHistoryItem ({ item }) {
     modelAI,
     roleAI,
     baseURLAI,
-    apiPathAI,
-    apiKeyAI,
-    proxyAI,
-    authHeaderNameAI,
-    languageAI,
     mode,
     toolCalls,
     autoCompressCount
   } = item
+
+  // Resolve credentials once for a pending turn. A switch in the composer
+  // affects later turns, including when an agent is between tool calls.
+  const [requestConfig] = useState(() => {
+    if (!item.pending) return null
+    const config = window.store.aiConfigs.find(c => c.id === item.aiConfigId)
+    return config && { ...config }
+  })
 
   function toggleOutput () {
     setShowOutput(!showOutput)
   }
 
   function buildRole () {
-    const lang = languageAI || window.store.getLangName()
-    return appendMandatoryGuardrails(roleAI + `;用[${lang}]回复`)
+    const lang = requestConfig?.languageAI || window.store.getLangName()
+    return appendMandatoryGuardrails((requestConfig?.roleAI || '') + `;用[${lang}]回复`)
   }
 
   // The context this turn sends: the session history up to and including the
@@ -79,28 +82,6 @@ export default memo(function AIChatHistoryItem ({ item }) {
     excludeId: item.id
   }), [chatSessionId, item.id, item.timestamp])
 
-  // Everything a request needs beyond the message list; also what the
-  // compressor uses to reach the same provider (see ai-compress.js).
-  const requestConfig = useMemo(() => ({
-    modelAI,
-    roleAI,
-    baseURLAI,
-    apiPathAI,
-    apiKeyAI,
-    proxyAI,
-    languageAI,
-    authHeaderNameAI
-  }), [
-    modelAI,
-    roleAI,
-    baseURLAI,
-    apiPathAI,
-    apiKeyAI,
-    proxyAI,
-    languageAI,
-    authHeaderNameAI
-  ])
-
   // The message list this turn actually sends. Normally the memoized session
   // messages above, but when auto compress is on and the request would not fit
   // the window, the earlier turns are replaced by a summary first. The live
@@ -112,8 +93,8 @@ export default memo(function AIChatHistoryItem ({ item }) {
       return conversationMessages
     }
     const info = summarizeContext(conversationMessages, {
-      model: modelAI,
-      contextLength: window.store.config.contextLengthAI
+      model: requestConfig.modelAI,
+      contextLength: requestConfig.contextLengthAI
     })
     if (!shouldAutoCompress(info)) {
       return conversationMessages
@@ -132,7 +113,7 @@ export default memo(function AIChatHistoryItem ({ item }) {
       return conversationMessages
     }
     return compactAskMessages(conversationMessages, summary)
-  }, [conversationMessages, modelAI, requestConfig, item.id])
+  }, [conversationMessages, requestConfig, item.id])
 
   const pollStreamContent = useCallback(async (sid) => {
     try {
@@ -168,14 +149,14 @@ export default memo(function AIChatHistoryItem ({ item }) {
       const aiResponse = await window.pre.runGlobalAsync(
         'AIchat',
         prompt,
-        modelAI,
+        requestConfig.modelAI,
         buildRole(),
-        baseURLAI,
-        apiPathAI,
-        apiKeyAI,
-        proxyAI,
+        requestConfig.baseURLAI,
+        requestConfig.apiPathAI,
+        requestConfig.apiKeyAI,
+        requestConfig.proxyAI,
         true,
-        authHeaderNameAI,
+        requestConfig.authHeaderNameAI,
         await buildOutgoingMessages()
       )
 
@@ -203,7 +184,7 @@ export default memo(function AIChatHistoryItem ({ item }) {
       window.store.removeAiHistory(item.id)
       window.store.onError(error)
     }
-  }, [prompt, modelAI, baseURLAI, apiPathAI, apiKeyAI, proxyAI, authHeaderNameAI, item.id, chatSessionId, requestConfig, pollStreamContent, buildOutgoingMessages])
+  }, [prompt, item.id, chatSessionId, requestConfig, pollStreamContent, buildOutgoingMessages])
 
   const startAgentRequest = useCallback(async () => {
     abortRef.current = false
@@ -214,6 +195,10 @@ export default memo(function AIChatHistoryItem ({ item }) {
   useEffect(() => {
     if (item.pending) {
       window.store.updateAiHistoryEntry(item.id, { pending: false })
+      if (!requestConfig) {
+        window.store.onError(new Error('The AI configuration for this message is unavailable.'))
+        return
+      }
       if (mode === 'agent') {
         startAgentRequest()
       } else {

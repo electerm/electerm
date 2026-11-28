@@ -10,7 +10,7 @@ const uid = require('../common/uid')
 const { DatabaseSync } = require('node:sqlite')
 
 // Tables whose stored data values should be encrypted at rest
-const ENC_TABLES = new Set(['bookmarks', 'profiles', 'data', 'history', 'terminalCommandHistory', 'aiChatHistory'])
+const ENC_TABLES = new Set(['bookmarks', 'profiles', 'data', 'history', 'terminalCommandHistory', 'aiChatHistory', 'aiConfigs'])
 
 // Within the 'data' table, only this specific record is encrypted
 const DATA_ENC_ID = 'userConfig'
@@ -54,6 +54,7 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
     'history',
     'terminalCommandHistory',
     'aiChatHistory',
+    'aiConfigs',
     'autoRunWidgets'
   ]
 
@@ -124,6 +125,23 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
     }
   }
 
+  function insertRow (dbName, { _id, data }) {
+    const db = getDatabase(dbName)
+    db.prepare(`INSERT OR REPLACE INTO \`${dbName}\` (_id, data) VALUES (?, ?)`).run(_id, data)
+  }
+
+  function importNedbRecord (dbName, doc) {
+    if (!tables.includes(dbName)) throw new Error(`Unknown table ${dbName}`)
+    const id = doc._id || doc.id
+    // The adapters use the same ciphertext format. Keep the original payload
+    // when upgrading an encrypted NeDB row, including AI keys and userConfig.
+    if (shouldEncForRow(dbName, id) && typeof doc._encdata === 'string' && doc._encdata.startsWith(ENC_PREFIX)) {
+      insertRow(dbName, { _id: id, data: doc._encdata })
+    } else {
+      insertRow(dbName, toRow(doc, dbName))
+    }
+  }
+
   async function dbAction (dbName, op, ...args) {
     if (op === 'compactDatafile') {
       return
@@ -152,8 +170,7 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
       const inserted = []
       for (const doc of inserts) {
         const { _id, data } = toRow(doc, dbName)
-        const stmt = db.prepare(`INSERT OR REPLACE INTO \`${dbName}\` (_id, data) VALUES (?, ?)`)
-        stmt.run(_id, data)
+        insertRow(dbName, { _id, data })
         inserted.push({ ...doc, _id })
       }
       return Array.isArray(args[0]) ? inserted : inserted[0]
@@ -190,6 +207,7 @@ function createDb (appPath, defaultUserName, { enc, dec } = {}) {
 
   return {
     dbAction,
+    importNedbRecord,
     tables
   }
 }

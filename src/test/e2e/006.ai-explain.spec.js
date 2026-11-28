@@ -4,6 +4,7 @@ const { describe } = it
 const delay = require('./common/wait')
 const appOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const configureMockAI = require('./common/configure-mock-ai')
 const { selectAllTerminal } = require('./common/basic-terminal-test')
 const { spawn } = require('child_process')
 const path = require('path')
@@ -44,6 +45,7 @@ describe('Terminal Explain with AI', function () {
   })
 
   it('should explain selected text with AI', async function () {
+    await client.evaluate(configureMockAI)
     // Type some text in the terminal
     await client.evaluate(() => {
       return window.store.setConfig({

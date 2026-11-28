@@ -26,7 +26,7 @@ import {
   remoteMonitorBarHeight,
   textTerminalBgValue
 } from '../../common/constants'
-import { isAIDisabled } from '../../common/ai-feature'
+import { getAIConfigName, isAIDisabled } from '../../common/ai-feature'
 import { ConfigProvider } from 'antd'
 import { NotificationContainer } from '../common/notification'
 import RightSidePanel from '../side-panel-r/side-panel-r'
@@ -41,6 +41,7 @@ import InputContextMenu from '../common/input-context-menu'
 import WorkspaceSaveModal from '../tabs/workspace-save-modal'
 import BookmarkFromHistoryModal from '../bookmark-form/bookmark-from-history-modal'
 import AutoSync from '../setting-sync/auto-sync'
+import { TransferConfirmation } from '../setting-sync/transfer-confirmation'
 import BatchOpRunner from '../batch-op/batch-op-runner'
 import UnixTimestampTooltip from '../terminal/unix-timestamp-tooltip'
 import ImportProgress from '../common/import-progress.jsx'
@@ -58,7 +59,6 @@ import './term-fullscreen.styl'
 
 const Resolutions = lazy(() => import('../rdp/resolution-edit'))
 const InfoModal = lazy(() => import('../sidebar/info-modal.jsx'))
-const AIConfigModal = lazy(() => import('../ai/ai-config-modal'))
 // window opacity is electron-only: lazy so the web app never loads the chunk
 const Opacity = lazy(() => import('../common/opacity'))
 
@@ -292,11 +292,11 @@ export default auto(function Index (props) {
   }
   const aiChatProps = {
     aiChatHistory: store.aiChatHistory,
-    config,
+    activeAIConfig: store.activeAIConfig,
+    aiConfigOptions: store.aiConfigs.map(c => ({ value: c.id, label: getAIConfigName(c) })),
     selectedTabIds: store.batchInputSelectedTabIds,
     tabs: store.getTabs(),
     activeTabId: store.activeTabId,
-    showAIConfig: store.showAIConfig,
     rightPanelTab,
     agentRunning: store.agentRunning,
     aiContextInfo: store.aiContextInfo,
@@ -395,6 +395,7 @@ export default auto(function Index (props) {
         <ConnectionHoppingWarning {...warningProps} />
         <TerminalCmdSuggestions {...cmdSuggestionsProps} />
         <TransferQueue />
+        <TransferConfirmation />
         <AutoSync config={config} />
         <WorkspaceSaveModal store={store} />
         <BookmarkFromHistoryModal />
@@ -407,13 +408,6 @@ export default auto(function Index (props) {
         <BatchOpRunner />
         <ImportProgress />
         <ShortcutBarEntry store={store} />
-        {!isAIDisabled() && store.showAIConfigModal && (
-          <LazyBoundary>
-            <Suspense fallback={null}>
-              <AIConfigModal store={store} />
-            </Suspense>
-          </LazyBoundary>
-        )}
         <UnixTimestampTooltip />
       </div>
     </ConfigProvider>

@@ -298,6 +298,7 @@ export default (Store) => {
         fetchInitDataAll(),
         store.initApp()
       ])
+      await store.migrateAIConfigs(ext).catch(store.onError)
       for (const name of dbNames) {
         // seed the watcher snapshot with a *copy* - manate wraps the exact
         // array assigned into the store, so seeding with `ext[name]` itself

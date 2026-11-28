@@ -18,6 +18,7 @@ const tempDir = path.resolve(conf.root, 'temp').replace(/\\/g, '/')
 const defaultAIPreset = {
   baseURLAI: 'https://ai.electerm.org/api/ai',
   apiPathAI: '/chat/completions',
+  requiresApiKey: true,
   modelAI: 'free',
   authHeaderNameAI: 'Authorization: Bearer',
   id: 'ai.electerm.org',

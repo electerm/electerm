@@ -1,3 +1,12 @@
+.ai-config-toolbar
+  display flex
+  gap 8px
+  align-items baseline
+  flex-wrap wrap
+
+.ai-config-url
+  overflow-wrap anywhere
+
 // Preset row: the "Presets" label and the provider select share one line.
 // antd's Space wraps every child in a `.ant-space-item`, and that wrapper — not
 // the child — is the flex item, so the flex behaviour has to be set on the
@@ -5,6 +14,7 @@
 // makes the row's overflow land on the label: at 480px wide the label is
 // squeezed into a 17px column and wraps onto four lines.
 .ai-preset-row
+  margin-left auto
   max-width 400px
   .ant-space-item:first-child
     // the label keeps its full text width and never wraps or shrinks
@@ -18,3 +28,14 @@
 
     .ant-select
       width 100%
+
+.item-type-aiConfigs
+  button
+    border 0
+    background transparent
+    color inherit
+    font inherit
+    text-align left
+    cursor pointer
+  .item-list-unit:focus-within .list-item-actions
+    display flex

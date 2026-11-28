@@ -71,7 +71,7 @@ export function sessionContextInfo (sessionId, config = {}) {
   }
   return summarizeContext(messages, {
     model: config.modelAI,
-    contextLength: store.config.contextLengthAI
+    contextLength: config.contextLengthAI
   })
 }
 
@@ -86,7 +86,7 @@ export async function autoCompressSession (sessionId, config = {}) {
     return false
   }
   try {
-    await window.store.compressChatSession(sessionId)
+    await window.store.compressChatSession(sessionId, config)
     return true
   } catch (error) {
     console.error('Error auto compressing session:', error)

@@ -81,7 +81,7 @@ async function callBackendAIchatWithTools (messages, config, requestId) {
 function publishContext (messages, config, usage) {
   const info = summarizeContext(messages, {
     model: config.modelAI,
-    contextLength: window.store.config.contextLengthAI,
+    contextLength: config.contextLengthAI,
     tools: agentTools
   })
   if (usage && usage.promptTokens) {

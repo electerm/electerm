@@ -72,7 +72,7 @@ const themePropDescriptions = {
  * @return {string}
  */
 function buildThemePrompt (description) {
-  const lang = window.store.config.languageAI || window.store.getLangName()
+  const lang = window.store.activeAIConfig?.languageAI || window.store.getLangName()
   const fieldList = requiredThemeProps
     .map(key => `  ${key}=${themePropDescriptions[key] || 'color value'}`)
     .join('\n')
@@ -155,7 +155,7 @@ export default function ThemeAiEditor (props) {
     }
     setLoading(true)
     try {
-      const config = window.store.config
+      const config = window.store.activeAIConfig
       const prompt = buildThemePrompt(description)
       const aiResponse = await window.pre.runGlobalAsync(
         'AIchat',

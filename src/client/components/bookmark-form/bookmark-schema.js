@@ -180,7 +180,7 @@ const bookmarkSchema = {
 }
 
 export function buildPrompt (description) {
-  const lang = window.store.config.languageAI || window.store.getLangName()
+  const lang = window.store.activeAIConfig?.languageAI || window.store.getLangName()
   const schemaDescription = Object.entries(bookmarkSchema)
     .map(([type, fields]) => {
       const fieldList = Object.entries(fields)

@@ -9,6 +9,7 @@ import { lazy, Suspense } from 'react'
 import SettingModal from './setting-wrap'
 import LazyBoundary from '../common/lazy-boundary'
 import ResponsiveTabs from '../common/responsive-tabs'
+import { getAIConfigsLabel, isAIDisabled } from '../../common/ai-feature'
 import {
   settingMap,
   modals,
@@ -20,6 +21,7 @@ const TabSettings = lazy(() => import('./tab-settings'))
 const TabThemes = lazy(() => import('./tab-themes'))
 const TabProfiles = lazy(() => import('./tab-profiles'))
 const TabWidgets = lazy(() => import('./tab-widgets'))
+const TabAIConfigs = lazy(() => import('./tab-ai-configs'))
 const TabTriggers = lazy(() => import('./tab-triggers'))
 
 const Loading = () => <div style={{ padding: 20, textAlign: 'center' }}><Spin /></div>
@@ -40,7 +42,8 @@ export default auto(function SettingModalWrap (props) {
     const { store } = props
     const tabsShouldConfirmDel = [
       settingMap.bookmarks,
-      settingMap.terminalThemes
+      settingMap.terminalThemes,
+      settingMap.aiConfigs
     ]
     const { settingTab, settingItem, bookmarkSelectMode } = store
     // settingSidebarList deep-copies the whole collection; the bookmarks tab
@@ -126,6 +129,9 @@ export default auto(function SettingModalWrap (props) {
         children: null
       }
     ]
+    if (!isAIDisabled()) {
+      items.push({ key: settingMap.aiConfigs, label: getAIConfigsLabel() })
+    }
     const tabsProps = {
       activeKey: settingTab,
       animated: false,
@@ -192,6 +198,13 @@ export default auto(function SettingModalWrap (props) {
               store={store}
               settingTab={settingTab}
             />
+            {settingTab === settingMap.aiConfigs && !isAIDisabled() && (
+              <TabAIConfigs
+                listProps={props0}
+                settingItem={settingItem}
+                store={store}
+              />
+            )}
           </Suspense>
         </LazyBoundary>
       </>

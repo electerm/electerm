@@ -12,7 +12,7 @@
  * (app/widgets/ai-config.js), so this file only has to show them.
  */
 import React, { useState } from 'react'
-import { Button, Tag, Tooltip } from 'antd'
+import { Button, Tag } from 'antd'
 import {
   CopyOutlined,
   EyeInvisibleOutlined,
@@ -21,40 +21,38 @@ import {
 import { auto } from 'manate/react'
 import { copy } from '../../common/clipboard'
 import message from '../common/message'
+import { getAIConfigsLabel, matchesWidgetAIConfig } from '../../common/ai-feature'
 
 const e = window.translate
 
 const ROWS = [
-  ['nameAI', 'Name'],
+  ['nameAI', e('name')],
   ['baseURLAI', 'API URL'],
   ['apiPathAI', 'API PATH'],
   ['apiKeyAI', 'API key', true],
   ['authHeaderNameAI', 'Auth header'],
-  ['modelAI', 'Model'],
-  ['proxyAI', 'Proxy']
+  ['modelAI', e('modelAi')],
+  ['proxyAI', e('proxy')]
 ]
-
-function inUse (config, aiConfig) {
-  const keys = Object.keys(aiConfig)
-  return keys.length > 0 && keys.every(key => (config[key] || '') === aiConfig[key])
-}
 
 function Secret ({ value }) {
   const [revealed, setRevealed] = useState(false)
   return (
     <span className='wac-secret'>
       <span className='wac-secret-text elli' title={revealed ? value : ''}>
-        {revealed ? value : '•'.repeat(Math.min(value.length || 8, 12))}
+        {revealed ? value : '•'.repeat(Math.min(value.length, 12))}
       </span>
       <Button
         size='small'
         type='text'
+        aria-label={e(revealed ? 'hide' : 'show')}
         icon={revealed ? <EyeInvisibleOutlined /> : <EyeOutlined />}
         onClick={() => setRevealed(v => !v)}
       />
       <Button
         size='small'
         type='text'
+        aria-label={e('copy')}
         icon={<CopyOutlined />}
         onClick={() => {
           copy(value)
@@ -65,12 +63,32 @@ function Secret ({ value }) {
   )
 }
 
+function WidgetConfigValue ({ value, secret }) {
+  if (!value) return e('notSet')
+  if (secret) return <Secret value={value} />
+  return (
+    <>
+      <span className='elli' title={value}>{value}</span>
+      <Button
+        size='small'
+        type='text'
+        aria-label={e('copy')}
+        icon={<CopyOutlined />}
+        onClick={() => {
+          copy(value)
+          message.success(e('copied'))
+        }}
+      />
+    </>
+  )
+}
+
 export default auto(function WidgetAIConfig ({ aiConfig, store }) {
   if (!aiConfig) {
     return null
   }
-  const config = store.config
-  const applied = inUse(config, aiConfig)
+  const config = store.activeAIConfig || {}
+  const applied = matchesWidgetAIConfig(config, aiConfig)
 
   const apply = () => {
     store.applyWidgetAIConfig(aiConfig)
@@ -79,49 +97,27 @@ export default auto(function WidgetAIConfig ({ aiConfig, store }) {
   return (
     <div className='wac'>
       <div className='wac-head'>
-        <span className='wac-title'>Electerm AI settings</span>
-        {applied ? <Tag color='green'>in use</Tag> : null}
+        <span className='wac-title'>{getAIConfigsLabel()}</span>
+        {applied ? <Tag color='green'>{e('selected')}</Tag> : null}
       </div>
-      <p className='wac-desc'>
-        This widget can point electerm's AI panel at itself. Nothing changes until you press the
-        button; the values below are exactly what gets written to Settings → AI. A value of
-        "none" clears that setting.
-      </p>
       <div className='wac-rows'>
-        {ROWS.filter(([key]) => key in aiConfig).map(([key, label, secret]) => (
+        {ROWS.filter(([key]) => key in aiConfig || key === 'apiKeyAI' || key === 'proxyAI').map(([key, label, secret]) => (
           <div className='wac-row' key={key}>
             <span className='wac-label'>{label}</span>
             <span className='wac-value'>
-              {secret
-                ? <Secret value={aiConfig[key]} />
-                : (
-                  <>
-                    <span className='elli' title={aiConfig[key]}>{aiConfig[key] || 'none'}</span>
-                    <Button
-                      size='small'
-                      type='text'
-                      icon={<CopyOutlined />}
-                      onClick={() => {
-                        copy(aiConfig[key])
-                        message.success(e('copied'))
-                      }}
-                    />
-                  </>
-                  )}
+              <WidgetConfigValue value={aiConfig[key]} secret={secret} />
             </span>
           </div>
         ))}
       </div>
-      <Tooltip title={applied ? 'Already applied' : ''}>
-        <Button
-          type='primary'
-          size='small'
-          disabled={applied}
-          onClick={apply}
-        >
-          {applied ? 'Applied' : 'Use these settings'}
-        </Button>
-      </Tooltip>
+      <Button
+        type='primary'
+        size='small'
+        disabled={applied}
+        onClick={apply}
+      >
+        {e('saveAndApply')}
+      </Button>
     </div>
   )
 })

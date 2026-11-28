@@ -21,6 +21,7 @@ const path = require('path')
 const delay = require('./common/wait')
 const baseAppOptions = require('./common/app-options')
 const extendClient = require('./common/client-extend')
+const configureMockAI = require('./common/configure-mock-ai')
 const { setupSshConnection } = require('./common/common')
 const {
   startTestSshServer,
@@ -163,13 +164,12 @@ describe('AI agent sftp_read_file', function () {
     await client.evaluate(() => {
       window.localStorage.setItem('ai-chat-mode', 'agent')
     })
-    await client.evaluate((port) => window.store.setConfig({
-      baseURLAI: `http://127.0.0.1:${port}`,
-      apiPathAI: '/chat/completions',
+    await client.evaluate(configureMockAI, {
+      baseURLAI: `http://127.0.0.1:${AI_PORT}`,
       modelAI: 'stub',
-      apiKeyAI: 'stub-key',
-      showCmdSuggestions: false
-    }), AI_PORT)
+      apiKeyAI: 'stub-key'
+    })
+    await client.evaluate(() => window.store.setConfig({ showCmdSuggestions: false }))
 
     await client.evaluate(() => window.store.toggleAIPanel())
     await delay(1200)

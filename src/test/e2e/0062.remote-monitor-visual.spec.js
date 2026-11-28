@@ -115,7 +115,6 @@ test('remote monitor styles, panel geometry and mobile overflow', async () => {
     }
     await page.evaluate(() => {
       window.store.rightPanelVisible = false
-      window.store.showAIConfigModal = false
       window.store.pinned = false
       window.store.openedSideBar = ''
       window.store._leftSideBarOpen = false

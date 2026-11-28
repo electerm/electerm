@@ -2,8 +2,7 @@ const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
 
 const presetsModule = import('../../client/components/ai/ai-presets.js')
-const clientDefaultsModule = import('../../client/common/default-setting.js')
-const appDefaults = require('../../app/common/default-setting.js')
+const defaults = require('../../app/common/ai-config-defaults.json')
 
 describe('Shengsuanyun default AI provider', () => {
   it('is the first preset and matches the shipped default settings', async () => {
@@ -17,13 +16,43 @@ describe('Shengsuanyun default AI provider', () => {
     assert.equal(preset.authHeaderNameAI, 'Authorization: Bearer')
     assert.equal(preset.siteUrl, 'https://www.shengsuanyun.com/zh/?from=Electerm')
 
-    const clientDefaults = (await clientDefaultsModule).default
-    for (const defaults of [clientDefaults, appDefaults]) {
-      assert.equal(defaults.nameAI, preset.nameAI)
-      assert.equal(defaults.baseURLAI, preset.baseURLAI)
-      assert.equal(defaults.modelAI, preset.modelAI)
-      assert.equal(defaults.apiPathAI, preset.apiPathAI)
-    }
+    const { aiConfigDefaults } = await import('../../client/components/ai/ai-config-props.js')
+    assert.deepEqual(aiConfigDefaults, defaults)
+    assert.equal(defaults.nameAI, preset.nameAI)
+    assert.equal(defaults.baseURLAI, preset.baseURLAI)
+    assert.equal(defaults.modelAI, preset.modelAI)
+    assert.equal(defaults.apiPathAI, preset.apiPathAI)
+  })
+})
+
+describe('Saved AI configurations', () => {
+  it('prompts on first use and requires a key for the default provider', async () => {
+    const { aiConfigDefaults, isAIConfigMissing } = await import('../../client/components/ai/ai-config-props.js')
+    const initial = { ...aiConfigDefaults, languageAI: 'English' }
+    assert.equal(isAIConfigMissing(undefined), true)
+    assert.equal(isAIConfigMissing(initial), true)
+    assert.equal(isAIConfigMissing({ ...initial, apiKeyAI: '  ' }), true)
+    assert.equal(isAIConfigMissing({ ...initial, apiKeyAI: 'test-key' }), false)
+    assert.equal(isAIConfigMissing({ ...initial, baseURLAI: 'http://localhost:11434/v1' }), false)
+    assert.equal(isAIConfigMissing({ ...initial, baseURLAI: 'https://internal.example.org/api' }), false)
+  })
+
+  it('recognizes provider aliases and an explicit key requirement on an injected preset', async () => {
+    const { requiresAIKey } = await presetsModule
+    const custom = { baseURLAI: 'https://ai.example.org/v1' }
+    assert.equal(requiresAIKey('https://api.minimaxi.com/v1/'), true)
+    assert.equal(requiresAIKey(custom.baseURLAI, custom), false)
+    assert.equal(requiresAIKey(custom.baseURLAI, { ...custom, requiresApiKey: true }), true)
+    assert.equal(requiresAIKey('https://api.minimaxi.com.example/v1/'), false)
+  })
+
+  it('limits transcript metadata to the selected provider and tolerates missing profiles', async () => {
+    const { getAIHistoryConfig } = await import('../../client/components/ai/ai-config-props.js')
+    const profile = { ...defaults, id: 'profile', apiKeyAI: 'test-key', proxyAI: 'http://user:pass@localhost' }
+    const { id, nameAI, modelAI, roleAI, baseURLAI } = profile
+    assert.deepEqual(getAIHistoryConfig(profile), { aiConfigId: id, nameAI, modelAI, roleAI, baseURLAI })
+    assert.deepEqual(getAIHistoryConfig(undefined), {})
+    assert.deepEqual(getAIHistoryConfig(null), {})
   })
 })
 
