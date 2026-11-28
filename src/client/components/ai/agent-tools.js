@@ -1,5 +1,12 @@
 import { z } from '../../common/zod'
 import { bookmarkSchemas } from '../../common/bookmark-schemas'
+import { requestAgentApproval } from './agent-approval'
+import { canRememberAgentCommand } from './agent-permissions'
+import {
+  readAgentApprovalMode,
+  readAgentCommandAllowlist,
+  rememberAgentCommand
+} from './agent-permission-preferences'
 
 function buildAddBookmarkParameters () {
   const typeProperties = {}
@@ -534,7 +541,42 @@ export const agentTools = [
   }
 ]
 
-export async function executeToolCall (toolName, args) {
+// Return null when review stops the turn. Only publish the running state when
+// the reviewed arguments are about to reach the tool.
+export async function executeToolCall (toolName, args, { signal, onStart }) {
+  const store = window.store
+  const tool = agentTools.find(tool => tool.function.name === toolName)
+  if (!tool) throw new Error(`Unknown agent tool: ${toolName}`)
+  if (!args || typeof args !== 'object' || Array.isArray(args)) {
+    throw new Error('Tool arguments must be an object')
+  }
+
+  // Resolve an implicit target once. Switching tabs while a dialog is open
+  // must not change which terminal or SFTP session receives the operation.
+  const { properties, required } = tool.function.parameters
+  if (properties.tabId && !required?.includes('tabId') && !args.tabId) {
+    if (!store.activeTabId) throw new Error('No active tab')
+    args = { ...args, tabId: store.activeTabId }
+  }
+
+  if (readAgentApprovalMode() === 'manual') {
+    const shellTool = toolName === 'send_terminal_command' || toolName === 'run_background_command'
+    const allowRemember = shellTool && canRememberAgentCommand(args.command) &&
+      Object.keys(args).every(key => Object.hasOwn(properties, key))
+    if (!allowRemember || !readAgentCommandAllowlist().includes(args.command)) {
+      const decision = await requestAgentApproval({ name: toolName, args, allowRemember, signal })
+      if (signal.aborted || (decision !== 'once' && decision !== 'remember')) return null
+      if (decision === 'remember' && allowRemember) {
+        rememberAgentCommand(args.command)
+      }
+    }
+  }
+  if (signal.aborted) return null
+  onStart(args)
+  return dispatchToolCall(toolName, args)
+}
+
+async function dispatchToolCall (toolName, args) {
   const store = window.store
   switch (toolName) {
     case 'send_terminal_command': {

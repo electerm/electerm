@@ -182,6 +182,9 @@ describe('AI agent sftp_read_file', function () {
     // Enter submits (handleKeyPress). Clicking the footer send icon is blocked
     // by the connection notification that sits over it.
     await ta.press('Enter')
+    const approval = client.locator('.agent-approval-modal')
+    await expect(approval).toContainText(MISSING_PATH)
+    await approval.locator('button.ant-btn-primary').click()
 
     // The card must leave "running" -- that is the whole point. Before the fix
     // it stayed in .agent-tool-running and the panel was locked for good.

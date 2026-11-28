@@ -4,6 +4,7 @@ import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
 import AiChatSessions from './ai-chat-sessions'
 import AiContextIndicator from './ai-context-indicator'
+import AgentApprovalModeSelect from './agent-approval-mode-select'
 import SwitchLabel from '../common/switch'
 import { buildSessionMessages, summarizeContext, getUsageLevel } from './ai-context'
 import { appendMandatoryGuardrails } from './ai-guardrails'
@@ -360,7 +361,7 @@ export default function AIChat (props) {
 
       <Flex vertical className='ai-chat-input'>
         <Flex className='ai-chat-toolbar mg1b' align='center' justify='space-between' gap={4}>
-          <Flex align='center' gap={4}>
+          <Flex align='center' gap={4} wrap='wrap'>
             <Button
               size='small'
               icon={<PlusOutlined />}
@@ -391,6 +392,7 @@ export default function AIChat (props) {
             >
               {e('history')}
             </Button>
+            {isAgent && <AgentApprovalModeSelect size='small' />}
           </Flex>
           <AiContextIndicator info={contextInfo} />
         </Flex>

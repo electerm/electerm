@@ -4,6 +4,7 @@ import {
   CaretDownOutlined,
   CaretRightOutlined,
   LoadingOutlined,
+  StopOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   CodeOutlined,
@@ -60,14 +61,15 @@ export default memo(function AgentToolCallCard ({ toolCall, autoCollapse }) {
     if (status === 'completed') {
       return <CheckCircleOutlined className='agent-tool-status-completed' />
     }
+    if (status === 'stopped') return <StopOutlined />
     return <CloseCircleOutlined className='agent-tool-status-error' />
   }
 
   function renderTag () {
-    const color = status === 'running' ? 'processing' : status === 'completed' ? 'success' : 'error'
+    const colors = { running: 'processing', completed: 'success', error: 'error' }
     return (
-      <Tag color={color} className='agent-tool-tag'>
-        {status}
+      <Tag color={colors[status]} className='agent-tool-tag'>
+        {status === 'stopped' ? window.translate('stopped') : status}
       </Tag>
     )
   }

@@ -27,6 +27,7 @@ import {
   textTerminalBgValue
 } from '../../common/constants'
 import { getAIConfigName, isAIDisabled } from '../../common/ai-feature'
+import { AgentApproval } from '../ai/agent-approval'
 import { ConfigProvider } from 'antd'
 import { NotificationContainer } from '../common/notification'
 import RightSidePanel from '../side-panel-r/side-panel-r'
@@ -396,6 +397,7 @@ export default auto(function Index (props) {
         <TerminalCmdSuggestions {...cmdSuggestionsProps} />
         <TransferQueue />
         <TransferConfirmation />
+        {!isAIDisabled() && <AgentApproval />}
         <AutoSync config={config} />
         <WorkspaceSaveModal store={store} />
         <BookmarkFromHistoryModal />

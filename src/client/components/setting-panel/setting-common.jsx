@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useSyncExternalStore } from 'react'
 import {
   ArrowRightOutlined,
   LoadingOutlined,
@@ -19,6 +19,15 @@ import Password from '../common/password'
 import InputConfirm from '../common/input-confirm'
 import InputNumberConfirm from '../common/input-number-confirm'
 import TextareaConfirm from '../common/textarea-confirm'
+import AgentApprovalModeSelect from '../ai/agent-approval-mode-select'
+import { agentPermissionLabel } from '../ai/agent-permissions'
+import {
+  readAgentCommandAllowlist,
+  resetAgentPermissions,
+  setAgentCommandAllowlist,
+  subscribeAgentPermissions
+} from '../ai/agent-permission-preferences'
+import { isAIDisabled } from '../../common/ai-feature'
 import {
   settingMap,
   proxyHelpLink,
@@ -41,6 +50,33 @@ import './setting.styl'
 
 const { Option } = Select
 const e = window.translate
+
+function readCommandLines () {
+  return readAgentCommandAllowlist().join('\n')
+}
+
+function AgentPermissionSettings () {
+  const commands = useSyncExternalStore(subscribeAgentPermissions, readCommandLines)
+  return (
+    <>
+      <div className='pd2b'>
+        <AgentApprovalModeSelect id='agentApprovalMode' showLabel />
+      </div>
+      <div className='pd2b'>
+        <label htmlFor='agentCommandAllowlist' className='inline-title'>
+          {agentPermissionLabel('agentCommandAllowlist', 'Allowed commands (one per line)')}
+        </label>
+        <TextareaConfirm
+          id='agentCommandAllowlist'
+          rows={3}
+          spellCheck={false}
+          value={commands}
+          onChange={value => setAgentCommandAllowlist(value.split('\n'))}
+        />
+      </div>
+    </>
+  )
+}
 
 export default class SettingCommon extends Component {
   state = {
@@ -122,6 +158,7 @@ export default class SettingCommon extends Component {
   }
 
   handleResetAll = () => {
+    resetAgentPermissions()
     this.saveConfig(
       deepCopy(defaultSettings)
     )
@@ -455,6 +492,7 @@ export default class SettingCommon extends Component {
           </>
         )}
         {this.renderProxy()}
+        {!isAIDisabled() && <AgentPermissionSettings />}
         {
           this.renderNumber('sshReadyTimeout', {
             step: 200,
