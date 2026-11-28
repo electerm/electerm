@@ -38,14 +38,6 @@ import './ai.styl'
 const { TextArea } = Input
 const MAX_HISTORY = 500
 
-// The composer keeps a hint in its placeholder once the transcript is no
-// longer empty (the empty state, ai-chat-empty.jsx, is what shows examples
-// before that). Agent mode can act, so its example is a tool-using one.
-const promptPlaceholder = {
-  ask: 'Enter your prompt here\ne.g. Explain the current terminal output',
-  agent: 'Enter your prompt here\ne.g. Export all SSH bookmarks with a private key'
-}
-
 export default function AIChat (props) {
   const [prompt, setPrompt] = useState('')
   const [compressing, setCompressing] = useState(false)
@@ -293,24 +285,6 @@ export default function AIChat (props) {
     )
   }
 
-  function renderSendIcon () {
-    if (submitDisabled) {
-      return (
-        <SendOutlined
-          className='mg1l send-to-ai-icon disabled'
-          title='Agent is running, please wait'
-        />
-      )
-    }
-    return (
-      <SendOutlined
-        onClick={handleSubmit}
-        className='mg1l pointer icon-hover send-to-ai-icon'
-        title='Enter to send, Shift+Enter for new line'
-      />
-    )
-  }
-
   useEffect(() => {
     refsStatic.add('AIChat', {
       setPrompt,
@@ -354,81 +328,61 @@ export default function AIChat (props) {
       </Flex>
 
       <Flex vertical className='ai-chat-input'>
-        <Flex className='ai-chat-toolbar mg1b' align='center' justify='space-between' gap={4}>
-          <Flex align='center' gap={4} wrap='wrap'>
-            <Button
-              size='small'
-              icon={<PlusOutlined />}
-              onClick={handleNewChat}
-              className='new-chat-btn'
-            >
-              {e('new')}
-            </Button>
-            <Popover
-              content={renderAutoCompressPopover()}
-              trigger='click'
-              placement='topLeft'
-            >
-              <Button
-                size='small'
-                icon={<CompressOutlined />}
-                type={autoCompress ? 'primary' : 'default'}
-                danger={!autoCompress && contextLevel === 'danger'}
-              >
-                {e('autoCompress')}
-              </Button>
-            </Popover>
-            <Button
-              size='small'
-              icon={<HistoryOutlined />}
-              aria-label={e('history')}
-              aria-pressed={props.showChatSessions}
-              title={e('history')}
-              onClick={handleShowHistory}
-              type={props.showChatSessions ? 'primary' : 'default'}
-            />
-          </Flex>
-          <AiContextIndicator info={contextInfo} />
-        </Flex>
-        {attachments.length > 0 && (
-          <Flex wrap='wrap' gap={4} className='ai-chat-attachments mg1b'>
-            {attachments.map(a => (
-              <Tag
-                key={a.id}
-                closable
-                onClose={() => setAttachments(arr => arr.filter(x => x.id !== a.id))}
-                title={`${a.name} (${formatSize(a.size)})`}
-              >
-                <PaperClipOutlined /> {a.name}
-              </Tag>
-            ))}
-          </Flex>
-        )}
         <div className='ai-chat-composer'>
+          <AiContextIndicator info={contextInfo} />
+          {attachments.length > 0 && (
+            <Flex wrap='wrap' gap={4} className='ai-chat-attachments'>
+              {attachments.map(a => (
+                <Tag
+                  key={a.id}
+                  closable
+                  onClose={() => setAttachments(arr => arr.filter(x => x.id !== a.id))}
+                  title={`${a.name} (${formatSize(a.size)})`}
+                >
+                  <PaperClipOutlined />
+                  <span className='ai-attachment-name'>{a.name}</span>
+                </Tag>
+              ))}
+            </Flex>
+          )}
           <TextArea
             value={prompt}
             onChange={handlePromptChange}
             onPressEnter={handleKeyPress}
-            placeholder={isAgent ? promptPlaceholder.agent : promptPlaceholder.ask}
-            autoSize={{ minRows: 3, maxRows: 10 }}
+            aria-label='Chat message'
+            placeholder={isAgent ? 'Describe a task for the agent…' : 'Ask about your terminal…'}
+            variant='borderless'
+            autoSize={{ minRows: 2, maxRows: 10 }}
             className='ai-chat-textarea'
           />
-          <Flex className='ai-chat-terminals' align='center'>
-            <Flex align='center' gap={4} className='ai-chat-controls'>
+          <Flex className='ai-chat-terminals' align='flex-end' gap={8}>
+            <Flex align='center' gap={4} wrap='wrap' className='ai-chat-controls'>
               <Segmented
                 options={['Ask', 'Agent']}
                 value={mode === 'ask' ? 'Ask' : 'Agent'}
                 onChange={handleModeChange}
                 size='small'
               />
-              {isAgent && <AgentApprovalModeSelect size='small' />}
+              {isAgent && <AgentApprovalModeSelect size='small' variant='borderless' />}
               {renderTabSelect()}
-              <PaperClipOutlined
+              <Button
+                type='text'
+                size='small'
+                aria-label='Attach text files'
+                title='Attach text files'
+                icon={<PaperClipOutlined />}
                 onClick={() => fileInputRef.current?.click()}
-                className='pointer icon-hover toggle-ai-attach-icon'
               />
             </Flex>
-            {renderSendIcon()}
+            <Button
+              type='primary'
+              shape='circle'
+              aria-label='Send message'
+              title={submitDisabled ? 'Agent is running, please wait' : 'Enter to send, Shift+Enter for new line'}
+              icon={<SendOutlined />}
+              disabled={submitDisabled}
+              onClick={handleSubmit}
+            />
           </Flex>
         </div>
         <input
@@ -441,22 +395,60 @@ export default function AIChat (props) {
             evt.target.value = ''
           }}
         />
-        <Flex className='ai-chat-config-controls mg1t' align='center' gap={4}>
-          <ActiveAIConfigSelect
-            className='ai-chat-config-select'
-            size='small'
-            placement='topLeft'
-          />
-          <Button
-            type='text'
-            size='small'
-            aria-label={e('settings')}
-            title={e('settings')}
-            icon={<SettingOutlined />}
-            onClick={toggleConfig}
-            className='toggle-ai-setting-icon'
-          />
-          <HelpIcon link={aiConfigWikiLink} />
+        <Flex className='ai-chat-footer' align='center' gap={4}>
+          <Flex className='ai-chat-config-controls' align='center' gap={2}>
+            <ActiveAIConfigSelect
+              className='ai-chat-config-select'
+              size='small'
+              variant='borderless'
+              placement='topLeft'
+            />
+            <Button
+              type='text'
+              size='small'
+              aria-label={e('settings')}
+              title={e('settings')}
+              icon={<SettingOutlined />}
+              onClick={toggleConfig}
+              className='toggle-ai-setting-icon'
+            />
+            <HelpIcon link={aiConfigWikiLink} />
+          </Flex>
+          <Flex className='ai-chat-toolbar' align='center' gap={2}>
+            <Button
+              type='text'
+              size='small'
+              icon={<PlusOutlined />}
+              aria-label={e('new')}
+              title={e('new')}
+              onClick={handleNewChat}
+              className='new-chat-btn'
+            />
+            <Button
+              type='text'
+              size='small'
+              icon={<HistoryOutlined />}
+              aria-label={e('history')}
+              aria-pressed={props.showChatSessions}
+              title={e('history')}
+              onClick={handleShowHistory}
+            />
+            <Popover
+              content={renderAutoCompressPopover()}
+              trigger='click'
+              placement='topRight'
+            >
+              <Button
+                type='text'
+                size='small'
+                icon={<CompressOutlined />}
+                aria-label={e('autoCompress')}
+                title={e('autoCompress')}
+                className={autoCompress ? 'ai-auto-compress-on' : undefined}
+                danger={!autoCompress && contextLevel === 'danger'}
+              />
+            </Popover>
+          </Flex>
         </Flex>
       </Flex>
       {window.et.AIDisclamer && (

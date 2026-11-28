@@ -121,31 +121,68 @@
 
 
 .ai-chat-input
-  margin-top 10px
+  box-sizing border-box
+  flex none
+  width 100%
+  max-width 48rem
+  max-height 68%
+  margin 0 auto
+  padding 8px clamp(4px, 2%, 12px) 2px
+  gap 4px
+  overflow-y auto
 
-  .ai-chat-composer
-    position relative
+.ai-chat-composer
+  padding 10px 10px 8px
+  border 1px solid unquote('color-mix(in srgb, var(--text) 20%, transparent)')
+  border-radius 16px
+  background unquote('color-mix(in srgb, var(--text) 4%, var(--main))')
+  &:focus-within
+    border-color var(--primary)
 
   .ai-chat-textarea
-    padding-bottom 36px
-
-  .ai-chat-terminals
-    position absolute
-    bottom 5px
-    left 5px
-    right 5px
+    display block
+    padding 2px 3px
+    border 0
+    outline none
+    box-shadow none
     background transparent
-    z-index 1
-    font-size 16px
+    color var(--text)
+    font-size 14px
+    line-height 1.5
+    resize none
+    &::placeholder
+      color var(--text-dark)
 
-  .ai-chat-controls
+.ai-chat-terminals
+  margin-top 6px
+  color var(--text-dark)
+  > button
+    flex none
+
+.ai-chat-controls
+  flex 1
+  min-width 0
+  .ant-select
     min-width 0
-    flex 1
-    .ant-select
-      min-width 0
+    max-width 100%
 
-  .ai-chat-config-controls
-    font-size 16px
+.ai-chat-footer
+  color var(--text-dark)
+
+.ai-chat-config-controls
+  min-width 0
+  max-width 100%
+  .ai-chat-config-select
+    min-width 0
+
+.ai-chat-toolbar
+  margin-inline-start auto
+  justify-content flex-end
+  flex none
+  .ant-btn-text[aria-pressed='true'],
+  .ai-auto-compress-on
+    color var(--primary)
+    background unquote('color-mix(in srgb, var(--primary) 10%, transparent)')
 
 .ai-disclamer
   font-size 12px
@@ -161,15 +198,19 @@
     white-space pre-wrap
     word-break break-all
 
-.send-to-ai-icon.disabled
-  opacity 0.4
-  cursor not-allowed
-
 .ai-chat-attachments
-  padding 0 2px
+  max-height 5em
+  overflow-y auto
+  margin-bottom 6px
   .ant-tag
+    display inline-flex
+    align-items center
+    gap 4px
     margin 0
     max-width 100%
+    border-radius 8px
+  .ai-attachment-name
+    min-width 0
     overflow hidden
     text-overflow ellipsis
     white-space nowrap
@@ -188,7 +229,7 @@
   margin-top 6px
 
 .ai-attachment-dragover
-  outline 2px dashed #1890ff
+  outline 2px dashed var(--primary)
   outline-offset -2px
 
 .ai-chat-sessions-wrap
@@ -410,15 +451,16 @@
     border-color var(--primary)
     color var(--text)
 
-// context size indicator, right hand side of the ai chat toolbar
 .ai-context-indicator
-  display inline-flex
+  display flex
+  width max-content
+  margin-inline-start auto
+  margin-bottom 6px
   align-items center
   gap 4px
-  flex-shrink 0
   font-size 11px
   line-height 1
-  color var(--text-color-2)
+  color var(--text-dark)
   cursor default
   user-select none
 
@@ -447,15 +489,15 @@
 
 .ai-context-warn
   .ai-context-bar-fill
-    background #faad14
+    background var(--warn)
   .ai-context-percent
-    color #faad14
+    color var(--warn)
 
 .ai-context-danger
   .ai-context-bar-fill
-    background #ff4d4f
+    background var(--error)
   .ai-context-percent
-    color #ff4d4f
+    color var(--error)
     font-weight 500
 
 .ai-context-tip
@@ -473,7 +515,7 @@
 
 .ai-context-tip-total
   font-weight 500
-  border-top 1px solid rgba(128, 128, 128, 0.35)
+  border-top 1px solid var(--main-darker)
   margin-top 2px
   padding-top 2px
 
@@ -483,4 +525,4 @@
 
 .ai-context-tip-warn
   margin-top 4px
-  color #faad14
+  color var(--warn)
