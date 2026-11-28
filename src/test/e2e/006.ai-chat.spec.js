@@ -83,7 +83,7 @@ describe('AI Config and Suggestions', function () {
 
     // Verify the last chat history item contains the test prompt
     const lastChatItem = await client.locator('.chat-history-item').last()
-    const promptContent = await lastChatItem.locator('.ant-alert-title').textContent()
+    const promptContent = await lastChatItem.locator('.ai-prompt-text').textContent()
     expect(promptContent).toContain(testPrompt)
 
     // The mock answer ends with a GFM table. react-markdown only parses

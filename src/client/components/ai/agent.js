@@ -220,19 +220,22 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
       messages.push(assistantMessage)
       publishContext(messages, config, lastUsage)
 
-      if (assistantMessage.content) {
-        accumulatedContent += (accumulatedContent ? '\n\n' : '') + assistantMessage.content
-        updateChatEntry(chatEntry, {
-          response: accumulatedContent
-        })
-      }
-
-      if (!assistantMessage.tool_calls || assistantMessage.tool_calls.length === 0) {
+      const separator = accumulatedContent ? '\n\n' : ''
+      if (!assistantMessage.tool_calls?.length) {
+        // Keep the full text for conversation context. The transcript folds the
+        // earlier narration only when the provider actually sends a final answer.
+        const finalText = assistantMessage.content
         setIsStreaming(false)
         updateChatEntry(chatEntry, {
-          response: accumulatedContent
+          response: finalText ? accumulatedContent + separator + finalText : accumulatedContent,
+          finalResponseStart: finalText ? accumulatedContent.length + separator.length : 0
         })
         return
+      }
+
+      if (assistantMessage.content) {
+        accumulatedContent += separator + assistantMessage.content
+        updateChatEntry(chatEntry, { response: accumulatedContent })
       }
 
       for (const toolCall of assistantMessage.tool_calls) {

@@ -7,16 +7,28 @@ import AiChatEmpty from './ai-chat-empty'
 export default auto(function AIChatHistory ({ history, isAgent }) {
   const historyRef = useRef(null)
 
+  const followStream = useRef(true)
+  const lastId = history.at(-1)?.id
+  const previousLastId = useRef(lastId)
+
   useLayoutEffect(() => {
-    if (historyRef.current) {
+    if (lastId !== previousLastId.current) followStream.current = true
+    previousLastId.current = lastId
+    if (historyRef.current && followStream.current) {
       historyRef.current.scrollTop = historyRef.current.scrollHeight
     }
-  }, [history])
+  }, [history, lastId])
   if (!history.length) {
     return <AiChatEmpty isAgent={isAgent} />
   }
   return (
-    <div ref={historyRef} className='ai-history-wrap'>
+    <div
+      ref={historyRef}
+      className='ai-history-wrap'
+      onScroll={({ currentTarget }) => {
+        followStream.current = currentTarget.scrollHeight - currentTarget.scrollTop - currentTarget.clientHeight < 32
+      }}
+    >
       {
         history.map((item) => {
           return (
