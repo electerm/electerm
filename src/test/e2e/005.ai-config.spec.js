@@ -268,6 +268,9 @@ describe('AI Config and Suggestions', function () {
     try {
       const account = await client.evaluate(webdavServerUrl => {
         const { store } = window
+        const light = store.getTerminalThemes().find(theme => theme.id === 'defaultLight')
+        store.addTheme({ ...light, id: 'sync-dialog-theme', uiThemeConfig: { ...light.uiThemeConfig, main: '#c3c3c3' } })
+        store.setTheme('sync-dialog-theme')
         store.setConfig({ dataSyncSelected: 'aiConfigs', syncSetting: { webdavServerUrl } })
         store.setItems('bookmarks', [{ id: 'sync-bookmark', type: 'ssh', title: 'CI', password: 'fixture-password' }])
         return store.saveAIConfig({
@@ -278,7 +281,14 @@ describe('AI Config and Suggestions', function () {
         })
       }, webdav.url)
 
-      await answerTransfer(client, manual, 'cancel')
+      await answerTransfer(client, manual, 'cancel', async dialog => {
+        // Check the painted surface both at creation and after the app theme
+        // changes while this same confirmation is waiting for an answer.
+        const surface = dialog.locator('.ant-modal-container')
+        await expect(surface).toHaveCSS('background-color', 'rgb(195, 195, 195)')
+        await client.evaluate(() => window.store.setTheme('defaultLight'))
+        await expect(surface).toHaveCSS('background-color', 'rgb(237, 237, 237)')
+      })
       expect(webdav.requests).toHaveLength(0)
       await answerTransfer(client, manual, 'upload', dialog =>
         expectUploadWarning(dialog, e('uploadSettings'), webdav.url)

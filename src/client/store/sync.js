@@ -15,7 +15,7 @@ import {
 import { update, getData } from '../common/db'
 import fetch from '../common/fetch-from-server'
 import download from '../common/download'
-import { confirmUnencryptedTransfer } from '../common/confirm-unencrypted-transfer'
+import { confirmUnencryptedTransfer } from '../components/setting-sync/transfer-confirmation'
 import { fixBookmarks } from '../common/db-fix'
 import { collectUncategorizedBookmarks } from '../common/bookmark-uncategorized'
 import dayjs from 'dayjs'
@@ -152,6 +152,8 @@ export default (Store) => {
       return previous.allowed
     }
     const allowed = await confirmUnencryptedTransfer({ type, automatic })
+    // Only remember a decision if the user answered the dialog.
+    if (allowed === undefined) return false
     if (!equal(options, getUploadOptions(store, type))) return false
     if (automatic) {
       if (!autoUploadEnabled(store)) return false

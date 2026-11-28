@@ -1,7 +1,9 @@
 import { Modal } from 'antd'
-import { createElement } from 'react'
+import { useLayoutEffect } from 'react'
+import { refsStatic } from '../common/ref'
 
 const e = window.translate
+const refKey = 'unencryptedTransferConfirmation'
 
 function destinationName (type) {
   const names = {
@@ -42,22 +44,45 @@ export function confirmUnencryptedTransfer ({ type, automatic = false, exporting
     : automatic ? `${e('autoSync')} · ${e('upload')}` : e('uploadSettings')
   const content = exporting
     ? e('exportDataWarn')
-    : [
-        e('unencryptedSyncDetails'),
-        createElement('div', { key: 'destination', className: 'mg1t' }, destinationName(type))
-      ]
-  return new Promise(resolve => {
-    Modal.confirm({
-      className: 'unencrypted-transfer-confirm',
-      title,
-      content,
-      okText: e(exporting ? 'export' : automatic ? 'ok' : 'upload'),
-      cancelText: e('cancel'),
-      okButtonProps: { danger: true },
-      focusable: { autoFocusButton: 'cancel' },
-      onOk: () => resolve(true),
-      onCancel: () => resolve(false),
-      afterClose: () => resolve(false)
-    })
+    : (
+      <>
+        {e('unencryptedSyncDetails')}
+        <div className='mg1t'>{destinationName(type)}</div>
+      </>
+      )
+  const confirm = refsStatic.get(refKey)
+  return confirm?.({
+    className: 'unencrypted-transfer-confirm',
+    title,
+    content,
+    okText: e(exporting ? 'export' : automatic ? 'ok' : 'upload'),
+    cancelText: e('cancel'),
+    okButtonProps: { danger: true },
+    focusable: { autoFocusButton: 'cancel' }
   })
+}
+
+export function TransferConfirmation () {
+  const [modal, contextHolder] = Modal.useModal()
+  useLayoutEffect(() => {
+    const pending = new Set()
+    refsStatic.add(refKey, options => new Promise(resolve => {
+      function finish (answer) {
+        pending.delete(finish)
+        resolve(answer)
+      }
+      pending.add(finish)
+      modal.confirm({
+        ...options,
+        onOk: () => finish(true),
+        onCancel: () => finish(false),
+        afterClose: () => finish()
+      })
+    }))
+    return () => {
+      refsStatic.remove(refKey)
+      for (const finish of pending) finish()
+    }
+  }, [modal])
+  return contextHolder
 }
