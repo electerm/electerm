@@ -1,0 +1,57 @@
+const { test, expect, _electron: electron } = require('@playwright/test')
+const appOptions = require('./common/app-options')
+
+test('pausing keeps the scrolled view while the live buffer advances', async () => {
+  const app = await electron.launch(appOptions)
+  try {
+    const page = await app.firstWindow()
+    const button = page.locator('.terminal-view-button')
+    await page.waitForFunction(() => window.refs?.get('term-' + window.store.activeTabId)?.attachAddon?.hasReceivedInitialData)
+    const pane = await page.evaluateHandle(() => window.refs.get('term-' + window.store.activeTabId))
+    await page.waitForFunction(p => !!p.onOutputActivity, pane)
+    await expect(button).toHaveCount(0)
+    await pane.evaluate(({ term }) => {
+      term.options.scrollback = 30
+      const lines = Array.from({ length: term.rows + 40 }, (_, i) => 'before pause ' + i)
+      term.write(lines.join('\r\n') + '\r\n')
+    })
+    await pane.evaluate(p => p.attachAddon.writeToTerminal('one isolated line\r\n'))
+    await expect(button).toHaveCount(0)
+    // Feed bursts through the same receive/coalescing path used by a session.
+    const startOutput = () => pane.evaluateHandle(p => setInterval(() => {
+      p.attachAddon.writeToTerminal('before pause streaming\r\n')
+    }, 90))
+    const stream = await startOutput()
+    await expect(button.locator('.anticon-loading')).toBeVisible()
+    await stream.evaluate(id => clearInterval(id))
+    await expect(button).toHaveCount(0)
+    const nextStream = await startOutput()
+    await expect(button.locator('.anticon-loading')).toBeVisible()
+    await nextStream.evaluate(id => clearInterval(id))
+    await pane.evaluate(({ term }) => term.scrollToLine(5))
+    await button.click()
+    await expect(button).toHaveAttribute('aria-pressed', 'true')
+    await expect.poll(() => pane.evaluate(p => p.pausedTerm?.buffer.active.viewportY)).toBe(5)
+    const readPausedRow = () => pane.evaluate(p => p.pausedTerm.buffer.active.getLine(5).translateToString(true))
+    const line = await readPausedRow()
+    expect(line).toContain('before pause')
+    await pane.evaluate(({ term }) => term.write('new output\r\n'.repeat(term.rows + 50)))
+    await expect.poll(() => pane.evaluate(p => p.term.buffer.active.getLine(5).translateToString(true))).toBe('new output')
+    expect(await readPausedRow()).toBe(line)
+    await pane.evaluate(p => p.pausedTerm.select(0, 5, 'before pause'.length))
+    expect(await pane.evaluate(p => p.getVisibleTerminal().getSelection())).toBe('before pause')
+
+    const tabId = await pane.evaluate(p => p.props.tab.id)
+    await page.evaluate(() => window.store.addTab())
+    await expect(button).toHaveCount(0)
+    await page.locator(`.tabs .tab[data-id="${tabId}"]`).click()
+    await expect(button).toHaveAttribute('aria-pressed', 'true')
+    expect(await readPausedRow()).toBe(line)
+    await button.click()
+    await expect(button).toHaveCount(0)
+    await expect(page.locator('.terminal-paused-view')).toHaveCount(0)
+    expect(await pane.evaluate(({ term }) => term.buffer.active.viewportY === term.buffer.active.baseY)).toBe(true)
+  } finally {
+    await app.close()
+  }
+})

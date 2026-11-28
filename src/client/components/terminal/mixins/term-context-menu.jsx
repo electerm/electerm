@@ -102,6 +102,9 @@ export const contextMenuMixin = {
         label: e(recording ? 'stopRecord' : 'record')
       }
     ]
+    if (this.state.viewPaused) {
+      return items.filter(item => ['onCopy', 'onSelectAll', 'onSelectTextMode'].includes(item.key))
+    }
     if (isSerial) {
       items.push(
         {
@@ -137,7 +140,7 @@ export const contextMenuMixin = {
     if (this.state.loading) {
       return
     }
-    if (behavior === rightClickBehaviors.paste) {
+    if (behavior === rightClickBehaviors.paste && !this.state.viewPaused) {
       return this.onPaste()
     }
   },
@@ -196,7 +199,7 @@ export const contextMenuMixin = {
   },
 
   copySelectionToClipboard () {
-    this.copyToClipboard(this.term.getSelection())
+    this.copyToClipboard(this.getVisibleTerminal().getSelection())
   },
 
   /**
@@ -212,13 +215,13 @@ export const contextMenuMixin = {
   },
 
   onCopy () {
-    const selected = this.term.getSelection()
-    copy(selected)
-    this.term.focus()
+    const view = this.getVisibleTerminal()
+    copy(view.getSelection())
+    view.focus()
   },
 
   onSelectAll () {
-    this.term.selectAll()
+    this.getVisibleTerminal().selectAll()
   },
 
   pasteTextTooLong () {

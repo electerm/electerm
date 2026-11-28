@@ -110,6 +110,7 @@ export const resizeMixin = {
 
   onResizeTerminal (size) {
     const { cols, rows } = size
+    this.pausedTerm?.resize(cols, rows)
     resizeTerm(this.pid, cols, rows)
   },
 

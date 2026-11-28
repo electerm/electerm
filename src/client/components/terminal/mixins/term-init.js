@@ -133,8 +133,9 @@ export const initMixin = {
   },
 
   onSelectionChange () {
-    const hasSelection = this.term.hasSelection()
-    const txt = hasSelection ? this.term.getSelection().trim() : ''
+    const view = this.getVisibleTerminal()
+    const hasSelection = view.hasSelection()
+    const txt = hasSelection ? view.getSelection().trim() : ''
     this.setState({ hasSelection })
     refsStatic.get('unix-timestamp-tooltip')?.onSelection(txt)
   },

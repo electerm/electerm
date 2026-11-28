@@ -79,3 +79,32 @@
     overflow hidden
     text-overflow ellipsis
     white-space nowrap
+
+.terminal-view-button
+  align-self center
+  display inline-grid
+  place-items center
+  width 24px
+  height 28px
+  padding 0
+  border 0
+  background transparent
+  color var(--text)
+  font-size 14px
+  cursor pointer
+  &:hover
+  &:focus-visible
+    color var(--primary)
+  .terminal-view-resume
+    animation terminal-view-pulse 1.5s ease-in-out infinite alternate
+
+@keyframes terminal-view-pulse
+  from
+    opacity 1
+  to
+    opacity .5
+
+@media (prefers-reduced-motion: reduce)
+  .terminal-view-button .anticon
+  .terminal-view-button .anticon svg
+    animation none !important

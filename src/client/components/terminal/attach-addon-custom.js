@@ -617,6 +617,7 @@ export default class AttachAddonCustom {
     term.write(data, this._recordLineBaseline)
     // Notify parent that the terminal buffer has been updated (echo received),
     // once per flush instead of once per chunk.
+    term.parent?.onOutputActivity?.(this._lastFlushTime, this._lastInputTime, data.length)
     term?.parent?.notifyOnData()
     term?.parent?.onTerminalWrite?.()
   }

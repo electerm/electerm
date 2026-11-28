@@ -8,6 +8,7 @@ import { BarChartOutlined, TranslationOutlined, DoubleRightOutlined, FunctionOut
 import './footer.styl'
 import { statusMap } from '../../common/constants'
 import BatchInput from './batch-input'
+import TerminalViewButton from './terminal-view-button'
 import encodes from '../bookmark-form/common/encodes'
 import { refs } from '../common/ref'
 import Qm from '../quick-commands/quick-commands-select'
@@ -287,6 +288,12 @@ export default auto(function FooterEntry (props) {
         <QmPrompt store={props.store} />
         {renderTriggers()}
         {renderBatchInputs()}
+        {!isLoading() && (
+          <TerminalViewButton
+            key={props.store.activeTabId}
+            pane={refs.get('term-' + props.store.activeTabId)}
+          />
+        )}
         {renderEncodingInfo()}
         {renderInfoIcon()}
       </div>

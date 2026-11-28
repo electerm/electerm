@@ -72,6 +72,7 @@ class Term extends Component {
     this.state = {
       loading: false,
       hasSelection: false,
+      viewPaused: false,
       saveTerminalLogToFile: !!this.props.config.saveTerminalLogToFile,
       addTimeStampToTermLog: !!this.props.config.addTimeStampToTermLog,
       logPath: this.props.config.sessionLogPath || createDefaultLogPath(),
@@ -451,6 +452,7 @@ class Term extends Component {
     const prps3 = {
       id: this.getDomId(),
       ref: this.domRef,
+      inert: this.state.viewPaused,
       className: 'absolute term-wrap-2',
       style: {
         left: 0,
@@ -483,6 +485,12 @@ class Term extends Component {
           <div
             {...prps3}
           />
+          {this.state.viewPaused && (
+            <div
+              ref={this.mountPausedView}
+              className='terminal-paused-view'
+            />
+          )}
           <NormalBuffer
             lines={this.state.lines}
             close={this.closeNormalBuffer}

@@ -397,7 +397,7 @@ export const socketMixin = {
     if (this.sessionEndDecision().close) {
       return this.props.delTab(this.props.tab.id)
     }
-    this.setState({ sessionStopped: true })
+    this.setState({ sessionStopped: true, viewPaused: false })
     const { autoReconnectTerminal } = this.props.config
     // A session that ended waiting for an interactive prompt can not come back
     // by itself: the retry would ask for the code again and time out again,
