@@ -22,7 +22,6 @@ import dayjs from 'dayjs'
 import parseJsonSafe from '../common/parse-json-safe'
 import { runImportTask } from '../common/import-task'
 import { encodeSyncData, decryptSyncData, isJSONArray } from '../common/sync-data-codec'
-import { restoreAIConfigs } from '../common/ai-config-transfer'
 
 const e = window.translate
 
@@ -81,7 +80,6 @@ function applyImportedConfig (store, config, { fromBackup = false } = {}) {
 }
 
 function prepareImportedItems (store, name, rows) {
-  if (name === settingMap.aiConfigs) return restoreAIConfigs(rows, store.aiConfigs)
   if (name === settingMap.terminalThemes) return store.fixThemes(rows)
   if (name === settingMap.bookmarks) return fixBookmarks(rows)
   return rows

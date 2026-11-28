@@ -318,7 +318,7 @@ describe('AI Config and Suggestions', function () {
       expect(wire).not.toContain(account.apiKeyAI)
       expect(wire).not.toContain('fixture-proxy-password')
       const downloaded = await client.evaluate(async () => {
-        window.store.setItems('aiConfigs', [])
+        window.store.saveAIConfig({ ...window.store.aiConfigs[0], apiKeyAI: 'stale-local-key' })
         await window.store.downloadSetting('webdav')
         return window.store.aiConfigs
       })

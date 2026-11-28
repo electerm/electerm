@@ -28,7 +28,6 @@ const secret = JSON.stringify([{ host: '1.2.3.4', password: 'hunter2' }])
 
 test('AI config sync transfers complete records with or without a sync password', async t => {
   const { encodeSyncData, decryptSyncData } = await import('../../client/common/sync-data-codec.js')
-  const { restoreAIConfigs } = await import('../../client/common/ai-config-transfer.js')
   global.window = {
     pre: { runGlobalAsync: (name, ...args) => ({ encryptAsync, decryptAsync })[name](...args) }
   }
@@ -42,7 +41,6 @@ test('AI config sync transfers complete records with or without a sync password'
     modelAI: 'model'
   }
   const configs = [{ ...route, id: 'one', apiKeyAI: 'first-key' }, { ...route, id: 'two', apiKeyAI: '' }]
-  const local = configs.map(profile => ({ ...profile, apiKeyAI: 'stale-key' }))
   for (const password of ['', pass]) {
     const data = await encodeSyncData(configs, password, 'aiConfigs')
     if (password) {
@@ -52,37 +50,9 @@ test('AI config sync transfers complete records with or without a sync password'
       assert.deepEqual(JSON.parse(data), configs)
     }
     const imported = JSON.parse(await decryptSyncData(data, password, 'aiConfigs'))
-    assert.deepEqual(restoreAIConfigs(imported, []), configs)
-    assert.deepEqual(restoreAIConfigs(imported, local), configs)
+    assert.deepEqual(imported, configs)
   }
   await assert.rejects(decryptSyncData(JSON.stringify(configs), pass, 'aiConfigs'), /plaintext/)
-})
-
-test('older redacted profiles keep credentials only with their original local route', async () => {
-  const { restoreAIConfigs } = await import('../../client/common/ai-config-transfer.js')
-  const local = {
-    id: 'one',
-    baseURLAI: 'https://user:pass@provider.example/v1',
-    apiPathAI: '/chat?token=abc',
-    proxyAI: 'socks5://user:secret@proxy.example:1080',
-    authHeaderNameAI: 'Authorization: SecretHeader',
-    apiKeyAI: 'old-key'
-  }
-  const saved = {
-    id: 'one',
-    baseURLAI: 'https://provider.example/v1',
-    apiPathAI: null,
-    proxyAI: 'socks5://proxy.example:1080',
-    authHeaderNameAI: null,
-    credentialsOmitted: true
-  }
-  assert.deepEqual(restoreAIConfigs([saved], [local]), [local])
-  for (const rows of [[], [{ ...local, baseURLAI: 'https://other.example' }], [{ ...local, id: 'new' }]]) {
-    const [incomplete] = restoreAIConfigs([saved], rows)
-    assert.equal(incomplete.baseURLAI, '')
-    assert.equal(incomplete.apiKeyAI, '')
-    assert.equal(incomplete.credentialsOmitted, undefined)
-  }
 })
 
 describe('sync enc: gcm format', () => {
