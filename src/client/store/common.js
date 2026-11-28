@@ -114,6 +114,7 @@ export default Store => {
   })
 
   Store.prototype.toggleTerminalSearch = function () {
+    if (!window.store.termSearchOpen && refs.get('term-' + window.store.activeTabId)?.isViewPaused()) return
     const now = Date.now()
     if (window.lastToggleTerminalSearch && now - window.lastToggleTerminalSearch < 300) {
       return

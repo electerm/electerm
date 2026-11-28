@@ -35,6 +35,7 @@ import { socketMixin } from './mixins/term-socket.js'
 import { clearNeedsInteractiveInput } from './interactive-prompt-state.js'
 import { configMixin } from './mixins/term-config.jsx'
 import { contextMenuMixin } from './mixins/term-context-menu.jsx'
+import { viewPauseMixin } from './mixins/term-view-pause.js'
 import { contentMixin } from './mixins/term-content.js'
 import { logMixin } from './mixins/term-log.jsx'
 import { touchMixin } from './mixins/term-touch.js'
@@ -59,6 +60,7 @@ const mixins = [
   configMixin,
   contextMenuMixin,
   contentMixin,
+  viewPauseMixin,
   logMixin,
   touchMixin,
   fileDropMixin,
@@ -209,7 +211,10 @@ class Term extends Component {
     }
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate (prevProps, prevState) {
+    if (prevState.viewPaused !== this.state.viewPaused) {
+      this.onViewPausedChange?.()
+    }
     const shouldChange = (
       prevProps.currentBatchTabId !== this.props.currentBatchTabId &&
       this.props.tab.id === this.props.currentBatchTabId &&
@@ -276,6 +281,7 @@ class Term extends Component {
     // Only renderer resources are released here: socket.close() and
     // term.dispose() stay in the existing cleanup below.
     this.onClose = true
+    this.disposePausedView()
     this.rendererLifecycleReady = false
     this.webglCircuitDisposable?.dispose?.()
     this.webglCircuitDisposable = null

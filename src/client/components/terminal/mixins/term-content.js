@@ -1,5 +1,3 @@
-import { getKeyCombo, matchesShortcut } from '../../shortcuts/terminal-key-combo.js'
-
 /**
  * Reading back what is on screen: search (xterm search addon + the result
  * bar), the normal-buffer overlay used when an app owns the alt buffer, and
@@ -8,61 +6,6 @@ import { getKeyCombo, matchesShortcut } from '../../shortcuts/terminal-key-combo
 export const contentMixin = {
   getVisibleTerminal () {
     return this.pausedTerm || this.term
-  },
-
-  setViewPaused (viewPaused) {
-    this.setState({
-      viewPaused,
-      hasSelection: !viewPaused && this.term.hasSelection()
-    }, () => {
-      if (!viewPaused) {
-        this.term.scrollToBottom()
-        this.term.focus()
-      }
-    })
-  },
-
-  // A second, read-only xterm owns only the frozen buffer. The attached
-  // terminal keeps parsing the live session, including while this tab is hidden.
-  mountPausedView (element) {
-    if (!element) {
-      this.pausedTerm?.dispose()
-      this.pausedTerm = null
-      return
-    }
-    const live = this.term
-    const { Terminal, Unicode11Addon } = window.xtermAddons
-    const view = new Terminal({
-      cols: live.cols,
-      rows: live.rows,
-      scrollback: live.options.scrollback,
-      theme: live.options.theme,
-      fontFamily: live.options.fontFamily,
-      fontSize: live.options.fontSize,
-      allowTransparency: true,
-      allowProposedApi: true,
-      disableStdin: true,
-      cursorInactiveStyle: 'none'
-    })
-    this.pausedTerm = view
-    view.loadAddon(new Unicode11Addon())
-    view.unicode.activeVersion = live.unicode.activeVersion
-    view.open(element)
-    const top = live.buffer.active.viewportY
-    view.write(this.serializeAddon.serialize({ excludeModes: true }) + '\x1b[?25l', () => {
-      if (view === this.pausedTerm) view.scrollToLine(top)
-    })
-    view.onSelectionChange(this.onSelectionChange)
-    view.onSelectionChange(this.onSelection)
-    view.attachCustomKeyEventHandler(event => {
-      if (event.type !== 'keydown' || !view.hasSelection()) return true
-      if (matchesShortcut(getKeyCombo(event), this.getShortcut('terminal_copy'))) {
-        event.preventDefault()
-        this.onCopy()
-        return false
-      }
-      return true
-    })
   },
 
   toggleSearch () {

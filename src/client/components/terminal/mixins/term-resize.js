@@ -41,6 +41,10 @@ export const resizeMixin = {
       return
     }
     try {
+      if (this.pausedTerm) {
+        this.pausedTerm.options.fontSize = this.term.options.fontSize
+        this.pausedTerm.options.fontFamily = this.term.options.fontFamily
+      }
       this.fitAddon.fit()
       this.term.refresh(0, this.term.rows - 1)
     } catch (e) {

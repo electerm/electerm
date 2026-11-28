@@ -103,7 +103,10 @@ export const contextMenuMixin = {
       }
     ]
     if (this.state.viewPaused) {
-      return items.filter(item => ['onCopy', 'onSelectAll', 'onSelectTextMode'].includes(item.key))
+      return [
+        { key: 'onResumeView', icon: <iconsMap.PlayCircleFilled />, label: e('resume') },
+        ...items.filter(item => ['onCopy', 'onSelectAll', 'onSelectTextMode'].includes(item.key))
+      ]
     }
     if (isSerial) {
       items.push(
@@ -215,9 +218,8 @@ export const contextMenuMixin = {
   },
 
   onCopy () {
-    const view = this.getVisibleTerminal()
-    copy(view.getSelection())
-    view.focus()
+    this.copySelectionToClipboard()
+    this.getVisibleTerminal().focus()
   },
 
   onSelectAll () {

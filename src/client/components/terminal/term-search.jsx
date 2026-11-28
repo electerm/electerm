@@ -63,6 +63,13 @@ export default class TermSearch extends PureComponent {
     refsStatic.add('term-search', this)
   }
 
+  componentDidUpdate (prevProps) {
+    const { activeTabId, termSearchOpen } = this.props
+    if (termSearchOpen && prevProps.activeTabId !== activeTabId && refs.get('term-' + activeTabId)?.isViewPaused()) {
+      this.close()
+    }
+  }
+
   componentWillUnmount () {
     this.runSearchDebounced.cancel()
   }
@@ -115,8 +122,8 @@ export default class TermSearch extends PureComponent {
   clearSearch = () => {
     this.runSearchDebounced.cancel()
     const term = refs.get('term-' + this.props.activeTabId)
-    term?.searchAddon.clearDecorations()
-    term.setState({
+    term?.searchAddon?.clearDecorations()
+    term?.setState({
       searchResults: [],
       matchIndex: -1
     })
