@@ -80,11 +80,13 @@
 
 
 .ai-chat-input
-  position relative
   margin-top 10px
 
-  .ant-input
-    padding-bottom 40px
+  .ai-chat-composer
+    position relative
+
+  .ai-chat-textarea
+    padding-bottom 36px
 
   .ai-chat-terminals
     position absolute
@@ -98,12 +100,11 @@
   .ai-chat-controls
     min-width 0
     flex 1
+    .ant-select
+      min-width 0
 
-  .ai-chat-config-select
-    min-width 0
-    flex 1
-    max-width 144px
-    margin-right 4px
+  .ai-chat-config-controls
+    font-size 16px
 
 .ai-disclamer
   font-size 12px
@@ -248,6 +249,9 @@
 .agent-tool-status-completed
   color #52c41a
 
+.agent-tool-status-stopped
+  color var(--text-color-2)
+
 .agent-tool-status-error
   color #ff4d4f
 
@@ -292,6 +296,9 @@
 
 .agent-tool-completed
   border-color #52c41a
+
+.agent-tool-stopped
+  border-color var(--text-color-2)
 
 .agent-tool-error
   border-color #ff4d4f

@@ -1,15 +1,17 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
-import { Flex, Input, Segmented, Select, Button, Tag, message, Popover } from 'antd'
+import { Flex, Input, Segmented, Button, Tag, message, Popover } from 'antd'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
+import { startChatRequest } from './ai-chat-request'
 import AiChatSessions from './ai-chat-sessions'
 import AiContextIndicator from './ai-context-indicator'
+import AgentApprovalModeSelect from './agent-approval-mode-select'
+import ActiveAIConfigSelect from './active-ai-config-select'
 import SwitchLabel from '../common/switch'
 import { buildSessionMessages, summarizeContext, getUsageLevel } from './ai-context'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import uid from '../../common/uid'
 import { getAIHistoryConfig } from './ai-config-props'
-import { getAIConfigsLabel } from '../../common/ai-feature'
 import {
   SettingOutlined,
   SendOutlined,
@@ -58,7 +60,7 @@ export default function AIChat (props) {
   const currentChatSessionId = props.currentChatSessionId || ''
 
   useEffect(() => {
-    if (!currentChatSessionId && props.rightPanelTab === 'ai') {
+    if (!window.store.currentChatSessionId && props.rightPanelTab === 'ai') {
       window.store.startNewChat()
     }
   }, [currentChatSessionId, props.rightPanelTab])
@@ -161,18 +163,17 @@ export default function AIChat (props) {
   }
 
   const handleSubmit = useCallback(function () {
-    if (window.store.aiConfigMissing()) {
-      window.store.toggleAIConfig()
+    const { store } = window
+    if (store.aiConfigMissing()) {
+      store.toggleAIConfig()
       return
     }
-    // Read the live flag rather than the rendered one. `submitDisabled` can be
-    // stale: the loop sets `agentRunning` from the new turn's mount effect, and
-    // manate's `auto` re-subscribes its listener on every render, so a write
-    // landing in that window never reaches the panel -- leaving the icon looking
-    // enabled while a run is in flight, which let a second agent turn through.
-    if (isAgent && window.store.agentRunning) return
+    if (isAgent && store.agentRunning) return
     if (!prompt.trim() && !attachments.length) return
 
+    if (!store.currentChatSessionId) store.startNewChat()
+    store.showChatSessions = false
+    const requestConfig = { ...store.activeAIConfig }
     const chatId = uid()
     const block = buildAttachmentsBlock(attachments)
     const promptWithAttachments = block
@@ -186,26 +187,22 @@ export default function AIChat (props) {
       })),
       response: '',
       isStreaming: false,
-      pending: true,
       sessionId: null,
-      chatSessionId: currentChatSessionId,
+      chatSessionId: store.currentChatSessionId,
       mode,
       toolCalls: [],
-      ...getAIHistoryConfig(window.store.activeAIConfig),
+      ...getAIHistoryConfig(requestConfig),
       timestamp: Date.now(),
       id: chatId
     }
 
     // Reassign rather than push: the store only notifies on a property write,
     // and the transcript is keyed off the array identity.
-    window.store.aiChatHistory = [...window.store.aiChatHistory, chatEntry]
+    store.aiChatHistory = [...store.aiChatHistory, chatEntry].slice(-MAX_HISTORY)
     setPrompt('')
     setAttachments([])
-
-    if (window.store.aiChatHistory.length > MAX_HISTORY) {
-      window.store.aiChatHistory = window.store.aiChatHistory.slice(0, MAX_HISTORY)
-    }
-  }, [prompt, attachments, mode, currentChatSessionId])
+    startChatRequest(chatEntry, requestConfig)
+  }, [prompt, attachments, mode])
 
   function renderHistory () {
     if (props.showChatSessions) {
@@ -331,9 +328,7 @@ export default function AIChat (props) {
   const handleKeyPress = (evt) => {
     if (!evt.shiftKey) {
       evt.preventDefault()
-      if (!submitDisabled) {
-        handleSubmit()
-      }
+      handleSubmit()
     }
   }
   return (
@@ -360,7 +355,7 @@ export default function AIChat (props) {
 
       <Flex vertical className='ai-chat-input'>
         <Flex className='ai-chat-toolbar mg1b' align='center' justify='space-between' gap={4}>
-          <Flex align='center' gap={4}>
+          <Flex align='center' gap={4} wrap='wrap'>
             <Button
               size='small'
               icon={<PlusOutlined />}
@@ -386,11 +381,12 @@ export default function AIChat (props) {
             <Button
               size='small'
               icon={<HistoryOutlined />}
+              aria-label={e('history')}
+              aria-pressed={props.showChatSessions}
+              title={e('history')}
               onClick={handleShowHistory}
               type={props.showChatSessions ? 'primary' : 'default'}
-            >
-              {e('history')}
-            </Button>
+            />
           </Flex>
           <AiContextIndicator info={contextInfo} />
         </Flex>
@@ -408,14 +404,33 @@ export default function AIChat (props) {
             ))}
           </Flex>
         )}
-        <TextArea
-          value={prompt}
-          onChange={handlePromptChange}
-          onPressEnter={handleKeyPress}
-          placeholder={isAgent ? promptPlaceholder.agent : promptPlaceholder.ask}
-          autoSize={{ minRows: 3, maxRows: 10 }}
-          className='ai-chat-textarea'
-        />
+        <div className='ai-chat-composer'>
+          <TextArea
+            value={prompt}
+            onChange={handlePromptChange}
+            onPressEnter={handleKeyPress}
+            placeholder={isAgent ? promptPlaceholder.agent : promptPlaceholder.ask}
+            autoSize={{ minRows: 3, maxRows: 10 }}
+            className='ai-chat-textarea'
+          />
+          <Flex className='ai-chat-terminals' align='center'>
+            <Flex align='center' gap={4} className='ai-chat-controls'>
+              <Segmented
+                options={['Ask', 'Agent']}
+                value={mode === 'ask' ? 'Ask' : 'Agent'}
+                onChange={handleModeChange}
+                size='small'
+              />
+              {isAgent && <AgentApprovalModeSelect size='small' />}
+              {renderTabSelect()}
+              <PaperClipOutlined
+                onClick={() => fileInputRef.current?.click()}
+                className='pointer icon-hover toggle-ai-attach-icon'
+              />
+            </Flex>
+            {renderSendIcon()}
+          </Flex>
+        </div>
         <input
           type='file'
           multiple
@@ -426,40 +441,22 @@ export default function AIChat (props) {
             evt.target.value = ''
           }}
         />
-        <Flex className='ai-chat-terminals' justify='space-between' align='center'>
-          <Flex align='center' className='ai-chat-controls'>
-            <Select
-              aria-label={getAIConfigsLabel()}
-              className='ai-chat-config-select'
-              size='small'
-              value={config.id}
-              placeholder={getAIConfigsLabel()}
-              disabled={!props.aiConfigOptions.length}
-              options={props.aiConfigOptions}
-              onChange={id => window.store.applyAIConfig(id)}
-              popupMatchSelectWidth={false}
-              placement='topLeft'
-            />
-            <Segmented
-              options={['Ask', 'Agent']}
-              value={mode === 'ask' ? 'Ask' : 'Agent'}
-              onChange={handleModeChange}
-              size='small'
-            />
-            {renderTabSelect()}
-            <PaperClipOutlined
-              onClick={() => fileInputRef.current?.click()}
-              className='mg1l pointer icon-hover toggle-ai-attach-icon'
-            />
-            <SettingOutlined
-              onClick={toggleConfig}
-              className='mg1l pointer icon-hover toggle-ai-setting-icon'
-            />
-            <HelpIcon
-              link={aiConfigWikiLink}
-            />
-          </Flex>
-          {renderSendIcon()}
+        <Flex className='ai-chat-config-controls mg1t' align='center' gap={4}>
+          <ActiveAIConfigSelect
+            className='ai-chat-config-select'
+            size='small'
+            placement='topLeft'
+          />
+          <Button
+            type='text'
+            size='small'
+            aria-label={e('settings')}
+            title={e('settings')}
+            icon={<SettingOutlined />}
+            onClick={toggleConfig}
+            className='toggle-ai-setting-icon'
+          />
+          <HelpIcon link={aiConfigWikiLink} />
         </Flex>
       </Flex>
       {window.et.AIDisclamer && (

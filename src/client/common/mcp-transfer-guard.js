@@ -36,7 +36,8 @@ const sensitiveWritePatterns = [
   /(^|\/)\.(bashrc\.d|profile\.d|zshrc\.d)(\/|$)/i
 ]
 
-// Reading any of these hands credentials to whoever receives the upload.
+// Reading any of these can hand credentials to the upload recipient or the
+// agent's model provider. This screens path names, not symlink targets.
 const sensitiveReadPatterns = [
   /(^|\/)\.ssh(\/|$)/i,
   /(^|\/)\.(aws|azure|gcloud|kube|docker|gnupg|password-store)(\/|$)/i,
@@ -44,7 +45,8 @@ const sensitiveReadPatterns = [
   /(^|\/)\.config\/(gh\/hosts\.yml|hub)$/i,
   /(^|\/)\.config\/gcloud(\/|$)/i,
   /(^|\/)appdata\/(roaming|local)\/(microsoft\/credentials|\.?ssh|gnupg)(\/|$)/i,
-  /(^|\/)(\.env|\.env\.[a-z0-9]+|id_rsa|id_dsa|id_ecdsa|id_ed25519)$/i
+  /(^|\/)(\.env(?:\.[^/]+)?|id_rsa|id_dsa|id_ecdsa|id_ed25519|g?shadow-?)$/i,
+  /(^|\/)credentials(?:\.[^/]+)?(\/|$)/i
 ]
 
 export const conflictPolicies = [
@@ -112,7 +114,10 @@ const firstMatch = (patterns, localPath, homeDir) => {
   if (!normalized) {
     return ''
   }
-  return patterns.some(re => re.test(normalized)) ? normalized : ''
+  // Screen the underlying Windows file for drive-relative names, named
+  // streams and trailing dots/spaces. Keep the spelling for the dialog.
+  const comparable = normalized.replace(/^[a-z]:/i, '').replace(/:[^/]*$/, '').replace(/[. ]+(?=\/|$)/g, '')
+  return patterns.some(re => re.test(comparable)) ? normalized : ''
 }
 
 // Returns the normalised path when a download to it would create or change

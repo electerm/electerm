@@ -1,5 +1,17 @@
 import { z } from '../../common/zod'
+import message from '../common/message'
+import { refs } from '../common/ref'
 import { bookmarkSchemas } from '../../common/bookmark-schemas'
+import { sensitiveReadPath } from '../../common/mcp-transfer-guard'
+import { requestAgentApproval } from './agent-approval'
+import { canRememberAgentCommand } from './agent-permissions'
+import { isReadOnlyAgentCommand, mentionsSensitivePath } from './agent-read-only-commands'
+import { getIdleShellType } from '../terminal/idle-shell'
+import {
+  readAgentApprovalMode,
+  readAgentCommandAllowlist,
+  rememberAgentCommand
+} from './agent-permission-preferences'
 
 function buildAddBookmarkParameters () {
   const typeProperties = {}
@@ -534,7 +546,74 @@ export const agentTools = [
   }
 ]
 
-export async function executeToolCall (toolName, args) {
+// New tools require review until their implementation has been classified.
+const readOnlyTools = new Set([
+  'list_tabs', 'get_active_tab', 'list_bookmarks',
+  'get_terminal_output', 'get_terminal_status',
+  'sftp_list', 'sftp_stat',
+  'sftp_transfer_list', 'sftp_transfer_history',
+  'get_background_task_status', 'get_background_task_log'
+])
+
+async function approveAgentTool (name, args, properties, signal) {
+  const declaredArgs = Object.keys(args).every(key => Object.hasOwn(properties, key))
+  if (declaredArgs && readOnlyTools.has(name)) return true
+  if (declaredArgs && name === 'sftp_read_file' && typeof args.remotePath === 'string' &&
+      args.remotePath.trim() && !sensitiveReadPath(args.remotePath)) return true
+  if (readAgentApprovalMode() === 'auto') return true
+
+  const foreground = name === 'send_terminal_command'
+  let allowRemember = declaredArgs && (foreground || name === 'run_background_command') &&
+    canRememberAgentCommand(args.command)
+  if (allowRemember) {
+    const saved = readAgentCommandAllowlist().includes(args.command)
+    // A missing shell classification falls through to the approval dialog.
+    const shell = foreground && !saved ? await getIdleShellType(args.tabId).catch(() => '') : ''
+    try {
+      // Read the target's live OSC cwd after any asynchronous SSH probe.
+      const tracker = refs.get('term-' + args.tabId)?.cmdAddon
+      const cwd = tracker?.hasShellIntegration() ? tracker.getCwd() : ''
+      allowRemember = !mentionsSensitivePath(args.command, cwd)
+    } catch {
+      allowRemember = false
+    }
+    if (allowRemember && (saved || (shell && isReadOnlyAgentCommand(args.command, shell)))) return true
+  }
+
+  if (signal.aborted) return false
+  const decision = await requestAgentApproval({ name, args, allowRemember, signal })
+  if (signal.aborted) return false
+  if (decision === 'remember' && allowRemember && !rememberAgentCommand(args.command)) {
+    message.warning('Approved for this run. The command couldn’t be saved to the allowed commands list.')
+  }
+  return decision === 'once' || (decision === 'remember' && allowRemember)
+}
+
+// Return null when review stops the turn. Only publish the running state when
+// the reviewed arguments are about to reach the tool.
+export async function executeToolCall (toolName, args, { signal, onStart }) {
+  const store = window.store
+  const tool = agentTools.find(tool => tool.function.name === toolName)
+  if (!tool) throw new Error(`Unknown agent tool: ${toolName}`)
+  if (!args || typeof args !== 'object' || Array.isArray(args)) {
+    throw new Error('Tool arguments must be an object')
+  }
+
+  // Resolve an implicit target once. Switching tabs while a dialog is open
+  // must not change which terminal or SFTP session receives the operation.
+  const { properties, required } = tool.function.parameters
+  if (properties.tabId && !required?.includes('tabId') && !args.tabId) {
+    if (!store.activeTabId) throw new Error('No active tab')
+    args = { ...args, tabId: store.activeTabId }
+  }
+
+  const approved = await approveAgentTool(toolName, args, properties, signal)
+  if (!approved || signal.aborted) return null
+  onStart(args)
+  return dispatchToolCall(toolName, args)
+}
+
+async function dispatchToolCall (toolName, args) {
   const store = window.store
   switch (toolName) {
     case 'send_terminal_command': {

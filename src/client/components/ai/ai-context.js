@@ -139,7 +139,7 @@ export function getContextWindow (model, override) {
 }
 
 // The single source of truth for "what gets sent": both the request in
-// ai-chat-history-item.jsx and the indicator in ai-chat.jsx go through here,
+// ai-chat-request.js and the indicator in ai-chat.jsx go through here,
 // so the number on screen is the number that leaves the machine.
 //
 // Returns null when there is no session to build from -- the sender reads

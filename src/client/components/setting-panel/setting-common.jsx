@@ -19,6 +19,7 @@ import Password from '../common/password'
 import InputConfirm from '../common/input-confirm'
 import InputNumberConfirm from '../common/input-number-confirm'
 import TextareaConfirm from '../common/textarea-confirm'
+import { resetAgentPermissions } from '../ai/agent-permission-preferences'
 import {
   settingMap,
   proxyHelpLink,
@@ -122,6 +123,7 @@ export default class SettingCommon extends Component {
   }
 
   handleResetAll = () => {
+    resetAgentPermissions()
     this.saveConfig(
       deepCopy(defaultSettings)
     )

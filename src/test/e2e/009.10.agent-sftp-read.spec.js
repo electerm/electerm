@@ -158,7 +158,7 @@ describe('AI agent sftp_read_file', function () {
     expect(outcome.good.content).toContain('hello sftp world')
   })
 
-  it('leaves the agent tool card in a finished state', async function () {
+  it('finishes the read in manual mode without an approval prompt', async function () {
     await openSftpTab()
 
     await client.evaluate(() => {
@@ -189,6 +189,7 @@ describe('AI agent sftp_read_file', function () {
       '.agent-tool-call-card.agent-tool-completed, .agent-tool-call-card.agent-tool-error',
       { timeout: 45000 }
     )
+    await expect(client.locator('.agent-approval-modal')).toBeHidden()
     expect(await client.locator('.agent-tool-call-card.agent-tool-running').count()).toBe(0)
     expect(await client.locator('.agent-tool-call-card').count()).toBe(1)
     expect(await client.locator('.agent-tool-name').first().textContent()).toBe('sftp_read_file')

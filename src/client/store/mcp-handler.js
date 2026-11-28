@@ -7,6 +7,7 @@ import uid from '../common/uid'
 import { settingMap } from '../common/constants'
 import { refs, refsTabs } from '../components/common/ref'
 import { runCmd, execCmd } from '../components/terminal/terminal-apis'
+import { getIdleShellType } from '../components/terminal/idle-shell'
 import deepCopy from 'json-deep-copy'
 import {
   getLocalFileInfo,
@@ -1172,18 +1173,16 @@ export default Store => {
   let bgTaskCounter = 0
 
   async function runMonitorCmd (tabId, cmd) {
-    try {
-      const result = await runCmd(tabId, cmd)
-      return result
-    } catch (e) {
-      // Fallback: send via terminal and wait for idle
-      const { store } = window
-      store.mcpSendTerminalCommand({ command: cmd, tabId })
-      const idle = await store.mcpWaitForTerminalIdle({
-        tabId, timeout: 10000, lines: 10, minWait: 500
-      })
-      return idle.output || ''
+    if (refs.get('term-' + tabId)?.isSsh()) return runCmd(tabId, cmd)
+    // Local monitoring shares the user's PTY. Use the POSIX sentinel capture
+    // only at an empty shell prompt so output excludes the prompt and history.
+    const shell = await getIdleShellType(tabId)
+    if (!['sh', 'bash', 'zsh', 'dash', 'ash'].includes(shell)) {
+      throw new Error('Wait for the terminal to return to an empty POSIX shell prompt, then retry background monitoring.')
     }
+    const result = await window.store.mcpExecuteCommandPty({ command: cmd, tabId, timeoutMs: 10000 })
+    if (result.timedOut) throw new Error('Background monitor command timed out')
+    return result.stdout
   }
 
   Store.prototype.mcpRunBackgroundCommand = function (args) {
@@ -1205,7 +1204,7 @@ export default Store => {
     // The subshell runs the user's command, captures its exit code, then cleans up the PID file.
     const b64 = btoa(args.command)
     const inner = `eval "$(echo ${b64} | base64 --decode)" > ${logFile} 2>&1; e=$?; echo $e > ${exitFile}; rm -f ${pidFile}`
-    const wrapped = `nohup bash -c '${inner}' & echo $! > ${pidFile}; disown`
+    const wrapped = `nohup bash -c '${inner}' </dev/null >/dev/null 2>&1 & echo $! > ${pidFile}; disown`
 
     store.mcpSendTerminalCommand({ command: wrapped, tabId, inputOnly: false })
 
@@ -1232,15 +1231,21 @@ export default Store => {
     }
   }
 
+  async function readTaskPid (task) {
+    const output = await runMonitorCmd(task.tabId,
+      `cat ${task.pidFile} 2>/dev/null`)
+    const pid = output.trim()
+    if (pid && !/^[1-9]\d*$/.test(pid)) throw new Error('Invalid background task PID')
+    return pid
+  }
+
   Store.prototype.mcpGetBackgroundTaskStatus = async function (args) {
     const task = backgroundTasks.get(args.taskId)
     if (!task) {
       throw new Error(`Task ${args.taskId} not found`)
     }
 
-    const pidOutput = await runMonitorCmd(task.tabId,
-      `cat ${task.pidFile} 2>/dev/null`)
-    const pid = pidOutput.trim()
+    const pid = await readTaskPid(task)
 
     if (!pid) {
       // PID file is gone. The wrapper removes it when the command finishes,
@@ -1286,7 +1291,8 @@ export default Store => {
       throw new Error(`Task ${args.taskId} not found`)
     }
 
-    const lines = args.lines || 100
+    const lines = args.lines ?? 100
+    if (!Number.isSafeInteger(lines) || lines < 0) throw new Error('Expected a non-negative integer for lines')
     const output = await runMonitorCmd(task.tabId,
       `tail -n ${lines} ${task.logFile} 2>/dev/null || echo '(no output yet)'`)
 
@@ -1303,9 +1309,7 @@ export default Store => {
       throw new Error(`Task ${args.taskId} not found`)
     }
 
-    const pidOutput = await runMonitorCmd(task.tabId,
-      `cat ${task.pidFile} 2>/dev/null`)
-    const pid = pidOutput.trim()
+    const pid = await readTaskPid(task)
 
     if (pid) {
       await runMonitorCmd(task.tabId,

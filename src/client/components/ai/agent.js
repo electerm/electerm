@@ -94,7 +94,9 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
   const runId = uid()
   activeRunId = runId
   window.store.agentRunning = true
-  const isAborted = () => !!(abortRef && abortRef.current)
+  const approvalController = new AbortController()
+  if (abortRef) abortRef.approvalController = approvalController
+  const isAborted = () => approvalController.signal.aborted || !!abortRef?.current
   // Auto compression bookkeeping, read by the finally block as well: how many
   // times this run compacted itself, whether it failed on the way, and the
   // size at the last summary attempt (AUTO_COMPRESS_RETRY_GROWTH_PERCENT)
@@ -114,7 +116,7 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
     const markStopped = () => {
       setIsStreaming(false)
       updateChatEntry(chatEntry, {
-        response: accumulatedContent + '\n\n*(Agent stopped by user)*'
+        response: accumulatedContent + `\n\n*(${window.translate('stopped')})*`
       })
     }
 
@@ -239,7 +241,14 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
           return
         }
 
-        let args
+        const name = toolCall.function.name
+        const index = toolCallsLog.length
+        let args = {}
+        // A fresh object lets the memoized card see each status change.
+        const record = (status, result = null) => {
+          toolCallsLog[index] = { id: toolCall.id, name, args, status, result }
+          updateChatEntry(chatEntry, { toolCalls: [...toolCallsLog] })
+        }
         try {
           args = JSON.parse(toolCall.function.arguments || '{}')
         } catch {
@@ -247,16 +256,7 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
           // garbled. Running the tool with `{}` would execute something the
           // model never asked for, so report it back and let it retry.
           const errorText = `Invalid tool arguments JSON: ${toolCall.function.arguments}`
-          toolCallsLog.push({
-            id: toolCall.id,
-            name: toolCall.function.name,
-            args: {},
-            status: 'error',
-            result: errorText
-          })
-          updateChatEntry(chatEntry, {
-            toolCalls: [...toolCallsLog]
-          })
+          record('error', errorText)
           messages.push({
             role: 'tool',
             tool_call_id: toolCall.id,
@@ -265,40 +265,30 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
           continue
         }
 
-        toolCallsLog.push({
-          id: toolCall.id,
-          name: toolCall.function.name,
-          args,
-          status: 'running',
-          result: null
-        })
-        updateChatEntry(chatEntry, {
-          toolCalls: [...toolCallsLog]
-        })
-
-        let finished
+        let result
         try {
-          const toolResult = await executeToolCall(toolCall.function.name, args)
-          finished = { status: 'completed', result: toolResult }
+          result = await executeToolCall(name, args, {
+            signal: approvalController.signal,
+            onStart: resolvedArgs => {
+              args = resolvedArgs
+              record('running')
+            }
+          })
+          if (result === null) {
+            approvalController.abort()
+            record('stopped')
+            markStopped()
+            return
+          }
+          record('completed', result)
         } catch (err) {
-          finished = { status: 'error', result: err.message }
+          result = err.message
+          record('error', result)
         }
-
-        // Swap in a new entry object instead of mutating the running one: the
-        // tool call card is memo()'d on that object's identity, so an in-place
-        // mutation would leave the card showing "running" forever.
-        toolCallsLog[toolCallsLog.length - 1] = {
-          ...toolCallsLog[toolCallsLog.length - 1],
-          ...finished
-        }
-        updateChatEntry(chatEntry, {
-          toolCalls: [...toolCallsLog]
-        })
-
         messages.push({
           role: 'tool',
           tool_call_id: toolCall.id,
-          content: finished.result
+          content: result
         })
       }
     }
@@ -310,6 +300,7 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
   } finally {
     if (abortRef) {
       abortRef.requestId = null
+      abortRef.approvalController = null
     }
     // Only the run that still owns the flag may clear it -- a stopped run
     // unwinds a moment later and must not unlock a newer one.
@@ -343,6 +334,7 @@ export async function runAgentLoop (chatEntry, config, abortRef, setIsStreaming,
 export async function stopAgentRun (abortRef) {
   if (abortRef) {
     abortRef.current = true
+    abortRef.approvalController?.abort()
   }
   const requestId = abortRef && abortRef.requestId
   if (abortRef) {

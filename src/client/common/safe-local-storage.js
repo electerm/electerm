@@ -1,5 +1,6 @@
-import { termLSPrefix } from './constants'
-import parseJsonSafe from './parse-json-safe'
+import parseJsonSafe from './parse-json-safe.js'
+
+export const termLSPrefix = 'term:sess:'
 
 // ─── Encryption helpers ───────────────────────────────────────────────────────
 
@@ -98,17 +99,20 @@ export function setItemJSON (id, obj) {
 
 // ─── Safe (encrypted) functions ──────────────────────────────────────────────
 
+// Write without evicting terminal sessions. Callers with their own quota
+// policy can recover by discarding only their own entries.
+export function safeSetItemOnce (id, str) {
+  window.localStorage.setItem(id, window.et.isWebApp ? str : encrypt(str))
+}
+
 export function safeSetItem (id, str) {
-  if (window.et.isWebApp) {
-    return setItem(id, str)
-  }
   try {
-    window.localStorage.setItem(id, encrypt(str))
+    safeSetItemOnce(id, str)
   } catch (e) {
     console.log(e)
     console.log('maybe local storage full, lets reset')
     clear()
-    window.localStorage.setItem(id, encrypt(str))
+    safeSetItemOnce(id, str)
   }
 }
 

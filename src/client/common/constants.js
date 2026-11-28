@@ -266,6 +266,7 @@ export const syncTokenCreateUrls = {
 }
 export const settingSyncId = 'setting-sync'
 export const settingTerminalId = 'setting-terminal'
+export const settingAIId = 'setting-ai'
 export const settingShortcutsId = 'setting-shortcuts'
 export const settingCommonId = 'setting-common'
 export const settingPasswordsId = 'setting-passwords'
@@ -307,7 +308,7 @@ export const srcsSkipUpgradeCheck = [
   '.snap',
   'skip-upgrade-check'
 ]
-export const termLSPrefix = 'term:sess:'
+export { termLSPrefix } from './safe-local-storage.js'
 export const batchInputLsKey = 'batch-inputs'
 export const rendererTypes = {
   dom: 'dom',
