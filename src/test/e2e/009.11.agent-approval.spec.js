@@ -122,7 +122,7 @@ test.describe('Agent tool approvals', () => {
     await expect(autoCompress).not.toBeChecked()
     await autoCompress.click()
     await client.locator('.alt-close-setting-wrap').click()
-    await client.locator('.ai-chat-toolbar').getByRole('button', { name: e('autoCompress'), exact: true }).click()
+    await client.locator('.ai-chat-toolbar').getByRole('button', { name: e('autoCompress') }).click()
     await expect(client.locator('.ai-auto-compress-popover').getByRole('switch')).toBeChecked()
     await client.reload()
     await client.waitForFunction(() => window.store?.activeTabId && !window.store.initLoadingData)
