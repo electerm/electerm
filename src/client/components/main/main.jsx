@@ -26,7 +26,7 @@ import {
   remoteMonitorBarHeight,
   textTerminalBgValue
 } from '../../common/constants'
-import { getAIConfigName, isAIDisabled } from '../../common/ai-feature'
+import { isAIDisabled } from '../../common/ai-feature'
 import { AgentApproval } from '../ai/agent-approval'
 import { ConfigProvider } from 'antd'
 import { NotificationContainer } from '../common/notification'
@@ -294,7 +294,6 @@ export default auto(function Index (props) {
   const aiChatProps = {
     aiChatHistory: store.aiChatHistory,
     activeAIConfig: store.activeAIConfig,
-    aiConfigOptions: store.aiConfigs.map(c => ({ value: c.id, label: getAIConfigName(c) })),
     selectedTabIds: store.batchInputSelectedTabIds,
     tabs: store.getTabs(),
     activeTabId: store.activeTabId,

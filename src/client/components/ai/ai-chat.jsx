@@ -1,17 +1,17 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
-import { Flex, Input, Segmented, Select, Button, Tag, message, Popover } from 'antd'
+import { Flex, Input, Segmented, Button, Tag, message, Popover } from 'antd'
 import TabSelect from '../footer/tab-select'
 import AiChatHistory from './ai-chat-history'
 import { startChatRequest } from './ai-chat-request'
 import AiChatSessions from './ai-chat-sessions'
 import AiContextIndicator from './ai-context-indicator'
 import AgentApprovalModeSelect from './agent-approval-mode-select'
+import ActiveAIConfigSelect from './active-ai-config-select'
 import SwitchLabel from '../common/switch'
 import { buildSessionMessages, summarizeContext, getUsageLevel } from './ai-context'
 import { appendMandatoryGuardrails } from './ai-guardrails'
 import uid from '../../common/uid'
 import { getAIHistoryConfig } from './ai-config-props'
-import { getAIConfigsLabel } from '../../common/ai-feature'
 import {
   SettingOutlined,
   SendOutlined,
@@ -442,17 +442,9 @@ export default function AIChat (props) {
           }}
         />
         <Flex className='ai-chat-config-controls mg1t' align='center' gap={4}>
-          <Select
-            aria-label={getAIConfigsLabel()}
+          <ActiveAIConfigSelect
             className='ai-chat-config-select'
-            classNames={{ popup: { root: 'ai-chat-config-popup' } }}
             size='small'
-            value={config.id}
-            placeholder={getAIConfigsLabel()}
-            disabled={!props.aiConfigOptions.length}
-            options={props.aiConfigOptions}
-            onChange={id => window.store.applyAIConfig(id)}
-            popupMatchSelectWidth={false}
             placement='topLeft'
           />
           <Button

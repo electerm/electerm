@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from 'react'
-import { Button } from 'antd'
+import { Button, Flex } from 'antd'
 import { getAIConfigsLabel } from '../../common/ai-feature'
 import AgentApprovalModeSelect from '../ai/agent-approval-mode-select'
+import ActiveAIConfigSelect from '../ai/active-ai-config-select'
 import { agentCommandLimit, parseAgentCommandLines } from '../ai/agent-permissions'
 import {
   permissionSaveError,
@@ -24,11 +25,12 @@ export default function SettingAI ({ autoCompress }) {
   return (
     <div className='form-wrap pd1y pd2x'>
       <h2>AI</h2>
-      <div className='pd2b'>
+      <Flex className='pd2b' align='center' gap={8} wrap>
+        <ActiveAIConfigSelect />
         <Button onClick={() => window.store.toggleAIConfig()}>
           {getAIConfigsLabel()}
         </Button>
-      </div>
+      </Flex>
       <div className='pd2b'>
         <SwitchLabel
           label={e('autoCompress')}

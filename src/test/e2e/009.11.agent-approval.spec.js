@@ -106,6 +106,12 @@ test.describe('Agent tool approvals', () => {
   }
 
   test('groups AI preferences after Terminal and opens the active provider from that page', async () => {
+    const providerSettings = 'AI ' + e('settings')
+    const providerPicker = client.getByRole('combobox', { name: providerSettings, exact: true })
+    const settings = client.locator('.setting-wrap')
+    const chatConfig = client.locator('.ai-chat-config-controls')
+    const options = client.locator('.ant-select-dropdown:visible')
+    await client.evaluate(configureMockAI, { id: 'second-provider', nameAI: 'Second provider' })
     await client.evaluate(() => window.store.openSetting())
     const menu = client.locator('.item-type-setting')
     await expect(menu.locator('.item-list-unit:nth-child(-n + 3) .list-item-title')).toHaveText([
@@ -117,22 +123,32 @@ test.describe('Agent tool approvals', () => {
     await expect(allowlist).toHaveCount(0)
     await menu.getByText('AI', { exact: true }).click()
     await expect(allowlist).toBeVisible()
+    await expect(settings.getByText('Second provider', { exact: true })).toBeVisible()
+    await settings.locator(providerPicker).click()
+    await options.getByText('Mock chat provider', { exact: true }).click()
 
-    const autoCompress = client.locator('.setting-wrap').getByRole('switch', { name: e('autoCompress'), exact: true })
+    const autoCompress = settings.getByRole('switch', { name: e('autoCompress'), exact: true })
     await expect(autoCompress).not.toBeChecked()
     await autoCompress.click()
     await client.locator('.alt-close-setting-wrap').click()
+    await expect(chatConfig.getByText('Mock chat provider', { exact: true })).toBeVisible()
+    await chatConfig.locator(providerPicker).click()
+    await options.getByText('Second provider', { exact: true }).click()
     await client.locator('.ai-chat-toolbar').getByRole('button', { name: e('autoCompress') }).click()
     await expect(client.locator('.ai-auto-compress-popover').getByRole('switch')).toBeChecked()
+    await expect.poll(() => client.evaluate(async () => {
+      const saved = await window.pre.runGlobalAsync('dbAction', 'data', 'findOne', { _id: 'userConfig' })
+      return saved?.activeAIConfigId
+    })).toBe('second-provider')
     await client.reload()
     await client.waitForFunction(() => window.store?.activeTabId && !window.store.initLoadingData)
     await openAISettings()
     await expect(autoCompress).toBeChecked()
+    await expect(settings.getByText('Second provider', { exact: true })).toBeVisible()
 
-    const providerSettings = 'AI ' + e('settings')
-    await client.getByRole('button', { name: providerSettings, exact: true }).click()
+    await settings.getByRole('button', { name: providerSettings, exact: true }).click()
     await expect(client.getByRole('tab', { name: providerSettings, exact: true, selected: true })).toBeVisible()
-    await expect(client.locator('#nameAI')).toHaveValue('Mock chat provider')
+    await expect(client.locator('#nameAI')).toHaveValue('Second provider')
   })
 
   for (const mode of ['Ask', 'Agent']) {
